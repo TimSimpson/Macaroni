@@ -1,0 +1,17 @@
+#ifndef MACARONI_MODEL_SCOPE_LH
+#define MACARONI_MODEL_SCOPE_LH
+
+#include "../ME.h"
+#include <boost/intrusive_ptr.hpp>
+
+BEGIN_NAMESPACE2(Macaroni, Model)
+
+class Scope;
+typedef boost::intrusive_ptr<Scope> ScopePtr;
+
+void intrusive_ptr_add_ref(Scope * p);
+void intrusive_ptr_release(Scope * p);
+
+END_NAMESPACE2
+
+#endif

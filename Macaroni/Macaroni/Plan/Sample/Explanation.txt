@@ -1,0 +1,64 @@
+The namespace directive appears at the top and is required.
+
+The import directives tell Macaroni about types it may need to include or list
+prototypes for in header files or cpp files.
+
+The comment block before a class defines class summary info.
+
+FIELDS:
+The comment blocks in front of fields define their summary info.
+
+METHODS:
+The comment block before a method describes its summary info.
+
+METHOD ARGUMENTS:
+The comment block before a method argument describes its summary info.
+The [] defines an argument precondition.  This is turned into CPP code that 
+tests the condition at the start of the method, and documentation for the method.
+The "arg" keyword refers to the last argument defined.
+
+[] After the argument list defines a precondition which tests the state of the
+object.  This precondition is jammed into the "Precondition" section of 
+documentation.
+
+[] After the method starting with returnValue is a post condition test for the
+return value.  If code uses this, the CPP codes the return value as a goto to 
+the end of the method definition which then checks this for truth.  If the 
+condition fails, if the Macaroni option file defines postConditions as throwing
+assertions it will simply call an assert macro.  But you can also explicitly
+define an "or throw" clause as well.
+
+
+The "establish" clause contains a string which is put into the docs along with
+a unit test to make sure what the docs say are accurate. Of course, what the
+string says and what is actually tested may be quite different, but so can the
+names of unit tests in Java versus what they actually test.  The stablish text 
+is put into the "Details" poriton of the documentation.  The "ensure" keyword 
+ensures the remarks are accurate, and translates to an assert in the test. It
+is unseen in the document.
+
+The "examples" keyword defines an example which is also a unit test that 
+typically checks for a literal value at its conclusion.  The example is put
+into the document, but the "ensure" word is stipped out and replaced with 
+A remark in the example header that says "At line ##, r is equal to 3."  If the
+ensure method is at the end of the example, the example says "After the code
+executes, r is equal to 3."
+
+You can combine the establish and example into a single entity that both writes
+the establish clause to the document and creates an example in the document.
+In the sample document, the details would say "MethodName always returns the
+value of X1 + X2." and then later in the example section would be "Example :
+Using ClassName to add.", with the description "After the code executes, 
+r.getValue() is equal to 28." and the code block would follow with ensure
+stripped out.
+
+If you don't want something to appear in the document at all, you can write it
+as "test."  Test has no string attached, because if you want to label a test
+you should turn it into an "establish" block and put some note about it in the
+document.  I would imagine there would be little need to use this except to 
+check internal states that client code shouldn't care about.  Even then, it
+would make sense to make them "establish" clauses at the end, so they'd appear
+at the end of the details section as they might describe things not important
+to clients (such as "the internal variables are reset when this method is
+executed).  Maybe being so strict is a bad idea though... we'll have to see.
+

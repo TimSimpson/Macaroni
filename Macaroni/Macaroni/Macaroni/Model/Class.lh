@@ -1,0 +1,13 @@
+#ifndef MACARONI_MODEL_CLASS_LH
+#define MACARONI_MODEL_CLASS_LH
+
+#include <boost/intrusive_ptr.hpp>
+
+namespace Macaroni { namespace Model {
+
+class Class;
+typedef boost::intrusive_ptr<Class> ClassPtr;
+
+} } 
+
+#endif

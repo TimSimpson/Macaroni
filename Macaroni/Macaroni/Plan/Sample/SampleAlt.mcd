@@ -1,0 +1,242 @@
+/** Class summary */
+class A::B::C::ClassName;
+
+import A::B::Cat;
+import A::B::Dog;
+
+
+/** Summary of a member field. */
+access fieldType fieldName;
+
+[luaProperty "X"
+ get GetX
+ set SetX
+]
+
+public int GetX
+{
+	{
+		return x;
+	}
+}
+
+/** Sets the value of X. */
+public void SetX
+//+
+	int value;
+	{
+		x = value;
+	}
+//-
+
+/** Sets the value of X. */
+public void SetX
+(
+	int value;
+)
+	{
+			x = value;
+	}
+
+// It knows how you're defining a method by what happens right after the name.
+// If its ;, its a type.
+// If its {, you're doing the verbose style Seen with "GetX"
+// If its (, you're doing the shorten more C++ style.
+// Thus, the extra set of braces around everything is just to improve readability
+// and is not required.
+
+
+public Object & GetElement
+{
+	/** Index of element to retrieve. */
+	int index;
+	[arg >= 0]
+	[arg < this->count]
+	{
+		return list[index];
+	}
+	[&rtnValue != null]
+}
+
+/* Summary for method. */
+public returnType methodName
+{	
+	// Argument summary, could be
+	int X1,
+	[arg <= 0]
+	int X2
+	[arg <= MAXCOUNT or throw soAndSoException]
+	[X1 < X2 or throw soAndSoException(“Bad arg.”){exception.count = 1;}]
+	[fieldName <= 0 or throw soAndSoException]
+	{
+		method definiton in normal C++
+	}
+	[returnValue >= 0]
+	[establish "Such and such occurs when calling this method."{
+		ClassName c();
+		c.methodName(0,10);
+		ensure(c.SomethingOccured());
+	}]
+	[example "Making a new instance." {
+		ClassName c();
+		returnType r = c.methodName(0,3);
+		ensure(r.getValue() == 3);
+	}]
+	[establish "MethodName always returns the value of X1 + X2."
+	 example "Using ClassName to add."{
+		ClassName c();
+		returnType r = c.methodName(12,16);
+		ensure(r.getValue() == 28);
+	}]    
+	[test {
+		C++ code here..
+	}]
+}
+
+
+/* Summary for method. */
+public returnType methodName
+(
+	// Argument summary, could be
+	int X1,
+	[arg <= 0]
+	int X2
+	[arg <= MAXCOUNT or throw soAndSoException]
+	[X1 < X2 or throw soAndSoException(“Bad arg.”){exception.count = 1;}]
+)
+[fieldName <= 0 or throw soAndSoException]
+{
+	method definiton in normal C++
+}
+[returnValue >= 0]
+[establish "Such and such occurs when calling this method."{
+	ClassName c();
+	c.methodName(0,10);
+	ensure(c.SomethingOccured());
+}]
+[example "Making a new instance." {
+	ClassName c();
+	returnType r = c.methodName(0,3);
+	ensure(r.getValue() == 3);
+}]
+[establish "MethodName always returns the value of X1 + X2."
+ example "Using ClassName to add."{
+	ClassName c();
+	returnType r = c.methodName(12,16);
+	ensure(r.getValue() == 28);
+}]    
+[test {
+	C++ code here..
+}]
+
+
+
+/* Summary for method. */
+public returnType methodName
+	(
+		// Argument summary, could be
+		int X1,
+		[arg <= 0]
+		int X2
+		[arg <= MAXCOUNT or throw soAndSoException]
+		[X1 < X2 or throw soAndSoException(“Bad arg.”){exception.count = 1;}]
+	)
+	[fieldName <= 0 or throw soAndSoException]
+	{
+		method definiton in normal C++
+	}
+	[returnValue >= 0]
+	[establish "Such and such occurs when calling this method."{
+		ClassName c();
+		c.methodName(0,10);
+		ensure(c.SomethingOccured());
+	}]
+	[example "Making a new instance." {
+		ClassName c();
+		returnType r = c.methodName(0,3);
+		ensure(r.getValue() == 3);
+	}]
+	[establish "MethodName always returns the value of X1 + X2."
+	 example "Using ClassName to add."{
+		ClassName c();
+		returnType r = c.methodName(12,16);
+		ensure(r.getValue() == 28);
+	}]    
+	[test {
+		C++ code here..
+	}]
+
+
+
+/* Summary for method. */
+public returnType methodName
+(
+	// Argument summary, could be
+	int X1,
+	[arg <= 0]
+	int X2
+	[arg <= MAXCOUNT or throw soAndSoException]
+	[X1 < X2 or throw soAndSoException(“Bad arg.”){exception.count = 1;}]
+)
+[fieldName <= 0 or throw soAndSoException]
+{
+	method definiton in normal C++
+}
+[returnValue >= 0]
+[establish "Such and such occurs when calling this method."{
+	ClassName c();
+	c.methodName(0,10);
+	ensure(c.SomethingOccured());
+}]
+[example "Making a new instance." {
+	ClassName c();
+	returnType r = c.methodName(0,3);
+	ensure(r.getValue() == 3);
+}]
+[establish "MethodName always returns the value of X1 + X2."
+ example "Using ClassName to add."{
+	ClassName c();
+	returnType r = c.methodName(12,16);
+	ensure(r.getValue() == 28);
+}]    
+[test {
+	C++ code here..
+}]
+
+
+
+/* Summary for method. */
+public returnType methodName
+(
+	// Argument summary, could be
+	int X1,
+	[arg <= 0]
+	int X2
+	[arg <= MAXCOUNT or throw soAndSoException]
+	[X1 < X2 or throw soAndSoException(“Bad arg.”){exception.count = 1;}]
+)
+[fieldName <= 0 or throw soAndSoException]
+{
+	method definiton in normal C++
+}
+[returnValue >= 0]
+[establish "Such and such occurs when calling this method."{
+	ClassName c();
+	c.methodName(0,10);
+	ensure(c.SomethingOccured());
+}]
+[example "Making a new instance." {
+	ClassName c();
+	returnType r = c.methodName(0,3);
+	ensure(r.getValue() == 3);
+}]
+[establish "MethodName always returns the value of X1 + X2."
+ example "Using ClassName to add."{
+	ClassName c();
+	returnType r = c.methodName(12,16);
+	ensure(r.getValue() == 28);
+}]    
+[test {
+	C++ code here..
+}]
+

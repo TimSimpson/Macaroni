@@ -1,0 +1,15 @@
+#ifndef MACARONI_MODEL_TYPE_LH
+#define MACARONI_MODEL_TYPE_LH
+
+#include "../ME.h"
+#include <boost/intrusive_ptr.hpp>
+
+BEGIN_NAMESPACE2(Macaroni, Model)
+
+class Type;
+typedef boost::intrusive_ptr<Type> TypePtr;
+
+END_NAMESPACE2
+
+#endif
+

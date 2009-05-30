@@ -1,0 +1,19 @@
+
+
+public class A{
+
+// The keys in metatable are called events, and always are prepended with __
+// See pg 19 of the Blue Pill.
+
+public void operator+()
+{
+}
+//~ lua event add
+
+
+public int GetCount()
+//~ lua event 
+{
+};
+
+};

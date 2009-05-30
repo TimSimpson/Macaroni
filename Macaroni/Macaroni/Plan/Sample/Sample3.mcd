@@ -1,0 +1,85 @@
+namespace A::B::C;
+
+import A::B::Cat;
+import A::B::Dog;
+
+/**
+ * Summary of className.
+ */
+class ClassName
+{
+    /** Summary of a member field. */
+    type fieldName;
+    ditto;
+    
+    /* Summary for method. */
+    public returnType methodName
+    (
+        // Argument summary, could be
+        int X1,
+        //~ precondition { arg <= 0 }
+        int X2
+        //~ arg <= MAXCOUNT or throw soAndSoException
+        /*~ precondition { X1 < X2 } 
+            or throw soAndSoException(“Bad arg.”){exception.count = 1;} */
+    )
+    //~ precondition { fieldName <= 0 } or throw soAndSoException
+    {
+        method definiton in normal C++
+    }
+    //~ returnValue >= 0
+    /*~ establish "Such and such occurs when calling this method."{
+		ClassName c();
+		c.methodName(0,10);
+		ensure(c.SomethingOccured());
+    } */
+    /*~ example "Making a new instance." {
+        ClassName c();
+        returnType r = c.methodName(0,3);
+        ensure(r.getValue() == 3);
+    } */
+    [establish "MethodName always returns the value of X1 + X2."
+     example "Using ClassName to add."{
+		ClassName c();
+		returnType r = c.methodName(12,16);
+		ensure(r.getValue() == 28);
+    }]    
+    [test {
+		C++ code here..
+    }]
+    
+    /* Summary for method. */
+    public returnType methodName
+    (
+        // Argument summary, could be
+        int X1,
+        [arg <= 0]
+        int X2
+        [arg <= MAXCOUNT or throw soAndSoException]
+        [X1 < X2 or throw soAndSoException(“Bad arg.”){exception.count = 1;}]
+    )
+    [fieldName <= 0 or throw soAndSoException]
+    {
+        method definiton in normal C++
+    }
+    [returnValue >= 0]
+    [establish "Such and such occurs when calling this method."{
+		ClassName c();
+		c.methodName(0,10);
+		ensure(c.SomethingOccured());
+    }]
+    [example "Making a new instance." {
+        ClassName c();
+        returnType r = c.methodName(0,3);
+        ensure(r.getValue() == 3);
+    }]
+    [establish "MethodName always returns the value of X1 + X2."
+     example "Using ClassName to add."{
+		ClassName c();
+		returnType r = c.methodName(12,16);
+		ensure(r.getValue() == 28);
+    }]    
+    [test {
+		C++ code here..
+    }]
+}

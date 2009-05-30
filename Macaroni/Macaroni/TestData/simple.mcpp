@@ -1,0 +1,36 @@
+
+// Start.
+
+import Root::Pee::Hello;
+
+namespace Root::Pee
+{
+
+import World;
+
+namespace Pero{
+	
+	import Dog;
+}
+
+class Pero::Dog : public Apple
+{
+}
+
+// I AM A C// a commentOMMENT.
+/* CO/* MMENT */
+class aname 
+{
+	public void addBaseClass()
+	{
+	}	
+}
+
+// Another class. Wow!
+class poopoo 
+{
+}
+
+} // end ns
+
+namespace peepee{ /** :D **/ }

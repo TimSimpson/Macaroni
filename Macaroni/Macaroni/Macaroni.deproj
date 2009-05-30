@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+  <file>
+    <filename>doodlebug.lua</filename>
+  </file>
+  <file>
+    <filename>Main.lua</filename>
+  </file>
+  <file>
+    <filename>Tests.lua</filename>
+  </file>
+  <file>
+    <filename>Macaroni\Model\DocumentTests.lua</filename>
+  </file>
+  <file>
+    <filename>Macaroni\Model\NamespaceTests.lua</filename>
+  </file>
+  <file>
+    <filename>Macaroni\Test.lua</filename>
+  </file>
+  <file>
+    <filename>Macaroni\Model\ContextTests.lua</filename>
+  </file>
+</project>

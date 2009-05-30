@@ -1,0 +1,14 @@
+#ifndef MACARONI_MODEL_UNKNOWNSCOPE_LH
+#define MACARONI_MODEL_UNKNOWNSCOPE_LH
+
+#include "../ME.h"
+#include <boost/intrusive_ptr.hpp>
+
+BEGIN_NAMESPACE2(Macaroni, Model)
+
+class UnknownScope;
+typedef boost::intrusive_ptr<UnknownScope> UnknownScopePtr;
+
+END_NAMESPACE2
+
+#endif
