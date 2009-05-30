@@ -11,10 +11,10 @@
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
-Namespace::Namespace(Scope * parent, const std::string & name)
-:Scope(parent, name)
+Namespace::Namespace(Node * parent, const std::string & name)
+:Node(parent, name)
 {
-	MACARONI_ASSERT(Scope::IsSimpleName(name), 
+	MACARONI_ASSERT(Node::IsSimpleName(name), 
 				    "Namespace constructor cannot take complex name as argument.");
 }
 
@@ -146,7 +146,7 @@ ClassPtr Namespace::FindClass(std::string & name)
 
 NamespacePtr Namespace::GetParent() const
 {
-	return dynamic_cast<Namespace *>(getScope());
+	return dynamic_cast<Namespace *>(getNode());
 }
 
 NamespacePtr Namespace::GetRoot()
@@ -165,12 +165,12 @@ ClassPtr Namespace::InsertClass(ClassPtr newInstance)
 
 void intrusive_ptr_add_ref(Namespace * p)
 {
-	intrusive_ptr_add_ref(static_cast<Scope *>(p));
+	intrusive_ptr_add_ref(static_cast<Node *>(p));
 }
 
 void intrusive_ptr_release(Namespace * p)
 {
-	intrusive_ptr_release(static_cast<Scope *>(p));
+	intrusive_ptr_release(static_cast<Node *>(p));
 }
 
 

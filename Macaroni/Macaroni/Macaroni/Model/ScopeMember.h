@@ -4,13 +4,13 @@
 #include "../ME.h"
 #include "Context.lh"
 #include <string>
-#include "Scope.lh"
+#include "Node.lh"
 #include "ScopeMember.lh"
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
-/** All classes within Macaroni are objects that exist in a Scope and are
- * therefore Scope members. */
+/** All classes within Macaroni are objects that exist in a Node and are
+ * therefore Node members. */
 class ScopeMember
 {
 friend void intrusive_ptr_add_ref(ScopeMember * p);
@@ -20,20 +20,19 @@ public:
 
 	std::string GetFullName() const;
 
-	ScopePtr GetScope() const;
+	NodePtr GetNode() const;
 	
 	virtual ~ScopeMember();
 protected:
-	ScopeMember(Scope * scope, const std::string & name);
+	ScopeMember(Node * node);
+
 	ScopeMember(const ScopeMember & other);
+
 	void operator=(const ScopeMember & other);	
 
-	Scope * getScope() const;
+	Node * getNode() const;
 
-private:
-	std::string name;
-
-	Scope * scope;
+	Node * node;
 };
 
 void intrusive_ptr_add_ref(ScopeMember * p);

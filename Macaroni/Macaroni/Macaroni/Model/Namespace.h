@@ -7,15 +7,15 @@
 #include <boost/shared_ptr.hpp>
 #include "Class.lh"
 #include "Namespace.lh"
-#include "Scope.h"
+#include "Node.h"
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
-class Namespace : public Scope
+class Namespace : public Node
 {
 friend class Context;
 friend struct NamespaceLuaFunctions;
-friend class Scope;
+friend class Node;
 //friend class ParserActions;
 friend void intrusive_ptr_add_ref(Namespace * p);
 friend void intrusive_ptr_release(Namespace * p);
@@ -54,7 +54,7 @@ public:
 protected:	
 
 private:
-	Namespace(Scope * parent, const std::string & name);	
+	Namespace(Node * parent, const std::string & name);	
 
 	std::vector<ClassPtr> classes;
 

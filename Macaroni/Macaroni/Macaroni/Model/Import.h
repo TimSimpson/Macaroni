@@ -4,7 +4,7 @@
 #include "../ME.h"
 #include <string>
 #include <boost/shared_ptr.hpp>
-#include "Scope.lh"
+#include "Node.lh"
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
@@ -12,14 +12,14 @@ class Import
 {
 friend class ParserActions;
 public:
-	Import(ScopePtr scope, std::string & name);
+	Import(NodePtr scope, std::string & name);
 	
 	const std::string & GetName() const { return name; }
 
-	ScopePtr GetScope() const { return scopePtr; }
+	NodePtr GetNode() const { return scopePtr; }
 private:
 	std::string name;
-	ScopePtr scopePtr;
+	NodePtr scopePtr;
 };
 
 typedef boost::shared_ptr<Import> ImportPtr;

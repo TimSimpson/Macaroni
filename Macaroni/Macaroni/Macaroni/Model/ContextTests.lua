@@ -1,10 +1,10 @@
 require "Macaroni.Model.Context";
 require "Macaroni.Model.Namespace";
-require "Macaroni.Model.Scope";
+require "Macaroni.Model.Node";
 
 local Context = Macaroni.Model.Context;
 local Namespace = Macaroni.Model.Namespace;
-local Scope = Macaroni.Model.Scope;
+local Node = Macaroni.Model.Node;
 
 Test.register(
 {	
@@ -17,15 +17,15 @@ tests={
     end,
     
     
-    ["ParseComplexName will morph unknown Scopes into Namespaces."] = function(this)
+    ["ParseComplexName will morph unknown Nodes into Namespaces."] = function(this)
         local context = Context.New("{ROOT}", "{WILDCARD}");
         local d = context.RootNamespace:FindOrCreateNamespace("A::B::C::D");
         Test.assert("A::B::C::D", d.FullName);       
-        local d_c = d.Scope;
+        local d_c = d.Node;
         Test.assert("A::B::C", d_c.FullName);
-        local d_b = d_c.Scope;
+        local d_b = d_c.Node;
         Test.assert("A::B", d_b.FullName);
-        local d_a = d_b.Scope;
+        local d_a = d_b.Node;
         Test.assert("A", d_a.FullName);       
         Test.assert(1, #(context.RootNamespace.Members));
        
@@ -41,7 +41,7 @@ tests={
     --[[
     ["Existing namespace instances are used when adding to collection."] = function(this)        
         local context = Context.New("{r}", "*");
-        Scope.
+        Node.
 context.RootNamespace.
         
 		doc:Read("namespace A::B::C::D { } ");

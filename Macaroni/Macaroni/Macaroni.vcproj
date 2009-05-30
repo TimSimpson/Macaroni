@@ -353,7 +353,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Parser\Node.cpp"
+				RelativePath=".\Macaroni\Model\Node.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Model\NodeLua.cpp"
 				>
 			</File>
 			<File
@@ -381,19 +385,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Model\ScopeLua.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Macaroni\Model\ScopeMember.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\Macaroni\Model\ScopeMemberLua.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Macaroni\Parser\Tree.cpp"
 				>
 			</File>
 			<File
@@ -440,10 +436,6 @@
 			</File>
 			<File
 				RelativePath=".\Macaroni\Model\Document.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Macaroni\Parser\Evidence.h"
 				>
 			</File>
 			<File
@@ -579,15 +571,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Parser\Node.h"
+				RelativePath=".\Macaroni\Model\Node.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Parser\NodeChildData.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Macaroni\Parser\Parser.h"
+				RelativePath=".\Macaroni\Model\NodeLua.h"
 				>
 			</File>
 			<File
@@ -611,19 +599,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Parser\Prototype.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Macaroni\Parser\Rule.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Macaroni\Model\Scope.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Macaroni\Model\ScopeLua.h"
 				>
 			</File>
 			<File
@@ -632,14 +608,6 @@
 			</File>
 			<File
 				RelativePath=".\Macaroni\Model\ScopeMemberLua.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Macaroni\Parser\Source.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Macaroni\Parser\Tree.h"
 				>
 			</File>
 			<File
@@ -738,6 +706,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Macaroni\Model\Node.lh"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Model\NodeTests.lua"
+			>
+		</File>
+		<File
 			RelativePath=".\Macaroni\Model\Parser.spirit"
 			>
 		</File>
@@ -771,10 +747,6 @@
 		</File>
 		<File
 			RelativePath=".\Macaroni\Model\ScopeMember.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\ScopeTests.lua"
 			>
 		</File>
 		<File

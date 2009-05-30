@@ -63,7 +63,7 @@ name = "Creating a Namespace instance.",
         
         ["Members collection tostring method"] = function(this)
             members = this.a.Members;
-            Test.assert('Scope"A" Member Count = 1', tostring(members));
+            Test.assert('Node"A" Member Count = 1', tostring(members));
         end,
         
         ["Name property"] = function(this)        

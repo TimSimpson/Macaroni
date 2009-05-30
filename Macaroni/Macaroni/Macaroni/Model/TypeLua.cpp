@@ -7,8 +7,8 @@ extern "C" {
 	#include "../../Lua/lualib.h"
 }
 
-#include "Scope.h"
-#include "ScopeLua.h"
+#include "Node.h"
+#include "NodeLua.h"
 #include "Type.h"
 #include "TypeLua.h"
 #include <sstream>
@@ -106,10 +106,10 @@ int TypeLuaMetaData::Index(lua_State * L,
 		const std::string & typeName = ptr->GetTypeName();
 		lua_pushlstring(L, typeName.c_str(), typeName.size());	
 	}		
-	else if (index == "TypeScope")
+	else if (index == "TypeNode")
 	{
-		ScopePtr scopePtr = ptr->GetTypeScope();
-		ScopeLuaMetaData::PutInstanceOnStack(L, scopePtr);
+		NodePtr scopePtr = ptr->GetTypeNode();
+		NodeLuaMetaData::PutInstanceOnStack(L, scopePtr);
 		return 1;
 	}
 	else
@@ -129,7 +129,7 @@ int TypeLuaMetaData::OpenInLua(lua_State * L)
 	luaL_newmetatable(L, METATABLENAME); // create metaTable
 	luaL_register(L, nullptr, metaTableMethods);
 
-	ScopeLuaMetaData::OpenInLua(L);
+	NodeLuaMetaData::OpenInLua(L);
 	
 
 	// Creates or reuses a table called "Macaroni_File" and puts it in global 

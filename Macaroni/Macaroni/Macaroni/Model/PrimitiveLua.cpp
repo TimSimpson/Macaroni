@@ -87,9 +87,9 @@ struct PrimitiveLuaFunctions
 		{
 			lua_pushlstring(L, p->GetName().c_str(), p->GetName().length());
 		}
-		///*else if (index == "Scope" && p->GetScope() != false)
+		///*else if (index == "Node" && p->GetNode() != false)
 		//{
-		//	putNamespaceInstanceOnStack(L, p->GetScope());
+		//	putNamespaceInstanceOnStack(L, p->GetNode());
 		//}*/
 		else
 		{

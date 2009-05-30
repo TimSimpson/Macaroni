@@ -2,11 +2,11 @@
 #define MACARONI_MODEL_PRIMITIVE_CPP
 
 #include "Primitive.h"
-#include "Scope.h"
+#include "Node.h"
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
-Primitive::Primitive(Scope * scope, std::string & name)
+Primitive::Primitive(Node * scope, std::string & name)
 :ScopeMember(scope, name)
 {
 }
@@ -20,20 +20,20 @@ const std::string & Primitive::GetTypeName() const
 	return GetName(); 
 }
 
-ScopePtr Primitive::GetTypeScope() const 
+NodePtr Primitive::GetTypeNode() const 
 { 
-	return GetScope(); 
+	return GetNode(); 
 }	
 
 
 void intrusive_ptr_add_ref(Primitive * p)
 {
-	return intrusive_ptr_add_ref(p->getScope());
+	return intrusive_ptr_add_ref(p->getNode());
 }
 
 void intrusive_ptr_release(Primitive * p)
 {
-	return intrusive_ptr_release(p->getScope());
+	return intrusive_ptr_release(p->getNode());
 }
 
 END_NAMESPACE2

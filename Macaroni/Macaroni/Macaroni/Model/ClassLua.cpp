@@ -9,7 +9,7 @@ extern "C" {
 #include "Class.h"
 #include "ClassLua.h"
 #include "NamespaceLua.h"
-#include "ScopeLua.h"
+#include "NodeLua.h"
 #include "Type.h"
 #include "TypeLua.h"
 #include <sstream>
@@ -78,14 +78,14 @@ struct ClassLuaFunctions
 		//}
 		//else if (index == "Namespace")
 		//{
-		//	ScopePtr scope = ptr->GetScope();
+		//	NodePtr scope = ptr->GetNode();
 		//	NamespacePtr ns = boost::dynamic_pointer_cast<Namespace>(scope);
 		//	NamespaceLuaMetaData::PutInstanceOnStack(L, ns);
 		//}		
 		//else
 		//{*/
-			return ScopeLuaMetaData::Index(
-				L, boost::static_pointer_cast<Scope>(ptr), index);
+			return NodeLuaMetaData::Index(
+				L, boost::static_pointer_cast<Node>(ptr), index);
 		//}		
 		return 1;
 	}
@@ -94,7 +94,7 @@ struct ClassLuaFunctions
 	{
 		ClassPtr & ptr = getInstance(L);
 		/*std::stringstream ss;
-		ss << ptr->GetScopeNamespace()->GetFullName();
+		ss << ptr->GetNodeNamespace()->GetFullName();
 		ss << "::" << ptr->GetName();
 		lua_pushlstring(L, ss.str().c_str(), ss.str().length());*/
 		std::string fullName = ptr->GetFullName();
@@ -136,7 +136,7 @@ static const struct luaL_Reg metaTableMethods[]=
 
 bool ClassLuaMetaData::IsType(lua_State * L, int index)
 {
-	return ScopeLuaMetaData::IsType(L, index, METATABLENAME);
+	return NodeLuaMetaData::IsType(L, index, METATABLENAME);
 }
 
 int ClassLuaMetaData::OpenInLua(lua_State * L)
@@ -151,7 +151,7 @@ int ClassLuaMetaData::OpenInLua(lua_State * L)
 
 	NamespaceLuaMetaData::OpenInLua(L);
 
-	ScopeLuaMetaData::OpenInLua(L);
+	NodeLuaMetaData::OpenInLua(L);
 
 	//lua_newtable(L);	// create __indexTable
 	//luaL_register(L, nullptr, __indexTableMethods);

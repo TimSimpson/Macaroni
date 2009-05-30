@@ -7,8 +7,8 @@
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
-UnknownScope::UnknownScope(Scope * scope, const std::string & name)
-:knownScope(nullptr), Scope(scope, name)
+UnknownScope::UnknownScope(Node * scope, const std::string & name)
+:knownNode(nullptr), Node(scope, name)
 {
 
 }
@@ -19,74 +19,74 @@ UnknownScope::~UnknownScope()
 
 ScopeMemberPtr UnknownScope::Find(const std::string & name)
 {
-	if (knownScope == false)
+	if (knownNode == false)
 	{
-		return this->Scope::Find(name);
+		return this->Node::Find(name);
 	}
 	else
 	{
-		return knownScope->Find(name);
+		return knownNode->Find(name);
 	}
 }
 
 size_t UnknownScope::GetMemberCount() const
 {
-	if (knownScope == false)
+	if (knownNode == false)
 	{
-		return this->Scope::GetMemberCount();
+		return this->Node::GetMemberCount();
 	}
 	else
 	{
-		return knownScope->GetMemberCount();
+		return knownNode->GetMemberCount();
 	}
 }
 
 ClassPtr UnknownScope::IsClass() 
 {
-	Class * ptr = dynamic_cast<Class *>(knownScope);
+	Class * ptr = dynamic_cast<Class *>(knownNode);
 	return ptr == nullptr ? nullptr
 		: ClassPtr(ptr);
 }
 
 NamespacePtr UnknownScope::IsNamespace() 
 {
-	Namespace * ptr = dynamic_cast<Namespace *>(knownScope);
+	Namespace * ptr = dynamic_cast<Namespace *>(knownNode);
 	return ptr == nullptr ? nullptr
 		: NamespacePtr(ptr);
 }
 
 bool UnknownScope::IsRoot() const
 {
-	if (knownScope == false)
+	if (knownNode == false)
 	{
-		return this->Scope::IsRoot();
+		return this->Node::IsRoot();
 	}
 	else
 	{
-		return knownScope->IsRoot();
+		return knownNode->IsRoot();
 	}
 }
 
 ScopeMemberPtr UnknownScope::GetMember(int index) const
 {
-	if (knownScope == false)
+	if (knownNode == false)
 	{
-		return this->Scope::GetMember(index);
+		return this->Node::GetMember(index);
 	}
 	else
 	{
-		return knownScope->GetMember(index);
+		return knownNode->GetMember(index);
 	}
 }
 
 void intrusive_ptr_add_ref(UnknownScope * p)
 {
-	intrusive_ptr_add_ref(static_cast<Scope *>(p));
+	intrusive_ptr_add_ref(static_cast<Node *>(p));
 }
 
 void intrusive_ptr_release(UnknownScope * p)
 {
-	intrusive_ptr_release(static_cast<Scope *>(p));
+	intrusive_ptr_release(static_cast<Node *>(p));
 }
 
 END_NAMESPACE2

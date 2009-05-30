@@ -3,13 +3,13 @@
 
 #include "ScopeMember.h"
 #include "Context.h"
-#include "Scope.h"
+#include "Node.h"
 #include <sstream>
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
-ScopeMember::ScopeMember(Scope * scope, const std::string & name)
-:name(name), scope(scope)
+ScopeMember::ScopeMember(Node * node)
+:node(node)
 {
 }
 
@@ -19,27 +19,20 @@ ScopeMember::~ScopeMember()
 
 const std::string & ScopeMember::GetName() const
 {
-	return name;
+	return node->GetName();
 }
 
 std::string ScopeMember::GetFullName() const
 {
-	std::stringstream ss;
-	if (this->scope != nullptr && !(this->scope->IsRoot()))
-	{
-		ss << this->scope->GetFullName();
-		ss << "::";		
-	}	// do not include root node.
-	ss << this->name;
-	return ss.str();
+	return node->GetFullName();
 }
 
-ScopePtr ScopeMember::GetScope() const
+NodePtr ScopeMember::GetNode() const
 {
-	return ScopePtr(scope);
+	return NodePtr(node);
 }
 
-Scope * ScopeMember::getScope() const
+Node * ScopeMember::getNode() const
 {
 	return scope;
 }
@@ -48,32 +41,35 @@ Scope * ScopeMember::getScope() const
  * to the Context, so casting and checking like this would be unnecessary. */
 void intrusive_ptr_add_ref(ScopeMember * p)
 {
+	intrusive_ptr_add_red(node);/*
 	if (p->scope == nullptr)
 	{
-		Scope * pAsScope = dynamic_cast<Scope *>(p);
-		MACARONI_ASSERT(pAsScope != nullptr, 
-			"Error adding smart pointer- ScopeMember has nullptr for Scope.");
-		intrusive_ptr_add_ref(pAsScope);
+		Node * pAsNode = dynamic_cast<Node *>(p);
+		MACARONI_ASSERT(pAsNode != nullptr, 
+			"Error adding smart pointer- ScopeMember has nullptr for Node.");
+		intrusive_ptr_add_ref(pAsNode);
 	}
 	else
 	{
 		intrusive_ptr_add_ref(p->scope);
-	}
+	}*/
 }
 
 void intrusive_ptr_release(ScopeMember * p)
 {
-	if (p->scope == nullptr)
-	{
-		Scope * pAsScope = dynamic_cast<Scope *>(p);
-		MACARONI_ASSERT(pAsScope != nullptr,
-			"Error releasing smart pointer- ScopeMember has nullptr for Scope.");		
-		intrusive_ptr_release(pAsScope);		
-	}
-	else
-	{
-		intrusive_ptr_release(p->scope);
-	}
+	intrusive_ptr_release(node);
+
+	//if (p->scope == nullptr)
+	//{
+	//	Node * pAsNode = dynamic_cast<Node *>(p);
+	//	MACARONI_ASSERT(pAsNode != nullptr,
+	//		"Error releasing smart pointer- ScopeMember has nullptr for Node.");		
+	//	intrusive_ptr_release(pAsNode);		
+	//}
+	//else
+	//{
+	//	intrusive_ptr_release(p->scope);
+	//}
 }
 
 

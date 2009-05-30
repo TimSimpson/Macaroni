@@ -14,10 +14,10 @@ BaseClass::BaseClass(Access access, ClassPtr baseClass)
 {
 }
 
-Class::Class(Scope * scope, const std::string & simpleName)
-:Scope(scope, simpleName)
+Class::Class(Node * scope, const std::string & simpleName)
+:Node(scope, simpleName)
 {
-	MACARONI_ASSERT(Scope::IsSimpleName(simpleName), 
+	MACARONI_ASSERT(Node::IsSimpleName(simpleName), 
 				    "Class constructor cannot take complex name as argument.");
 }
 
@@ -28,23 +28,19 @@ void Class::AddBaseClass(BaseClassPtr ptr)
 
 ClassPtr Class::FindOrCreate(NamespacePtr startingNs, std::string & complexName)
 {
-	return startingNs->FindOrCreateClass(complexName);
-	//ScopePtr finalScope;
-	//std::string simpleName;
-	//Scope::ParseComplexName(startingNs, complexName, finalScope, simpleName);
-	////Namespace::FindOrCreate(startingNs, complexName, finalNs, simpleName);
-	//ClassPtr newInstance(new Class(finalScope.get(), simpleName));
-	//return finalScope->InsertClass(newInstance);
+	//TO-DO: Call Node create node method, set Data to class
+	MACARONI_ASSERT(false, "TO-DO");
+	return ClassPtr(); //return startingNs->FindOrCreateClass(complexName);	
 }
 
 void intrusive_ptr_add_ref(Class * p)
 {
-	intrusive_ptr_add_ref(static_cast<Scope *>(p));
+	intrusive_ptr_add_ref(static_cast<Node *>(p));
 }
 
 void intrusive_ptr_release(Class * p)
 {
-	intrusive_ptr_release(static_cast<Scope *>(p));
+	intrusive_ptr_release(static_cast<Node *>(p));
 }
 
 void Class::SetBody(std::string & value)

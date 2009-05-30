@@ -27,11 +27,11 @@ ContextPtr Context::Create(const std::string & rootName, const std::string & wil
 	return ContextPtr(new Context(rootName, wildcardName));
 }
 
-ScopeMember * Context::findMember(const Scope * scope, const std::string & complexName)
+ScopeMember * Context::findMember(const Node * scope, const std::string & complexName)
 {
 	MACARONI_ASSERT(scope != nullptr, "Cannot handle nullptr here.");	
 	std::string firstPart, lastPart;
-	Scope::SplitFirstNameOffComplexName(complexName, firstPart, lastPart);
+	Node::SplitFirstNameOffComplexName(complexName, firstPart, lastPart);
 	ScopeMember * member = scope->find(firstPart);
 	if (member == nullptr)
 	{
@@ -41,9 +41,9 @@ ScopeMember * Context::findMember(const Scope * scope, const std::string & compl
 	{
 		return member;
 	}
-	if (dynamic_cast<Scope *>(member))
+	if (dynamic_cast<Node *>(member))
 	{
-		return findMember(dynamic_cast<Scope *>(member), lastPart);
+		return findMember(dynamic_cast<Node *>(member), lastPart);
 	}
 	else
 	{

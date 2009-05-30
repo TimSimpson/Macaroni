@@ -44,7 +44,7 @@ class Reasoning-
 A Prototype is then a collection of Concepts.  Each Concept has a list of 
 	Evidence objects and a IsTrue() method.
 
-ScopeLocation-
+NodeLocation-
 	
 
 Prototype members-

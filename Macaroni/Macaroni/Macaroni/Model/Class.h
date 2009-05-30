@@ -6,7 +6,7 @@
 #include <boost/shared_ptr.hpp>
 #include <vector>
 #include "Namespace.lh"
-#include "Scope.h"
+#include "Node.h"
 #include "Type.h"
 
 #include "Class.lh"
@@ -34,11 +34,11 @@ private:
 
 typedef boost::shared_ptr<BaseClass> BaseClassPtr;
 
-class Class : public Scope, public Type
+class Class : public Node, public Type
 {
 friend void intrusive_ptr_add_ref(Class * p);
 friend void intrusive_ptr_release(Class * p);
-friend class Scope;
+friend class Node;
 //friend class Namespace;
 //friend class ParserActions;
 public:	
@@ -55,12 +55,12 @@ public:
 
 	virtual const std::string & GetTypeName() const { return GetName(); }
 	
-	virtual ScopePtr GetTypeScope() const { return GetScope(); }
+	virtual NodePtr GetTypeNode() const { return GetNode(); }
 	
 	void SetBody(std::string & body);
 
 private:
-	Class(Scope * scope, const std::string & name);
+	Class(Node * scope, const std::string & name);
 	std::vector<BaseClassPtr> baseClasses;
 	//std::string name;
 	//NamespacePtr namespacePtr;

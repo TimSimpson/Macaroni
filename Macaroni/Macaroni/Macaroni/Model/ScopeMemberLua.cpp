@@ -7,8 +7,8 @@ extern "C" {
 	#include "../../Lua/lualib.h"
 }
 
-#include "Scope.h"
-#include "ScopeLua.h"
+#include "Node.h"
+#include "NodeLua.h"
 #include "ScopeMember.h"
 #include "ScopeMemberLua.h"
 #include <sstream>
@@ -109,10 +109,10 @@ int ScopeMemberLuaMetaData::Index(lua_State * L,
 	{
 		lua_pushlstring(L, ptr->GetName().c_str(), ptr->GetName().length());
 	}
-	else if (index == "Scope")
+	else if (index == "Node")
 	{
-		ScopePtr scope = ptr->GetScope();
-		ScopeLuaMetaData::PutInstanceOnStack(L, scope);
+		NodePtr scope = ptr->GetNode();
+		NodeLuaMetaData::PutInstanceOnStack(L, scope);
 	}
 	else
 	{
@@ -141,9 +141,9 @@ int ScopeMemberLuaMetaData::OpenInLua(lua_State * L)
 
 void ScopeMemberLuaMetaData::PutInstanceOnStack(lua_State * L, const ScopeMemberPtr & ptr)
 {
-	if (boost::dynamic_pointer_cast<Scope>(ptr) != nullptr)
+	if (boost::dynamic_pointer_cast<Node>(ptr) != nullptr)
 	{
-		ScopeLuaMetaData::PutInstanceOnStack(L, boost::dynamic_pointer_cast<Scope>(ptr));
+		NodeLuaMetaData::PutInstanceOnStack(L, boost::dynamic_pointer_cast<Node>(ptr));
 	}
 	else
 	{

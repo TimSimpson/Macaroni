@@ -6,7 +6,7 @@ local UnknownScope = Macaroni.Model.UnknownScope;
 
 Test.register(
 {	
-name = "A Scope is initially unknown.",
+name = "A Node is initially unknown.",
     init = {
         ["Initializing Contexts."] = function(this)
             this.context = Context.Create("{ROOT}", "*");	    
@@ -15,7 +15,7 @@ name = "A Scope is initially unknown.",
             this.b = this.a:FindOrCreate("B");
             this.c = this.b:FindOrCreate("C");
              // Oh yeah baby, TWO return parms!  Hellz yeah, I'm a hustla.
-            this.resultScope, this.simpleName = 
+            this.resultNode, this.simpleName = 
                 this.context.root.ParseComplexName(this.context.root,
                                                    "A::B::C::D::AClassInD");
         end
@@ -25,16 +25,16 @@ name = "A Scope is initially unknown.",
         ["Simple name is correct"] = function(this)                    
             Test.assert("AClassInD", this.simpleName);
         end,
-        ["The result Scope is equal to what is obtained by traversing Namespaces manually."] = function(this)
-            Test.assert("A::B::C::D", this.resultScope.FullName);
-            Test.assert(this.C.Members[0], this.resultScope);
+        ["The result Node is equal to what is obtained by traversing Namespaces manually."] = function(this)
+            Test.assert("A::B::C::D", this.resultNode.FullName);
+            Test.assert(this.C.Members[0], this.resultNode);
         end,
-        ["Result Scope does not have Class methods."] = function(this)
-            // resultScope should be a Namespace.    
-            Test.assert(nil, this.resultScope.TypeName);            
+        ["Result Node does not have Class methods."] = function(this)
+            // resultNode should be a Namespace.    
+            Test.assert(nil, this.resultNode.TypeName);            
         end,
         ["Initially, the class we added is an unknown type as well."] = function(this)
-            local AClassInD = this.resultScope.Members[0];            
+            local AClassInD = this.resultNode.Members[0];            
             // We intend for this to eventually become a Class...
             Test.assert("A::B::C::D::AClassInD", AClassInD);
             // But without Type Info, Macaroni can't assume that.
@@ -47,7 +47,7 @@ name = "A Scope is initially unknown.",
 
 Test.register(
 {	
-name = "A UnknownScope can morph into a known type of Scope.",
+name = "A UnknownScope can morph into a known type of Node.",
     init = {
         ["Initializing Contexts."] = function(this)
             this.context = Context.Create("{ROOT}", "*");	    
@@ -55,27 +55,27 @@ name = "A UnknownScope can morph into a known type of Scope.",
             this.a = root:FindOrCreate("A");
             this.b = this.a:FindOrCreate("B");
             this.c = this.b:FindOrCreate("C");
-            this.resultScope, this.simpleName = 
+            this.resultNode, this.simpleName = 
                 this.context.root.ParseComplexName(this.context.root,
                                                    "A::B::C::D::AClassInD");
-            this.ScopeA = this.resultScope.Members[0];
+            this.NodeA = this.resultNode.Members[0];
             // Have to make this into a Class now...
-            this.AClassInD = this.resultScope.FindOrCreateClass("AClassInD");           
+            this.AClassInD = this.resultNode.FindOrCreateClass("AClassInD");           
             // At this point, we should never again be able to access the UnknownScope object...
-            this.ScopeB = this.resultScope.Members[0]; 
+            this.NodeB = this.resultNode.Members[0]; 
         end
     },
     
     tests={      
         ["Simple name is correct"] = function(this)                    
             Test.assert("AClassInD", this.UnknownScopeAClassInD);
-            Test.assert("AClassInD", this.KnownScopeAClassInD);
+            Test.assert("AClassInD", this.KnownNodeAClassInD);
         end,
         
         ["Class properties are accessible through the discovered Class."] = function(this)
-            Test.asset(nil, this.ScopeA.TypeName);
+            Test.asset(nil, this.NodeA.TypeName);
             Test.assert("A::B::C::D::AClassInD", this.AClassInD);
-            Test.assert("A::B::C::D::AClassInD", this.ScopeB);          
+            Test.assert("A::B::C::D::AClassInD", this.NodeB);          
         end,              
     }
 });
@@ -91,27 +91,27 @@ name = "A known scope cannot morph again.",
             this.a = root:FindOrCreate("A");
             this.b = this.a:FindOrCreate("B");
             this.c = this.b:FindOrCreate("C");
-            this.resultScope, this.simpleName = 
+            this.resultNode, this.simpleName = 
                 this.context.root.ParseComplexName(this.context.root,
                                                    "A::B::C::D::AClassInD");
-            this.ScopeA = this.resultScope.Members[0];
+            this.NodeA = this.resultNode.Members[0];
             // Have to make this into a Class now...
-            this.AClassInD = this.resultScope.FindOrCreateClass("AClassInD");           
+            this.AClassInD = this.resultNode.FindOrCreateClass("AClassInD");           
             // At this point, we should never again be able to access the UnknownScope object...
-            this.ScopeB = this.resultScope.Members[0]; 
+            this.NodeB = this.resultNode.Members[0]; 
         end
     },
     
     tests={      
         ["Simple name is correct"] = function(this)                    
             Test.assert("AClassInD", this.UnknownScopeAClassInD);
-            Test.assert("AClassInD", this.KnownScopeAClassInD);
+            Test.assert("AClassInD", this.KnownNodeAClassInD);
         end,
         
         ["Class properties are accessible through the discovered Class."] = function(this)
-            Test.asset(nil, this.ScopeA.TypeName);
+            Test.asset(nil, this.NodeA.TypeName);
             Test.assert("A::B::C::D::AClassInD", this.AClassInD);
-            Test.assert("A::B::C::D::AClassInD", this.ScopeB);          
+            Test.assert("A::B::C::D::AClassInD", this.NodeB);          
         end,              
     }
 });

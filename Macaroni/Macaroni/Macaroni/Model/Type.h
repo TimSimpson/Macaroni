@@ -2,7 +2,7 @@
 #define MACARONI_MODEL_TYPE_H
 
 #include "../ME.h"
-#include "Scope.lh"
+#include "Node.lh"
 #include "Type.lh"
 
 BEGIN_NAMESPACE2(Macaroni, Model)
@@ -15,10 +15,10 @@ friend void intrusive_ptr_release(Type * p);
 
 	Type(){}
 	/** It really pisses me off, but there's no way for Type to inhereit from 
-	 * ScopeMember without preventing Class from subclassing Scope.  So Type has
-	 * to be abstract with virtual functions mirroring those from Scope. */
+	 * ScopeMember without preventing Class from subclassing Node.  So Type has
+	 * to be abstract with virtual functions mirroring those from Node. */
 	virtual const std::string & GetTypeName() const = 0;
-	virtual ScopePtr GetTypeScope() const = 0;
+	virtual NodePtr GetTypeNode() const = 0;
 protected:
 	~Type(){}
 private:

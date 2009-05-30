@@ -7,7 +7,7 @@
 #include "Class.lh"
 #include "Context.lh"
 #include "Namespace.lh"
-#include "Scope.lh"
+#include "Node.lh"
 #include "ScopeMember.lh"
 
 BEGIN_NAMESPACE2(Macaroni, Model)
@@ -27,7 +27,7 @@ public:
 	ScopeMemberPtr FindMember(const std::string & complexName);
 
 	/** Searches from the specified scope for a given name. */
-	ScopeMemberPtr FindMember(const ScopePtr scope, const std::string & complexName);
+	ScopeMemberPtr FindMember(const NodePtr scope, const std::string & complexName);
 
 	int GetReferenceCount() const;
 
@@ -40,7 +40,7 @@ public:
 
 private:
 
-	ScopeMember * findMember(const Scope * scope, const std::string & complexName);
+	ScopeMember * findMember(const Node * scope, const std::string & complexName);
 
 	void onAddReference();
 	

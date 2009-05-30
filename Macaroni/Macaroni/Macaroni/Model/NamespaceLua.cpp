@@ -8,7 +8,7 @@ extern "C" {
 }
 #include "Namespace.h"
 #include "NamespaceLua.h"
-#include "ScopeLua.h"
+#include "NodeLua.h"
 #include <sstream>
 
 BEGIN_NAMESPACE2(Macaroni, Model)
@@ -112,8 +112,8 @@ struct NamespaceLuaFunctions
 		}
 		else
 		{
-			return ScopeLuaMetaData::Index(
-				L, boost::static_pointer_cast<Scope>(ns), index);
+			return NodeLuaMetaData::Index(
+				L, boost::static_pointer_cast<Node>(ns), index);
 		}		
 		return 1;
 	}
@@ -157,7 +157,7 @@ NamespacePtr & NamespaceLuaMetaData::GetInstance(lua_State * L, int index)
 
 bool NamespaceLuaMetaData::IsType(lua_State * L, int index)
 {
-	return ScopeLuaMetaData::IsType(L, index, METATABLENAME);
+	return NodeLuaMetaData::IsType(L, index, METATABLENAME);
 }
 
 int NamespaceLuaMetaData::OpenInLua(lua_State * L)
@@ -170,7 +170,7 @@ int NamespaceLuaMetaData::OpenInLua(lua_State * L)
 	luaL_newmetatable(L, METATABLENAME); // create metaTable
 	luaL_register(L, nullptr, metaTableMethods);
 
-	ScopeLuaMetaData::OpenInLua(L);
+	NodeLuaMetaData::OpenInLua(L);
 
 	//lua_newtable(L);	// create __indexTable
 	//luaL_register(L, nullptr, __indexTableMethods);

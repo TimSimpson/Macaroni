@@ -15,13 +15,13 @@ friend void intrusive_ptr_add_ref(Primitive * p);
 friend void intrusive_ptr_release(Primitive * p);
 
 public:
-	Primitive(Scope * scope, std::string & name);
+	Primitive(Node * scope, std::string & name);
 	
 	~Primitive();
 	
 	const std::string & GetTypeName() const;
 	
-	ScopePtr GetTypeScope() const;
+	NodePtr GetTypeNode() const;
 private:
 };
 

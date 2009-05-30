@@ -6,7 +6,7 @@
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
-Function::Function(Scope * scope, std::string & name)
+Function::Function(Node * scope, std::string & name)
 : ScopeMember(scope, name)
 {
 }

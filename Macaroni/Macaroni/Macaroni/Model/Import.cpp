@@ -6,10 +6,10 @@
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
-Import::Import(ScopePtr startingScope, std::string & name)
-:name(name), scopePtr(startingScope)
+Import::Import(NodePtr startingNode, std::string & name)
+:name(name), scopePtr(startingNode)
 {
-	/*startingScope
+	/*startingNode
 	Namespace::FindOrCreate(startingNs, name,
 							this->namespacePtr, this->name);*/
 	/////////*if (startingNs == false)

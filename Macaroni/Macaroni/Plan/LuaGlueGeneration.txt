@@ -44,11 +44,11 @@ Take a Class or Type you wish to wrap-
 		glue function.
 		
 
-Now, what about such properties as "Members" on the Scope lua glue object?
+Now, what about such properties as "Members" on the Node lua glue object?
 Well you see, the above is only the first way to wrap a LuaGlue object.
-You can also make one by defining a custom Lua glue object.  For Scope, it would
+You can also make one by defining a custom Lua glue object.  For Node, it would
 be like this- you tell Lua that the GetMembers and GetMemberSize functions are
-omitted from Lua.  Then you create a special object, inside the Scope def, like
+omitted from Lua.  Then you create a special object, inside the Node def, like
 so:
 
 	/*~ Lua collection MemberCollection

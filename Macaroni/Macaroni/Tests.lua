@@ -12,7 +12,7 @@ require "Macaroni/Model/ContextTests";
 -- Commenting out Document Tests... FOR NOW...
 require "Macaroni/Model/DocumentTests";
 require "Macaroni/Model/NamespaceTests";
-require "Macaroni/Model/ScopeTests";
+require "Macaroni/Model/NodeTests";
 
 local currentTest;
 local currentSuite;
