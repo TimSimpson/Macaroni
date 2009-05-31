@@ -41,7 +41,17 @@ Test = {
     
     failures = {},
     
-    register = function (object) 
+    -- Expects object to be a valid test suite.
+    register = function (object)  
+        if (object.name == nil) then
+            error("Given test suite has no name property.");
+        end       
+        if (object.tests == nil) then
+            error("Given test suite " .. object.name .. " has no tests property.");
+        end
+        if (#object.tests < 1) then
+            error("Given test suite  " .. object.name .. "  has zero tests.");
+        end 
         Test.testList[object.name] = object;
     end,
     
@@ -60,12 +70,23 @@ Test = {
     
     runCaseList = function(test, collection, output)
         for i, v in pairs(collection) do
-            Test.runCase(test, i, v, output);
+            if (type(test) == "function") then
+                Test.runCase(test, i, v, output);
+            else if (type(test) == "table") then
+                Test.runSuite(test, output);
+            end            
         end
     end,
     
-    run = function (test, output)
-        output.setSuite(test.name);
+    runAll = function (output)
+        for i, v in pairs(Test.testList) do
+            Test.runSuite(Test.testList[i], output);
+        end
+        Test.testList = {}
+    end,
+    
+    runSuite = function (test, output)
+        output.enterSuite(test.name);
         if (test.init ~= nil) then
            Test.runCaseList(test, test.init, output);
         end	
@@ -73,13 +94,7 @@ Test = {
         if (test.shutdown ~= nil) then
             Test.runCaseList(test, test.shutdown, output);
         end
-    end,
-    
-    runAll = function (output)
-        for i, v in pairs(Test.testList) do
-            Test.run(Test.testList[i], output);
-        end
-        Test.testList = {}
+        output.exitSuite(test.name);
     end,
     
     testList = {};

@@ -126,23 +126,23 @@ struct NodeLuaFunctions
 		return 1;
 	}
 
-	static int FindOrCreateClass(lua_State * L)
-	{
-		NodePtr & scope = getInstanceFromSubclass(L, 1);
-		std::string name(luaL_checkstring(L, 2));
-		ClassPtr classPtr = scope->FindOrCreateClass(name);
-		ClassLuaMetaData::PutInstanceOnStack(L, classPtr);
-		return 1;
-	}
+	///*static int FindOrCreateClass(lua_State * L)
+	//{
+	//	NodePtr & scope = getInstanceFromSubclass(L, 1);
+	//	std::string name(luaL_checkstring(L, 2));
+	//	ClassPtr classPtr = scope->FindOrCreateClass(name);
+	//	ClassLuaMetaData::PutInstanceOnStack(L, classPtr);
+	//	return 1;
+	//}
 
-	static int FindOrCreateNamespace(lua_State * L)
-	{
-		NodePtr & scope = getInstanceFromSubclass(L, 1);
-		std::string name(luaL_checkstring(L, 2));
-		NamespacePtr nsPtr = scope->FindOrCreateNamespace(name);
-		NamespaceLuaMetaData::PutInstanceOnStack(L, nsPtr);
-		return 1;
-	}
+	//static int FindOrCreateNamespace(lua_State * L)
+	//{
+	//	NodePtr & scope = getInstanceFromSubclass(L, 1);
+	//	std::string name(luaL_checkstring(L, 2));
+	//	NamespacePtr nsPtr = scope->FindOrCreateNamespace(name);
+	//	NamespaceLuaMetaData::PutInstanceOnStack(L, nsPtr);
+	//	return 1;
+	//}*/
 
 	static int FindOrCreateNode(lua_State * L)
 	{
@@ -297,7 +297,7 @@ static const struct luaL_Reg MembersProperty_MetaTableMethods[]=
 
 int NodeLuaMetaData::Index(lua_State * L, NodePtr & ptr, const std::string & index)
 {
-	if (index == "FindOrCreateClass")
+	/*if (index == "FindOrCreateClass")
 	{
 		lua_pushcfunction(L, NodeLuaFunctions::FindOrCreateClass);	
 		return 1;
@@ -307,7 +307,7 @@ int NodeLuaMetaData::Index(lua_State * L, NodePtr & ptr, const std::string & ind
 		lua_pushcfunction(L, NodeLuaFunctions::FindOrCreateNamespace);	
 		return 1;
 	}
-	else if (index == "FindOrCreateNode")
+	else*/ if (index == "FindOrCreateNode")
 	{
 		lua_pushcfunction(L, NodeLuaFunctions::FindOrCreateNode);	
 		return 1;

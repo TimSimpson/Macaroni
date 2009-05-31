@@ -15,25 +15,43 @@ require "Macaroni/Model/NamespaceTests";
 require "Macaroni/Model/NodeTests";
 
 local currentTest;
-local currentSuite;
+suiteNames = {};
 output = {
-    setSuite = function(testName)
-        currentSuite = testName;
+    enterSuite = function(testName)
+        suiteNames[#suiteNames + 1] = testName;
         --print("[" .. currentSuite .. "]");
     end,
-    setTest = function(testName)
-        currentTest = testName;
+    
+    exitSuite = function(testName)
+        if (suiteNames[#suiteNames] ~= testName) then
+            error("A suite at some point wasn't exitted correctly.");
+        end
+        suiteNames[#suiteNames] = nil;
     end,
+    
     fail = function(msg)
-        print("[" .. currentSuite .. '] "' .. currentTest .. '"');        
+        print("[" .. getFullSuiteName() .. '] "' .. currentTest .. '"');        
         print(msg);
         print();
         print("-------------------------------------------------------------------------------");
         print();
     end,
+    
+    getFullSuiteName = function()
+        local suiteName = "";
+        for name in suiteNames do
+            suiteName = suiteName .. "[" .. name .. "]";
+        end
+        return suiteName;
+    end,
+    
     pass = function(str)
         --print(currentSuite .. " [" .. currentTest .. "] ... :)");
-    end
+    end,
+    
+    setTest = function(testName)
+        currentTest = testName;
+    end,    
 };
 
 Test.runAll(output);

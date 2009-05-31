@@ -4,44 +4,13 @@ require "Macaroni.Model.Node";
 local Context = Macaroni.Model.Context;
 local Node = Macaroni.Model.Node;
 
+
 Test.register(
 {	
-name = "Node Tests-Static Functions",    
+name = "Node Tests-Instance Functions",    
 
 tests={	       
-
-    ["IsComplexName returns false for blanks."] = function(this)                
-		Test.assert(false, Node.IsComplexName(""));
-    end, 
-    
-    ["IsComplexName returns false for simple names."] = function(this)                
-		Test.assert(false, Node.IsComplexName("A"));
-		Test.assert(false, Node.IsComplexName("Animal"));
-		Test.assert(false, Node.IsComplexName("Doggy42"));
-    end, 
-    
-    ["IsComplexName returns true in the presense of ::."] = function(this)                
-		Test.assert(true, Node.IsComplexName("::"));
-		Test.assert(true, Node.IsComplexName("A::B"));
-		Test.assert(true, Node.IsComplexName("Organisms::Animals::Dog"));
-    end, 
-    
-    ["IsSimpleName returns true for blanks."] = function(this)                
-		Test.assert(true, Node.IsSimpleName(""));		
-    end, 
-    
-    ["IsSimpleName returns true for simple names."] = function(this)                
-		Test.assert(true, Node.IsSimpleName("A"));		
-		Test.assert(true, Node.IsSimpleName("Doggy"));		
-		Test.assert(true, Node.IsSimpleName("DogCatDemonHide"));		
-    end, 
-    
-    ["IsSimpleName returns false when faced with ::."] = function(this)                
-		Test.assert(false, Node.IsSimpleName("A::B"));		
-		Test.assert(false, Node.IsSimpleName("Animals::Doggy"));		
-		Test.assert(false, Node.IsSimpleName("Ryu::Enemies::DogCatDemonHide"));		
-    end, 
-    
+ 
     ["ParseComplexName creates nothing if given a blank."] = function(this)
         local context = Context.New("{ROOT}", "{WILDCARD}");
         local resultNode, resultName = 
@@ -83,6 +52,46 @@ tests={
         Test.assert(context.RootNamespace.Members[1].Members[1], resultNode);
         Test.assert("Organisms::Animals", resultNode.FullName);
     end,
+    
+}
+
+Test.register(
+{	
+name = "Node Tests-Static Functions",    
+
+tests={	       
+
+    ["IsComplexName returns false for blanks."] = function(this)                
+		Test.assert(false, Node.IsComplexName(""));
+    end, 
+    
+    ["IsComplexName returns false for simple names."] = function(this)                
+		Test.assert(false, Node.IsComplexName("A"));
+		Test.assert(false, Node.IsComplexName("Animal"));
+		Test.assert(false, Node.IsComplexName("Doggy42"));
+    end, 
+    
+    ["IsComplexName returns true in the presense of ::."] = function(this)                
+		Test.assert(true, Node.IsComplexName("::"));
+		Test.assert(true, Node.IsComplexName("A::B"));
+		Test.assert(true, Node.IsComplexName("Organisms::Animals::Dog"));
+    end, 
+    
+    ["IsSimpleName returns true for blanks."] = function(this)                
+		Test.assert(true, Node.IsSimpleName(""));		
+    end, 
+    
+    ["IsSimpleName returns true for simple names."] = function(this)                
+		Test.assert(true, Node.IsSimpleName("A"));		
+		Test.assert(true, Node.IsSimpleName("Doggy"));		
+		Test.assert(true, Node.IsSimpleName("DogCatDemonHide"));		
+    end, 
+    
+    ["IsSimpleName returns false when faced with ::."] = function(this)                
+		Test.assert(false, Node.IsSimpleName("A::B"));		
+		Test.assert(false, Node.IsSimpleName("Animals::Doggy"));		
+		Test.assert(false, Node.IsSimpleName("Ryu::Enemies::DogCatDemonHide"));		
+    end,   
     
     ["SplitFirstNameOffComplexName returns nothing for nothing."] = function(this)        
         local firstPart, lastPart = Node.SplitFirstNameOffComplexName("")        

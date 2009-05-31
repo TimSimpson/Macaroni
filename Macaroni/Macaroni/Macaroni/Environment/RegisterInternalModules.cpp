@@ -12,10 +12,10 @@
 BEGIN_NAMESPACE2(Macaroni, Environment)
 
 static const struct luaL_Reg libs[] = {
-	{"Macaroni.Model.Class", Model::ClassLuaMetaData::OpenInLua},
+	//MARIO {"Macaroni.Model.Class", Model::ClassLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Context", Model::ContextLuaMetaData::OpenInLua},
-	{"Macaroni.Model.Document", Model::Document::OpenInLua},
-	{"Macaroni.Model.Namespace", Model::NamespaceLuaMetaData::OpenInLua},
+	//MARIO {"Macaroni.Model.Document", Model::Document::OpenInLua},
+	//MARIO {"Macaroni.Model.Namespace", Model::NamespaceLuaMetaData::OpenInLua},
     {nullptr, nullptr} /* sentinel */
 	};
 

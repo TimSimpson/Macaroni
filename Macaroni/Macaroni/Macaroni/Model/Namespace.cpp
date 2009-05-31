@@ -24,7 +24,7 @@ Namespace::~Namespace()
 }
 
 Namespace * Namespace::create(std::string & name)
-{
+{	
 	std::auto_ptr<Namespace> newNs(new Namespace(this, name));
 	addScopeMember(newNs.get());
 	return newNs.release();

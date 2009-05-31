@@ -173,14 +173,6 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\Macaroni\Model\Class.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Macaroni\Model\ClassLua.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Macaroni\CmdLine.cpp"
 				>
 			</File>
@@ -193,19 +185,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Model\Document.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Macaroni\Model\DocumentLua.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Macaroni\Exception.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Macaroni\Model\Function.cpp"
 				>
 			</File>
 			<File
@@ -345,14 +325,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Model\Namespace.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Macaroni\Model\NamespaceLua.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Macaroni\Model\Node.cpp"
 				>
 			</File>
@@ -411,14 +383,6 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\Macaroni\Model\Class.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Macaroni\Model\ClassLua.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Macaroni\CmdLine.h"
 				>
 			</File>
@@ -435,15 +399,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Model\Document.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Macaroni\Exception.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Macaroni\Model\Function.h"
 				>
 			</File>
 			<File
@@ -563,14 +519,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Model\Namespace.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Macaroni\Model\NamespaceLua.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Macaroni\Model\Node.h"
 				>
 			</File>
@@ -630,10 +578,6 @@
 			>
 		</Filter>
 		<File
-			RelativePath=".\Macaroni\Model\Class.lh"
-			>
-		</File>
-		<File
 			RelativePath=".\TestData\Class.mcpp"
 			>
 		</File>
@@ -647,10 +591,6 @@
 		</File>
 		<File
 			RelativePath=".\Macaroni\Model\ContextTests.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\DocumentTests.lua"
 			>
 		</File>
 		<File
@@ -695,14 +635,6 @@
 		</File>
 		<File
 			RelativePath=".\Lua\Makefile"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\Namespace.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\NamespaceTests.lua"
 			>
 		</File>
 		<File

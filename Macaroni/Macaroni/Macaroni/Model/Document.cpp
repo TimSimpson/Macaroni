@@ -5,7 +5,7 @@
 #include "Document.h"
 #include "Class.h"
 #include "ParserState.h"
-#include "Parser.spirit"
+//#include "Parser.spirit" // Only removing temporarily whilst I refactor.
 #include "ParserException.h"
 #include <fstream>
 #include <iostream>
@@ -61,15 +61,15 @@ void Document::addNamespace(NamespacePtr ns)
 
 void Document::beginParse(const std::string & contents)
 {
-	DocumentGrammar fileGrammar;	
-	std::string stuff;
-	ParserActions actions(*this, parserState);
-	fileGrammar.actors = &actions;
+	///*DocumentGrammar fileGrammar;	
+	//std::string stuff;
+	//ParserActions actions(*this, parserState);
+	//fileGrammar.actors = &actions;
 
-	parse_info<> info = parse(
-		contents.c_str(),
-		fileGrammar,
-		space_p);
+	//parse_info<> info = parse(
+	//	contents.c_str(),
+	//	fileGrammar,
+	//	space_p);*/
 }
 
 void Document::endParse()
