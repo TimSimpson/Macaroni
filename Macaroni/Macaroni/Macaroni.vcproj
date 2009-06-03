@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="F:\Tools\boost_1_37_0;E:\Tools\boost_1_37_0"
+				AdditionalIncludeDirectories="C:\Tools\boost_1_39_0;C:\Tools\boost_1_39_0"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -62,7 +62,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="F:\Tools\boost_1_37_0\stage\lib;E:\Tools\boost_1_37_0\stage\lib;"
+				AdditionalLibraryDirectories="C:\Tools\boost_1_39_0\stage\lib;C:\Tools\boost_1_39_0\stage\lib;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"

@@ -173,7 +173,7 @@ struct NodeLuaFunctions
 		std::string complexName(luaL_checkstring(L, 2));
 		NodePtr resultNode;
 		std::string simpleName;
-		Node::ParseComplexName(ptr, complexName, resultNode, simpleName);
+		ptr->ParseComplexName(complexName, resultNode, simpleName);
 		putNodeInstanceOnStack(L, resultNode);
 		lua_pushstring(L, simpleName.c_str());
 		return 2;
@@ -270,7 +270,6 @@ static const struct luaL_Reg tableMethods[]=
 	{"Find", NodeLuaFunctions::Find},
 	{"IsComplexName", NodeLuaFunctions::IsComplexName},
 	{"IsSimpleName", NodeLuaFunctions::IsSimpleName},
-	{"ParseComplexName", NodeLuaFunctions::ParseComplexName},
 	{"SplitFirstNameOffComplexName", NodeLuaFunctions::SplitFirstNameOffComplexName},
 	{"SplitNodeAndMemberName", NodeLuaFunctions::SplitNodeAndMemberName},
 	{"SplitComplexName", NodeLuaFunctions::SplitComplexName},

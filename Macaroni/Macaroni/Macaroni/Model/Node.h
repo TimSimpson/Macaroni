@@ -62,6 +62,11 @@ public:
 
 	static bool IsSimpleName(const std::string & name);
 
+	void ParseComplexName(const std::string & complexName,
+				          NodePtr & resultNode,
+				          std::string & resultSimpleName);
+
+	// OBSOLETE
 	static void ParseComplexName(NodePtr searchRoot, const std::string & complexName,
 						         NodePtr & resultNode,
 						         std::string & resultSimpleName);

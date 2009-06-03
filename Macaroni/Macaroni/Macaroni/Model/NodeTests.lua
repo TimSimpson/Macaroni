@@ -13,24 +13,21 @@ tests={
  
     ["ParseComplexName creates nothing if given a blank."] = function(this)
         local context = Context.New("{ROOT}", "{WILDCARD}");
-        local resultNode, resultName = 
-            Node.ParseComplexName(context.RootNamespace, "");
+        local resultNode, resultName = context.RootNamespace:ParseComplexName("");
         Test.assert("", resultName);
         Test.assert(0, #context.RootNamespace.Members);
     end,
         
     ["ParseComplexName creates nothing if given a simple name."] = function(this)
         local context = Context.New("{ROOT}", "{WILDCARD}");
-        local resultNode, resultName = 
-            Node.ParseComplexName(context.RootNamespace, "Doggy");
+        local resultNode, resultName = context.RootNamespace:ParseComplexName("Doggy");
         Test.assert("Doggy", resultName);
         Test.assert(0, #context.RootNamespace.Members);
     end,
     
     ["ParseComplexName creates UnknownScope if given a complex name."] = function(this)
         local context = Context.New("{ROOT}", "{WILDCARD}");
-        local resultNode, resultName = 
-            Node.ParseComplexName(context.RootNamespace, "Animals::Doggy");
+        local resultNode, resultName = context.RootNamespace:ParseComplexName("Animals::Doggy");
         Test.assert("Doggy", resultName);
         Test.assert(1, #(context.RootNamespace.Members));
         Test.assert("Animals", resultNode.Name);
@@ -41,7 +38,7 @@ tests={
     ["ParseComplexName creates multiple UnknownScope if needed."] = function(this)
         local context = Context.New("{ROOT}", "{WILDCARD}");
         local resultNode, resultName = 
-            Node.ParseComplexName(context.RootNamespace, "Organisms::Animals::Kitty");
+            context.RootNamespace:ParseComplexName("Organisms::Animals::Kitty");
         Test.assert("Kitty", resultName);
         Test.assert(1, #(context.RootNamespace.Members));
         local organisms = context.RootNamespace.Members[1];
