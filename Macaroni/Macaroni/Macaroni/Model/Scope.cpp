@@ -2,6 +2,7 @@
 #define MACARONI_MODEL_SCOPE_CPP
 
 #include "Scope.h"
+#include "Node.h"
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
@@ -25,7 +26,7 @@ size_t Scope::GetMemberCount() const
 	return node->GetChildCount();
 }
 
-ScopeMemberPtr Scope::GetMember(int index) const
+NodePtr Scope::GetMember(int index) const
 {
 	return node->GetChild(index);
 }

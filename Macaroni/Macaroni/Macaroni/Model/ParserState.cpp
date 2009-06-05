@@ -7,9 +7,9 @@ BEGIN_NAMESPACE2(Macaroni, Model)
 
 ParserState::ParserState()
 {
-	context = Context::Create(std::string("{ROOT}"), std::string("*"));
-	currentNamespace = context->GetRootNamespace();//Namespace::CreateRoot(std::string("{ROOT}"));
-	namespaceStack.push_back(currentNamespace);
+	context = new Context(std::string("{ROOT}"));
+	currentNode = context->GetRoot();//Namespace::CreateRoot(std::string("{ROOT}"));
+	namespaceStack.push_back(currentNode);
 }
 
 END_NAMESPACE2

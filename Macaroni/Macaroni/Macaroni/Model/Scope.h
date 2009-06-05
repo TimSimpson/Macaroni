@@ -18,13 +18,13 @@ friend void intrusive_ptr_release(Scope * p);
 public:		
 	size_t GetMemberCount() const;
 
-	ScopeMemberPtr GetMember(int index) const;
+	NodePtr GetMember(int index) const;
 
 protected:
 	Scope(Node * scope);
 	Scope(const Scope & other);
 	void operator=(const Scope & other);
-	~Scope();
+	virtual ~Scope(){}
 
 private:
 };

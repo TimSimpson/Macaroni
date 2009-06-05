@@ -18,7 +18,7 @@ BEGIN_NAMESPACE2(Macaroni, Model)
 
 #define METATABLENAME "Macaroni.Model.Node"
 #define GLOBALTABLENAME "Macaroni.Model.Node"
-#define MEMBERSPROPERTY_METATABLENAME "Macaroni.Model.Node.Properties.Members"
+#define MEMBERSPROPERTY_METATABLENAME "Macaroni.Model.Node.Properties.Children"
 
 namespace {
 
@@ -36,33 +36,33 @@ namespace {
 		return ptr;
 	}
 
-	static inline NodePtr getInstanceFromSubclass(lua_State * L, int index)
-	{
-		void * p = lua_touserdata(L, index);	
-		if (p != nullptr)
-		{			
-			if (ClassLuaMetaData::IsType(L, index))
-			{
-				ClassPtr * ptr = (ClassPtr *) p;
-				ClassPtr & ref = dynamic_cast<ClassPtr &>(*ptr);
-				return boost::static_pointer_cast<Node>(ref);
-			}
-			else if (NamespaceLuaMetaData::IsType(L, index))
-			{
-				NamespacePtr * ptr = (NamespacePtr *) p;
-				NamespacePtr & ref = dynamic_cast<NamespacePtr &>(*ptr);
-				return boost::static_pointer_cast<Node>(ref);
-			}
-			else if (NodeLuaMetaData::IsType(L, index))
-			{
-				NodePtr * ptr = (NodePtr *) p;
-				NodePtr & ref = dynamic_cast<NodePtr &>(*ptr);
-				return ref;
-			}		
-		}
-		luaL_typerror(L, index, METATABLENAME);
-		throw new Macaroni::Exception("Code will never reach this point.");		
-	}
+	///*static inline NodePtr getInstanceFromSubclass(lua_State * L, int index)
+	//{
+	//	void * p = lua_touserdata(L, index);	
+	//	if (p != nullptr)
+	//	{			
+	//		if (ClassLuaMetaData::IsType(L, index))
+	//		{
+	//			ClassPtr * ptr = (ClassPtr *) p;
+	//			ClassPtr & ref = dynamic_cast<ClassPtr &>(*ptr);
+	//			return boost::static_pointer_cast<Node>(ref);
+	//		}
+	//		else if (NamespaceLuaMetaData::IsType(L, index))
+	//		{
+	//			NamespacePtr * ptr = (NamespacePtr *) p;
+	//			NamespacePtr & ref = dynamic_cast<NamespacePtr &>(*ptr);
+	//			return boost::static_pointer_cast<Node>(ref);
+	//		}
+	//		else if (NodeLuaMetaData::IsType(L, index))
+	//		{
+	//			NodePtr * ptr = (NodePtr *) p;
+	//			NodePtr & ref = dynamic_cast<NodePtr &>(*ptr);
+	//			return ref;
+	//		}		
+	//	}
+	//	luaL_typerror(L, index, METATABLENAME);
+	//	throw new Macaroni::Exception("Code will never reach this point.");		
+	//}*/
 
 	static inline NodePtr & getInstance(lua_State * L)
 	{
@@ -114,14 +114,14 @@ struct NodeLuaFunctions
 	{
 		NodePtr & ptr = getInstance(L, 1);
 		std::string name(luaL_checkstring(L, 2));
-		ScopeMemberPtr member = ptr->Find(name);
-		if (member == false)
+		NodePtr node = ptr->Find(name);
+		if (node == false)
 		{
 			lua_pushnil(L);
 		} 
 		else 
 		{
-			ScopeMemberLuaMetaData::PutInstanceOnStack(L, member);
+			putNodeInstanceOnStack(L, node);
 		}
 		return 1;
 	}
@@ -144,12 +144,12 @@ struct NodeLuaFunctions
 	//	return 1;
 	//}*/
 
-	static int FindOrCreateNode(lua_State * L)
+	static int FindOrCreate(lua_State * L)
 	{
-		NodePtr & scope = getInstanceFromSubclass(L, 1);
+		NodePtr & node = getInstance(L, 1);
 		std::string name(luaL_checkstring(L, 2));
-		NodePtr scopePtr = scope->FindOrCreateNode(name);
-		NodeLuaMetaData::PutInstanceOnStack(L, scopePtr);
+		NodePtr nodePtr = node->FindOrCreate(name);
+		NodeLuaMetaData::PutInstanceOnStack(L, nodePtr);
 		return 1;
 	}
 
@@ -169,11 +169,11 @@ struct NodeLuaFunctions
 
 	static int ParseComplexName(lua_State * L)
 	{
-		NodePtr ptr = getInstanceFromSubclass(L, 1);
+		NodePtr ptr = getInstance(L, 1);
 		std::string complexName(luaL_checkstring(L, 2));
 		NodePtr resultNode;
 		std::string simpleName;
-		ptr->ParseComplexName(complexName, resultNode, simpleName);
+		Node::ParseComplexName(ptr, complexName, resultNode, simpleName);
 		putNodeInstanceOnStack(L, resultNode);
 		lua_pushstring(L, simpleName.c_str());
 		return 2;
@@ -231,10 +231,10 @@ struct NodeLuaFunctions
 	static int MembersProperty__index(lua_State * L)
 	{
 		NodePtr & ptr = MembersProperty_GetInstance(L);
-		int index = luaL_checkinteger(L, 2);
-		if (index > 0 && index <= ptr->GetMemberCount())
+		unsigned int index = luaL_checkinteger(L, 2);
+		if (index > 0 && index <= ptr->GetChildCount())
 		{
-			ScopeMemberLuaMetaData::PutInstanceOnStack(L, ptr->GetMember(index - 1));
+			putNodeInstanceOnStack(L, ptr->GetChild(index - 1));
 		}
 		else
 		{
@@ -250,7 +250,7 @@ struct NodeLuaFunctions
 	static int MembersProperty__len(lua_State * L)
 	{
 		NodePtr & ptr = MembersProperty_GetInstance(L);
-		lua_pushinteger(L, ptr->GetMemberCount());
+		lua_pushinteger(L, ptr->GetChildCount());
 		return 1;
 	}
 
@@ -259,7 +259,7 @@ struct NodeLuaFunctions
 		NodePtr & ptr = MembersProperty_GetInstance(L);
 		std::stringstream ss;
 		ss << "Node\"" << ptr->GetName() << "\" Member Count = ";
-		ss << ptr->GetMemberCount();
+		ss << ptr->GetChildCount();
 		lua_pushlstring(L, ss.str().c_str(), ss.str().length());
 		return 1;
 	}
@@ -267,7 +267,6 @@ struct NodeLuaFunctions
 
 static const struct luaL_Reg tableMethods[]=
 {
-	{"Find", NodeLuaFunctions::Find},
 	{"IsComplexName", NodeLuaFunctions::IsComplexName},
 	{"IsSimpleName", NodeLuaFunctions::IsSimpleName},
 	{"SplitFirstNameOffComplexName", NodeLuaFunctions::SplitFirstNameOffComplexName},
@@ -305,18 +304,28 @@ int NodeLuaMetaData::Index(lua_State * L, NodePtr & ptr, const std::string & ind
 	{
 		lua_pushcfunction(L, NodeLuaFunctions::FindOrCreateNamespace);	
 		return 1;
-	}
-	else*/ if (index == "FindOrCreateNode")
+	}	
+	else*/ 
+	if (index == "Find")
 	{
-		lua_pushcfunction(L, NodeLuaFunctions::FindOrCreateNode);	
+		lua_pushcfunction(L, NodeLuaFunctions::Find);	
 		return 1;
+	}
+	else if (index == "FindOrCreate")
+	{
+		lua_pushcfunction(L, NodeLuaFunctions::FindOrCreate);	
+		return 1;
+	}
+	else if (index == "FullName")
+	{
+		lua_pushlstring(L, ptr->GetFullName().c_str(), ptr->GetFullName().size());	
 	}	
 	else if (index == "IsRoot")
 	{
 		lua_pushboolean(L, ptr->IsRoot());
 		return 1;
 	}
-	else if (index == "Members")
+	else if (index == "Children")
 	{
 		// Put a lua pointer for this Node object on the Lua stack,
 		// but associate it with a different meta table.
@@ -324,14 +333,25 @@ int NodeLuaMetaData::Index(lua_State * L, NodePtr & ptr, const std::string & ind
 		luaL_getmetatable(L, MEMBERSPROPERTY_METATABLENAME);
 		lua_setmetatable(L, -2);
 		return 1;
+	}		
+	else if (index == "Name")
+	{
+		lua_pushlstring(L, ptr->GetName().c_str(), ptr->GetName().length());
 	}
-	// This is very dangerous, because if any Index functions believe our
-	// pointer is a lua user data and try to muck with it, they could
-	// destabalize the app!
-	// I'd like to find a way to enforce that this does not happen in the 
-	// future, especially if this gets too nested...
-	return ScopeMemberLuaMetaData::Index(
-			L, boost::static_pointer_cast<ScopeMember>(ptr), index);		
+	else if (index == "Node")
+	{
+		NodePtr scope = ptr->GetNode();
+		NodeLuaMetaData::PutInstanceOnStack(L, scope);
+	}
+	else if (index == "ParseComplexName")
+	{
+		lua_pushcfunction(L, NodeLuaFunctions::ParseComplexName);
+	}
+	else
+	{
+		lua_pushnil(L);
+	}		
+	return 1;			
 }
 
 bool NodeLuaMetaData::IsType(lua_State * L, int index, const char * metaTableName)
@@ -383,18 +403,19 @@ int NodeLuaMetaData::OpenInLua(lua_State * L)
 
 void NodeLuaMetaData::PutInstanceOnStack(lua_State * L, const NodePtr & ptr)
 {
-	if (boost::dynamic_pointer_cast<Class>(ptr) != nullptr)
-	{
-		ClassLuaMetaData::PutInstanceOnStack(L, boost::dynamic_pointer_cast<Class>(ptr));
-	}
-	else if (boost::dynamic_pointer_cast<Namespace>(ptr) != nullptr)
-	{
-		NamespaceLuaMetaData::PutInstanceOnStack(L, boost::dynamic_pointer_cast<Namespace>(ptr));
-	}
-	else
-	{
-		putNodeInstanceOnStack(L, ptr);
-	}
+	///*if (boost::dynamic_pointer_cast<Class>(ptr) != nullptr)
+	//{
+	//	ClassLuaMetaData::PutInstanceOnStack(L, boost::dynamic_pointer_cast<Class>(ptr));
+	//}
+	//else if (boost::dynamic_pointer_cast<Namespace>(ptr) != nullptr)
+	//{
+	//	NamespaceLuaMetaData::PutInstanceOnStack(L, boost::dynamic_pointer_cast<Namespace>(ptr));
+	//}
+	//else
+	//{
+	//	putNodeInstanceOnStack(L, ptr);
+	//}*/
+	putNodeInstanceOnStack(L, ptr);
 }
 
 END_NAMESPACE2

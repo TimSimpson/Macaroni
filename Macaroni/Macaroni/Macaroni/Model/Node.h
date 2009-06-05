@@ -23,8 +23,6 @@ friend void intrusive_ptr_release(Node * p);
 
 public:		
 
-	ScopeMemberPtr Find(const std::string & name);	
-
 	///** Returns an existing class with the given name, or returns nullptr if
 	// * a clash is discovered. */
 	//ClassPtr FindOrCreateClass(const std::string & name);
@@ -33,26 +31,26 @@ public:
 	//NamespacePtr FindOrCreateNamespace(const std::string & name);
 
 	/** Finds of creates an UnknownScopePtr, which is returned as a NodePtr. */
-	NodePtr FindOrCreateNode(const std::string & name);	
+	NodePtr FindOrCreate(const std::string & name);	
 
 	/** Find or creates an UnknownScopePtr, or returns nullptr if a clash. */
 	//UnknownScopePtr FindOrCreateUnknownScope(const std::string & name);
 
-	NodePtr FindNode(const std::string & complexName);
+	NodePtr Find(const std::string & complexName);
 
 	//NamespacePtr Find(std::string & name);	
 
 	std::string GetFullName() const;
 
-	virtual size_t GetMemberCount() const;
+	virtual size_t GetChildCount() const;
 
 	const std::string & GetName() const;
 
 	bool IsRoot() const;
 
-	inline ScopeMemberPtr GetMember(int index) const
+	inline NodePtr GetChild(int index) const
 	{
-		return ScopeMemberPtr(children[index]);
+		return NodePtr(children[index]);
 	}
 
 	//TO-DO: Rename to "getParent" or something.
@@ -88,21 +86,21 @@ protected:
 	void operator=(const Node & other);
 	~Node();
 
-	void addScopeMember(ScopeMember * member);
+	Node * createNode(const std::string & simpleName);
 
 	//Class * createClass(const std::string & simpleName);
 
-	//Namespace * createNamespace(const std::string & simpleName);
+	//Namespace * createNamespace(const std::string & simpleName);	
 
-	Node * createUnknownScope(const std::string & name);
-
-	ScopeMember * find(const std::string & name) const;
+	Node * findComplexName(const std::string & name) const;
 
 	/** Given a complex name, iterates through all parts of the name using
 	 * the preexisting Node objects or creating new UnknownScope's if needed.*/
-	Node * findOrCreateNode(const std::string & complexName);
+	Node * findOrCreate(const std::string & complexName);
 
-	inline ScopeMember * getMember(int index) const
+	Node * findSimpleName(const std::string & name) const;
+
+	inline Node * getChild(int index) const
 	{
 		return children[index];
 	}
@@ -110,7 +108,7 @@ protected:
 	Node * getNode() const;
 
 private:
-	std::vector<ScopeMember *> children;
+	std::vector<Node *> children;
 
 	Context * context;
 

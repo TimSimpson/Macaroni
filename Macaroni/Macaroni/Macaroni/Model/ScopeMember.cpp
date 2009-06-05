@@ -34,14 +34,14 @@ NodePtr ScopeMember::GetNode() const
 
 Node * ScopeMember::getNode() const
 {
-	return scope;
+	return node;
 }
 
 /**TO-DO: In retrospect, a cleaner solution would give ScopeMember a reference
  * to the Context, so casting and checking like this would be unnecessary. */
 void intrusive_ptr_add_ref(ScopeMember * p)
 {
-	intrusive_ptr_add_red(node);/*
+	intrusive_ptr_add_ref(p->node);/*
 	if (p->scope == nullptr)
 	{
 		Node * pAsNode = dynamic_cast<Node *>(p);
@@ -57,7 +57,7 @@ void intrusive_ptr_add_ref(ScopeMember * p)
 
 void intrusive_ptr_release(ScopeMember * p)
 {
-	intrusive_ptr_release(node);
+	intrusive_ptr_release(p->node);
 
 	//if (p->scope == nullptr)
 	//{

@@ -1,5 +1,5 @@
 require "Macaroni.Model.Context";
-require "Macaroni.Model.Namespace";
+--require "Macaroni.Model.Namespace";
 require "Macaroni.Model.Node";
 
 local Context = Macaroni.Model.Context;
@@ -11,15 +11,14 @@ Test.register(
 name = "Context Tests",    
 tests={	       
     ["CreateRoot Test"] = function(this)
-        this.context = Context.New("{ROOT}", "{WILDCARD}");        
-        Test.assert("{ROOT}", tostring(context.RootNamespace));
-        Test.assert("{WILDCARD}", tostring(context.WildcardNamespace));
+        this.context = Context.New("{ROOT}");        
+        Test.assert("{ROOT}", tostring(context.Root));        
     end,
     
     
     ["ParseComplexName will morph unknown Nodes into Namespaces."] = function(this)
         local context = Context.New("{ROOT}", "{WILDCARD}");
-        local d = context.RootNamespace:FindOrCreateNamespace("A::B::C::D");
+        local d = context.Root:FindOrCreate("A::B::C::D");
         Test.assert("A::B::C::D", d.FullName);       
         local d_c = d.Node;
         Test.assert("A::B::C", d_c.FullName);
@@ -27,15 +26,14 @@ tests={
         Test.assert("A::B", d_b.FullName);
         local d_a = d_b.Node;
         Test.assert("A", d_a.FullName);       
-        Test.assert(1, #(context.RootNamespace.Members));
+        Test.assert(1, #(context.Root.Children));
        
         -- Must reuse A, and morph it into an Namespace...
         -- I.. am.. morphing...
-        local a = context.RootNamespace:FindOrCreateNamespace("A");
+        local a = context.Root:FindOrCreate("A");
         Test.assert("A", a.FullName);
-        Test.assertFalse(a, d_a);
-        Test.assert(1, #(context.RootNamespace.Members));
-        Test.assert("Good", "popo in pants");
+        Test.assert(a, d_a);
+        Test.assert(1, #(context.Root.Children));
     end,
         
     --[[
@@ -58,15 +56,13 @@ context.RootNamespace.
     end,]]--
     
     ["Root and wildcard namespaces created properly"] = function(this)
-        context = Context.New("{ROOT}", "{WILDCARD}");
-        root = context.RootNamespace;
-        Test.assert("{ROOT}", tostring(root));        
-        wildcard = context.WildcardNamespace;
-        Test.assert("{WILDCARD}", tostring(wildcard));        
+        context = Context.New("{ROOT}");
+        root = context.Root;
+        Test.assert("{ROOT}", tostring(root));                
     end,
     
-    ["Can correctly discover Members within a Context."] = function(this)
-        context = Context.New("{ROOT}", "{WILDCARD}");
+    ["Can correctly discover Children within a Context."] = function(this)
+        context = Context.New("{ROOT}");
         root = context.RootNamespace;
         --root:
         error("To-DO");

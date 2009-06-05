@@ -2,13 +2,10 @@
 #define MACARONI_MODEL_NODE_CPP
 
 #include "Node.h"
-#include "Class.h"
 #include "Context.h"
 #include "../Exception.h"
 #include <memory>
-#include "Namespace.h"
 #include <sstream>
-#include "UnknownScope.h"
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
@@ -29,11 +26,6 @@ Node::~Node()
 	}
 }
 
-void Node::addScopeMember(ScopeMember * member)
-{
-	children.push_back(member);
-}
-
 //Class * Node::createClass(const std::string & simpleName)
 //{	
 //	std::auto_ptr<Class> newInstance(new Class(this, simpleName));
@@ -48,26 +40,43 @@ void Node::addScopeMember(ScopeMember * member)
 //	return newInstance.release();
 //}
 
-//Node * Node::createUnknownScope(const std::string & name)
-//{
-//	std::auto_ptr<UnknownScope> newNode(new UnknownScope(this, name));
-//	addScopeMember(newNode.get());
-//	return newNode.release();
-//}
-
-ScopeMemberPtr Node::Find(const std::string & name)
+Node * Node::createNode(const std::string & simpleName)
 {
-	ScopeMember * child = find(name);
-	return ScopeMemberPtr(child);
+	MACARONI_ASSERT(IsSimpleName(simpleName), "Name must be simple at this point.");
+	Node * child = new Node(this, simpleName);
+	children.push_back(child);
+	return child;
 }
 
-ScopeMember * Node::find(const std::string & name) const
+NodePtr Node::Find(const std::string & name)
 {
-	for(size_t i = 0; i < GetMemberCount(); i ++)
+	return NodePtr(findComplexName(name));
+}
+
+Node * Node::findComplexName(const std::string & name) const
+{
+	std::vector<std::string> subNames;
+	SplitComplexName(name, subNames);
+	if (subNames.size() < 0)
 	{
-		if (getMember(i)->GetName() == name)
+		return nullptr;
+	}
+	Node * currentNode = this->findSimpleName(subNames[0]);
+	for(unsigned int i = 1; i < subNames.size() && currentNode != nullptr; i ++)
+	{
+		Node * currentNode = currentNode->findSimpleName(subNames[i]);
+	}
+	return currentNode;
+}
+
+Node * Node::findSimpleName(const std::string & name) const
+{
+	MACARONI_ASSERT(IsSimpleName(name), "Name must be simple at this point.");
+	for(size_t i = 0; i < GetChildCount(); i ++)
+	{
+		if (getChild(i)->GetName() == name)
 		{
-			return getMember(i);
+			return getChild(i);
 		}
 	}
 	return nullptr;
@@ -89,13 +98,13 @@ ScopeMember * Node::find(const std::string & name) const
 //	return NamespacePtr(resultNode->createNamespace(resultSimpleName));
 //}
 
-NodePtr Node::FindOrCreateNode(const std::string & name)
+NodePtr Node::FindOrCreate(const std::string & name)
 {
-	Node * nakedPtr = findOrCreateNode(name);
+	Node * nakedPtr = findOrCreate(name);
 	return NodePtr(nakedPtr);
 }
 
-Node * Node::findOrCreateNode(const std::string & name)
+Node * Node::findOrCreate(const std::string & name)
 {
 	std::string firstPart;
 	std::string lastPart;
@@ -111,7 +120,7 @@ Node * Node::findOrCreateNode(const std::string & name)
 		lastPart = name.substr(index + 2);
 	}
 
-	ScopeMember * member = this->find(firstPart);
+	Node * member = this->findSimpleName(firstPart);
 	Node * s = dynamic_cast<Node *>(member);
 	if (member != nullptr && s == nullptr)
 	{
@@ -125,7 +134,7 @@ Node * Node::findOrCreateNode(const std::string & name)
 
 	if (s == nullptr)
 	{
-		s = createUnknownScope(firstPart);
+		s = createNode(firstPart);
 	}
 
 	if (lastPart.size() < 1)
@@ -134,7 +143,7 @@ Node * Node::findOrCreateNode(const std::string & name)
 	}
 	else
 	{
-		return s->findOrCreateNode(lastPart);
+		return s->findOrCreate(lastPart);
 	}
 }
 //
@@ -160,7 +169,7 @@ std::string Node::GetFullName() const
 	return ss.str();
 }
 
-size_t Node::GetMemberCount() const
+size_t Node::GetChildCount() const
 {
 	return children.size();
 }
@@ -221,7 +230,7 @@ void Node::ParseComplexName(NodePtr searchRoot, const std::string & complexName,
 	{
 		std::string additionalNodeName;
 		SplitNodeAndMemberName(complexName, additionalNodeName, resultSimpleName);		
-		resultNode = searchRoot->FindOrCreateNode(additionalNodeName);
+		resultNode = searchRoot->FindOrCreate(additionalNodeName);
 	}
 }
 

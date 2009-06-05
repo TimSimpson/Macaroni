@@ -1,17 +1,13 @@
 require "Macaroni/Test";
 
 require "Macaroni.Model.Context"
-require "Macaroni.Model.Document"
+--require "Macaroni.Model.Document"
 
-doc = Macaroni.Model.Document.New("test23");
-doc:Read("namespace A::B{}");        
-doc:Read("namespace A::B{}");
-
-require "Macaroni/Model/ClassTests";
+--require "Macaroni/Model/ClassTests";
 require "Macaroni/Model/ContextTests";
 -- Commenting out Document Tests... FOR NOW...
-require "Macaroni/Model/DocumentTests";
-require "Macaroni/Model/NamespaceTests";
+--require "Macaroni/Model/DocumentTests";
+--require "Macaroni/Model/NamespaceTests";
 require "Macaroni/Model/NodeTests";
 
 local currentTest;
@@ -30,7 +26,7 @@ output = {
     end,
     
     fail = function(msg)
-        print("[" .. getFullSuiteName() .. '] "' .. currentTest .. '"');        
+        print("[" .. output.getFullSuiteName() .. '] "' .. currentTest .. '"');        
         print(msg);
         print();
         print("-------------------------------------------------------------------------------");
@@ -39,8 +35,8 @@ output = {
     
     getFullSuiteName = function()
         local suiteName = "";
-        for name in suiteNames do
-            suiteName = suiteName .. "[" .. name .. "]";
+        for i=1, #suiteNames do
+            suiteName = suiteName .. "[" .. suiteNames[i] .. "]";
         end
         return suiteName;
     end,

@@ -8,7 +8,8 @@ extern "C" {
 }
 #include "Context.h"
 #include "ContextLua.h"
-#include "NamespaceLua.h"
+#include "Node.h"
+#include "NodeLua.h"
 #include <sstream>
 
 BEGIN_NAMESPACE2(Macaroni, Model)
@@ -77,14 +78,10 @@ struct ContextLuaFunctions
 		{
 			lua_pushcfunction(L, GetReferenceCount);	
 		}
-		else if (index == "RootNamespace")
+		else if (index == "Root")
 		{
-			NamespaceLuaMetaData::PutInstanceOnStack(L, context->GetRootNamespace());
-		}
-		else if (index == "WildcardNamespace")
-		{
-			NamespaceLuaMetaData::PutInstanceOnStack(L, context->GetWildcardNamespace());
-		}		
+			NodeLuaMetaData::PutInstanceOnStack(L, context->GetRoot());
+		}	
 		else
 		{
 			lua_pushnil(L);
@@ -97,25 +94,20 @@ struct ContextLuaFunctions
 		ContextPtr & context = getInstance(L);
 		std::stringstream ss;
 		ss << "Context[references:" << context->GetReferenceCount()
-			<< ",RootNs:"
-			<< (context->GetRootNamespace() != false 
-				? context->GetRootNamespace()->GetName()
-				: "nullptr")
-			<< ",WildcardNamespace:" 
-			<< (context->GetRootNamespace() != false
-			    ? context->GetWildcardNamespace()->GetName()
+			<< ",Root:"
+			<< (context->GetRoot() != false 
+				? context->GetRoot()->GetName()
 				: "nullptr")
 			<< "]";
 		lua_pushlstring(L, ss.str().c_str(), ss.str().length());
 		return 1;
 	}
 
-	static int Create(lua_State * L)
+	static int New(lua_State * L)
 	{
 		std::string rootName(luaL_checkstring(L, 1));
-		std::string wildcardName(luaL_checkstring(L, 2));
-		
-		ContextPtr ptr = Context::Create(rootName, wildcardName);		
+	
+		ContextPtr ptr = new Context(rootName);		
 		putContextInstanceOnStack(L, ptr);
 		return 1;
 	}
@@ -131,8 +123,7 @@ struct ContextLuaFunctions
 
 static const struct luaL_Reg tableMethods[]=
 {
-	{"Create", ContextLuaFunctions::Create},
-	{"New", ContextLuaFunctions::Create},
+	{"New", ContextLuaFunctions::New},
 	{nullptr, nullptr}
 };
 
@@ -182,7 +173,7 @@ int ContextLuaMetaData::OpenInLua(lua_State * L)
 	luaL_register(L, GLOBALTABLENAME, tableMethods);
 
 	/** Now open dependent libraries. */
-	NamespaceLuaMetaData::OpenInLua(L);
+	NodeLuaMetaData::OpenInLua(L);
 
 	return 1;
 }
