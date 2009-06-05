@@ -77,57 +77,10 @@ tests = {
         }
     }, -- end complex names
 
-<<<<<<< .mine
     {	
         name = "Node Tests-Static Helper Functions",    
-=======
-tests={	       
- 
-    ["ParseComplexName creates nothing if given a blank."] = function(this)
-        local context = Context.New("{ROOT}", "{WILDCARD}");
-        local resultNode, resultName = context.RootNamespace:ParseComplexName("");
-        Test.assert("", resultName);
-        Test.assert(0, #context.RootNamespace.Members);
-    end,
-        
-    ["ParseComplexName creates nothing if given a simple name."] = function(this)
-        local context = Context.New("{ROOT}", "{WILDCARD}");
-        local resultNode, resultName = context.RootNamespace:ParseComplexName("Doggy");
-        Test.assert("Doggy", resultName);
-        Test.assert(0, #context.RootNamespace.Members);
-    end,
->>>>>>> .r162
     
-<<<<<<< .mine
         tests={	       
-=======
-    ["ParseComplexName creates UnknownScope if given a complex name."] = function(this)
-        local context = Context.New("{ROOT}", "{WILDCARD}");
-        local resultNode, resultName = context.RootNamespace:ParseComplexName("Animals::Doggy");
-        Test.assert("Doggy", resultName);
-        Test.assert(1, #(context.RootNamespace.Members));
-        Test.assert("Animals", resultNode.Name);
-        Test.assert(context.RootNamespace.Members[1], resultNode);
-        Test.assert(0, #(resultNode.Members));
-    end,
-    
-    ["ParseComplexName creates multiple UnknownScope if needed."] = function(this)
-        local context = Context.New("{ROOT}", "{WILDCARD}");
-        local resultNode, resultName = 
-            context.RootNamespace:ParseComplexName("Organisms::Animals::Kitty");
-        Test.assert("Kitty", resultName);
-        Test.assert(1, #(context.RootNamespace.Members));
-        local organisms = context.RootNamespace.Members[1];
-        Test.assert("Organisms", organisms.Name);        
-        Test.assert(1, #(organisms.Members));
-        Test.assert("Animals", context.RootNamespace.Members[1].Members[1].Name);
-        Test.assert(0, #(context.RootNamespace.Members[1].Members[1].Members));
-        Test.assert(context.RootNamespace.Members[1].Members[1], resultNode);
-        Test.assert("Organisms::Animals", resultNode.FullName);
-    end,
-    
-}
->>>>>>> .r162
 
             ["IsComplexName returns false for blanks."] = function(this)                
                 Test.assert(false, Node.IsComplexName(""));

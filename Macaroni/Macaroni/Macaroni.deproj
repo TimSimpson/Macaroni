@@ -21,4 +21,7 @@
   <file>
     <filename>Macaroni\Model\ContextTests.lua</filename>
   </file>
+  <file>
+    <filename>Macaroni\Model\NodeTests.lua</filename>
+  </file>
 </project>
