@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
-  <command>F:\Lp3\Projects\Macaroni\Code\Macaroni\Debug\Macaroni.exe</command>
+  <command>F:\Lp3\Projects\Macaroni\Code\trunk\Macaroni\Debug\Macaroni.exe</command>
   <command_arguments></command_arguments>
-  <working_directory>F:\Lp3\Projects\Macaroni\Code\Macaroni\Macaroni</working_directory>
-  <symbols_directory>F:\Lp3\Projects\Macaroni\Code\Macaroni\Debug</symbols_directory>
+  <working_directory>F:\Lp3\Projects\Macaroni\Code\trunk\Macaroni\Macaroni</working_directory>
+  <symbols_directory>F:\Lp3\Projects\Macaroni\Code\trunk\Macaroni\Debug</symbols_directory>
   <scc>
     <provider></provider>
     <user></user>
@@ -19,9 +19,15 @@
       </breakpoint>
     </file>
     <file>
+      <filename>Macaroni\Test.lua</filename>
+      <breakpoint>
+        <line>45</line>
+      </breakpoint>
+    </file>
+    <file>
       <filename>Macaroni\Model\ContextTests.lua</filename>
       <breakpoint>
-        <line>36</line>
+        <line>35</line>
       </breakpoint>
     </file>
   </files>
