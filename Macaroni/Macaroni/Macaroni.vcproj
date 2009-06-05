@@ -333,18 +333,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Model\ParserState.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Macaroni\Model\Primitive.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Macaroni\Model\PrimitiveLua.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Lua\print.c"
 				>
 			</File>
@@ -370,10 +358,6 @@
 			</File>
 			<File
 				RelativePath=".\Macaroni\Model\TypeLua.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Macaroni\Model\UnknownScope.cpp"
 				>
 			</File>
 		</Filter>
@@ -531,22 +515,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Model\ParserException.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Macaroni\Model\ParserState.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Macaroni\Model\Primitive.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Macaroni\Model\PrimitiveLua.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Macaroni\Model\Scope.h"
 				>
 			</File>
@@ -564,10 +532,6 @@
 			</File>
 			<File
 				RelativePath=".\Macaroni\Model\TypeLua.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Macaroni\Model\UnknownScope.h"
 				>
 			</File>
 		</Filter>
@@ -654,10 +618,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\Primitive.lh"
-			>
-		</File>
-		<File
 			RelativePath=".\Macaroni\Model\PrimitiveTests.lua"
 			>
 		</File>
@@ -699,14 +659,6 @@
 		</File>
 		<File
 			RelativePath=".\Macaroni\Model\TypeTests.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\UnknownScope.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\UnknownScopeTests.lua"
 			>
 		</File>
 	</Files>
