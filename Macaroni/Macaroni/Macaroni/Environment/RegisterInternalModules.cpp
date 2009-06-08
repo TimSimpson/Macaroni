@@ -2,21 +2,31 @@
 #define MACARONI_ENVIRONMENT_REGISTERINTERNALMODULES_CPP
 
 #include "LuaEnvironment.h"
+#include "../Model/AxiomLua.h"
 #include "../Model/ClassLua.h"
 #include "../Model/ContextLua.h"
 #include "../Model/Document.h"
+#include "../Model/FileNameLua.h"
 #include "../Model/NamespaceLua.h"
+#include "../Model/NodeLua.h"
+#include "../Model/ReasonLua.h"
+#include "../Model/SourceLua.h"
 #include <sstream>
 #include <windows.h>
 
 BEGIN_NAMESPACE2(Macaroni, Environment)
 
 static const struct luaL_Reg libs[] = {
+	{"Macaroni.Model.Axiom", Model::AxiomLuaMetaData::OpenInLua},
 	//MARIO {"Macaroni.Model.Class", Model::ClassLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Context", Model::ContextLuaMetaData::OpenInLua},
 	//MARIO {"Macaroni.Model.Document", Model::Document::OpenInLua},
+	{"Macaroni.Model.FileName", Model::FileNameLuaMetaData::OpenInLua},
 	//MARIO {"Macaroni.Model.Namespace", Model::NamespaceLuaMetaData::OpenInLua},
-    {nullptr, nullptr} /* sentinel */
+	{"Macaroni.Model.Node", Model::NodeLuaMetaData::OpenInLua},
+	{"Macaroni.Model.Reason", Model::ReasonLuaMetaData::OpenInLua},
+	{"Macaroni.Model.Source", Model::SourceLuaMetaData::OpenInLua},
+	{nullptr, nullptr} /* sentinel */
 	};
 
 void LuaEnvironment::registerInternalLuaModules()

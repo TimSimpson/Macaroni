@@ -173,6 +173,14 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\Macaroni\Model\Axiom.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Model\AxiomLua.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\CmdLine.cpp"
 				>
 			</File>
@@ -186,6 +194,14 @@
 			</File>
 			<File
 				RelativePath=".\Macaroni\Exception.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Model\FileName.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Model\FileNameLua.cpp"
 				>
 			</File>
 			<File
@@ -337,6 +353,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Model\Reason.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Model\ReasonLua.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Environment\RegisterInternalModules.cpp"
 				>
 			</File>
@@ -353,6 +377,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Model\Source.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Model\SourceLua.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Model\Type.cpp"
 				>
 			</File>
@@ -366,6 +398,14 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\Macaroni\Model\Axiom.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Model\AxiomLua.h"
+				>
+			</File>
 			<File
 				RelativePath=".\Macaroni\CmdLine.h"
 				>
@@ -384,6 +424,14 @@
 			</File>
 			<File
 				RelativePath=".\Macaroni\Exception.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Model\FileName.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Model\FileNameLua.h"
 				>
 			</File>
 			<File
@@ -515,6 +563,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Model\Reason.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Model\ReasonLua.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Model\Scope.h"
 				>
 			</File>
@@ -524,6 +580,14 @@
 			</File>
 			<File
 				RelativePath=".\Macaroni\Model\ScopeMemberLua.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Model\Source.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Model\SourceLua.h"
 				>
 			</File>
 			<File
@@ -541,6 +605,14 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 		</Filter>
+		<File
+			RelativePath=".\Macaroni\Model\Axiom.lh"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Model\AxiomTests.lua"
+			>
+		</File>
 		<File
 			RelativePath=".\TestData\Class.mcpp"
 			>
@@ -563,6 +635,14 @@
 		</File>
 		<File
 			RelativePath=".\Plan\Sample\Explanation.txt"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Model\FileName.lh"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Model\FileNameTests.lua"
 			>
 		</File>
 		<File
@@ -622,6 +702,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Macaroni\Model\Reason.lh"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Model\ReasonTests.lua"
+			>
+		</File>
+		<File
 			RelativePath=".\Plan\Sample\Sample.mcd"
 			>
 		</File>
@@ -643,6 +731,14 @@
 		</File>
 		<File
 			RelativePath=".\TestData\simple.mcpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Model\Source.lh"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Model\SourceTests.lua"
 			>
 		</File>
 		<File

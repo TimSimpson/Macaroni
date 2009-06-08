@@ -24,4 +24,16 @@
   <file>
     <filename>Macaroni\Model\NodeTests.lua</filename>
   </file>
+  <file>
+    <filename>Macaroni\Model\SourceTests.lua</filename>
+  </file>
+  <file>
+    <filename>Macaroni\Model\AxiomTests.lua</filename>
+  </file>
+  <file>
+    <filename>Macaroni\Model\FileNameTests.lua</filename>
+  </file>
+  <file>
+    <filename>Macaroni\Model\ReasonTests.lua</filename>
+  </file>
 </project>

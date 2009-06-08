@@ -3,12 +3,16 @@ require "Macaroni/Test";
 require "Macaroni.Model.Context"
 --require "Macaroni.Model.Document"
 
+require "Macaroni/Model/AxiomTests";
 --require "Macaroni/Model/ClassTests";
 require "Macaroni/Model/ContextTests";
 -- Commenting out Document Tests... FOR NOW...
 --require "Macaroni/Model/DocumentTests";
+require "Macaroni/Model/FileNameTests";
 --require "Macaroni/Model/NamespaceTests";
 require "Macaroni/Model/NodeTests";
+require "Macaroni/Model/ReasonTests";
+require "Macaroni/Model/SourceTests";
 
 local currentTest;
 suiteNames = {};
