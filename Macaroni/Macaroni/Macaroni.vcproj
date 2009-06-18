@@ -341,6 +341,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Model\Member.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Model\Node.cpp"
 				>
 			</File>
@@ -547,6 +551,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Model\Member.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\MemoryBlob.h"
 				>
 			</File>
@@ -650,11 +658,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\DocumentTests\FunctionTests.lua"
+			RelativePath=".\Macaroni\Model\FunctionTests.lua"
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\FunctionTests.lua"
+			RelativePath=".\Macaroni\Model\DocumentTests\FunctionTests.lua"
 			>
 		</File>
 		<File
