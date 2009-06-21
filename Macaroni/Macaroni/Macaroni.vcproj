@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="C:\Tools\boost_1_39_0;C:\Tools\boost_1_39_0"
+				AdditionalIncludeDirectories="F:\Tools\boost_1_37_0;C:\Tools\boost_1_39_0"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -62,7 +62,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="C:\Tools\boost_1_39_0\stage\lib;C:\Tools\boost_1_39_0\stage\lib;"
+				AdditionalLibraryDirectories="F:\Tools\boost_1_37_0\stage\lib;F:\Tools\boost_1_37_0\stage\lib;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -205,10 +205,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Model\Import.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Lua\lapi.c"
 				>
 			</File>
@@ -345,6 +341,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Model\Cpp\Namespace.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Model\Node.cpp"
 				>
 			</File>
@@ -369,15 +369,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Model\Scope.cpp"
+				RelativePath=".\Macaroni\Model\Cpp\Scope.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Model\ScopeMember.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Macaroni\Model\ScopeMemberLua.cpp"
+				RelativePath=".\Macaroni\Model\Cpp\ScopeMember.cpp"
 				>
 			</File>
 			<File
@@ -386,14 +382,6 @@
 			</File>
 			<File
 				RelativePath=".\Macaroni\Model\SourceLua.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Macaroni\Model\Type.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Macaroni\Model\TypeLua.cpp"
 				>
 			</File>
 		</Filter>
@@ -439,15 +427,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Model\Import.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Plan\InlineFunctions.txt"
-				>
-			</File>
-			<File
-				RelativePath=".\Macaroni\Model\Instance.h"
 				>
 			</File>
 			<File
@@ -559,6 +539,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Model\ModelInconsistencyException.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Model\Cpp\Namespace.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Model\Node.h"
 				>
 			</File>
@@ -579,15 +567,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Model\Scope.h"
+				RelativePath=".\Macaroni\Model\Cpp\Scope.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Model\ScopeMember.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Macaroni\Model\ScopeMemberLua.h"
+				RelativePath=".\Macaroni\Model\Cpp\ScopeMember.h"
 				>
 			</File>
 			<File
@@ -596,14 +580,6 @@
 			</File>
 			<File
 				RelativePath=".\Macaroni\Model\SourceLua.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Macaroni\Model\Type.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Macaroni\Model\TypeLua.h"
 				>
 			</File>
 		</Filter>
@@ -658,11 +634,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\FunctionTests.lua"
+			RelativePath=".\Macaroni\Model\DocumentTests\FunctionTests.lua"
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\DocumentTests\FunctionTests.lua"
+			RelativePath=".\Macaroni\Model\FunctionTests.lua"
 			>
 		</File>
 		<File
@@ -687,6 +663,14 @@
 		</File>
 		<File
 			RelativePath=".\Lua\Makefile"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Model\Member.lh"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Model\MemberTests.lua"
 			>
 		</File>
 		<File
@@ -730,11 +714,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\Scope.lh"
+			RelativePath=".\Macaroni\Model\Cpp\Scope.lh"
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\ScopeMember.lh"
+			RelativePath=".\Macaroni\Model\Cpp\ScopeMember.lh"
 			>
 		</File>
 		<File
@@ -755,14 +739,6 @@
 		</File>
 		<File
 			RelativePath=".\Tests.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\Type.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\TypeTests.lua"
 			>
 		</File>
 	</Files>

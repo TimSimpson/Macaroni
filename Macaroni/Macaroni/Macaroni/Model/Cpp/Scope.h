@@ -1,16 +1,15 @@
-#ifndef MACARONI_MODEL_SCOPE_H
-#define MACARONI_MODEL_SCOPE_H
+#ifndef MACARONI_MODEL_CPP_SCOPE_H
+#define MACARONI_MODEL_CPP_SCOPE_H
 
-#include "../ME.h"
+#include "../../ME.h"
 #include <vector>
-#include "Context.lh"
-#include "Node.lh"
+#include "../Member.h"
+#include "../Node.lh"
 #include "ScopeMember.h"
-#include "UnknownScope.lh"
 
-BEGIN_NAMESPACE2(Macaroni, Model)
+BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-class Scope : ScopeMember
+class Scope : public ScopeMember
 {
 friend void intrusive_ptr_add_ref(Scope * p);
 friend void intrusive_ptr_release(Scope * p);
@@ -20,8 +19,10 @@ public:
 
 	NodePtr GetMember(int index) const;
 
+	virtual const char * GetTypeName() const = 0;
+
 protected:
-	Scope(Node * scope);
+	Scope(Node * scope, ReasonPtr reason);
 	Scope(const Scope & other);
 	void operator=(const Scope & other);
 	virtual ~Scope(){}
@@ -29,6 +30,6 @@ protected:
 private:
 };
 
-END_NAMESPACE2
+END_NAMESPACE
 
 #endif

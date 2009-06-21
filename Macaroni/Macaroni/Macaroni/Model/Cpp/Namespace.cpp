@@ -1,21 +1,19 @@
-#ifndef MACARONI_MODEL_NAMESPACE_CPP
-#define MACARONI_MODEL_NAMESPACE_CPP
+#ifndef MACARONI_MODEL_CPP_NAMESPACE_CPP
+#define MACARONI_MODEL_CPP_NAMESPACE_CPP
 
-#include "../Exception.h"
-#include "Context.h"
 #include "Namespace.h"
-#include "Class.h"
+#include "../../Exception.h"
+#include "../Node.h"
 #include <memory>
 #include <sstream>
 
+using class Macaroni::Model::Node;
 
-BEGIN_NAMESPACE2(Macaroni, Model)
+BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-Namespace::Namespace(Node * parent, const std::string & name)
-:Node(parent, name)
+Namespace::Namespace(Node * parent, ReasonPtr reason)
+:Scope(parent, reason)
 {
-	MACARONI_ASSERT(Node::IsSimpleName(name), 
-				    "Namespace constructor cannot take complex name as argument.");
 }
 
 Namespace::~Namespace()
@@ -23,12 +21,18 @@ Namespace::~Namespace()
 	
 }
 
-Namespace * Namespace::create(std::string & name)
-{	
-	std::auto_ptr<Namespace> newNs(new Namespace(this, name));
-	addScopeMember(newNs.get());
-	return newNs.release();
+const char * Namespace::GetTypeName() const
+{
+	return "Namespace";
 }
+
+//
+//Namespace * Namespace::create(std::string & name)
+//{	
+//	std::auto_ptr<Namespace> newNs(new Namespace(this, name));
+//	addScopeMember(newNs.get());
+//	return newNs.release();
+//}
 
 //NamespacePtr Namespace::CreatePrimitiveTypes(NamespacePtr parentNs, const std::string & name)
 //{
@@ -70,19 +74,19 @@ Namespace * Namespace::create(std::string & name)
 ////	}
 ////	return nullptr;
 ////}
-
-ClassPtr Namespace::FindClass(std::string & name)
-{
-	for(size_t i = 0; i < classes.size(); i ++)
-	{
-		ClassPtr ptr = classes[i];
-		if (ptr->GetName() == name)
-		{
-			return ptr;
-		}
-	}
-	return ClassPtr();
-}
+//
+//ClassPtr Namespace::FindClass(std::string & name)
+//{
+//	for(size_t i = 0; i < classes.size(); i ++)
+//	{
+//		ClassPtr ptr = classes[i];
+//		if (ptr->GetName() == name)
+//		{
+//			return ptr;
+//		}
+//	}
+//	return ClassPtr();
+//}
 
 //NamespacePtr Namespace::FindOrCreate(std::string & name)
 //{
@@ -143,34 +147,34 @@ ClassPtr Namespace::FindClass(std::string & name)
 //}
 
 
-
-NamespacePtr Namespace::GetParent() const
-{
-	return dynamic_cast<Namespace *>(getNode());
-}
-
-NamespacePtr Namespace::GetRoot()
-{
-	return context->GetRootNamespace();
-}
-
-ClassPtr Namespace::InsertClass(ClassPtr newInstance)
-{
-	std::string className = newInstance->GetName();
-	MACARONI_ASSERT(FindClass(className) == false,
-					"Attempted to insert an already present class.");
-	classes.push_back(newInstance);
-	return newInstance;
-}
+//
+//NamespacePtr Namespace::GetParent() const
+//{
+//	return dynamic_cast<Namespace *>(getNode());
+//}
+//
+//NamespacePtr Namespace::GetRoot()
+//{
+//	return context->GetRootNamespace();
+//}
+//
+//ClassPtr Namespace::InsertClass(ClassPtr newInstance)
+//{
+//	std::string className = newInstance->GetName();
+//	MACARONI_ASSERT(FindClass(className) == false,
+//					"Attempted to insert an already present class.");
+//	classes.push_back(newInstance);
+//	return newInstance;
+//}
 
 void intrusive_ptr_add_ref(Namespace * p)
 {
-	intrusive_ptr_add_ref(static_cast<Node *>(p));
+	intrusive_ptr_add_ref((ScopeMember *)p);
 }
 
 void intrusive_ptr_release(Namespace * p)
 {
-	intrusive_ptr_release(static_cast<Node *>(p));
+	intrusive_ptr_release((ScopeMember *)p);
 }
 
 
@@ -188,6 +192,6 @@ void intrusive_ptr_release(Namespace * p)
 //	return root;
 //}
 
-END_NAMESPACE2
+END_NAMESPACE
 
 #endif

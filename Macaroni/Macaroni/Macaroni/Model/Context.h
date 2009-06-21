@@ -6,9 +6,7 @@
 #include <boost/intrusive_ptr.hpp>
 #include "Class.lh"
 #include "Context.lh"
-#include "Namespace.lh"
 #include "Node.lh"
-#include "ScopeMember.lh"
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 

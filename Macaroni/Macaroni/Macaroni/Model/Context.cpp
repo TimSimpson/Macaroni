@@ -2,7 +2,7 @@
 #define MACARONI_MODEL_CONTEXT_CPP
 
 #include "Context.h"
-#include "Namespace.h"
+#include "Node.h"
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 

@@ -1,10 +1,10 @@
-#ifndef MACARONI_MODEL_SCOPE_CPP
-#define MACARONI_MODEL_SCOPE_CPP
+#ifndef MACARONI_MODEL_CPP_SCOPE_CPP
+#define MACARONI_MODEL_CPP_SCOPE_CPP
 
 #include "Scope.h"
-#include "Node.h"
+#include "../Node.h"
 
-BEGIN_NAMESPACE2(Macaroni, Model)
+BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 void intrusive_ptr_add_ref(Scope * p)
 {
@@ -16,21 +16,21 @@ void intrusive_ptr_release(Scope * p)
 	intrusive_ptr_add_ref((ScopeMember *)p);
 }
 
-Scope::Scope(Node * node)
-:ScopeMember(node)
+Scope::Scope(Node * node, ReasonPtr reason)
+:ScopeMember(node, reason)
 {
 }
 
 size_t Scope::GetMemberCount() const
 {
-	return node->GetChildCount();
+	return getNode()->GetChildCount();
 }
 
 NodePtr Scope::GetMember(int index) const
 {
-	return node->GetChild(index);
+	return getNode()->GetChild(index);
 }
 
-END_NAMESPACE2
+END_NAMESPACE
 
 #endif

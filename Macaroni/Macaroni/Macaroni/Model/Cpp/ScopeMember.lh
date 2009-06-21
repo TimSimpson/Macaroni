@@ -3,11 +3,14 @@
 
 #include <boost/intrusive_ptr.hpp>
 
-BEGIN_NAMESPACE2(Macaroni, Model)
+BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 class ScopeMember;
 typedef boost::intrusive_ptr<ScopeMember> ScopeMemberPtr;
 
-END_NAMESPACE2
+void intrusive_ptr_add_ref(ScopeMember * p);
+void intrusive_ptr_release(ScopeMember * p);
+
+END_NAMESPACE
 
 #endif

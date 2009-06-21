@@ -4,13 +4,16 @@
 #include "Node.h"
 #include "Context.h"
 #include "../Exception.h"
+#include "Member.h"
+#include "ModelInconsistencyException.h"
+#include "Reason.h"
 #include <memory>
 #include <sstream>
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
 Node::Node(Node * scope, const std::string & name)
-:context(nullptr), name(name), scope(scope)
+:context(nullptr), member(nullptr), name(name), scope(scope)
 {
 	if (scope != nullptr)
 	{
@@ -232,6 +235,19 @@ void Node::ParseComplexName(NodePtr searchRoot, const std::string & complexName,
 		SplitNodeAndMemberName(complexName, additionalNodeName, resultSimpleName);		
 		resultNode = searchRoot->FindOrCreate(additionalNodeName);
 	}
+}
+
+void Node::setMember(Member * value)
+{
+	if (this->member != nullptr)
+	{
+		std::stringstream ss;
+		ss << "Member for node " << GetFullName() 
+		   << " is already set to " << member->GetTypeName() << ", created for"
+		      " the following reason:" << member->GetReasonCreated()->ToString(); 
+		throw new ModelInconsistencyException(ss.str());
+	}
+	this->member->node = this;
 }
 
 void Node::SplitFirstNameOffComplexName(const std::string & complexName,

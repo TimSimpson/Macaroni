@@ -5,9 +5,8 @@
 #include <vector>
 #include "Class.lh"
 #include "Context.lh"
-#include "Namespace.lh"
+#include "Member.lh"
 #include "Node.lh"
-#include "ScopeMember.h"
 #include "UnknownScope.lh"
 
 BEGIN_NAMESPACE2(Macaroni, Model)
@@ -17,7 +16,7 @@ class Namespace;
 class Node
 {
 friend Context;
-friend Namespace; // Only friends so Namespace can find the root namespace- may change this in the future.
+friend Member;
 friend void intrusive_ptr_add_ref(Node * p);
 friend void intrusive_ptr_release(Node * p);
 
@@ -51,6 +50,11 @@ public:
 	inline NodePtr GetChild(int index) const
 	{
 		return NodePtr(children[index]);
+	}
+
+	MemberPtr GetMember()
+	{
+		return MemberPtr(member);
 	}
 
 	//TO-DO: Rename to "getParent" or something.
@@ -105,12 +109,21 @@ protected:
 		return children[index];
 	}
 
+	Member * getMember() 
+	{
+		return member;
+	}
+
 	Node * getNode() const;
+
+	void setMember(Member * member);
 
 private:
 	std::vector<Node *> children;
 
 	Context * context;
+
+	Member * member;
 
 	std::string name;
 

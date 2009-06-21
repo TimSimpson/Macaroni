@@ -8,10 +8,7 @@ extern "C" {
 }
 #include "../Exception.h"
 #include "Node.h"
-#include "ClassLua.h"
-#include "NamespaceLua.h"
 #include "NodeLua.h"
-#include "ScopeMemberLua.h"
 #include <sstream>
 
 BEGIN_NAMESPACE2(Macaroni, Model)
@@ -303,7 +300,7 @@ int NodeLuaMetaData::Index(lua_State * L, NodePtr & ptr, const std::string & ind
 	else if (index == "FindOrCreateNamespace")
 	{
 		lua_pushcfunction(L, NodeLuaFunctions::FindOrCreateNamespace);	
-		return 1;
+		return 1;  
 	}	
 	else*/ 
 	if (index == "Find")
@@ -393,7 +390,7 @@ int NodeLuaMetaData::OpenInLua(lua_State * L)
 	luaL_newmetatable(L, MEMBERSPROPERTY_METATABLENAME);
 	luaL_register(L, nullptr, MembersProperty_MetaTableMethods);
 
-	ScopeMemberLuaMetaData::OpenInLua(L);
+	//ScopeMemberLuaMetaData::OpenInLua(L);
 	
 	// Creates or reuses a table called "Macaroni_File" and puts it in global 
 	// scope.
