@@ -5,8 +5,15 @@
 #include <iostream>
 #include <tchar.h>
 
+#ifdef COMPILE_TARGET_TESTS
+	//#include <boost/test/unit_test.hpp>
+#endif 
+
 int _tmain(int argc, _TCHAR* argv[])
 {
+#ifdef COMPILE_TARGET_TESTS
+	//return init_unit_tests();//main(argc, nullptr);
+#endif
 	using namespace Macaroni;
 	std::vector<std::string> args;
 	args.push_back("Tests/simple.mcpp");

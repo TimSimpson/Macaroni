@@ -243,9 +243,11 @@ void Node::setMember(Member * value)
 	{
 		std::stringstream ss;
 		ss << "Member for node " << GetFullName() 
-		   << " is already set to " << member->GetTypeName() << ", created for"
-		      " the following reason:" << member->GetReasonCreated()->ToString(); 
-		throw new ModelInconsistencyException(ss.str());
+		   << " is already a(n) " << member->GetTypeName() << " and cannot "
+		   "morph into a(n) " << value->GetTypeName() << ".";
+		throw new ModelInconsistencyException(member->GetReasonCreated(),
+											  value->GetReasonCreated(),
+											  ss.str());	
 	}
 	this->member->node = this;
 }

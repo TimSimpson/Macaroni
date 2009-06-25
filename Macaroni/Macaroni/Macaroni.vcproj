@@ -6,6 +6,7 @@
 	ProjectGUID="{D57C9ED8-414C-419C-B331-04A8978DEFA4}"
 	RootNamespace="Macaroni"
 	Keyword="Win32Proj"
+	AssemblyReferenceSearchPaths="&quot;..\..\..\..\..\..\..\Tools\boost_1_37_0\stage&quot;"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
@@ -87,6 +88,8 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				Description="Auto run boost tests"
+				CommandLine="&quot;$(TargetDir)\$(TargetName).exe&quot; -result_code=no -report_level=no"
 			/>
 		</Configuration>
 		<Configuration
@@ -163,6 +166,82 @@
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
+		<Configuration
+			Name="Boost Test|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				CommandLine="copy &quot;F:\Tools\boost_1_37_0\stage\lib\boost_unit_test_framework-vc90-mt-gd-1_37.dll&quot; &quot;$(TargetDir)&quot;"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="F:\Tools\boost_1_37_0;C:\Tools\boost_1_39_0"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;COMPILE_TARGET_TESTS;BOOST_TEST_DYN_LINK;BOOST_TEST_MAIN"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				DebugInformationFormat="4"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				LinkIncremental="2"
+				AdditionalLibraryDirectories="F:\Tools\boost_1_37_0\stage\lib;F:\Tools\boost_1_37_0\stage\lib;F:\Tools\boost_1_37_0\stage\boost_unit_test_framework-vc90-mt-gd-1_37.dll"
+				GenerateDebugInformation="true"
+				SubSystem="1"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Auto run boost tests"
+				CommandLine="&quot;$(TargetDir)\$(TargetName).exe&quot; -result_code=no -report_level=no"
+			/>
+		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -181,6 +260,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\BoostTestTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\CmdLine.cpp"
 				>
 			</File>
@@ -190,6 +273,14 @@
 			</File>
 			<File
 				RelativePath=".\Macaroni\Model\ContextLua.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Parser\Cpp\CppParser.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Parser\Cpp\CppParserTests.cpp"
 				>
 			</File>
 			<File
@@ -341,6 +432,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Model\ModelInconsistencyException.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Model\Cpp\Namespace.cpp"
 				>
 			</File>
@@ -412,6 +507,10 @@
 			</File>
 			<File
 				RelativePath=".\Macaroni\Cpp.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Parser\Cpp\CppParser.h"
 				>
 			</File>
 			<File
@@ -559,6 +658,22 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Parser\Parser.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Parser\ParserFactory.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Parser\ParserInputException.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Parser\ParserLua.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Model\Reason.h"
 				>
 			</File>
@@ -576,6 +691,10 @@
 			</File>
 			<File
 				RelativePath=".\Macaroni\Model\Source.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Model\SourceException.h"
 				>
 			</File>
 			<File
@@ -634,11 +753,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\DocumentTests\FunctionTests.lua"
+			RelativePath=".\Macaroni\Model\FunctionTests.lua"
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\FunctionTests.lua"
+			RelativePath=".\Macaroni\Model\DocumentTests\FunctionTests.lua"
 			>
 		</File>
 		<File

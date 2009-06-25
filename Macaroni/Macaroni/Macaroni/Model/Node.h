@@ -7,6 +7,7 @@
 #include "Context.lh"
 #include "Member.lh"
 #include "Node.lh"
+#include "Reason.lh"
 #include "UnknownScope.lh"
 
 BEGIN_NAMESPACE2(Macaroni, Model)
