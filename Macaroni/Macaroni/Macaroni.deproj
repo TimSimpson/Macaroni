@@ -36,4 +36,7 @@
   <file>
     <filename>Macaroni\Model\ReasonTests.lua</filename>
   </file>
+  <file>
+    <filename>Macaroni\Parser\Cpp\CppParserTests.lua</filename>
+  </file>
 </project>

@@ -1,49 +1,46 @@
-#ifndef MACARONI_MODEL_FILE_SPIRIT
-#define MACARONI_MODEL_FILE_SPIRIT
+#ifndef MACARONI_PARSER_CPP_CPPPARSER_SPIRIT
+#define MACARONI_PARSER_CPP_CPPPARSER_SPIRIT
 
 #include "General.spirit"
-#include "ParserException.h"
+#include "CppParserState.h"
+#include "../ParserException.h"
 #include <iostream>
-#include "Class.h"
-#include "Namespace.h"
-#include "ParserState.h"
+
+using Macaroni::Parser::Cpp::CppParserState;
+
+//#include "Class.h"
+//#include "Namespace.h"
 
 // This is a C++ doc that defines a spirit parser and should be included
 // from another CPP doc only.
 
-BEGIN_NAMESPACE2(Macaroni, Model)
+BEGIN_NAMESPACE(Macaroni, Parser, Cpp)
 
 #define BEGIN_ACTOR(actor_type_name)	class actor_type_name \
 						{ \
 						public: \
-							actor_type_name(Document & model, ParserState & self) \
-							: model(model), \
-							self(self) \
+							actor_type_name(CppParserState & s) \
+							: self(s) \
 							{} \
 							void operator() (const char * pbegin, const char * pend) const \
-							{
-#define END_ACTOR(actor_instance_name)		} \
-						private:			\
-							Document & model;	\
-							ParserState & self; \
-						} actor_instance_name;		
- 
-#define INIT_ACTOR(actor_instance_name)	actor_instance_name (doc, state)
- 
+							{							
+/*#define END_ACTOR(actor_instance_name)	\
+							} \
+						private:			\							
+							CppParserState & self; \
+						} actor_instance_name;		*/
+	
+#define END_ACTOR(actor_instance_name)	} private: CppParserState & self; } actor_instance_name;
+
+#define INIT_ACTOR(actor_instance_name)	actor_instance_name (state)
+
 
 class ParserActions
 {
 private:
-	/*ClassPtr currentClass;
-	std::string currentClassName;
-	ImportPtr currentImport;
-	NamespacePtr currentNamespace;
-	std::string currentNamespaceName;
-	std::string currentBaseClassAccessKeyword;
-	std::vector<NamespacePtr> namespaceStack;*/
-	
+	CppParserState self;
 public:
-	ParserActions(Document & doc, ParserState & state)
+	ParserActions(CppParserState & state)
 	 :
 #pragma warning(disable : 4355)	 
 	 INIT_ACTOR(baseClassAccessKeyword),
@@ -62,17 +59,17 @@ public:
 	}
 	~ParserActions()
 	{}
-	
+		
 	BEGIN_ACTOR(docComment_)
-		model.comments.push_back(std::string(pbegin, pend-pbegin));
+		/////model.comments.push_back(std::string(pbegin, pend-pbegin));	
 	END_ACTOR(docComment)
 	
 	BEGIN_ACTOR(baseClassAccessKeyword_)
-		self.currentBaseClassAccessKeyword = std::string(pbegin, pend-pbegin);
+		//self.currentBaseClassAccessKeyword = std::string(pbegin, pend-pbegin);
 	END_ACTOR(baseClassAccessKeyword)
 	
 	BEGIN_ACTOR(baseClassAddition_)
-		ClassPtr baseClass = Class::FindOrCreate(
+		/*ClassPtr baseClass = Class::FindOrCreate(
 				self.currentNamespace, std::string(pbegin, pend-pbegin));
 		BaseClass::Access access;
 		if (self.currentBaseClassAccessKeyword == "public")
@@ -89,15 +86,16 @@ public:
 		}
 		BaseClassPtr baseClassPtr(new BaseClass(access, baseClass));
 		self.currentClass->AddBaseClass(baseClassPtr);
+		*/
 	END_ACTOR(baseClassAddition)
 	
 	BEGIN_ACTOR(classBegin_)
-		std::string name = std::string(pbegin, pend-pbegin);		
-		self.currentClass = ClassPtr(Class::FindOrCreate(self.currentNamespace, name));		
+		//std::string name = std::string(pbegin, pend-pbegin);		
+		//self.currentClass = ClassPtr(Class::FindOrCreate(self.currentNamespace, name));		
 	END_ACTOR(classBegin)
 	
 	BEGIN_ACTOR(classBody_)
-		if (self.currentClass == false)
+		/*if (self.currentClass == false)
 		{
 			throw new ParserException("Did not expect class body.");
 		}
@@ -105,22 +103,20 @@ public:
 		
 		model.classes.push_back(self.currentClass);
 		self.currentClass = ClassPtr();
+		*/
 	END_ACTOR(classBody)	
 	
 	BEGIN_ACTOR(debug_)
-		std::cout << "DEBUG:" << std::string(pbegin, pend-pbegin) << std::endl;
+		//std::cout << "DEBUG:" << std::string(pbegin, pend-pbegin) << std::endl;
 	END_ACTOR(debug)	
 	
 	BEGIN_ACTOR(importBegin_)
-		std::string importName = std::string(pbegin, pend-pbegin);
-		self.currentImport = ImportPtr(new Import(self.currentNamespace, importName));
-		//self.currentImport->name = std::string(pbegin, pend-pbegin);
-		//self.currentImport->namespacePtr = 
-		//	self.currentNamespace ? self.currentNamespace : Namespace::GetRoot();
+		//std::string importName = std::string(pbegin, pend-pbegin);
+		//self.currentImport = ImportPtr(new Import(self.currentNamespace, importName));		
 	END_ACTOR(importBegin)
 	
 	BEGIN_ACTOR(importEnd_)
-		model.imports.push_back(self.currentImport);		
+		//model.imports.push_back(self.currentImport);		
 	END_ACTOR(importEnd)
 	
 	BEGIN_ACTOR(nullAction_)
@@ -128,7 +124,9 @@ public:
 	END_ACTOR(nullAction)
 	
 	BEGIN_ACTOR(namespaceBegin_)
-		NamespacePtr oldNs = self.currentNamespace;		
+		NodePtr node = self.currentNode->FindOrCreate(self.currentNamespaceName);
+		self.currentNode = node;
+		/*NamespacePtr oldNs = self.currentNamespace;		
 		
 		NamespacePtr ns = self.currentNamespace->FindOrCreateNamespace(self.currentNamespaceName);
 				//Namespace::FindOrCreate(
@@ -139,11 +137,11 @@ public:
 		//{
 		//	self.currentNamespace->parent = oldNs;
 		//}
-		self.namespaceStack.push_back(self.currentNamespace);
+		//self.namespaceStack.push_back(self.currentNamespace);*/
 	END_ACTOR(namespaceBegin)
 	
 	BEGIN_ACTOR(namespaceEnd_)	
-		model.addNamespace(self.currentNamespace);
+		/*model.addNamespace(self.currentNamespace);
 		
 		self.namespaceStack.pop_back();
 		if (self.namespaceStack.size() > 0)
@@ -153,11 +151,11 @@ public:
 		else
 		{
 			self.currentNamespace = NamespacePtr();
-		}
+		}*/
 	END_ACTOR(namespaceEnd)
 	
 	BEGIN_ACTOR(namespaceName_)
-		self.currentNamespaceName = std::string(pbegin, pend-pbegin);
+		//self.currentNamespaceName = std::string(pbegin, pend-pbegin);
 	END_ACTOR(namespaceName)
 };
 
@@ -297,6 +295,6 @@ struct DocumentGrammar : public grammar<DocumentGrammar>
     };
 };
 
-END_NAMESPACE2
+END_NAMESPACE
 
 #endif

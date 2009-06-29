@@ -1,0 +1,85 @@
+#ifndef MACARONI_PARSER_CPP_GENERAL_SPIRIT
+#define MACARONI_PARSER_CPP_GENERAL_SPIRIT
+
+#include <boost/spirit/core.hpp>
+#include <boost/spirit/actor/push_back_actor.hpp>
+#include <boost/spirit/utility/confix.hpp>
+#include <boost/spirit/utility/chset.hpp>
+
+using namespace boost::spirit;
+/** It is insanity to try to avoid using the boost::spirit namespace; all of the
+ * code would become unreadable.  I think making an alias for the namespace is
+ * nearly as bad as including it, plus you'd still get unreadable parser
+ * definitions.
+ * So the alternative is to simply put all the parsing rules in these ".spirit"
+ * files and make sure they are only included from .CPP files.
+ */
+
+// Have to define in order of use so I can't alphabetize! NOOOOOO!
+namespace General
+{
+	// Characters
+	rule<> braceL 
+		=	ch_p('{');
+	rule<> braceR 
+		=	ch_p('}');
+	rule<> colon
+		=	ch_p(':');
+	rule<> digit
+		=	range_p('0','9');	
+	rule<> namespaceSeperator
+		=	str_p("::");	
+	rule<> nondigit
+		=	range_p('a','z') | range_p('A','Z') | ch_p('_');
+	rule<> semicolon
+		=	ch_p(';');
+	
+	// Keywords:
+	rule<> classKeyword 
+		=	str_p("class");	
+	rule<> importKeyword
+		=	str_p("import");
+	rule<> namespaceKeyword 
+		=	str_p("namespace");
+	rule<> privateKeyword
+		=	str_p("private");
+	rule<> protectedKeyword
+		=	str_p("protected");
+	rule<> publicKeyword
+		=	str_p("public");
+	
+	// Aliases
+	rule<>	accessKeyword
+		=	(publicKeyword | privateKeyword | protectedKeyword);
+			
+	// Sections of stuff (comments, brace blocks, etc)
+	rule<> braceSandwhich 
+		=	braceL 
+			>> 
+			*(
+				braceSandwhich 
+				| 
+				~ch_p('}')
+			) 
+			>> 
+			braceR;		
+	rule<> commentBlockNormal
+		=	comment_p("//") 
+			| 
+			comment_p("/*", "*/");
+	rule<> cppIdentifier
+		= 	(+nondigit) | *(digit | nondigit);
+	/** Like a normal identifier but can be nested using ::. */
+	rule<> complexIdentifier
+		=	General::cppIdentifier
+			>>
+			*(General::namespaceSeperator >> General::cppIdentifier);
+	
+		
+	// More complex bits
+	rule<> commentBlock
+		= commentBlockNormal;	
+				
+};
+
+#endif

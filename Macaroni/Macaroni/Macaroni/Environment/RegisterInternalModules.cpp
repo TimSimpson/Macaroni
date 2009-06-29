@@ -10,6 +10,8 @@
 //#include "../Model/NamespaceLua.h"
 #include "../Model/NodeLua.h"
 #include "../Model/ReasonLua.h"
+#include "../Parser/ParserLua.h"
+#include "../Parser/Cpp/CppParserLua.h"
 #include "../Model/SourceLua.h"
 #include <sstream>
 #include <windows.h>
@@ -24,8 +26,10 @@ static const struct luaL_Reg libs[] = {
 	{"Macaroni.Model.FileName", Model::FileNameLuaMetaData::OpenInLua},
 	//MARIO {"Macaroni.Model.Namespace", Model::NamespaceLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Node", Model::NodeLuaMetaData::OpenInLua},
-	{"Macaroni.Model.Reason", Model::ReasonLuaMetaData::OpenInLua},
+	{"Macaroni.Model.Reason", Model::ReasonLuaMetaData::OpenInLua},	
 	{"Macaroni.Model.Source", Model::SourceLuaMetaData::OpenInLua},
+	{"Macaroni.Parser.Parser", Parser::ParserLuaMetaData::OpenInLua},
+	{"Macaroni.Parser.Cpp.CppParser", Parser::Cpp::CppParserLuaMetaData::OpenInLua},
 	{nullptr, nullptr} /* sentinel */
 	};
 

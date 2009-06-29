@@ -3,6 +3,7 @@
 
 #include <boost/spirit/core.hpp>
 #include "../../ME.h"
+#include "CppParser.lh"
 #include "../Parser.h"
 
 BEGIN_NAMESPACE(Macaroni, Parser, Cpp)
@@ -13,6 +14,8 @@ public:
 	CppParser();
 
 	~CppParser();
+
+	static CppParserPtr Create();
 
 	virtual int Read(Model::ContextPtr c, Model::SourcePtr source, const std::string & text);
 private:

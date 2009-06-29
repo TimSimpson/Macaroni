@@ -3,6 +3,7 @@
 
 #include "../ME.h"
 #include "../Model/Context.lh"
+#include "Parser.lh"
 #include "../Model/Source.lh"
 
 BEGIN_NAMESPACE2(Macaroni, Parser)

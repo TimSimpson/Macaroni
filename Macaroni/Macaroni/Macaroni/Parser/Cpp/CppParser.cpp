@@ -3,7 +3,10 @@
 
 #include "CppParser.h"
 #include "../../Model/Context.h"
+#include "CppParserState.h"
 #include "../../Model/Source.h"
+#include "CppParser.spirit"
+
 
 using Macaroni::Model::Context;
 using Macaroni::Model::ContextPtr;
@@ -11,7 +14,6 @@ using Macaroni::Model::Source;
 using Macaroni::Model::SourcePtr;
 
 BEGIN_NAMESPACE(Macaroni, Parser, Cpp)
-
 
 
 CppParser::CppParser()
@@ -23,9 +25,23 @@ CppParser::~CppParser()
 {
 }
 
+CppParserPtr CppParser::Create()
+{
+	return CppParserPtr(new CppParser());
+}
 
 int CppParser::Read(ContextPtr c, SourcePtr source, const std::string & text)
 {
+	CppParserState state;
+	DocumentGrammar cppGrammar;
+	ParserActions actors(state);
+	cppGrammar.actors = &actors;
+
+	parse_info<> info = parse(
+		text.c_str(),
+		cppGrammar,
+		space_p);
+
 	return 1;
 }
 

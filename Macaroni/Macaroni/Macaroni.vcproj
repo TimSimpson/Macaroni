@@ -193,7 +193,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="F:\Tools\boost_1_37_0;C:\Tools\boost_1_39_0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;COMPILE_TARGET_TESTS;BOOST_TEST_DYN_LINK;BOOST_TEST_MAIN"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;COMPILE_TARGET_TESTS;BOOST_TEST_DYN_LINK;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -277,6 +277,14 @@
 			</File>
 			<File
 				RelativePath=".\Macaroni\Parser\Cpp\CppParser.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Parser\Cpp\CppParserLua.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Parser\Cpp\CppParserState.cpp"
 				>
 			</File>
 			<File
@@ -412,6 +420,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\LuaGlue.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\LuaGlue2.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Lua\lundump.c"
 				>
 			</File>
@@ -445,6 +461,10 @@
 			</File>
 			<File
 				RelativePath=".\Macaroni\Model\NodeLua.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Parser\ParserLua.cpp"
 				>
 			</File>
 			<File
@@ -511,6 +531,14 @@
 			</File>
 			<File
 				RelativePath=".\Macaroni\Parser\Cpp\CppParser.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Parser\Cpp\CppParserLua.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Parser\Cpp\CppParserState.h"
 				>
 			</File>
 			<File
@@ -662,6 +690,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Parser\ParserException.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Parser\ParserFactory.h"
 				>
 			</File>
@@ -733,6 +765,18 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Macaroni\Parser\Cpp\CppParser.lh"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Parser\Cpp\CppParser.spirit"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Parser\Cpp\CppParserTests.lua"
+			>
+		</File>
+		<File
 			RelativePath=".\doodlebug.lua"
 			>
 		</File>
@@ -762,6 +806,10 @@
 		</File>
 		<File
 			RelativePath=".\Macaroni\Model\General.spirit"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Parser\Cpp\General.spirit"
 			>
 		</File>
 		<File
@@ -798,6 +846,10 @@
 		</File>
 		<File
 			RelativePath=".\Macaroni\Model\NodeTests.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Parser\Parser.lh"
 			>
 		</File>
 		<File

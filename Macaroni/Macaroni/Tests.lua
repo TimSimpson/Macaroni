@@ -13,6 +13,7 @@ require "Macaroni/Model/FileNameTests";
 require "Macaroni/Model/NodeTests";
 require "Macaroni/Model/ReasonTests";
 require "Macaroni/Model/SourceTests";
+require "Macaroni/Parser/Cpp/CppParserTests";
 
 local currentTest;
 suiteNames = {};
@@ -30,11 +31,22 @@ output = {
     end,
     
     fail = function(msg)
-        print("[" .. output.getFullSuiteName() .. '] "' .. currentTest .. '"');        
-        print(msg);
-        print();
-        print("-------------------------------------------------------------------------------");
-        print();
+        -- Lua error msg is in form: filename.lua:line#: error
+        -- Change it to VS2008 compatable form: filename.lua(line#): error in blah
+        local index1 = string.find(msg, ".lua:", 0, true);
+        local index2 = string.find(msg, ":", index1 + 5, true) + 1;
+        local fileName = string.sub(msg, 0, index1 + 3);
+        local lineNumber = string.sub(msg, index1 + 5, index2 - 2);
+        local errorMsg = string.sub(msg, index2, #msg);
+        local newMsg = fileName .. "(" .. lineNumber .. ") : error at line " .. lineNumber 
+            .. " [" 
+            .. output.getFullSuiteName() .. '] "' .. currentTest .. '":' .. errorMsg;                
+        --print("[" .. output.getFullSuiteName() .. '] "' .. currentTest .. '"');        
+        --print(msg);
+        --print();
+        --print("-------------------------------------------------------------------------------");
+        --print();
+        print(newMsg);
     end,
     
     getFullSuiteName = function()

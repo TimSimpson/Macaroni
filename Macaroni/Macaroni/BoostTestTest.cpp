@@ -13,8 +13,9 @@
 // Third, a post-build event will call the tests and put them in the VS error pane:
 // "$(TargetDir)\$(TargetName).exe" -result_code=no -report_level=no
 
-#define BOOST_TEST_MAIN
-#define BOOST_TEST_MODULE BoostTestTest
+//#define BOOST_TEST_MAIN
+//#define BOOST_TEST_MAIN
+#define BOOST_TEST_MODULE MacaroniTests
 #include <boost/test/unit_test.hpp>
 
 int add( int i, int j ) { return i+j; }

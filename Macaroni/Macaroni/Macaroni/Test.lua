@@ -77,6 +77,9 @@ Test = {
                 Test.runCase(test, i, v, output);
             end
             if (type(v) == "table") then
+                if (v.name == nil) then
+                    v.name = i; -- assign name property using index name if none found.
+                end
                 Test.runSuite(v, output);
             end            
         end

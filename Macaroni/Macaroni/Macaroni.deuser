@@ -18,17 +18,5 @@
         <line>66</line>
       </breakpoint>
     </file>
-    <file>
-      <filename>Macaroni\Test.lua</filename>
-      <breakpoint>
-        <line>45</line>
-      </breakpoint>
-    </file>
-    <file>
-      <filename>Macaroni\Model\ContextTests.lua</filename>
-      <breakpoint>
-        <line>35</line>
-      </breakpoint>
-    </file>
   </files>
 </project>
