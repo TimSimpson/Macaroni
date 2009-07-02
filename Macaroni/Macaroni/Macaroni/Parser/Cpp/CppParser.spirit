@@ -2,11 +2,24 @@
 #define MACARONI_PARSER_CPP_CPPPARSER_SPIRIT
 
 #include "General.spirit"
+#include "CppAxiom.h"
+#include "CppAxioms.h"
 #include "CppParserState.h"
-#include "../ParserException.h"
+#include "../../Model/Axiom.h"
+#include "../../Model/Cpp/Namespace.h"
+#include "../../Model/Node.h"
 #include <iostream>
+#include "../ParserException.h"
+#include "../../Model/Reason.h"
+
 
 using Macaroni::Parser::Cpp::CppParserState;
+using Macaroni::Model::Cpp::Namespace;
+using Macaroni::Model::Cpp::NamespacePtr;
+using Macaroni::Model::Node;
+using Macaroni::Model::NodePtr;
+using Macaroni::Model::Reason;
+using Macaroni::Model::ReasonPtr;
 
 //#include "Class.h"
 //#include "Namespace.h"
@@ -38,7 +51,7 @@ BEGIN_NAMESPACE(Macaroni, Parser, Cpp)
 class ParserActions
 {
 private:
-	CppParserState self;
+	//CppParserState & self;
 public:
 	ParserActions(CppParserState & state)
 	 :
@@ -124,8 +137,11 @@ public:
 	END_ACTOR(nullAction)
 	
 	BEGIN_ACTOR(namespaceBegin_)
-		NodePtr node = self.currentNode->FindOrCreate(self.currentNamespaceName);
-		self.currentNode = node;
+		NodePtr node = self.currentScope->FindOrCreate(self.currentNamespaceName);		
+		ReasonPtr reason = Reason::Create(
+			CppAxioms::NamespaceCreation(), self.GetCurrentSource());
+		NamespacePtr newNs = Namespace::Create(node, reason);
+		self.currentScope = node;
 		/*NamespacePtr oldNs = self.currentNamespace;		
 		
 		NamespacePtr ns = self.currentNamespace->FindOrCreateNamespace(self.currentNamespaceName);
@@ -141,6 +157,7 @@ public:
 	END_ACTOR(namespaceBegin)
 	
 	BEGIN_ACTOR(namespaceEnd_)	
+		self.currentScope = self.currentScope->GetNode();
 		/*model.addNamespace(self.currentNamespace);
 		
 		self.namespaceStack.pop_back();
@@ -155,7 +172,7 @@ public:
 	END_ACTOR(namespaceEnd)
 	
 	BEGIN_ACTOR(namespaceName_)
-		//self.currentNamespaceName = std::string(pbegin, pend-pbegin);
+		self.currentNamespaceName = std::string(pbegin, pend-pbegin);
 	END_ACTOR(namespaceName)
 };
 

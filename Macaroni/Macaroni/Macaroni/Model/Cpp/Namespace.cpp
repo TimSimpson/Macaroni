@@ -21,6 +21,16 @@ Namespace::~Namespace()
 	
 }
 
+bool Namespace::canBeChildOf(const Member * other) const
+{
+	return dynamic_cast<const Namespace *>(other) != nullptr;
+}
+
+NamespacePtr Namespace::Create(NodePtr parent, ReasonPtr reason)
+{
+	return NamespacePtr(new Namespace(parent.get(), reason));
+}
+
 const char * Namespace::GetTypeName() const
 {
 	return "Namespace";

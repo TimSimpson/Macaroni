@@ -276,6 +276,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Parser\Cpp\CppAxiom.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Parser\Cpp\CppAxioms.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Parser\Cpp\CppParser.cpp"
 				>
 			</File>
@@ -448,6 +456,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Model\MemberLua.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Model\ModelInconsistencyException.cpp"
 				>
 			</File>
@@ -527,6 +539,14 @@
 			</File>
 			<File
 				RelativePath=".\Macaroni\Cpp.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Parser\Cpp\CppAxiom.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Parser\Cpp\CppAxioms.h"
 				>
 			</File>
 			<File
@@ -662,6 +682,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Model\MemberLua.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\MemoryBlob.h"
 				>
 			</File>
@@ -682,11 +706,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Parser.h"
+				RelativePath=".\Macaroni\Parser\Parser.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Parser\Parser.h"
+				RelativePath=".\Macaroni\Parser.h"
 				>
 			</File>
 			<File
@@ -797,11 +821,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\FunctionTests.lua"
+			RelativePath=".\Macaroni\Model\DocumentTests\FunctionTests.lua"
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\DocumentTests\FunctionTests.lua"
+			RelativePath=".\Macaroni\Model\FunctionTests.lua"
 			>
 		</File>
 		<File

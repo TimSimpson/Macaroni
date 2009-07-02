@@ -62,28 +62,31 @@ static const struct luaL_Reg tableMethods[]=
 
 	void LUAGLUE_REGISTRATIONCLASSNAME::PutInstanceOnStack(
 		lua_State * L, 
-		const LUAGLUE_CLASSREFNAME & ptr)
+		const LUAGLUE_CLASSREFNAME & ptr) 
 	{
 		putLUAGLUE_CLASSREFNAMEInstanceOnStack(L, ptr);
 	}
 #endif
 
 int LUAGLUE_REGISTRATIONCLASSNAME::OpenInLua(lua_State * L)
-{	
-	LUAGLUE_OPENOTHERMODULES;
+{			
+	luaL_getmetatable(L, METATABLENAME);
+	if (lua_isnil(L, -1) != 1)
+	{
+		return 0; // Already loaded, DO NOT WASTE TIME DUMMY.
+	}				
+
+	luaL_newmetatable(L, METATABLENAME); // create metaTable
+	
 	#ifdef LUAGLUE_CREATEMETATABLE
-		luaL_getmetatable(L, METATABLENAME);
-		if (lua_isnil(L, -1) != 1)
-		{
-			return 0; // Already loaded, DO NOT WASTE TIME DUMMY.
-		}
-		luaL_newmetatable(L, METATABLENAME); // create metaTable
 		luaL_register(L, nullptr, metaTableMethods);
 	#endif
 
 	// Creates or reuses a table called "Macaroni_File" and puts it in global 
 	// scope.
 	luaL_register(L, GLOBALTABLENAME, tableMethods);
+
+	LUAGLUE_OPENOTHERMODULES;
 	return 1;
 }
 

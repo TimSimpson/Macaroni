@@ -249,6 +249,7 @@ void Node::setMember(Member * value)
 											  value->GetReasonCreated(),
 											  ss.str());	
 	}
+	this->member = value;
 	this->member->node = this;
 }
 

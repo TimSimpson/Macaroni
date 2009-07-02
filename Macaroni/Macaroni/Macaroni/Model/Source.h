@@ -17,6 +17,8 @@ public:
 	int GetLineNumber() const;
 	FileNamePtr GetFileName() const;
 	int GetReferenceCount() const;
+	/** Creates a new Source object at the given line number. */
+	SourcePtr JumpToLine(int lineNumber) const;
 	std::string ToString() const;
 private:	
 	Source(const FileNamePtr fileName, int line);

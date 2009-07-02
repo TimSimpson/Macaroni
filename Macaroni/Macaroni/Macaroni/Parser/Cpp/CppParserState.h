@@ -3,6 +3,7 @@
 
 #include "../../ME.h"
 #include "../../Model/Context.h"
+#include "../../Model/Source.lh"
 #include <string>
 
 BEGIN_NAMESPACE(Macaroni, Parser, Cpp)
@@ -10,16 +11,31 @@ BEGIN_NAMESPACE(Macaroni, Parser, Cpp)
 /** This class contains internal variables that are needed by the Spirit parser.
  * But we don't want to add a Parser to any class definition if we can avoid it,
  * so instead we keep these instead. */
-struct CppParserState
+class CppParserState
 {
 public:
-	CppParserState(){};
+	CppParserState();
 
 	Model::ContextPtr context;
-	NodePtr currentNode;
+	Model::NodePtr currentNode;
+	Model::NodePtr currentScope;
 
 	// The parser 
 	std::string currentNamespaceName;
+
+	Model::SourcePtr GetCurrentSource();
+
+	void IncrementLineNumber();
+
+	int lineNumber;
+
+	void SetContext(Model::ContextPtr context);
+
+	void SetCurrentSource(Model::SourcePtr source);
+
+private:
+	
+	Model::SourcePtr currentSource;
 
 /*protected:
 	ContextPtr context;

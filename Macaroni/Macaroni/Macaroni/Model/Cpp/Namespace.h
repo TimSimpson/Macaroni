@@ -17,7 +17,7 @@ friend struct NamespaceLuaFunctions;
 friend void intrusive_ptr_add_ref(Namespace * p);
 friend void intrusive_ptr_release(Namespace * p);
 public:	
-	Namespace(Node * home, ReasonPtr reason);
+	static NamespacePtr Create(NodePtr home, ReasonPtr reason);
 
 	//ClassPtr FindClass(std::string & name);
 
@@ -32,10 +32,12 @@ public:
 
 	virtual ~Namespace();
 
+	virtual bool canBeChildOf(const Member * other) const;
+
 	virtual const char * GetTypeName() const;
 
 protected:	
-
+	Namespace(Node * home, ReasonPtr reason);
 private:
 	
 	/** Assumes the given namespace does not exist and creates it as a child

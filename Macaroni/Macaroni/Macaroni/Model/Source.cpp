@@ -37,6 +37,11 @@ int Source::GetReferenceCount() const
 	return referenceCount;
 }
 
+SourcePtr Source::JumpToLine(int newLineNumber) const
+{
+	return Create(fileName, newLineNumber);
+}
+
 void intrusive_ptr_add_ref(Source * p)
 {
 	p->referenceCount ++;

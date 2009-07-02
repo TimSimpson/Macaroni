@@ -33,6 +33,8 @@ CppParserPtr CppParser::Create()
 int CppParser::Read(ContextPtr c, SourcePtr source, const std::string & text)
 {
 	CppParserState state;
+	state.SetContext(c);
+	state.SetCurrentSource(source);
 	DocumentGrammar cppGrammar;
 	ParserActions actors(state);
 	cppGrammar.actors = &actors;

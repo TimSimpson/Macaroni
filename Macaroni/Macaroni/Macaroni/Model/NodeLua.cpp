@@ -7,6 +7,7 @@ extern "C" {
 	#include "../../Lua/lualib.h"
 }
 #include "../Exception.h"
+#include "MemberLua.h"
 #include "Node.h"
 #include "NodeLua.h"
 #include <sstream>
@@ -331,6 +332,10 @@ int NodeLuaMetaData::Index(lua_State * L, NodePtr & ptr, const std::string & ind
 		lua_setmetatable(L, -2);
 		return 1;
 	}		
+	else if (index == "Member")
+	{
+		MemberLuaMetaData::PutInstanceOnStack(L, ptr->GetMember());
+	}
 	else if (index == "Name")
 	{
 		lua_pushlstring(L, ptr->GetName().c_str(), ptr->GetName().length());
@@ -384,6 +389,7 @@ int NodeLuaMetaData::OpenInLua(lua_State * L)
 	{
 		return 0; // Already loaded, DO NOT WASTE TIME DUMMY.
 	}
+
 	luaL_newmetatable(L, METATABLENAME); // create metaTable
 	luaL_register(L, nullptr, metaTableMethods);
 
@@ -395,6 +401,10 @@ int NodeLuaMetaData::OpenInLua(lua_State * L)
 	// Creates or reuses a table called "Macaroni_File" and puts it in global 
 	// scope.
 	luaL_register(L, GLOBALTABLENAME, tableMethods);
+
+
+	MemberLuaMetaData::OpenInLua(L);
+
 	return 1;
 }
 

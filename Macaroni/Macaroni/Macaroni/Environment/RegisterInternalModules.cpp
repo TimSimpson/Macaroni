@@ -7,6 +7,7 @@
 #include "../Model/ContextLua.h"
 //#include "../Model/Document.h"
 #include "../Model/FileNameLua.h"
+#include "../Model/MemberLua.h"
 //#include "../Model/NamespaceLua.h"
 #include "../Model/NodeLua.h"
 #include "../Model/ReasonLua.h"
@@ -24,6 +25,7 @@ static const struct luaL_Reg libs[] = {
 	{"Macaroni.Model.Context", Model::ContextLuaMetaData::OpenInLua},
 	//MARIO {"Macaroni.Model.Document", Model::Document::OpenInLua},
 	{"Macaroni.Model.FileName", Model::FileNameLuaMetaData::OpenInLua},
+	{"Macaroni.Model.Member", Model::MemberLuaMetaData::OpenInLua},
 	//MARIO {"Macaroni.Model.Namespace", Model::NamespaceLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Node", Model::NodeLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Reason", Model::ReasonLuaMetaData::OpenInLua},	
