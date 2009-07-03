@@ -7,8 +7,8 @@
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-ScopeMember::ScopeMember(Node * node, ReasonPtr reason)
-:Member(node, reason)
+ScopeMember::ScopeMember(Node * node, const char * typeName, ReasonPtr reason)
+:Member(node, typeName, reason)
 {
 }
 

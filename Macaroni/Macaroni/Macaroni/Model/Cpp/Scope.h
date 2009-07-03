@@ -22,7 +22,7 @@ public:
 	virtual const char * GetTypeName() const = 0;
 
 protected:
-	Scope(Node * scope, ReasonPtr reason);
+	Scope(Node * scope, const char * typeName, ReasonPtr reason);
 	Scope(const Scope & other);
 	void operator=(const Scope & other);
 	virtual ~Scope(){}

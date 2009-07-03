@@ -12,6 +12,7 @@
 #include "../Model/NodeLua.h"
 #include "../Model/ReasonLua.h"
 #include "../Parser/ParserLua.h"
+#include "../Parser/ParserExceptionLua.h"
 #include "../Parser/Cpp/CppParserLua.h"
 #include "../Model/SourceLua.h"
 #include <sstream>
@@ -31,6 +32,7 @@ static const struct luaL_Reg libs[] = {
 	{"Macaroni.Model.Reason", Model::ReasonLuaMetaData::OpenInLua},	
 	{"Macaroni.Model.Source", Model::SourceLuaMetaData::OpenInLua},
 	{"Macaroni.Parser.Parser", Parser::ParserLuaMetaData::OpenInLua},
+	{"Macaroni.Parser.ParserException", Parser::ParserExceptionLuaMetaData::OpenInLua},
 	{"Macaroni.Parser.Cpp.CppParser", Parser::Cpp::CppParserLuaMetaData::OpenInLua},
 	{nullptr, nullptr} /* sentinel */
 	};

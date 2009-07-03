@@ -13,7 +13,7 @@ require "Macaroni/Model/FileNameTests";
 require "Macaroni/Model/NodeTests";
 require "Macaroni/Model/ReasonTests";
 require "Macaroni/Model/SourceTests";
-require "Macaroni/Parser/Cpp/CppParserTests";
+require "Macaroni/Parser/Cpp/Tests/Namespaces";
 
 local currentTest;
 suiteNames = {};
@@ -30,15 +30,38 @@ output = {
         suiteNames[#suiteNames] = nil;
     end,
     
-    fail = function(msg)
+    fail = function(msgArg)
+        local msg = nil;
+        if (type(msgArg) == "string") then
+            msg = msgArg;
+        else
+            local status, err = pcall(function() 
+                msg = tostring(msgArg);
+            end);
+            if (not status) then
+                msg = "An error occured while calling tostring on the error object to report what the error was!";
+            end
+            if (msg == nil) then
+                msg = "{Error message was nil.}";
+            end
+        end
+       
         -- Lua error msg is in form: filename.lua:line#: error
         -- Change it to VS2008 compatable form: filename.lua(line#): error in blah
         local index1 = string.find(msg, ".lua:", 0, true);
-        local index2 = string.find(msg, ":", index1 + 5, true) + 1;
-        local fileName = string.sub(msg, 0, index1 + 3);
-        local lineNumber = string.sub(msg, index1 + 5, index2 - 2);
-        local errorMsg = string.sub(msg, index2, #msg);
-        local newMsg = fileName .. "(" .. lineNumber .. ") : error at line " .. lineNumber 
+        local errorMsg = nil;
+        local prefix = nil;
+        if (index ~= nil) then
+            local index2 = string.find(msg, ":", index1 + 5, true) + 1;
+            local fileName = string.sub(msg, 0, index1 + 3);
+            local lineNumber = string.sub(msg, index1 + 5, index2 - 2);
+            errorMsg = string.sub(msg, index2, #msg);
+            prefix = fileName .. "(" .. lineNumber .. ") : error at line " .. lineNumber;
+        else
+            prefix = ""; 
+            errorMsg = msg;       
+        end
+        local newMsg = prefix 
             .. " [" 
             .. output.getFullSuiteName() .. '] "' .. currentTest .. '":' .. errorMsg;                
         --print("[" .. output.getFullSuiteName() .. '] "' .. currentTest .. '"');        

@@ -476,6 +476,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Parser\ParserExceptionLua.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Parser\ParserLua.cpp"
 				>
 			</File>
@@ -706,15 +710,19 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Parser\Parser.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Macaroni\Parser.h"
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Parser\Parser.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Parser\ParserException.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Parser\ParserExceptionLua.h"
 				>
 			</File>
 			<File
@@ -797,10 +805,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Parser\Cpp\CppParserTests.lua"
-			>
-		</File>
-		<File
 			RelativePath=".\doodlebug.lua"
 			>
 		</File>
@@ -865,6 +869,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Macaroni\Parser\Cpp\Tests\Namespaces.lua"
+			>
+		</File>
+		<File
 			RelativePath=".\Macaroni\Model\Node.lh"
 			>
 		</File>
@@ -878,6 +886,10 @@
 		</File>
 		<File
 			RelativePath=".\Macaroni\Model\Parser.spirit"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Parser\ParserException.lh"
 			>
 		</File>
 		<File

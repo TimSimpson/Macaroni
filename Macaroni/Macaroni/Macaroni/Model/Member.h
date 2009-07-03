@@ -25,7 +25,7 @@ public:
 	virtual const char * GetTypeName() const = 0;
 
 protected:
-	Member(Node * node, const ReasonPtr reasonCreated);
+	Member(Node * node, const char * typeName, const ReasonPtr reasonCreated);
 
 	// Check all children to see if they can legally be children of this object.
 	void assertChildrenAreLegal();
@@ -40,7 +40,7 @@ protected:
 
 	//virtual construct() = 0;
 
-	void setNode(Node * node);
+	//void setNode(Node * node);
 
 	void setReasonCreation(const ReasonPtr reason);
 

@@ -121,7 +121,7 @@ public:
 	
 	BEGIN_ACTOR(debug_)
 		//std::cout << "DEBUG:" << std::string(pbegin, pend-pbegin) << std::endl;
-	END_ACTOR(debug)	
+	END_ACTOR(debug)
 	
 	BEGIN_ACTOR(importBegin_)
 		//std::string importName = std::string(pbegin, pend-pbegin);
@@ -140,7 +140,10 @@ public:
 		NodePtr node = self.currentScope->FindOrCreate(self.currentNamespaceName);		
 		ReasonPtr reason = Reason::Create(
 			CppAxioms::NamespaceCreation(), self.GetCurrentSource());
-		NamespacePtr newNs = Namespace::Create(node, reason);
+		if (node->GetMember() == false || node->GetMember()->GetTypeName() != "Namespace")
+		{
+			NamespacePtr newNs = Namespace::Create(node, reason);		
+		}
 		self.currentScope = node;
 		/*NamespacePtr oldNs = self.currentNamespace;		
 		

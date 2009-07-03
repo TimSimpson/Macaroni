@@ -9,10 +9,10 @@
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
-Member::Member(Node * node, const ReasonPtr reasonCreated)
+Member::Member(Node * node, const char * typeName, const ReasonPtr reasonCreated)
 :node(nullptr), reasonCreated(reasonCreated)
 {
-	node->setMember(this);
+	node->setMember(this, typeName, reasonCreated);
 
 	MACARONI_ASSERT(node != nullptr, "Node must be initialized by base class.");
 	MACARONI_ASSERT(reasonCreated != false, "Reason created must be set by base class.");
@@ -84,11 +84,6 @@ void intrusive_ptr_release(Member * p)
 void Member::setReasonCreation(const ReasonPtr reason)
 {
 	this->reasonCreated = reason;
-}
-
-void Member::setNode(Node * node)
-{
-	node->setMember(this); // Node will set Member's node pointer to itself.
 }
 
 END_NAMESPACE2

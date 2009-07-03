@@ -117,7 +117,7 @@ protected:
 
 	Node * getNode() const;
 
-	void setMember(Member * member);
+	void setMember(Member * member, const char * typeName, const ReasonPtr reasonCreated);
 
 private:
 	std::vector<Node *> children;

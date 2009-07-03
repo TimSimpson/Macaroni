@@ -5,6 +5,8 @@
 #include "Parser.h"
 #include "../Model/Context.h"
 #include "../Model/ContextLua.h"
+#include "ParserException.h"
+#include "ParserExceptionLua.h"
 #include "../Model/Source.h"
 #include "../Model/SourceLua.h"
 #include <sstream>
@@ -21,7 +23,7 @@ using Macaroni::Model::SourceLuaMetaData;
 #define LUAGLUE_CLASSFULLLUANAME "Macaroni.Parser.Parser"
 #define LUAGLUE_CLASSFULLCPPNAME Macaroni::Parser::Parser
 #define LUAGLUE_REGISTRATIONCLASSNAME ParserLuaMetaData
-#define LUAGLUE_OPENOTHERMODULES /**/
+#define LUAGLUE_OPENOTHERMODULES ParserExceptionLuaMetaData::OpenInLua(L);
 #define LUAGLUE_CREATEMETATABLE YESPLEASE
 
 #include "../LuaGlue.hpp"
@@ -29,7 +31,7 @@ using Macaroni::Model::SourceLuaMetaData;
 	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr, 
 									  const std::string & index)
 	{		
-		if (index == "Read")
+		if (index == "Read") 
 		{
 			lua_pushcfunction(L, LUAGLUE_CLASSNAMELuaFunctions::Read);
 		}
@@ -42,8 +44,8 @@ using Macaroni::Model::SourceLuaMetaData;
 
 	static int __tostring(lua_State * L)
 	{
-		LUAGLUE_CLASSREFNAME & ptr = getInstance(L);
-		lua_pushstring(L, "Parser");
+		//LUAGLUE_CLASSREFNAME & ptr = getInstance(L);
+		lua_pushstring(L, "Parser"); 
 		return 1;
 	}
 
@@ -54,9 +56,19 @@ using Macaroni::Model::SourceLuaMetaData;
 		SourcePtr src = SourceLuaMetaData::GetInstance(L, 3);
 		std::string text(luaL_checkstring(L, 4));
 
-		int result = self->Read(context, src, text);
-		lua_pushinteger(L, result);
-		return 1;
+		try
+		{
+			int result = self->Read(context, src, text);
+			lua_pushinteger(L, result);
+			return 1;
+		}
+		catch(Macaroni::Parser::ParserException pe)
+		{
+			ParserExceptionPtr newPtr(new ParserException(pe));
+			ParserExceptionLuaMetaData::PutInstanceOnStack(L, newPtr);
+			lua_error(L); // DOES NOT RETURN
+			return 0;
+		}
 	}
 
 	#define LUAGLUE_ADDITIONALMETATABLEMETHODS \

@@ -6,6 +6,8 @@
 #include "CppParserState.h"
 #include "../../Model/Source.h"
 #include "CppParser.spirit"
+#include <boost/algorithm/string.hpp>
+
 
 
 using Macaroni::Model::Context;
@@ -43,7 +45,35 @@ int CppParser::Read(ContextPtr c, SourcePtr source, const std::string & text)
 		text.c_str(),
 		cppGrammar,
 		space_p);
+	
+	if (!info.full)
+    {
+		std::string remainder(info.stop);
+		boost::trim(remainder);
+		if (remainder.size() > 0)
+		{
+			std::stringstream ss;
+			ss << "Parsing error:";
+			ss << info.stop;
+			//throw ParserException(source, ss.str());
+		}
+    } 
 
+	//if (!info.hit)
+	//{
+	//	// Couldn't parse anything.
+	//	throw ParserException(source, std::string(
+	//		"Syntax or parser error."
+	//		));
+	//}
+	///*else
+	//{
+	//	if (!info.full)
+	//	{			
+	//		throw ParserException(state.GetCurrentSource(),
+	//			std::string("An unknown error occured while parsing source."));
+	//	}
+	//}*/
 	return 1;
 }
 

@@ -67,7 +67,7 @@ Node * Node::findComplexName(const std::string & name) const
 	Node * currentNode = this->findSimpleName(subNames[0]);
 	for(unsigned int i = 1; i < subNames.size() && currentNode != nullptr; i ++)
 	{
-		Node * currentNode = currentNode->findSimpleName(subNames[i]);
+		currentNode = currentNode->findSimpleName(subNames[i]);
 	}
 	return currentNode;
 }
@@ -237,16 +237,16 @@ void Node::ParseComplexName(NodePtr searchRoot, const std::string & complexName,
 	}
 }
 
-void Node::setMember(Member * value)
+void Node::setMember(Member * value, const char * typeName, const ReasonPtr reasonCreated)
 {
 	if (this->member != nullptr)
 	{
 		std::stringstream ss;
 		ss << "Member for node " << GetFullName() 
 		   << " is already a(n) " << member->GetTypeName() << " and cannot "
-		   "morph into a(n) " << value->GetTypeName() << ".";
+		   "morph into a(n) " << typeName << ".";
 		throw new ModelInconsistencyException(member->GetReasonCreated(),
-											  value->GetReasonCreated(),
+											  reasonCreated,
 											  ss.str());	
 	}
 	this->member = value;

@@ -24,7 +24,7 @@ public:
 	std::string GetFullName() const;	
 		
 protected:
-	ScopeMember(Node * node, ReasonPtr reason);
+	ScopeMember(Node * node, const char * typeName, ReasonPtr reason);
 
 	ScopeMember(const ScopeMember & other);
 
