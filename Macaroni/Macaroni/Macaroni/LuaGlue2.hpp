@@ -6,14 +6,14 @@
  *  LUAGLUE_ADDITIONALTABLEMETHODS - Put additional global methods here.
  */
 
-};  // The end of LUAGLUE_CLASSNAMELuaFunctions.
+};  // The end of HELPERCLASS.
 
 #ifdef LUAGLUE_CREATEMETATABLE
 	static const struct luaL_Reg metaTableMethods[]=
 	{
-		{"__eq", LUAGLUE_CLASSNAMELuaFunctions::__eq},
-		{"__gc", LUAGLUE_CLASSNAMELuaFunctions::luaGc},
-		{"__index", LUAGLUE_CLASSNAMELuaFunctions::__index},
+		{"__eq", LUAGLUE_HELPERCLASS::__eq},
+		{"__gc", LUAGLUE_HELPERCLASS::luaGc},
+		{"__index", LUAGLUE_HELPERCLASS::__index},
 		LUAGLUE_ADDITIONALMETATABLEMETHODS
 		{nullptr, nullptr}
 	};
@@ -36,7 +36,7 @@ static const struct luaL_Reg tableMethods[]=
 											 const LUAGLUE_CLASSREFNAME & ptr,
 											 const std::string & index)
 	{
-		return LUAGLUE_CLASSNAMELuaFunctions::__index(L, ptr, index);
+		return LUAGLUE_HELPERCLASS::__index(L, ptr, index);
 	}
 
 	bool LUAGLUE_REGISTRATIONCLASSNAME::IsType(lua_State * L, int index)
@@ -69,7 +69,7 @@ static const struct luaL_Reg tableMethods[]=
 #endif
 
 int LUAGLUE_REGISTRATIONCLASSNAME::OpenInLua(lua_State * L)
-{			
+{	
 	luaL_getmetatable(L, METATABLENAME);
 	if (lua_isnil(L, -1) != 1)
 	{

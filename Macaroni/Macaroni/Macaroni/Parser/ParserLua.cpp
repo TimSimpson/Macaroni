@@ -23,6 +23,7 @@ using Macaroni::Model::SourceLuaMetaData;
 #define LUAGLUE_CLASSFULLLUANAME "Macaroni.Parser.Parser"
 #define LUAGLUE_CLASSFULLCPPNAME Macaroni::Parser::Parser
 #define LUAGLUE_REGISTRATIONCLASSNAME ParserLuaMetaData
+#define LUAGLUE_HELPERCLASS ParserLuaFunctions
 #define LUAGLUE_OPENOTHERMODULES ParserExceptionLuaMetaData::OpenInLua(L);
 #define LUAGLUE_CREATEMETATABLE YESPLEASE
 
@@ -33,7 +34,7 @@ using Macaroni::Model::SourceLuaMetaData;
 	{		
 		if (index == "Read") 
 		{
-			lua_pushcfunction(L, LUAGLUE_CLASSNAMELuaFunctions::Read);
+			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::Read);
 		}
 		else 
 		{
@@ -72,10 +73,10 @@ using Macaroni::Model::SourceLuaMetaData;
 	}
 
 	#define LUAGLUE_ADDITIONALMETATABLEMETHODS \
-		{"__tostring", LUAGLUE_CLASSNAMELuaFunctions::__tostring}, 
+		{"__tostring", LUAGLUE_HELPERCLASS::__tostring}, 
 
 	#define LUAGLUE_ADDITIONALTABLEMETHODS \
-		/*{"LuaCreate", LUAGLUE_CLASSNAMELuaFunctions::LuaCreate},*/
+		/*{"LuaCreate", LUAGLUE_HELPERCLASS::LuaCreate},*/
 
 #include "../LuaGlue2.hpp"
 

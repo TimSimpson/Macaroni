@@ -55,7 +55,7 @@ int CppParser::Read(ContextPtr c, SourcePtr source, const std::string & text)
 			std::stringstream ss;
 			ss << "Parsing error:";
 			ss << info.stop;
-			//throw ParserException(source, ss.str());
+			throw ParserException(source, ss.str());
 		}
     } 
 

@@ -19,6 +19,8 @@ class LuaEnvironment
 public:
 	LuaEnvironment();
 	~LuaEnvironment();
+	
+	void BLARGOS();
 
 	void ParseFile(std::string filePath);
 	void Run();

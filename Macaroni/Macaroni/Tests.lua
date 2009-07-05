@@ -1,11 +1,3 @@
-require "Macaroni.Parser.Cpp.CppParser";
-require "Macaroni.Parser.Parser";
-local parser = Macaroni.Parser.Cpp.CppParser.Create();
-str = tostring(parser);
-error(str);
-
--- START
-
 require "Macaroni/Test";
 
 require "Macaroni.Model.Context"

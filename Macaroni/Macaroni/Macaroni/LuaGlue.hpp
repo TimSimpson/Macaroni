@@ -53,7 +53,7 @@ LUAGLUE_STARTNAMESPACE
 
 
 		static inline LUAGLUE_CLASSREFNAME & getInstance(lua_State * L)
-		{
+		{			
 			return getInstance(L, 1);
 		}
 
@@ -61,7 +61,7 @@ LUAGLUE_STARTNAMESPACE
 				lua_State * L, 
 				const LUAGLUE_CLASSREFNAME & source
 			)
-		{
+		{			
 			createLUAGLUE_CLASSREFNAMEUserData(L, source);
 			luaL_getmetatable(L, METATABLENAME);
 			lua_setmetatable(L, -2); 
@@ -71,7 +71,7 @@ LUAGLUE_STARTNAMESPACE
 
 #endif
 
-struct LUAGLUE_CLASSNAMELuaFunctions
+struct LUAGLUE_HELPERCLASS
 {
 	// Some of these glue functions never change; others will be added by the
 	// user...
@@ -94,7 +94,7 @@ struct LUAGLUE_CLASSNAMELuaFunctions
 		}
 
 		static int __index(lua_State * L)
-		{
+		{			
 			LUAGLUE_CLASSREFNAME & ptr = getInstance(L);
 			std::string index(luaL_checkstring(L, 2));
 			return __index(L, ptr, index);		

@@ -33,7 +33,6 @@ tests = {
                     namespace E{}
                 ]]
             );
-            Test.assert(true, false);
         end);
         Test.assert(true, not status);
         Test.assert("Syntax or parser error.", err.Message);
@@ -51,7 +50,7 @@ tests = {
             this.src = Source.Create(this.file, 1);
             getmetatable(this.parser)["__tostring"]();
             local pee = tostring(this.parser);
-            local result = this.parser.Read(nil, this.context, this.src, 
+            local result = this.parser:Read(this.context, this.src, 
                 [[
                     namespace Apple 
                     {

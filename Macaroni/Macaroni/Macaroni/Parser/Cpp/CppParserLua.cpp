@@ -59,10 +59,10 @@ using Macaroni::Model::SourceLuaMetaData;
 	}
 
 	#define LUAGLUE_ADDITIONALMETATABLEMETHODS \
-		/*{"__tostring", LUAGLUE_CLASSNAMELuaFunctions::__tostring}, */
+		/*{"__tostring", LUAGLUE_HELPERCLASS::__tostring}, */
 
 	#define LUAGLUE_ADDITIONALTABLEMETHODS \
-		{"Create", LUAGLUE_CLASSNAMELuaFunctions::Create},
+		{"Create", LUAGLUE_HELPERCLASS::Create},
 
 #include "../../LuaGlue2.hpp"
 

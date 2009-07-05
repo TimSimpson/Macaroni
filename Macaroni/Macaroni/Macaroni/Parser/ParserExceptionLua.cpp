@@ -17,6 +17,7 @@ using Macaroni::Model::SourceLuaMetaData;
 #define LUAGLUE_CLASSFULLLUANAME "Macaroni.Parser.ParserException"
 #define LUAGLUE_CLASSFULLCPPNAME Macaroni::Parser::ParserException
 #define LUAGLUE_REGISTRATIONCLASSNAME ParserExceptionLuaMetaData
+#define LUAGLUE_HELPERCLASS ParserExceptionLuaFunctions
 #define LUAGLUE_OPENOTHERMODULES Macaroni::Model::SourceLuaMetaData::OpenInLua(L);
 #define LUAGLUE_CREATEMETATABLE YESPLEASE
 
@@ -42,6 +43,8 @@ using Macaroni::Model::SourceLuaMetaData;
 
 	static int __tostring(lua_State * L)
 	{
+		int LUAGLUE_CLASSNAME = 5;
+		int HELPERCLASS = 1134;
 		LUAGLUE_CLASSREFNAME & ptr = getInstance(L);
 		lua_pushstring(L, ptr->GetMessage());
 		return 1;
@@ -49,10 +52,10 @@ using Macaroni::Model::SourceLuaMetaData;
 
 
 	#define LUAGLUE_ADDITIONALMETATABLEMETHODS \
-		{"__tostring", LUAGLUE_CLASSNAMELuaFunctions::__tostring}, 
+		{"__tostring", LUAGLUE_HELPERCLASS::__tostring}, 
 
 	#define LUAGLUE_ADDITIONALTABLEMETHODS \
-		/*{"LuaCreate", LUAGLUE_CLASSNAMELuaFunctions::LuaCreate},*/
+		/*{"LuaCreate", LUAGLUE_HELPERCLASS::LuaCreate},*/
 
 #include "../LuaGlue2.hpp"
 

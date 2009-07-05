@@ -28,6 +28,16 @@ LuaEnvironment::~LuaEnvironment()
 	}
 }
 
+void LuaEnvironment::BLARGOS()
+{
+	//luaL_getmetatable(L, "Macaroni.Parser.Parser");
+	//luaL_getmetatable(L, "Macaroni.Parser.ParserException");
+	//if (lua_isnil(L, -1) != 1)
+	//{
+	//	return 0; // Already loaded, DO NOT WASTE TIME DUMMY.
+	//}			
+}
+
 const char * LuaEnvironment::loadFile(lua_State * L, void * data, size_t * size)
 {
 	static char block[512];

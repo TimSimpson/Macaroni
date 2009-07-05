@@ -55,10 +55,10 @@
 	}	
 
 	#define LUAGLUE_ADDITIONALMETATABLEMETHODS \
-		{"__tostring", LUAGLUE_CLASSNAMELuaFunctions::__tostring}, 
+		{"__tostring", LUAGLUE_HELPERCLASS::__tostring}, 
 
 	#define LUAGLUE_ADDITIONALTABLEMETHODS \
-		/*{"LuaCreate", LUAGLUE_CLASSNAMELuaFunctions::LuaCreate},*/
+		/*{"LuaCreate", LUAGLUE_HELPERCLASS::LuaCreate},*/
 
 #include "../LuaGlue2.hpp"
 
