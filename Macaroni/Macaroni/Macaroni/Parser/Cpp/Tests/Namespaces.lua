@@ -17,6 +17,19 @@ tests = {
         local parser = CppParser.Create();        
     end,
     
+    ["Number ramma!"] = function(this)
+        local parser = CppParser.Create();     
+        local context = Context.New("{ROOT}");
+        local file = FileName.Create("PeePee");           
+        local root = context.Root;
+        local src = Source.Create(file, 1);
+        local status, err = pcall(function()    
+        --parser:Read(context, src, [[
+        --    273,12,44
+        --]]);        
+        end);
+    end,
+    
     ["Can handle an incorrect namespace."] = function(this)
         local parser = CppParser.Create();
         local context = Context.New("{ROOT}");
@@ -36,7 +49,7 @@ tests = {
         end);
         Test.assert(true, not status);
         Test.assert("Syntax or parser error.", err.Message);
-        Test.assert("Blah", err.Source.FileName);
+        Test.assert("Blah", tostring(err.Source.FileName));
         Test.assert(2, err.Source.LineNumber);
     end,
     

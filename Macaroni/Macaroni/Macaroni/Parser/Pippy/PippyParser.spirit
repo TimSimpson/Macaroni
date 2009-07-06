@@ -1,0 +1,169 @@
+#ifndef MACARONI_PARSER_PIPPY_PIPPYPARSER_SPIRIT
+#define MACARONI_PARSER_PIPPY_PIPPYPARSER_SPIRIT
+
+#include "../../Model/Axiom.h"
+#include "../../Model/Cpp/Namespace.h"
+#include "../../Model/Node.h"
+#include <iostream>
+#include "../ParserException.h"
+#include "../../Model/Reason.h"
+#include <boost/spirit/core.hpp>
+#include <boost/spirit/actor/push_back_actor.hpp>
+#include <boost/spirit/utility/confix.hpp>
+#include <boost/spirit/utility/chset.hpp>
+
+#include <boost/spirit/include/classic_core.hpp>
+#include <boost/spirit/include/classic_position_iterator.hpp>
+#include <boost/spirit/include/classic_functor_parser.hpp>
+#include <iostream>
+#include <fstream>
+#include <vector>
+
+using Macaroni::Model::Cpp::Namespace;
+using Macaroni::Model::Cpp::NamespacePtr;
+using Macaroni::Model::Node;
+using Macaroni::Model::NodePtr;
+using Macaroni::Model::Reason;
+using Macaroni::Model::ReasonPtr;
+
+using namespace std;
+using namespace BOOST_SPIRIT_CLASSIC_NS;
+
+
+BEGIN_NAMESPACE(Macaroni, Parser, Pippy)
+
+#include "../Cpp/General.spirit"
+
+std::ostream& operator<<(std::ostream& out, file_position const& lc)
+{
+    return out <<
+            "\nFile:\t" << lc.file <<
+            "\nLine:\t" << lc.line <<
+            "\nCol:\t" << lc.column << endl;
+}
+
+
+/*class functor
+{
+public:
+	functor()	
+	{}
+	template <typename ScannerT>
+	void operator() (ScannerT const& scan)//const char * pbegin, const char * pend) const
+	{	
+		cerr << "pee pee";						
+	} 
+private:
+	//
+} actor_instance_name;
+
+functor funky;		
+*/				
+
+struct normal_parser {
+    normal_parser()
+    {}
+
+    typedef nil_t result_t;
+
+    template <typename ScannerT>
+    int
+    operator()(ScannerT const& scan, result_t& /*result*/) const
+    {
+		file_position fpos = scan.first.get_position();
+		
+        return 0; // Fail.
+    }
+};
+
+typedef functor_parser<normal_parser> normal_p;
+
+normal_p
+okp =
+    normal_parser();
+
+
+struct error_report_parser {
+    char const* eol_msg;
+    char const* msg;
+
+    error_report_parser(char const* eol_msg_, char const* msg_):
+        eol_msg(eol_msg_),
+        msg    (msg_)
+    {}
+
+    typedef nil_t result_t;
+
+    template <typename ScannerT>
+    int
+    operator()(ScannerT const& scan, result_t& /*result*/) const
+    {
+		//cerr << scan.get_position().line;
+        if (scan.at_end()) {
+            if (eol_msg) {
+                file_position fpos = scan.first.get_position();
+                cerr << fpos << eol_msg << endl;
+            }
+        } else {
+            if (msg) {
+                file_position fpos = scan.first.get_position();
+                cerr << fpos << msg << endl;
+            }
+        }
+
+        return -1; // Fail.
+    }
+
+};
+typedef functor_parser<error_report_parser> error_report_p;
+
+error_report_p
+error_badnumber_or_eol =
+    error_report_parser(
+        "Expecting a number, but found the end of the file\n",
+        "Expecting a number, but found something else\n"
+    );
+
+error_report_p
+error_badnumber =
+    error_report_parser(
+        0,
+        "Expecting a number, but found something else\n"
+    );
+
+error_report_p
+error_comma =
+    error_report_parser(
+        0,
+        "Expecting a comma, but found something else\n"
+    );
+
+
+struct DocumentGrammar : public grammar<DocumentGrammar>
+{
+	vector<double> * v;
+		
+	template <typename ScannerT>
+    struct definition
+    {					
+        definition(DocumentGrammar const& self)
+        {				
+			program = 
+				(str_p("class") | error_badnumber)
+				 >> *(
+					(',' | error_comma)
+				 >> (str_p("class") | error_badnumber_or_eol)
+				);
+        }
+
+        rule<ScannerT> 
+			program;
+
+        rule<ScannerT> const&
+		start() const { return program; }
+    };
+};
+
+END_NAMESPACE
+
+#endif

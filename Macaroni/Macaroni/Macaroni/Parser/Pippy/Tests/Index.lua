@@ -1,0 +1,1 @@
+require "Macaroni/Parser/Pippy/Tests/Simple";

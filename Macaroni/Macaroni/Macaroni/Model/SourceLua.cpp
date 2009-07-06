@@ -154,13 +154,13 @@ int SourceLuaMetaData::OpenInLua(lua_State * L)
 		return 0; // Already loaded, DO NOT WASTE TIME DUMMY.
 	}
 	luaL_newmetatable(L, METATABLENAME); // create metaTable
-	luaL_register(L, nullptr, metaTableMethods);
-
-	FileNameLuaMetaData::OpenInLua(L);
+	luaL_register(L, nullptr, metaTableMethods);	
 	
 	// Creates or reuses a table called "Macaroni_File" and puts it in global 
 	// scope.
 	luaL_register(L, GLOBALTABLENAME, tableMethods);
+
+	FileNameLuaMetaData::OpenInLua(L);
 	return 1;
 }
 

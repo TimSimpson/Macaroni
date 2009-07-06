@@ -14,6 +14,7 @@
 #include "../Parser/ParserLua.h"
 #include "../Parser/ParserExceptionLua.h"
 #include "../Parser/Cpp/CppParserLua.h"
+#include "../Parser/Pippy/PippyParserLua.h"
 #include "../Model/SourceLua.h"
 #include <sstream>
 #include <windows.h>
@@ -34,6 +35,7 @@ static const struct luaL_Reg libs[] = {
 	{"Macaroni.Parser.Parser", Parser::ParserLuaMetaData::OpenInLua},
 	{"Macaroni.Parser.ParserException", Parser::ParserExceptionLuaMetaData::OpenInLua},
 	{"Macaroni.Parser.Cpp.CppParser", Parser::Cpp::CppParserLuaMetaData::OpenInLua},
+	{"Macaroni.Parser.Pippy.PippyParser", Parser::Pippy::PippyParserLuaMetaData::OpenInLua},
 	{nullptr, nullptr} /* sentinel */
 	};
 

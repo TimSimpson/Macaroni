@@ -484,6 +484,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Parser\Pippy\PippyParser.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Parser\Pippy\PippyParserLua.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Lua\print.c"
 				>
 			</File>
@@ -738,6 +746,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Parser\Pippy\PippyParser.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Parser\Pippy\PippyParserLua.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Model\Reason.h"
 				>
 			</File>
@@ -805,6 +821,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Macaroni\Parser\Cpp\CppParserAlt.spirit"
+			>
+		</File>
+		<File
 			RelativePath=".\doodlebug.lua"
 			>
 		</File>
@@ -825,11 +845,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\DocumentTests\FunctionTests.lua"
+			RelativePath=".\Macaroni\Model\FunctionTests.lua"
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\FunctionTests.lua"
+			RelativePath=".\Macaroni\Model\DocumentTests\FunctionTests.lua"
 			>
 		</File>
 		<File
@@ -842,6 +862,10 @@
 		</File>
 		<File
 			RelativePath=".\Plan\GlobalFunction.txt"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Parser\Pippy\Tests\Index.lua"
 			>
 		</File>
 		<File
@@ -897,6 +921,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Macaroni\Parser\Pippy\PippyParser.lh"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Parser\Pippy\PippyParser.spirit"
+			>
+		</File>
+		<File
 			RelativePath=".\Macaroni\Model\PrimitiveTests.lua"
 			>
 		</File>
@@ -926,6 +958,10 @@
 		</File>
 		<File
 			RelativePath=".\Macaroni\Model\Cpp\ScopeMember.lh"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Parser\Pippy\Tests\Simple.lua"
 			>
 		</File>
 		<File
