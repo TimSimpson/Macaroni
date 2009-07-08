@@ -175,7 +175,8 @@ public:
 	END_ACTOR(namespaceEnd)
 	
 	BEGIN_ACTOR(namespaceName_)
-		begin.get_position().p();
+		//end - begin;
+		//begin.get_position().p();
 		//MARIO self.currentNamespaceName = std::string(begin.next_char(), end.base()-begin.base());
 	END_ACTOR(namespaceName)
 };
