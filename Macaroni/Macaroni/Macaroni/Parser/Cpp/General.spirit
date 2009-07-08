@@ -16,70 +16,92 @@ using namespace boost::spirit;
  */
 
 // Have to define in order of use so I can't alphabetize! NOOOOOO!
-namespace General
-{
-	// Characters
-	rule<> braceL 
-		=	ch_p('{');
-	rule<> braceR 
-		=	ch_p('}');
-	rule<> colon
-		=	ch_p(':');
-	rule<> digit
-		=	range_p('0','9');	
-	rule<> namespaceSeperator
-		=	str_p("::");	
-	rule<> nondigit
-		=	range_p('a','z') | range_p('A','Z') | ch_p('_');
-	rule<> semicolon
-		=	ch_p(';');
-	
-	// Keywords:
-	rule<> classKeyword 
-		=	str_p("class");	
-	rule<> importKeyword
-		=	str_p("import");
-	rule<> namespaceKeyword 
-		=	str_p("namespace");
-	rule<> privateKeyword
-		=	str_p("private");
-	rule<> protectedKeyword
-		=	str_p("protected");
-	rule<> publicKeyword
-		=	str_p("public");
-	
-	// Aliases
-	rule<>	accessKeyword
-		=	(publicKeyword | privateKeyword | protectedKeyword);
-			
-	// Sections of stuff (comments, brace blocks, etc)
-	rule<> braceSandwhich 
-		=	braceL 
-			>> 
-			*(
-				braceSandwhich 
-				| 
-				~ch_p('}')
-			) 
-			>> 
-			braceR;		
-	rule<> commentBlockNormal
-		=	comment_p("//") 
-			| 
-			comment_p("/*", "*/");
-	rule<> cppIdentifier
-		= 	(+nondigit) | *(digit | nondigit);
-	/** Like a normal identifier but can be nested using ::. */
-	rule<> complexIdentifier
-		=	General::cppIdentifier
-			>>
-			*(General::namespaceSeperator >> General::cppIdentifier);
-	
+template <typename ScannerT>
+struct General
+{	
+	General()
+	{
+		braceL = ch_p('{');
+		braceR 
+			=	ch_p('}');
+		colon
+			=	ch_p(':');
+		digit
+			=	range_p('0','9');	
+		namespaceSeperator
+			=	str_p("::");	
+		nondigit
+			=	range_p('a','z') | range_p('A','Z') | ch_p('_');
+		semicolon
+			=	ch_p(';');
 		
-	// More complex bits
-	rule<> commentBlock
-		= commentBlockNormal;	
-				
+		// Keywords:
+		classKeyword 
+			=	str_p("class");	
+		importKeyword
+			=	str_p("import");
+		namespaceKeyword 
+			=	str_p("namespace");
+		privateKeyword
+			=	str_p("private");
+		protectedKeyword
+			=	str_p("protected");
+		publicKeyword
+			=	str_p("public");
+		
+		// Aliases
+		accessKeyword
+			=	(publicKeyword | privateKeyword | protectedKeyword);				
+		// Sections of stuff (comments, brace blocks, etc)
+		braceSandwhich 
+			=	braceL 
+				>> 
+				*(
+					braceSandwhich 
+					| 
+					~ch_p('}')
+				) 
+				>> 
+				braceR;		
+		commentBlockNormal
+			=	comment_p("//") 
+				| 
+				comment_p("/*", "*/");
+		cppIdentifier
+			= 	(+nondigit) | *(digit | nondigit);
+		/** Like a normal identifier but can be nested using ::. */
+		complexIdentifier
+			=	General::cppIdentifier
+				>>
+				*(General::namespaceSeperator >> General::cppIdentifier);
+		
+			
+		// More complex bits
+		commentBlock
+			= commentBlockNormal;	
+		
+	}
+	
+	rule<ScannerT>
+		braceL,
+		braceR,
+		colon,
+		digit,
+		namespaceSeperator,
+		nondigit,
+		semicolon,
+		classKeyword,
+		importKeyword,
+		namespaceKeyword,
+		privateKeyword,
+		protectedKeyword,
+		publicKeyword,
+		accessKeyword,
+		braceSandwhich,
+		commentBlockNormal,
+		cppIdentifier,
+		complexIdentifier,
+		commentBlock;
 };
 
 #endif

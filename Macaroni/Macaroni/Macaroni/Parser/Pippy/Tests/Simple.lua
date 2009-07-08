@@ -26,12 +26,13 @@ tests = {
             local status, err = pcall(function()
                 local result = this.parser:Read(this.context, this.src, 
                     [[                    
-                        Apple :: namespace
+                        class Apple :: namespace
                         {
                         }
                     ]]
                     );            
             end);
+            
         end,
         tests = {
             --[[["Only one node is found within the Context"] = function(this)

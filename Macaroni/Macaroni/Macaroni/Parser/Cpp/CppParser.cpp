@@ -6,7 +6,8 @@
 #include "CppParserState.h"
 #include "../../Model/Source.h"
 #include "../../Model/FileName.h"
-#include "CppParserAlt.spirit"
+#include "CppParser.spirit"
+#include <sstream>
 #include <boost/algorithm/string.hpp>
 
 #include <boost/spirit/include/classic_position_iterator.hpp>
@@ -61,13 +62,13 @@ int CppParser::Read(ContextPtr c, SourcePtr source, const std::string & text)
 	state.SetContext(c);
 	state.SetCurrentSource(source);
 	
-	/*DocumentGrammar cppGrammar;
+	DocumentGrammar cppGrammar;
 	ParserActions actors(state);
 	cppGrammar.actors = &actors;
-	*/
-	vector<double> v;
+	
+	/*vector<double> v;
 	DocumentGrammar cppGrammar;
-	cppGrammar.v = &v;
+	cppGrammar.v = &v;*/
 
 	custom_space_parser skipSpaces(state);
 	//ipSpaces.state = state;

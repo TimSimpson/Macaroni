@@ -42,6 +42,36 @@ std::ostream& operator<<(std::ostream& out, file_position const& lc)
             "\nCol:\t" << lc.column << endl;
 }
 
+struct AddChild
+{
+public:
+    AddChild( ){}
+    
+    template <typename IteratorT>
+    void operator()( IteratorT i1, IteratorT i2) const
+    {
+       cerr << "I peepee!";
+       // m_parser.GetRoot()->AddChild( m_create() );
+       file_position fpos = i1.get_position();
+                cerr << fpos;
+		cerr << "POO POO?!";
+    }
+    template <typename IteratorT>
+    void operator()( IteratorT i1) const
+    {
+		cerr << "I pOO!";
+		            file_position fpos = i1.first.get_position();
+                cerr << fpos << eol_msg << endl;
+    cerr << "POO POO?!";
+        //m_parser.GetRoot()->AddChild( m_create() );
+    }
+    
+private:
+    //CParser &m_parser;
+    //createPtr m_create;
+};
+
+AddChild poop;
 
 /*class functor
 {
@@ -144,12 +174,13 @@ struct DocumentGrammar : public grammar<DocumentGrammar>
 	vector<double> * v;
 		
 	template <typename ScannerT>
-    struct definition
+    struct definition : General<ScannerT>
     {					
         definition(DocumentGrammar const& self)
         {				
+			classKeyword = str_p("class"),
 			program = 
-				(str_p("class") | error_badnumber)
+				(classKeyword[poop] | error_badnumber)
 				 >> *(
 					(',' | error_comma)
 				 >> (str_p("class") | error_badnumber_or_eol)
@@ -157,6 +188,7 @@ struct DocumentGrammar : public grammar<DocumentGrammar>
         }
 
         rule<ScannerT> 
+			classKeyword,
 			program;
 
         rule<ScannerT> const&

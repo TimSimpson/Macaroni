@@ -63,7 +63,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="F:\Tools\boost_1_37_0\stage\lib;F:\Tools\boost_1_37_0\stage\lib;"
+				AdditionalLibraryDirectories="F:\Tools\boost_1_37_0\stage\lib;F:\Tools\boost_1_37_0\stage\lib;C:\Tools\boost_1_39_0\stage\lib;C:\Tools\boost_1_39_0\stage\lib;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -718,11 +718,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Parser.h"
+				RelativePath=".\Macaroni\Parser\Parser.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Parser\Parser.h"
+				RelativePath=".\Macaroni\Parser.h"
 				>
 			</File>
 			<File
@@ -853,11 +853,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\General.spirit"
+			RelativePath=".\Macaroni\Parser\Cpp\General.spirit"
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Parser\Cpp\General.spirit"
+			RelativePath=".\Macaroni\Model\General.spirit"
 			>
 		</File>
 		<File

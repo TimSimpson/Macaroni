@@ -12,8 +12,8 @@ require "Macaroni/Model/FileNameTests";
 --require "Macaroni/Model/NamespaceTests";
 require "Macaroni/Model/NodeTests";
 require "Macaroni/Model/ReasonTests";
-require "Macaroni/Model/SourceTests";
-require "Macaroni/Parser/Cpp/Tests/Namespaces";
+require "Macaroni/Model/SourceTests"; 
+--require "Macaroni/Parser/Cpp/Tests/Namespaces";
 require "Macaroni/Parser/Pippy/Tests/Index";
 
 local currentTest;
