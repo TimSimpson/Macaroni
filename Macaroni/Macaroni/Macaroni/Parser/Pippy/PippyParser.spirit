@@ -12,9 +12,13 @@
 #include <boost/spirit/utility/confix.hpp>
 #include <boost/spirit/utility/chset.hpp>
 
-#include <boost/spirit/include/classic_core.hpp>
-#include <boost/spirit/include/classic_position_iterator.hpp>
-#include <boost/spirit/include/classic_functor_parser.hpp>
+//#include <boost/spirit/include/classic_core.hpp>
+//#include <boost/spirit/include/classic_position_iterator.hpp>
+//#include <boost/spirit/include/classic_functor_parser.hpp>
+#include <boost/spirit/include/qi.hpp>
+#include <boost/spirit/include/karma.hpp>
+#include <boost/spirit/include/phoenix.hpp>
+#include <boost/spirit/include/support.hpp>
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -27,12 +31,16 @@ using Macaroni::Model::Reason;
 using Macaroni::Model::ReasonPtr;
 
 using namespace std;
-using namespace BOOST_SPIRIT_CLASSIC_NS;
+//using namespace BOOST_SPIRIT_CLASSIC_NS;
 
 
 BEGIN_NAMESPACE(Macaroni, Parser, Pippy)
 
 #include "../Cpp/General.spirit"
+
+using namespace boost::spirit::qi;
+using namespace boost::spirit::karma;
+using namespace boost::spirit::support;
 
 std::ostream& operator<<(std::ostream& out, file_position const& lc)
 {
