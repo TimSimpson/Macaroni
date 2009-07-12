@@ -16,9 +16,9 @@ public:
 	{
 	}
 
-	const char * GetMessage() const
+	const std::string & GetMessage() const
 	{
-		return msg.c_str();
+		return msg;
 	}
 
 	SourcePtr GetSource() const

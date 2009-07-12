@@ -284,6 +284,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Model\Cpp\CppContext.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Parser\Cpp\CppParser.cpp"
 				>
 			</File>
@@ -460,6 +464,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Model\MessageAxiom.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Environment\Messages.cpp"
 				>
 			</File>
@@ -500,6 +508,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Model\Cpp\Primitive.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Lua\print.c"
 				>
 			</File>
@@ -529,6 +541,14 @@
 			</File>
 			<File
 				RelativePath=".\Macaroni\Model\SourceLua.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Model\Cpp\Variable.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Model\Cpp\VariableLua.cpp"
 				>
 			</File>
 		</Filter>
@@ -567,6 +587,10 @@
 			</File>
 			<File
 				RelativePath=".\Macaroni\Parser\Cpp\CppAxioms.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Model\Cpp\CppContext.h"
 				>
 			</File>
 			<File
@@ -710,6 +734,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Model\MessageAxiom.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Environment\Messages.h"
 				>
 			</File>
@@ -770,6 +798,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Model\Cpp\Primitive.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Model\Reason.h"
 				>
 			</File>
@@ -795,6 +827,18 @@
 			</File>
 			<File
 				RelativePath=".\Macaroni\Model\SourceLua.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Model\Cpp\Variable.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Model\Cpp\VariableLua.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Model\Cpp\VariableTypeInfo.h"
 				>
 			</File>
 		</Filter>
@@ -869,15 +913,19 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\General.spirit"
-			>
-		</File>
-		<File
 			RelativePath=".\Macaroni\Parser\Cpp\General.spirit"
 			>
 		</File>
 		<File
+			RelativePath=".\Macaroni\Model\General.spirit"
+			>
+		</File>
+		<File
 			RelativePath=".\Plan\GlobalFunction.txt"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Parser\Pippy\Tests\Import.lua"
 			>
 		</File>
 		<File
@@ -910,6 +958,18 @@
 		</File>
 		<File
 			RelativePath=".\Messages.txt"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Parser\Pippy\Tests\Milestones.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Model\Cpp\Namespace.lh"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Parser\Pippy\Tests\Namespace.lua"
 			>
 		</File>
 		<File
@@ -949,6 +1009,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Macaroni\Model\Cpp\Primitive.lh"
+			>
+		</File>
+		<File
 			RelativePath=".\Macaroni\Model\PrimitiveTests.lua"
 			>
 		</File>
@@ -981,10 +1045,6 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Parser\Pippy\Tests\Simple.lua"
-			>
-		</File>
-		<File
 			RelativePath=".\TestData\simple.mcpp"
 			>
 		</File>
@@ -1002,6 +1062,14 @@
 		</File>
 		<File
 			RelativePath=".\Tests.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Model\Cpp\Variable.lh"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Parser\Pippy\Tests\Variables.lua"
 			>
 		</File>
 	</Files>

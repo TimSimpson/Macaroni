@@ -2,11 +2,14 @@
 #define MACARONI_PARSER_CPP_CPPAXIOM_CPP
 
 #include "CppAxiom.h"
+#include "../../Environment/Messages.h"
+
+using Macaroni::Environment::Messages;
 
 BEGIN_NAMESPACE(Macaroni, Parser, Cpp)
 
-CppAxiom::CppAxiom(const char * msg)
-:msg(msg), refCount(0)
+CppAxiom::CppAxiom(const char * msgKey)
+:msgKey(msgKey), refCount(0)
 {
 }
 
@@ -27,7 +30,7 @@ void CppAxiom::onReference()
 
 const std::string CppAxiom::ToString() const
 {
-	return std::string(msg);
+	return Messages::Get(msgKey);
 }
 
 END_NAMESPACE

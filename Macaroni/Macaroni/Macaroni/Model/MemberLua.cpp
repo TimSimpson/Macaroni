@@ -7,6 +7,7 @@
 #include "NodeLua.h"
 #include "ReasonLua.h"
 #include <sstream>
+#include "Cpp/VariableLua.h"
 
 #define LUAGLUE_STARTNAMESPACE BEGIN_NAMESPACE2(Macaroni, Model)
 #define LUAGLUE_ENDNAMESPACE	END_NAMESPACE2
@@ -25,11 +26,13 @@
 	{		
 		if (index == "Node")
 		{
-			NodeLuaMetaData::PutInstanceOnStack(L, ptr->GetNode());			
+			NodeLuaMetaData::PutInstanceOnStack(L, ptr->GetNode());
+			return 1;
 		}
 		else if (index == "ReasonCreated")
 		{
 			ReasonLuaMetaData::PutInstanceOnStack(L, ptr->GetReasonCreated());
+			return 1;
 		}
 		else if (index == "TypeName")
 		{
@@ -39,11 +42,19 @@
 			} else {
 				lua_pushstring(L, ptr->GetTypeName());
 			}
+			return 1;
 		}
-		else 
+
+		if (!!boost::dynamic_pointer_cast<Cpp::Variable>(ptr))
 		{
-			lua_pushnil(L);			
+			int rtnCnt = Cpp::VariableLuaMetaData::Index(L, boost::dynamic_pointer_cast<Cpp::Variable>(ptr), index);
+			if (rtnCnt > 0)
+			{
+				return rtnCnt;
+			}
 		}
+		
+		lua_pushnil(L);			
 		return 1;
 	}
 

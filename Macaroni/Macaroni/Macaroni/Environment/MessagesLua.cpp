@@ -32,9 +32,16 @@
 
 	static int Get(lua_State * L)
 	{
-		std::string msg = Messages::Get(luaL_checkstring(L, 1));
-
-		lua_pushstring(L, msg.c_str());
+		const char * key = luaL_checkstring(L, 1);
+		if (!lua_isnumber(L, 2))
+		{
+			lua_pushstring(L, Messages::Get(key).c_str());	
+		}
+		else 
+		{
+			int number = lua_tointeger(L, 2);
+			lua_pushstring(L, Messages::Get(key, number).c_str());
+		}							
 		return 1;
 	}
 

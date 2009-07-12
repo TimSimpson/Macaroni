@@ -3,15 +3,22 @@
 
 #include "../../ME.h"
 #include "../../Model/Context.h"
+#include "../Cpp/CppAxioms.h"
+#include "../../Model/Cpp/CppContext.h"
 #include "../../Exception.h"
 #include "../../Model/FileName.h"
 #include "../../Environment/Messages.h"
+#include "../../Model/ModelInconsistencyException.h"
 #include "../../Model/Cpp/Namespace.h"
 #include "../../Model/Node.h"
 #include "PippyParser.h"
 #include "../Parser.h"
 #include "../ParserException.h"
+#include "../../Model/Cpp/Primitive.h"
+#include "../../Model/Reason.h"
 #include "../../Model/Source.h"
+#include "../../Model/Cpp/Variable.h"
+#include "../../Model/Cpp/VariableTypeInfo.h"
 
 //#include "PippyParser.spirit"
 #include <sstream>
@@ -20,14 +27,22 @@
 using Macaroni::Environment::Messages;
 using Macaroni::Model::Context;
 using Macaroni::Model::ContextPtr;
+using namespace Macaroni::Parser::Cpp;
+using Macaroni::Model::Cpp::CppContext;
+using Macaroni::Model::Cpp::CppContextPtr;
 using Macaroni::Model::FileName;
 using Macaroni::Model::FileNamePtr;
+using Macaroni::Model::ModelInconsistencyException;
 using Macaroni::Model::Cpp::Namespace;
 using Macaroni::Model::Node;
 using Macaroni::Model::NodePtr;
 using Macaroni::Model::Source;
 using Macaroni::Model::SourcePtr;
 using Macaroni::Parser::ParserException;
+using Macaroni::Model::Cpp::Primitive;
+using Macaroni::Model::Reason;
+using Macaroni::Model::Cpp::Variable;
+using Macaroni::Model::Cpp::VariableTypeInfo;
 
 BEGIN_NAMESPACE(Macaroni, Parser, Pippy)
 
@@ -95,6 +110,11 @@ public:
 	SourcePtr GetSource()
 	{
 		return Source::Create(fileName, line, column);
+	}
+
+	SourcePtr GetSource(int plusLines, int plusColumns)
+	{
+		return Source::Create(fileName, line + plusLines, column + plusColumns);
 	}
 
 	inline void ConsumeWhiteSpace()
@@ -251,16 +271,31 @@ static Iterator createTestItr(const char * msgChars)
 	return p;
 }
 
+
+
 class ParserFunctions
 {
 private:
 	ContextPtr context;
 	NodePtr currentScope;
+	std::vector<NodePtr> importedNodes;
 public:
 
 	ParserFunctions(ContextPtr context)
 		:context(context), currentScope(context->GetRoot())
+	{			
+		MACARONI_ASSERT(!!CppContext::GetPrimitives(context),
+			"Cpp nodes must be found to parse successfully.");
+		NodePtr primitiveRoot = CppContext::GetPrimitives(context);
+		for(unsigned int i = 0; i < primitiveRoot->GetChildCount(); i ++)
+		{
+			importedNodes.push_back(primitiveRoot->GetChild(i));
+		}
+	}
+
+	void AddImport(NodePtr node)
 	{
+		importedNodes.push_back(node);
 	}
 
 	/** Returns true if a complex name can be parsed from this location. */
@@ -322,17 +357,182 @@ public:
 		return true;
 	}
 
+	/** Attempts to consume a name, and then stores the Node by that name.
+	 * Returns false if either no complex name was there, and sets node to nullptr
+	 * if it can't find a node with that name.
+	 * IOW, be aware this may return true but not have found a node. */
+	bool ConsumeNodeName(Iterator & itr, NodePtr & node)
+	{
+		node = NodePtr();
+		Iterator newItr = itr;
+		std::string name;	
+		if (!ConsumeComplexName(newItr, name))
+		{
+			return false;
+		}
+		node = FindNode(name);
+		if (!!node)
+		{ 
+			// Advance only if Node was found.
+			itr = newItr;
+		}
+		return true;
+	}
+
 	/** The start of a doc.  Either it reads stuff in or throws an exception. */
 	void Document(Iterator itr)
 	{
-		NamespaceFiller(itr);
+		ScopeFiller(itr);
 		itr.ConsumeWhiteSpace();
 		if (!itr.Finished())
 		{
 			throw ParserException(itr.GetSource(), Messages::Get("CppParser.Document.SyntaxError"));
 		}
 	}
+
+	/** Takes a complex name and finds its node. */
+	NodePtr FindNode(std::string & complexName)
+	{
+		// The Node class really needs a routine to discover a name given the
+		// current scope.  The visibility rules are too complex to
+		// lay out here.
+
+		// TO-DO: Create method in Node class called "FindNodeUsingVisibilityRules"
+		// For now, just do this:
+		NodePtr result;
+		result = currentScope->Find(complexName);
+		if (!result)
+		{
+			result = FindNodeFromImports(complexName);
+		}		
+		return result;
+	}
+
+	NodePtr FindNodeFromImports(std::string & complexName)
+	{
+		std::string firstPart, lastPart;
+		Node::SplitFirstNameOffComplexName(complexName, firstPart, lastPart);
+		for (unsigned int i = 0 ; i < importedNodes.size(); i ++)
+		{
+			NodePtr & imp = importedNodes[i];
+			if (firstPart == imp->GetName())
+			{
+				if (lastPart.size() < 1)
+				{
+					return imp;
+				}
+				return imp->Find(lastPart);
+			}
+		}		
+		return NodePtr();
+	}
+
+	static void FindNodeTest()
+	{
+		ContextPtr c(new Context("{ROOT}"));
+		CppContext::CreateCppNodes(c);
+		ParserFunctions funcs(c);
+
+		// It is found.
+		NodePtr nodeInt = funcs.FindNode(std::string("signed int"));
+		Assert(nodeInt->GetFullName() == CppContext::GetPrimitives(c)->Find("signed int")->GetFullName());
 		
+		// int is found, but nothing is found beyond that.
+		NodePtr nodeInt2 = funcs.FindNode(std::string("signed int::something"));
+		Assert(nodeInt2 == NodePtr());
+
+		NodePtr seed = c->GetRoot()->FindOrCreate(std::string("Fruit::Orange::Seed"));
+		NodePtr orange = seed->GetNode();
+		NodePtr fruit = orange->GetNode();
+		funcs.AddImport(orange);
+		NodePtr foundSeed = funcs.FindNode(std::string("Orange::Seed"));
+		Assert(foundSeed->GetFullName() == seed->GetFullName());
+		
+		NodePtr foundFruit = funcs.FindNode(std::string("Fruit"));
+		Assert(foundFruit->GetFullName() == fruit->GetFullName());
+	}
+		
+	static void FindNodeFromImportsTest()
+	{
+		ContextPtr c(new Context("{ROOT}"));
+		CppContext::CreateCppNodes(c);
+		ParserFunctions funcs(c);
+
+		// It is found.
+		NodePtr nodeInt = funcs.FindNodeFromImports(std::string("signed int"));
+		Assert(nodeInt->GetFullName() == CppContext::GetPrimitives(c)->Find("signed int")->GetFullName());
+		
+		// int is found, but nothing is found beyond that.
+		NodePtr nodeInt2 = funcs.FindNodeFromImports(std::string("signed int::something"));
+		Assert(nodeInt2 == NodePtr());
+
+		NodePtr orange = c->GetRoot()->FindOrCreate(std::string("Fruit::Orange"));
+		NodePtr fruit = orange->GetNode();
+		funcs.AddImport(fruit);
+		NodePtr foundOrange = funcs.FindNodeFromImports(std::string("Fruit::Orange"));
+		Assert(foundOrange->GetFullName() == orange->GetFullName());
+	}
+
+	/** Will look at and consume variables with type info, a name, and ending
+	 * with a semicolon.  Returns false if nothing is found. 
+	 * If it finds something it creates the variable within currentScope, and
+	 * may define additional nodes if the variable's name is complex. */
+	bool FreeStandingVariable(Iterator & itr)
+	{
+		VariableTypeInfo typeInfo;
+		std::string varName;
+		Iterator oldItr = itr; // Save it in case we need to define where the
+							   // var definition began.
+		if (!Variable(itr, typeInfo, varName))
+		{
+			return false;
+		}
+		
+		itr.ConsumeWhiteSpace();
+		if (!itr.ConsumeChar(';'))
+		{
+			throw ParserException(itr.GetSource(),
+				Messages::Get("CppParser.Variable.SemicolonExpected")); 
+		}
+
+		NodePtr var = currentScope->FindOrCreate(varName);
+		Variable::Create(var, typeInfo,
+			Reason::Create(CppAxioms::VariableScopeCreation(), oldItr.GetSource()));
+		return true;
+	}
+
+	// looks for "import [complexName];" 
+	// Modifies itr argument if match is found.
+	bool Import(Iterator & itr)
+	{
+		itr.ConsumeWhiteSpace();
+		if (!itr.ConsumeWord("import"))
+		{
+			return false;
+		}
+
+		// Now we're committed!
+		itr.ConsumeWhiteSpace();
+		
+		std::string name;
+		if (!ConsumeComplexName(itr, name))
+		{
+			throw ParserException(itr.GetSource(),
+				Messages::Get("CppParser.Import.NameNotFound"));
+		}
+		
+		itr.ConsumeWhiteSpace();
+		if (!itr.ConsumeChar(';'))
+		{
+			throw ParserException(itr.GetSource(),
+				Messages::Get("CppParser.Import.SemicolonExpected"));
+		}
+
+		NodePtr importNode = context->GetRoot()->FindOrCreate(name);
+		AddImport(importNode);
+		return true;
+	}
+
 	// looks for "namespace [complexName]{}" Ignores whitespace.
 	// Modifies itr argument if match is found.
 	bool Namespace(Iterator & itr)
@@ -358,6 +558,8 @@ public:
 
 		NodePtr oldScope = currentScope;
 		currentScope = currentScope->FindOrCreate(name);
+		Namespace::Create(currentScope, 
+			Reason::Create(CppAxioms::NamespaceCreation(), newItr.GetSource()));
 
 		newItr.ConsumeWhiteSpace();
 
@@ -369,9 +571,9 @@ public:
 				Messages::Get("CppParser.Namespace.NoOpeningBrace"));
 			//EXCEPTION MSG: Expectedd { after namespace identifier.")
 			return false;
-		}
+		}		
 
-		NamespaceFiller(newItr);
+		ScopeFiller(newItr);
 
 		newItr.ConsumeWhiteSpace();
 		
@@ -392,11 +594,11 @@ public:
 	}
 
 	// Very destructive - takes the itr and attempts to consume
-	// anything that could be a namespace filler.
-	void NamespaceFiller(Iterator & itr)
+	// anything that could be fit in a Scope.
+	void ScopeFiller(Iterator & itr)
 	{	
 		// Take whatever you can get, replace the iter
-		while (Namespace(itr))
+		while (Import(itr) || Namespace(itr) || FreeStandingVariable(itr))
 		{
 		}
 	}
@@ -435,9 +637,109 @@ public:
 		Assert(SimpleName(createTestItr("AVeryLongName2_3a:")) == 17);
 	}
 
+	
+	/** Attempts to parse a variable. Returns false if it can't.  Will move
+	 * itr.  If it finds variable type info followed by a complex name it
+	 * will return the typeInfo and name.  Otherwise an exception gets thrown.
+	 * Does not parse the semicolon though, just stops after the name. */
+	bool Variable(Iterator & itr, VariableTypeInfo & typeInfo, std::string & varName)
+	{
+		if (!VariableType(itr, typeInfo))
+		{
+			return false;
+		}
+
+		// Now we need to see a name.
+		if (!ConsumeComplexName(itr, varName))
+		{
+			throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.Variable.NameExpected")); 
+		}		
+		
+		return true;
+	}
+
+	/** Attempts to parse a variable's type information.
+	 * expects: [const] [typeComplexName] [const] [*] [const] [&]
+     */
+	bool VariableType(Iterator & itr, VariableTypeInfo & info)
+	{
+		info = VariableTypeInfo();
+
+		itr.ConsumeWhiteSpace();		
+		if (itr.ConsumeWord("const"))
+		{
+			info.IsConst = true;
+			itr.ConsumeWhiteSpace();
+		}
+
+		if (!ConsumeNodeName(itr, info.Type))
+		{
+			if (info.IsConst)
+			{
+				// If we saw const, they're committed.
+				throw ParserException(itr.GetSource(),
+				Messages::Get("CppParser.Variable.ConstMaybeBeforeVar")); 
+			}
+			else
+			{
+				// Didn't see false and that didn't look like a typename, so
+				// we're fine.
+				return false;
+			}
+		}
+		
+		// At this point, we're committed.
+
+		if (!info.Type)
+		{
+			throw ParserException(itr.GetSource(),
+				Messages::Get("CppParser.Variable.UnknownTypeName")); 
+		}
+
+		itr.ConsumeWhiteSpace();
+		if (itr.ConsumeWord("const"))
+		{
+			if (info.IsConst)
+			{
+				// Appeared twice!? How dare it!
+				throw ParserException(itr.GetSource(0, -5),
+					Messages::Get("CppParser.Variable.ConstSeenTwice")); 
+			}
+			info.IsConst = true;
+			itr.ConsumeWhiteSpace();
+		}
+
+		// Now, we check for reference.
+		if (itr.ConsumeChar('*'))
+		{
+			info.IsPointer = true;
+			itr.ConsumeWhiteSpace();
+			if (itr.ConsumeWord("const"))
+			{
+				info.IsConstPointer = true;				
+				itr.ConsumeWhiteSpace();
+			}
+		}
+
+		// Now, we check for reference.
+		if (itr.ConsumeChar('&'))
+		{
+			info.IsReference = true;
+			itr.ConsumeWhiteSpace();
+		}
+
+		// At this point, we've seen all we can of the type info.
+		return true;
+
+	}
+
+
 	static void RunTests()
 	{
 		ComplexNameTests();
+		FindNodeTest();
+		FindNodeFromImportsTest();
 		SimpleNameTests();
 	}
 };
@@ -457,11 +759,19 @@ PippyParserPtr PippyParser::Create()
 
 int PippyParser::Read(Model::ContextPtr c, Model::SourcePtr source, const std::string & text)
 {
+	CppContext::CreateCppNodes(c);
 	ParserFunctions funcs(c);		
 	Iterator itr(text.begin(), 
 			   text.end(), 
 			   source);
-	funcs.Document(itr);
+	try
+	{
+		funcs.Document(itr);
+	}
+	catch(ModelInconsistencyException mie)
+	{
+		throw ParserException(mie.GetSource(), mie.GetMessage());
+	}
 
 	/*typedef std::string::const_iterator iteratorType;
     typedef complexDecls<iteratorType> complexDecls;

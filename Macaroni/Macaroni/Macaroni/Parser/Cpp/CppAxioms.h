@@ -12,6 +12,12 @@ BEGIN_NAMESPACE(Macaroni, Parser, Cpp)
 namespace CppAxioms
 {
 	AxiomPtr NamespaceCreation();
+	AxiomPtr PrimitiveChar();
+	AxiomPtr PrimitiveDouble();
+	AxiomPtr PrimitiveFloat();
+	AxiomPtr PrimitiveSignedInt();
+	AxiomPtr PrimitiveUnsignedInt();
+	AxiomPtr VariableScopeCreation();
 };
 
 END_NAMESPACE

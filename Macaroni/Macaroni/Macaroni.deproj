@@ -39,4 +39,19 @@
   <file>
     <filename>Macaroni\Parser\Cpp\CppParserTests.lua</filename>
   </file>
+  <file>
+    <filename>Macaroni\Parser\Pippy\Tests\Index.lua</filename>
+  </file>
+  <file>
+    <filename>Macaroni\Parser\Pippy\Tests\Simple.lua</filename>
+  </file>
+  <file>
+    <filename>Macaroni\Parser\Pippy\Tests\Namespace.lua</filename>
+  </file>
+  <file>
+    <filename>Macaroni\Parser\Pippy\Tests\Variables.lua</filename>
+  </file>
+  <file>
+    <filename>Macaroni\Parser\Pippy\Tests\Milestones.lua</filename>
+  </file>
 </project>

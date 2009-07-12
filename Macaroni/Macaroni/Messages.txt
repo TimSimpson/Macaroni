@@ -1,6 +1,23 @@
 # Messages file for Macaroni.
-# CPP Parser Exception Messages
+
+# C++ Axioms
+CppAxioms.NamespaceCreation=Keyword "namespace" begins or continues namespaces.
+CppAxioms.PrimitiveChar=This node is a place holder for the C++ primitive "char."
+CppAxioms.PrimitiveDouble=This node is a place holder for the C++ primitive "double."
+CppAxioms.PrimitiveFloat=This node is a place holder for the C++ primitive "float."
+CppAxioms.PrimitiveSignedInt=This node is a place holder for the C++ primitive "signed int."
+CppAxioms.PrimitiveUnsignedInt=This node is a place holder for the C++ primitive "unsigned int."
+CppAxioms.VariableScopeCreation=Variable definition encountered in the middle of a scope.
+
+# C++ Parser Exception Messages
+CppParser.Import.NameNotFound=Identifier expected following keyword "import."
+CppParser.Import.SemicolonExpected=Expected ';' following import identifier.
 CppParser.Namespace.NoID1=Identifier expected following namespace keyword.
 CppParser.Namespace.NoEndingBrace=Syntax error while searching for '}' to complete sandwhich started on line {0}.
 CppParser.Namespace.NoOpeningBrace=Syntax error after identifier keyword; expected '{'.
 CppParser.Document.SyntaxError=Syntax error.
+CppParser.Variable.ConstMaybeBeforeVar=Identifier was expected following keyword "const."
+CppParser.Variable.ConstSeenTwice=Identifier was expected following keyword "const."
+CppParser.Variable.NameExpected=Variabler identifier expected.
+CppParser.Variable.SemicolonExpected=Expected ';' following variable identifier.
+CppParser.Variable.UnknownTypeName=Unknown type name for variable- could it be... a misspelled keyword?!! I don't know, maybe I'm being presumptuous.

@@ -15,7 +15,7 @@ BEGIN_NAMESPACE2(Macaroni, Model)
 class Namespace;
 
 class Node
-{
+{ 
 friend Context;
 friend Member;
 friend void intrusive_ptr_add_ref(Node * p);

@@ -13,12 +13,28 @@ local Source = Macaroni.Model.Source;
 
 Test.register(
 {	
-name = "PippyParser Tests :: Simple",    
+name = "PippyParser Tests :: Namespace",    
 tests = {        
-    ["Running C++ parser method tests."] = function(this)
-        PippyParser.RunTests();
-    end,
-    
+     {   
+        name = "Passing blank through parser.",
+        init = function(this)
+            this.parser = PippyParser.Create();     
+            this.context = Context.New("{ROOT}");
+            this.file = FileName.Create("Blah1.mcpp");           
+            this.root = this.context.Root;
+            this.src = Source.Create(this.file, 1, 1);
+            
+            this.parser:Read(this.context, this.src, "");            
+        end,
+        tests = {
+            ["One node exists within the Context"] = function(this)
+                Test.assert(1, #this.root.Children);
+            end,
+            ["Node is for primitives."] = function(this)
+                Test.assert("{C++ Primitives}", this.root.Children[1].Name);  
+            end,           
+        }
+    },
     
     {   
         name = "Reading a single namespace.",
@@ -35,17 +51,17 @@ tests = {
             
         end,
         tests = {
-            ["Only one node is found within the Context"] = function(this)
-                Test.assert(1, #this.root.Children);
+            ["Only two nodes are found within the Context"] = function(this)
+                Test.assert(2, #this.root.Children);
             end,
-            ["Single node in Root is Apple."] = function(this)
-                Test.assert("Apple", this.root.Children[1].Name);  
+            ["Second node in Root is Apple."] = function(this)
+                Test.assert("Apple", this.root.Children[2].Name);  
             end,
             ["Apple namespace has no children."] = function(this)
-                Test.assert(0, #this.root.Children[1].Children);  
+                Test.assert(0, #this.root.Children[2].Children);  
             end,
             ["Type of Node is Namespace."] = function(this)
-                Test.assert("Namespace", this.root.Children[1].Member.TypeName);  
+                Test.assert("Namespace", this.root.Children[2].Member.TypeName);  
             end,
         }
     },
@@ -70,12 +86,12 @@ tests = {
         end,
         tests = {
             ["Node within node found within the Context"] = function(this)
-                Test.assert(1, #this.root.Children);
-                Test.assert(1, #this.root.Children[1].Children);
+                Test.assert(2, #this.root.Children);
+                Test.assert(1, #this.root.Children[2].Children);
             end,
             ["Single node in Root is Apple, then Seed."] = function(this)
-                Test.assert("Apple", this.root.Children[1].Name);  
-                Test.assert("Seed", this.root.Children[1].Children[1].Name);  
+                Test.assert("Apple", this.root.Children[2].Name);  
+                Test.assert("Seed", this.root.Children[2].Children[1].Name);  
             end,
             ["Seed namespace has no children."] = function(this)
                 Test.assert(0, #this.root.Children[1].Children[1].Children);  
@@ -111,7 +127,7 @@ tests = {
                 Test.assert(false, status);
                 Test.assert(1, err.Source.Line);                
                 Test.assert(1, err.Source.Column);
-                Test.assert(Messages.Get("Syntax error."), err.Message);                
+                Test.assert(Messages.Get("CppParser.Variable.UnknownTypeName"), err.Message);                
             end,
             ["No identifier after namespace keyword."] = function(this)
                 local status, err = this.tryParse("namespace {}");
@@ -132,7 +148,7 @@ tests = {
                 Test.assert(false, status);
                 Test.assert(1, err.Source.Line);
                 Test.assert(21, err.Source.Column);                
-                Test.assert(Messages.Get("CppParser.Namespace.NoEndingBrace", 1), err.Message);                
+                Test.assert(Messages.Get("CppParser.Variable.UnknownTypeName", 1), err.Message);                
             end,            
         }
     },

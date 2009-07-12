@@ -3,6 +3,9 @@
 
 #include "CppAxioms.h"
 #include "CppAxiom.h"
+#include "../../Environment/Messages.h"
+
+using Macaroni::Environment::Messages;
 
 BEGIN_NAMESPACE(Macaroni, Parser, Cpp)
 namespace CppAxioms
@@ -10,7 +13,37 @@ namespace CppAxioms
 
 AxiomPtr NamespaceCreation()
 {
-	return AxiomPtr(new CppAxiom("\"namespace\" keyword begins or continues namespaces."));
+	return AxiomPtr(new CppAxiom("CppAxioms.NamespaceCreation"));
+}
+
+AxiomPtr PrimitiveChar()
+{
+	return AxiomPtr(new CppAxiom("CppAxioms.PrimitiveChar"));
+}
+
+AxiomPtr PrimitiveDouble()
+{
+	return AxiomPtr(new CppAxiom("CppAxioms.PrimitiveDouble"));
+}
+
+AxiomPtr PrimitiveFloat()
+{
+	return AxiomPtr(new CppAxiom("CppAxioms.PrimitiveFloat"));
+}
+
+AxiomPtr PrimitiveSignedInt()
+{
+	return AxiomPtr(new CppAxiom("CppAxioms.PrimitiveSignedInt"));
+}
+
+AxiomPtr PrimitiveUnsignedInt()
+{
+	return AxiomPtr(new CppAxiom("CppAxioms.PrimitiveUnsignedInt"));
+}
+
+AxiomPtr VariableScopeCreation()
+{
+	return AxiomPtr(new CppAxiom("CppAxioms.VariableScopeCreation"));
 }
 
 }// end of CppAxioms namespace

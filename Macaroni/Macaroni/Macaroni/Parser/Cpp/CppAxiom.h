@@ -9,7 +9,7 @@ BEGIN_NAMESPACE(Macaroni, Parser, Cpp)
 class CppAxiom : public Macaroni::Model::Axiom
 {
 public:
-	CppAxiom(const char * msg);
+	CppAxiom(const char * msgKey);	
 
 	~CppAxiom();
 
@@ -22,7 +22,7 @@ protected:
 	virtual void onReference();
 
 private:
-	const char * msg;
+	const char * msgKey;
 	int refCount;
 };
 
