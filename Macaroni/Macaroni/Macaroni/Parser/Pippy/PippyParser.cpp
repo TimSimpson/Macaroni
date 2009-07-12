@@ -61,6 +61,7 @@ public:
 				MACARONI_ASSERT(false, "Advanced past end of string.");
 			}
 			itr ++;
+			column ++;
 		}
 	}
 
@@ -351,7 +352,7 @@ public:
 		std::string name;
 		if (!ConsumeComplexName(newItr, name))
 		{
-			throw new ParserException(newItr.GetSource(),
+			throw ParserException(newItr.GetSource(),
 				Messages::Get("CppParser.Namespace.NoID1"));
 		}		
 
@@ -364,11 +365,13 @@ public:
 
 		if (!newItr.ConsumeChar('{'))
 		{
-			throw new ParserException(newItr.GetSource(),
+			throw ParserException(newItr.GetSource(),
 				Messages::Get("CppParser.Namespace.NoOpeningBrace"));
 			//EXCEPTION MSG: Expectedd { after namespace identifier.")
 			return false;
 		}
+
+		NamespaceFiller(newItr);
 
 		newItr.ConsumeWhiteSpace();
 		
@@ -379,7 +382,7 @@ public:
 		newItr.ConsumeWhiteSpace();
 		if (!newItr.ConsumeChar('}'))
 		{
-			throw new ParserException(newItr.GetSource(),
+			throw ParserException(newItr.GetSource(),
 				Messages::Get("CppParser.Namespace.NoEndingBrace", firstBraceSrc->GetLine()));			
 		}
 		

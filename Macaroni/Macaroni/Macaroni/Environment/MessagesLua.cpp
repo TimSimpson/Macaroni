@@ -33,6 +33,7 @@
 	static int Get(lua_State * L)
 	{
 		std::string msg = Messages::Get(luaL_checkstring(L, 1));
+
 		lua_pushstring(L, msg.c_str());
 		return 1;
 	}

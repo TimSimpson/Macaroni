@@ -33,8 +33,9 @@ Messages::Messages(const char * filePath)
 	MACARONI_ASSERT(!(!file), "Unable to open Messages file!");
 	std::string next;
 		
- 	while(!std::getline(file, next).eof())
+ 	do
 	{
+		std::getline(file, next);
 		int index = next.find_first_of("=");
 		if (next.size() > 0 && next[0] != '#')
 		{
@@ -42,7 +43,7 @@ Messages::Messages(const char * filePath)
 			std::string content = next.substr(index + 1, next.size() - index);
 			add(key, content);
 		}		
-	}
+	}while(!file.eof());
 	file.close();
 }
 
