@@ -13,6 +13,12 @@
   </scc>
   <files>
     <file>
+      <filename>Tests.lua</filename>
+      <breakpoint>
+        <line>37</line>
+      </breakpoint>
+    </file>
+    <file>
       <filename>Macaroni\Model\DocumentTests.lua</filename>
       <breakpoint>
         <line>66</line>

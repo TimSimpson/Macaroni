@@ -68,13 +68,17 @@ struct SourceLuaFunctions
 	{
 		SourcePtr & ptr = getInstance(L);
 		std::string index(luaL_checkstring(L, 2));
-		if (index == "FileName")
+		if (index == "Column")
+		{
+			lua_pushinteger(L, ptr->GetColumn());
+		}
+		else if (index == "FileName")
 		{
 			FileNameLuaMetaData::PutInstanceOnStack(L, ptr->GetFileName());
 		}
-		else if (index == "LineNumber")
+		else if (index == "Line")
 		{
-			lua_pushinteger(L, ptr->GetLineNumber());
+			lua_pushinteger(L, ptr->GetLine());
 		}
 		else if (index == "ReferenceCount")
 		{
@@ -99,7 +103,8 @@ struct SourceLuaFunctions
 	{	
 		FileNamePtr file = FileNameLuaMetaData::GetInstance(L, 1);
 		int line = luaL_checkinteger(L, 2);
-		SourcePtr ptr = Source::Create(file, line);
+		int col = luaL_checkinteger(L, 3);
+		SourcePtr ptr = Source::Create(file, line, col);
 		putSourceInstanceOnStack(L, ptr);
 		return 1;
 	}

@@ -62,9 +62,16 @@ LUAGLUE_STARTNAMESPACE
 				const LUAGLUE_CLASSREFNAME & source
 			)
 		{			
-			createLUAGLUE_CLASSREFNAMEUserData(L, source);
-			luaL_getmetatable(L, METATABLENAME);
-			lua_setmetatable(L, -2); 
+			if (!source)
+			{
+				lua_pushnil(L);
+			}
+			else
+			{
+				createLUAGLUE_CLASSREFNAMEUserData(L, source);
+				luaL_getmetatable(L, METATABLENAME);
+				lua_setmetatable(L, -2); 
+			}
 		}
 
 	} // End anonymous namespace

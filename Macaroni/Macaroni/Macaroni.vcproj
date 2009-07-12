@@ -460,6 +460,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Environment\Messages.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Environment\MessagesLua.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Model\ModelInconsistencyException.cpp"
 				>
 			</File>
@@ -702,6 +710,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Environment\Messages.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Environment\MessagesLua.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Model\ModelInconsistencyException.h"
 				>
 			</File>
@@ -718,11 +734,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Parser\Parser.h"
+				RelativePath=".\Macaroni\Parser.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Parser.h"
+				RelativePath=".\Macaroni\Parser\Parser.h"
 				>
 			</File>
 			<File
@@ -845,19 +861,19 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\FunctionTests.lua"
-			>
-		</File>
-		<File
 			RelativePath=".\Macaroni\Model\DocumentTests\FunctionTests.lua"
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Parser\Cpp\General.spirit"
+			RelativePath=".\Macaroni\Model\FunctionTests.lua"
 			>
 		</File>
 		<File
 			RelativePath=".\Macaroni\Model\General.spirit"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Parser\Cpp\General.spirit"
 			>
 		</File>
 		<File
@@ -890,6 +906,10 @@
 		</File>
 		<File
 			RelativePath=".\Macaroni\Model\MemberTests.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Messages.txt"
 			>
 		</File>
 		<File

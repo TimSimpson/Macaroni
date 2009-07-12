@@ -33,7 +33,12 @@
 		}
 		else if (index == "TypeName")
 		{
-			lua_pushstring(L, ptr->GetTypeName());
+			if (ptr->GetTypeName() == nullptr)
+			{
+				lua_pushnil(L);
+			} else {
+				lua_pushstring(L, ptr->GetTypeName());
+			}
 		}
 		else 
 		{

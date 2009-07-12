@@ -8,8 +8,8 @@
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
-Source::Source(const FileNamePtr fileName, int line)
-:fileName(fileName), lineNumber(line), referenceCount(0)
+Source::Source(const FileNamePtr fileName, int line, int column)
+:column(column), fileName(fileName), lineNumber(line), referenceCount(0)
 {
 }
 
@@ -17,12 +17,17 @@ Source::~Source()
 {
 }
 
-SourcePtr Source::Create(const FileNamePtr fileName, int line)
+SourcePtr Source::Create(const FileNamePtr fileName, int line, int column)
 {
-	return SourcePtr(new Source(fileName, line));
+	return SourcePtr(new Source(fileName, line, column));
 }
 
-int Source::GetLineNumber() const
+int Source::GetColumn() const
+{
+	return column;
+}
+
+int Source::GetLine() const
 {
 	return lineNumber;
 }
@@ -39,7 +44,7 @@ int Source::GetReferenceCount() const
 
 SourcePtr Source::JumpToLine(int newLineNumber) const
 {
-	return Create(fileName, newLineNumber);
+	return Create(fileName, newLineNumber, 1);
 }
 
 void intrusive_ptr_add_ref(Source * p)
@@ -52,10 +57,10 @@ void intrusive_ptr_release(Source * p)
 	p->referenceCount --;
 }
 
-std::string Source::ToString() const
+std::string Source::ToString() const 
 {
 	std::stringstream ss;
-	ss << this->GetFileName()->GetName() << ", line " << this->GetLineNumber();
+	ss << this->GetFileName()->GetName() << ", line " << this->GetLine();
 	return ss.str();	
 }
 

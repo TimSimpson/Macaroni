@@ -13,7 +13,7 @@ Test.register(
             name = "Creating a Reason.",
             init = function(this)
                 this.file = FileName.Create("Mino.mcpp");
-                this.source = Source.Create(this.file, 10);
+                this.source = Source.Create(this.file, 10, 1);
                 this.axiom = Axiom.LuaCreate("Class keyword discovered at start of line.");
                 this.reason = Reason.Create(this.axiom, this.source);
             end,

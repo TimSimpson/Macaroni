@@ -13,16 +13,18 @@ class Source
 friend void intrusive_ptr_add_ref(Source * p);
 friend void intrusive_ptr_release(Source * p);
 public:
-	static SourcePtr Create(const FileNamePtr fileName, int line);
-	int GetLineNumber() const;
+	static SourcePtr Create(const FileNamePtr fileName, int line, int column);
+	int GetColumn() const;
+	int GetLine() const;
 	FileNamePtr GetFileName() const;
 	int GetReferenceCount() const;
 	/** Creates a new Source object at the given line number. */
 	SourcePtr JumpToLine(int lineNumber) const;
 	std::string ToString() const;
 private:	
-	Source(const FileNamePtr fileName, int line);
+	Source(const FileNamePtr fileName, int line, int column);
 	~Source();
+	int column;
 	FileNamePtr fileName;
 	int lineNumber;
 	int referenceCount;

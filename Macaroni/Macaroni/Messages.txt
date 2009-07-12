@@ -1,0 +1,6 @@
+# Messages file for Macaroni.
+# CPP Parser Exception Messages
+CppParser.Namespace.NoID1=Identifier expected following namespace keyword.
+CppParser.Namespace.NoEndingBrace=Syntax error while searching for '}' to complete sandwhich started on line {0}.
+CppParser.Namespace.NoOpeningBrace=Syntax error after identifier keyword; expected '{'.
+CppParser.Document.SyntaxError=Syntax error.

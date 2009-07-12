@@ -37,7 +37,7 @@ void CppParserState::SetContext(Model::ContextPtr value)
 void CppParserState::SetCurrentSource(SourcePtr source)
 {
 	this->currentSource = source;
-	this->lineNumber = source->GetLineNumber();
+	this->lineNumber = source->GetLine();
 }
 
 END_NAMESPACE

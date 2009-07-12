@@ -8,6 +8,7 @@
 //#include "../Model/Document.h"
 #include "../Model/FileNameLua.h"
 #include "../Model/MemberLua.h"
+#include "MessagesLua.h"
 //#include "../Model/NamespaceLua.h"
 #include "../Model/NodeLua.h"
 #include "../Model/ReasonLua.h"
@@ -22,6 +23,7 @@
 BEGIN_NAMESPACE2(Macaroni, Environment)
 
 static const struct luaL_Reg libs[] = {
+	{"Macaroni.Environment.Messages", Environment::MessagesLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Axiom", Model::AxiomLuaMetaData::OpenInLua},
 	//MARIO {"Macaroni.Model.Class", Model::ClassLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Context", Model::ContextLuaMetaData::OpenInLua},

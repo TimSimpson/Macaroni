@@ -49,11 +49,18 @@ using Macaroni::Model::SourceLuaMetaData;
 		return 1;
 	}
 
+	static int RunTests(lua_State * L)
+	{
+		PippyParser::RunTests();
+		return 0;
+	}
+
 	#define LUAGLUE_ADDITIONALMETATABLEMETHODS \
 		/*{"__tostring", LUAGLUE_HELPERCLASS::__tostring}, */
 
 	#define LUAGLUE_ADDITIONALTABLEMETHODS \
-		{"Create", LUAGLUE_HELPERCLASS::Create},
+		{"Create", LUAGLUE_HELPERCLASS::Create}, \
+		{"RunTests", LUAGLUE_HELPERCLASS::RunTests},
 
 #include "../../LuaGlue2.hpp"
 

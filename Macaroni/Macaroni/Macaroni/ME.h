@@ -35,7 +35,7 @@ void ThrowMacaroniException(const char * file, int line, const char * message);
  * Crashes hard core.  An alternative to the classic exit command, except this
  * can be caught at the absolute lowest level to give some kind of error screen.
  */
-#define MACARONI_FAIL(m) { Gestalt::ThrowMacaroniException(__FILE__, __LINE__, (m)); }
+#define MACARONI_FAIL(m) { Macaroni::ThrowMacaroniException(__FILE__, __LINE__, (m)); }
 
 #ifndef DEBUGGING_OFF
 #define MACARONI_ASSERT(a, b) {if (!(a)){ Macaroni::ThrowMacaroniException(__FILE__, __LINE__, (b)); } }

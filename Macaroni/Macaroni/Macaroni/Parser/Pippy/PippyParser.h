@@ -17,6 +17,9 @@ public:
 	static PippyParserPtr Create();
 
 	virtual int Read(Model::ContextPtr c, Model::SourcePtr source, const std::string & text);
+
+	static void RunTests(); 
+
 private:
 
 private:
