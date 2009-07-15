@@ -13,8 +13,8 @@ BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 /** Represents a function in any possible Scope. */
 class Function : public ScopeMember
 {
-friend void intrusive_ptr_add_ref(Variable * p);
-friend void intrusive_ptr_release(Variable * p);
+friend void intrusive_ptr_add_ref(Function * p);
+friend void intrusive_ptr_release(Function * p);
 
 public:
 
@@ -30,22 +30,7 @@ public:
 
 	inline const TypeInfo GetReturnType() const
 	{
-		return typeInfo.IsConst;
-	}
-
-	inline bool IsConstPointer()
-	{
-		return typeInfo.IsConstPointer;
-	}
-
-	inline bool IsPointer()
-	{
-		return typeInfo.IsPointer;
-	}
-
-	inline bool IsReference()
-	{
-		return typeInfo.IsReference;
+		return returnTypeInfo;
 	}
 
 private:

@@ -316,6 +316,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Model\Cpp\Function.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Lua\lapi.c"
 				>
 			</File>
@@ -544,6 +548,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Model\Cpp\TypeInfo.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Model\Cpp\Variable.cpp"
 				>
 			</File>
@@ -766,11 +774,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Parser.h"
+				RelativePath=".\Macaroni\Parser\Parser.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Parser\Parser.h"
+				RelativePath=".\Macaroni\Parser.h"
 				>
 			</File>
 			<File
@@ -909,15 +917,19 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Macaroni\Model\Cpp\Function.lh"
+			>
+		</File>
+		<File
 			RelativePath=".\Macaroni\Parser\Pippy\Tests\Functions.lua"
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\FunctionTests.lua"
+			RelativePath=".\Macaroni\Model\DocumentTests\FunctionTests.lua"
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\DocumentTests\FunctionTests.lua"
+			RelativePath=".\Macaroni\Model\FunctionTests.lua"
 			>
 		</File>
 		<File

@@ -4,6 +4,7 @@
 #include "../../ME.h"
 #include "../Member.h"
 #include "../Node.lh"
+#include <sstream>
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
@@ -17,21 +18,11 @@ struct TypeInfo
 	bool IsReference;
 	Model::NodePtr Type;
 
-	TypeInfo()
-		:IsConst(false),
-		 IsConstPointer(false),
-		 IsPointer(false), 
-		 IsReference(false),
-		 Type()
-	{
-	}
+	TypeInfo();
 
-	bool operator==(const TypeInfo & other) const 
-	{
-		return IsConst == other.IsConst && IsConstPointer == other.IsConstPointer
-			&& IsPointer == other.IsPointer && IsReference == other.IsReference
-			&& Type == other.Type;
-	}
+	bool operator==(const TypeInfo & other) const;
+	
+	void DescribeDifferences(const TypeInfo & info, std::stringstream & stream) const;
 };
 
 END_NAMESPACE
