@@ -618,6 +618,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Model\Cpp\Function.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Plan\InlineFunctions.txt"
 				>
 			</File>
@@ -830,15 +834,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Model\Cpp\TypeInfo.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Model\Cpp\Variable.h"
 				>
 			</File>
 			<File
 				RelativePath=".\Macaroni\Model\Cpp\VariableLua.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Macaroni\Model\Cpp\VariableTypeInfo.h"
 				>
 			</File>
 		</Filter>
@@ -905,11 +909,15 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\DocumentTests\FunctionTests.lua"
+			RelativePath=".\Macaroni\Parser\Pippy\Tests\Functions.lua"
 			>
 		</File>
 		<File
 			RelativePath=".\Macaroni\Model\FunctionTests.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Model\DocumentTests\FunctionTests.lua"
 			>
 		</File>
 		<File

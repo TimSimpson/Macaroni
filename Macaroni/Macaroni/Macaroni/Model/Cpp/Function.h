@@ -1,27 +1,26 @@
-#ifndef MACARONI_MODEL_CPP_VARIABLE_H
-#define MACARONI_MODEL_CPP_VARIABLE_H
+#ifndef MACARONI_MODEL_CPP_FUNCTION_H
+#define MACARONI_MODEL_CPP_FUNCTION_H
 
 #include "../../ME.h"
+#include "Function.lh"
 #include "../Member.h"
 #include "../Reason.lh"
 #include "ScopeMember.h"
-#include "Variable.lh"
 #include "TypeInfo.h"
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-/** Represents a variable.  Can be in a namespace, in a class, or in a function
- * (the argument list). */
-class Variable : public ScopeMember
+/** Represents a function in any possible Scope. */
+class Function : public ScopeMember
 {
 friend void intrusive_ptr_add_ref(Variable * p);
 friend void intrusive_ptr_release(Variable * p);
 
 public:
 
-	static VariablePtr Create(NodePtr home, const TypeInfo & typeInfo, Model::ReasonPtr reason);
+	static FunctionPtr Create(NodePtr home, const TypeInfo & rtnTypeInfo, Model::ReasonPtr reason);
 
-	virtual ~Variable();
+	virtual ~Function();
 
 	virtual bool canBeChildOf(const Member * other) const;
 
@@ -29,7 +28,7 @@ public:
 
 	Model::NodePtr GetTypeNode() const;
 
-	inline bool IsConst()
+	inline const TypeInfo GetReturnType() const
 	{
 		return typeInfo.IsConst;
 	}
@@ -51,9 +50,9 @@ public:
 
 private:
 	
-	Variable(Node * home, Model::ReasonPtr reason, const TypeInfo & typeInfo);
+	Function(Node * home, Model::ReasonPtr reason, const TypeInfo & rtnTypeInfo);
 
-	TypeInfo typeInfo;
+	TypeInfo returnTypeInfo;
 };
 
 END_NAMESPACE

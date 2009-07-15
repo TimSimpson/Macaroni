@@ -1,5 +1,5 @@
-#ifndef MACARONI_MODEL_CPP_VARIABLE_CPP
-#define MACARONI_MODEL_CPP_VARIABLE_CPP
+#ifndef MACARONI_MODEL_CPP_TYPE_CPP
+#define MACARONI_MODEL_CPP_TYPE_CPP
 
 #include "Primitive.h"
 #include "../../Exception.h"
@@ -8,7 +8,7 @@
 #include "../Node.h"
 #include "Scope.h"
 #include "ScopeMember.h"
-#include "Variable.h"
+#include "Type.h"
 #include <memory>
 #include <sstream>
 
@@ -17,31 +17,31 @@ using class Macaroni::Model::Node;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-Variable::Variable(Node * parent, ReasonPtr reason, const TypeInfo & info)
-:ScopeMember(parent, "Variable", reason),
+Type::Type(Node * parent, ReasonPtr reason, const VariableTypeInfo & info)
+:ScopeMember(parent, "Type", reason),
  typeInfo(info)
 {
 }
 
-Variable::~Variable()
+Type::~Type()
 {
 	
 }
 
 
-bool Variable::canBeChildOf(const Member * other) const
+bool Type::canBeChildOf(const Member * other) const
 {
 	return dynamic_cast<const Scope *>(other) != nullptr;
 }
 
-VariablePtr Variable::Create(NodePtr host, const TypeInfo & info, ReasonPtr reason)
+TypePtr Type::Create(NodePtr host, const VariableTypeInfo & info, ReasonPtr reason)
 {
 	if (!host->GetMember())
 	{
-		return VariablePtr(new Variable(host.get(), reason, info));
+		return TypePtr(new Variable(host.get(), reason, info));
 	}
 	Member * member = host->GetMember().get();
-	Variable * existingVar = dynamic_cast<Variable *>(member);
+	Type * existingVar = dynamic_cast<Variable *>(member);
 	if (existingVar == nullptr)
 	{
 		// Will throw an error message.
@@ -73,15 +73,15 @@ VariablePtr Variable::Create(NodePtr host, const TypeInfo & info, ReasonPtr reas
 											  ss.str());	
 	}
 	// Re-use the previously set variable.
-	return VariablePtr(boost::dynamic_pointer_cast<Variable>(host->GetMember()));
+	return TypePtr(boost::dynamic_pointer_cast<Variable>(host->GetMember()));
 }
 
-const char * Variable::GetTypeName() const
+const char * Type::GetTypeName() const
 {
-	return "Variable";
+	return "Type";
 }
 
-Model::NodePtr Variable::GetTypeNode() const
+Model::NodePtr Type::GetTypeNode() const
 {
 	return typeInfo.Type;
 }

@@ -18,7 +18,7 @@
 #include "../../Model/Reason.h"
 #include "../../Model/Source.h"
 #include "../../Model/Cpp/Variable.h"
-#include "../../Model/Cpp/VariableTypeInfo.h"
+#include "../../Model/Cpp/TypeInfo.h"
 
 //#include "PippyParser.spirit"
 #include <sstream>
@@ -42,7 +42,7 @@ using Macaroni::Parser::ParserException;
 using Macaroni::Model::Cpp::Primitive;
 using Macaroni::Model::Reason;
 using Macaroni::Model::Cpp::Variable;
-using Macaroni::Model::Cpp::VariableTypeInfo;
+using Macaroni::Model::Cpp::TypeInfo;
 
 BEGIN_NAMESPACE(Macaroni, Parser, Pippy)
 
@@ -473,32 +473,17 @@ public:
 		Assert(foundOrange->GetFullName() == orange->GetFullName());
 	}
 
-	/** Will look at and consume variables with type info, a name, and ending
-	 * with a semicolon.  Returns false if nothing is found. 
-	 * If it finds something it creates the variable within currentScope, and
-	 * may define additional nodes if the variable's name is complex. */
-	bool FreeStandingVariable(Iterator & itr)
+	/** This function expects us to be committed to finding a function and to
+	 * have seen '('. We parse until we see ')'. */
+	void FunctionArgumentList(Iterator & itr, TypeInfo & rtnTypeInfo, 
+							  std::string & name)
 	{
-		VariableTypeInfo typeInfo;
-		std::string varName;
-		Iterator oldItr = itr; // Save it in case we need to define where the
-							   // var definition began.
-		if (!Variable(itr, typeInfo, varName))
-		{
-			return false;
-		}
-		
 		itr.ConsumeWhiteSpace();
-		if (!itr.ConsumeChar(';'))
+		if (!itr.ConsumeChar(')'))
 		{
 			throw ParserException(itr.GetSource(),
-				Messages::Get("CppParser.Variable.SemicolonExpected")); 
+				Messages::Get("CppParser.Function.ExpectedEndingParenthesis"));
 		}
-
-		NodePtr var = currentScope->FindOrCreate(varName);
-		Variable::Create(var, typeInfo,
-			Reason::Create(CppAxioms::VariableScopeCreation(), oldItr.GetSource()));
-		return true;
 	}
 
 	// looks for "import [complexName];" 
@@ -598,7 +583,7 @@ public:
 	void ScopeFiller(Iterator & itr)
 	{	
 		// Take whatever you can get, replace the iter
-		while (Import(itr) || Namespace(itr) || FreeStandingVariable(itr))
+		while (Import(itr) || Namespace(itr) || VariableOrFunction(itr))
 		{
 		}
 	}
@@ -642,7 +627,7 @@ public:
 	 * itr.  If it finds variable type info followed by a complex name it
 	 * will return the typeInfo and name.  Otherwise an exception gets thrown.
 	 * Does not parse the semicolon though, just stops after the name. */
-	bool Variable(Iterator & itr, VariableTypeInfo & typeInfo, std::string & varName)
+	bool Variable(Iterator & itr, TypeInfo & typeInfo, std::string & varName)
 	{
 		if (!VariableType(itr, typeInfo))
 		{
@@ -659,12 +644,48 @@ public:
 		return true;
 	}
 
+	/** Will look at and consume variables with type info, a name, and ending
+	 * with a semicolon.  Returns false if nothing is found. 
+	 * If it finds something it creates the variable within currentScope, and
+	 * may define additional nodes if the variable's name is complex. */
+	bool VariableOrFunction(Iterator & itr)
+	{
+		TypeInfo typeInfo;
+		std::string varName;
+		Iterator oldItr = itr; // Save it in case we need to define where the
+							   // var definition began.
+		if (!Variable(itr, typeInfo, varName))
+		{
+			return false;
+		}
+		
+		itr.ConsumeWhiteSpace();
+		if (itr.ConsumeChar(';'))
+		{
+			NodePtr var = currentScope->FindOrCreate(varName);
+			Variable::Create(var, typeInfo,
+				Reason::Create(CppAxioms::VariableScopeCreation(), oldItr.GetSource()));
+		
+		} 
+		else if (itr.ConsumeChar('('))
+		{
+			FunctionArgumentList(itr, typeInfo, varName);
+		}
+		else
+		{
+			throw ParserException(itr.GetSource(),
+				Messages::Get("CppParser.Variable.SemicolonExpected")); 
+		}
+		
+		return true;
+	}
+
 	/** Attempts to parse a variable's type information.
 	 * expects: [const] [typeComplexName] [const] [*] [const] [&]
      */
-	bool VariableType(Iterator & itr, VariableTypeInfo & info)
+	bool VariableType(Iterator & itr, TypeInfo & info)
 	{
-		info = VariableTypeInfo();
+		info = TypeInfo();
 
 		itr.ConsumeWhiteSpace();		
 		if (itr.ConsumeWord("const"))

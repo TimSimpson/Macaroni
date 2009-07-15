@@ -1,3 +1,4 @@
+require "Macaroni/Parser/Pippy/Tests/Functions";
 require "Macaroni/Parser/Pippy/Tests/Import";
 require "Macaroni/Parser/Pippy/Tests/Milestones";
 require "Macaroni/Parser/Pippy/Tests/Namespace";

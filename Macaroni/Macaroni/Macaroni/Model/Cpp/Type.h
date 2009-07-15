@@ -1,27 +1,26 @@
-#ifndef MACARONI_MODEL_CPP_VARIABLE_H
-#define MACARONI_MODEL_CPP_VARIABLE_H
+#ifndef MACARONI_MODEL_CPP_TYPE_H
+#define MACARONI_MODEL_CPP_TYPE_H
 
 #include "../../ME.h"
 #include "../Member.h"
 #include "../Reason.lh"
 #include "ScopeMember.h"
-#include "Variable.lh"
-#include "TypeInfo.h"
+#include "Type.lh"
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-/** Represents a variable.  Can be in a namespace, in a class, or in a function
- * (the argument list). */
-class Variable : public ScopeMember
+/** Represents a type. A type points to a Node in the Model namespace but also
+ * contains information on C / C++ type modifiers. */
+class Type : public ScopeMember
 {
-friend void intrusive_ptr_add_ref(Variable * p);
-friend void intrusive_ptr_release(Variable * p);
+friend void intrusive_ptr_add_ref(Type * p);
+friend void intrusive_ptr_release(Type * p);
 
 public:
 
-	static VariablePtr Create(NodePtr home, const TypeInfo & typeInfo, Model::ReasonPtr reason);
+	static TypePtr Create(NodePtr home, const VariableTypeInfo & typeInfo, Model::ReasonPtr reason);
 
-	virtual ~Variable();
+	virtual ~Type();
 
 	virtual bool canBeChildOf(const Member * other) const;
 
@@ -51,9 +50,9 @@ public:
 
 private:
 	
-	Variable(Node * home, Model::ReasonPtr reason, const TypeInfo & typeInfo);
+	Type(Node * home, Model::ReasonPtr reason, const VariableTypeInfo & typeInfo);
 
-	TypeInfo typeInfo;
+	VariableTypeInfo typeInfo;
 };
 
 END_NAMESPACE

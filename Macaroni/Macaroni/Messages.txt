@@ -16,6 +16,7 @@ CppParser.Namespace.NoID1=Identifier expected following namespace keyword.
 CppParser.Namespace.NoEndingBrace=Syntax error while searching for '}' to complete sandwhich started on line {0}.
 CppParser.Namespace.NoOpeningBrace=Syntax error after identifier keyword; expected '{'.
 CppParser.Document.SyntaxError=Syntax error.
+CppParser.Function.ExpectedEndingParenthesis=Expected to see ')'.
 CppParser.Variable.ConstMaybeBeforeVar=Identifier was expected following keyword "const."
 CppParser.Variable.ConstSeenTwice=Identifier was expected following keyword "const."
 CppParser.Variable.NameExpected=Variabler identifier expected.
