@@ -54,4 +54,7 @@
   <file>
     <filename>Macaroni\Parser\Pippy\Tests\Milestones.lua</filename>
   </file>
+  <file>
+    <filename>Macaroni\Parser\Pippy\Tests\Functions.lua</filename>
+  </file>
 </project>
