@@ -31,6 +31,7 @@ void CppContext::CreateCppNodes(ContextPtr & context)
 	addPrimitive(primitiveRoot, "float");
 	addPrimitive(primitiveRoot, "signed int");
 	addPrimitive(primitiveRoot, "unsigned int");		
+	addPrimitive(primitiveRoot, "void");
 }
 
 void CppContext::addPrimitive(NodePtr & node, const char * name)

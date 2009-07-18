@@ -8,6 +8,7 @@
 #include "ReasonLua.h"
 #include <sstream>
 #include "Cpp/VariableLua.h"
+#include "Cpp/FunctionLua.h"
 
 #define LUAGLUE_STARTNAMESPACE BEGIN_NAMESPACE2(Macaroni, Model)
 #define LUAGLUE_ENDNAMESPACE	END_NAMESPACE2
@@ -48,6 +49,14 @@
 		if (!!boost::dynamic_pointer_cast<Cpp::Variable>(ptr))
 		{
 			int rtnCnt = Cpp::VariableLuaMetaData::Index(L, boost::dynamic_pointer_cast<Cpp::Variable>(ptr), index);
+			if (rtnCnt > 0)
+			{
+				return rtnCnt;
+			}
+		}
+		if (!!boost::dynamic_pointer_cast<Cpp::Function>(ptr))
+		{
+			int rtnCnt = Cpp::FunctionLuaMetaData::Index(L, boost::dynamic_pointer_cast<Cpp::Function>(ptr), index);
 			if (rtnCnt > 0)
 			{
 				return rtnCnt;

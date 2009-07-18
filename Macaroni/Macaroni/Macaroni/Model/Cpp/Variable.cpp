@@ -83,7 +83,7 @@ const char * Variable::GetTypeName() const
 
 Model::NodePtr Variable::GetTypeNode() const
 {
-	return typeInfo.Type;
+	return typeInfo.Node;
 }
 
 void intrusive_ptr_add_ref(Variable * p)

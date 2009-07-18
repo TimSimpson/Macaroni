@@ -670,6 +670,7 @@ public:
 		else if (itr.ConsumeChar('('))
 		{
 			FunctionArgumentList(itr, typeInfo, varName);
+			
 		}
 		else
 		{
@@ -694,7 +695,7 @@ public:
 			itr.ConsumeWhiteSpace();
 		}
 
-		if (!ConsumeNodeName(itr, info.Type))
+		if (!ConsumeNodeName(itr, info.Node))
 		{
 			if (info.IsConst)
 			{
@@ -712,7 +713,7 @@ public:
 		
 		// At this point, we're committed.
 
-		if (!info.Type)
+		if (!info.Node)
 		{
 			throw ParserException(itr.GetSource(),
 				Messages::Get("CppParser.Variable.UnknownTypeName")); 

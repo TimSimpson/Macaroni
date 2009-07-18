@@ -16,7 +16,7 @@ struct TypeInfo
 	bool IsConstPointer;
 	bool IsPointer;
 	bool IsReference;
-	Model::NodePtr Type;
+	Model::NodePtr Node;
 
 	TypeInfo();
 

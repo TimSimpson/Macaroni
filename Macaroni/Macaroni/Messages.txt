@@ -7,6 +7,7 @@ CppAxioms.PrimitiveDouble=This node is a place holder for the C++ primitive "dou
 CppAxioms.PrimitiveFloat=This node is a place holder for the C++ primitive "float."
 CppAxioms.PrimitiveSignedInt=This node is a place holder for the C++ primitive "signed int."
 CppAxioms.PrimitiveUnsignedInt=This node is a place holder for the C++ primitive "unsigned int."
+CppAxioms.PrimitiveVoid=This node is a place holder for the C++ primitive "void."
 CppAxioms.VariableScopeCreation=Variable definition encountered in the middle of a scope.
 
 # C++ Parser Exception Messages

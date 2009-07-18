@@ -320,6 +320,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Model\Cpp\FunctionLua.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Lua\lapi.c"
 				>
 			</File>
@@ -552,6 +556,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Model\Cpp\TypeInfoLua.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Model\Cpp\Variable.cpp"
 				>
 			</File>
@@ -627,6 +635,10 @@
 			</File>
 			<File
 				RelativePath=".\Macaroni\Model\Cpp\Function.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Model\Cpp\FunctionLua.h"
 				>
 			</File>
 			<File
@@ -846,6 +858,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Model\Cpp\TypeInfoLua.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Model\Cpp\Variable.h"
 				>
 			</File>
@@ -925,19 +941,19 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\DocumentTests\FunctionTests.lua"
-			>
-		</File>
-		<File
 			RelativePath=".\Macaroni\Model\FunctionTests.lua"
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Parser\Cpp\General.spirit"
+			RelativePath=".\Macaroni\Model\DocumentTests\FunctionTests.lua"
 			>
 		</File>
 		<File
 			RelativePath=".\Macaroni\Model\General.spirit"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Parser\Cpp\General.spirit"
 			>
 		</File>
 		<File

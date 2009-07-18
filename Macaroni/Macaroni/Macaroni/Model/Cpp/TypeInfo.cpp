@@ -10,7 +10,7 @@ TypeInfo::TypeInfo()
 	 IsConstPointer(false),
 	 IsPointer(false), 
 	 IsReference(false),
-	 Type()
+	 Node()
 {
 }
 
@@ -18,7 +18,7 @@ bool TypeInfo::operator==(const TypeInfo & other) const
 {
 	return IsConst == other.IsConst && IsConstPointer == other.IsConstPointer
 		&& IsPointer == other.IsPointer && IsReference == other.IsReference
-		&& Type == other.Type;
+		&& Node == other.Node;
 }
 
 void TypeInfo::DescribeDifferences(const TypeInfo & info, std::stringstream & stream) const
