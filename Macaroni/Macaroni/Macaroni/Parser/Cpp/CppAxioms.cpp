@@ -11,6 +11,16 @@ BEGIN_NAMESPACE(Macaroni, Parser, Cpp)
 namespace CppAxioms
 {
 
+AxiomPtr ClassCreation()
+{
+	return AxiomPtr(new CppAxiom("CppAxioms.ClassCreation"));
+}
+
+AxiomPtr FunctionCreation()
+{
+	return AxiomPtr(new CppAxiom("CppAxioms.FunctionCreation"));
+}
+
 AxiomPtr NamespaceCreation()
 {
 	return AxiomPtr(new CppAxiom("CppAxioms.NamespaceCreation"));

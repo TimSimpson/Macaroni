@@ -1,6 +1,8 @@
 #ifndef MACARONI_MODEL_MEMBERLUA_CPP
 #define MACARONI_MODEL_MEMBERLUA_CPP
 
+#include "Cpp/ClassLua.h"
+#include "Cpp/FunctionLua.h"
 #include "MemberLua.h"
 #include "Member.h"
 #include "Node.h"
@@ -8,7 +10,6 @@
 #include "ReasonLua.h"
 #include <sstream>
 #include "Cpp/VariableLua.h"
-#include "Cpp/FunctionLua.h"
 
 #define LUAGLUE_STARTNAMESPACE BEGIN_NAMESPACE2(Macaroni, Model)
 #define LUAGLUE_ENDNAMESPACE	END_NAMESPACE2
@@ -17,7 +18,7 @@
 #define LUAGLUE_CLASSFULLLUANAME "Macaroni.Model.Member"
 #define LUAGLUE_CLASSFULLCPPNAME Macaroni::Model::Member
 #define LUAGLUE_REGISTRATIONCLASSNAME MemberLuaMetaData
-#define LUAGLUE_OPENOTHERMODULES Macaroni::Model::NodeLuaMetaData::OpenInLua(L);
+#define LUAGLUE_OPENOTHERMODULES Macaroni::Model::NodeLuaMetaData::OpenInLua(L); Macaroni::Model::Cpp::FunctionLuaMetaData::OpenInLua(L); Macaroni::Model::Cpp::ClassLuaMetaData::OpenInLua(L);
 #define LUAGLUE_CREATEMETATABLE YESPLEASE
 
 #include "../LuaGlue.hpp"

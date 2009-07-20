@@ -1,6 +1,8 @@
 # Messages file for Macaroni.
 
 # C++ Axioms
+CppAxioms.ClassCreation=Keyword "class" begins or continues classes.
+CppAxioms.FunctionCreation=Function definition encountered.
 CppAxioms.NamespaceCreation=Keyword "namespace" begins or continues namespaces.
 CppAxioms.PrimitiveChar=This node is a place holder for the C++ primitive "char."
 CppAxioms.PrimitiveDouble=This node is a place holder for the C++ primitive "double."
@@ -8,9 +10,13 @@ CppAxioms.PrimitiveFloat=This node is a place holder for the C++ primitive "floa
 CppAxioms.PrimitiveSignedInt=This node is a place holder for the C++ primitive "signed int."
 CppAxioms.PrimitiveUnsignedInt=This node is a place holder for the C++ primitive "unsigned int."
 CppAxioms.PrimitiveVoid=This node is a place holder for the C++ primitive "void."
-CppAxioms.VariableScopeCreation=Variable definition encountered in the middle of a scope.
+CppAxioms.VariableScopeCreation=Variable definition encountered.
 
 # C++ Parser Exception Messages
+CppParser.Class.NoID1=Identifier expected following class keyword.
+CppParser.Class.NoOpeningBrace=Expected '{' following class signature.
+CppParser.Class.NoEndingBrace=Expected '}' at this point to end class definition.
+CppParser.Function.SemicolonExpected=Semicolon expected following function definition.
 CppParser.Import.NameNotFound=Identifier expected following keyword "import."
 CppParser.Import.SemicolonExpected=Expected ';' following import identifier.
 CppParser.Namespace.NoID1=Identifier expected following namespace keyword.

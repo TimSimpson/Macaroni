@@ -2,11 +2,13 @@
 #define MACARONI_PARSER_PIPPY_PIPPYPARSER_CPP
 
 #include "../../ME.h"
+#include "../../Model/Cpp/Class.h"
 #include "../../Model/Context.h"
 #include "../Cpp/CppAxioms.h"
 #include "../../Model/Cpp/CppContext.h"
 #include "../../Exception.h"
 #include "../../Model/FileName.h"
+#include "../../Model/Cpp/Function.h"
 #include "../../Environment/Messages.h"
 #include "../../Model/ModelInconsistencyException.h"
 #include "../../Model/Cpp/Namespace.h"
@@ -24,7 +26,7 @@
 #include <sstream>
 #include <string>
 
-using Macaroni::Environment::Messages;
+using Macaroni::Model::Cpp::Class;
 using Macaroni::Model::Context;
 using Macaroni::Model::ContextPtr;
 using namespace Macaroni::Parser::Cpp;
@@ -32,6 +34,9 @@ using Macaroni::Model::Cpp::CppContext;
 using Macaroni::Model::Cpp::CppContextPtr;
 using Macaroni::Model::FileName;
 using Macaroni::Model::FileNamePtr;
+using Macaroni::Model::Cpp::Function;
+using Macaroni::Model::Cpp::FunctionPtr;
+using Macaroni::Environment::Messages;
 using Macaroni::Model::ModelInconsistencyException;
 using Macaroni::Model::Cpp::Namespace;
 using Macaroni::Model::Node;
@@ -296,6 +301,97 @@ public:
 	void AddImport(NodePtr node)
 	{
 		importedNodes.push_back(node);
+	}
+
+	// looks for "class [complexName]{}" Ignores whitespace.
+	// Modifies itr argument if match is found.
+	bool Class(Iterator & itr)
+	{
+		Iterator newItr = itr; 
+		newItr.ConsumeWhiteSpace();
+		if (!newItr.ConsumeWord("class"))
+		{
+			return false;
+		}
+		
+		// Once the parser has seen "class" it must see the correct
+		// grammar or there will be hell to pay.
+
+		newItr.ConsumeWhiteSpace();
+		
+		std::string name;
+		if (!ConsumeComplexName(newItr, name))
+		{
+			throw ParserException(newItr.GetSource(),
+				Messages::Get("CppParser.Namespace.NoID1"));
+		}		
+
+		NodePtr oldScope = currentScope;
+		currentScope = currentScope->FindOrCreate(name);
+		Class::Create(currentScope, 
+			Reason::Create(CppAxioms::ClassCreation(), newItr.GetSource()));
+
+		newItr.ConsumeWhiteSpace();
+
+		SourcePtr firstBraceSrc = itr.GetSource();
+
+		if (!newItr.ConsumeChar('{'))
+		{
+			throw ParserException(newItr.GetSource(),
+				Messages::Get("CppParser.Class.NoOpeningBrace"));
+			//EXCEPTION MSG: Expectedd { after namespace identifier.")
+			return false;
+		}		
+
+		ScopeFiller(newItr);
+
+		newItr.ConsumeWhiteSpace();
+		
+		//Model::Cpp::Namespace::Create(currentScope,
+		//	
+	///		);
+		
+		newItr.ConsumeWhiteSpace();
+		if (!newItr.ConsumeChar('}'))
+		{
+			throw ParserException(newItr.GetSource(),
+				Messages::Get("CppParser.Class.NoEndingBrace", firstBraceSrc->GetLine()));			
+		}
+		
+		itr = newItr; // Success! :)
+		currentScope = oldScope;
+		return true;
+	}
+
+	/** Consumes white space, then returns false if '{' not seen.
+	 * If it is, consumes all text until next '}'. */
+	bool CodeBlock(Iterator & itr, std::string & codeBlock)
+	{
+		itr.ConsumeWhiteSpace();
+		if (!itr.Is('{'))
+		{
+			return false;
+		}
+		itr.Advance(1);
+		
+		std::stringstream ss;
+		int depth = 1;
+		while(depth > 0)
+		{
+			if (itr.Is('{'))
+			{
+				depth ++;
+			}
+			if (itr.Is('}'))
+			{
+				depth --;
+			}
+			ss << itr.Current();
+			itr.Advance(1);
+		}
+		// Add code block
+		codeBlock = ss.str();
+		return true;
 	}
 
 	/** Returns true if a complex name can be parsed from this location. */
@@ -583,7 +679,10 @@ public:
 	void ScopeFiller(Iterator & itr)
 	{	
 		// Take whatever you can get, replace the iter
-		while (Import(itr) || Namespace(itr) || VariableOrFunction(itr))
+		while (Import(itr) 
+				|| Namespace(itr) 
+				|| Class(itr)
+				|| VariableOrFunction(itr))
 		{
 		}
 	}
@@ -659,18 +758,38 @@ public:
 			return false;
 		}
 		
+		NodePtr node = currentScope->FindOrCreate(varName);
+
 		itr.ConsumeWhiteSpace();
 		if (itr.ConsumeChar(';'))
-		{
-			NodePtr var = currentScope->FindOrCreate(varName);
-			Variable::Create(var, typeInfo,
+		{			
+			Variable::Create(node, typeInfo,
 				Reason::Create(CppAxioms::VariableScopeCreation(), oldItr.GetSource()));
 		
 		} 
 		else if (itr.ConsumeChar('('))
 		{
 			FunctionArgumentList(itr, typeInfo, varName);
-			
+			std::string codeBlock;
+			bool codeAttached = false;
+			Iterator startOfCodeBlock = itr;
+			codeAttached = CodeBlock(itr, codeBlock);
+			if (!codeAttached)
+			{
+				itr.ConsumeWhiteSpace();
+				if (!itr.ConsumeChar(';'))
+				{
+					throw ParserException(itr.GetSource(),
+						Messages::Get("CppParser.Function.SemicolonExpected")); 
+				}
+			}
+			FunctionPtr function = Function::Create(node, typeInfo, 
+				Reason::Create(CppAxioms::FunctionCreation(), oldItr.GetSource()));
+			if (codeAttached)
+			{
+				function->SetCodeBlock(codeBlock, startOfCodeBlock.GetSource());
+			}
+
 		}
 		else
 		{

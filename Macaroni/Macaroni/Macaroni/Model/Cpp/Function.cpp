@@ -22,12 +22,29 @@ BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 Function::Function(Node * home, Model::ReasonPtr reason, const TypeInfo & rtnTypeInfo)
 :ScopeMember(home, "Function", reason),
+ codeAttached(false),
+ codeBlock(),
  returnTypeInfo(rtnTypeInfo)
 {
 }
 
 Function::~Function()
 {
+}
+
+VariablePtr Function::GetArgument(int index)
+{
+	NodePtr child = getNode()->GetChild(index);
+	MACARONI_ASSERT(!!child->GetMember(), "Member for function argument set to null.");
+	MemberPtr member = child->GetMember();
+	MACARONI_ASSERT(boost::dynamic_pointer_cast<Variable>(member), 
+					"Member was not of type variable - code is out of date.");
+	return boost::dynamic_pointer_cast<Variable>(member);
+}
+
+int Function::GetArgumentCount()
+{
+	return getNode()->GetChildCount();
 }
 
 bool Function::canBeChildOf(const Member * other) const
@@ -80,6 +97,22 @@ void intrusive_ptr_release(Function * p)
 	intrusive_ptr_release((ScopeMember *)p);
 }
 
+void Function::SetCodeBlock(std::string & code, SourcePtr startOfCode)
+{
+	if (codeAttached)
+	{
+		std::stringstream msg;
+		msg << "Cannot create a code block for function "
+			<< this->getNode()->GetFullName() 
+			<< " because one was already defined at "
+			<< codeSource->ToString() 
+			<< ".";
+		throw new ModelInconsistencyException(startOfCode, msg.str());
+	}
+	codeBlock = code;
+	codeAttached = true;
+	codeSource = startOfCode;
+}
 	
 END_NAMESPACE
 

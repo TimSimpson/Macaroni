@@ -42,13 +42,18 @@ LUAGLUE_STARTNAMESPACE
 			(*instance).operator=(source);
 		}
 
-		static inline LUAGLUE_CLASSREFNAME & getInstance(lua_State * L, int index)
+		static inline LUAGLUE_CLASSREFNAME & getInstance(lua_State * L, int index, const char * metaTableName)
 		{
 			LUAGLUE_CLASSREFNAME * ptrToPtr = 
-				(LUAGLUE_CLASSREFNAME *) luaL_checkudata(L, index, METATABLENAME);
+				(LUAGLUE_CLASSREFNAME *) luaL_checkudata(L, index, metaTableName);
 			LUAGLUE_CLASSREFNAME & ptr = 
 				dynamic_cast<LUAGLUE_CLASSREFNAME &>(*ptrToPtr);
 			return ptr;
+		}
+
+		static inline LUAGLUE_CLASSREFNAME & getInstance(lua_State * L, int index)
+		{
+			return getInstance(L, index, METATABLENAME);
 		}
 
 

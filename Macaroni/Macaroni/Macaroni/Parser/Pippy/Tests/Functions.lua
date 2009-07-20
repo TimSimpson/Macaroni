@@ -55,10 +55,10 @@ tests = {
                 Test.assert("Function", this.func.TypeName);                  
             end,            
             ["Main's return type is void."] = function(this)                                
-                Test.assert("void", this.func.ReturnType.Node.Name);                  
+                Test.assert("void", this.func.ReturnType.Node.Name);  --                
             end,            
             ["Main's argument list is empty."] = function(this)                                
-                Test.assert(0, #this.varfalse, this.func.Arguments);                  
+                Test.assert(0, #this.func.Arguments);    --              
             end,                        
         }
     },

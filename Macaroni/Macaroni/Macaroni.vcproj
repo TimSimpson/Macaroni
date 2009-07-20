@@ -264,6 +264,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Model\Cpp\Class.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Model\Cpp\ClassLua.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\CmdLine.cpp"
 				>
 			</File>
@@ -582,6 +590,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Model\Cpp\Class.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Model\Cpp\ClassLua.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\CmdLine.h"
 				>
 			</File>
@@ -882,6 +898,10 @@
 		</File>
 		<File
 			RelativePath=".\Macaroni\Model\AxiomTests.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Model\Cpp\Class.lh"
 			>
 		</File>
 		<File
