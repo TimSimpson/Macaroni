@@ -276,6 +276,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Compiler.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\CompilerOptions.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Model\Context.cpp"
 				>
 			</File>
@@ -321,6 +329,14 @@
 			</File>
 			<File
 				RelativePath=".\Macaroni\Model\FileNameLua.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Gestalt\FileSystem\FileSet.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Gestalt\FileSystem\FileSet_Iterator.cpp"
 				>
 			</File>
 			<File
@@ -602,6 +618,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Compiler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\CompilerOptions.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Model\Context.h"
 				>
 			</File>
@@ -647,6 +671,10 @@
 			</File>
 			<File
 				RelativePath=".\Macaroni\Model\FileNameLua.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Gestalt\FileSystem\FileSet.h"
 				>
 			</File>
 			<File
@@ -802,11 +830,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Parser\Parser.h"
+				RelativePath=".\Macaroni\Parser.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Parser.h"
+				RelativePath=".\Macaroni\Parser\Parser.h"
 				>
 			</File>
 			<File
@@ -961,19 +989,19 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\FunctionTests.lua"
-			>
-		</File>
-		<File
 			RelativePath=".\Macaroni\Model\DocumentTests\FunctionTests.lua"
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\General.spirit"
+			RelativePath=".\Macaroni\Model\FunctionTests.lua"
 			>
 		</File>
 		<File
 			RelativePath=".\Macaroni\Parser\Cpp\General.spirit"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Model\General.spirit"
 			>
 		</File>
 		<File
@@ -1101,7 +1129,15 @@
 			>
 		</File>
 		<File
+			RelativePath=".\RealTest\Input\Simple.mcpp"
+			>
+		</File>
+		<File
 			RelativePath=".\TestData\simple.mcpp"
+			>
+		</File>
+		<File
+			RelativePath=".\RealTest\Input\SimpleClass.mcpp"
 			>
 		</File>
 		<File

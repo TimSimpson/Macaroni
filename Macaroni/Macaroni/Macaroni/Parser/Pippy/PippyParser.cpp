@@ -80,6 +80,10 @@ public:
 			{
 				MACARONI_ASSERT(false, "Advanced past end of string.");
 			}
+			if (*itr == '\n')
+			{
+				line ++;
+			}
 			itr ++;
 			column ++;
 		}
@@ -569,16 +573,30 @@ public:
 		Assert(foundOrange->GetFullName() == orange->GetFullName());
 	}
 
+
 	/** This function expects us to be committed to finding a function and to
 	 * have seen '('. We parse until we see ')'. */
 	void FunctionArgumentList(Iterator & itr, TypeInfo & rtnTypeInfo, 
 							  std::string & name)
 	{
 		itr.ConsumeWhiteSpace();
-		if (!itr.ConsumeChar(')'))
-		{
-			throw ParserException(itr.GetSource(),
+		bool seenArg = false;
+		while(!itr.ConsumeChar(')'))
+		{	
+			Iterator oldItr = itr;
+			TypeInfo typeInfo;
+			std::string argName;
+			if ((seenArg && !itr.ConsumeChar(','))
+				||
+				!Variable(itr, typeInfo, argName))
+			{
+				throw ParserException(itr.GetSource(),
 				Messages::Get("CppParser.Function.ExpectedEndingParenthesis"));
+			}
+			NodePtr node = currentScope->FindOrCreate(argName);
+			Variable::Create(node, typeInfo,
+				Reason::Create(CppAxioms::VariableScopeCreation(), oldItr.GetSource()));
+			seenArg = true;
 		}
 	}
 

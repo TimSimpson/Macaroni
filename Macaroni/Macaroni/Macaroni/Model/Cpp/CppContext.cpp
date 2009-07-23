@@ -26,12 +26,16 @@ BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 void CppContext::CreateCppNodes(ContextPtr & context)
 {
 	NodePtr primitiveRoot = context->GetRoot()->FindOrCreate("{C++ Primitives}");
-	addPrimitive(primitiveRoot, "char");
-	addPrimitive(primitiveRoot, "double");
-	addPrimitive(primitiveRoot, "float");
-	addPrimitive(primitiveRoot, "signed int");
-	addPrimitive(primitiveRoot, "unsigned int");		
-	addPrimitive(primitiveRoot, "void");
+	if (primitiveRoot->GetChildCount() == 0)
+	{
+		addPrimitive(primitiveRoot, "char");
+		addPrimitive(primitiveRoot, "double");
+		addPrimitive(primitiveRoot, "float");
+		addPrimitive(primitiveRoot, "signed int");
+		addPrimitive(primitiveRoot, "int");
+		addPrimitive(primitiveRoot, "unsigned int");		
+		addPrimitive(primitiveRoot, "void");
+	}
 }
 
 void CppContext::addPrimitive(NodePtr & node, const char * name)
