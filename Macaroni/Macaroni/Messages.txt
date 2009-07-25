@@ -4,6 +4,7 @@
 CppAxioms.ClassCreation=Keyword "class" begins or continues classes.
 CppAxioms.FunctionCreation=Function definition encountered.
 CppAxioms.NamespaceCreation=Keyword "namespace" begins or continues namespaces.
+CppAxioms.NamespaceRoot=The root of the Node system is a Namespace.
 CppAxioms.PrimitiveChar=This node is a place holder for the C++ primitive "char."
 CppAxioms.PrimitiveDouble=This node is a place holder for the C++ primitive "double."
 CppAxioms.PrimitiveFloat=This node is a place holder for the C++ primitive "float."

@@ -83,6 +83,7 @@ public:
 			if (*itr == '\n')
 			{
 				line ++;
+				column = 0;
 			}
 			itr ++;
 			column ++;
@@ -389,8 +390,30 @@ public:
 			if (itr.Is('}'))
 			{
 				depth --;
+				if (depth <= 0)
+				{
+					itr.Advance(1);
+					break;
+				}
 			}
-			ss << itr.Current();
+			char next = itr.Current();
+			if (next == '\n')
+			{
+				ss << "\n";
+			}
+			else if (next == 9)
+			{
+				ss << "    ";
+			}
+			else if (next <= 32)
+			{
+				ss << ' ';
+			}
+			else
+			{
+				ss << next;
+			}
+			//ss << itr.Current();
 			itr.Advance(1);
 		}
 		// Add code block
@@ -657,8 +680,20 @@ public:
 
 		NodePtr oldScope = currentScope;
 		currentScope = currentScope->FindOrCreate(name);
-		Namespace::Create(currentScope, 
-			Reason::Create(CppAxioms::NamespaceCreation(), newItr.GetSource()));
+		
+		// Create any parent namespaces that may have been introduced;
+		// for example, if we parse "A::B", A is also a namespace
+		// because only Namespaces can contain Namespaces.
+		NodePtr ns = currentScope;
+		while(ns != oldScope)
+		{
+			if (ns->GetMember() == nullptr)
+			{
+				Namespace::Create(ns, 
+					Reason::Create(CppAxioms::NamespaceCreation(), newItr.GetSource()));
+			}
+			ns = ns->GetNode();
+		}
 
 		newItr.ConsumeWhiteSpace();
 
@@ -787,7 +822,11 @@ public:
 		} 
 		else if (itr.ConsumeChar('('))
 		{
-			FunctionArgumentList(itr, typeInfo, varName);
+			NodePtr oldScope = currentScope;
+			currentScope = node;
+				FunctionArgumentList(itr, typeInfo, varName);
+			currentScope = oldScope;
+
 			std::string codeBlock;
 			bool codeAttached = false;
 			Iterator startOfCodeBlock = itr;

@@ -202,6 +202,25 @@ void intrusive_ptr_release(Namespace * p)
 //	return root;
 //}
 
+void Namespace::Visit(MemberVisitor * visitor) const
+{
+	std::auto_ptr<MemberVisitor> nsVisitorDeleter(visitor->VisitNamespace(*this));
+	MemberVisitor * nsVisitor = nsVisitorDeleter.get();
+	if (nsVisitor == visitor)
+	{
+		nsVisitorDeleter.release(); // do not let auto_ptr destroy.
+	}
+	
+	for(unsigned int i = 0; i < this->GetNode()->GetChildCount(); i ++)
+	{
+		NodePtr child = GetNode()->GetChild(i);
+		if (child->GetMember() != nullptr)
+		{
+			child->GetMember()->Visit(nsVisitor);
+		}
+	}
+}
+
 END_NAMESPACE
 
 #endif

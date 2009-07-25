@@ -163,12 +163,27 @@ Node * Node::findOrCreate(const std::string & name)
 std::string Node::GetFullName() const
 {
 	std::stringstream ss;
-	if (this->scope != nullptr && !(this->scope->IsRoot()))
+	if (this->scope != nullptr && this->scope->IsNameVisible())
 	{
 		ss << this->scope->GetFullName();
 		ss << "::";		
 	}	// do not include root node.
 	ss << this->name;
+	return ss.str();
+}
+
+std::string Node::GetPrettyFullName(const char * seperator) const
+{
+	std::stringstream ss;
+	if (this->scope != nullptr && this->scope->IsNameVisible())
+	{
+		ss << this->scope->GetPrettyFullName(seperator);
+		ss << seperator;		
+	}	// do not include root node.
+	if (this->IsNameVisible())
+	{
+		ss << this->name;
+	}
 	return ss.str();
 }
 
@@ -210,6 +225,11 @@ bool Node::IsComplexName(const std::string & name)
 bool Node::IsSimpleName(const std::string & name)
 {
 	return (name.find("::", 0) == std::string::npos);
+}
+
+bool Node::IsNameVisible() const
+{
+	return !IsRoot() && name.find("{", 0) == std::string::npos;
 }
 
 bool Node::IsRoot() const

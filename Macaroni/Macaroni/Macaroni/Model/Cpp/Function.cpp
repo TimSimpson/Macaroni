@@ -4,6 +4,7 @@
 #include "Function.h"
 #include "Primitive.h"
 #include "../../Exception.h"
+#include "../MemberVisitor.h"
 #include "../ModelInconsistencyException.h"
 #include "Namespace.h"
 #include "../Node.h"
@@ -32,7 +33,7 @@ Function::~Function()
 {
 }
 
-VariablePtr Function::GetArgument(int index)
+VariablePtr Function::GetArgument(int index) const
 {
 	NodePtr child = getNode()->GetChild(index);
 	MACARONI_ASSERT(!!child->GetMember(), "Member for function argument set to null.");
@@ -42,7 +43,7 @@ VariablePtr Function::GetArgument(int index)
 	return boost::dynamic_pointer_cast<Variable>(member);
 }
 
-int Function::GetArgumentCount()
+int Function::GetArgumentCount() const
 {
 	return getNode()->GetChildCount();
 }
@@ -82,6 +83,11 @@ FunctionPtr Function::Create(NodePtr host, const TypeInfo & rtnTypeInfo, Model::
 	return FunctionPtr(boost::dynamic_pointer_cast<Function>(host->GetMember()));
 }
 
+const std::string & Function::GetCodeBlock() const
+{
+	return codeBlock;
+}
+
 const char * Function::GetTypeName() const
 {
 	return "Function";
@@ -112,6 +118,11 @@ void Function::SetCodeBlock(std::string & code, SourcePtr startOfCode)
 	codeBlock = code;
 	codeAttached = true;
 	codeSource = startOfCode;
+}
+
+void Function::Visit(MemberVisitor * visitor) const
+{
+	visitor->VisitFunction(*this);
 }
 	
 END_NAMESPACE

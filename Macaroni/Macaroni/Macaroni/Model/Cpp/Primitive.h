@@ -26,6 +26,8 @@ public:
 
 	virtual const char * GetTypeName() const;
 
+	virtual void Visit(MemberVisitor * visitor) const;
+
 protected:	
 	Primitive(Node * home, ReasonPtr reason);
 private:

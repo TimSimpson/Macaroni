@@ -3,6 +3,7 @@
 
 #include "Class.h"
 #include "../../Exception.h"
+#include "../MemberVisitor.h"
 #include "../Node.h"
 #include <memory>
 #include <sstream>
@@ -44,6 +45,25 @@ void intrusive_ptr_add_ref(Class * p)
 void intrusive_ptr_release(Class * p)
 {
 	intrusive_ptr_release((ScopeMember *)p);
+}
+
+void Class::Visit(MemberVisitor * visitor) const
+{
+	std::auto_ptr<MemberVisitor> classVisitorDeleter(visitor->VisitClass(*this));
+	MemberVisitor * classVisitor = classVisitorDeleter.get();
+	if (classVisitor == visitor)
+	{
+		classVisitorDeleter.release(); // do not let auto_ptr destroy.
+	}
+	
+	for(unsigned int i = 0; i < this->GetNode()->GetChildCount(); i ++)
+	{
+		NodePtr child = GetNode()->GetChild(i);
+		if (child->GetMember() != nullptr)
+		{
+			child->GetMember()->Visit(classVisitor);
+		}
+	}
 }
 
 

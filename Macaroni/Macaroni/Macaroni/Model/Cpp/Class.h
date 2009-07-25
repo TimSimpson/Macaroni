@@ -24,6 +24,8 @@ public:
 
 	virtual const char * GetTypeName() const;
 
+	virtual void Visit(MemberVisitor * visitor) const;
+
 protected:	
 	Class(Node * home, ReasonPtr reason);
 private:

@@ -27,6 +27,11 @@ public:
 
 	virtual const char * GetTypeName() const;
 
+	inline const TypeInfo & GetTypeInfo() const
+	{
+		return typeInfo;
+	}
+
 	Model::NodePtr GetTypeNode() const;
 
 	inline bool IsConst()
@@ -48,6 +53,8 @@ public:
 	{
 		return typeInfo.IsReference;
 	}
+
+	virtual void Visit(MemberVisitor * visitor) const;
 
 private:
 	

@@ -320,6 +320,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Generator\Cpp\CppSourceGenerator.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Exception.cpp"
 				>
 			</File>
@@ -662,6 +666,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Generator\Cpp\CppSourceGenerator.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Exception.h"
 				>
 			</File>
@@ -798,6 +806,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Model\MemberVisitor.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\MemoryBlob.h"
 				>
 			</File>
@@ -830,11 +842,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Parser.h"
+				RelativePath=".\Macaroni\Parser\Parser.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\Parser\Parser.h"
+				RelativePath=".\Macaroni\Parser.h"
 				>
 			</File>
 			<File

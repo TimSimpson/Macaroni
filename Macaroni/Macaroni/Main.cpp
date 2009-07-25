@@ -27,7 +27,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	lua.ParseFile("Main.lua");
 	lua.Run();
 
-	FileSet input(boost::filesystem::path("RealTest/Input"), "\\.mcpp");
+	FileSet input(boost::filesystem::path("RealTest/Input"), "\\.mcpp$");
 	CompilerOptions options(input, 
 							boost::filesystem::path("RealTest/Output"));
 	Compiler::Compile(options);

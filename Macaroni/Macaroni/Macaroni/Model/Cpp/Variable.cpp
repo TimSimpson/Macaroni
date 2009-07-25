@@ -3,6 +3,7 @@
 
 #include "Primitive.h"
 #include "../../Exception.h"
+#include "../MemberVisitor.h"
 #include "../ModelInconsistencyException.h"
 #include "Namespace.h"
 #include "../Node.h"
@@ -94,6 +95,11 @@ void intrusive_ptr_add_ref(Variable * p)
 void intrusive_ptr_release(Variable * p)
 {
 	intrusive_ptr_release((ScopeMember *)p);
+}
+
+void Variable::Visit(MemberVisitor * visitor) const
+{
+	visitor->VisitVariable(*this);
 }
 
 

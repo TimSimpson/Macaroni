@@ -3,14 +3,19 @@
 
 #include "Compiler.h"
 #include "Model/Context.h"
+#include "Generator/Cpp/CppSourceGenerator.h"
 #include "Exception.h"
 #include "Model/FileName.h"
+#include <memory>
+#include "Model/Node.h"
+#include "Model/MemberVisitor.h"
 #include "Parser/ParserException.h"
 #include "Parser/Pippy/PippyParser.h"
 #include "Model/Source.h"
 
 using Macaroni::Model::Context;
 using Macaroni::Model::ContextPtr;
+using Macaroni::Generator::Cpp::CppSourceGenerator;
 using boost::filesystem::directory_iterator;
 using Macaroni::Exception;
 using Macaroni::Model::FileName;
@@ -18,6 +23,7 @@ using Macaroni::Model::FileNamePtr;
 using Gestalt::FileSystem::FileSet;
 #include <fstream>
 #include <iostream>
+using Macaroni::Model::MemberVisitor;
 using Macaroni::Parser::ParserException;
 using boost::filesystem::path;
 using Macaroni::Parser::Pippy::PippyParser;
@@ -87,6 +93,11 @@ static bool buildModel(ContextPtr context, FileSet inputFiles)
 
 static bool generateFiles(ContextPtr context, path output)
 {
+	std::cout << "Generating output...";
+	CppSourceGenerator sourceGen(output, 4);
+	std::auto_ptr<MemberVisitor> visitor(sourceGen.CreateRootVisitor());
+	context->GetRoot()->GetMember()->Visit(visitor.get());
+	return true;
 }
 
 void Compile(const CompilerOptions & options)
@@ -103,6 +114,13 @@ void Compile(const CompilerOptions & options)
 		std::cerr << "GAME OVER\n";
 		return;
 	}
+
+	if (!generateFiles(context, options.GetOutput()))
+	{
+			std::cerr << "GAME OVER\n";
+		return;
+	}
+
 	std::cerr << "YOU WIN!\n";
 
 }

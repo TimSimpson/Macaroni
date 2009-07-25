@@ -20,15 +20,17 @@ friend void intrusive_ptr_release(Function * p);
 
 public:
 
-	VariablePtr GetArgument(int index);
+	VariablePtr GetArgument(int index) const;
 
-	int GetArgumentCount();
+	int GetArgumentCount() const;
 
 	static FunctionPtr Create(NodePtr home, const TypeInfo & rtnTypeInfo, Model::ReasonPtr reason);
 
 	virtual ~Function();
 
 	virtual bool canBeChildOf(const Member * other) const;
+
+	const std::string & GetCodeBlock() const;
 
 	virtual const char * GetTypeName() const;
 
@@ -42,6 +44,8 @@ public:
 	/** Attaches code to this function. If code was already attached, throws a
 	 * ModelInconsistencyException. */
 	void SetCodeBlock(std::string & code, SourcePtr startOfCode);
+
+	virtual void Visit(MemberVisitor * visitor) const;
 
 private:
 	

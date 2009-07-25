@@ -3,9 +3,13 @@
 
 #include "Member.h"
 #include "../Exception.h"
+#include "Cpp/Namespace.h"
 #include "Node.h"
 #include "Reason.h"
 #include <sstream>
+
+using Macaroni::Model::Cpp::Namespace;
+using Macaroni::Model::Cpp::NamespacePtr;
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
@@ -54,6 +58,22 @@ bool Member::CanBeChildOf(const Member * otherMember) const
 		return false;
 	}
 	return canBeChildOf(otherMember);
+}
+
+NamespacePtr Member::FindClosestParentNamespace() const
+{
+	NodePtr itr = this->GetNode();
+	while(!!itr)
+	{
+		MemberPtr m = itr->GetMember();
+		NamespacePtr ns = boost::dynamic_pointer_cast<Cpp::Namespace>(m);
+		if (!!ns)
+		{
+			return ns;
+		}
+		itr = itr->GetNode();
+	}
+	throw Macaroni::Exception("Could not find Namespace in this Member.");
 }
 
 NodePtr Member::GetNode() const

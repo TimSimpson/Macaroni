@@ -61,6 +61,10 @@ void intrusive_ptr_release(Primitive * p)
 	intrusive_ptr_release((ScopeMember *)p);
 }
 
+void Primitive::Visit(MemberVisitor * visitor) const
+{
+	// Do nothing.
+}
 
 END_NAMESPACE
 

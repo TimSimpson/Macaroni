@@ -6,6 +6,7 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 #include "../Member.h"
+#include "../MemberVisitor.h"
 #include "Namespace.lh"
 #include "Scope.h"
 
@@ -35,6 +36,8 @@ public:
 	virtual bool canBeChildOf(const Member * other) const;
 
 	virtual const char * GetTypeName() const;
+
+	virtual void Visit(MemberVisitor * visitor) const;
 
 protected:	
 	Namespace(Node * home, ReasonPtr reason);

@@ -4,6 +4,7 @@
 #include "CppContext.h"
 #include "../FileName.h"
 #include "../MessageAxiom.h"
+#include "../Cpp/Namespace.h"
 #include "../Node.h"
 #include "Primitive.h"
 #include "../Reason.h"
@@ -25,6 +26,15 @@ BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 void CppContext::CreateCppNodes(ContextPtr & context)
 {
+	if (context->GetRoot()->GetMember() == nullptr)
+	{
+		FileNamePtr file = FileName::Create(std::string("Cpp Parser"));
+		SourcePtr src = Source::Create(file, 0, 0);
+		Namespace::Create(context->GetRoot(), 
+						  Reason::Create(MessageAxiom::Create("CppAxioms.NamespaceRoot"), src)
+						  );
+	}
+
 	NodePtr primitiveRoot = context->GetRoot()->FindOrCreate("{C++ Primitives}");
 	if (primitiveRoot->GetChildCount() == 0)
 	{

@@ -41,10 +41,16 @@ public:
 	//NamespacePtr Find(std::string & name);	
 
 	std::string GetFullName() const;
+	
+	/** Uses the provided char instead of "::". */
+	std::string GetPrettyFullName(const char * seperator) const;
 
 	virtual size_t GetChildCount() const;
 
 	const std::string & GetName() const;
+
+	/** If false, this node does not appear as the part of it's children's names. */
+	bool IsNameVisible() const;
 
 	bool IsRoot() const;
 
