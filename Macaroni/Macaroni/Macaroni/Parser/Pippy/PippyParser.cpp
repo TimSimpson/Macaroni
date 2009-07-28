@@ -290,6 +290,7 @@ class ParserFunctions
 private:
 	ContextPtr context;
 	NodePtr currentScope;
+	std::string hFilesForNewNodes;
 	NodeListPtr importedNodes;
 public:
 
@@ -334,7 +335,7 @@ public:
 		}		
 
 		NodePtr oldScope = currentScope;
-		currentScope = currentScope->FindOrCreate(name);
+		currentScope = currentScope->FindOrCreate(name, hFilesForNewNodes);
 		Class::Create(currentScope, importedNodes,  
 			Reason::Create(CppAxioms::ClassCreation(), newItr.GetSource()));
 
@@ -347,7 +348,6 @@ public:
 			throw ParserException(newItr.GetSource(),
 				Messages::Get("CppParser.Class.NoOpeningBrace"));
 			//EXCEPTION MSG: Expectedd { after namespace identifier.")
-			return false;
 		}		
 
 		ScopeFiller(newItr);
@@ -364,6 +364,10 @@ public:
 			throw ParserException(newItr.GetSource(),
 				Messages::Get("CppParser.Class.NoEndingBrace", firstBraceSrc->GetLine()));			
 		}
+
+		// The ';' following a class def is optional.
+		newItr.ConsumeWhiteSpace();
+		newItr.ConsumeChar(';');
 		
 		itr = newItr; // Success! :)
 		currentScope = oldScope;
@@ -482,6 +486,42 @@ public:
 		return true;
 	}
 
+	bool ConsumeFilePath(Iterator & itr, std::string & filePath)
+	{
+		std::stringstream ss;
+		bool ankles = false;
+		if (itr.Current() == '<')
+		{
+			ankles = true;
+		}
+		else if (!itr.Current() == '"')
+		{
+			return false;
+		}
+		ss << itr.Current();
+		itr.Advance(1);
+		
+		while(!itr.Finished() && itr.Current() !='\"' && itr.Current() !='>')
+		{
+			ss << itr.Current();
+			itr.Advance(1);
+		}
+		
+		if (itr.Finished())
+		{
+			throw new ParserException(itr.GetSource(),
+				Messages::Get("CppParser::FileNameExpected"));
+		}
+		ss << itr.Current();
+	
+		//TO-DO: Check for > if ankels is true and " if not true, and make sure
+		// there's no mismatch.
+
+		itr.Advance(1);
+		filePath = ss.str();
+		return true;
+	}
+
 	/** Attempts to consume a name, and then stores the Node by that name.
 	 * Returns false if either no complex name was there, and sets node to nullptr
 	 * if it can't find a node with that name.
@@ -500,6 +540,22 @@ public:
 		{ 
 			// Advance only if Node was found.
 			itr = newItr;
+		}
+		return true;
+	}
+
+	bool Directives(Iterator & itr)
+	{
+		itr.ConsumeWhiteSpace();
+		if (itr.Finished() || !(itr.Current() == '#'))
+		{
+			return false;
+		}
+		itr.Advance(1);
+		if (!Import(itr) && !HFileDirective(itr))
+		{
+			throw ParserException(itr.GetSource(),
+				Messages::Get("CppParser.Directive.Unknown"));
 		}
 		return true;
 	}
@@ -625,6 +681,37 @@ public:
 		}
 	}
 
+	
+
+	bool HFileDirective(Iterator & itr)
+	{
+		itr.ConsumeWhiteSpace();
+		if (!itr.ConsumeWord("hfile"))
+		{
+			return false;
+		}
+		itr.ConsumeWhiteSpace();
+		if (itr.ConsumeWord("reset"))
+		{
+			hFilesForNewNodes = "";
+			return true;
+		}
+		if (!itr.ConsumeChar('='))
+		{
+			throw ParserException(itr.GetSource(),
+				Messages::Get("CppParser.Directive.HFileBadArgument"));
+		}
+		itr.ConsumeWhiteSpace();
+		std::string filePath;
+		if (!ConsumeFilePath(itr, filePath))
+		{
+			throw ParserException(itr.GetSource(),
+				Messages::Get("CppParser.Directive.HFileFilePathExpected"));
+		}
+		hFilesForNewNodes = filePath;
+		return true;
+	}
+
 	// looks for "import [complexName];" 
 	// Modifies itr argument if match is found.
 	bool Import(Iterator & itr)
@@ -734,7 +821,7 @@ public:
 	void ScopeFiller(Iterator & itr)
 	{	
 		// Take whatever you can get, replace the iter
-		while (Import(itr) 
+		while (Directives(itr) 
 				|| Namespace(itr) 
 				|| Class(itr)
 				|| VariableOrFunction(itr))

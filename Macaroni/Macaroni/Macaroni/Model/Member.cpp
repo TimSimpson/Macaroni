@@ -62,6 +62,15 @@ bool Member::CanBeChildOf(const Member * otherMember) const
 
 bool Member::DoesDefinitionReference(NodePtr node) const
 {
+	NodePtr me = this->GetNode();
+	for(unsigned int i = 0; i < me->GetChildCount(); i ++)
+	{
+		NodePtr kid = me->GetChild(i);
+		if (!!kid->GetMember() && kid->GetMember()->DoesDefinitionReference(node))
+		{
+			return true;
+		}
+	}
 	return false;
 }
 

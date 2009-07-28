@@ -25,6 +25,8 @@ public:
 
 	virtual bool canBeChildOf(const Member * other) const;
 
+	virtual bool DoesDefinitionReference(NodePtr node) const;
+
 	virtual const char * GetTypeName() const;
 
 	inline const TypeInfo & GetTypeInfo() const

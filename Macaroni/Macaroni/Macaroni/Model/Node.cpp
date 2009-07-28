@@ -12,8 +12,8 @@
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
-Node::Node(Node * scope, const std::string & name)
-:context(nullptr), member(nullptr), name(name), scope(scope)
+Node::Node(Node * scope, const std::string & name, const std::string & hFilePath)
+:context(nullptr), hFilePath(hFilePath), member(nullptr), name(name), scope(scope)
 {
 	if (scope != nullptr)
 	{
@@ -43,10 +43,10 @@ Node::~Node()
 //	return newInstance.release();
 //}
 
-Node * Node::createNode(const std::string & simpleName)
+Node * Node::createNode(const std::string & simpleName, const std::string & hFilePath)
 {
 	MACARONI_ASSERT(IsSimpleName(simpleName), "Name must be simple at this point.");
-	Node * child = new Node(this, simpleName);
+	Node * child = new Node(this, simpleName, hFilePath);
 	children.push_back(child);
 	return child;
 }
@@ -103,11 +103,17 @@ Node * Node::findSimpleName(const std::string & name) const
 
 NodePtr Node::FindOrCreate(const std::string & name)
 {
-	Node * nakedPtr = findOrCreate(name);
+	Node * nakedPtr = findOrCreate(name, std::string(""));
 	return NodePtr(nakedPtr);
 }
 
-Node * Node::findOrCreate(const std::string & name)
+NodePtr Node::FindOrCreate(const std::string & name, const std::string & hFilePath)
+{
+	Node * nakedPtr = findOrCreate(name, hFilePath);
+	return NodePtr(nakedPtr);
+}
+
+Node * Node::findOrCreate(const std::string & name, const std::string & hFilePath)
 {
 	std::string firstPart;
 	std::string lastPart;
@@ -137,16 +143,17 @@ Node * Node::findOrCreate(const std::string & name)
 
 	if (s == nullptr)
 	{
-		s = createNode(firstPart);
+		s = createNode(firstPart, hFilePath);
 	}
 
 	if (lastPart.size() < 1)
 	{
+		//MACARONI_ASSERT(s->GetHFilePath() != hFilePath, "Attempt to create node with different hFile data.");
 		return s;
 	}
 	else
 	{
-		return s->findOrCreate(lastPart);
+		return s->findOrCreate(lastPart, hFilePath);
 	}
 }
 //
@@ -190,6 +197,17 @@ std::string Node::GetPrettyFullName(const char * seperator) const
 size_t Node::GetChildCount() const
 {
 	return children.size();
+}
+
+std::string Node::GetHFilePath() const
+{
+	if (hFilePath.size() < 1)
+	{
+		std::stringstream ss;
+		ss << "\"" << GetPrettyFullName("/") << "\"";
+		return ss.str();
+	}
+	return hFilePath;
 }
 
 const std::string & Node::GetName() const

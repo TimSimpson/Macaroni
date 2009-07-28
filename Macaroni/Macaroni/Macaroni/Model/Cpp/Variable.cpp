@@ -77,6 +77,12 @@ VariablePtr Variable::Create(NodePtr host, const TypeInfo & info, ReasonPtr reas
 	return VariablePtr(boost::dynamic_pointer_cast<Variable>(host->GetMember()));
 }
 
+bool Variable::DoesDefinitionReference(NodePtr node) const
+{
+	return typeInfo.Node == node ? true 
+		: this->Member::DoesDefinitionReference(node);
+}
+
 const char * Variable::GetTypeName() const
 {
 	return "Variable";

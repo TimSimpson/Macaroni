@@ -33,12 +33,21 @@ public:
 	/** Finds of creates an UnknownScopePtr, which is returned as a NodePtr. */
 	NodePtr FindOrCreate(const std::string & name);	
 
+	/** Same as above, but also sets the hFilePath if creating a new node. */
+	NodePtr FindOrCreate(const std::string & name, const std::string & hFilePath);	
+
 	/** Find or creates an UnknownScopePtr, or returns nullptr if a clash. */
 	//UnknownScopePtr FindOrCreateUnknownScope(const std::string & name);
 
 	NodePtr Find(const std::string & complexName);
 
 	//NamespacePtr Find(std::string & name);	
+
+	// TO-DO: This is pitifully sloppy! Information on where the official C++
+	// definition is should probably optionally be attached to its own object
+	// instead of a string.  Please change this into a pointer to such an 
+	// object.
+	std::string GetHFilePath() const;
 
 	std::string GetFullName() const;
 	
@@ -92,12 +101,12 @@ public:
 		   						 std::vector<std::string> & subNames);
 
 protected:
-	Node(Node * scope, const std::string & name);
+	Node(Node * scope, const std::string & name, const std::string & hFilePath);
 	Node(const Node & other);
 	void operator=(const Node & other);
 	~Node();
 
-	Node * createNode(const std::string & simpleName);
+	Node * createNode(const std::string & simpleName, const std::string & hFilePath);
 
 	//Class * createClass(const std::string & simpleName);
 
@@ -107,7 +116,7 @@ protected:
 
 	/** Given a complex name, iterates through all parts of the name using
 	 * the preexisting Node objects or creating new UnknownScope's if needed.*/
-	Node * findOrCreate(const std::string & complexName);
+	Node * findOrCreate(const std::string & complexName, const std::string & hFilePath);
 
 	Node * findSimpleName(const std::string & name) const;
 
@@ -122,6 +131,8 @@ protected:
 	}
 
 	Node * getNode() const;
+
+	std::string hFilePath;
 
 	void setMember(Member * member, const char * typeName, const ReasonPtr reasonCreated);
 

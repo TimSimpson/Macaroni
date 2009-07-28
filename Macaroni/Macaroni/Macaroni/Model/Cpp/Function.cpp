@@ -33,6 +33,12 @@ Function::~Function()
 {
 }
 
+bool Function::DoesDefinitionReference(NodePtr node) const
+{
+	return this->returnTypeInfo.Node == node ? true
+		: this->Member::DoesDefinitionReference(node);
+}
+
 VariablePtr Function::GetArgument(int index) const
 {
 	NodePtr child = getNode()->GetChild(index);

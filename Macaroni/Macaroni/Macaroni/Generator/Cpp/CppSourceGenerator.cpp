@@ -9,6 +9,7 @@
 #include "../../Model/Node.h"
 #include "../../Model/MemberVisitor.h"
 #include "../../Model/Cpp/Namespace.h"
+#include "../../Model/Cpp/Primitive.h"
 #include <string>
 #include <sstream>
 #include "../../Model/Cpp/TypeInfo.h"
@@ -28,11 +29,44 @@ using Macaroni::Model::NodePtr;
 using Macaroni::Model::NodeList;
 using Macaroni::Model::NodeListPtr;
 using boost::filesystem::path;
+using Macaroni::Model::Cpp::Primitive;
 using Macaroni::Model::Cpp::TypeInfo;
 using Macaroni::Model::Cpp::Variable;
 using Macaroni::Model::Cpp::VariablePtr;
 
+#define MACARONI_OVERWRITE_ALLOWED "//~ MACARONI_FILE_OVERWRITE_ALLOWED"
+
 BEGIN_NAMESPACE(Macaroni, Generator, Cpp)
+
+namespace
+{
+	bool isOkToOverwriteFile(const char * filePath)
+	{
+		if (!boost::filesystem::exists(filePath))
+		{
+			return true;
+		}
+		std::ifstream input(filePath);		
+		std::string firstLine;
+		std::getline(input, firstLine);
+		input.close();
+		return (firstLine == MACARONI_OVERWRITE_ALLOWED);
+	}
+
+	void openFileIfPossible(std::ofstream & outputFile, const char * filePath)
+	{
+		if (isOkToOverwriteFile(filePath))
+		{
+			outputFile.open(filePath, std::ios::out);
+			MACARONI_ASSERT(outputFile.is_open(), "File not opened.");
+			outputFile << std::string(MACARONI_OVERWRITE_ALLOWED) << "\n";
+		}
+		else
+		{
+			//std::out << "Skipping file " << std::string(filePath) << "...\n";
+		}
+	}
+}
 
 class ScopeVisitor : public MemberVisitor
 {
@@ -180,15 +214,25 @@ protected:
 		startLine();
 	}
 
+	inline static bool isPrimitive(const NodePtr node)
+	{
+		MemberPtr member = node->GetMember();
+		return !!member && !!(boost::dynamic_pointer_cast<Primitive>(member));
+	}
+
 	void writeHeaderIncludeStatements(const Member & m, NodeListPtr imports)
 	{		
 		for(unsigned int i = 0; i < imports->size(); i ++)
 		{
 			NodePtr import = (*imports)[i];
-			std::ofstream & file = 
-				(m.DoesDefinitionReference(import)) ? hFile : cppFile;			
-			file << "import \"" << import->GetPrettyFullName("/") << ".h\"";
+			if (!isPrimitive(import))
+			{
+				std::ofstream & file = 
+					(m.DoesDefinitionReference(import)) ? hFile : cppFile;	
+				file << "#include " << import->GetHFilePath() << "\n";
+			}
 		}
+		startLine();
 	}
 
 	void writeHeaderUsingStatements(NodeListPtr imports)
@@ -196,8 +240,12 @@ protected:
 		for(unsigned int i = 0; i < imports->size(); i ++)
 		{
 			NodePtr import = (*imports)[i];					
-			cppFile << "using " << import->GetPrettyFullName("::") << ";";
+			if (!isPrimitive(import))
+			{
+				cppFile << "using " << import->GetPrettyFullName("::") << ";\n";
+			}
 		}
+		startLineCppFile();
 	}
 
 	void writeHeaderNamespaceStart(const Member & n)
@@ -297,22 +345,24 @@ MemberVisitor * ScopeVisitor::VisitNamespace(const Macaroni::Model::Cpp::Namespa
 
 	if (ns.GetNode()->GetNode() != nullptr)
 	{
-		path dirPath(parent->GetRootPath() / path("/")) 
-			/ path(ns.GetNode()->GetNode()->GetPrettyFullName("/")));
+		path dirPath(parent->GetRootPath());
+		dirPath /= ns.GetNode()->GetPrettyFullName("/");
 		boost::filesystem::create_directory(dirPath);
 	}
 
 	std::stringstream ss;
 	ss << parent->GetRootPath().string() << "/" << ns.GetNode()->GetPrettyFullName("/") << "/global.h";	
-	hFilePtr->open(ss.str().c_str(), std::ios::out);
-	MACARONI_ASSERT(hFilePtr->is_open(), "HFile not opened.");
+	openFileIfPossible(*(hFilePtr.get()), ss.str().c_str());
+	//hFilePtr->open(ss.str().c_str(), std::ios::out);
+	//MACARONI_ASSERT(hFilePtr->is_open(), "HFile not opened.");
 
 	std::string p = ss.str();
 
 	ss.str("");
 	ss << parent->GetRootPath().string() << "/" << ns.GetNode()->GetPrettyFullName("/") << "/global.cpp";
-	cppFilePtr->open(ss.str().c_str(), std::ios::out);
-	MACARONI_ASSERT(cppFilePtr->is_open(), "CppFile not opened.");
+	openFileIfPossible(*(cppFilePtr.get()), ss.str().c_str());
+	//cppFilePtr->open(ss.str().c_str(), std::ios::out);
+	//MACARONI_ASSERT(cppFilePtr->is_open(), "CppFile not opened.");
 	
 	NamespaceVisitor * nsv = new NamespaceVisitor(parent, 
 		dynamic_cast<std::ofstream &>(*hFilePtr.get()),
@@ -334,7 +384,8 @@ public:
 	: ScopeVisitor(parent, hFile, cppFile, depth), fileClass(fileClass)
 	{
 		writeHeaderCompileGuard(fileClass);
-		writeHeaderIncludeStatements(fileClass, fileClass.GetImportedNodes());
+		cppFile << "#include \"" << fileClass.GetNode()->GetName() << ".h\"\n";
+		writeHeaderIncludeStatements(fileClass, fileClass.GetImportedNodes());		
 		writeHeaderUsingStatements(fileClass.GetImportedNodes());
 		writeHeaderNamespaceStart(fileClass);
 
@@ -347,7 +398,7 @@ public:
 	{
 		//depth --;	
 		hFile << "\n";
-		hFile << "} // End of class " << fileClass.GetName() << "\n";
+		hFile << "}; // End of class " << fileClass.GetName() << "\n";
 		writeFooter(fileClass);
 
 		delete &hFile;
@@ -372,15 +423,17 @@ MemberVisitor * ScopeVisitor::VisitClass(const Macaroni::Model::Cpp::Class & c)
 
 	std::stringstream ss;
 	ss << parent->GetRootPath().string() << "/" << c.GetNode()->GetPrettyFullName("/") << ".h";	
-	hFilePtr->open(ss.str().c_str(), std::ios::out);
-	MACARONI_ASSERT(hFilePtr->is_open(), "HFile not opened.");
+	openFileIfPossible(*(hFilePtr.get()), ss.str().c_str());
+	//hFilePtr->open(ss.str().c_str(), std::ios::out);
+	//MACARONI_ASSERT(hFilePtr->is_open(), "HFile not opened.");
 
 	std::string p = ss.str();
 
 	ss.str("");
 	ss << parent->GetRootPath().string() << "/" << c.GetNode()->GetPrettyFullName("/") << ".cpp";
-	cppFilePtr->open(ss.str().c_str(), std::ios::out);
-	MACARONI_ASSERT(cppFilePtr->is_open(), "CppFile not opened.");
+	openFileIfPossible(*(cppFilePtr.get()), ss.str().c_str());
+	//cppFilePtr->open(ss.str().c_str(), std::ios::out);
+	//MACARONI_ASSERT(cppFilePtr->is_open(), "CppFile not opened.");
 	
 	ClassVisitor * nsv = new ClassVisitor(parent, 
 		dynamic_cast<std::ofstream &>(*hFilePtr.get()),
@@ -435,16 +488,26 @@ MemberVisitor * CppSourceGenerator::CreateRootVisitor()
 
 	
 	std::stringstream ss;
-	ss << rootPath.string() << "/global.h";
-	hFile.open(ss.str().c_str(), std::ios::out);
-	MACARONI_ASSERT(hFile.is_open(), "HFile not opened.");
+	ss << rootPath.string() << "/global.h";	
+	openFileIfPossible(hFile, ss.str().c_str());
+	/*if (isOkToOverwriteFile(ss.str().c_str()))
+	{
+		hFile.open(ss.str().c_str(), std::ios::out);
+		MACARONI_ASSERT(hFile.is_open(), "HFile not opened.");
+		hFile << std::string(MACARONI_OVERWRITE_ALLOWED) << "\n";
+	}*/
 
 	std::string s = ss.str();
 
 	ss.str("");
-	ss << rootPath.string() << "/global.cpp";
-	cppFile.open(ss.str().c_str(), std::ios::out);
-	MACARONI_ASSERT(cppFile.is_open(), "HFile not opened.");
+	ss << rootPath.string() << "/global.cpp";	
+	openFileIfPossible(cppFile, ss.str().c_str());
+	/*if (isOkToOverwriteFile(ss.str().c_str()))
+	{
+		cppFile.open(ss.str().c_str(), std::ios::out);
+		MACARONI_ASSERT(cppFile.is_open(), "CppFile not opened.");
+		cppFile << std::string(MACARONI_OVERWRITE_ALLOWED) << "\n";
+	}*/
 
 	return new RootVisitor(this, hFile, cppFile, 0);
 }

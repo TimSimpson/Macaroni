@@ -933,6 +933,10 @@
 			>
 		</Filter>
 		<File
+			RelativePath=".\RealTest\Input\astd.mcpp"
+			>
+		</File>
+		<File
 			RelativePath=".\Macaroni\Model\Axiom.lh"
 			>
 		</File>
@@ -1001,19 +1005,19 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\FunctionTests.lua"
-			>
-		</File>
-		<File
 			RelativePath=".\Macaroni\Model\DocumentTests\FunctionTests.lua"
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\General.spirit"
+			RelativePath=".\Macaroni\Model\FunctionTests.lua"
 			>
 		</File>
 		<File
 			RelativePath=".\Macaroni\Parser\Cpp\General.spirit"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Model\General.spirit"
 			>
 		</File>
 		<File
@@ -1141,11 +1145,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\TestData\simple.mcpp"
+			RelativePath=".\RealTest\Input\Simple.mcpp"
 			>
 		</File>
 		<File
-			RelativePath=".\RealTest\Input\Simple.mcpp"
+			RelativePath=".\TestData\simple.mcpp"
 			>
 		</File>
 		<File

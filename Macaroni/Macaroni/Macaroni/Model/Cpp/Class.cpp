@@ -34,6 +34,11 @@ ClassPtr Class::Create(NodePtr parent, NodeListPtr importedNodes, ReasonPtr reas
 	return ClassPtr(new Class(parent.get(), importedNodes, reason));
 }
 
+bool Class::DoesDefinitionReference(NodePtr node) const
+{
+	return this->Member::DoesDefinitionReference(node);
+}
+
 NodeListPtr Class::GetImportedNodes() const
 {
 	return imports;

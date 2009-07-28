@@ -30,6 +30,8 @@ public:
 
 	virtual bool canBeChildOf(const Member * other) const;
 
+	virtual bool DoesDefinitionReference(NodePtr node) const;
+
 	const std::string & GetCodeBlock() const;
 
 	virtual const char * GetTypeName() const;
