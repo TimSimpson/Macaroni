@@ -40,6 +40,8 @@ using Macaroni::Environment::Messages;
 using Macaroni::Model::ModelInconsistencyException;
 using Macaroni::Model::Cpp::Namespace;
 using Macaroni::Model::Node;
+using Macaroni::Model::NodeList;
+using Macaroni::Model::NodeListPtr;
 using Macaroni::Model::NodePtr;
 using Macaroni::Model::Source;
 using Macaroni::Model::SourcePtr;
@@ -288,24 +290,24 @@ class ParserFunctions
 private:
 	ContextPtr context;
 	NodePtr currentScope;
-	std::vector<NodePtr> importedNodes;
+	NodeListPtr importedNodes;
 public:
 
 	ParserFunctions(ContextPtr context)
-		:context(context), currentScope(context->GetRoot())
+		:context(context), currentScope(context->GetRoot()), importedNodes(new NodeList())
 	{			
 		MACARONI_ASSERT(!!CppContext::GetPrimitives(context),
 			"Cpp nodes must be found to parse successfully.");
 		NodePtr primitiveRoot = CppContext::GetPrimitives(context);
 		for(unsigned int i = 0; i < primitiveRoot->GetChildCount(); i ++)
 		{
-			importedNodes.push_back(primitiveRoot->GetChild(i));
+			importedNodes->push_back(primitiveRoot->GetChild(i));
 		}
 	}
 
 	void AddImport(NodePtr node)
 	{
-		importedNodes.push_back(node);
+		importedNodes->push_back(node);
 	}
 
 	// looks for "class [complexName]{}" Ignores whitespace.
@@ -333,7 +335,7 @@ public:
 
 		NodePtr oldScope = currentScope;
 		currentScope = currentScope->FindOrCreate(name);
-		Class::Create(currentScope, 
+		Class::Create(currentScope, importedNodes,  
 			Reason::Create(CppAxioms::ClassCreation(), newItr.GetSource()));
 
 		newItr.ConsumeWhiteSpace();
@@ -535,9 +537,9 @@ public:
 	{
 		std::string firstPart, lastPart;
 		Node::SplitFirstNameOffComplexName(complexName, firstPart, lastPart);
-		for (unsigned int i = 0 ; i < importedNodes.size(); i ++)
+		for (unsigned int i = 0 ; i < importedNodes->size(); i ++)
 		{
-			NodePtr & imp = importedNodes[i];
+			NodePtr & imp = (*importedNodes)[i];
 			if (firstPart == imp->GetName())
 			{
 				if (lastPart.size() < 1)

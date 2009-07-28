@@ -60,6 +60,11 @@ bool Member::CanBeChildOf(const Member * otherMember) const
 	return canBeChildOf(otherMember);
 }
 
+bool Member::DoesDefinitionReference(NodePtr node) const
+{
+	return false;
+}
+
 NamespacePtr Member::FindClosestParentNamespace() const
 {
 	NodePtr itr = this->GetNode();

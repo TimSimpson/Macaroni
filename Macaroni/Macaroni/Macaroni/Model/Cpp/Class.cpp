@@ -9,11 +9,13 @@
 #include <sstream>
 
 using class Macaroni::Model::Node;
+using Macaroni::Model::NodeList;
+
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-Class::Class(Node * parent, ReasonPtr reason)
-:Scope(parent, "Namespace", reason)
+Class::Class(Node * parent, NodeListPtr importedNodes, ReasonPtr reason)
+:Scope(parent, "Namespace", reason), imports(importedNodes)
 {
 }
 
@@ -27,9 +29,14 @@ bool Class::canBeChildOf(const Member * other) const
 	return dynamic_cast<const Scope *>(other) != nullptr;
 }
 
-ClassPtr Class::Create(NodePtr parent, ReasonPtr reason)
+ClassPtr Class::Create(NodePtr parent, NodeListPtr importedNodes, ReasonPtr reason)
 {
-	return ClassPtr(new Class(parent.get(), reason));
+	return ClassPtr(new Class(parent.get(), importedNodes, reason));
+}
+
+NodeListPtr Class::GetImportedNodes() const
+{
+	return imports;
 }
 
 const char * Class::GetTypeName() const

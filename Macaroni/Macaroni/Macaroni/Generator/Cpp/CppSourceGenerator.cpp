@@ -25,6 +25,8 @@ using Macaroni::Model::Cpp::Namespace;
 using Macaroni::Model::Cpp::NamespacePtr;
 using Macaroni::Model::Node;
 using Macaroni::Model::NodePtr;
+using Macaroni::Model::NodeList;
+using Macaroni::Model::NodeListPtr;
 using boost::filesystem::path;
 using Macaroni::Model::Cpp::TypeInfo;
 using Macaroni::Model::Cpp::Variable;
@@ -168,7 +170,7 @@ protected:
 		startLine();
 	}
 
-	void writeHeader(const Member & m)
+	void writeHeaderCompileGuard(const Member & m)
 	{
 		hFile << "#ifndef MACARONI_COMPILEGUARD_" << m.GetNode()->GetPrettyFullName("_") << "_H\n";
 		hFile << "#define MACARONI_COMPILEGUARD_" << m.GetNode()->GetPrettyFullName("_") << "_H\n";
@@ -176,8 +178,31 @@ protected:
 		cppFile << "#define MACARONI_COMPILEGUARD_" << m.GetNode()->GetPrettyFullName("_") << "_CPP\n";
 		
 		startLine();
+	}
 
-		NamespacePtr ns = m.FindClosestParentNamespace();
+	void writeHeaderIncludeStatements(const Member & m, NodeListPtr imports)
+	{		
+		for(unsigned int i = 0; i < imports->size(); i ++)
+		{
+			NodePtr import = (*imports)[i];
+			std::ofstream & file = 
+				(m.DoesDefinitionReference(import)) ? hFile : cppFile;			
+			file << "import \"" << import->GetPrettyFullName("/") << ".h\"";
+		}
+	}
+
+	void writeHeaderUsingStatements(NodeListPtr imports)
+	{
+		for(unsigned int i = 0; i < imports->size(); i ++)
+		{
+			NodePtr import = (*imports)[i];					
+			cppFile << "using " << import->GetPrettyFullName("::") << ";";
+		}
+	}
+
+	void writeHeaderNamespaceStart(const Member & n)
+	{
+		NamespacePtr ns = n.FindClosestParentNamespace();
 
 		std::vector<std::string> subNames;
 		Node::SplitComplexName(ns->GetNode()->GetPrettyFullName("::"), subNames);
@@ -250,7 +275,8 @@ public:
 					 int depth, const Namespace & ns)
 	: ScopeVisitor(parent, hFile, cppFile, depth), fileNamespace(ns)
 	{
-		writeHeader(fileNamespace);
+		writeHeaderCompileGuard(fileNamespace);
+		writeHeaderNamespaceStart(fileNamespace);
 	}
 
 	~NamespaceVisitor()
@@ -271,8 +297,8 @@ MemberVisitor * ScopeVisitor::VisitNamespace(const Macaroni::Model::Cpp::Namespa
 
 	if (ns.GetNode()->GetNode() != nullptr)
 	{
-		path dirPath(parent->GetRootPath() / path("/") 
-			/ path(ns.GetNode()->GetNode()->GetPrettyFullName("/")) );
+		path dirPath(parent->GetRootPath() / path("/")) 
+			/ path(ns.GetNode()->GetNode()->GetPrettyFullName("/")));
 		boost::filesystem::create_directory(dirPath);
 	}
 
@@ -307,7 +333,11 @@ public:
 					 int depth, const Class & fileClass)
 	: ScopeVisitor(parent, hFile, cppFile, depth), fileClass(fileClass)
 	{
-		writeHeader(fileClass);
+		writeHeaderCompileGuard(fileClass);
+		writeHeaderIncludeStatements(fileClass, fileClass.GetImportedNodes());
+		writeHeaderUsingStatements(fileClass.GetImportedNodes());
+		writeHeaderNamespaceStart(fileClass);
+
 		hFile << "class " << fileClass.GetName() << "\n";
 		hFile << "{\n";	
 		//depth ++;

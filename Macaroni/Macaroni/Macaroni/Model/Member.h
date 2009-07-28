@@ -21,6 +21,10 @@ public:
 	 * type of the given member. */
 	bool CanBeChildOf(const Member * other) const;
 
+	/** Returns true if the given node is used to define type information for 
+	 * this node. */
+	virtual bool DoesDefinitionReference(NodePtr node) const;
+
 	NodePtr GetNode() const;
 
 	ReasonPtr GetReasonCreated() const;	

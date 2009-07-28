@@ -16,19 +16,23 @@ class Class : public Scope
 friend void intrusive_ptr_add_ref(Class * p);
 friend void intrusive_ptr_release(Class * p);
 public:	
-	static ClassPtr Create(NodePtr home, ReasonPtr reason);
+	static ClassPtr Create(NodePtr home, Model::NodeListPtr importedNodes, ReasonPtr reason);
 
 	virtual ~Class();
 
 	virtual bool canBeChildOf(const Member * other) const;
 
-	virtual const char * GetTypeName() const;
+	NodeListPtr GetImportedNodes() const;
 
+	virtual const char * GetTypeName() const;
+	
 	virtual void Visit(MemberVisitor * visitor) const;
 
 protected:	
-	Class(Node * home, ReasonPtr reason);
+	Class(Node * home, Model::NodeListPtr importedNodes, ReasonPtr reason);
 private:
+
+	NodeListPtr imports;
 	
 };
 
