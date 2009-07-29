@@ -989,6 +989,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Macaroni\Model\FileName.mcpp"
+			>
+		</File>
+		<File
 			RelativePath=".\Macaroni\Model\FileNameTests.lua"
 			>
 		</File>
@@ -1005,19 +1009,19 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\DocumentTests\FunctionTests.lua"
-			>
-		</File>
-		<File
 			RelativePath=".\Macaroni\Model\FunctionTests.lua"
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Parser\Cpp\General.spirit"
+			RelativePath=".\Macaroni\Model\DocumentTests\FunctionTests.lua"
 			>
 		</File>
 		<File
 			RelativePath=".\Macaroni\Model\General.spirit"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Parser\Cpp\General.spirit"
 			>
 		</File>
 		<File

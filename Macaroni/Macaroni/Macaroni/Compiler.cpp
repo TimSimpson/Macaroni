@@ -96,7 +96,10 @@ static bool generateFiles(ContextPtr context, path output)
 	std::cout << "Generating output...";
 	CppSourceGenerator sourceGen(output, 4);
 	std::auto_ptr<MemberVisitor> visitor(sourceGen.CreateRootVisitor());
-	context->GetRoot()->GetMember()->Visit(visitor.get());
+	if (!!context->GetRoot()->GetMember())
+	{
+		context->GetRoot()->GetMember()->Visit(visitor.get());
+	}
 	return true;
 }
 

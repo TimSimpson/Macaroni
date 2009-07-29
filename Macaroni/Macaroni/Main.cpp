@@ -12,25 +12,48 @@
 	//#include <boost/test/unit_test.hpp>
 #endif 
 
+using namespace Macaroni;
+using namespace Macaroni;
+using Gestalt::FileSystem::FileSet;
+
+void compileProjectFiles()
+{
+	FileSet input(boost::filesystem::path("Macaroni"), "\\.mcpp$");
+	CompilerOptions options(input, 
+							boost::filesystem::path("Macaroni"));
+	Compiler::Compile(options);
+}
+
+void compileToyFiles()
+{
+	FileSet input(boost::filesystem::path("RealTest/Input"), "\\.mcpp$");
+	CompilerOptions options(input, 
+							boost::filesystem::path("RealTest/Output"));
+	Compiler::Compile(options);
+}
+
+void runLuaTests()
+{
+	Macaroni::Environment::LuaEnvironment lua;
+	lua.ParseFile("Main.lua");
+	lua.Run();
+}
+
 int _tmain(int argc, _TCHAR* argv[])
 {
 #ifdef COMPILE_TARGET_TESTS
 	//return init_unit_tests();//main(argc, nullptr);
 #endif
-	using namespace Macaroni;
-	using namespace Macaroni;
-	using Gestalt::FileSystem::FileSet;
+	
 	std::vector<std::string> args;
 	args.push_back("Tests/simple.mcpp");
+	
+	runLuaTests();
 
-	Macaroni::Environment::LuaEnvironment lua;
-	lua.ParseFile("Main.lua");
-	lua.Run();
+	//compileToyFiles();
+	
+	compileProjectFiles();
 
-	FileSet input(boost::filesystem::path("RealTest/Input"), "\\.mcpp$");
-	CompilerOptions options(input, 
-							boost::filesystem::path("RealTest/Output"));
-	Compiler::Compile(options);
 	//try
 	//{
 	//	CmdLine(args);
