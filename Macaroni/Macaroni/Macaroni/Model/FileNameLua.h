@@ -1,7 +1,7 @@
 #ifndef MACARONI_MODEL_FILENAMELUA_H
 #define MACARONI_MODEL_FILENAMELUA_H
 
-#include "FileName.lh"
+#include "FileNamePtr.h"
 
 struct lua_State;
 

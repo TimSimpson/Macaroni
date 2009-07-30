@@ -1,36 +1,49 @@
-#include "../ME.h"
-#include "FileName.lh"
-#include <string>
-
-OH MAN!!! NOOOOO!!!
-Missing ability to declare global method within class .h and .cpp file
-Missing access modifiers
-
-NOOO
-Missing comments
-
-AGH
+#import Macaroni::Model::FileNamePtr;
+#import std::string;
 
 namespace Macaroni::Model{
 
-class FileName
+class File
 {
-	
-friend void intrusive_ptr_add_ref(FileName * p);
-friend void intrusive_ptr_release(FileName * p);
+	FileName(const string & name)
+		:name(name), 
+		 referenceCount(0)
+	{
+	}
 
-public:	
-	static FileNamePtr Create(const std::string & name);
-	const std::string & GetName() const;
-	int GetReferenceCount() const;
-protected:
-	FileName(const std::string & name);
-	~FileName();
-private:	
-	std::string name;
-	int referenceCount;
-};
+	~FileName()
+	{
+	}
+
+	FileNamePtr Create(const std::string & name)
+	{
+		return FileNamePtr(new FileName(name));
+	}
+
+	const string & GetName() const
+	{
+		return name;
+	}
+
+	int GetReferenceCount() const
+	{
+		return referenceCount;
+	}
+
+	friend global void intrusive_ptr_add_ref(FileName * p)
+	{
+		p->referenceCount ++;
+	}
+	
+	friend global void intrusive_ptr_release(FileName * p)
+	{
+		p->referenceCount --;
+		if (p->referenceCount < 1)
+		{
+			delete p;
+		}
+	}
 
 }
 
-
+}

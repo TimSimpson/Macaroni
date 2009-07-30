@@ -2,7 +2,7 @@
 #define MACARONI_SOURCE_H
 
 #include "../ME.h"
-#include "FileName.lh"
+#include "FileNamePtr.h"
 #include "Source.lh"
 
 BEGIN_NAMESPACE2(Macaroni, Model)

@@ -2,7 +2,7 @@
 #define MACARONI_FILENAME_H
 
 #include "../ME.h"
-#include "FileName.lh"
+#include "FileNamePtr.h"
 #include <string>
 
 BEGIN_NAMESPACE2(Macaroni, Model)

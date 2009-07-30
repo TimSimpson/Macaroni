@@ -466,6 +466,38 @@ public:
 		Assert(ComplexName(createTestItr("::cat::13")) == 7);
 	}
 
+	bool ConstructorOrDestructor(Iterator & itr)
+	{
+		itr.ConsumeWhiteSpace();
+		bool tilda = false;
+		if (itr.ConsumeChar('~'))
+		{
+			tilda = true;
+			itr.ConsumeWhiteSpace();
+		}
+		if (!itr.ConsumeWord(currentScope->GetName().c_str()))
+		{
+			if (!tilda)
+			{
+				return false;
+			}
+			throw new ParserException(itr.GetSource(),
+				Messages::Get("CppParser.Constructor.ClassNameExpected")); 
+		}
+		itr.ConsumeWhiteSpace();
+		if (!itr.ConsumeChar('('))
+		{
+			throw new ParserException(itr.GetSource(),
+				Messages::Get("CppParser::Constructor::ArgumentListExpected"));
+		}
+		 CONSTRUCTOR MUST BE A SPECIAL SUBCLASS OF FUNCTION
+			 YOU CREATE IT AND SET IT TO THE CURRENT SCOPE THEN CALL THIS:
+		FunctionArgumentList(itr, why?, name?);
+			TO GET THE ARGUMENT LIST.
+				THEN YOU LOOK FOR VARIABLE INITIALIZERS AND ADD THEM TO 
+				A LIST THE CONSTRUCTOR KEEPS.
+	}
+
 	/** If no complex name found, nothing happens. 
 	 * If one is found, it is consumed and the name itself is placed in result. 
 	 */
@@ -657,8 +689,8 @@ public:
 
 	/** This function expects us to be committed to finding a function and to
 	 * have seen '('. We parse until we see ')'. */
-	void FunctionArgumentList(Iterator & itr, TypeInfo & rtnTypeInfo, 
-							  std::string & name)
+	void FunctionArgumentList(Iterator & itr)//, TypeInfo & rtnTypeInfo, 
+							  //std::string & name)
 	{
 		itr.ConsumeWhiteSpace();
 		bool seenArg = false;
