@@ -21,10 +21,20 @@ using class Macaroni::Model::Node;
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 
-Function::Function(Node * home, Model::ReasonPtr reason, const TypeInfo & rtnTypeInfo)
+Function::Function(Node * home, Model::ReasonPtr reason, const TypeInfo & rtnTypeInfo, bool constMember)
 :ScopeMember(home, "Function", reason),
  codeAttached(false),
  codeBlock(),
+ constMember(constMember),
+ returnTypeInfo(rtnTypeInfo)
+{
+}
+
+Function::Function(Node * home, const char * typeName, Model::ReasonPtr reason, const TypeInfo & rtnTypeInfo, bool constMember)
+:ScopeMember(home, typeName, reason),
+ codeAttached(false),
+ codeBlock(),
+ constMember(constMember),
  returnTypeInfo(rtnTypeInfo)
 {
 }
@@ -59,18 +69,19 @@ bool Function::canBeChildOf(const Member * other) const
 	return dynamic_cast<const Scope *>(other) != nullptr;
 }
 
-FunctionPtr Function::Create(NodePtr host, const TypeInfo & rtnTypeInfo, Model::ReasonPtr reason)
+FunctionPtr Function::Create(NodePtr host, const TypeInfo & rtnTypeInfo, 
+							 bool constMember, Model::ReasonPtr reason)
 {
 	if (!host->GetMember())
 	{
-		return FunctionPtr(new Function(host.get(), reason, rtnTypeInfo));
+		return FunctionPtr(new Function(host.get(), reason, rtnTypeInfo, constMember));
 	}
 	Member * member = host->GetMember().get();
 	Function * existingFunc = dynamic_cast<Function *>(member);
 	if (existingFunc == nullptr)
 	{
 		// Will throw an error message.
-		return FunctionPtr(new Function(host.get(), reason, rtnTypeInfo));
+		return FunctionPtr(new Function(host.get(), reason, rtnTypeInfo, constMember));
 	}
 
 	if (existingFunc != nullptr && !(existingFunc->returnTypeInfo == rtnTypeInfo))

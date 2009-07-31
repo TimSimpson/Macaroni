@@ -284,6 +284,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Model\Cpp\Constructor.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Model\Context.cpp"
 				>
 			</File>
@@ -321,6 +325,10 @@
 			</File>
 			<File
 				RelativePath=".\Macaroni\Generator\Cpp\CppSourceGenerator.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Model\Cpp\Destructor.cpp"
 				>
 			</File>
 			<File
@@ -630,6 +638,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Macaroni\Model\Cpp\Constructor.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Model\Cpp\ConstructorPtr.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Macaroni\Model\Context.h"
 				>
 			</File>
@@ -667,6 +683,14 @@
 			</File>
 			<File
 				RelativePath=".\Macaroni\Generator\Cpp\CppSourceGenerator.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Model\Cpp\Destructor.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Model\Cpp\DestructorPtr.h"
 				>
 			</File>
 			<File
@@ -919,6 +943,10 @@
 			</File>
 			<File
 				RelativePath=".\Macaroni\Model\Cpp\Variable.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Macaroni\Model\Cpp\VariableAssignment.h"
 				>
 			</File>
 			<File

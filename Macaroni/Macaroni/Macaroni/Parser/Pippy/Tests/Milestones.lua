@@ -26,10 +26,10 @@ tests = {
             this.src = Source.Create(this.file, 1, 1);
             
             this.parser:Read(this.context, this.src, [[
-                import std::string;
+                #import std::string;
                 
                 string hello;
-                const string & me;
+                string & me;
                 
                 namespace Apple
                 {

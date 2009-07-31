@@ -7,6 +7,8 @@
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 class Class;
+class Constructor;
+class Destructor;
 class Function;
 class Namespace;
 class Variable;
@@ -29,6 +31,10 @@ public:
 	virtual ~MemberVisitor(){};
 	
 	virtual MemberVisitor * VisitClass(const Cpp::Class &) = 0;
+
+	virtual void VisitConstructor(const Cpp::Constructor &) = 0;
+
+	virtual void VisitDestructor(const Cpp::Destructor &) = 0;
 
 	virtual void VisitFunction(const Cpp::Function &) = 0;
 

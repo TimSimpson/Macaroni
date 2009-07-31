@@ -5,23 +5,31 @@
 #include "../../Exception.h"
 #include "../MemberVisitor.h"
 #include "../Node.h"
+#include "../Node.lh"
 #include <memory>
+#include "../ModelInconsistencyException.h"
 #include <sstream>
 
 using class Macaroni::Model::Node;
+using Macaroni::Model::NodePtr;
 using Macaroni::Model::NodeList;
 
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 Class::Class(Node * parent, NodeListPtr importedNodes, ReasonPtr reason)
-:Scope(parent, "Namespace", reason), imports(importedNodes)
+:Scope(parent, "Class", reason), friends(new NodeList()), imports(importedNodes)
 {
 }
 
 Class::~Class()
 {
 	
+}
+
+void Class::AddFriend(NodePtr node)
+{
+	friends->push_back(node);
 }
 
 bool Class::canBeChildOf(const Member * other) const
@@ -31,12 +39,33 @@ bool Class::canBeChildOf(const Member * other) const
 
 ClassPtr Class::Create(NodePtr parent, NodeListPtr importedNodes, ReasonPtr reason)
 {
+	MemberPtr existingMember = parent->GetMember();
+	if (!!existingMember)
+	{
+		ClassPtr existingClass = boost::dynamic_pointer_cast<Class>(existingMember);
+		if (!existingClass)
+		{
+			std::stringstream ss;
+			ss << "The member at node " << parent->GetFullName() 
+				<< " is a " << parent->GetMember()->GetTypeName() 
+				<< " and cannot be morphed into a class.";
+			throw Model::ModelInconsistencyException(existingMember->GetReasonCreated(),
+				reason, ss.str());
+		}
+		return existingClass;
+	}
+	ClassPtr other = boost::dynamic_pointer_cast<Class>(existingMember);
 	return ClassPtr(new Class(parent.get(), importedNodes, reason));
 }
 
 bool Class::DoesDefinitionReference(NodePtr node) const
 {
 	return this->Member::DoesDefinitionReference(node);
+}
+
+NodeListPtr Class::GetFriendNodes() const
+{
+	return friends;
 }
 
 NodeListPtr Class::GetImportedNodes() const

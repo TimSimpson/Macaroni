@@ -60,7 +60,8 @@ void intrusive_ptr_release(Source * p)
 std::string Source::ToString() const 
 {
 	std::stringstream ss;
-	ss << this->GetFileName()->GetName() << ", line " << this->GetLine();
+	ss << this->GetFileName()->GetName() << ", line " << this->GetLine()
+		<< ", column " << this->GetColumn();
 	return ss.str();	
 }
 

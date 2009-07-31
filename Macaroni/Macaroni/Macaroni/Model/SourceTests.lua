@@ -31,7 +31,7 @@ Test.register(
                     Test.assert(1, this.src.ReferenceCount);
                 end,
                 ["ToString lookz like dis:"] = function(this)
-                    Test.assert("blah, line 27", tostring(this.src));
+                    Test.assert("blah, line 27, column 1", tostring(this.src));
                 end,
             }
         }             

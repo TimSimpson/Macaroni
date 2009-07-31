@@ -16,6 +16,16 @@ AxiomPtr ClassCreation()
 	return AxiomPtr(new CppAxiom("CppAxioms.ClassCreation"));
 }
 
+AxiomPtr CtorCreation()
+{
+	return AxiomPtr(new CppAxiom("CppAxioms.ConstructorCreation"));
+}
+
+AxiomPtr DtorCreation()
+{
+	return AxiomPtr(new CppAxiom("CppAxioms.DestructorCreation"));
+}
+
 AxiomPtr FunctionCreation()
 {
 	return AxiomPtr(new CppAxiom("CppAxioms.FunctionCreation"));

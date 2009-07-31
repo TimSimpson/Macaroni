@@ -1,10 +1,31 @@
 #import Macaroni::Model::FileNamePtr;
 #import std::string;
+#import Macaroni::Model::FileName;
 
 namespace Macaroni::Model{
 
-class File
+class FileName{}
+
+void intrusive_ptr_add_ref(FileName * p)
 {
+	p->referenceCount ++;
+}
+
+void intrusive_ptr_release(FileName * p)
+{
+	p->referenceCount --;
+	if (p->referenceCount < 1)
+	{
+		delete p;
+	}
+}
+
+class FileName
+{
+	friend intrusive_ptr_add_ref;
+	
+	friend intrusive_ptr_release;
+
 	FileName(const string & name)
 		:name(name), 
 		 referenceCount(0)
@@ -15,7 +36,7 @@ class File
 	{
 	}
 
-	FileNamePtr Create(const std::string & name)
+	FileNamePtr Create(const string & name)
 	{
 		return FileNamePtr(new FileName(name));
 	}
@@ -28,20 +49,6 @@ class File
 	int GetReferenceCount() const
 	{
 		return referenceCount;
-	}
-
-	friend global void intrusive_ptr_add_ref(FileName * p)
-	{
-		p->referenceCount ++;
-	}
-	
-	friend global void intrusive_ptr_release(FileName * p)
-	{
-		p->referenceCount --;
-		if (p->referenceCount < 1)
-		{
-			delete p;
-		}
 	}
 
 }

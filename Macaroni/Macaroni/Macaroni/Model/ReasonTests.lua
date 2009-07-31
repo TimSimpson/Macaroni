@@ -27,7 +27,7 @@ Test.register(
                     Test.assert(this.source, src);
                 end,
                 ["Tostring concats both relevant parts."] = function(this)
-                    Test.assert("Mino.mcpp, line 10: Class keyword discovered at start of line.", 
+                    Test.assert("Mino.mcpp, line 10, column 1: Class keyword discovered at start of line.", 
                                 tostring(this.reason));
                 end,                
             }

@@ -24,7 +24,7 @@ public:
 
 	int GetArgumentCount() const;
 
-	static FunctionPtr Create(NodePtr home, const TypeInfo & rtnTypeInfo, Model::ReasonPtr reason);
+	static FunctionPtr Create(NodePtr home, const TypeInfo & rtnTypeInfo, bool constMember, Model::ReasonPtr reason);
 
 	virtual ~Function();
 
@@ -43,21 +43,31 @@ public:
 		return returnTypeInfo;
 	}
 
+	inline bool IsConst() const
+	{
+		return constMember;
+	}
+
 	/** Attaches code to this function. If code was already attached, throws a
 	 * ModelInconsistencyException. */
 	void SetCodeBlock(std::string & code, SourcePtr startOfCode);
 
 	virtual void Visit(MemberVisitor * visitor) const;
 
+protected:
+	Function(Node * home, const char * typeName, Model::ReasonPtr reason, const TypeInfo & rtnTypeInfo, bool constMember);
+
 private:
 	
-	Function(Node * home, Model::ReasonPtr reason, const TypeInfo & rtnTypeInfo);
+	Function(Node * home, Model::ReasonPtr reason, const TypeInfo & rtnTypeInfo, bool constMember);
 
 	bool codeAttached;
 
 	std::string codeBlock;
 	
 	SourcePtr codeSource;
+
+	bool constMember;
 
 	TypeInfo returnTypeInfo;
 };

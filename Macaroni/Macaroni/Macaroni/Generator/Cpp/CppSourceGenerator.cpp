@@ -3,6 +3,8 @@
 
 #include "CppSourceGenerator.h"
 #include "../../Model/Cpp/Class.h"
+#include "../../Model/Cpp/Constructor.h"
+#include "../../Model/Cpp/Destructor.h"
 #include <fstream>
 #include "../../Model/Cpp/Function.h"
 #include <iostream>
@@ -14,9 +16,14 @@
 #include <sstream>
 #include "../../Model/Cpp/TypeInfo.h"
 #include "../../Model/Cpp/Variable.h"
+#include "../../Model/Cpp/VariableAssignment.h"
 
 using Macaroni::Model::Cpp::Class;
 using Macaroni::Model::Cpp::ClassPtr;
+using Macaroni::Model::Cpp::Constructor;
+using Macaroni::Model::Cpp::ConstructorPtr;
+using Macaroni::Model::Cpp::Destructor;
+using Macaroni::Model::Cpp::DestructorPtr;
 using Macaroni::Model::Cpp::Function;
 using Macaroni::Model::Cpp::FunctionPtr;
 using Macaroni::Model::Member;
@@ -32,6 +39,7 @@ using boost::filesystem::path;
 using Macaroni::Model::Cpp::Primitive;
 using Macaroni::Model::Cpp::TypeInfo;
 using Macaroni::Model::Cpp::Variable;
+using Macaroni::Model::Cpp::VariableAssignment;
 using Macaroni::Model::Cpp::VariablePtr;
 
 #define MACARONI_OVERWRITE_ALLOWED "//~ MACARONI_FILE_OVERWRITE_ALLOWED"
@@ -60,10 +68,11 @@ namespace
 			outputFile.open(filePath, std::ios::out);
 			MACARONI_ASSERT(outputFile.is_open(), "File not opened.");
 			outputFile << std::string(MACARONI_OVERWRITE_ALLOWED) << "\n";
+			std::cout << "Opening file " << std::string(filePath) << "...\n";
 		}
 		else
 		{
-			//std::out << "Skipping file " << std::string(filePath) << "...\n";
+			std::cout << "Skipping file " << std::string(filePath) << "...\n";			
 		}
 	}
 }
@@ -84,6 +93,18 @@ public:
 
 	virtual MemberVisitor * VisitNamespace(const Macaroni::Model::Cpp::Namespace &);
 		
+	virtual void VisitConstructor(const Constructor & ctor)
+	{
+		MACARONI_ASSERT(false,
+			"Cannot generate code for a constructor here!");
+	}
+
+	virtual void VisitDestructor(const Destructor & ctor)
+	{
+		MACARONI_ASSERT(false,
+			"Cannot generate code for a denstructor here!");
+	}
+
 	virtual void VisitFunction(const Macaroni::Model::Cpp::Function & func)
 	{
 		startLine();
@@ -98,32 +119,14 @@ public:
 			cppFile << parentClass->GetName() << "::";
 		}
 		write(func.GetName());
-		if (func.GetArgumentCount() == 0)
+
+		writeFunctionArgumentList(func);
+
+		if (func.IsConst())
 		{
-			write("()");
+			write(" const");
 		}
-		else
-		{
-			startLine();
-			write("(");		
-			depth ++;		
-			startLine();
-			for(int i = 0; i < func.GetArgumentCount(); i ++)
-			{
-				if (i > 0)
-				{
-					write(", ");
-					startLine();
-				}
-				VariablePtr arg = func.GetArgument(i);
-				writeTypeInfo(arg->GetTypeInfo());
-				//write(" ");
-				write(arg->GetName());			
-			}
-			depth --;
-			startLine();
-			write(")");
-		}
+
 		hFile << ";";
 
 		startLineCppFile();
@@ -202,6 +205,37 @@ protected:
 		startLine();
 		write("#endif // End Macaroni compile guard.");
 		startLine();
+	}
+
+	
+	void writeFunctionArgumentList(const Macaroni::Model::Cpp::Function & func)
+	{
+		if (func.GetArgumentCount() == 0)
+		{
+			write("()");
+		}
+		else
+		{
+			startLine();
+			write("(");		
+			depth ++;		
+			startLine();
+			for(int i = 0; i < func.GetArgumentCount(); i ++)
+			{
+				if (i > 0)
+				{
+					write(", ");
+					startLine();
+				}
+				VariablePtr arg = func.GetArgument(i);
+				writeTypeInfo(arg->GetTypeInfo());
+				//write(" ");
+				write(arg->GetName());			
+			}
+			depth --;
+			startLine();
+			write(")");
+		}
 	}
 
 	void writeHeaderCompileGuard(const Member & m)
@@ -404,6 +438,60 @@ public:
 		delete &hFile;
 		delete &cppFile;
 	}
+
+	virtual void VisitConstructor(const Constructor & ctor)
+	{
+		write(fileClass.GetNode()->GetName());
+		writeFunctionArgumentList(ctor);
+		startLineHFile();
+		startLineCppFile();		
+		
+		depth ++;
+		for(int i = 0; i < ctor.GetAssignmentCount(); i ++)
+		{
+			startLineCppFile();
+			if (i == 0)
+			{
+				cppFile << ":\n";
+			}
+			const VariableAssignment & init = ctor.GetAssignment(i);
+			cppFile << init.Variable->GetName() 
+				    << "(" << init.Expression << ")";
+			if (i < ctor.GetAssignmentCount() - 1)
+			{
+				cppFile << ", ";
+			}
+			startLineCppFile();
+		}
+		depth --;
+		startLineCppFile();
+		cppFile << "{";
+		depth ++;
+		//startLineCppFile();
+		cppFile << ctor.GetCodeBlock();
+		depth --;
+		startLineCppFile();
+		cppFile << "}";
+		startLineCppFile();
+	}
+
+	virtual void VisitDestructor(const Destructor & dtor)
+	{
+		write("~");
+		write(fileClass.GetNode()->GetName());
+		writeFunctionArgumentList(dtor);
+		startLineHFile();
+		startLineCppFile();
+		cppFile << "{";
+		depth ++;
+		//startLineCppFile();
+		cppFile << dtor.GetCodeBlock();
+		depth --;
+		startLineCppFile();
+		cppFile << "}";
+		startLineCppFile();
+	}
+
 private:
 	const Class & fileClass;
 };

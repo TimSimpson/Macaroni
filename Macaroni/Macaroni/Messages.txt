@@ -2,6 +2,8 @@
 
 # C++ Axioms
 CppAxioms.ClassCreation=Keyword "class" begins or continues classes.
+CppAxioms.ConstructorCreation=Name of class without type creates constructor.
+CppAxioms.DestructorCreation=Tilda (~) followed by name of class begins destructor definition.
 CppAxioms.FunctionCreation=Function definition encountered.
 CppAxioms.NamespaceCreation=Keyword "namespace" begins or continues namespaces.
 CppAxioms.NamespaceRoot=The root of the Node system is a Namespace.
@@ -19,10 +21,14 @@ CppParser.Class.NoOpeningBrace=Expected '{' following class signature.
 CppParser.Class.NoEndingBrace=Expected '}' at this point to end class definition.
 CppParser.Constructor.ArgumentListExpected=Constructor argument list expected here.
 CppParser.Constructor.ClassNameExpected=Class name expected following destructor symbol '~'.
+CppParser.Expression.CouldNotMatch
 CppParser.Directive.Unknown=Unknown directive following # sign.
 CppParser.Directive.HFileBadArgument=Bad text following "hfile".
 CppParser.Directive.HFileFilePathExpected=A file path was expected here.
-CppParser::FileNameExpected=Expected a file name surrounded with quotes or ankle brackets.
+CppParser.FileNameExpected=Expected a file name surrounded with quotes or ankle brackets.
+CppParser.Friend.FriendKeywordOnlyForClasses=Keyword "friend" cannot be used outside of a class.
+CppParser.Friend.CouldNotFindNode=Could not find information on type in friend declaration.  Sorry, but friend info must be specified early using either an import or forward reference.
+CppParser.Friend.MissingSemicolon=Missing semicolon on friend declaration.
 CppParser.Function.SemicolonExpected=Semicolon expected following function definition.
 CppParser.Import.NameNotFound=Identifier expected following keyword "import."
 CppParser.Import.SemicolonExpected=Expected ';' following import identifier.
@@ -35,4 +41,4 @@ CppParser.Variable.ConstMaybeBeforeVar=Identifier was expected following keyword
 CppParser.Variable.ConstSeenTwice=Identifier was expected following keyword "const."
 CppParser.Variable.NameExpected=Variabler identifier expected.
 CppParser.Variable.SemicolonExpected=Expected ';' following variable identifier.
-CppParser.Variable.UnknownTypeName=Unknown type name for variable- could it be... a misspelled keyword?!! I don't know, maybe I'm being presumptuous.
+CppParser.Variable.UnknownTypeName=Unknown type name for variable.  Are you missing an import statement or forward declaration?

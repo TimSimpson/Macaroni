@@ -20,9 +20,14 @@ public:
 
 	virtual ~Class();
 
+	void AddFriend(NodePtr node);
+	
+
 	virtual bool canBeChildOf(const Member * other) const;
 
 	virtual bool DoesDefinitionReference(NodePtr node) const;
+
+	NodeListPtr GetFriendNodes() const;
 
 	NodeListPtr GetImportedNodes() const;
 
@@ -35,6 +40,8 @@ protected:
 private:
 
 	NodeListPtr imports;
+
+	NodeListPtr friends;
 	
 };
 

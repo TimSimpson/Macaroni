@@ -46,7 +46,10 @@ using Macaroni::Model::SourceLuaMetaData;
 		int LUAGLUE_CLASSNAME = 5;
 		int HELPERCLASS = 1134;
 		LUAGLUE_CLASSREFNAME & ptr = getInstance(L);
-		lua_pushstring(L, ptr->GetMessage());
+		std::stringstream ss;
+		ss << "Source:" << ptr->GetSource()->ToString();
+		ss << " Description:" << ptr->GetMessage();
+		lua_pushstring(L, ss.str().c_str());
 		return 1;
 	}
 

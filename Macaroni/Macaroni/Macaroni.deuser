@@ -24,5 +24,11 @@
         <line>66</line>
       </breakpoint>
     </file>
+    <file>
+      <filename>Macaroni\Parser\Pippy\Tests\Milestones.lua</filename>
+      <breakpoint>
+        <line>27</line>
+      </breakpoint>
+    </file>
   </files>
 </project>

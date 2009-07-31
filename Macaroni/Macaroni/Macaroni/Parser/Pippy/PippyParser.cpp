@@ -3,9 +3,13 @@
 
 #include "../../ME.h"
 #include "../../Model/Cpp/Class.h"
+#include "../../Model/Cpp/Constructor.h"
+#include "../../Model/Cpp/ConstructorPtr.h"
 #include "../../Model/Context.h"
 #include "../Cpp/CppAxioms.h"
 #include "../../Model/Cpp/CppContext.h"
+#include "../../Model/Cpp/Destructor.h"
+#include "../../Model/Cpp/DestructorPtr.h"
 #include "../../Exception.h"
 #include "../../Model/FileName.h"
 #include "../../Model/Cpp/Function.h"
@@ -20,6 +24,7 @@
 #include "../../Model/Reason.h"
 #include "../../Model/Source.h"
 #include "../../Model/Cpp/Variable.h"
+#include "../../Model/Cpp/VariableAssignment.h"
 #include "../../Model/Cpp/TypeInfo.h"
 
 //#include "PippyParser.spirit"
@@ -27,11 +32,16 @@
 #include <string>
 
 using Macaroni::Model::Cpp::Class;
+using Macaroni::Model::Cpp::ClassPtr;
+using Macaroni::Model::Cpp::Constructor;
+using Macaroni::Model::Cpp::ConstructorPtr;
 using Macaroni::Model::Context;
 using Macaroni::Model::ContextPtr;
 using namespace Macaroni::Parser::Cpp;
 using Macaroni::Model::Cpp::CppContext;
 using Macaroni::Model::Cpp::CppContextPtr;
+using Macaroni::Model::Cpp::Destructor;
+using Macaroni::Model::Cpp::DestructorPtr;
 using Macaroni::Model::FileName;
 using Macaroni::Model::FileNamePtr;
 using Macaroni::Model::Cpp::Function;
@@ -49,6 +59,7 @@ using Macaroni::Parser::ParserException;
 using Macaroni::Model::Cpp::Primitive;
 using Macaroni::Model::Reason;
 using Macaroni::Model::Cpp::Variable;
+using Macaroni::Model::Cpp::VariableAssignment;
 using Macaroni::Model::Cpp::TypeInfo;
 
 BEGIN_NAMESPACE(Macaroni, Parser, Pippy)
@@ -468,6 +479,8 @@ public:
 
 	bool ConstructorOrDestructor(Iterator & itr)
 	{
+		Iterator oldItr = itr;
+
 		itr.ConsumeWhiteSpace();
 		bool tilda = false;
 		if (itr.ConsumeChar('~'))
@@ -483,19 +496,103 @@ public:
 			}
 			throw new ParserException(itr.GetSource(),
 				Messages::Get("CppParser.Constructor.ClassNameExpected")); 
-		}
+		}		
 		itr.ConsumeWhiteSpace();
+		
 		if (!itr.ConsumeChar('('))
 		{
-			throw new ParserException(itr.GetSource(),
-				Messages::Get("CppParser::Constructor::ArgumentListExpected"));
+			if (tilda)
+			{
+				throw new ParserException(itr.GetSource(),
+					Messages::Get("CppParser::Constructor::ArgumentListExpected"));
+			}
+			else
+			{
+				itr = oldItr;
+				return false;
+			}
 		}
-		 CONSTRUCTOR MUST BE A SPECIAL SUBCLASS OF FUNCTION
-			 YOU CREATE IT AND SET IT TO THE CURRENT SCOPE THEN CALL THIS:
-		FunctionArgumentList(itr, why?, name?);
-			TO GET THE ARGUMENT LIST.
-				THEN YOU LOOK FOR VARIABLE INITIALIZERS AND ADD THEM TO 
-				A LIST THE CONSTRUCTOR KEEPS.
+
+		std::string nodeName(!tilda ? "$ctor" : "$dtor");
+		NodePtr ctorNode = currentScope->FindOrCreate(nodeName);
+
+		NodePtr oldScope = currentScope;
+		currentScope = ctorNode;
+		
+			FunctionArgumentList(itr);
+
+		currentScope = oldScope;
+
+		FunctionPtr fPtr;
+
+		if (!tilda)
+		{
+			ConstructorPtr ctor = Constructor::Create(ctorNode, 
+				Reason::Create(CppAxioms::CtorCreation(), oldItr.GetSource()));			
+			fPtr = boost::dynamic_pointer_cast<Function>(ctor);
+
+			itr.ConsumeWhiteSpace();
+			if (itr.ConsumeChar(':'))
+			{
+				// Look for assignments to class vars, such as x(4), y(3)
+				do
+				{
+					itr.ConsumeWhiteSpace();				
+					std::string varName;
+					if (!ConsumeComplexName(itr, varName))
+					{
+						throw ParserException(itr.GetSource(),
+							Messages::Get("CppParser.Constructor.VariableInitializer"));
+					}
+
+					NodePtr varNode = currentScope->FindOrCreate(varName);
+
+					itr.ConsumeWhiteSpace();
+
+					if (!itr.ConsumeChar('('))
+					{
+						throw ParserException(itr.GetSource(),
+							Messages::Get("CppParser.Constructor.NoInitializerExpr"));
+					}
+					
+					std::string exprCode;
+					ConsumeExpression(itr, ')', exprCode);
+					
+					VariableAssignment va;
+					va.Expression = exprCode;
+					va.Variable = varNode;
+					ctor->AddAssignment(va);
+
+					itr.ConsumeWhiteSpace();
+				} while(itr.ConsumeChar(','));
+			}
+		} // end !tilda
+		else
+		{
+			DestructorPtr dtor = Destructor::Create(ctorNode, 
+				Reason::Create(CppAxioms::DtorCreation(), oldItr.GetSource()));
+			fPtr = boost::dynamic_pointer_cast<Function>(dtor);
+		}
+
+		std::string codeBlock;
+		bool codeAttached = false;
+		Iterator startOfCodeBlock = itr;
+		codeAttached = CodeBlock(itr, codeBlock);
+		if (!codeAttached)
+		{
+			itr.ConsumeWhiteSpace();
+			if (!itr.ConsumeChar(';'))
+			{
+				throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.Function.SemicolonExpected")); 
+			}
+		}
+		
+		if (codeAttached)
+		{
+			fPtr->SetCodeBlock(codeBlock, startOfCodeBlock.GetSource());
+		}
+		return true;
 	}
 
 	/** If no complex name found, nothing happens. 
@@ -518,6 +615,56 @@ public:
 		return true;
 	}
 
+	/** Reads through an arbitrary block of code, stopping at the provided
+	 *  expression. 
+	 *  Does NOT return on ) or } if these close a block; for example, you
+	 *  must push the iterator to past the first { if you plan on stopping at
+	 *  }, or else the parser will simply think the { is new and increase
+	 *  its depth.
+	 **/
+	void ConsumeExpression(Iterator & itr, char stopAt, std::string & code)
+	{
+		Iterator exceptionItr = itr;
+
+		std::vector<char> blocks;
+		std::stringstream ss;
+
+		while(!itr.Finished())
+		{			
+			char c = itr.Current();
+			if (c == '(')
+			{
+				blocks.push_back('(');
+			} 
+			else if (c == '{')
+			{
+				blocks.push_back('{');
+			}
+			else if (	blocks.size() > 0 &&
+						(
+							(blocks.back() == '(' && c == ')') 
+							||
+							(blocks.back() == '{' && c == '}') 
+						)
+					)
+			{
+				blocks.pop_back();
+			}
+			else if (c == stopAt)
+			{
+				code = ss.str();
+				itr.Advance(1);
+				return;
+			}
+			
+			ss << c;
+			itr.Advance(1);	
+		}
+
+		throw ParserException(exceptionItr.GetSource(), 
+			Messages::Get("CppParser.Expression.CouldNotMatch")); 
+	}
+
 	bool ConsumeFilePath(Iterator & itr, std::string & filePath)
 	{
 		std::stringstream ss;
@@ -526,7 +673,7 @@ public:
 		{
 			ankles = true;
 		}
-		else if (!itr.Current() == '"')
+		else if (!(itr.Current() == '"'))
 		{
 			return false;
 		}
@@ -542,7 +689,7 @@ public:
 		if (itr.Finished())
 		{
 			throw new ParserException(itr.GetSource(),
-				Messages::Get("CppParser::FileNameExpected"));
+				Messages::Get("CppParser.FileNameExpected"));
 		}
 		ss << itr.Current();
 	
@@ -640,6 +787,20 @@ public:
 		return NodePtr();
 	}
 
+	NodePtr FindNodeFromImportsOrScope(std::string & complexName)
+	{
+		NodePtr rtnValue = FindNodeFromImports(complexName);
+		NodePtr scopeItr = currentScope;
+		while (!rtnValue && !!scopeItr)
+		{
+			rtnValue = scopeItr->Find(complexName);
+			scopeItr = scopeItr->GetNode();
+		}
+		return rtnValue;
+	}
+
+
+
 	static void FindNodeTest()
 	{
 		ContextPtr c(new Context("{ROOT}"));
@@ -686,6 +847,43 @@ public:
 		Assert(foundOrange->GetFullName() == orange->GetFullName());
 	}
 
+	bool FriendDeclaration(Iterator & itr)
+	{
+		itr.ConsumeWhiteSpace();
+		if (!itr.ConsumeWord("friend"))
+		{
+			return false;
+		}
+
+		ClassPtr classPtr;
+		if (!!currentScope->GetMember())
+		{
+			classPtr = boost::dynamic_pointer_cast<Macaroni::Model::Cpp::Class>(currentScope->GetMember());
+		}
+		if (!classPtr)
+		{
+			throw ParserException(itr.GetSource(),
+				Messages::Get("CppParser.Friend.FriendKeywordOnlyForClasses"));
+		}
+
+		itr.ConsumeWhiteSpace();
+		std::string friendName;
+		ConsumeComplexName(itr, friendName);
+		NodePtr friendNode = FindNodeFromImportsOrScope(friendName);
+		if (!friendNode)
+		{
+			throw ParserException(itr.GetSource(),
+				Messages::Get("CppParser.Friend.CouldNotFindNode"));
+		}
+		itr.ConsumeWhiteSpace();
+		if (!itr.ConsumeChar(';'))
+		{
+			throw ParserException(itr.GetSource(),
+				Messages::Get("CppParser.Friend.MissingSemicolon"));
+		}
+		classPtr->AddFriend(friendNode);
+		return true;
+	}
 
 	/** This function expects us to be committed to finding a function and to
 	 * have seen '('. We parse until we see ')'. */
@@ -854,6 +1052,8 @@ public:
 	{	
 		// Take whatever you can get, replace the iter
 		while (Directives(itr) 
+				|| ConstructorOrDestructor(itr)
+				|| FriendDeclaration(itr)
 				|| Namespace(itr) 
 				|| Class(itr)
 				|| VariableOrFunction(itr))
@@ -935,6 +1135,7 @@ public:
 		NodePtr node = currentScope->FindOrCreate(varName);
 
 		itr.ConsumeWhiteSpace();
+		
 		if (itr.ConsumeChar(';'))
 		{			
 			Variable::Create(node, typeInfo,
@@ -945,8 +1146,17 @@ public:
 		{
 			NodePtr oldScope = currentScope;
 			currentScope = node;
-				FunctionArgumentList(itr, typeInfo, varName);
+				FunctionArgumentList(itr);
 			currentScope = oldScope;
+
+			bool constMember = false;
+			itr.ConsumeWhiteSpace();
+			if (itr.ConsumeWord("const"))
+			{
+				constMember = true;
+				itr.ConsumeWhiteSpace();
+			}
+
 
 			std::string codeBlock;
 			bool codeAttached = false;
@@ -961,7 +1171,7 @@ public:
 						Messages::Get("CppParser.Function.SemicolonExpected")); 
 				}
 			}
-			FunctionPtr function = Function::Create(node, typeInfo, 
+			FunctionPtr function = Function::Create(node, typeInfo, constMember,
 				Reason::Create(CppAxioms::FunctionCreation(), oldItr.GetSource()));
 			if (codeAttached)
 			{
