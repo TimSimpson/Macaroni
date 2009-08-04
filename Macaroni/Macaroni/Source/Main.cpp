@@ -18,17 +18,17 @@ using Gestalt::FileSystem::FileSet;
 
 void compileProjectFiles()
 {
-	FileSet input(boost::filesystem::path("Macaroni"), "\\.mcpp$");
+	FileSet input(boost::filesystem::path("../Source/"), "\\.mcpp$");
 	CompilerOptions options(input, 
-							boost::filesystem::path("Macaroni"));
+							boost::filesystem::path("../GeneratedSource/"));
 	Compiler::Compile(options);
 }
 
 void compileToyFiles()
 {
-	FileSet input(boost::filesystem::path("RealTest/Input"), "\\.mcpp$");
+	FileSet input(boost::filesystem::path("../RealTest/Input"), "\\.mcpp$");
 	CompilerOptions options(input, 
-							boost::filesystem::path("RealTest/Output"));
+							boost::filesystem::path("../RealTest/Output"));
 	Compiler::Compile(options);
 }
 
@@ -46,7 +46,7 @@ int _tmain(int argc, _TCHAR* argv[])
 #endif
 	
 	std::vector<std::string> args;
-	args.push_back("Tests/simple.mcpp");
+	args.push_back("../Tests/simple.mcpp");
 	
 	runLuaTests();
 
