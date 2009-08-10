@@ -43,6 +43,8 @@ public:
 
 	//NamespacePtr Find(std::string & name);	
 
+	NodePtr GetAdoptedHome();
+
 	// TO-DO: This is pitifully sloppy! Information on where the official C++
 	// definition is should probably optionally be attached to its own object
 	// instead of a string.  Please change this into a pointer to such an 
@@ -88,6 +90,8 @@ public:
 	static void ParseComplexName(NodePtr searchRoot, const std::string & complexName,
 						         NodePtr & resultNode,
 						         std::string & resultSimpleName);
+
+	void SetAdoptedHome(NodePtr node);
 
 	static void SplitFirstNameOffComplexName(const std::string & complexName,
 											 std::string & firstPart,
@@ -137,6 +141,13 @@ protected:
 	void setMember(Member * member, const char * typeName, const ReasonPtr reasonCreated);
 
 private:
+
+	/** This refers not to where a node officially lives, but where it might
+	 * be stored for organization purposes.  For example, if you have an 
+	 * overloaded operator it might be better to store it in the same H file
+	 * as the class even though that's not really it's scope.  Can be null. */
+	NodePtr adoptedHome;
+
 	std::vector<Node *> children;
 
 	Context * context;

@@ -2,6 +2,7 @@
 #define MACARONI_MODEL_CPP_CLASS_CPP
 
 #include "Class.h"
+#include "Function.h"
 #include "../../Exception.h"
 #include "../MemberVisitor.h"
 #include "../Node.h"
@@ -9,16 +10,22 @@
 #include <memory>
 #include "../ModelInconsistencyException.h"
 #include <sstream>
+#include "Variable.h"
 
+using Macaroni::Model::Cpp::Function;
+using Macaroni::Model::Cpp::FunctionPtr;
+using Macaroni::Model::NodeList;
 using class Macaroni::Model::Node;
 using Macaroni::Model::NodePtr;
 using Macaroni::Model::NodeList;
+using Macaroni::Model::Cpp::Variable;
+using Macaroni::Model::Cpp::VariablePtr;
 
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 Class::Class(Node * parent, NodeListPtr importedNodes, ReasonPtr reason)
-:Scope(parent, "Class", reason), friends(new NodeList()), imports(importedNodes)
+:Scope(parent, "Class", reason), friends(new NodeList()), globals(new NodeList()), imports(importedNodes)
 {
 }
 
@@ -29,6 +36,12 @@ Class::~Class()
 
 void Class::AddFriend(NodePtr node)
 {
+	friends->push_back(node);
+}
+
+void Class::AddGlobal(NodePtr node)
+{
+	globals->push_back(node);
 	friends->push_back(node);
 }
 
@@ -68,6 +81,11 @@ NodeListPtr Class::GetFriendNodes() const
 	return friends;
 }
 
+NodeListPtr Class::GetGlobalNodes() const
+{
+	return globals;
+}
+
 NodeListPtr Class::GetImportedNodes() const
 {
 	return imports;
@@ -96,13 +114,37 @@ void Class::Visit(MemberVisitor * visitor) const
 	{
 		classVisitorDeleter.release(); // do not let auto_ptr destroy.
 	}
-	
+
 	for(unsigned int i = 0; i < this->GetNode()->GetChildCount(); i ++)
 	{
 		NodePtr child = GetNode()->GetChild(i);
 		if (child->GetMember() != nullptr)
 		{
 			child->GetMember()->Visit(classVisitor);
+		}
+	}
+
+	classVisitor->VisitClassFooter();
+
+	for(unsigned int i = 0; i < this->globals->size(); i ++)
+	{
+		NodePtr globalNode = (*(this->globals))[i];
+		MemberPtr child = globalNode->GetMember();
+		if (!!child)
+		{
+			FunctionPtr fPtr = boost::dynamic_pointer_cast<Function>(child);
+			VariablePtr vPtr = boost::dynamic_pointer_cast<Variable>(child);
+			if (!!fPtr)
+			{
+				Function & func = *(fPtr.get());
+				classVisitor->VisitAdoptedFunction(func);
+			}
+			else if (!!vPtr)
+			{
+				Variable & var = *(vPtr.get());
+				classVisitor->VisitAdoptedVariable(var);
+			}
+
 		}
 	}
 }

@@ -13,7 +13,7 @@
 BEGIN_NAMESPACE2(Macaroni, Model)
 
 Node::Node(Node * scope, const std::string & name, const std::string & hFilePath)
-:context(nullptr), hFilePath(hFilePath), member(nullptr), name(name), scope(scope)
+:adoptedHome(), context(nullptr), hFilePath(hFilePath), member(nullptr), name(name), scope(scope)
 {
 	if (scope != nullptr)
 	{
@@ -167,6 +167,11 @@ Node * Node::findOrCreate(const std::string & name, const std::string & hFilePat
 //	}
 //}
 
+NodePtr Node::GetAdoptedHome()
+{
+	return adoptedHome;
+}
+
 std::string Node::GetFullName() const
 {
 	std::stringstream ss;
@@ -273,6 +278,11 @@ void Node::ParseComplexName(NodePtr searchRoot, const std::string & complexName,
 		SplitNodeAndMemberName(complexName, additionalNodeName, resultSimpleName);		
 		resultNode = searchRoot->FindOrCreate(additionalNodeName);
 	}
+}
+
+void Node::SetAdoptedHome(NodePtr node)
+{
+	this->adoptedHome = node;
 }
 
 void Node::setMember(Member * value, const char * typeName, const ReasonPtr reasonCreated)

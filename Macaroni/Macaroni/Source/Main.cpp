@@ -18,9 +18,9 @@ using Gestalt::FileSystem::FileSet;
 
 void compileProjectFiles()
 {
-	FileSet input(boost::filesystem::path("../Source/"), "\\.mcpp$");
+	FileSet input(boost::filesystem::path("../Source"), "\\.mcpp$");
 	CompilerOptions options(input, 
-							boost::filesystem::path("../GeneratedSource/"));
+							boost::filesystem::path("..\\GeneratedSource"));
 	Compiler::Compile(options);
 }
 

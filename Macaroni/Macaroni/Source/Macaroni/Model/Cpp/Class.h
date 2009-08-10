@@ -22,12 +22,15 @@ public:
 
 	void AddFriend(NodePtr node);
 	
+	void AddGlobal(NodePtr node);
 
 	virtual bool canBeChildOf(const Member * other) const;
 
 	virtual bool DoesDefinitionReference(NodePtr node) const;
 
 	NodeListPtr GetFriendNodes() const;
+
+	NodeListPtr GetGlobalNodes() const;
 
 	NodeListPtr GetImportedNodes() const;
 
@@ -39,9 +42,11 @@ protected:
 	Class(Node * home, Model::NodeListPtr importedNodes, ReasonPtr reason);
 private:
 
-	NodeListPtr imports;
-
 	NodeListPtr friends;
+
+	NodeListPtr globals;
+
+	NodeListPtr imports;
 	
 };
 

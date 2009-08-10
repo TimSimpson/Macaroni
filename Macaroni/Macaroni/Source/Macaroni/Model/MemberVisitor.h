@@ -32,13 +32,19 @@ public:
 	
 	virtual MemberVisitor * VisitClass(const Cpp::Class &) = 0;
 
+	virtual void VisitClassFooter() = 0;
+
 	virtual void VisitConstructor(const Cpp::Constructor &) = 0;
 
 	virtual void VisitDestructor(const Cpp::Destructor &) = 0;
 
+	virtual void VisitAdoptedFunction(const Cpp::Function &) = 0;
+
 	virtual void VisitFunction(const Cpp::Function &) = 0;
 
 	virtual MemberVisitor * VisitNamespace(const Cpp::Namespace &) = 0;
+
+	virtual void VisitAdoptedVariable(const Cpp::Variable &) = 0;
 
 	virtual void VisitVariable(const Cpp::Variable &) = 0;
 	

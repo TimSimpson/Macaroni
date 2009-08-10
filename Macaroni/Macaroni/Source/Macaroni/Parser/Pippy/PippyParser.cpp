@@ -911,7 +911,11 @@ public:
 		}
 	}
 
-	
+	bool GlobalKeyword(Iterator & itr)
+	{
+		itr.ConsumeWhiteSpace();
+		return itr.ConsumeWord("global");
+	}
 
 	bool HFileDirective(Iterator & itr)
 	{
@@ -1123,16 +1127,44 @@ public:
 	 * may define additional nodes if the variable's name is complex. */
 	bool VariableOrFunction(Iterator & itr)
 	{
+		bool global = GlobalKeyword(itr);
+
 		TypeInfo typeInfo;
 		std::string varName;
 		Iterator oldItr = itr; // Save it in case we need to define where the
 							   // var definition began.
 		if (!Variable(itr, typeInfo, varName))
 		{
+			if (global)
+			{
+				throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.Variable.MustFollowGlobalKeyword")); 
+			}
 			return false;
 		}
 		
-		NodePtr node = currentScope->FindOrCreate(varName);
+		NodePtr node;
+
+		if (global)
+		{
+			ClassPtr classPtr;
+			if (!!currentScope->GetMember())
+			{
+				classPtr = boost::dynamic_pointer_cast<Macaroni::Model::Cpp::Class>(currentScope->GetMember());
+			}
+			if (!classPtr)
+			{
+				throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.Global.AllowedForClassesOnly"));
+			}
+			node = currentScope->GetNode()->FindOrCreate(varName);
+			node->SetAdoptedHome(currentScope);
+			classPtr->AddGlobal(node);
+		} 
+		else
+		{
+			node = currentScope->FindOrCreate(varName);
+		}
 
 		itr.ConsumeWhiteSpace();
 		

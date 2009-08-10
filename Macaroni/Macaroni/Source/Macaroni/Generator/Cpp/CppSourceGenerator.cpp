@@ -91,6 +91,10 @@ public:
 
 	virtual MemberVisitor * VisitClass(const Macaroni::Model::Cpp::Class &);
 
+	virtual void VisitClassFooter()
+	{
+	}
+
 	virtual MemberVisitor * VisitNamespace(const Macaroni::Model::Cpp::Namespace &);
 		
 	virtual void VisitConstructor(const Constructor & ctor)
@@ -105,7 +109,21 @@ public:
 			"Cannot generate code for a denstructor here!");
 	}
 
+	virtual void VisitAdoptedFunction(const Macaroni::Model::Cpp::Function & func)
+	{
+		writeFunction(func);
+	}
+
 	virtual void VisitFunction(const Macaroni::Model::Cpp::Function & func)
+	{
+		if (func.GetNode()->GetAdoptedHome() != nullptr)
+		{
+			return;
+		}
+		writeFunction(func);
+	}
+
+	virtual void writeFunction(const Macaroni::Model::Cpp::Function & func)
 	{
 		startLine();
 
@@ -140,8 +158,22 @@ public:
 		startLineCppFile();
 	}
 
+	virtual void VisitAdoptedVariable(const Macaroni::Model::Cpp::Variable & var)
+	{	
+		writeVariable(var);
+	}
+
 	virtual void VisitVariable(const Macaroni::Model::Cpp::Variable & var)
-	{		
+	{	
+		if (var.GetNode()->GetAdoptedHome() != nullptr)
+		{
+			return;
+		}
+		writeVariable(var);
+	}
+
+	virtual void writeVariable(const Macaroni::Model::Cpp::Variable & var)
+	{	
 		writeTypeInfoHFile(var.GetTypeInfo());
 
 		hFile << var.GetName() << ";";
@@ -431,12 +463,16 @@ public:
 	~ClassVisitor()
 	{
 		//depth --;	
-		hFile << "\n";
-		hFile << "}; // End of class " << fileClass.GetName() << "\n";
 		writeFooter(fileClass);
 
 		delete &hFile;
 		delete &cppFile;
+	}
+
+	void VisitClassFooter()
+	{
+		hFile << "\n";
+		hFile << "}; // End of class " << fileClass.GetName() << "\n";
 	}
 
 	virtual void VisitConstructor(const Constructor & ctor)
@@ -560,7 +596,7 @@ MemberVisitor * CppSourceGenerator::CreateRootVisitor()
 {
 	class RootVisitor : public ScopeVisitor
 	{
-	public:
+	public: 
 		RootVisitor(CppSourceGenerator * parent, 
 					std::ofstream & hFile, std::ofstream & cppFile, 
 					int depth)
@@ -588,7 +624,7 @@ MemberVisitor * CppSourceGenerator::CreateRootVisitor()
 	std::string s = ss.str();
 
 	ss.str("");
-	ss << rootPath.string() << "/global.cpp";	
+	ss << rootPath.string() << "\\global.cpp";	
 	openFileIfPossible(cppFile, ss.str().c_str());
 	/*if (isOkToOverwriteFile(ss.str().c_str()))
 	{
