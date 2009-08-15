@@ -403,9 +403,102 @@ private:
 	const Namespace & fileNamespace;
 };
 
+class DoNothingVisitor : public ScopeVisitor
+{
+public:
+	DoNothingVisitor(CppSourceGenerator * parent, std::ofstream & hFile, std::ofstream & cppFile, int depth)
+		: ScopeVisitor(parent, hFile, cppFile, depth)
+	{
+	}
+
+	virtual ~DoNothingVisitor(){};
+	
+	///*virtual MemberVisitor * VisitClass(const Class &)
+	//{
+	//	;
+	//}*/
+
+	virtual void VisitClassFooter()
+	{
+	}
+
+	virtual void VisitConstructor(const Constructor &)
+	{
+	}
+
+	virtual void VisitDestructor(const Destructor &)
+	{
+	}
+
+	virtual void VisitAdoptedFunction(const Function &)
+	{
+	}
+
+	virtual void VisitFunction(const Function &)
+	{
+	}
+
+	///*virtual MemberVisitor * VisitNamespace(const Namespace &)
+	//{
+	//	return nullptr;
+	//}*/
+
+	virtual void VisitAdoptedVariable(const Variable &)
+	{
+	}
+
+	virtual void VisitVariable(const Variable &)
+	{
+	}
+};
+
+bool isNodeWorthAnEntireNsFile(NodePtr node)
+{
+	if (node->GetMember() == nullptr)
+	{
+		return false;
+	}
+	MemberPtr member = node->GetMember();
+	if (!member)
+	{
+		return false;
+	}
+	if (!(boost::dynamic_pointer_cast<Class>(member)))
+	{
+		return false;
+	}
+	if (!(boost::dynamic_pointer_cast<Function>(member)))
+	{
+		return node->GetAdoptedHome() == node->GetNode();
+	}
+	return true;
+}
+
+bool isNamespaceWorthAnEntireFile(const Namespace & ns)
+{
+	// Count to see if there are only classes in this namespace (no functions)
+	unsigned int i = 0;
+	for(i = 0; i < ns.GetNode()->GetChildCount(); i ++)
+	{
+		NodePtr child = ns.GetNode()->GetChild(i);
+		if (isNodeWorthAnEntireNsFile(child))
+		{
+			return true;
+		}
+	}
+	return false;
+}
 
 MemberVisitor * ScopeVisitor::VisitNamespace(const Macaroni::Model::Cpp::Namespace & ns)
 {
+	///*if (!isNamespaceWorthAnEntireFile(ns))
+	//{
+	//	return new DoNothingVisitor(parent, 
+	//		hFile,
+	//		cppFile,
+	//		0);;
+	//}*/
+
 	std::auto_ptr<std::ofstream> hFilePtr(new std::ofstream);
 	std::auto_ptr<std::ofstream> cppFilePtr(new std::ofstream);
 
@@ -430,14 +523,15 @@ MemberVisitor * ScopeVisitor::VisitNamespace(const Macaroni::Model::Cpp::Namespa
 	//cppFilePtr->open(ss.str().c_str(), std::ios::out);
 	//MACARONI_ASSERT(cppFilePtr->is_open(), "CppFile not opened.");
 	
-	NamespaceVisitor * nsv = new NamespaceVisitor(parent, 
-		dynamic_cast<std::ofstream &>(*hFilePtr.get()),
-		dynamic_cast<std::ofstream &>(*cppFilePtr.get()),
-		0,
-		ns);
+	MemberVisitor * mv = new NamespaceVisitor(parent, 
+			dynamic_cast<std::ofstream &>(*hFilePtr.get()),
+			dynamic_cast<std::ofstream &>(*cppFilePtr.get()),
+			0,
+			ns);
+	
 	hFilePtr.release();
 	cppFilePtr.release();
-	return nsv;
+	return mv;
 }
 
 

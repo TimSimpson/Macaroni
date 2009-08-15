@@ -88,8 +88,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Auto run boost tests"
-				CommandLine="&quot;$(TargetDir)\$(TargetName).exe&quot; -result_code=no -report_level=no"
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration
@@ -682,6 +681,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Macaroni\Generator\CppSourceGenerator2.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Macaroni\Model\Cpp\Destructor.h"
 				>
 			</File>
@@ -1105,15 +1108,15 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Macaroni\Model\General.spirit"
+			>
+		</File>
+		<File
 			RelativePath=".\Source\Macaroni\Parser\Cpp\General.spirit"
 			>
 		</File>
 		<File
 			RelativePath=".\Macaroni\Parser\Cpp\General.spirit"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\General.spirit"
 			>
 		</File>
 		<File

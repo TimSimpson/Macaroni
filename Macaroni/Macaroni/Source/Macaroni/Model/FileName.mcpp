@@ -1,12 +1,10 @@
 #import Macaroni::Model::FileNamePtr;
 #import std::string;
-#import Macaroni::Model::FileName;
+#import Macaroni::Model::FileName; // Have to include this line due to a bug in Macaroni.
 
 namespace Macaroni::Model{
 
-class FileName{}
-
-
+/** Represents any file name which could be the Source of Model information. */
 class FileName
 {
 	FileName(const string & name)

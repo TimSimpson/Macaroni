@@ -140,7 +140,7 @@ public:
 		return Source::Create(fileName, line + plusLines, column + plusColumns);
 	}
 
-	inline void ConsumeWhiteSpace()
+	inline void ConsumeWhitespace()
 	{
 		while(!Finished() && *itr <= 32)
 		{
@@ -327,7 +327,7 @@ public:
 	bool Class(Iterator & itr)
 	{
 		Iterator newItr = itr; 
-		newItr.ConsumeWhiteSpace();
+		ConsumeWhitespace(newItr);
 		if (!newItr.ConsumeWord("class"))
 		{
 			return false;
@@ -336,7 +336,7 @@ public:
 		// Once the parser has seen "class" it must see the correct
 		// grammar or there will be hell to pay.
 
-		newItr.ConsumeWhiteSpace();
+		ConsumeWhitespace(newItr);
 		
 		std::string name;
 		if (!ConsumeComplexName(newItr, name))
@@ -350,7 +350,7 @@ public:
 		Class::Create(currentScope, importedNodes,  
 			Reason::Create(CppAxioms::ClassCreation(), newItr.GetSource()));
 
-		newItr.ConsumeWhiteSpace();
+		ConsumeWhitespace(newItr);
 
 		SourcePtr firstBraceSrc = itr.GetSource();
 
@@ -363,13 +363,13 @@ public:
 
 		ScopeFiller(newItr);
 
-		newItr.ConsumeWhiteSpace();
+		ConsumeWhitespace(newItr);
 		
 		//Model::Cpp::Namespace::Create(currentScope,
 		//	
 	///		);
 		
-		newItr.ConsumeWhiteSpace();
+		ConsumeWhitespace(newItr);
 		if (!newItr.ConsumeChar('}'))
 		{
 			throw ParserException(newItr.GetSource(),
@@ -377,7 +377,7 @@ public:
 		}
 
 		// The ';' following a class def is optional.
-		newItr.ConsumeWhiteSpace();
+		ConsumeWhitespace(newItr);
 		newItr.ConsumeChar(';');
 		
 		itr = newItr; // Success! :)
@@ -389,7 +389,7 @@ public:
 	 * If it is, consumes all text until next '}'. */
 	bool CodeBlock(Iterator & itr, std::string & codeBlock)
 	{
-		itr.ConsumeWhiteSpace();
+		ConsumeWhitespace(itr);
 		if (!itr.Is('{'))
 		{
 			return false;
@@ -481,12 +481,12 @@ public:
 	{
 		Iterator oldItr = itr;
 
-		itr.ConsumeWhiteSpace();
+		ConsumeWhitespace(itr);
 		bool tilda = false;
 		if (itr.ConsumeChar('~'))
 		{
 			tilda = true;
-			itr.ConsumeWhiteSpace();
+			ConsumeWhitespace(itr);
 		}
 		if (!itr.ConsumeWord(currentScope->GetName().c_str()))
 		{
@@ -497,7 +497,7 @@ public:
 			throw new ParserException(itr.GetSource(),
 				Messages::Get("CppParser.Constructor.ClassNameExpected")); 
 		}		
-		itr.ConsumeWhiteSpace();
+		ConsumeWhitespace(itr);
 		
 		if (!itr.ConsumeChar('('))
 		{
@@ -531,13 +531,13 @@ public:
 				Reason::Create(CppAxioms::CtorCreation(), oldItr.GetSource()));			
 			fPtr = boost::dynamic_pointer_cast<Function>(ctor);
 
-			itr.ConsumeWhiteSpace();
+			ConsumeWhitespace(itr);
 			if (itr.ConsumeChar(':'))
 			{
 				// Look for assignments to class vars, such as x(4), y(3)
 				do
 				{
-					itr.ConsumeWhiteSpace();				
+					ConsumeWhitespace(itr);				
 					std::string varName;
 					if (!ConsumeComplexName(itr, varName))
 					{
@@ -547,7 +547,7 @@ public:
 
 					NodePtr varNode = currentScope->FindOrCreate(varName);
 
-					itr.ConsumeWhiteSpace();
+					ConsumeWhitespace(itr);
 
 					if (!itr.ConsumeChar('('))
 					{
@@ -563,7 +563,7 @@ public:
 					va.Variable = varNode;
 					ctor->AddAssignment(va);
 
-					itr.ConsumeWhiteSpace();
+					ConsumeWhitespace(itr);
 				} while(itr.ConsumeChar(','));
 			}
 		} // end !tilda
@@ -580,7 +580,7 @@ public:
 		codeAttached = CodeBlock(itr, codeBlock);
 		if (!codeAttached)
 		{
-			itr.ConsumeWhiteSpace();
+			ConsumeWhitespace(itr);
 			if (!itr.ConsumeChar(';'))
 			{
 				throw ParserException(itr.GetSource(),
@@ -593,6 +593,62 @@ public:
 			fPtr->SetCodeBlock(codeBlock, startOfCodeBlock.GetSource());
 		}
 		return true;
+	}
+
+	bool ConsumeComment(Iterator & itr)
+	{
+		itr.ConsumeWhitespace();
+		if (itr.Finished() || itr.Current() != '/')
+		{
+			return false;
+		}
+		Iterator cmtItr = itr;
+		cmtItr.Advance(1);
+		if (cmtItr.Finished())
+		{
+			return false;
+		}
+		if (cmtItr.Current() == '/')
+		{
+			itr.Advance(1);
+			while(!itr.Finished() && itr.Current() != '\n')
+			{
+				itr.Advance(1);
+			}
+			return true;
+		}
+		else if (cmtItr.Current() == '*')
+		{
+			itr.Advance(1);			
+			bool seenStar = false;
+			bool commentFinished = false;
+			while(!itr.Finished() && !commentFinished)
+			{
+				if (seenStar && itr.Current() == '/')
+				{
+					commentFinished = true;
+				}
+				if (itr.Current() == '*')
+				{
+					seenStar = true;
+				}
+				else
+				{
+					seenStar = false;
+				}
+				itr.Advance(1);
+			}
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	void ConsumeWhitespace(Iterator & itr)
+	{
+		while(!itr.Finished() && ConsumeComment(itr)){}
 	}
 
 	/** If no complex name found, nothing happens. 
@@ -725,7 +781,7 @@ public:
 
 	bool Directives(Iterator & itr)
 	{
-		itr.ConsumeWhiteSpace();
+		ConsumeWhitespace(itr);
 		if (itr.Finished() || !(itr.Current() == '#'))
 		{
 			return false;
@@ -743,7 +799,7 @@ public:
 	void Document(Iterator itr)
 	{
 		ScopeFiller(itr);
-		itr.ConsumeWhiteSpace();
+		ConsumeWhitespace(itr);
 		if (!itr.Finished())
 		{
 			throw ParserException(itr.GetSource(), Messages::Get("CppParser.Document.SyntaxError"));
@@ -849,7 +905,7 @@ public:
 
 	bool FriendDeclaration(Iterator & itr)
 	{
-		itr.ConsumeWhiteSpace();
+		ConsumeWhitespace(itr);
 		if (!itr.ConsumeWord("friend"))
 		{
 			return false;
@@ -866,7 +922,7 @@ public:
 				Messages::Get("CppParser.Friend.FriendKeywordOnlyForClasses"));
 		}
 
-		itr.ConsumeWhiteSpace();
+		ConsumeWhitespace(itr);
 		std::string friendName;
 		ConsumeComplexName(itr, friendName);
 		NodePtr friendNode = FindNodeFromImportsOrScope(friendName);
@@ -875,7 +931,7 @@ public:
 			throw ParserException(itr.GetSource(),
 				Messages::Get("CppParser.Friend.CouldNotFindNode"));
 		}
-		itr.ConsumeWhiteSpace();
+		ConsumeWhitespace(itr);
 		if (!itr.ConsumeChar(';'))
 		{
 			throw ParserException(itr.GetSource(),
@@ -890,7 +946,7 @@ public:
 	void FunctionArgumentList(Iterator & itr)//, TypeInfo & rtnTypeInfo, 
 							  //std::string & name)
 	{
-		itr.ConsumeWhiteSpace();
+		ConsumeWhitespace(itr);
 		bool seenArg = false;
 		while(!itr.ConsumeChar(')'))
 		{	
@@ -913,18 +969,18 @@ public:
 
 	bool GlobalKeyword(Iterator & itr)
 	{
-		itr.ConsumeWhiteSpace();
+		ConsumeWhitespace(itr);
 		return itr.ConsumeWord("global");
 	}
 
 	bool HFileDirective(Iterator & itr)
 	{
-		itr.ConsumeWhiteSpace();
+		ConsumeWhitespace(itr);
 		if (!itr.ConsumeWord("hfile"))
 		{
 			return false;
 		}
-		itr.ConsumeWhiteSpace();
+		ConsumeWhitespace(itr);
 		if (itr.ConsumeWord("reset"))
 		{
 			hFilesForNewNodes = "";
@@ -935,7 +991,7 @@ public:
 			throw ParserException(itr.GetSource(),
 				Messages::Get("CppParser.Directive.HFileBadArgument"));
 		}
-		itr.ConsumeWhiteSpace();
+		ConsumeWhitespace(itr);
 		std::string filePath;
 		if (!ConsumeFilePath(itr, filePath))
 		{
@@ -950,14 +1006,14 @@ public:
 	// Modifies itr argument if match is found.
 	bool Import(Iterator & itr)
 	{
-		itr.ConsumeWhiteSpace();
+		ConsumeWhitespace(itr);
 		if (!itr.ConsumeWord("import"))
 		{
 			return false;
 		}
 
 		// Now we're committed!
-		itr.ConsumeWhiteSpace();
+		ConsumeWhitespace(itr);
 		
 		std::string name;
 		if (!ConsumeComplexName(itr, name))
@@ -966,7 +1022,7 @@ public:
 				Messages::Get("CppParser.Import.NameNotFound"));
 		}
 		
-		itr.ConsumeWhiteSpace();
+		ConsumeWhitespace(itr);
 		if (!itr.ConsumeChar(';'))
 		{
 			throw ParserException(itr.GetSource(),
@@ -983,7 +1039,7 @@ public:
 	bool Namespace(Iterator & itr)
 	{
 		Iterator newItr = itr; 
-		newItr.ConsumeWhiteSpace();
+		ConsumeWhitespace(newItr);
 		if (!newItr.ConsumeWord("namespace"))
 		{
 			return false;
@@ -992,7 +1048,7 @@ public:
 		// Once the parser has seen "namespace" it must see the correct
 		// grammar or there will be hell to pay.
 
-		newItr.ConsumeWhiteSpace();
+		ConsumeWhitespace(newItr);
 		
 		std::string name;
 		if (!ConsumeComplexName(newItr, name))
@@ -1018,7 +1074,7 @@ public:
 			ns = ns->GetNode();
 		}
 
-		newItr.ConsumeWhiteSpace();
+		ConsumeWhitespace(newItr);
 
 		SourcePtr firstBraceSrc = itr.GetSource();
 
@@ -1032,13 +1088,13 @@ public:
 
 		ScopeFiller(newItr);
 
-		newItr.ConsumeWhiteSpace();
+		ConsumeWhitespace(newItr);
 		
 		//Model::Cpp::Namespace::Create(currentScope,
 		//	
 	///		);
 		
-		newItr.ConsumeWhiteSpace();
+		ConsumeWhitespace(newItr);
 		if (!newItr.ConsumeChar('}'))
 		{
 			throw ParserException(newItr.GetSource(),
@@ -1166,7 +1222,7 @@ public:
 			node = currentScope->FindOrCreate(varName);
 		}
 
-		itr.ConsumeWhiteSpace();
+		ConsumeWhitespace(itr);
 		
 		if (itr.ConsumeChar(';'))
 		{			
@@ -1182,11 +1238,11 @@ public:
 			currentScope = oldScope;
 
 			bool constMember = false;
-			itr.ConsumeWhiteSpace();
+			ConsumeWhitespace(itr);
 			if (itr.ConsumeWord("const"))
 			{
 				constMember = true;
-				itr.ConsumeWhiteSpace();
+				ConsumeWhitespace(itr);
 			}
 
 
@@ -1196,7 +1252,7 @@ public:
 			codeAttached = CodeBlock(itr, codeBlock);
 			if (!codeAttached)
 			{
-				itr.ConsumeWhiteSpace();
+				ConsumeWhitespace(itr);
 				if (!itr.ConsumeChar(';'))
 				{
 					throw ParserException(itr.GetSource(),
@@ -1227,11 +1283,11 @@ public:
 	{
 		info = TypeInfo();
 
-		itr.ConsumeWhiteSpace();		
+		ConsumeWhitespace(itr);		
 		if (itr.ConsumeWord("const"))
 		{
 			info.IsConst = true;
-			itr.ConsumeWhiteSpace();
+			ConsumeWhitespace(itr);
 		}
 
 		if (!ConsumeNodeName(itr, info.Node))
@@ -1258,7 +1314,7 @@ public:
 				Messages::Get("CppParser.Variable.UnknownTypeName")); 
 		}
 
-		itr.ConsumeWhiteSpace();
+		ConsumeWhitespace(itr);
 		if (itr.ConsumeWord("const"))
 		{
 			if (info.IsConst)
@@ -1268,18 +1324,18 @@ public:
 					Messages::Get("CppParser.Variable.ConstSeenTwice")); 
 			}
 			info.IsConst = true;
-			itr.ConsumeWhiteSpace();
+			ConsumeWhitespace(itr);
 		}
 
 		// Now, we check for reference.
 		if (itr.ConsumeChar('*'))
 		{
 			info.IsPointer = true;
-			itr.ConsumeWhiteSpace();
+			ConsumeWhitespace(itr);
 			if (itr.ConsumeWord("const"))
 			{
 				info.IsConstPointer = true;				
-				itr.ConsumeWhiteSpace();
+				ConsumeWhitespace(itr);
 			}
 		}
 
@@ -1287,7 +1343,7 @@ public:
 		if (itr.ConsumeChar('&'))
 		{
 			info.IsReference = true;
-			itr.ConsumeWhiteSpace();
+			ConsumeWhitespace(itr);
 		}
 
 		// At this point, we've seen all we can of the type info.
