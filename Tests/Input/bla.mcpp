@@ -1,5 +1,7 @@
 class Apple
 {
-	int five = 5;
+	int five;
+
+	Apple() : five(5) {}
 
 }

@@ -4,7 +4,7 @@
 #include "Exception.h"
 #include <sstream>
 
-namespace Macaroni{
+namespace Macaroni{  
 
 void ThrowMacaroniException(const char * file, int line, const char * message)
 {
@@ -12,7 +12,7 @@ void ThrowMacaroniException(const char * file, int line, const char * message)
 	ss << file << ", line " << line;
 	throw new Exception(ss.str().c_str(), message);
 };
-
+ 
 } // end of namespace
 
 

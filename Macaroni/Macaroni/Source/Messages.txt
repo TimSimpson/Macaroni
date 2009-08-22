@@ -1,5 +1,8 @@
 # Messages file for Macaroni.
 
+# Intro
+Macaroni.Intro=Macaroni for C++\n(C) Tim Simpson 2009\n
+
 # C++ Axioms
 CppAxioms.ClassCreation=Keyword "class" begins or continues classes.
 CppAxioms.ConstructorCreation=Name of class without type creates constructor.

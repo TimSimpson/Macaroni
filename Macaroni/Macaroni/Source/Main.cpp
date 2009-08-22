@@ -4,6 +4,7 @@
 #include "Macaroni/CompilerOptions.h"
 #include "Macaroni/Exception.h"
 #include "Macaroni/Environment/LuaEnvironment.h"
+#include "Macaroni/Environment/Messages.h"
 #include "Gestalt/FileSystem/FileSet.h"
 #include <iostream>
 #include <sstream>
@@ -16,6 +17,7 @@
 using namespace Macaroni;
 using namespace Macaroni;
 using Gestalt::FileSystem::FileSet;
+using Macaroni::Environment::Messages;
 
 void compileProjectFiles()
 {
@@ -63,6 +65,8 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 #ifdef COMPILE_TARGET_TESTS
 	//return init_unit_tests();//main(argc, nullptr);
 #endif
+	
+	std::cout << Messages::Get("Macaroni.Intro");
 
 	bool debugMode = false;
 
@@ -112,34 +116,52 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 		}
 		else
 		{
-			execute(inputPath, outputPath);
-		}
-		return 0;
+			try
+			{
+				execute(inputPath, outputPath);
+			}
+			catch(Macaroni::Exception ex)
+			{
+				std::cerr << "UNHANDLED EXCEPTION:\n";
+				std::cerr << "Msg:" << ex.GetMessage() << "\n";
+				std::cerr << "Src:" << ex.GetSource() << "\n";
+			}
+			catch(Macaroni::Exception * ex)
+			{
+				std::cerr << "UNHANDLED EXCEPTION:\n";
+				std::cerr << "Msg:" << ex->GetMessage() << "\n";
+				std::cerr << "Src:" << ex->GetSource() << "\n";
+			}
+		}		
+	}
+	else
+	{
+
+		
+		//args.push_back("../Tests/simple.mcpp");	
+
+		//compileToyFiles();
+		
+		compileProjectFiles();
+	
+		//try
+		//{
+		//	CmdLine(args);
+		//}
+		//catch(Macaroni::Exception me)
+		//{
+		//	std::cerr << "Oh no, an error occured!";
+		//	std::cerr << me.
+		//}
 	}
 
-	
-	//args.push_back("../Tests/simple.mcpp");	
-
-	//compileToyFiles();
-	
-	compileProjectFiles();
-
-	//try
-	//{
-	//	CmdLine(args);
-	//}
-	//catch(Macaroni::Exception me)
-	//{
-	//	std::cerr << "Oh no, an error occured!";
-	//	std::cerr << me.
-	//}
 	std::cout << "Program finished.";
-	if (debugMode)
-	{
+	//if (debugMode)
+	//{
 		std::cout << "Press enter to quit.";
 		char ch;
 		std::cin >> ch;
-	}
+	//}
 	return 0;
 }
 

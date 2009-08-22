@@ -4,6 +4,7 @@
 #include "Compiler.h"
 #include "Model/Context.h"
 #include "Generator/Cpp/CppSourceGenerator.h"
+#include "Generator/DebugEnumerator.h"
 #include "Exception.h"
 #include "Model/FileName.h"
 #include <memory>
@@ -16,6 +17,7 @@
 using Macaroni::Model::Context;
 using Macaroni::Model::ContextPtr;
 using Macaroni::Generator::Cpp::CppSourceGenerator;
+using Macaroni::Generator::DebugEnumerator;
 using boost::filesystem::directory_iterator;
 using Macaroni::Exception;
 using Macaroni::Model::FileName;
@@ -93,13 +95,19 @@ static bool buildModel(ContextPtr context, FileSet inputFiles)
 
 static bool generateFiles(ContextPtr context, path output)
 {
+	std::cout << "Debug Tree\n";
+	DebugEnumerator de;
+	de.Iterate(context, std::cout);
+
 	std::cout << "Generating output...";
+
 	CppSourceGenerator sourceGen(output, 4);
 	std::auto_ptr<MemberVisitor> visitor(sourceGen.CreateRootVisitor());
 	if (!!context->GetRoot()->GetMember())
 	{
 		context->GetRoot()->GetMember()->Visit(visitor.get());
 	}
+
 	return true;
 }
 

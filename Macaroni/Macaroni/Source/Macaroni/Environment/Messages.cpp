@@ -4,7 +4,10 @@
 #include "Messages.h"
 
 #include <fstream>
+#include "../../Gestalt/FileSystem/Paths.h"
 #include <sstream>
+
+using Gestalt::FileSystem::Paths;
 
 BEGIN_NAMESPACE2(Macaroni, Environment)
 
@@ -28,8 +31,11 @@ namespace
 Messages::Messages(const char * filePath)
 :bag()
 {
+	std::string exePath = Paths::GetExeDirectoryPath();
 	std::ifstream file;
-	file.open("Messages.txt");
+	std::stringstream finalFilePath;
+	finalFilePath << exePath << "Messages.txt";
+	file.open(finalFilePath.str().c_str());
 	MACARONI_ASSERT(!(!file), "Unable to open Messages file!");
 	std::string next;
 		

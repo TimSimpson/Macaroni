@@ -1,3 +1,3 @@
 echo Running Macaroni.
-..\Macaroni\Debug\Macaroni.exe -inputDirectory Expected -outputDirectory Actual
+..\Macaroni\Debug\Macaroni.exe -inputDirectory Input -outputDirectory Actual
 pause
