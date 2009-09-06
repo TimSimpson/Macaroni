@@ -25,9 +25,13 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
+				Description="Run Macaroni"
+				CommandLine="set MACARONI_EXE=$(ProjectDir)..\..\Macaroni\Debug\Macaroni.exe&#x0D;&#x0A;%MACARONI_EXE% -inputDirectory $(InputDir)Source -outputDirectory $(InputDir)GeneratedSource&#x0D;&#x0A;&#x0D;&#x0A;"
+				Outputs="$(InputDir)*.*"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -187,6 +191,14 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 		</Filter>
+		<File
+			RelativePath=".\Source\Macaroni\Tests\FileCompare\FileCompare.mcpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\Gestalt\FileSystem\FileSet.mcpp.ignore"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

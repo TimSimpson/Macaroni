@@ -2,6 +2,7 @@
 #define MACARONI_MODEL_NODE_CPP
 
 #include "Node.h"
+#include "Access.h"
 #include "Context.h"
 #include "../Exception.h"
 #include "Member.h"
@@ -13,7 +14,8 @@
 BEGIN_NAMESPACE2(Macaroni, Model)
 
 Node::Node(Node * scope, const std::string & name, const std::string & hFilePath)
-:adoptedHome(), context(nullptr), hFilePath(hFilePath), member(nullptr), name(name), scope(scope)
+: access(Access_Private), adoptedHome(), context(nullptr), hFilePath(hFilePath), 
+  member(nullptr), name(name), scope(scope)
 {
 	if (scope != nullptr)
 	{
@@ -167,6 +169,11 @@ Node * Node::findOrCreate(const std::string & name, const std::string & hFilePat
 //	}
 //}
 
+Access Node::GetAccess()
+{
+	return access;
+}
+
 NodePtr Node::GetAdoptedHome()
 {
 	return adoptedHome;
@@ -209,7 +216,7 @@ std::string Node::GetHFilePath() const
 	if (hFilePath.size() < 1)
 	{
 		std::stringstream ss;
-		ss << "\"" << GetPrettyFullName("/") << "\"";
+		ss << "<" << GetPrettyFullName("/") << ".h>";
 		return ss.str();
 	}
 	return hFilePath;

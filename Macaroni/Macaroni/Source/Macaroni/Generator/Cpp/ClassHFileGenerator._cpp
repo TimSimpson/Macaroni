@@ -1,0 +1,29 @@
+#ifndef MACARONI_GENERATOR_CPP_CPPSOURCEGENERATOR2_CPP
+#define MACARONI_GENERATOR_CPP_CPPSOURCEGENERATOR2_CPP
+
+// All of the defines are included in the parent file which includes this.
+
+class ClassHFile
+{
+public:
+	std::ofstream hFile;
+	
+	ClassHFile(const char * fileName)
+	:	hFile(parent
+	{
+	}
+
+	~ClassHFile()
+	{
+		hFile.close();
+	}
+
+	static void Create(NodePtr parentNode)
+	{
+		
+		ClassHFile gen();
+	}
+};
+
+#endif
+

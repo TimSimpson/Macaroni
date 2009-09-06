@@ -2,6 +2,7 @@
 #define MACARONI_ENVIRONMENT_REGISTERINTERNALMODULES_CPP
 
 #include "LuaEnvironment.h"
+#include "../Model/AccessLua.h"
 #include "../Model/AxiomLua.h"
 //#include "../Model/ClassLua.h"
 #include "../Model/ContextLua.h"
@@ -24,6 +25,7 @@ BEGIN_NAMESPACE2(Macaroni, Environment)
 
 static const struct luaL_Reg libs[] = {
 	{"Macaroni.Environment.Messages", Environment::MessagesLuaMetaData::OpenInLua},
+	{"Macaroni.Model.Access", Model::AccessLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Axiom", Model::AxiomLuaMetaData::OpenInLua},
 	//MARIO {"Macaroni.Model.Class", Model::ClassLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Context", Model::ContextLuaMetaData::OpenInLua},

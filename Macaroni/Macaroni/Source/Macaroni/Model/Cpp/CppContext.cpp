@@ -38,6 +38,7 @@ void CppContext::CreateCppNodes(ContextPtr & context)
 	NodePtr primitiveRoot = context->GetRoot()->FindOrCreate("{C++ Primitives}");
 	if (primitiveRoot->GetChildCount() == 0)
 	{
+		addPrimitive(primitiveRoot, "bool");
 		addPrimitive(primitiveRoot, "char");
 		addPrimitive(primitiveRoot, "double");
 		addPrimitive(primitiveRoot, "float");

@@ -2,13 +2,14 @@
 #define MACARONI_MODEL_NODE_H
 
 #include "../ME.h"
-#include <vector>
+#include "Access.h"
 #include "Class.lh"
 #include "Context.lh"
 #include "Member.lh"
 #include "Node.lh"
 #include "Reason.lh"
 #include "UnknownScope.lh"
+#include <vector>
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
@@ -42,6 +43,8 @@ public:
 	NodePtr Find(const std::string & complexName);
 
 	//NamespacePtr Find(std::string & name);	
+
+	Access GetAccess();
 
 	NodePtr GetAdoptedHome();
 
@@ -141,6 +144,9 @@ protected:
 	void setMember(Member * member, const char * typeName, const ReasonPtr reasonCreated);
 
 private:
+
+	/** Visibility level of the node. */
+	Access access;
 
 	/** This refers not to where a node officially lives, but where it might
 	 * be stored for organization purposes.  For example, if you have an 

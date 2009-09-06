@@ -1,6 +1,7 @@
 require "Macaroni.Model.Context";
 require "Macaroni.Model.Node";
 
+local Access = Macaroni.Model.Access;
 local Context = Macaroni.Model.Context;
 local Node = Macaroni.Model.Node;
 
@@ -27,6 +28,10 @@ tests = {
                 local nodes = this.root.Children;
                 Test.assert(1, #nodes);
                 Test.assert(foundNode, nodes[0]);
+            end,
+            ["The default of a node is private."] = function(this)
+                local foundNode = this.root:Find("Dog");
+                Test.assert(Access.Private, foundNode.Access); 
             end,
         }        
     },
