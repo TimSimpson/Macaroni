@@ -20,12 +20,21 @@ public:
 	LuaEnvironment();
 	~LuaEnvironment();
 	
+	/** It would be pointless to wrap every call to Lua, and that isn't the
+	 * point of this class- the point is it creates a common place to put code
+	 * for loading files and registering modules to enforce consistency. */
+	lua_State * GetState();
+
 	void BLARGOS();
 
 	void ParseFile(std::string filePath);
+
+	void ParseString(const char * chunkName, const char * code);
+
 	void Run();
 private:
 	static const char * loadFile(lua_State * L, void * data, size_t *size);
+	static const char * loadString(lua_State * L, void * data, size_t *size);
 	std::ifstream * input;
 	void registerInternalLuaModules();
 	lua_State * state;

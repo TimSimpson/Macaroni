@@ -12,7 +12,17 @@ name = "Context Tests",
 tests={	       
     ["CreateRoot Test"] = function(this)
         this.context = Context.New("{ROOT}");        
-        Test.assert("{ROOT}", tostring(context.Root));        
+        Test.assert("{ROOT}", tostring(this.context.Root));        
+    end,
+    
+    ["Type reports correct type."] = function(this)
+        local lContext = Context.New("{ROOT}");        
+        Test.assert("Macaroni.Model.Context", type(lContext));        
+    end,
+    
+    ["ToString returns a string of some kind."] = function(this)
+        local lContext = Context.New("{ROOT}");        
+        Test.assert("Context[references:3,Root:{ROOT}]", tostring(lContext));        
     end,
     
     

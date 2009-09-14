@@ -66,7 +66,9 @@ namespace
 		if (isOkToOverwriteFile(filePath))
 		{
 			outputFile.open(filePath, std::ios::out);
-			MACARONI_ASSERT(outputFile.is_open(), "File not opened.");
+			std::stringstream ss;
+			ss << "Could not open file \"" << filePath << "\".";
+			MACARONI_ASSERT(outputFile.is_open(), ss.str().c_str());
 			outputFile << std::string(MACARONI_OVERWRITE_ALLOWED) << "\n";
 			std::cout << "Opening file " << std::string(filePath) << "...\n";
 		}

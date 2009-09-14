@@ -12,6 +12,7 @@
 #include "Model/MemberVisitor.h"
 #include "Parser/ParserException.h"
 #include "Parser/Pippy/PippyParser.h"
+#include "Generator/DynamicGenerators.h"
 #include "Model/Source.h"
 
 using Macaroni::Model::Context;
@@ -108,6 +109,8 @@ static bool generateFiles(ContextPtr context, path output)
 		context->GetRoot()->GetMember()->Visit(visitor.get());
 	}
 
+	Generator::RunDynamicGenerators(context, output);
+
 	return true;
 }
 
@@ -117,6 +120,14 @@ void Compile(const CompilerOptions & options)
 	std::cout << "(C) Tim Simpson\n";
 	std::cout << "Version 0.0.1, June 22, 2009\n";
 	std::cout << "\n";
+
+	std::cout << 
+"Compiler options-------------------------------------------------------------\n"
+<< "|\tInput:" << options.GetInput().GetRoot().string().c_str() << "\n"
+	<< "|\tOutput:" << options.GetOutput().string().c_str() << "\n"
+	<< 
+" ----------------------------------------------------------------------------\n"
+	<< "\n";
 
 	ContextPtr context(new Context(std::string("%ROOT%")));
 	

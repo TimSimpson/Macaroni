@@ -38,6 +38,11 @@ void LuaEnvironment::BLARGOS()
 	//}			
 }
 
+lua_State * LuaEnvironment::GetState()
+{
+	return state;
+}
+
 const char * LuaEnvironment::loadFile(lua_State * L, void * data, size_t * size)
 {
 	static char block[512];
@@ -52,6 +57,13 @@ const char * LuaEnvironment::loadFile(lua_State * L, void * data, size_t * size)
 	*size = input->gcount();
 		
 	return block;		
+}
+
+const char * LuaEnvironment::loadString(lua_State * L, void * data, size_t * size)
+{	
+	const char * src = (const char *) data;
+	*size = strnlen(src, 2^16);
+	return src;
 }
 
 void LuaEnvironment::ParseFile(std::string filePath)
@@ -76,6 +88,20 @@ void LuaEnvironment::ParseFile(std::string filePath)
 			//throw new Macaroni::Exception(ss);
 		}
 		input->close();			
+	}
+}
+
+void LuaEnvironment::ParseString(const char * chunkName, const char * code)
+{
+	lua_Reader reader = loadString;
+	int eCode = lua_load(this->state, reader, (void *) code, chunkName);
+	if (eCode != 0)
+	{	
+		std::stringstream ss;
+		ss << "Error while loading Lua string:";
+		ss << luaL_checkstring(this->state, -1);
+		std::cerr << ss.str() <<  std::endl;
+		//throw new Macaroni::Exception(ss);
 	}
 }
 

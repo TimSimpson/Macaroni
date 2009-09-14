@@ -43,16 +43,16 @@ void execute(const std::string & inputPath, const std::string & outputPath)
 	Compiler::Compile(options);
 }
 
-void runLuaTests()
+void runLuaTests() 
 {
 	Macaroni::Environment::LuaEnvironment lua;
-	lua.ParseFile("Main.lua");
+	lua.ParseFile("Main.lua"); 
 	lua.Run();
 }
 
 void convert(std::wstring & original, std::string & rtnString)
 {
-	std::stringstream ss;	
+	std::stringstream ss;	  
 	for(unsigned int i = 0; i < original.size(); i ++)
 	{
 		ss << ((char)original[i]);
@@ -81,7 +81,21 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 			if (arg == _TEXT("debug"))
 			{
 				debugMode = true;
-				runLuaTests();
+				runLuaTests();   
+			}
+			else if (arg == _TEXT("-luaTests"))
+			{
+				if (i == argc - 1) 
+				{
+					std::cerr << "No input specified.";
+				}
+				else 
+				{ 
+					std::string testPath;
+					convert(std::wstring(argv[i + 1]), testPath);
+					runLuaTests();
+				}
+				return 0;
 			}
 			else if (arg == _TEXT("-inputDirectory"))
 			{
