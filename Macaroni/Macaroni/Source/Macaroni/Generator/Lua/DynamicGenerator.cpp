@@ -43,7 +43,7 @@ void DynamicGenerator::Run()
 	lua_getglobal(L, "Generate");
 	ContextLuaMetaData::PutInstanceOnStack(L, context);
 	
-	PathPtr path(new Path(rootPath));
+	PathPtr path(new Path(rootPath, rootPath));
 	PathLuaMetaData::PutInstanceOnStack(L, path);
 
 	bool isType = PathLuaMetaData::IsType(L, -1);

@@ -12,6 +12,8 @@ extern "C" {
 
 struct lua_State;
 
+#define PATHSMETATABLENAME "Macaroni.Generator.Output.Path.PathList"
+
 #define LUAGLUE_STARTNAMESPACE BEGIN_NAMESPACE(Macaroni, Generator, Output)
 #define LUAGLUE_ENDNAMESPACE	END_NAMESPACE
 #define LUAGLUE_CLASSNAME Path
@@ -20,10 +22,12 @@ struct lua_State;
 #define LUAGLUE_CLASSFULLCPPNAME Macaroni::Generator::Output::Path
 #define LUAGLUE_REGISTRATIONCLASSNAME PathLuaMetaData
 #define LUAGLUE_HELPERCLASS PathsLuaFunctions
-#define LUAGLUE_OPENOTHERMODULES Macaroni::Generator::Output::PathLuaMetaData::OpenInLua(L);
+#define LUAGLUE_OPENOTHERMODULES Macaroni::Generator::Output::PathLuaMetaData::OpenInLua(L); \
+		luaL_newmetatable(L, PATHSMETATABLENAME); \
+		luaL_register(L, nullptr, PathsProperty_MetaTableMethods);
+
 #define LUAGLUE_CREATEMETATABLE 
 
-#define PATHSMETATABLENAME "Macaroni.Generator.Output.Path.PathList"
 
 BEGIN_NAMESPACE(Macaroni, Generator, Output)
 
@@ -70,10 +74,19 @@ namespace {
 		return 1;
 	}
 
+	
+	static int paths__len(lua_State * L)
+	{
+		PathListPtr paths = getPathListPtrFromStack(L, -1);
+		lua_pushinteger(L, paths->size());
+		return 1;
+	}	
+
 	static const struct luaL_Reg PathsProperty_MetaTableMethods[]=
 	{
 		{"__gc", paths__gc},
 		{"__index", paths__index},
+		{"__len", paths__len},
 		{nullptr, nullptr}
 	};
 } // end anon namespace
@@ -95,9 +108,11 @@ END_NAMESPACE
 		return 1;
 	}
 
+
 	static int __tostring(lua_State * L)
 	{
-		lua_pushstring(L, "Path");
+		PathPtr path = getInstance(L);
+		lua_pushstring(L, path->ToString().c_str());
 		return 1;
 	}	
 

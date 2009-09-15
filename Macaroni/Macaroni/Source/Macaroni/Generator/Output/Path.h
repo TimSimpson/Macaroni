@@ -17,9 +17,9 @@ typedef boost::shared_ptr<PathList> PathListPtr;
 class Path
 {
 public:
-	Path(const char * path);
+	Path(boost::filesystem::path rootPath, const char * path);
 	Path(const Path & other); 
-	Path(boost::filesystem::path path);
+	Path(boost::filesystem::path rootPath, boost::filesystem::path path);
 
 	PathListPtr GetPaths();
 	
@@ -33,6 +33,8 @@ public:
 private:	
 
 	boost::filesystem::path path;
+
+	boost::filesystem::path rootPath;
 };
 
 END_NAMESPACE
