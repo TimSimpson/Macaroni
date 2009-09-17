@@ -71,7 +71,7 @@ void LuaEnvironment::ParseFile(std::string filePath)
 	input = new std::ifstream(filePath.c_str(), std::ios::binary);
 	if (!input->is_open())
 	{
-		std::cerr << "Could not open file!";
+		std::cerr << "Could not open file \"" << filePath << "\".\n";
 	}
 	else
 	{

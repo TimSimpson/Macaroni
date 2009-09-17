@@ -23,7 +23,7 @@ struct lua_State;
 #define LUAGLUE_REGISTRATIONCLASSNAME PathLuaMetaData
 #define LUAGLUE_HELPERCLASS PathsLuaFunctions
 #define LUAGLUE_OPENOTHERMODULES Macaroni::Generator::Output::PathLuaMetaData::OpenInLua(L); \
-		luaL_newmetatable(L, PATHSMETATABLENAME); \
+		luaL_newmetatable(L, "Macaroni.Generator.Output.Path.PathList"); \
 		luaL_register(L, nullptr, PathsProperty_MetaTableMethods);
 
 #define LUAGLUE_CREATEMETATABLE 
@@ -52,20 +52,20 @@ namespace {
 
 	int paths__gc(lua_State * L)
 	{
-		PathListPtr paths = getPathListPtrFromStack(L, -1);
+		PathListPtr paths = getPathListPtrFromStack(L, 1);
 		paths.~PathListPtr();
 		return 0;
 	}
 
 	int paths__index(lua_State * L)
 	{
-		PathListPtr paths = getPathListPtrFromStack(L, -1);
+		PathListPtr paths = getPathListPtrFromStack(L, 1);
 		unsigned int index = luaL_checkinteger(L, 2);
-		if (index > 0 && index <= paths->size())
+		index --; // Remeber that lua is indexed by 1.
+		if (index >= 0 && index < paths->size())
 		{
-			Path & element = paths->at(index);
-			PathPtr elementPtr(&element);
-			PathLuaMetaData::PutInstanceOnStack(L, elementPtr);			
+			PathPtr & element = paths->at(index);
+			PathLuaMetaData::PutInstanceOnStack(L, element);			
 		}
 		else
 		{
@@ -77,8 +77,15 @@ namespace {
 	
 	static int paths__len(lua_State * L)
 	{
-		PathListPtr paths = getPathListPtrFromStack(L, -1);
+		PathListPtr paths = getPathListPtrFromStack(L, 1);
 		lua_pushinteger(L, paths->size());
+		return 1;
+	}	
+
+	static int paths__tostring(lua_State * L)
+	{
+		PathListPtr paths = getPathListPtrFromStack(L, 1);
+		lua_pushstring(L, "Paths Array");
 		return 1;
 	}	
 
@@ -87,6 +94,7 @@ namespace {
 		{"__gc", paths__gc},
 		{"__index", paths__index},
 		{"__len", paths__len},
+		{"__tostring", paths__tostring},
 		{nullptr, nullptr}
 	};
 } // end anon namespace
@@ -95,10 +103,49 @@ END_NAMESPACE
 
 #include "../../LuaGlue.hpp"
 
+	static int createDirectory(lua_State * L)
+	{
+		PathPtr ptr = getInstance(L);
+		ptr->CreateDirectory();
+		return 0;
+	}
+
 	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr, 
 									  const std::string & index)
 	{		
-		if (index == "Paths")
+		if (index == "AbsolutePath")
+		{	
+			std::string absPath = ptr->GetAbsolutePath();
+			lua_pushstring(L, absPath.c_str());
+			return 1;
+		}
+		else if (index == "CreateDirectory")
+		{	
+			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::createDirectory);
+			return 1;
+		}
+		else if (index == "Exists")
+		{	bool exists = ptr->Exists();
+			lua_pushboolean(L, exists);
+			return 1;
+		}
+		else if (index == "IsDirectory")
+		{
+			bool isDirectory = ptr->IsDirectory();
+			lua_pushboolean(L, isDirectory);
+			return 1;
+		}
+		else if (index == "NewFileWriter")
+		{
+			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::newFileWriter);
+			return 1;			
+		}	
+		else if (index == "NewPath")
+		{
+			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::newPath);
+			return 1;			
+		}		
+		else if (index == "Paths")
 		{
 			PathListPtr paths = ptr->GetPaths();			
 			pushPathListPtrOntoStack(L, paths);
@@ -108,6 +155,37 @@ END_NAMESPACE
 		return 1;
 	}
 
+	static int newFileWriter(lua_State * L)
+	{
+		PathPtr ptr = getInstance(L);
+		//std::stringstream code;
+		//code << "io.open(\"" << ptr->ToString() << "\", 'w+');";
+		//std::string str(code.str());
+		//luaL_loadbuffer(L, str.c_str(), str.length(), "File Open Call");
+		//lua_pcall(L, 0, 0, 0);
+		// Never returns I think.
+		lua_getglobal(L, "io");
+		lua_pushstring(L, "open");
+		lua_gettable(L, -2); // pushes function, removes key value "open" 
+		lua_remove(L, -2); // remove "io"
+		// function io.open should be at top of stack now.
+		lua_pushstring(L, ptr->GetAbsolutePath().c_str()); // arg1
+		lua_pushstring(L, "w+"); // arg2
+		int stackSize = lua_gettop(L);
+		lua_call(L, 2, 1);//LUA_MULTRET);
+		int rtnCount = lua_gettop(L) - stackSize;
+
+		return rtnCount;
+	}
+
+	static int newPath(lua_State * L)
+	{
+		PathPtr ptr = getInstance(L);
+		std::string name(luaL_checkstring(L, 2));
+		PathPtr newPath = ptr->NewPath(name);
+		LUAGLUE_REGISTRATIONCLASSNAME::PutInstanceOnStack(L, newPath);
+		return 1;
+	}
 
 	static int __tostring(lua_State * L)
 	{

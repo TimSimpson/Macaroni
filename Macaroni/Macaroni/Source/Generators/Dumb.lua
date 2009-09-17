@@ -10,8 +10,21 @@ function Generate(context, path)
     print("Path type is " .. tostring(path) .. ".");
     
     local paths = path.Paths;
-    for i = 0, #paths do
-        print(i .. "=" .. tostring(v) .. "\n");
+    print(tostring(paths));
+    local length = #paths;
+    
+    local path1 = paths[1];
+    
+    print(tostring(path1));
+    
+    for i = 1, #paths do
+        local p = paths[i];        
+        print(i .. "=" .. tostring(p));
+        if (p.IsDirectory) then 
+           print("is a dir.");
+        else
+            print("is NOT a dir."); 
+        end
     end
     --local context = Context.New("{ROOT}", "{WILDCARD}");
     --print('Yet, the type of a Context is "' .. type(context) .. '".');

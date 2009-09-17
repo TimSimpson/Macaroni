@@ -5,6 +5,8 @@
 #include "Lua/DynamicGenerator.h"
 #include "../Gestalt/FileSystem/FileSet.h"
 #include <iostream>
+#include "../../Gestalt/FileSystem/Paths.h"
+#include <sstream>
 
 using Macaroni::Model::ContextPtr;
 using Gestalt::FileSystem::FileSet;
@@ -20,7 +22,11 @@ void runDynamicGenerator(ContextPtr context, const path & rootPath, const path &
 
 void RunDynamicGenerators(ContextPtr context, const path & rootPath)
 {
-	path generatorPath("Generators");
+	std::string exePath = Gestalt::FileSystem::Paths::GetExeDirectoryPath();	
+	std::stringstream finalFilePath;
+	finalFilePath << exePath << "Generators/";
+
+	path generatorPath(finalFilePath.str());
 	FileSet generators(generatorPath);
 	
 	FileSet::Iterator end = generators.End();

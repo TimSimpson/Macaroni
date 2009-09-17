@@ -1,7 +1,8 @@
-class Apple
-{
-	int five;
+namespace Fruits {
+	class Apple
+	{
+		int five;
 
-	Apple() : five(5) {}
-
+		Apple() : five(5) {}
+	}
 }

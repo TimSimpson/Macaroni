@@ -97,11 +97,11 @@ static bool buildModel(ContextPtr context, FileSet inputFiles)
 static bool generateFiles(ContextPtr context, path output)
 {
 	std::cout << "Debug Tree\n";
-	DebugEnumerator de;
+DebugEnumerator de;
 	de.Iterate(context, std::cout);
 
 	std::cout << "Generating output...";
-
+ 
 	CppSourceGenerator sourceGen(output, 4);
 	std::auto_ptr<MemberVisitor> visitor(sourceGen.CreateRootVisitor());
 	if (!!context->GetRoot()->GetMember())

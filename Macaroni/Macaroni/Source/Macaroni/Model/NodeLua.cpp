@@ -177,6 +177,15 @@ struct NodeLuaFunctions
 		return 2;
 	}
 
+	static int PrettyFullName(lua_State * L)
+	{
+		NodePtr ptr = getInstance(L, 1);
+		const char * seperator = luaL_checkstring(L, 2);
+		std::string prettyName = ptr->GetPrettyFullName(seperator);
+		lua_pushstring(L, prettyName.c_str());
+		return 1;
+	}
+	
 	static int SplitFirstNameOffComplexName(lua_State * L)
 	{
 		std::string complexName(luaL_checkstring(L, 1));
@@ -317,6 +326,14 @@ int NodeLuaMetaData::Index(lua_State * L, NodePtr & ptr, const std::string & ind
 	else if (index == "FullName")
 	{
 		lua_pushlstring(L, ptr->GetFullName().c_str(), ptr->GetFullName().size());	
+	}
+	else if (index == "GetPrettyFullName")
+	{
+		lua_pushcfunction(L, NodeLuaFunctions::PrettyFullName);
+	}
+	else if (index == "HFilePath")
+	{
+		lua_pushlstring(L, ptr->GetHFilePath().c_str(), ptr->GetHFilePath().size());	
 	}	
 	else if (index == "IsRoot")
 	{
@@ -348,7 +365,7 @@ int NodeLuaMetaData::Index(lua_State * L, NodePtr & ptr, const std::string & ind
 	else if (index == "ParseComplexName")
 	{
 		lua_pushcfunction(L, NodeLuaFunctions::ParseComplexName);
-	}
+	}		
 	else
 	{
 		lua_pushnil(L);
