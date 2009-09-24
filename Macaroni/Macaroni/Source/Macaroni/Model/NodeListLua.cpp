@@ -38,6 +38,14 @@
 		return 1;
 	}
 
+	static int __len(lua_State * L)
+	{
+		LUAGLUE_CLASSREFNAME & ptr = getInstance(L);
+		int size = (*ptr).size();
+		lua_pushnumber(L, size);
+		return 1;
+	}
+
 	static int __tostring(lua_State * L)
 	{
 		LUAGLUE_CLASSREFNAME & ptr = getInstance(L);
@@ -48,6 +56,7 @@
 	}	
 
 	#define LUAGLUE_ADDITIONALMETATABLEMETHODS \
+		{"__len", LUAGLUE_HELPERCLASS::__len}, \
 		{"__tostring", LUAGLUE_HELPERCLASS::__tostring}, 
 
 	#define LUAGLUE_ADDITIONALTABLEMETHODS \

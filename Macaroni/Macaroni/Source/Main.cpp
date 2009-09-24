@@ -69,6 +69,7 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 	std::cout << Messages::Get("Macaroni.Intro");
 
 	bool debugMode = false;
+	bool endPrompt = false;
 
 	if (argc > 0)
 	{
@@ -118,6 +119,10 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 				{
 					convert(std::wstring(argv[i + 1]), outputPath);
 				}
+			}
+			else if (arg == _TEXT("-endprompt"))
+			{
+				endPrompt = true;
 			}
 		}		
 		if (outputPath.empty())
@@ -170,12 +175,12 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 	}
 
 	//std::cout << "Program finished.";
-	//if (debugMode)
-	//{
-	//	std::cout << "Press enter to quit.";
-	//	char ch;
-	//	std::cin >> ch;
-	//}
+	if (endPrompt)
+	{
+		std::cout << "press enter to quit.";
+		char ch;
+		std::cin >> ch;
+	}
 	return 0;
 }
 

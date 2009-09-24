@@ -29,6 +29,7 @@ end
 
 function parseNamespace(node, path)
     assert(node.Member.TypeName == TypeNames.Namespace);    
+    path:CreateDirectory();
     iterateNodes(node.Children, path);
 end
 
@@ -41,9 +42,9 @@ function parseNode(node, path)
     local typeName = m.TypeName;
     print("       " .. typeName);
     local newPath = path:NewPath("/" .. node.Name);
-    if (newPath.IsDirectory) then
-        newPath.CreateDirectory();
-    end
+    --if (newPath.IsDirectory) then
+    --    newPath.CreateDirectory();
+    --end
     local handlerFunc = nil;
     if (typeName == TypeNames.Namespace) then
         handlerFunc = parseNamespace;

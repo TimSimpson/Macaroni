@@ -47,6 +47,14 @@
 			return 1;
 		}
 
+		if (!!boost::dynamic_pointer_cast<Cpp::Class>(ptr))
+		{
+			int rtnCnt = Cpp::ClassLuaMetaData::Index(L, boost::dynamic_pointer_cast<Cpp::Class>(ptr), index);
+			if (rtnCnt > 0)
+			{
+				return rtnCnt;
+			}
+		}
 		if (!!boost::dynamic_pointer_cast<Cpp::Variable>(ptr))
 		{
 			int rtnCnt = Cpp::VariableLuaMetaData::Index(L, boost::dynamic_pointer_cast<Cpp::Variable>(ptr), index);

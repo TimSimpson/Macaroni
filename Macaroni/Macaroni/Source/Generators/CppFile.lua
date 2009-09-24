@@ -32,8 +32,8 @@ end
 
 function parseNamespace(node, path)
     assert(node.Member.TypeName == TypeNames.Namespace);    
+    path:CreateDirectory();
     iterateNodes(node.Children, path);
-    path.CreateDirectory();
 end
 
 function parseNode(node, path)
@@ -45,9 +45,9 @@ function parseNode(node, path)
     local typeName = m.TypeName;
     print("       " .. typeName);
     local newPath = path:NewPath("/" .. node.Name);
-    if (newPath.IsDirectory) then
-        newPath.CreateDirectory();
-    end
+    --if (newPath.IsDirectory) then
+    --    newPath.CreateDirectory();
+    --end
     
     local handlerFunc = nil;
     if (typeName == TypeNames.Namespace) then
@@ -122,6 +122,12 @@ ClassGenerator = {
     end,
     
     includeStatements = function(self)
+        local class = self.node.Member;
+        local imports = class.ImportedNodes;
+        for i = 1, #imports do
+            local import = imports[i];
+            self:write("// " .. import.Name .. "\n");
+        end
         -- alas, this is impossible.
         -- The NodePtrList type needs LuaGlue so the property can be accessed from the Class member.
     end,
