@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+  <file>
+    <filename>Source\Main.lua</filename>
+  </file>
+  <file>
+    <filename>Source\Tests.lua</filename>
+  </file>
+  <file>
+    <filename>Source\Macaroni\Test.lua</filename>
+  </file>
+  <file>
+    <filename>Source\Macaroni\Model\AxiomTests.lua</filename>
+  </file>
+  <file>
+    <filename>Source\Macaroni\Model\ContextTests.lua</filename>
+  </file>
+  <file>
+    <filename>Source\Macaroni\Model\FileNameTests.lua</filename>
+  </file>
+  <file>
+    <filename>Source\Macaroni\Model\MemberTests.lua</filename>
+  </file>
+  <file>
+    <filename>Source\Macaroni\Model\NodeTests.lua</filename>
+  </file>
+  <file>
+    <filename>Source\Macaroni\Model\ReasonTests.lua</filename>
+  </file>
+  <file>
+    <filename>Source\Macaroni\Model\SourceTests.lua</filename>
+  </file>
+</project>

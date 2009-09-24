@@ -20,6 +20,7 @@
 #include "../Parser/Pippy/PippyParserLua.h"
 #include "../Model/SourceLua.h"
 #include <sstream>
+#include "../Model/Cpp/VariableAssignmentLua.h"
 #include <windows.h>
 
 BEGIN_NAMESPACE2(Macaroni, Environment)
@@ -42,6 +43,7 @@ static const struct luaL_Reg libs[] = {
 	{"Macaroni.Generator.Output.Path", Generator::Output::PathLuaMetaData::OpenInLua},
 	{"Macaroni.Parser.Cpp.CppParser", Parser::Cpp::CppParserLuaMetaData::OpenInLua},
 	{"Macaroni.Parser.Pippy.PippyParser", Parser::Pippy::PippyParserLuaMetaData::OpenInLua},
+	{"Macaroni.Model.Cpp.VariableAssignment", Macaroni::Model::Cpp::VariableAssignmentLuaMetaData::OpenInLua},
 	{nullptr, nullptr} /* sentinel */
 	};
 

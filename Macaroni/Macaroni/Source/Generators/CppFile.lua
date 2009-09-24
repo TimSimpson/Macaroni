@@ -7,8 +7,11 @@ local Context = Macaroni.Model.Context;
 local Node = Macaroni.Model.Node;
 local TypeNames = Macaroni.Model.TypeNames;
 
+
+print "Hello, I am dumb.\n";
+
 function Generate(context, path)
-    print "Generating H Files\n";
+    print "Generating Cpp Files\n";
     
     iterateNodes(context.Root.Children, path); 
 end
@@ -22,7 +25,7 @@ end
 
 function parseClass(node, path)
     assert(node.Member.TypeName == TypeNames.Class);    
-    local filePath = path:NewPath(".h");
+    local filePath = path:NewPath(".cpp");
     local cg = ClassGenerator.new{node = node, path = filePath};
     cg:parse();
 end
@@ -30,6 +33,7 @@ end
 function parseNamespace(node, path)
     assert(node.Member.TypeName == TypeNames.Namespace);    
     iterateNodes(node.Children, path);
+    path.CreateDirectory();
 end
 
 function parseNode(node, path)
@@ -44,6 +48,7 @@ function parseNode(node, path)
     if (newPath.IsDirectory) then
         newPath.CreateDirectory();
     end
+    
     local handlerFunc = nil;
     if (typeName == TypeNames.Namespace) then
         handlerFunc = parseNamespace;
@@ -89,24 +94,20 @@ ClassGenerator = {
     end,
     
     classBegin = function(self)
-        self.writer:write("class " .. self.node.Name .. "\n");
-        self.writer:write("{\n");
-        self:addTabs(1);
+        
     end,
     
     classBody = function(self)
-        self:classBegin();
+        --self:classBegin();
         self:iterateClassMembers(self.node.Children);
-        self:classEnd();
     end,
     
     classEnd = function(self)        
-        self.writer:write("} // End of class " .. self.node.Name .. "\n");
-        self:addTabs(-1);
+        
     end,
     
     getGuardName = function(self)
-        local guardName = "MACARONI_COMPILE_GUARD_" .. self.node:GetPrettyFullName("_") .. "_H";
+        local guardName = "MACARONI_COMPILE_GUARD_" .. self.node:GetPrettyFullName("_") .. "_CPP";
         return guardName;
     end,
     
@@ -171,19 +172,40 @@ ClassGenerator = {
     
     ["parse" .. TypeNames.Constructor] = function(self, node)
         self:writeTabs();
-        self:write(self.node.Name .. "(");
+        self:write(self.node.Name .. "::" .. self.node.Name .. "(");
         self:writeArgumentList(node);
-        self:write(");\n");        
+        self:write(")\n");        
+        self:writeTabs();
+        self:write("{\n");
+        self:addTabs(1);
+        
+        self:writeTabs();
+        self:write(node.Member.CodeBlock .. "\n");
+        
+        self:addTabs(-1);        
+        self:writeTabs();
+        self:write("}\n");
     end,
     
     ["parse" .. TypeNames.Function] = function(self, node)
         self:writeTabs();
         local func = node.Member;
         self:writeVariableInfo(func.ReturnType);
-        self:write(func.ReturnType.Node.FullName);
+        self:write(func.ReturnType.Node.Name);
         self:write(" " .. node.Name .. "(");
         self:writeArgumentList(node);
-        self:write(");\n");        
+        self:write(")\n");        
+        
+        self:writeTabs();
+        self:write("{\n");
+        self:addTabs(1);
+        
+        self:writeTabs();
+        self:write(node.Member.CodeBlock .. "\n");
+        
+        self:addTabs(-1);        
+        self:writeTabs();
+        self:write("}\n");
     end,
     
     parseMember = function(self, node)
@@ -216,11 +238,7 @@ ClassGenerator = {
     end,
     
     ["parse" .. TypeNames.Variable] = function(self, node)
-        self:writeTabs();
-        local variable = node.Member;
-        self:writeVariableInfo(variable);
-        self:write(variable.TypeNode.FullName .. " ");
-        self:write(node.Name .. ";\n");
+        
     end,
     
     write = function(self, text)
@@ -242,7 +260,7 @@ ClassGenerator = {
                     seenOne = true;
                 end
                 self:writeVariableInfo(c.Member);
-                self:write(c.Member.TypeNode.FullName);
+                self:write(c.Member.TypeNode.Name);
                 self:write(" ");
                 self:write(c.Name);               
             end            

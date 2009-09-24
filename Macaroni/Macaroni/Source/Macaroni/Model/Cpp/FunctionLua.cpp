@@ -50,6 +50,11 @@ END_NAMESPACE
 			lua_setmetatable(L, -2); 
 			return 1;
 		}
+		else if (index == "CodeBlock")
+		{
+			lua_pushstring(L, ptr->GetCodeBlock().c_str());
+			return 1;
+		}
 		else if (index == "ReturnType")
 		{
 			createLUAGLUE_CLASSREFNAMEUserData(L, ptr);

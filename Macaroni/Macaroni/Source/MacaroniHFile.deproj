@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+  <file>
+    <filename>Generators\HFile.lua</filename>
+  </file>
+  <file>
+    <filename>Generators\CppCommon.lua</filename>
+  </file>
+  <file>
+    <filename>Generators\CppFile.lua</filename>
+  </file>
+</project>

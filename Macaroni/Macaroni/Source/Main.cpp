@@ -169,12 +169,12 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 		//}
 	}
 
-	std::cout << "Program finished.";
+	//std::cout << "Program finished.";
 	//if (debugMode)
 	//{
-		std::cout << "Press enter to quit.";
-		char ch;
-		std::cin >> ch;
+	//	std::cout << "Press enter to quit.";
+	//	char ch;
+	//	std::cin >> ch;
 	//}
 	return 0;
 }

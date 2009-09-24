@@ -1,0 +1,18 @@
+To create Lua glue for a class, you need:
+1. GlobalTable name.
+2. MetaTable name
+3. A function to create 1, and then 2, and register
+4. Lua Glue C functions for all static methods (global table)
+5. Lua Glue C functions for all instance methods (meta table)
+6. A type which contains a Lua-compatable pointer to the class being wrapped.
+7. A function to push this type onto the Lua stack.
+8. A function to pop this type off the Lua stack.
+9. A function to "open" the glue in lua using Lua's register mechanism (#3).
+
+This could be a type which is initialized once and kept in memory for the
+duration of the program.
+It seems odd to need an instance of an object to do this, but it can't be a
+template due to the need for string variables.
+
+Lua has to call C functions which are entirely global, making this difficult.
+

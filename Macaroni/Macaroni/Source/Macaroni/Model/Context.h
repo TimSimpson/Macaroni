@@ -4,7 +4,6 @@
 #include "../ME.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/intrusive_ptr.hpp>
-#include "Class.lh"
 #include "Context.lh"
 #include "Node.lh"
 
