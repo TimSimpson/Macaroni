@@ -4,6 +4,7 @@
 #include "ClassLua.h"
 #include "../NodeLua.h"
 #include "../MemberLua.h"
+#include "../NodeListLua.h"
 #include "TypeInfoLua.h"
 #include "VariableLua.h"
 
@@ -37,9 +38,31 @@ END_NAMESPACE
 
 #include "../../LuaGlue.hpp"
 
+
+
 	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr, 
 									  const std::string & index)
-	{		
+	{
+		if (index == "FriendNodes")
+		{
+			NodeListPtr list = ptr->GetFriendNodes();
+			NodeListLuaMetaData::PutInstanceOnStack(L, list);
+		}
+		else if (index == "GlobalNodes")
+		{
+			NodeListPtr list = ptr->GetFriendNodes();
+			NodeListLuaMetaData::PutInstanceOnStack(L, list);
+		}
+		else if (index == "ImportedNodes")
+		{
+			NodeListPtr list = ptr->GetImportedNodes();
+			NodeListLuaMetaData::PutInstanceOnStack(L, list);
+		}
+		else 
+		{
+			lua_pushnil(L);
+		}
+
 		/*if (index == "Arguments")
 		{
 			createLUAGLUE_CLASSREFNAMEUserData(L, ptr);
@@ -53,8 +76,7 @@ END_NAMESPACE
 			luaL_getmetatable(L, PROPERTIES_METATABLENAME_RETURNTYPE);
 			lua_setmetatable(L, -2); 
 			return 1;
-		}*/
-		lua_pushnil(L);			
+		}*/		
 		return 1;
 	}
 

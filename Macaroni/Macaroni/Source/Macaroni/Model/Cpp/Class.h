@@ -27,11 +27,21 @@ public:
 	virtual bool canBeChildOf(const Member * other) const;
 
 	virtual bool DoesDefinitionReference(NodePtr node) const;
-
+	
+	/** A list of Nodes who are "friends" of this class.  Friends with benefits,
+	 * that is.  These nodes have intricate knowledge of this classes inner-
+	 * most secrets. */
 	NodeListPtr GetFriendNodes() const;
 
+	/** A list of Nodes that may or may not have anything to do with this 
+	 * class, but are adopted by this class.  They are usually defined in the
+	 * same MCPP file and get stored in the same code files as the class.
+	 * An example would be a global function thats callable from plain C but
+	 * is useful only in the context of this class. */
 	NodeListPtr GetGlobalNodes() const;
 
+	/** Nodes imported by this class.  Always needed by the implementation file
+	 *  of this class. */
 	NodeListPtr GetImportedNodes() const;
 
 	virtual const char * GetTypeName() const;

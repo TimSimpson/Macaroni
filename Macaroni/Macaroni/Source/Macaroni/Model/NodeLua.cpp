@@ -10,6 +10,7 @@ extern "C" {
 #include "MemberLua.h"
 #include "Node.h"
 #include "NodeLua.h"
+#include "NodeListLua.h"
 #include <sstream>
 
 BEGIN_NAMESPACE2(Macaroni, Model)
@@ -420,6 +421,7 @@ int NodeLuaMetaData::OpenInLua(lua_State * L)
 	luaL_register(L, GLOBALTABLENAME, tableMethods);
 
 
+	NodeListLuaMetaData::OpenInLua(L);
 	MemberLuaMetaData::OpenInLua(L);
 
 	return 1;
