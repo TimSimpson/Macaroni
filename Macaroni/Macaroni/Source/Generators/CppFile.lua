@@ -124,9 +124,9 @@ ClassGenerator = {
     includeStatements = function(self)
         local class = self.node.Member;
         local imports = class.ImportedNodes;
-        for i = 1, #imports do
-            local import = imports[i];
-            self:write("// " .. import.Name .. "\n");
+        for i = 1, #imports do                      
+            local import = imports[i];        
+            self:writeInclude(import);                
         end
         -- alas, this is impossible.
         -- The NodePtrList type needs LuaGlue so the property can be accessed from the Class member.
@@ -142,8 +142,8 @@ ClassGenerator = {
     namespaceBegin = function(self)
         local fs = self.node.FullName;
         local names = Node.SplitComplexName(fs);
-        for i, v in pairs(names) do
-            self.writer:write("namespace " .. v .. " { ");
+        for i = 1, #names - 1 do
+            self.writer:write("namespace " .. names[i] .. " { ");
         end
         self.writer:write("\n");
     end,
@@ -198,7 +198,9 @@ ClassGenerator = {
         local func = node.Member;
         self:writeVariableInfo(func.ReturnType);
         self:write(func.ReturnType.Node.Name);
-        self:write(" " .. node.Name .. "(");
+        self:write(" ");
+        self:write(self.node.Name .. "::" .. node.Name);
+        self:write("(");
         self:writeArgumentList(node);
         self:write(")\n");        
         
@@ -271,6 +273,18 @@ ClassGenerator = {
                 self:write(c.Name);               
             end            
         end
+    end,
+    
+    writeInclude = function(self, import)
+        if (import.Member ~= nil and import.Member.TypeName == TypeNames.Primitive) then
+            return;
+        end
+        local path = nil;
+        path = import.HFilePath;
+        if (path == nil) then 
+            path = '<' .. import:GetPrettyFullName("/") .. '>'; 
+        end        
+        self:write('#include ' .. path .. ';\n');        
     end,
     
     writeTabs = function(self)

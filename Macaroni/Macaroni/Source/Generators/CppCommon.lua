@@ -9,7 +9,15 @@ require "debug";
 require "io";
 
 -- Eventually put this next part in C++.
-Macaroni.Model.TypeNames = { Class = "Class", Constructor="Constructor", Function="Function", Namespace = "Namespace", Variable="Variable"};
+Macaroni.Model.TypeNames = 
+{ 
+    Class = "Class", 
+    Constructor="Constructor", 
+    Function="Function", 
+    Namespace = "Namespace", 
+    Primitive="Primitive",
+    Variable="Variable"
+};
 
 
 

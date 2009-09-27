@@ -13,8 +13,9 @@
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
-Node::Node(Node * scope, const std::string & name, const std::string & hFilePath)
-: access(Access_Private), adoptedHome(), context(nullptr), hFilePath(hFilePath), 
+Node::Node(Node * scope, const std::string & name)
+: access(Access_Private), adoptedHome(), context(nullptr), 
+  hFilePath(), hFilePathReason(),
   member(nullptr), name(name), scope(scope)
 {
 	if (scope != nullptr)
@@ -45,10 +46,10 @@ Node::~Node()
 //	return newInstance.release();
 //}
 
-Node * Node::createNode(const std::string & simpleName, const std::string & hFilePath)
+Node * Node::createNode(const std::string & simpleName)
 {
 	MACARONI_ASSERT(IsSimpleName(simpleName), "Name must be simple at this point.");
-	Node * child = new Node(this, simpleName, hFilePath);
+	Node * child = new Node(this, simpleName);
 	children.push_back(child);
 	return child;
 }
@@ -145,7 +146,7 @@ Node * Node::findOrCreate(const std::string & name, const std::string & hFilePat
 
 	if (s == nullptr)
 	{
-		s = createNode(firstPart, hFilePath);
+		s = createNode(firstPart);
 	}
 
 	if (lastPart.size() < 1)
@@ -211,16 +212,21 @@ size_t Node::GetChildCount() const
 	return children.size();
 }
 
-std::string Node::GetHFilePath() const
+FileNamePtr Node::GetHFilePath() const
 {
-	if (hFilePath.size() < 1)
-	{
-		std::stringstream ss;
-		ss << "<" << GetPrettyFullName("/") << ".h>";
-		return ss.str();
-	}
 	return hFilePath;
 }
+
+//FileName Node::GetHFilePath() const
+//{
+//	if (hFilePath.size() < 1)
+//	{
+//		std::stringstream ss;
+//		ss << "<" << GetPrettyFullName("/") << ".h>";
+//		return ss.str();
+//	}
+//	return hFilePath;
+//}
 
 const std::string & Node::GetName() const
 {
@@ -292,6 +298,16 @@ void Node::SetAdoptedHome(NodePtr node)
 	this->adoptedHome = node;
 }
 
+void Node::SetHFilePath(ReasonPtr why, FileNamePtr file)
+{
+	if (!!this->hFilePath)
+	{
+		throw ModelInconsistencyException(this->hFilePathReason, why, "HFilePath already set.");
+	}
+	this->hFilePath = file;
+	this->hFilePathReason = why;
+}
+
 void Node::setMember(Member * value, const char * typeName, const ReasonPtr reasonCreated)
 {
 	if (this->member != nullptr)
@@ -300,7 +316,7 @@ void Node::setMember(Member * value, const char * typeName, const ReasonPtr reas
 		ss << "Member for node " << GetFullName() 
 		   << " is already a(n) " << member->GetTypeName() << " and cannot "
 		   "morph into a(n) " << typeName << ".";
-		throw new ModelInconsistencyException(member->GetReasonCreated(),
+		throw ModelInconsistencyException(member->GetReasonCreated(),
 											  reasonCreated,
 											  ss.str());	
 	}

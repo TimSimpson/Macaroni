@@ -58,6 +58,7 @@ using Macaroni::Model::SourcePtr;
 using Macaroni::Parser::ParserException;
 using Macaroni::Model::Cpp::Primitive;
 using Macaroni::Model::Reason;
+using Macaroni::Model::ReasonPtr;
 using Macaroni::Model::Cpp::Variable;
 using Macaroni::Model::Cpp::VariableAssignment;
 using Macaroni::Model::Cpp::TypeInfo;
@@ -782,7 +783,7 @@ public:
 	bool Directives(Iterator & itr)
 	{
 		ConsumeWhitespace(itr);
-		if (itr.Finished() || !(itr.Current() == '#'))
+		if (itr.Finished() || !(itr.Current() == '~'))
 		{
 			return false;
 		}
@@ -998,7 +999,9 @@ public:
 			throw ParserException(itr.GetSource(),
 				Messages::Get("CppParser.Directive.HFileFilePathExpected"));
 		}
-		hFilesForNewNodes = filePath;
+		FileNamePtr fileName = FileName::Create(filePath);
+		ReasonPtr reason = Reason::Create(CppAxioms::SetExistingHFilePath(), itr.GetSource());
+		this->currentScope->SetHFilePath(reason, fileName);
 		return true;
 	}
 

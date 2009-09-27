@@ -136,8 +136,8 @@ ClassGenerator = {
     namespaceBegin = function(self)
         local fs = self.node.FullName;
         local names = Node.SplitComplexName(fs);
-        for i, v in pairs(names) do
-            self.writer:write("namespace " .. v .. " { ");
+        for i = 1, #names - 1 do
+            self.writer:write("namespace " .. names[i] .. " { ");
         end
         self.writer:write("\n");
     end,

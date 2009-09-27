@@ -61,6 +61,11 @@ AxiomPtr PrimitiveUnsignedInt()
 	return AxiomPtr(new CppAxiom("CppAxioms.PrimitiveUnsignedInt"));
 }
 
+AxiomPtr SetExistingHFilePath()
+{
+	return AxiomPtr(new CppAxiom("CppAxioms.SetExistingHFilePath"));
+}
+
 AxiomPtr VariableScopeCreation()
 {
 	return AxiomPtr(new CppAxiom("CppAxioms.VariableScopeCreation"));

@@ -1,5 +1,5 @@
-#import std::string;
-#import std::cin;
+~import std::string;
+~import std::cin;
 
 void SayHello(const string & greetingMessage)
 {

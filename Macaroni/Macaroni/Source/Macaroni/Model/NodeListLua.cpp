@@ -21,6 +21,7 @@
 #define LUAGLUE_REGISTRATIONCLASSNAME	NodeListLuaMetaData
 #define LUAGLUE_OPENOTHERMODULES		Macaroni::Model::NodeLuaMetaData::OpenInLua(L); 
 #define LUAGLUE_CREATEMETATABLE YESPLEASE
+#define LUAGLUE_HELPERCLASS				NodeListLuaGlueHelperClass
 
 #include "../LuaGlue.hpp"
 
@@ -30,6 +31,7 @@
 		unsigned int index = luaL_checkinteger(L, 2);
 		if (index > 0 && index <= ptr->size())
 		{
+			index --;
 			NodePtr node = (*ptr)[index];
 			NodeLuaMetaData::PutInstanceOnStack(L, (*ptr)[index]);
 			return 1;

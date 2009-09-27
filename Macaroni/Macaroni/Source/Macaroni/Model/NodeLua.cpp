@@ -7,6 +7,7 @@ extern "C" {
 	#include "../../Lua/lualib.h"
 }
 #include "../Exception.h"
+#include "FileNameLua.h"
 #include "MemberLua.h"
 #include "Node.h"
 #include "NodeLua.h"
@@ -334,7 +335,15 @@ int NodeLuaMetaData::Index(lua_State * L, NodePtr & ptr, const std::string & ind
 	}
 	else if (index == "HFilePath")
 	{
-		lua_pushlstring(L, ptr->GetHFilePath().c_str(), ptr->GetHFilePath().size());	
+		FileNamePtr fileName = ptr->GetHFilePath();
+		if (!fileName) 
+		{
+			lua_pushnil(L);
+		}
+		else 
+		{
+			FileNameLuaMetaData::PutInstanceOnStack(L, ptr->GetHFilePath());
+		}		
 	}	
 	else if (index == "IsRoot")
 	{
@@ -420,7 +429,7 @@ int NodeLuaMetaData::OpenInLua(lua_State * L)
 	// scope.
 	luaL_register(L, GLOBALTABLENAME, tableMethods);
 
-
+	//FileNameLuaMetaData::OpenInLua(L);
 	NodeListLuaMetaData::OpenInLua(L);
 	MemberLuaMetaData::OpenInLua(L);
 

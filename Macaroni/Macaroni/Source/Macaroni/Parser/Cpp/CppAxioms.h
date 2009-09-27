@@ -21,6 +21,7 @@ namespace CppAxioms
 	AxiomPtr PrimitiveFloat();
 	AxiomPtr PrimitiveSignedInt();
 	AxiomPtr PrimitiveUnsignedInt();
+	AxiomPtr SetExistingHFilePath();
 	AxiomPtr VariableScopeCreation();
 };
 

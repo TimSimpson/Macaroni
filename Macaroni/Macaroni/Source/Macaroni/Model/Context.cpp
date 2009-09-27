@@ -9,7 +9,7 @@ BEGIN_NAMESPACE2(Macaroni, Model)
 Context::Context(const std::string & rootName)
 :referenceCount(0), root(nullptr)
 {
-	root = new Node(nullptr, rootName, std::string(""));
+	root = new Node(nullptr, rootName);
 	root->context = this;
 }
 	

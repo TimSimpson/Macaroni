@@ -1,7 +1,5 @@
-#hfile = <string>
-class std::string{};
+namespace std
+{
+  class std::string{  ~hfile=<string> };
+}
 
-#hfile = <boost/filesystem>
-class boost::filesystem::path{};
-
-#hfile reset

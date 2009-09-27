@@ -4,6 +4,7 @@
 #include "../ME.h"
 #include "Access.h"
 #include "Context.lh"
+#include "FileNamePtr.h"
 #include "Member.lh"
 #include "Node.lh"
 #include "Reason.lh"
@@ -46,11 +47,13 @@ public:
 
 	NodePtr GetAdoptedHome();
 
-	// TO-DO: This is pitifully sloppy! Information on where the official C++
+	// TODO: This is pitifully sloppy! Information on where the official C++
 	// definition is should probably optionally be attached to its own object
 	// instead of a string.  Please change this into a pointer to such an 
 	// object.
-	std::string GetHFilePath() const;
+	/** This is set either by a Generator or by the Parser if a non-Macaroni
+	 * element is being introduced. */
+	FileNamePtr GetHFilePath() const;
 
 	std::string GetFullName() const;
 	
@@ -94,6 +97,8 @@ public:
 
 	void SetAdoptedHome(NodePtr node);
 
+	void SetHFilePath(ReasonPtr reason, FileNamePtr fileName);
+
 	static void SplitFirstNameOffComplexName(const std::string & complexName,
 											 std::string & firstPart,
 											 std::string & lastPart);
@@ -106,12 +111,12 @@ public:
 		   						 std::vector<std::string> & subNames);
 
 protected:
-	Node(Node * scope, const std::string & name, const std::string & hFilePath);
+	Node(Node * scope, const std::string & name);
 	Node(const Node & other);
 	void operator=(const Node & other);
 	~Node();
 
-	Node * createNode(const std::string & simpleName, const std::string & hFilePath);
+	Node * createNode(const std::string & simpleName);
 
 	//Class * createClass(const std::string & simpleName);
 
@@ -137,7 +142,9 @@ protected:
 
 	Node * getNode() const;
 
-	std::string hFilePath;
+	FileNamePtr hFilePath;
+
+	ReasonPtr hFilePathReason;
 
 	void setMember(Member * member, const char * typeName, const ReasonPtr reasonCreated);
 

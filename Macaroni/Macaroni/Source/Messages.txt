@@ -16,6 +16,7 @@ CppAxioms.PrimitiveFloat=This node is a place holder for the C++ primitive "floa
 CppAxioms.PrimitiveSignedInt=This node is a place holder for the C++ primitive "signed int."
 CppAxioms.PrimitiveUnsignedInt=This node is a place holder for the C++ primitive "unsigned int."
 CppAxioms.PrimitiveVoid=This node is a place holder for the C++ primitive "void."
+CppAxioms.SetExistingHFilePath=H File paths can be set using the keyword "~hfile".
 CppAxioms.VariableScopeCreation=Variable definition encountered.
 
 # C++ Parser Exception Messages
