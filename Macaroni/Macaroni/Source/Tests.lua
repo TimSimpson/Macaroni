@@ -11,8 +11,10 @@ require "Macaroni/Model/ContextTests";
 require "Macaroni/Model/FileNameTests";
 --require "Macaroni/Model/NamespaceTests";
 require "Macaroni/Model/NodeTests";
+require "Macaroni/Model/NodeListTests";
 require "Macaroni/Model/ReasonTests";
 require "Macaroni/Model/SourceTests"; 
+require "Macaroni/Model/TypeArgumentTests"; 
 --require "Macaroni/Parser/Cpp/Tests/Namespaces";
 require "Macaroni/Parser/Pippy/Tests/Index";
 

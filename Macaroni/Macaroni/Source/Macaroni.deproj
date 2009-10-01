@@ -57,4 +57,7 @@
   <file>
     <filename>Macaroni\Parser\Pippy\Tests\Functions.lua</filename>
   </file>
+  <file>
+    <filename>Macaroni\Model\TypeArgumentTests.lua</filename>
+  </file>
 </project>

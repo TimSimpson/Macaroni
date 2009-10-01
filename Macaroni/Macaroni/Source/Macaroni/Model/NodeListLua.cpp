@@ -48,6 +48,14 @@
 		return 1;
 	}
 
+	static int __new(lua_State * L)
+	{
+		// First arg is an array.
+		luaL_checktype(L, 1, LUA_TTABLE);
+
+		lua_gettable(L, 1);
+	}
+
 	static int __tostring(lua_State * L)
 	{
 		LUAGLUE_CLASSREFNAME & ptr = getInstance(L);

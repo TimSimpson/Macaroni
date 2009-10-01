@@ -3,6 +3,7 @@
 
 #include "../ME.h"
 #include "Node.h"
+#include "TypePtr.h"
 #include "TypeArgument.h"
 
 BEGIN_NAMESPACE2(Macaroni, Model)
@@ -16,13 +17,17 @@ class Type
 {
 public:
 	Type(NodePtr type);
-	Type(NodePtr type, std::vector<TypeArgument> typeArguments);
+	Type(NodePtr type, TypeArgumentListPtr typeArguments);
 	
 	~Type();
 	
+	NodePtr GetNode();
+
+	TypeArgumentListPtr GetTypeArguments();
+	
 private:
 	NodePtr type;	
-	std::vector<TypeArgument> typeArguments;
+	TypeArgumentListPtr typeArguments;
 };
 
 END_NAMESPACE2
