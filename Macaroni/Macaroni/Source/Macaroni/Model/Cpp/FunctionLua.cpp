@@ -2,6 +2,7 @@
 #define MACARONI_MODEL_CPP_FUNCTIONLUA_CPP
 
 #include "../NodeLua.h"
+#include "../../Environment/DebugLog.h"
 #include "FunctionLua.h"
 #include "../MemberLua.h"
 #include "TypeInfoLua.h"
@@ -109,13 +110,18 @@ static const struct luaL_Reg argumentsMetaTableMethods[]=
 
 int FunctionArgumentsOpenInLua(lua_State * L)
 {
+	DEBUGLOG_WRITE("FunctionArgumentsOpenInLua begins...");
+
 	luaL_getmetatable(L, PROPERTIES_METATABLENAME_ARGUMENTS);
 	if (lua_isnil(L, -1) != 1)
 	{
+		DEBUGLOG_WRITE("... SKIP! FunctionArgumentsOpenInLua.");
 		return 0;
 	}
 	luaL_newmetatable(L, PROPERTIES_METATABLENAME_ARGUMENTS); // create metaTable
 	luaL_register(L, nullptr, argumentsMetaTableMethods);
+
+	DEBUGLOG_WRITE("... end FunctionArgumentsOpenInLua.");
 	return 1;
 }
 
@@ -138,13 +144,18 @@ static const struct luaL_Reg returnTypeMetaTableMethods[]=
 
 int FunctionReturnTypeInfoOpenInLua(lua_State * L)
 {
+	DEBUGLOG_WRITE("FunctionReturnTypeInfo OpenInLua begins...");
+
 	luaL_getmetatable(L, PROPERTIES_METATABLENAME_RETURNTYPE);
 	if (lua_isnil(L, -1) != 1)
 	{
+		DEBUGLOG_WRITE("... SKIP! FunctionReturnTypeInfo");
 		return 0;
 	}
 	luaL_newmetatable(L, PROPERTIES_METATABLENAME_RETURNTYPE); // create metaTable
 	luaL_register(L, nullptr, returnTypeMetaTableMethods);
+
+	DEBUGLOG_WRITE("... FunctionReturnTypeInfo ends.");
 	return 1;
 }
 

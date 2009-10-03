@@ -22,6 +22,46 @@
 
 #include "../LuaGlue.hpp"
 
+	static int __new(lua_State * L)
+	{		
+		luaL_checktype(L, 1, LUA_TTABLE);
+
+		TypeArgumentListPtr typeArgs(new TypeArgumentList());
+
+		bool stop = false;
+		int index = 0;
+		while(!stop)
+		{
+			index ++;
+			lua_pushnumber(L, index);
+			lua_gettable(L, 1);
+			if (!lua_isnil(L, -1))
+			{
+				if (!TypeArgumentLuaMetaData::IsType(L, -1))
+				{
+					std::stringstream ss;
+					ss << "When constructing TypeArgumentList, array argument "
+					   << "at index " << index << " had unexpected type. "
+					   << "All types in array are expected to be TypeArguments.";
+					lua_pushstring(L, ss.str().c_str());
+					lua_error(L);
+				}
+				else
+				{
+					TypeArgumentPtr & arg = TypeArgumentLuaMetaData::GetInstance(L, -1);
+					typeArgs->push_back(arg);
+				}
+			}
+			else
+			{
+				stop = true;
+			}			
+		}
+
+		TypeArgumentListLuaMetaData::PutInstanceOnStack(L, typeArgs);
+		return 1;
+	}
+
 	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr, 
 									  const std::string & indexString)
 	{	
@@ -60,7 +100,7 @@
 		{"__tostring", LUAGLUE_HELPERCLASS::__tostring}, 
 
 	#define LUAGLUE_ADDITIONALTABLEMETHODS \
-		/*{"LuaCreate", LUAGLUE_HELPERCLASS::LuaCreate},*/
+		{"New", LUAGLUE_HELPERCLASS::__new},
 
 #include "../LuaGlue2.hpp"
 

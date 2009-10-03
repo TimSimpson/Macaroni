@@ -10,9 +10,10 @@ local TypeArgument = Macaroni.Model.TypeArgument;
 
 local function mixinContext(self)
     self.context = Context.New("{ROOT}");
-    self.typeA = self.context.Root:FindOrCreate("TypeA");
-    self.typeB = self.context.Root:FindOrCreate("TypeB");
-    self.typeC = self.context.Root:FindOrCreate("TypeC");
+    self.nodeA = self.context.Root:FindOrCreate("TypeA");
+    self.nodeB = self.context.Root:FindOrCreate("TypeB");
+    self.nodeC = self.context.Root:FindOrCreate("TypeC");
+    self.nodeList = NodeList.New({nodeA, nodeB, nodeC});
 end
 
 Test.register(
@@ -23,11 +24,11 @@ Test.register(
             name = "Creating a TypeArgument in Lua with no arguments.",
             init = function(self)
                 mixinContext(self);
-                self.typeArgument = TypeArgument.New(typeA);
+                self.typeArgument = TypeArgument.New(self.nodeA);
             end,
             tests = {
                 ["Node should be what we gave it."] = function(self)
-                    Test.assert(self.typeA.FullName, self.typeArgument.Node.FullName);           
+                    Test.assert(self.nodeA.FullName, self.typeArgument.Node.FullName);           
                 end,
                 ["Arguments are empty."] = function(self)
                     Test.assert(0, #(self.typeArgument.Arguments));           
@@ -37,16 +38,17 @@ Test.register(
         {
             name = "Creating a TypeArgument in Lua with Arguments.",
             init = function(self)
-                mixinContext(self);     
-                local arguments = NodeList.New({self.typeB, self.typeC});           
-                self.typeArgument = TypeArgument.New(typeA, arguments);
+                mixinContext(self);                     
+                self.typeArgument = TypeArgument.New(self.nodeA, self.nodeList);
             end,
             tests = {
                 ["Node should be what we gave it."] = function(self)
-                    Test.assert(self.typeA.FullName, self.typeArgument.Node.FullName);           
+                    Test.assert(self.nodeA.FullName, self.typeArgument.Node.FullName);           
                 end,
                 ["Arguments are the NodeList we provided."] = function(self)
-                    Test.assert(self.typeArguments, self.typeArgument.Arguments);           
+                    local expected = self.nodeList;
+                    local actual = self.typeArgument.Arguments;
+                    Test.assert(expected, actual);
                 end,
             }
         }

@@ -627,13 +627,57 @@ LUALIB_API int (luaL_loadstring) (lua_State *L, const char *s) {
 static void *l_alloc (void *ud, void *ptr, size_t osize, size_t nsize) {
   (void)ud;
   (void)osize;
+ 
   if (nsize == 0) {
-    free(ptr);
+    if (osize != 0) // bug in KOS?
+    {
+        free(ptr);
+    }
     return NULL;
   }
   else
-    return realloc(ptr, nsize);
+  {
+    if (osize != 0)
+    {
+		if (osize < nsize)
+		{
+			void * returnMe = malloc(nsize);
+			memcpy(returnMe, ptr, osize); 
+			free(ptr);
+			return returnMe;
+		}
+		else 
+		{
+			/*
+			This is else clause is the old function; I kept getting errors 
+			claiming a heap block was modified past the requested size- and the 
+			requested size was "osize" plus a few bytes.  It seems crazy, but my 
+			only real guess is that this is some kind of rare bug, or maybe
+			unexpected condition in the MS realloc. 
+			Of course the fix is possibly ineffecient and even dangerous.
+			*/	
+			void * returnMe = realloc(ptr, nsize);
+			return returnMe;
+		}
+    }
+    else
+    {
+        void * returnMe2 = malloc(nsize);
+        return returnMe2;
+    }
+  }
 }
+//
+//static void *l_alloc (void *ud, void *ptr, size_t osize, size_t nsize) {
+//  (void)ud;
+//  (void)osize;
+//  if (nsize == 0) {
+//    free(ptr);
+//    return NULL;
+//  }
+//  else
+//    return realloc(ptr, nsize);
+//}
 
 
 static int panic (lua_State *L) {

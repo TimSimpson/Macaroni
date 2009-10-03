@@ -8,6 +8,7 @@ extern "C" {
 }
 #include "AxiomLua.h"
 #include "Axiom.h"
+#include "../Environment/DebugLog.h"
 #include <sstream>
 
 BEGIN_NAMESPACE2(Macaroni, Model)
@@ -165,9 +166,11 @@ bool AxiomLuaMetaData::IsType(lua_State * L, int index)
 
 int AxiomLuaMetaData::OpenInLua(lua_State * L)
 {	
+	DEBUGLOG_WRITE("Axiom open in lua...");
 	luaL_getmetatable(L, METATABLENAME);
 	if (lua_isnil(L, -1) != 1)
 	{
+		DEBUGLOG_WRITE("... SKIP Axiom");
 		return 0; // Already loaded, DO NOT WASTE TIME DUMMY.
 	}
 	luaL_newmetatable(L, METATABLENAME); // create metaTable
@@ -176,6 +179,8 @@ int AxiomLuaMetaData::OpenInLua(lua_State * L)
 	// Creates or reuses a table called "Macaroni_File" and puts it in global 
 	// scope.
 	luaL_register(L, GLOBALTABLENAME, tableMethods);
+
+	DEBUGLOG_WRITE("... end Axiom open in lua.");
 	return 1;
 }
 

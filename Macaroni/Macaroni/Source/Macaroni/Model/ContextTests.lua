@@ -13,12 +13,7 @@ tests={
     ["CreateRoot Test"] = function(this)
         this.context = Context.New("{ROOT}");        
         Test.assert("{ROOT}", tostring(this.context.Root));        
-    end,
-    
-    ["Type reports correct type."] = function(this)
-        local lContext = Context.New("{ROOT}");        
-        Test.assert("Macaroni.Model.Context", type(lContext));        
-    end,
+    end,   
     
     ["ToString returns a string of some kind."] = function(this)
         local lContext = Context.New("{ROOT}");        
@@ -69,14 +64,7 @@ context.RootNamespace.
         context = Context.New("{ROOT}");
         root = context.Root;
         Test.assert("{ROOT}", tostring(root));                
-    end,
-    
-    ["Can correctly discover Children within a Context."] = function(this)
-        context = Context.New("{ROOT}");
-        root = context.RootNamespace;
-        --root:
-        error("To-DO");
-    end
+    end,    
 }
 
 } -- End of Test table.

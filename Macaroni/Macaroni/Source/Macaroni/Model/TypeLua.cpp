@@ -40,6 +40,32 @@
 		return 1;
 	}
 
+	static int __new(lua_State * L)
+	{
+		if (!NodeLuaMetaData::IsType(L, 1))
+		{
+			lua_pushstring(L, "Expected a Node for argument #1 in Type creator.");
+			lua_error(L);
+		}
+		NodePtr node = NodeLuaMetaData::GetInstance(L, 1);				
+
+		TypePtr type;
+
+		if (TypeArgumentListLuaMetaData::IsType(L, 2))
+		{
+			TypeArgumentListPtr list = 
+				TypeArgumentListLuaMetaData::GetInstance(L, 2);
+			type.reset(new Type(node, list));
+		}
+		else
+		{
+			type.reset(new Type(node));
+		}
+		
+		TypeLuaMetaData::PutInstanceOnStack(L, type);
+		return 1;
+	}
+
 	static int __tostring(lua_State * L)
 	{
 		TypePtr & ptr = getInstance(L);
@@ -54,7 +80,7 @@
 		{"__tostring", LUAGLUE_HELPERCLASS::__tostring}, 
 
 	#define LUAGLUE_ADDITIONALTABLEMETHODS \
-		/*{"LuaCreate", LUAGLUE_HELPERCLASS::LuaCreate},*/
+		{"New", LUAGLUE_HELPERCLASS::__new},
 
 #include "../LuaGlue2.hpp"
 

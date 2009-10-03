@@ -2,10 +2,13 @@
 #define MACARONI_ENVIRONMENT_LUA_CPP
 
 #include "LuaEnvironment.h"
+#include "DebugLog.h"
 #include "../Exception.h"
 #include <iostream>
 #include <sstream>
 #include <string>
+
+using Macaroni::Environment::DebugLog;
 
 BEGIN_NAMESPACE2(Macaroni, Environment)
 
@@ -68,6 +71,9 @@ const char * LuaEnvironment::loadString(lua_State * L, void * data, size_t * siz
 
 void LuaEnvironment::ParseFile(std::string filePath)
 {
+	DEBUGLOG_WRITE("Opening file-\ ");
+	DEBUGLOG_WRITE(filePath);
+
 	input = new std::ifstream(filePath.c_str(), std::ios::binary);
 	if (!input->is_open())
 	{
@@ -89,6 +95,8 @@ void LuaEnvironment::ParseFile(std::string filePath)
 		}
 		input->close();			
 	}
+
+	DEBUGLOG_WRITE("\\- Finished reading file.");
 }
 
 void LuaEnvironment::ParseString(const char * chunkName, const char * code)
@@ -107,6 +115,7 @@ void LuaEnvironment::ParseString(const char * chunkName, const char * code)
 
 void LuaEnvironment::Run()
 {
+	DEBUGLOG_WRITE("Run...");
 	int eCode = lua_pcall(state, 0, 0, 0);
 	if (eCode != 0)
 	{	
@@ -116,6 +125,7 @@ void LuaEnvironment::Run()
 		std::cerr << ss.str() << std::endl;
 		//throw new Macaroni::Exception(ss);
 	}
+	DEBUGLOG_WRITE("... run complete.");
 }
 
 END_NAMESPACE2

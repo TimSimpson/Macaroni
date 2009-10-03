@@ -26,7 +26,7 @@ tests = {
             this.src = Source.Create(this.file, 1, 1);
             
             this.parser:Read(this.context, this.src, [[
-                #import std::string;
+                ~import std::string;
                 
                 string hello;
                 string & me;

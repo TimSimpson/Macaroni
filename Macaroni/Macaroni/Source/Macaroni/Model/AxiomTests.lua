@@ -1,3 +1,4 @@
+print "HELLO";
 require "Macaroni.Model.Axiom";
 
 local Axiom = Macaroni.Model.Axiom;

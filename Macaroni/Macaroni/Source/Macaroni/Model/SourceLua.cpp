@@ -8,6 +8,7 @@ extern "C" {
 }
 #include "SourceLua.h"
 #include "Source.h"
+#include "../Environment/DebugLog.h"
 #include "FileName.h"
 #include "FileNameLua.h"
 #include <sstream>
@@ -153,9 +154,12 @@ bool SourceLuaMetaData::IsType(lua_State * L, int index)
 
 int SourceLuaMetaData::OpenInLua(lua_State * L)
 {	
+	DEBUGLOG_WRITE("Source open in lua...");
+
 	luaL_getmetatable(L, METATABLENAME);
 	if (lua_isnil(L, -1) != 1)
 	{
+		DEBUGLOG_WRITE("... SKIP Source");
 		return 0; // Already loaded, DO NOT WASTE TIME DUMMY.
 	}
 	luaL_newmetatable(L, METATABLENAME); // create metaTable
@@ -166,6 +170,7 @@ int SourceLuaMetaData::OpenInLua(lua_State * L)
 	luaL_register(L, GLOBALTABLENAME, tableMethods);
 
 	FileNameLuaMetaData::OpenInLua(L);
+	DEBUGLOG_WRITE("... end Source open in lua.");
 	return 1;
 }
 

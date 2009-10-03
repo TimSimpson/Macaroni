@@ -82,11 +82,15 @@ int LUAGLUE_REGISTRATIONCLASSNAME::OpenInLua(lua_State * L)
 		luaL_register(L, nullptr, metaTableMethods);
 	#endif
 
+	Macaroni::Environment::DebugLog::Write(LUAGLUE_CLASSFULLLUANAME, __LINE__, "About to call register...");
 	// Creates or reuses a table called "Macaroni_File" and puts it in global 
 	// scope.
 	luaL_register(L, GLOBALTABLENAME, tableMethods);
+	Macaroni::Environment::DebugLog::Write(LUAGLUE_CLASSFULLLUANAME, __LINE__, "...registration Completed.");
 
+	Macaroni::Environment::DebugLog::Write(LUAGLUE_CLASSFULLLUANAME, __LINE__, "Opening other modules...");
 	LUAGLUE_OPENOTHERMODULES;
+	Macaroni::Environment::DebugLog::Write(LUAGLUE_CLASSFULLLUANAME, __LINE__, "...finished opening other modules.");
 	return 1;
 }
 

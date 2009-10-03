@@ -60,4 +60,13 @@
   <file>
     <filename>Macaroni\Model\TypeArgumentTests.lua</filename>
   </file>
+  <file>
+    <filename>Macaroni\Model\NodeListTests.lua</filename>
+  </file>
+  <file>
+    <filename>Macaroni\Parser\Pippy\Tests\Import.lua</filename>
+  </file>
+  <file>
+    <filename>Macaroni\Model\TypeArgumentListTests.lua</filename>
+  </file>
 </project>

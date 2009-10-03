@@ -1,6 +1,24 @@
 require "Macaroni/Test";
 
-require "Macaroni.Model.Context"
+--[[ 
+Requiring C++ modules before LUA files seems to cause some insanely nasty
+memory errors as of 2009-10-03.  I can't determine the source of these
+errors, but they go away when you don't require the C++ modules first.
+
+They occur when calling realloc- after changing the call to a trio of malloc,
+memcpy, and free I discovered the same error occuring on memcpy.  My guess
+is that somehow my code to register C++ modules is wrong and is storing
+something in Lua's memory space that is freaking out during an attempt to
+move it.
+
+I'm not sure what this could be.  I recently added an extra glue function
+for NodeLists, but aside from that it seems to only be loading things that have
+had Lua glue for awhile now.  
+
+Scrary!  I don't know what it could be.
+]]--
+
+--require "Macaroni.Model.Context"
 --require "Macaroni.Model.Document"
 
 require "Macaroni/Model/AxiomTests";
@@ -14,7 +32,9 @@ require "Macaroni/Model/NodeTests";
 require "Macaroni/Model/NodeListTests";
 require "Macaroni/Model/ReasonTests";
 require "Macaroni/Model/SourceTests"; 
+require "Macaroni/Model/TypeTests"; 
 require "Macaroni/Model/TypeArgumentTests"; 
+require "Macaroni/Model/TypeArgumentListTests"; 
 --require "Macaroni/Parser/Cpp/Tests/Namespaces";
 require "Macaroni/Parser/Pippy/Tests/Index";
 

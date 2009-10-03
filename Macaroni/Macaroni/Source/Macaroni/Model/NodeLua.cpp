@@ -7,6 +7,7 @@ extern "C" {
 	#include "../../Lua/lualib.h"
 }
 #include "../Exception.h"
+#include "../Environment/DebugLog.h"
 #include "FileNameLua.h"
 #include "MemberLua.h"
 #include "Node.h"
@@ -383,6 +384,11 @@ int NodeLuaMetaData::Index(lua_State * L, NodePtr & ptr, const std::string & ind
 	return 1;			
 }
 
+NodePtr & NodeLuaMetaData::GetInstance(lua_State * L, int index)
+{
+	return getInstance(L, index);
+}
+
 bool NodeLuaMetaData::IsType(lua_State * L, int index, const char * metaTableName)
 {
 	// Copied this from the luaL_checkudata function
@@ -411,9 +417,12 @@ bool NodeLuaMetaData::IsType(lua_State * L, int index)
 
 int NodeLuaMetaData::OpenInLua(lua_State * L)
 {	
+	DEBUGLOG_WRITE("Node open in lua begins...");
+	
 	luaL_getmetatable(L, METATABLENAME);
 	if (lua_isnil(L, -1) != 1)
 	{
+		DEBUGLOG_WRITE("... SKIP Node open in lua.");
 		return 0; // Already loaded, DO NOT WASTE TIME DUMMY.
 	}
 
@@ -433,6 +442,7 @@ int NodeLuaMetaData::OpenInLua(lua_State * L)
 	NodeListLuaMetaData::OpenInLua(L);
 	MemberLuaMetaData::OpenInLua(L);
 
+	DEBUGLOG_WRITE("... open in lua ends.");
 	return 1;
 }
 

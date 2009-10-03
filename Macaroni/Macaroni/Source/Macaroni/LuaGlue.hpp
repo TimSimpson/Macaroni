@@ -26,6 +26,7 @@ extern "C" {
 	#include "../Lua/lauxlib.h"
 	#include "../Lua/lualib.h"
 }
+#include "Environment/DebugLog.h"
 
 LUAGLUE_STARTNAMESPACE
 

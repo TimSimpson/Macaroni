@@ -53,7 +53,41 @@
 		// First arg is an array.
 		luaL_checktype(L, 1, LUA_TTABLE);
 
-		lua_gettable(L, 1);
+		NodeListPtr nodeList(new NodeList());
+
+		bool stop = false;
+		int index = 0;		
+		while(!stop)
+		{
+			index ++;			
+			lua_pushnumber(L, index);
+			lua_gettable(L, 1);
+			if (!lua_isnil(L, -1))
+			{
+				if (NodeLuaMetaData::IsType(L, -1))
+				{
+					NodePtr & node = NodeLuaMetaData::GetInstance(L, -1);
+					nodeList->push_back(node);
+				}
+				else
+				{
+					std::stringstream ss;
+					// Reusing variables is evil, but SO MUCH FUN!  YEAA!!
+					ss << "When constructing new NodeList, array argument "
+					   << "had unexpected type at index " << index 
+					   << ". All types in array are expected to be Nodes.";
+					lua_pushstring(L, ss.str().c_str());
+					lua_error(L);
+				}
+			}
+			else
+			{
+				stop = true;
+			}
+		}
+
+		NodeListLuaMetaData::PutInstanceOnStack(L, nodeList);
+		return 1;
 	}
 
 	static int __tostring(lua_State * L)
@@ -70,7 +104,7 @@
 		{"__tostring", LUAGLUE_HELPERCLASS::__tostring}, 
 
 	#define LUAGLUE_ADDITIONALTABLEMETHODS \
-		/*{"LuaCreate", LUAGLUE_HELPERCLASS::LuaCreate},*/
+		{"New", LUAGLUE_HELPERCLASS::__new},
 
 #include "../LuaGlue2.hpp"
 

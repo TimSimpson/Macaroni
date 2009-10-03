@@ -7,6 +7,7 @@ extern "C" {
 	#include "../../Lua/lualib.h"
 }
 #include "AxiomLua.h"
+#include "../Environment/DebugLog.h"
 #include "ReasonLua.h"
 #include "Reason.h"
 #include "SourceLua.h"
@@ -149,6 +150,7 @@ bool ReasonLuaMetaData::IsType(lua_State * L, int index)
 
 int ReasonLuaMetaData::OpenInLua(lua_State * L)
 {	
+	DEBUGLOG_WRITE("OpenInLua begins...");
 	luaL_getmetatable(L, METATABLENAME);
 	if (lua_isnil(L, -1) != 1)
 	{
@@ -163,6 +165,8 @@ int ReasonLuaMetaData::OpenInLua(lua_State * L)
 	// Creates or reuses a table called "Macaroni_File" and puts it in global 
 	// scope.
 	luaL_register(L, GLOBALTABLENAME, tableMethods);
+
+	DEBUGLOG_WRITE("... open in lua ends.");
 	return 1;
 }
 

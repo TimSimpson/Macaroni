@@ -21,6 +21,31 @@
 
 #include "../LuaGlue.hpp"
 
+	static int __new(lua_State * L)
+	{		
+		if (!NodeLuaMetaData::IsType(L, 1))
+		{
+			lua_pushstring(L, "Expected a Node for argument #1 in TypeArgument creator.");
+			lua_error(L);
+		}
+		NodePtr node = NodeLuaMetaData::GetInstance(L, 1);		
+
+		TypeArgumentPtr typeArgument;
+
+		if (NodeListLuaMetaData::IsType(L, 2))
+		{
+			NodeListPtr list = NodeListLuaMetaData::GetInstance(L, 2);
+			typeArgument.reset(new TypeArgument(node, list));
+		}
+		else
+		{
+			typeArgument.reset(new TypeArgument(node));
+		}
+		
+		TypeArgumentLuaMetaData::PutInstanceOnStack(L, typeArgument);
+		return 1;
+	}
+
 	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr, 
 									  const std::string & index)
 	{		
@@ -54,7 +79,7 @@
 		{"__tostring", LUAGLUE_HELPERCLASS::__tostring}, 
 
 	#define LUAGLUE_ADDITIONALTABLEMETHODS \
-		/*{"LuaCreate", LUAGLUE_HELPERCLASS::LuaCreate},*/
+		{"New", LUAGLUE_HELPERCLASS::__new},
 
 #include "../LuaGlue2.hpp"
 

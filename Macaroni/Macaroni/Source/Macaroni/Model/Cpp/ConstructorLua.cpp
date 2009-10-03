@@ -3,6 +3,7 @@
 
 #include "../NodeLua.h"
 #include "ConstructorLua.h"
+#include "../../Environment/DebugLog.h"
 #include "FunctionLua.h"
 #include "../MemberLua.h"
 #include "TypeInfoLua.h"
@@ -99,6 +100,8 @@ static const struct luaL_Reg assignmentsMetaTableMethods[]=
 
 int ConstructorAssignmentsOpenInLua(lua_State * L)
 {
+	DEBUGLOG_WRITE("ConstructorAssignmentsOpenInLua begins...");
+
 	luaL_getmetatable(L, ASSIGNMENTS_METATABLENAME_ARGUMENTS);
 	if (lua_isnil(L, -1) != 1)
 	{
@@ -106,6 +109,8 @@ int ConstructorAssignmentsOpenInLua(lua_State * L)
 	}
 	luaL_newmetatable(L, ASSIGNMENTS_METATABLENAME_ARGUMENTS); // create metaTable
 	luaL_register(L, nullptr, assignmentsMetaTableMethods);
+
+	DEBUGLOG_WRITE("... ConstructorAssignments open in lua ends...");
 	return 1;
 }
 
