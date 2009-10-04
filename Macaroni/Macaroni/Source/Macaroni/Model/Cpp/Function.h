@@ -24,7 +24,7 @@ public:
 
 	int GetArgumentCount() const;
 
-	static FunctionPtr Create(NodePtr home, const TypeInfo & rtnTypeInfo, bool constMember, Model::ReasonPtr reason);
+	static FunctionPtr Create(NodePtr home, const Access access, const TypeInfo & rtnTypeInfo, bool constMember, Model::ReasonPtr reason);
 
 	virtual ~Function();
 
@@ -55,11 +55,11 @@ public:
 	virtual void Visit(MemberVisitor * visitor) const;
 
 protected:
-	Function(Node * home, const char * typeName, Model::ReasonPtr reason, const TypeInfo & rtnTypeInfo, bool constMember);
+	Function(Node * home, const char * typeName, Model::ReasonPtr reason, Access access, const TypeInfo & rtnTypeInfo, bool constMember);
 
 private:
 	
-	Function(Node * home, Model::ReasonPtr reason, const TypeInfo & rtnTypeInfo, bool constMember);
+	Function(Node * home, Model::ReasonPtr reason, Access access, const TypeInfo & rtnTypeInfo, bool constMember);
 
 	bool codeAttached;
 

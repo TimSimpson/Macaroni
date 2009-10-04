@@ -2,6 +2,7 @@
 #define MACARONI_PARSER_PIPPY_PIPPYPARSER_CPP
 
 #include "../../ME.h"
+#include "../../Model/Cpp/Access.h"
 #include "../../Model/Cpp/Class.h"
 #include "../../Model/Cpp/Constructor.h"
 #include "../../Model/Cpp/ConstructorPtr.h"
@@ -34,6 +35,7 @@
 #include <sstream>
 #include <string>
 
+using Macaroni::Model::Cpp::Access;
 using Macaroni::Model::Cpp::Class;
 using Macaroni::Model::Cpp::ClassPtr;
 using Macaroni::Model::Cpp::Constructor;
@@ -331,6 +333,33 @@ public:
 		}
 	}
 
+	/** Attempts to consume whatever access it can, returning 
+	 * "Access_NotSpecified" if it finds nothing. */
+	Access AccessKeyword(Iterator & itr)
+	{
+		using namespace Macaroni::Model::Cpp;
+
+		ConsumeWhitespace(itr);
+		Access access;
+		if (itr.ConsumeWord("private"))
+		{
+			access = Access_Private;
+		}
+		else if (itr.ConsumeWord("protected"))
+		{
+			access = Access_Protected;
+		}
+		else if (itr.ConsumeWord("public"))
+		{
+			access = Access_Public;
+		}
+		else
+		{
+			access = Access_NotSpecified;
+		}
+		return access;
+	}
+
 	void AddImport(NodePtr node)
 	{
 		importedNodes->push_back(node);
@@ -493,36 +522,37 @@ public:
 
 	bool ConstructorOrDestructor(Iterator & itr)
 	{
-		Iterator oldItr = itr;
+		Iterator newItr = itr;
+		
+		Access access = AccessKeyword(newItr);
 
-		ConsumeWhitespace(itr);
+		ConsumeWhitespace(newItr);
 		bool tilda = false;
-		if (itr.ConsumeChar('~'))
+		if (newItr.ConsumeChar('~'))
 		{
 			tilda = true;
-			ConsumeWhitespace(itr);
+			ConsumeWhitespace(newItr);
 		}
-		if (!itr.ConsumeWord(currentScope->GetName().c_str()))
+		if (!newItr.ConsumeWord(currentScope->GetName().c_str()))
 		{
 			if (!tilda)
 			{
 				return false;
 			}
-			throw new ParserException(itr.GetSource(),
+			throw new ParserException(newItr.GetSource(),
 				Messages::Get("CppParser.Constructor.ClassNameExpected")); 
 		}		
-		ConsumeWhitespace(itr);
+		ConsumeWhitespace(newItr);
 		
-		if (!itr.ConsumeChar('('))
+		if (!newItr.ConsumeChar('('))
 		{
 			if (tilda)
 			{
-				throw new ParserException(itr.GetSource(),
+				throw new ParserException(newItr.GetSource(),
 					Messages::Get("CppParser::Constructor::ArgumentListExpected"));
 			}
 			else
 			{
-				itr = oldItr;
 				return false;
 			}
 		}
@@ -533,7 +563,7 @@ public:
 		NodePtr oldScope = currentScope;
 		currentScope = ctorNode;
 		
-			FunctionArgumentList(itr);
+			FunctionArgumentList(newItr);
 
 		currentScope = oldScope;
 
@@ -541,63 +571,63 @@ public:
 
 		if (!tilda)
 		{
-			ConstructorPtr ctor = Constructor::Create(ctorNode, 
-				Reason::Create(CppAxioms::CtorCreation(), oldItr.GetSource()));			
+			ConstructorPtr ctor = Constructor::Create(ctorNode, access, 
+				Reason::Create(CppAxioms::CtorCreation(), itr.GetSource()));			
 			fPtr = boost::dynamic_pointer_cast<Function>(ctor);
 
-			ConsumeWhitespace(itr);
-			if (itr.ConsumeChar(':'))
+			ConsumeWhitespace(newItr);
+			if (newItr.ConsumeChar(':'))
 			{
 				// Look for assignments to class vars, such as x(4), y(3)
 				do
 				{
-					ConsumeWhitespace(itr);				
+					ConsumeWhitespace(newItr);				
 					std::string varName;
-					if (!ConsumeComplexName(itr, varName))
+					if (!ConsumeComplexName(newItr, varName))
 					{
-						throw ParserException(itr.GetSource(),
+						throw ParserException(newItr.GetSource(),
 							Messages::Get("CppParser.Constructor.VariableInitializer"));
 					}
 
 					NodePtr varNode = currentScope->FindOrCreate(varName);
 
-					ConsumeWhitespace(itr);
+					ConsumeWhitespace(newItr);
 
-					if (!itr.ConsumeChar('('))
+					if (!newItr.ConsumeChar('('))
 					{
-						throw ParserException(itr.GetSource(),
+						throw ParserException(newItr.GetSource(),
 							Messages::Get("CppParser.Constructor.NoInitializerExpr"));
 					}
 					
 					std::string exprCode;
-					ConsumeExpression(itr, ')', exprCode);
+					ConsumeExpression(newItr, ')', exprCode);
 					
 					VariableAssignment va;
 					va.Expression = exprCode;
 					va.Variable = varNode;
 					ctor->AddAssignment(va);
 
-					ConsumeWhitespace(itr);
-				} while(itr.ConsumeChar(','));
+					ConsumeWhitespace(newItr);
+				} while(newItr.ConsumeChar(','));
 			}
 		} // end !tilda
 		else
 		{
-			DestructorPtr dtor = Destructor::Create(ctorNode, 
-				Reason::Create(CppAxioms::DtorCreation(), oldItr.GetSource()));
+			DestructorPtr dtor = Destructor::Create(ctorNode,  access,
+				Reason::Create(CppAxioms::DtorCreation(), itr.GetSource()));
 			fPtr = boost::dynamic_pointer_cast<Function>(dtor);
 		}
 
 		std::string codeBlock;
 		bool codeAttached = false;
-		Iterator startOfCodeBlock = itr;
-		codeAttached = CodeBlock(itr, codeBlock);
+		Iterator startOfCodeBlock = newItr;
+		codeAttached = CodeBlock(newItr, codeBlock);
 		if (!codeAttached)
 		{
-			ConsumeWhitespace(itr);
-			if (!itr.ConsumeChar(';'))
+			ConsumeWhitespace(newItr);
+			if (!newItr.ConsumeChar(';'))
 			{
-				throw ParserException(itr.GetSource(),
+				throw ParserException(newItr.GetSource(),
 					Messages::Get("CppParser.Function.SemicolonExpected")); 
 			}
 		}
@@ -606,6 +636,7 @@ public:
 		{
 			fPtr->SetCodeBlock(codeBlock, startOfCodeBlock.GetSource());
 		}
+		itr = newItr;
 		return true;
 	}
 
@@ -1049,17 +1080,18 @@ public:
 		while(!itr.ConsumeChar(')'))
 		{	
 			Iterator oldItr = itr;
+			Access access;
 			TypeInfo typeInfo;
 			std::string argName;
 			if ((seenArg && !itr.ConsumeChar(','))
 				||
-				!Variable(itr, typeInfo, argName))
+				!Variable(itr, access, typeInfo, argName))
 			{
 				throw ParserException(itr.GetSource(),
 				Messages::Get("CppParser.Function.ExpectedEndingParenthesis"));
 			}
 			NodePtr node = currentScope->FindOrCreate(argName);
-			Variable::Create(node, typeInfo,
+			Variable::Create(node, access, typeInfo,
 				Reason::Create(CppAxioms::VariableScopeCreation(), oldItr.GetSource()));
 			seenArg = true;
 		}
@@ -1305,8 +1337,10 @@ public:
 	 * itr.  If it finds variable type info followed by a complex name it
 	 * will return the typeInfo and name.  Otherwise an exception gets thrown.
 	 * Does not parse the semicolon though, just stops after the name. */
-	bool Variable(Iterator & itr, TypeInfo & typeInfo, std::string & varName)
+	bool Variable(Iterator & itr, Access & access, TypeInfo & typeInfo, std::string & varName)
 	{
+		access = AccessKeyword(itr);
+
 		if (!VariableType(itr, typeInfo))
 		{
 			return false;
@@ -1328,13 +1362,16 @@ public:
 	 * may define additional nodes if the variable's name is complex. */
 	bool VariableOrFunction(Iterator & itr)
 	{
-		bool global = GlobalKeyword(itr);
+		using namespace Macaroni::Model::Cpp;
 
+		bool global = GlobalKeyword(itr);		
+
+		Access access;
 		TypeInfo typeInfo;
 		std::string varName;
 		Iterator oldItr = itr; // Save it in case we need to define where the
 							   // var definition began.
-		if (!Variable(itr, typeInfo, varName))
+		if (!Variable(itr, access, typeInfo, varName))
 		{
 			if (global)
 			{
@@ -1344,6 +1381,11 @@ public:
 			return false;
 		}
 		
+		if (access == Access_NotSpecified)
+		{
+			access = Access_Private;
+		}
+
 		NodePtr node;
 
 		if (global)
@@ -1371,7 +1413,7 @@ public:
 		
 		if (itr.ConsumeChar(';'))
 		{			
-			Variable::Create(node, typeInfo,
+			Variable::Create(node, access, typeInfo,
 				Reason::Create(CppAxioms::VariableScopeCreation(), oldItr.GetSource()));
 		
 		} 
@@ -1404,7 +1446,7 @@ public:
 						Messages::Get("CppParser.Function.SemicolonExpected")); 
 				}
 			}
-			FunctionPtr function = Function::Create(node, typeInfo, constMember,
+			FunctionPtr function = Function::Create(node, access, typeInfo, constMember,
 				Reason::Create(CppAxioms::FunctionCreation(), oldItr.GetSource()));
 			if (codeAttached)
 			{

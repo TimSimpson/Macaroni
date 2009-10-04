@@ -37,8 +37,8 @@ namespace
 	}
 };
 
-Destructor::Destructor(Node * home, Model::ReasonPtr reason)
-:Function(home, "Destructor", reason, voidTypeInfo(), false)
+Destructor::Destructor(Node * home, Model::ReasonPtr reason, Access access)
+:Function(home, "Destructor", reason, access, voidTypeInfo(), false)
 {
 }
 
@@ -51,18 +51,18 @@ bool Destructor::canBeChildOf(const Member * other) const
 	return dynamic_cast<const Class *>(other) != nullptr;
 }
 
-DestructorPtr Destructor::Create(NodePtr host, Model::ReasonPtr reason)
+DestructorPtr Destructor::Create(NodePtr host, Access access, Model::ReasonPtr reason)
 {
 	if (!host->GetMember())
 	{
-		return DestructorPtr(new Destructor(host.get(), reason));
+		return DestructorPtr(new Destructor(host.get(), reason, access));
 	}
 	Member * member = host->GetMember().get();
 	Destructor * existingFunc = dynamic_cast<Destructor *>(member);
 	if (existingFunc == nullptr)
 	{
 		// Will throw an error message.
-		return DestructorPtr(new Destructor(host.get(), reason));
+		return DestructorPtr(new Destructor(host.get(), reason, access));
 	}
 
 	// Re-use the previously set variable.

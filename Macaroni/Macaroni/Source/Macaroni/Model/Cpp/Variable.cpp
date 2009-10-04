@@ -18,8 +18,8 @@ using class Macaroni::Model::Node;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-Variable::Variable(Node * parent, ReasonPtr reason, const TypeInfo & info)
-:ScopeMember(parent, "Variable", reason),
+Variable::Variable(Node * parent, ReasonPtr reason, Access access, const TypeInfo & info)
+:ScopeMember(parent, "Variable", reason, access),
  typeInfo(info)
 {
 }
@@ -35,18 +35,18 @@ bool Variable::canBeChildOf(const Member * other) const
 	return dynamic_cast<const Scope *>(other) != nullptr;
 }
 
-VariablePtr Variable::Create(NodePtr host, const TypeInfo & info, ReasonPtr reason)
+VariablePtr Variable::Create(NodePtr host, Access access, const TypeInfo & info, ReasonPtr reason)
 {
 	if (!host->GetMember())
 	{
-		return VariablePtr(new Variable(host.get(), reason, info));
+		return VariablePtr(new Variable(host.get(), reason, access, info));
 	}
 	Member * member = host->GetMember().get();
 	Variable * existingVar = dynamic_cast<Variable *>(member);
 	if (existingVar == nullptr)
 	{
 		// Will throw an error message.
-		return VariablePtr(new Variable(host.get(), reason, info));
+		return VariablePtr(new Variable(host.get(), reason, access, info));
 	}
 
 	if (existingVar != nullptr && !(existingVar->typeInfo == info))

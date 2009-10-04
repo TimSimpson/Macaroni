@@ -22,7 +22,7 @@ friend void intrusive_ptr_release(Constructor * p);
 
 public:
 
-	static ConstructorPtr Create(NodePtr home, Model::ReasonPtr reason);
+	static ConstructorPtr Create(NodePtr home, Access access, Model::ReasonPtr reason);
 
 	virtual ~Constructor();
 
@@ -40,7 +40,7 @@ public:
 
 private:
 	
-	Constructor(Node * home, Model::ReasonPtr reason);
+	Constructor(Node * home, Model::ReasonPtr reason, Access access);
 	
 	std::vector<VariableAssignment> assignments;	
 };

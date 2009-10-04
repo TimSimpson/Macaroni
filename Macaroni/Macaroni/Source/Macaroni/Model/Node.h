@@ -2,7 +2,6 @@
 #define MACARONI_MODEL_NODE_H
 
 #include "../ME.h"
-#include "Access.h"
 #include "Context.lh"
 #include "FileNamePtr.h"
 #include "Member.lh"
@@ -42,9 +41,6 @@ public:
 	NodePtr Find(const std::string & complexName);
 
 	//NamespacePtr Find(std::string & name);	
-
-	Access GetAccess();
-
 	NodePtr GetAdoptedHome();
 
 	// TODO: This is pitifully sloppy! Information on where the official C++
@@ -149,9 +145,6 @@ protected:
 	void setMember(Member * member, const char * typeName, const ReasonPtr reasonCreated);
 
 private:
-
-	/** Visibility level of the node. */
-	Access access;
 
 	/** This refers not to where a node officially lives, but where it might
 	 * be stored for organization purposes.  For example, if you have an 

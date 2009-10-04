@@ -21,7 +21,7 @@ friend void intrusive_ptr_release(Destructor * p);
 
 public:
 
-	static DestructorPtr Create(NodePtr home, Model::ReasonPtr reason);
+	static DestructorPtr Create(NodePtr home, Access access, Model::ReasonPtr reason);
 
 	virtual ~Destructor();
 
@@ -33,7 +33,7 @@ public:
 
 private:
 	
-	Destructor(Node * home, Model::ReasonPtr reason);
+	Destructor(Node * home, Model::ReasonPtr reason, Access access);
 	
 };
 

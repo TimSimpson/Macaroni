@@ -8,12 +8,22 @@
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 ScopeMember::ScopeMember(Node * node, const char * typeName, ReasonPtr reason)
-:Member(node, typeName, reason)
+:Member(node, typeName, reason), access(Access_Private)
+{
+}
+
+ScopeMember::ScopeMember(Node * node, const char * typeName, ReasonPtr reason, Access access)
+:Member(node, typeName, reason), access(access)
 {
 }
 
 ScopeMember::~ScopeMember()
 {
+}
+
+Access ScopeMember::GetAccess() const
+{
+	return access;
 }
 
 const std::string & ScopeMember::GetName() const
@@ -35,6 +45,7 @@ void intrusive_ptr_release(ScopeMember * p)
 {
 	intrusive_ptr_release(p->getNode());
 }
+
 
 END_NAMESPACE
 

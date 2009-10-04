@@ -37,8 +37,8 @@ namespace
 	}
 };
 
-Constructor::Constructor(Node * home, Model::ReasonPtr reason)
-:Function(home, "Constructor", reason, voidTypeInfo(), false), assignments()
+Constructor::Constructor(Node * home, Model::ReasonPtr reason, Access access)
+:Function(home, "Constructor", reason, access, voidTypeInfo(), false), assignments()
 {
 }
 
@@ -56,18 +56,18 @@ bool Constructor::canBeChildOf(const Member * other) const
 	return dynamic_cast<const Class *>(other) != nullptr;
 }
 
-ConstructorPtr Constructor::Create(NodePtr host, Model::ReasonPtr reason)
+ConstructorPtr Constructor::Create(NodePtr host, Access access, Model::ReasonPtr reason)
 {
 	if (!host->GetMember())
 	{
-		return ConstructorPtr(new Constructor(host.get(), reason));
+		return ConstructorPtr(new Constructor(host.get(), reason, access));
 	}
 	Member * member = host->GetMember().get();
 	Constructor * existingFunc = dynamic_cast<Constructor *>(member);
 	if (existingFunc == nullptr)
 	{
 		// Will throw an error message.
-		return ConstructorPtr(new Constructor(host.get(), reason));
+		return ConstructorPtr(new Constructor(host.get(), reason, access));
 	}
 
 	// Re-use the previously set variable.

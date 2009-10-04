@@ -1,6 +1,7 @@
 #ifndef MACARONI_MODEL_MEMBERLUA_CPP
 #define MACARONI_MODEL_MEMBERLUA_CPP
 
+#include "Cpp/AccessLua.h"
 #include "Cpp/ClassLua.h"
 #include "Cpp/FunctionLua.h"
 #include "MemberLua.h"
@@ -32,7 +33,17 @@
 	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr, 
 									  const std::string & index)
 	{		
-		if (index == "Node")
+		if (index == "Access")
+		{
+			Cpp::ScopeMemberPtr smPtr = boost::dynamic_pointer_cast<Cpp::ScopeMember>(ptr);
+			if (!!smPtr)
+			{
+				Cpp::Access access = smPtr->GetAccess();
+				Cpp::AccessLuaMetaData::PushInstanceOnStack(L, access);
+				return 1;
+			}
+		}
+		else if (index == "Node")
 		{
 			NodeLuaMetaData::PutInstanceOnStack(L, ptr->GetNode());
 			return 1;
