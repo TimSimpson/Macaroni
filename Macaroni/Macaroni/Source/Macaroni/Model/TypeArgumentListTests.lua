@@ -6,8 +6,10 @@ require "Macaroni.Parser.Pippy.PippyParser";
 require "Macaroni.Parser.Parser";
 require "Macaroni.Parser.ParserException";
 require "Macaroni.Model.Source";
+require "Macaroni.Model.Type";
 require "Macaroni.Model.TypeArgument";
 require "Macaroni.Model.TypeArgumentList";
+require "Macaroni.Model.TypeList";
 
 local Context = Macaroni.Model.Context;
 local FileName = Macaroni.Model.FileName;
@@ -16,8 +18,10 @@ local Node = Macaroni.Model.Node;
 local NodeList = Macaroni.Model.NodeList;
 local PippyParser = Macaroni.Parser.Pippy.PippyParser;
 local Source = Macaroni.Model.Source;
+local Type = Macaroni.Model.Type;
 local TypeArgument = Macaroni.Model.TypeArgument;
 local TypeArgumentList = Macaroni.Model.TypeArgumentList;
+local TypeList = Macaroni.Model.TypeList;
 
 --[[
 Its easy to see how a vector class could accept a type argument.
@@ -60,13 +64,19 @@ local function mixinContext(self)
     ]]);         
     
     self.vector = self.context.Root:Find("Vector");
+    self.vectorType = Type.New(self.vector);
     self.event = self.context.Root:Find("Event");
+    self.eventType = Type.New(self.event);
     self.message = self.context.Root:Find("Event::Message");
+    self.messageType = Type.New(self.message);
     self.eventId  = self.context.Root:Find("EventId");
+    self.eventId = Type.New(self.eventId);
     self.audioData  = self.context.Root:Find("AudioData");
+    self.audioDataType = Type.New(self.audioData);
     self.gfxData  = self.context.Root:Find("GfxData");
+    self.gfxDataType = Type.New(self.gfxData);
     self.stdstring = self.context.Root:Find("std::string");
-    
+    self.stdstringType = Type.New(self.stdstring);
 end
 
 Test.register(
@@ -88,7 +98,7 @@ Test.register(
             name = "Creating a TypeArgumentList with one element.",
             init = function(self)                
                 mixinContext(self);
-                local args = NodeList.New{self.stdstring};
+                local args = TypeList.New{self.stdstringType};
                 self.typeArg_vectorUsesString = TypeArgument.New(self.vector, args);
                 self.typeArgList = TypeArgumentList.New{self.typeArg_vectorUsesString};
             end,
@@ -105,9 +115,9 @@ Test.register(
             name = "Creating a TypeArgumentList with multiple elements.",
             init = function(self)
                 mixinContext(self);                     
-                local args = NodeList.New{self.eventId};
+                local args = TypeList.New{self.eventIdType};
                 self.typeArg_eventUsesEventId = TypeArgument.New(self.event, args);
-                local args2 = NodeList.New{self.stdstring, self.gfxData};
+                local args2 = TypeList.New{self.stdstringType, self.gfxDataType};
                 self.typeArg_messageUsesStringAndGfx = TypeArgument.New(self.message, args2);
                 
                 self.typeArgList = TypeArgumentList.New{

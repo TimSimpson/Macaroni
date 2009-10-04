@@ -3,6 +3,7 @@
 
 #include "../ME.h"
 #include "Node.h"
+#include "Type.h"
 #include "TypeArgumentPtr.h"
 
 BEGIN_NAMESPACE2(Macaroni, Model)
@@ -12,16 +13,16 @@ class TypeArgument
 {
 public:
 	TypeArgument(NodePtr type);
-	TypeArgument(NodePtr type, NodeListPtr typeArguments);
+	TypeArgument(NodePtr type, TypeListPtr typeArguments);
 	
 	~TypeArgument();
 	
-	NodeListPtr GetArguments();
+	TypeListPtr GetArguments();
 
 	NodePtr GetNode();
 
 private:
-	NodeListPtr arguments;
+	TypeListPtr arguments;
 	NodePtr node;	
 };
 

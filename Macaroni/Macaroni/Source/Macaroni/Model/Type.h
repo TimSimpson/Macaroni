@@ -4,7 +4,7 @@
 #include "../ME.h"
 #include "Node.h"
 #include "TypePtr.h"
-#include "TypeArgument.h"
+#include "TypeArgumentPtr.h"
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 

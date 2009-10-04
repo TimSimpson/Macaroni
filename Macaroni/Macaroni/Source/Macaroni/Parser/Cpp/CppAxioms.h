@@ -22,6 +22,7 @@ namespace CppAxioms
 	AxiomPtr PrimitiveSignedInt();
 	AxiomPtr PrimitiveUnsignedInt();
 	AxiomPtr SetExistingHFilePath();
+	AxiomPtr TypedefCreation();
 	AxiomPtr VariableScopeCreation();
 };
 

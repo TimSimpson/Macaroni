@@ -6,6 +6,9 @@
 #include "NodeListLua.h"
 #include "TypeArgumentLua.h"
 #include "TypeArgument.h"
+#include "Type.h"
+#include "TypeLua.h"
+#include "TypeListLua.h"
 #include <sstream>
 
 #define LUAGLUE_STARTNAMESPACE BEGIN_NAMESPACE2(Macaroni, Model)
@@ -32,9 +35,9 @@
 
 		TypeArgumentPtr typeArgument;
 
-		if (NodeListLuaMetaData::IsType(L, 2))
+		if (TypeListLuaMetaData::IsType(L, 2))
 		{
-			NodeListPtr list = NodeListLuaMetaData::GetInstance(L, 2);
+			TypeListPtr list = TypeListLuaMetaData::GetInstance(L, 2);
 			typeArgument.reset(new TypeArgument(node, list));
 		}
 		else
@@ -51,8 +54,8 @@
 	{		
 		if (index == "Arguments")
 		{
-			NodeListPtr nodeList = ptr->GetArguments();
-			NodeListLuaMetaData::PutInstanceOnStack(L, nodeList);
+			TypeListPtr typeList = ptr->GetArguments();
+			TypeListLuaMetaData::PutInstanceOnStack(L, typeList);
 			return 1;
 		}
 		else if (index == "Node")

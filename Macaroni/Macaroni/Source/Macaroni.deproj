@@ -55,9 +55,6 @@
     <filename>Macaroni\Parser\Pippy\Tests\Milestones.lua</filename>
   </file>
   <file>
-    <filename>Macaroni\Parser\Pippy\Tests\Functions.lua</filename>
-  </file>
-  <file>
     <filename>Macaroni\Model\TypeArgumentTests.lua</filename>
   </file>
   <file>
@@ -68,5 +65,20 @@
   </file>
   <file>
     <filename>Macaroni\Model\TypeArgumentListTests.lua</filename>
+  </file>
+  <file>
+    <filename>Macaroni\Model\TypeTests.lua</filename>
+  </file>
+  <file>
+    <filename>Macaroni\Model\Cpp\TypedefTests.lua</filename>
+  </file>
+  <file>
+    <filename>Macaroni\Model\TypeListTests.lua</filename>
+  </file>
+  <file>
+    <filename>Macaroni\Parser\Pippy\Tests\PippyParserTests_Typedef.lua</filename>
+  </file>
+  <file>
+    <filename>Macaroni\Parser\Pippy\Tests\PippyParserTests_Functions.lua</filename>
   </file>
 </project>

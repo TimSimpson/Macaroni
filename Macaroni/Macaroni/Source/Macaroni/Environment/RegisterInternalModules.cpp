@@ -23,6 +23,7 @@
 #include "../Model/TypeLua.h"
 #include "../Model/TypeArgumentListLua.h"
 #include "../Model/TypeArgumentLua.h"
+#include "../Model/TypeListLua.h"
 #include "../Model/Cpp/VariableAssignmentLua.h"
 #include <windows.h>
 
@@ -49,6 +50,7 @@ static const struct luaL_Reg libs[] = {
 	{"Macaroni.Model.Type", Macaroni::Model::TypeLuaMetaData::OpenInLua},
 	{"Macaroni.Model.TypeArgument", Macaroni::Model::TypeArgumentLuaMetaData::OpenInLua},
 	{"Macaroni.Model.TypeArgumentList", Macaroni::Model::TypeArgumentListLuaMetaData::OpenInLua},
+	{"Macaroni.Model.TypeList", Macaroni::Model::TypeListLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Cpp.VariableAssignment", Macaroni::Model::Cpp::VariableAssignmentLuaMetaData::OpenInLua},
 	{nullptr, nullptr} /* sentinel */
 	};

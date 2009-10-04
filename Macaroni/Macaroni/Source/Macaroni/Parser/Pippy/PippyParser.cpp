@@ -23,6 +23,9 @@
 #include "../../Model/Cpp/Primitive.h"
 #include "../../Model/Reason.h"
 #include "../../Model/Source.h"
+#include "../../Model/Type.h"
+#include "../../Model/TypeArgument.h"
+#include "../../Model/Cpp/TypeDef.h"
 #include "../../Model/Cpp/Variable.h"
 #include "../../Model/Cpp/VariableAssignment.h"
 #include "../../Model/Cpp/TypeInfo.h"
@@ -59,6 +62,16 @@ using Macaroni::Parser::ParserException;
 using Macaroni::Model::Cpp::Primitive;
 using Macaroni::Model::Reason;
 using Macaroni::Model::ReasonPtr;
+using Macaroni::Model::Type;
+using Macaroni::Model::TypeArgument;
+using Macaroni::Model::TypeArgumentList;
+using Macaroni::Model::TypeArgumentListPtr;
+using Macaroni::Model::TypeArgumentPtr;
+using Macaroni::Model::Cpp::Typedef;
+using Macaroni::Model::Cpp::TypedefPtr;
+using Macaroni::Model::TypeList;
+using Macaroni::Model::TypeListPtr;
+using Macaroni::Model::TypePtr;
 using Macaroni::Model::Cpp::Variable;
 using Macaroni::Model::Cpp::VariableAssignment;
 using Macaroni::Model::Cpp::TypeInfo;
@@ -780,6 +793,90 @@ public:
 		return true;
 	}
 
+	TypePtr ConsumeTypeDefinition(Iterator & itr)
+	{
+		TypeArgumentListPtr typeArguments(new TypeArgumentList());
+		
+		NodePtr lastNode;
+
+		while(true)
+		{
+			ConsumeWhitespace(itr);
+			std::string complexName;
+			if (!ConsumeComplexName(itr, complexName))
+			{
+				return TypePtr();
+			}
+			ConsumeWhitespace(itr);
+
+			NodePtr node;
+			if (!lastNode)
+			{
+				node = FindNode(complexName);
+			}
+			else
+			{
+				node = lastNode->FindOrCreate("complexName");
+			}
+
+			if (itr.Current() == '<')
+			{
+				itr.ConsumeChar('<');
+				TypeListPtr list = ConsumeTypeDefinitionList(itr);
+				TypeArgumentPtr arg(new TypeArgument(node, list));
+				typeArguments->push_back(arg);
+				
+				itr.ConsumeWhitespace();
+				if (itr.ConsumeWord("::")) // More to come, looks like.
+				{
+					lastNode = node;
+					continue;
+				}
+			}
+			
+			// end of type def?  Yes, let us assume such.
+			TypePtr type(new Type(node, typeArguments));
+			return type;			
+		}
+	}
+
+	/** This is called to find lists of type defs, as can be seen in ankle
+	 * brackets.  Throws if it can't find type argument.   Ends when it
+	 * sees ">". */
+	TypeListPtr ConsumeTypeDefinitionList(Iterator & itr)
+	{
+		TypeListPtr typeList(new TypeList());
+		
+		while(true) // Remember, its not as bad as GOTO because its WHILE. :p
+		{
+			Iterator newItr = itr;
+			TypePtr type = ConsumeTypeDefinition(newItr);
+			if (!type)
+			{
+				throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.Type.TypeDefinitionArgumentExpected"));
+			}
+			typeList->push_back(type);
+			itr = newItr;
+			ConsumeWhitespace(itr);
+			if (itr.Current() == '>')
+			{
+				itr.ConsumeChar('>');
+				return typeList;
+			}
+			else if (itr.Current() == ',')
+			{
+				itr.ConsumeChar(',');
+				// Continue loop.
+			}
+			else
+			{
+				throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.Type.TypeDefinitionCommaOrClosingBracketExpected"));
+			}
+		}			
+	}
+
 	bool Directives(Iterator & itr)
 	{
 		ConsumeWhitespace(itr);
@@ -1119,6 +1216,7 @@ public:
 				|| FriendDeclaration(itr)
 				|| Namespace(itr) 
 				|| Class(itr)
+				|| Typedef(itr)
 				|| VariableOrFunction(itr))
 		{
 		}
@@ -1156,6 +1254,50 @@ public:
 		Assert(SimpleName(createTestItr("a/")) == 1);
 		Assert(SimpleName(createTestItr("_1:")) == 2);
 		Assert(SimpleName(createTestItr("AVeryLongName2_3a:")) == 17);
+	}
+
+	// looks for "typedef [type]{}" Ignores whitespace.
+	// Modifies itr argument if match is found.
+	bool Typedef(Iterator & itr)
+	{
+		Iterator newItr = itr; 
+		ConsumeWhitespace(newItr);
+		if (!newItr.ConsumeWord("typedef"))
+		{
+			return false;
+		}		
+
+		ConsumeWhitespace(newItr);
+		
+		TypePtr type = ConsumeTypeDefinition(newItr);
+		if (!type)
+		{
+			throw ParserException(newItr.GetSource(),
+				Messages::Get("CppParser.Typedef.NoTypeDefinitionFound"));
+		}
+
+		std::string name;
+		if (!ConsumeComplexName(newItr, name))
+		{
+			throw ParserException(newItr.GetSource(),
+				Messages::Get("CppParser.Typedef.NoName"));
+		}		
+
+		NodePtr typedefNode = currentScope->FindOrCreate(name);
+		
+		Typedef::Create(typedefNode, 
+			Reason::Create(CppAxioms::TypedefCreation(), newItr.GetSource()),
+			type);
+
+		ConsumeWhitespace(newItr);
+		if (!newItr.ConsumeChar(';'))
+		{
+			throw ParserException(newItr.GetSource(),
+				Messages::Get("CppParser.Typedef.NoSemicolon"));			
+		}		
+		
+		itr = newItr; // Success! :)		
+		return true;
 	}
 
 	

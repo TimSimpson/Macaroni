@@ -9,6 +9,8 @@
 #include "NodeLua.h"
 #include "ReasonLua.h"
 #include <sstream>
+#include "Cpp/Typedef.h"
+#include "Cpp/TypedefLua.h"
 #include "Cpp/VariableLua.h"
 
 #define LUAGLUE_STARTNAMESPACE BEGIN_NAMESPACE2(Macaroni, Model)
@@ -18,7 +20,11 @@
 #define LUAGLUE_CLASSFULLLUANAME "Macaroni.Model.Member"
 #define LUAGLUE_CLASSFULLCPPNAME Macaroni::Model::Member
 #define LUAGLUE_REGISTRATIONCLASSNAME MemberLuaMetaData
-#define LUAGLUE_OPENOTHERMODULES Macaroni::Model::NodeLuaMetaData::OpenInLua(L); Macaroni::Model::Cpp::FunctionLuaMetaData::OpenInLua(L); Macaroni::Model::Cpp::ClassLuaMetaData::OpenInLua(L);
+#define LUAGLUE_OPENOTHERMODULES \
+	Macaroni::Model::NodeLuaMetaData::OpenInLua(L); \
+	Macaroni::Model::Cpp::FunctionLuaMetaData::OpenInLua(L); \
+	Macaroni::Model::Cpp::ClassLuaMetaData::OpenInLua(L); \
+	Macaroni::Model::Cpp::TypedefLuaMetaData::OpenInLua(L);
 #define LUAGLUE_CREATEMETATABLE YESPLEASE
 
 #include "../LuaGlue.hpp"
@@ -71,7 +77,15 @@
 				return rtnCnt;
 			}
 		}
-		
+		if (!!boost::dynamic_pointer_cast<Cpp::Typedef>(ptr))
+		{
+			int rtnCnt = Cpp::TypedefLuaMetaData::Index(L, boost::dynamic_pointer_cast<Cpp::Typedef>(ptr), index);
+			if (rtnCnt > 0)
+			{
+				return rtnCnt;
+			}
+		}
+
 		lua_pushnil(L);			
 		return 1;
 	}

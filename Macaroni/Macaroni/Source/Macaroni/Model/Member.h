@@ -23,6 +23,8 @@ public:
 
 	/** Returns true if the given node is used to define type information for 
 	 * this node. */
+	//TODO: 2009-10-03- I just saw this and suddenly I HATE it.  The meaning
+	//would seem to be too variant between types.  Ugh!
 	virtual bool DoesDefinitionReference(NodePtr node) const;
 
 	NodePtr GetNode() const;

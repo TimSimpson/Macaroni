@@ -66,6 +66,11 @@ AxiomPtr SetExistingHFilePath()
 	return AxiomPtr(new CppAxiom("CppAxioms.SetExistingHFilePath"));
 }
 
+AxiomPtr TypedefCreation()
+{
+	return AxiomPtr(new CppAxiom("CppAxioms.TypedefCreation"));
+}
+
 AxiomPtr VariableScopeCreation()
 {
 	return AxiomPtr(new CppAxiom("CppAxioms.VariableScopeCreation"));

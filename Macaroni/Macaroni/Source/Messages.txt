@@ -17,6 +17,7 @@ CppAxioms.PrimitiveSignedInt=This node is a place holder for the C++ primitive "
 CppAxioms.PrimitiveUnsignedInt=This node is a place holder for the C++ primitive "unsigned int."
 CppAxioms.PrimitiveVoid=This node is a place holder for the C++ primitive "void."
 CppAxioms.SetExistingHFilePath=H File paths can be set using the keyword "~hfile".
+CppAxioms.TypedefCreation=Typedef is created by typedef keyword.
 CppAxioms.VariableScopeCreation=Variable definition encountered.
 
 # C++ Parser Exception Messages
@@ -42,6 +43,11 @@ CppParser.Namespace.NoEndingBrace=Syntax error while searching for '}' to comple
 CppParser.Namespace.NoOpeningBrace=Syntax error after identifier keyword; expected '{'.
 CppParser.Document.SyntaxError=Syntax error.
 CppParser.Function.ExpectedEndingParenthesis=Expected to see ')'.
+CppParser.Type.TypeDefinitionArgumentExpected=Expected to see type definition within ankle brackets.
+CppParser.Type.TypeDefinitionCommaOrClosingBracketExpected=Expected to see "," or ">" here.
+CppParser.Typedef.NoName=No name was given for typedef following type definition.
+CppParser.Typedef.NoSemicolon=No semicolon found for typedef.
+CppParser.Typedef.NoTypeDefinitionFound=Did not find a valid type definition following "typedef" keyword.
 CppParser.Variable.ConstMaybeBeforeVar=Identifier was expected following keyword "const."
 CppParser.Variable.ConstSeenTwice=Identifier was expected following keyword "const."
 CppParser.Variable.MustFollowGlobalKeyword=Keyword "global" must be followed by member definition.

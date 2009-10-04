@@ -6,11 +6,11 @@
 BEGIN_NAMESPACE2(Macaroni, Model)
 
 TypeArgument::TypeArgument(NodePtr type)
-:arguments(new NodeList()), node(type)
+:arguments(new TypeList()), node(type)
 {
 }
 
-TypeArgument::TypeArgument(NodePtr type, NodeListPtr typeArguments)
+TypeArgument::TypeArgument(NodePtr type, TypeListPtr typeArguments)
 :arguments(typeArguments), node(type)
 {
 }
@@ -19,7 +19,7 @@ TypeArgument::~TypeArgument()
 {
 }
 
-NodeListPtr TypeArgument::GetArguments()
+TypeListPtr TypeArgument::GetArguments()
 {
 	return arguments;
 }

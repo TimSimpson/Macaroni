@@ -35,6 +35,7 @@ require "Macaroni/Model/SourceTests";
 require "Macaroni/Model/TypeTests"; 
 require "Macaroni/Model/TypeArgumentTests"; 
 require "Macaroni/Model/TypeArgumentListTests"; 
+require "Macaroni/Model/TypeListTests"; 
 --require "Macaroni/Parser/Cpp/Tests/Namespaces";
 require "Macaroni/Parser/Pippy/Tests/Index";
 
