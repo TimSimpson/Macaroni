@@ -1,7 +1,10 @@
+print("HFILE TIME BABY!\n");
 -- Eventually put this next part in C++:
 package.path = "F:/Lp3/Projects/Macaroni/Code/trunk/Macaroni/Debug/Generators/?.lua"
-
+print("NOO I AM NOT OPTIMUMS PRIME!\n");
 require "CppCommon";
+
+print("PLESE D NOT BIT HEERASER");
 
 local Context = Macaroni.Model.Context;
 local Node = Macaroni.Model.Node;

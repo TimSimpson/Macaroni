@@ -55,7 +55,7 @@ tests = {
             self.root = self.context.Root;
             self.src = Source.Create(self.file, 1, 1);
             
-            self.parser:Read(self.context, self.src, [[
+            self.parser:Read(self.context, self.src, [[                
                 class Dog
                 {
                     public int GetBarkCount(){ return bc; }

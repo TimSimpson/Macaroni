@@ -70,14 +70,25 @@ static const struct luaL_Reg tableMethods[]=
 
 int LUAGLUE_REGISTRATIONCLASSNAME::OpenInLua(lua_State * L)
 {	
-	luaL_getmetatable(L, METATABLENAME);
+	std::string metaTableName(METATABLENAME);
+	std::string fullLuaName(LUAGLUE_CLASSFULLLUANAME);
+	if (metaTableName == "Macaroni.Model.Cpp.Typedef" 
+		||
+		fullLuaName == "Macaroni.Model.Cpp.Typedef")
+	{
+		int five = 5;
+	}
+
+	luaL_getmetatable(L, metaTableName);
 	if (lua_isnil(L, -1) != 1)
 	{
+		Macaroni::Environment::DebugLog::Write(LUAGLUE_CLASSFULLLUANAME, __LINE__, "Skipping!!");
 		return 0; // Already loaded, DO NOT WASTE TIME DUMMY.
 	}				
 
-	luaL_newmetatable(L, METATABLENAME); // create metaTable
-	
+	luaL_newmetatable(L, metaTableName); // create metaTable
+	Macaroni::Environment::DebugLog::Write(metaTableName, __LINE__, " <== Metatable.");
+
 	#ifdef LUAGLUE_CREATEMETATABLE
 		luaL_register(L, nullptr, metaTableMethods);
 	#endif

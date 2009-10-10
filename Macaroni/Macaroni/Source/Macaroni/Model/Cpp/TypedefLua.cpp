@@ -1,6 +1,7 @@
 #ifndef MACARONI_MODEL_CPP_TYPEDEFLUA_CPP
 #define MACARONI_MODEL_CPP_TYPEDEFLUA_CPP
 
+#include "../../LuaGlueClear.h"
 #include "Typedef.h"
 #include "TypedefLua.h"
 #include "../NodeLua.h"
@@ -25,8 +26,8 @@ struct lua_State;
 #define LUAGLUE_CLASSFULLCPPNAME Macaroni::Model::Cpp::Typedef
 #define LUAGLUE_REGISTRATIONCLASSNAME TypedefLuaMetaData
 #define LUAGLUE_HELPERCLASS				TypedefLuaFunctions
-#define LUAGLUE_OPENOTHERMODULES	Macaroni::Model::NodeLuaMetaData::OpenInLua(L); Macaroni::Model::TypeLuaMetaData::OpenInLua(L);
-#define LUAGLUE_CREATEMETATABLE 
+#define LUAGLUE_OPENOTHERMODULES	//Macaroni::Model::NodeLuaMetaData::OpenInLua(L); //Macaroni::Model::TypeLuaMetaData::OpenInLua(L);
+#define LUAGLUE_CREATEMETATABLE YESPLEASE
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 

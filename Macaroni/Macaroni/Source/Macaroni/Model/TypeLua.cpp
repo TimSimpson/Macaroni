@@ -25,7 +25,27 @@
 	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr, 
 									  const std::string & index)
 	{				
-		if (index == "Node")
+		if (index == "IsConst")
+		{
+			lua_pushboolean(L, ptr->IsConst());
+			return 1;
+		}
+		else if (index == "IsConstPointer")
+		{
+			lua_pushboolean(L, ptr->IsConstPointer());
+			return 1;
+		}
+		else if (index == "IsPointer")
+		{
+			lua_pushboolean(L, ptr->IsPointer());
+			return 1;
+		}
+		else if (index == "IsReference")
+		{
+			lua_pushboolean(L, ptr->IsReference());
+			return 1;
+		}
+		else if (index == "Node")
 		{
 			NodeLuaMetaData::PutInstanceOnStack(L, ptr->GetNode());
 			return 1;
@@ -46,20 +66,53 @@
 		{
 			lua_pushstring(L, "Expected a Node for argument #1 in Type creator.");
 			lua_error(L);
-		}
+		}		
+
 		NodePtr node = NodeLuaMetaData::GetInstance(L, 1);				
 
 		TypePtr type;
+		
+		TypeModifiers modifiers;
+		const int tableIndex = 2;
+		
+		if (lua_istable(L, tableIndex))
+		{
+			luaL_checktype(L, tableIndex, LUA_TTABLE);
 
-		if (TypeArgumentListLuaMetaData::IsType(L, 2))
+			lua_pushnil(L); // p39, start of table iteratin'
+			while(lua_next(L, tableIndex) != 0)
+			{
+				std::string key(lua_tostring(L, -2)); // key
+				bool value = lua_toboolean(L, -1); // value
+				if (key == "Const")
+				{
+					modifiers.Const = value;
+				}
+				else if (key == "ConstPointer")
+				{
+					modifiers.ConstPointer = value;
+				}
+				else if (key == "Pointer")
+				{
+					modifiers.Pointer = value;
+				}
+				else if (key == "Reference")
+				{
+					modifiers.Reference = value;
+				}
+				lua_pop(L, 1);
+			}
+		}
+
+		if (lua_checkstack(L, 3) && TypeArgumentListLuaMetaData::IsType(L, 3))
 		{
 			TypeArgumentListPtr list = 
-				TypeArgumentListLuaMetaData::GetInstance(L, 2);
-			type.reset(new Type(node, list));
+				TypeArgumentListLuaMetaData::GetInstance(L, 3);
+			type.reset(new Type(node, modifiers, list));
 		}
 		else
 		{
-			type.reset(new Type(node));
+			type.reset(new Type(node, modifiers));
 		}
 		
 		TypeLuaMetaData::PutInstanceOnStack(L, type);

@@ -73,6 +73,7 @@ using Macaroni::Model::Cpp::Typedef;
 using Macaroni::Model::Cpp::TypedefPtr;
 using Macaroni::Model::TypeList;
 using Macaroni::Model::TypeListPtr;
+using Macaroni::Model::TypeModifiers;
 using Macaroni::Model::TypePtr;
 using Macaroni::Model::Cpp::Variable;
 using Macaroni::Model::Cpp::VariableAssignment;
@@ -815,6 +816,10 @@ public:
 		{
 			return false;
 		}
+		if (name == "std::string")
+		{
+			int five = 5;
+		}
 		node = FindNode(name);
 		if (!!node)
 		{ 
@@ -824,30 +829,41 @@ public:
 		return true;
 	}
 
-	TypePtr ConsumeTypeDefinition(Iterator & itr)
+	/** Looks for a node name with type arguments either at the end of in the middle.
+	 * Example: a::b<c>, a::b::d, a<b,c>::b<a::b::c>::e<a *,const e::g> 
+	 * Returns false if it does not find a name.
+	 */
+	bool ConsumeTypeMainNodeAndArguments(Iterator & itr, NodePtr & mainNode, 
+										 TypeArgumentListPtr & typeArgumentList)
 	{
-		TypeArgumentListPtr typeArguments(new TypeArgumentList());
-		
-		NodePtr lastNode;
+		typeArgumentList.reset(new TypeArgumentList());
 
-		while(true)
+		NodePtr lastNode;
+		
+		while(!mainNode)
 		{
 			ConsumeWhitespace(itr);
 			std::string complexName;
 			if (!ConsumeComplexName(itr, complexName))
 			{
-				return TypePtr();
+				return false;
 			}
 			ConsumeWhitespace(itr);
 
 			NodePtr node;
-			if (!lastNode)
-			{
+			if (!lastNode) // The first iteration of the loop?
+			{				
 				node = FindNode(complexName);
+				if (!node)
+				{
+					return true;
+				}
 			}
 			else
 			{
-				node = lastNode->FindOrCreate("complexName");
+				// If we've already seen a node (and a type arg list) then the
+				// main node has to come off of it.
+				node = lastNode->FindOrCreate(complexName);
 			}
 
 			if (itr.Current() == '<')
@@ -855,22 +871,24 @@ public:
 				itr.ConsumeChar('<');
 				TypeListPtr list = ConsumeTypeDefinitionList(itr);
 				TypeArgumentPtr arg(new TypeArgument(node, list));
-				typeArguments->push_back(arg);
+				typeArgumentList->push_back(arg);
 				
 				itr.ConsumeWhitespace();
 				if (itr.ConsumeWord("::")) // More to come, looks like.
 				{
 					lastNode = node;
-					continue;
+					continue; // SO tempted to just use a GOTO here... too lazy to decompose method.
 				}
-			}
-			
-			// end of type def?  Yes, let us assume such.
-			TypePtr type(new Type(node, typeArguments));
-			return type;			
+			}	
+
+			mainNode = node;
 		}
+
+		return true;
 	}
 
+	
+	
 	/** This is called to find lists of type defs, as can be seen in ankle
 	 * brackets.  Throws if it can't find type argument.   Ends when it
 	 * sees ">". */
@@ -881,8 +899,8 @@ public:
 		while(true) // Remember, its not as bad as GOTO because its WHILE. :p
 		{
 			Iterator newItr = itr;
-			TypePtr type = ConsumeTypeDefinition(newItr);
-			if (!type)
+			TypePtr type;
+			if (!Type(newItr, type))
 			{
 				throw ParserException(itr.GetSource(),
 					Messages::Get("CppParser.Type.TypeDefinitionArgumentExpected"));
@@ -1288,6 +1306,79 @@ public:
 		Assert(SimpleName(createTestItr("AVeryLongName2_3a:")) == 17);
 	}
 
+	bool Type(Iterator & itr, TypePtr & info)
+	{
+		NodePtr mainNode;
+		TypeModifiers modifiers;
+		TypeArgumentListPtr typeArgumentList;
+
+		ConsumeWhitespace(itr);		
+		if (itr.ConsumeWord("const"))
+		{
+			modifiers.Const = true;
+			ConsumeWhitespace(itr);
+		}
+
+		if (!ConsumeTypeMainNodeAndArguments(itr, mainNode, typeArgumentList))
+		{
+			if (modifiers.Const)
+			{
+				// If we saw const, they're committed.
+				throw ParserException(itr.GetSource(),
+				Messages::Get("CppParser.Variable.ConstMaybeBeforeVar")); 
+			}
+			else
+			{
+				// Didn't see false and that didn't look like a typename, so
+				// we're fine.
+				return false;
+			}
+		}
+				
+		// At this point, we're committed.
+		if (!mainNode) // The function could not find the node.
+ 		{
+			throw ParserException(itr.GetSource(),
+				Messages::Get("CppParser.Variable.UnknownTypeName")); 
+		}
+
+		ConsumeWhitespace(itr);
+		if (itr.ConsumeWord("const"))
+		{
+			if (modifiers.Const)
+			{
+				// Appeared twice!? How dare it!
+				throw ParserException(itr.GetSource(0, -5),
+					Messages::Get("CppParser.Variable.ConstSeenTwice")); 
+			}
+			modifiers.Const = true;
+			ConsumeWhitespace(itr);
+		}
+
+		// Now, we check for reference.
+		if (itr.ConsumeChar('*'))
+		{
+			modifiers.Pointer = true;
+			ConsumeWhitespace(itr);
+			if (itr.ConsumeWord("const"))
+			{
+				modifiers.ConstPointer = true;				
+				ConsumeWhitespace(itr);
+			}
+		}
+
+		// Now, we check for reference.
+		if (itr.ConsumeChar('&'))
+		{
+			modifiers.Reference = true;
+			ConsumeWhitespace(itr);
+		}
+
+		// At this point we can be sure we've seen everything.
+		info.reset(new Model::Type(mainNode, modifiers, typeArgumentList));
+		return true;
+	}
+
 	// looks for "typedef [type]{}" Ignores whitespace.
 	// Modifies itr argument if match is found.
 	bool Typedef(Iterator & itr)
@@ -1301,8 +1392,8 @@ public:
 
 		ConsumeWhitespace(newItr);
 		
-		TypePtr type = ConsumeTypeDefinition(newItr);
-		if (!type)
+		TypePtr type;
+		if (!Type(newItr, type))
 		{
 			throw ParserException(newItr.GetSource(),
 				Messages::Get("CppParser.Typedef.NoTypeDefinitionFound"));

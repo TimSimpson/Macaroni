@@ -1,6 +1,7 @@
 -- Eventually put this next part in C++:
+print("AWESWIF");
 package.path = "F:/Lp3/Projects/Macaroni/Code/trunk/Macaroni/Debug/Generators/?.lua"
-
+print("I CRAYZ");
 require "CppCommon";
 
 local Context = Macaroni.Model.Context;

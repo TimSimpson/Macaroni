@@ -27,7 +27,7 @@ CppParser.Class.NoEndingBrace=Expected '}' at this point to end class definition
 CppParser.Constructor.ArgumentListExpected=Constructor argument list expected here.
 CppParser.Constructor.ClassNameExpected=Class name expected following destructor symbol '~'.
 CppParser.Expression.CouldNotMatch
-CppParser.Directive.Unknown=Unknown directive following # sign.
+CppParser.Directive.Unknown=Unknown keyword following Macaroni marker "~".
 CppParser.Directive.HFileBadArgument=Bad text following "hfile".
 CppParser.Directive.HFileFilePathExpected=A file path was expected here.
 CppParser.FileNameExpected=Expected a file name surrounded with quotes or ankle brackets.

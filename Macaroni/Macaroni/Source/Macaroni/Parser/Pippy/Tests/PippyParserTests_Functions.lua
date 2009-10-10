@@ -62,6 +62,45 @@ tests = {
             end,                        
         }
     },
-      
+    {   
+        name = "Finding types in argument list.",
+        init = function(this)
+            this.parser = PippyParser.Create();     
+            this.context = Context.New("{ROOT}");
+            this.file = FileName.Create("Blah1.mcpp");           
+            this.root = this.context.Root;
+            this.src = Source.Create(this.file, 1, 1);
+            
+            this.parser:Read(this.context, this.src, [[
+                ~import std::string;
+                void go(string blah){}
+            ]]);         
+            this.func = this.root.Children[3].Member;   
+        end,
+        tests = {
+            ["Function 'go' is added."] = function(this)
+                Test.assert(3, #this.root.Children);
+                Test.assert("go", this.root.Children[3].Name);                                  
+            end,            
+            ["Go's type is function."] = function(this)                                
+                Test.assert("Function", this.func.TypeName);                  
+            end,            
+            ["Go's return type is void."] = function(this)                                
+                Test.assert("void", this.func.ReturnType.Node.Name);  --                
+            end,            
+            ["Main's argument list has one entry."] = function(this)  
+                print("OPEEE");                              
+                Test.assert(1, #this.func.Arguments);    --              
+            end,   
+            ["Go's argument #1 is std::string."] = function(this)
+                local args = this.func.Arguments;
+                print("OPEEE222");
+                local number = #args;
+                local arg1 = args[1];                         
+                local arg1Name = arg1.Node.FullName;       
+                Test.assert("std::string", arg1Name); 
+            end,                       
+        }
+    },  
 } -- end of tests table ( I skipped some indentation way above here).
 }); -- End of register call

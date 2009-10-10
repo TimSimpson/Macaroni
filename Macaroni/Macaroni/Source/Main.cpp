@@ -96,7 +96,6 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 					convert(std::wstring(argv[i + 1]), testPath);
 					runLuaTests();
 				}
-				return 0;
 			}
 			else if (arg == _TEXT("-inputDirectory"))
 			{

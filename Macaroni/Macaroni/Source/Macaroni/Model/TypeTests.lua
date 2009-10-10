@@ -88,6 +88,88 @@ Test.register(
             }
         },
         {
+            name = "Creating a Type which represents const std::string.",
+            init = function(self) 
+                mixinContext(self);               
+                self.typeString = Type.New(self.stdstring, {Const=true});
+            end,
+            tests = {
+                ["Type points to the Node represent std::string."] = function(self)
+                    Test.assert(self.stdstring, self.typeString.Node);
+                end,  
+                ["Type is const."] = function(self)
+                    Test.assert(true, self.typeString.IsConst);
+                end,              
+            }
+        },
+        {
+            name = "Creating a Type which represents std::string *.",
+            init = function(self) 
+                mixinContext(self);               
+                self.typeString = Type.New(self.stdstring, {Pointer=true});
+            end,
+            tests = {
+                ["Type points to the Node represent std::string."] = function(self)
+                    Test.assert(self.stdstring, self.typeString.Node);
+                end,  
+                ["Type is pointer."] = function(self)
+                    Test.assert(true, self.typeString.IsPointer);
+                end,              
+            }
+        },
+        {
+            name = "Creating a Type which represents std::string &.",
+            init = function(self) 
+                mixinContext(self);               
+                self.typeString = Type.New(self.stdstring, {Reference=true});
+            end,
+            tests = {
+                ["Type points to the Node represent std::string."] = function(self)
+                    Test.assert(self.stdstring, self.typeString.Node);
+                end,  
+                ["Type is reference."] = function(self)
+                    Test.assert(true, self.typeString.IsReference);
+                end,              
+            }
+        },
+        {
+            name = "Creating a Type which represents std::string * const.",
+            init = function(self) 
+                mixinContext(self);               
+                self.typeString = Type.New(self.stdstring, {ConstPointer=true});
+            end,
+            tests = {                
+                ["Type points to the Node represent std::string."] = function(self)
+                    Test.assert(self.stdstring, self.typeString.Node);
+                end,  
+                ["Type is const pointer."] = function(self)
+                    Test.assert(true, self.typeString.IsConstPointer);
+                end,              
+            }
+        },
+        {
+            name = "Creating a Type which represents std::string * const.",
+            init = function(self) 
+                mixinContext(self);               
+                self.typeString = Type.New(self.stdstring, 
+                    {Const=true,ConstPointer=true,Pointer=true});
+            end,
+            tests = {
+                ["Type is const."] = function(self)
+                    Test.assert(true, self.typeString.IsConst);
+                end,
+                ["Type points to the Node represent std::string."] = function(self)
+                    Test.assert(self.stdstring, self.typeString.Node);
+                end,  
+                ["Type is const pointer."] = function(self)
+                    Test.assert(true, self.typeString.IsConstPointer);
+                end,            
+                ["Type is pointer."] = function(self)
+                    Test.assert(true, self.typeString.IsPointer);
+                end,    
+            }
+        },
+        {
             name = "Creating a Type representing Vector<std::string>.",
             init = function(self)  
                 mixinContext(self);   
@@ -96,7 +178,7 @@ Test.register(
                         NodeList.New{ self.stdstring } 
                     );                
                 self.typeArgs = TypeArgumentList.New{self.typeArg1};
-                self.type = Type.New(self.vector, self.typeArgs);                
+                self.type = Type.New(self.vector, {}, self.typeArgs);                
             end,
             tests = {
                 ["Type points to Node representing Vector."] = function(self)
@@ -120,7 +202,7 @@ Test.register(
                         NodeList.New{ self.stdstring, self.gfxData } 
                     );                
                 self.typeArgs = TypeArgumentList.New{self.typeArg1, self.typeArg2};
-                self.type = Type.New(self.message, self.typeArgs);                
+                self.type = Type.New(self.message, {}, self.typeArgs);                
             end,
             tests = {
                 ["Type points to Node representing Event::Message."] = function(self)

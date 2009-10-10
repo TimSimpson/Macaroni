@@ -24,7 +24,7 @@
 #define LUAGLUE_OPENOTHERMODULES \
 	Macaroni::Model::NodeLuaMetaData::OpenInLua(L); \
 	Macaroni::Model::Cpp::FunctionLuaMetaData::OpenInLua(L); \
-	Macaroni::Model::Cpp::ClassLuaMetaData::OpenInLua(L); \
+	Macaroni::Model::Cpp::ClassLuaMetaData::OpenInLua(L);  \
 	Macaroni::Model::Cpp::TypedefLuaMetaData::OpenInLua(L);
 #define LUAGLUE_CREATEMETATABLE YESPLEASE
 

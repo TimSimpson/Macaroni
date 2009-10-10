@@ -6,14 +6,18 @@
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
-Type::Type(NodePtr type)
-: type(type), typeArguments(new TypeArgumentList())
+Type::Type(NodePtr type, TypeModifiers modifiers)
+:	isConst(modifiers.Const), isConstPointer(modifiers.ConstPointer),
+	isPointer(modifiers.Pointer), isReference(modifiers.Reference),
+	type(type), typeArguments(new TypeArgumentList())
 {
 }
 
-Type::Type(NodePtr type, TypeArgumentListPtr typeArguments)
-:type(type),
- typeArguments(typeArguments)
+Type::Type(NodePtr type, TypeModifiers modifiers, TypeArgumentListPtr typeArguments)
+:	isConst(modifiers.Const), isConstPointer(modifiers.ConstPointer),
+	isPointer(modifiers.Pointer), isReference(modifiers.Reference),
+	type(type),
+	typeArguments(typeArguments)
 {
 }
 	

@@ -795,11 +795,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\CompilerOptions.h"
+				RelativePath=".\Macaroni\CompilerOptions.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\CompilerOptions.h"
+				RelativePath=".\Source\Macaroni\CompilerOptions.h"
 				>
 			</File>
 			<File
@@ -1000,6 +1000,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\Macaroni\LuaGlue2.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\LuaGlueClear.h"
 				>
 			</File>
 			<File
@@ -1230,19 +1234,19 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Source\Macaroni\Model\Axiom.lh"
-			>
-		</File>
-		<File
 			RelativePath=".\Macaroni\Model\Axiom.lh"
 			>
 		</File>
 		<File
-			RelativePath=".\Source\Macaroni\Model\AxiomTests.lua"
+			RelativePath=".\Source\Macaroni\Model\Axiom.lh"
 			>
 		</File>
 		<File
 			RelativePath=".\Macaroni\Model\AxiomTests.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\Macaroni\Model\AxiomTests.lua"
 			>
 		</File>
 		<File
@@ -1262,19 +1266,19 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\Context.lh"
-			>
-		</File>
-		<File
 			RelativePath=".\Source\Macaroni\Model\Context.lh"
 			>
 		</File>
 		<File
-			RelativePath=".\Source\Macaroni\Model\ContextTests.lua"
+			RelativePath=".\Macaroni\Model\Context.lh"
 			>
 		</File>
 		<File
 			RelativePath=".\Macaroni\Model\ContextTests.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\Macaroni\Model\ContextTests.lua"
 			>
 		</File>
 		<File
@@ -1286,19 +1290,19 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Parser\Cpp\CppParser.lh"
-			>
-		</File>
-		<File
 			RelativePath=".\Source\Macaroni\Parser\Cpp\CppParser.lh"
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Parser\Cpp\CppParser.spirit"
+			RelativePath=".\Macaroni\Parser\Cpp\CppParser.lh"
 			>
 		</File>
 		<File
 			RelativePath=".\Source\Macaroni\Parser\Cpp\CppParser.spirit"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Parser\Cpp\CppParser.spirit"
 			>
 		</File>
 		<File
@@ -1322,11 +1326,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Source\Macaroni\Model\FileName.mcpp"
+			RelativePath=".\Macaroni\Model\FileName.mcpp"
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\FileName.mcpp"
+			RelativePath=".\Source\Macaroni\Model\FileName.mcpp"
 			>
 		</File>
 		<File
@@ -1346,11 +1350,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\Cpp\Function.lh"
+			RelativePath=".\Source\Macaroni\Model\Cpp\Function.lh"
 			>
 		</File>
 		<File
-			RelativePath=".\Source\Macaroni\Model\Cpp\Function.lh"
+			RelativePath=".\Macaroni\Model\Cpp\Function.lh"
 			>
 		</File>
 		<File
@@ -1370,15 +1374,15 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\General.spirit"
-			>
-		</File>
-		<File
 			RelativePath=".\Source\Macaroni\Parser\Cpp\General.spirit"
 			>
 		</File>
 		<File
 			RelativePath=".\Macaroni\Parser\Cpp\General.spirit"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Model\General.spirit"
 			>
 		</File>
 		<File
@@ -1398,11 +1402,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Parser\Pippy\Tests\Index.lua"
+			RelativePath=".\Source\Macaroni\Parser\Pippy\Tests\Index.lua"
 			>
 		</File>
 		<File
-			RelativePath=".\Source\Macaroni\Parser\Pippy\Tests\Index.lua"
+			RelativePath=".\Macaroni\Parser\Pippy\Tests\Index.lua"
 			>
 		</File>
 		<File
@@ -1430,19 +1434,19 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Source\Macaroni\Model\Member.lh"
-			>
-		</File>
-		<File
 			RelativePath=".\Macaroni\Model\Member.lh"
 			>
 		</File>
 		<File
-			RelativePath=".\Source\Macaroni\Model\MemberTests.lua"
+			RelativePath=".\Source\Macaroni\Model\Member.lh"
 			>
 		</File>
 		<File
 			RelativePath=".\Macaroni\Model\MemberTests.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\Macaroni\Model\MemberTests.lua"
 			>
 		</File>
 		<File
@@ -1458,15 +1462,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\Cpp\Namespace.lh"
-			>
-		</File>
-		<File
 			RelativePath=".\Source\Macaroni\Model\Cpp\Namespace.lh"
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Parser\Pippy\Tests\Namespace.lua"
+			RelativePath=".\Macaroni\Model\Cpp\Namespace.lh"
 			>
 		</File>
 		<File
@@ -1474,11 +1474,15 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Source\Macaroni\Parser\Cpp\Tests\Namespaces.lua"
+			RelativePath=".\Macaroni\Parser\Pippy\Tests\Namespace.lua"
 			>
 		</File>
 		<File
 			RelativePath=".\Macaroni\Parser\Cpp\Tests\Namespaces.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\Macaroni\Parser\Cpp\Tests\Namespaces.lua"
 			>
 		</File>
 		<File
@@ -1494,15 +1498,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Source\Macaroni\Model\NodeTests.lua"
-			>
-		</File>
-		<File
 			RelativePath=".\Macaroni\Model\NodeTests.lua"
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Parser\Parser.lh"
+			RelativePath=".\Source\Macaroni\Model\NodeTests.lua"
 			>
 		</File>
 		<File
@@ -1510,11 +1510,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\Parser.spirit"
+			RelativePath=".\Macaroni\Parser\Parser.lh"
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Parser\ParserException.lh"
+			RelativePath=".\Macaroni\Model\Parser.spirit"
 			>
 		</File>
 		<File
@@ -1522,15 +1522,19 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Macaroni\Parser\ParserException.lh"
+			>
+		</File>
+		<File
 			RelativePath=".\Plan\ParserLooseModel.txt"
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Parser\Pippy\PippyParser.lh"
+			RelativePath=".\Source\Macaroni\Parser\Pippy\PippyParser.lh"
 			>
 		</File>
 		<File
-			RelativePath=".\Source\Macaroni\Parser\Pippy\PippyParser.lh"
+			RelativePath=".\Macaroni\Parser\Pippy\PippyParser.lh"
 			>
 		</File>
 		<File
@@ -1554,11 +1558,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Source\Macaroni\Model\Cpp\Primitive.lh"
+			RelativePath=".\Macaroni\Model\Cpp\Primitive.lh"
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\Cpp\Primitive.lh"
+			RelativePath=".\Source\Macaroni\Model\Cpp\Primitive.lh"
 			>
 		</File>
 		<File
@@ -1574,11 +1578,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Source\Macaroni\Model\ReasonTests.lua"
+			RelativePath=".\Macaroni\Model\ReasonTests.lua"
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\ReasonTests.lua"
+			RelativePath=".\Source\Macaroni\Model\ReasonTests.lua"
 			>
 		</File>
 		<File
@@ -1594,11 +1598,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\Cpp\Scope.lh"
+			RelativePath=".\Source\Macaroni\Model\Cpp\Scope.lh"
 			>
 		</File>
 		<File
-			RelativePath=".\Source\Macaroni\Model\Cpp\Scope.lh"
+			RelativePath=".\Macaroni\Model\Cpp\Scope.lh"
 			>
 		</File>
 		<File
@@ -1610,11 +1614,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\TestData\simple.mcpp"
+			RelativePath=".\RealTest\Input\Simple.mcpp"
 			>
 		</File>
 		<File
-			RelativePath=".\RealTest\Input\Simple.mcpp"
+			RelativePath=".\TestData\simple.mcpp"
 			>
 		</File>
 		<File
@@ -1622,11 +1626,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Source\Macaroni\Model\Source.lh"
+			RelativePath=".\Macaroni\Model\Source.lh"
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Model\Source.lh"
+			RelativePath=".\Source\Macaroni\Model\Source.lh"
 			>
 		</File>
 		<File
@@ -1638,19 +1642,19 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Source\Macaroni\Test.lua"
-			>
-		</File>
-		<File
 			RelativePath=".\Macaroni\Test.lua"
 			>
 		</File>
 		<File
-			RelativePath=".\Source\Lua\Tests.lua"
+			RelativePath=".\Source\Macaroni\Test.lua"
 			>
 		</File>
 		<File
 			RelativePath=".\Source\Tests.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\Lua\Tests.lua"
 			>
 		</File>
 		<File
@@ -1670,19 +1674,19 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Source\Macaroni\Model\Cpp\Variable.lh"
-			>
-		</File>
-		<File
 			RelativePath=".\Macaroni\Model\Cpp\Variable.lh"
 			>
 		</File>
 		<File
-			RelativePath=".\Macaroni\Parser\Pippy\Tests\Variables.lua"
+			RelativePath=".\Source\Macaroni\Model\Cpp\Variable.lh"
 			>
 		</File>
 		<File
 			RelativePath=".\Source\Macaroni\Parser\Pippy\Tests\Variables.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\Parser\Pippy\Tests\Variables.lua"
 			>
 		</File>
 	</Files>

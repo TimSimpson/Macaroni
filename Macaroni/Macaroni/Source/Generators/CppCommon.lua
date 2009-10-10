@@ -1,4 +1,3 @@
-
 require "Macaroni.Generator.Output.Path";
 require "Macaroni.Model.Context";
 require "Macaroni.Model.Cpp.Function";
@@ -24,3 +23,8 @@ Macaroni.Model.TypeNames =
 Common = {
 
 };
+
+function Generate(context, path)
+    print("I play no part in this cosmic dance. I prance, and prance, and prance...");
+end
+print("HRGR");
