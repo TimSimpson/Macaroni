@@ -79,15 +79,15 @@ int LUAGLUE_REGISTRATIONCLASSNAME::OpenInLua(lua_State * L)
 		int five = 5;
 	}
 
-	luaL_getmetatable(L, metaTableName);
+	luaL_getmetatable(L, metaTableName.c_str());
 	if (lua_isnil(L, -1) != 1)
 	{
 		Macaroni::Environment::DebugLog::Write(LUAGLUE_CLASSFULLLUANAME, __LINE__, "Skipping!!");
 		return 0; // Already loaded, DO NOT WASTE TIME DUMMY.
 	}				
 
-	luaL_newmetatable(L, metaTableName); // create metaTable
-	Macaroni::Environment::DebugLog::Write(metaTableName, __LINE__, " <== Metatable.");
+	luaL_newmetatable(L, metaTableName.c_str()); // create metaTable
+	Macaroni::Environment::DebugLog::Write(metaTableName.c_str(), __LINE__, " <== Metatable.");
 
 	#ifdef LUAGLUE_CREATEMETATABLE
 		luaL_register(L, nullptr, metaTableMethods);

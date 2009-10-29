@@ -9,4 +9,7 @@
   <file>
     <filename>Generators\CppFile.lua</filename>
   </file>
+  <file>
+    <filename>Generators\Dumb.lua</filename>
+  </file>
 </project>

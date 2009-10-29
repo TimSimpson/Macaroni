@@ -11,4 +11,12 @@
     <local_path></local_path>
     <aux_project_path></aux_project_path>
   </scc>
+  <files>
+    <file>
+      <filename>Generators\CppCommon.lua</filename>
+      <breakpoint>
+        <line>1</line>
+      </breakpoint>
+    </file>
+  </files>
 </project>

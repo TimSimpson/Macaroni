@@ -1,4 +1,7 @@
+print("CppCommon.lua is a jerk.");
 require "Macaroni.Generator.Output.Path";
+require "Macaroni.Model.Node";
+require "Macaroni.Model.Context";
 require "Macaroni.Model.Context";
 require "Macaroni.Model.Cpp.Function";
 require "Macaroni.Model.Member";
@@ -27,4 +30,5 @@ Common = {
 function Generate(context, path)
     print("I play no part in this cosmic dance. I prance, and prance, and prance...");
 end
-print("HRGR");
+--[[]]--
+print("CppCommon.lua is being loaded now.");

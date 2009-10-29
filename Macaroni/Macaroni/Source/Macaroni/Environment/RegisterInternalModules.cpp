@@ -44,10 +44,10 @@ static const struct luaL_Reg libs[] = {
 	{"Macaroni.Generator.Output.Path", Generator::Output::PathLuaMetaData::OpenInLua},
 	{"Macaroni.Parser.Cpp.CppParser", Parser::Cpp::CppParserLuaMetaData::OpenInLua},
 	{"Macaroni.Parser.Pippy.PippyParser", Parser::Pippy::PippyParserLuaMetaData::OpenInLua},
-	//{"Macaroni.Model.Type", Macaroni::Model::TypeLuaMetaData::OpenInLua},
-	//{"Macaroni.Model.TypeArgument", Macaroni::Model::TypeArgumentLuaMetaData::OpenInLua},
-	//{"Macaroni.Model.TypeArgumentList", Macaroni::Model::TypeArgumentListLuaMetaData::OpenInLua},
-	//{"Macaroni.Model.TypeList", Macaroni::Model::TypeListLuaMetaData::OpenInLua},
+	{"Macaroni.Model.Type", Macaroni::Model::TypeLuaMetaData::OpenInLua},
+	{"Macaroni.Model.TypeArgument", Macaroni::Model::TypeArgumentLuaMetaData::OpenInLua},
+	{"Macaroni.Model.TypeArgumentList", Macaroni::Model::TypeArgumentListLuaMetaData::OpenInLua},
+	{"Macaroni.Model.TypeList", Macaroni::Model::TypeListLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Cpp.VariableAssignment", Macaroni::Model::Cpp::VariableAssignmentLuaMetaData::OpenInLua},
 	{nullptr, nullptr} /* sentinel */
 	};
