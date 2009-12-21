@@ -46,7 +46,7 @@ private:
 	/** Iteratres all input files, parsing each one into the given context. */
 	bool buildModel(ContextPtr context, FileSet inputFiles);
 	/** Reads from the model to generates output files. */
-	bool generateFiles(ContextPtr context, path output);
+	bool generateFiles(ContextPtr context, path output, const MCompilerOptions & options);
 	/** Parses the file and stores it into the Model context. */
 	void parseFile(Macaroni::Model::ContextPtr context, path filePath);
 	/** Reads the contents of a file into the contents stringstream. */
@@ -108,7 +108,8 @@ bool MCompiler::buildModel(ContextPtr context, FileSet inputFiles)
 	return true;
 }
 
-bool MCompiler::generateFiles(ContextPtr context, path output)
+bool MCompiler::generateFiles(ContextPtr context, path output, 
+							  const MCompilerOptions & options)
 {
 	
 	std::cout << "Debug Tree\n";
@@ -125,7 +126,16 @@ bool MCompiler::generateFiles(ContextPtr context, path output)
 		context->GetRoot()->GetMember()->Visit(visitor.get());
 	}*/
 
-	Generator::RunDynamicGenerators(context, output);
+	for(unsigned int i = 0; i < options.GetGenerators().size(); i ++)
+	{
+		boost::filesystem::path genPath =
+			Generator::ResolveGeneratorPath(options.GetInput(), options.GetGenerators()[i]);
+		if (!genPath.empty())
+		{
+			Generator::RunDynamicGenerator(context, output, genPath);
+		}
+	}
+	//Generator::RunDynamicGenerators(context, output);
 
 	return true;
 }
@@ -153,7 +163,7 @@ void MCompiler::Compile(const MCompilerOptions & options)
 		return;
 	}
 
-	if (!generateFiles(context, options.GetOutput()))
+	if (!generateFiles(context, options.GetOutput(), options))
 	{
 			std::cerr << "GAME OVER\n";
 		return;

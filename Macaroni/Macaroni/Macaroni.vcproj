@@ -403,6 +403,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Macaroni\Build\Builder.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Macaroni\Model\Cpp\Class.cpp"
 				>
 			</File>
@@ -845,6 +849,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Macaroni\Build\Builder.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Macaroni\Model\Cpp\Class.h"
 				>
 			</File>
@@ -858,6 +866,10 @@
 			</File>
 			<File
 				RelativePath=".\Macaroni\CompilerOptions.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Build\Configuration.h"
 				>
 			</File>
 			<File
@@ -1153,11 +1165,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Parser\Parser.h"
+				RelativePath=".\Source\Macaroni\Parser.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Parser.h"
+				RelativePath=".\Source\Macaroni\Parser\Parser.h"
 				>
 			</File>
 			<File

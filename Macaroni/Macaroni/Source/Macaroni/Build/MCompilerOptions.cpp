@@ -8,9 +8,11 @@ using Gestalt::FileSystem::FileSet;
 namespace Macaroni { namespace Build {
 
 MCompilerOptions::MCompilerOptions(const FileSet & input, 
-				                   const boost::filesystem::path & output)
+				                   const boost::filesystem::path & output,
+								   const std::vector<const std::string> generators)
 :input(input),
- output(output)
+ output(output),
+ generators(generators)
 {
 
 }

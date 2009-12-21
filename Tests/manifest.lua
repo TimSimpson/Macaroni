@@ -1,7 +1,7 @@
 id = 
 {
-    group="TS4"
-    name="Test Project"
+    group="TS4",
+    name="Test Project",
     version="1.0.0.0"
 }
 
@@ -16,18 +16,15 @@ mSource =
 {   -- Ditto.  This is also the default.
     "Source"
 }
-mOutput =
-{
-    "MWork/GeneratedSource"
-}
+mOutput = "MWork/GeneratedSource"
+
 configurations = {
     all =
     {
-        compiler = "default"
+        compiler = "default",
         generators =
         {
-            "CppFile",
-            "HFile"
+            "SimpleGenerator.lua"
         },
         dependencies =
         {

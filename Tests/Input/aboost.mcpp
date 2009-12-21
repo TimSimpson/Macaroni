@@ -1,7 +1,0 @@
-namespace boost
-{
-  namespace filesystem
-  {
-    class path { ~hfile=<boost/filesystem> }
-  }
-}

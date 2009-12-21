@@ -2,6 +2,7 @@
 #define MACARONI_BUILD_CMDLINE_CPP
 
 #include "../ME.h"
+#include "Builder.h"
 #include "CmdLine.h"
 #include "MCompiler.h"
 #include "MCompilerOptions.h"
@@ -25,11 +26,13 @@ namespace Macaroni { namespace Build {
 
 
 CmdLine::CmdLine(const std::vector<const std::string> & args, Console & console)
-: console(console),
+: config(""),
+  console(console),
   debugMode(false),
   endPrompt(false),
   inputPath(""),
   luaTestsPath(""),
+  manifestPath(""),
   outputPath("")
 {
 	for(unsigned int i = 0; i < args.size(); i ++)
@@ -60,9 +63,11 @@ void CmdLine::directCompile()
 		console.Write("Executing compiler directly (no manifest).");
 		try
 		{
+			const std::vector<const std::string> generators;
 			FileSet input(boost::filesystem::path(inputPath), "\\.mcpp$");
 			MCompilerOptions options(input, 
-									 boost::filesystem::path(outputPath));
+									 boost::filesystem::path(outputPath),
+									 generators);
 			MCompiler compiler;
 			compiler.Compile(options);
 		}
@@ -83,14 +88,15 @@ void CmdLine::directCompile()
 
 void CmdLine::Execute()
 {
+	if (!luaTestsPath.empty())
+	{
+		//runLuaTests();
+	}
+
 	if (!(inputPath.empty() && outputPath.empty()))
 	{
 		directCompile();
-	}
-	else if (!luaTestsPath.empty())
-	{
-		runLuaTests();
-	}
+	}		
 	else 
 	{
 		runManifest();// TODO: Read manifest from local directory and attempt build.
@@ -99,7 +105,18 @@ void CmdLine::Execute()
 
 void CmdLine::parseArg(const std::string & arg, const std::string & next)
 {
-	if (arg == "-debug")
+	if (arg == "-configuration")
+	{
+		if (next.empty())
+		{
+			config = "";
+		}
+		else
+		{
+			config = next;
+		}
+	}
+	else if (arg == "-debug")
 	{
 		debugMode = true;
 	}
@@ -123,6 +140,17 @@ void CmdLine::parseArg(const std::string & arg, const std::string & next)
 		else
 		{
 			inputPath = next;
+		}
+	}
+	else if (arg == "-manifest")
+	{
+		if (next.empty())
+		{
+			console.WriteLine("No file given following \"manifest\" arg.");
+		}
+		else
+		{
+			manifestPath = next;
 		}
 	}
 	else if (arg == "-outputDirectory")
@@ -152,9 +180,31 @@ void CmdLine::runLuaTests()
 
 void CmdLine::runManifest()
 {
-	Manifest manifest(boost::filesystem::path("manifest.lua"));
-	console.Write("Name:");
-	console.WriteLine(manifest.GetId().GetName());
+	if (manifestPath.empty())
+	{
+		manifestPath = "manifest.lua";
+	}
+
+	if (config.empty())
+	{
+		config = "all";
+	}
+
+	boost::filesystem::path manifestFilePath(manifestPath);	
+	Manifest manifest(manifestFilePath);
+
+	const Configuration * mConfig = manifest.GetConfiguration(config);
+	if (mConfig == nullptr)
+	{
+		console.Write("Could not find config \"");
+		console.Write(config);
+		console.Write("\" in manifest.");
+		return;
+	}
+	const Configuration & mRefConfig = *mConfig;
+
+	Builder builder(manifest, mRefConfig, console);
+	builder.Execute();
 }
 
 } } // end namespace

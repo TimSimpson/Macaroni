@@ -3,6 +3,8 @@
 
 #include <boost/filesystem/operations.hpp>
 #include "../../Gestalt/FileSystem/FileSet.h"
+#include <string>
+#include <vector>
 
 namespace Macaroni { namespace Build {
 
@@ -11,9 +13,16 @@ class MCompilerOptions
 {
 public:
 	MCompilerOptions(const Gestalt::FileSystem::FileSet & input, 
-					const boost::filesystem::path & output);
+					 const boost::filesystem::path & output,
+					 const std::vector<const std::string> generators);
+
 	~MCompilerOptions();
 	
+	inline const std::vector<const std::string> GetGenerators() const
+	{
+		return generators;
+	}
+
 	inline const Gestalt::FileSystem::FileSet & GetInput() const
 	{
 		return input;
@@ -26,9 +35,9 @@ public:
 
 
 private:
-
+	const std::vector<const std::string> generators;
 	Gestalt::FileSystem::FileSet input;
-	boost::filesystem::path output;
+	boost::filesystem::path output;	
 };
 
 

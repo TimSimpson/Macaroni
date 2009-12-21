@@ -20,12 +20,14 @@ public:
 			Macaroni::Environment::Console & console);
 	void Execute();
 private:	
+	std::string config;
 	Macaroni::Environment::Console & console;
 	bool debugMode;
 	void directCompile();
 	bool endPrompt;
 	std::string inputPath;	
 	std::string luaTestsPath;
+	std::string manifestPath;
 	std::string outputPath;
 	void parseArg(const std::string & arg, const std::string & next);
 	void runLuaTests();
