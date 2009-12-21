@@ -7,7 +7,7 @@
 #include "../Reason.lh"
 #include "ScopeMember.h"
 #include "../Source.lh"
-#include "TypeInfo.h"
+#include "../Type.h"
 #include "Variable.lh"
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
@@ -24,7 +24,7 @@ public:
 
 	int GetArgumentCount() const;
 
-	static FunctionPtr Create(NodePtr home, const Access access, const TypeInfo & rtnTypeInfo, bool constMember, Model::ReasonPtr reason);
+	static FunctionPtr Create(NodePtr home, const Access access, const TypePtr rtnType, bool constMember, Model::ReasonPtr reason);
 
 	virtual ~Function();
 
@@ -38,9 +38,9 @@ public:
 
 	Model::NodePtr GetTypeNode() const;
 
-	inline const TypeInfo GetReturnType() const
+	inline const TypePtr GetReturnType() const
 	{
-		return returnTypeInfo;
+		return returnType;
 	}
 
 	inline bool IsConst() const
@@ -55,11 +55,11 @@ public:
 	virtual void Visit(MemberVisitor * visitor) const;
 
 protected:
-	Function(Node * home, const char * typeName, Model::ReasonPtr reason, Access access, const TypeInfo & rtnTypeInfo, bool constMember);
+	Function(Node * home, const char * typeName, Model::ReasonPtr reason, Access access, const TypePtr rtnType, bool constMember);
 
 private:
 	
-	Function(Node * home, Model::ReasonPtr reason, Access access, const TypeInfo & rtnTypeInfo, bool constMember);
+	Function(Node * home, Model::ReasonPtr reason, Access access, const TypePtr rtnTypeInfo, bool constMember);
 
 	bool codeAttached;
 
@@ -69,7 +69,7 @@ private:
 
 	bool constMember;
 
-	TypeInfo returnTypeInfo;
+	TypePtr returnType;
 };
 
 END_NAMESPACE

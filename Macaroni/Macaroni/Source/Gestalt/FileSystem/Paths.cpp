@@ -70,7 +70,13 @@ std::string Paths::GetExeDirectoryPath()
 	return dirPath;*/
 }
 
-
+static std::string GetUserPath() 
+{
+	// "USERPROFILE"
+	std::string userProfile = getenv("USERPROFILE");
+	std::string userPath = userProfile + "\\Macaroni";
+	return userPath;
+}
 
 END_NAMESPACE2
 

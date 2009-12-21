@@ -44,13 +44,13 @@ tests = {
                 local hello = this.root.Children[3];                
                 Test.assert("hello", hello.Name);
                 Test.assert("Variable", hello.Member.TypeName);
-                Test.assert("std::string", hello.Member.TypeNode.FullName);
+                Test.assert("std::string", hello.Member.Type.Node.FullName);
             end,            
             ["donuts"] = function(this)                
                 local donuts = this.root.Children[5].Children[1];
                 Test.assert("Apple::donuts", donuts.FullName);
                 Test.assert("Variable", donuts.Member.TypeName);
-                Test.assert("double", donuts.Member.TypeNode.Name);
+                Test.assert("double", donuts.Member.Type.Node.Name);
             end,            
         }
     },

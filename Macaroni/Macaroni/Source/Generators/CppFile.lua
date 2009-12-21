@@ -269,7 +269,7 @@ ClassGenerator = {
                     seenOne = true;
                 end
                 self:writeVariableInfo(c.Member);
-                self:write(c.Member.TypeNode.Name);
+                self:write(c.Member.Type.Node.Name);
                 self:write(" ");
                 self:write(c.Name);               
             end            

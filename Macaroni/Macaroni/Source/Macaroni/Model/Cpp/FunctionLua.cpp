@@ -5,7 +5,7 @@
 #include "../../Environment/DebugLog.h"
 #include "FunctionLua.h"
 #include "../MemberLua.h"
-#include "TypeInfoLua.h"
+#include "../TypeLua.h"
 #include "VariableLua.h"
 
 extern "C" {
@@ -25,7 +25,9 @@ struct lua_State;
 #define LUAGLUE_CLASSFULLCPPNAME Macaroni::Model::Cpp::Function
 #define LUAGLUE_REGISTRATIONCLASSNAME FunctionLuaMetaData
 #define LUAGLUE_HELPERCLASS FunctionLuaFunctions
-#define LUAGLUE_OPENOTHERMODULES Macaroni::Model::NodeLuaMetaData::OpenInLua(L); FunctionReturnTypeInfoOpenInLua(L); FunctionArgumentsOpenInLua(L);
+#define LUAGLUE_OPENOTHERMODULES Macaroni::Model::NodeLuaMetaData::OpenInLua(L); \
+	FunctionArgumentsOpenInLua(L); \
+	Macaroni::Model::TypeLuaMetaData::OpenInLua(L);
 #define LUAGLUE_CREATEMETATABLE 
 
 #define PROPERTIES_METATABLENAME_ARGUMENTS "Macaroni.Model.Cpp.Function.Arguments"
@@ -58,9 +60,10 @@ END_NAMESPACE
 		}
 		else if (index == "ReturnType")
 		{
-			createLUAGLUE_CLASSREFNAMEUserData(L, ptr);
-			luaL_getmetatable(L, PROPERTIES_METATABLENAME_RETURNTYPE);
-			lua_setmetatable(L, -2); 
+			TypeLuaMetaData::PutInstanceOnStack(L, ptr->GetReturnType());
+			///*createLUAGLUE_CLASSREFNAMEUserData(L, ptr);
+			//luaL_getmetatable(L, PROPERTIES_METATABLENAME_RETURNTYPE);
+			//lua_setmetatable(L, -2); */
 			return 1;
 		}
 		lua_pushnil(L);			
@@ -84,15 +87,15 @@ END_NAMESPACE
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-int argumentsIndex(lua_State * L)
+int functionArgumentsIndex(lua_State * L)
 {
 	FunctionPtr & ptr = getInstance(L, 1, PROPERTIES_METATABLENAME_ARGUMENTS);
-	int index = luaL_checkinteger(L, 2);
-	Macaroni::Model::MemberLuaMetaData::PutInstanceOnStack(L, ptr->GetArgument(index));
+	int index = luaL_checkinteger(L, 2);	
+	Macaroni::Model::MemberLuaMetaData::PutInstanceOnStack(L, ptr->GetArgument(index - 1));
 	return 1;
 }
 
-int argumentsLen(lua_State * L)
+int functionArgumentsLen(lua_State * L)
 {
 	FunctionPtr & ptr = getInstance(L, 1, PROPERTIES_METATABLENAME_ARGUMENTS);
 	lua_pushinteger(L, ptr->GetArgumentCount());
@@ -103,8 +106,8 @@ static const struct luaL_Reg argumentsMetaTableMethods[]=
 {
 	{"__eq", LUAGLUE_HELPERCLASS::__eq},
 	{"__gc", LUAGLUE_HELPERCLASS::luaGc},
-	{"__index", argumentsIndex},
-	{"__len", argumentsLen},
+	{"__index", functionArgumentsIndex},
+	{"__len", functionArgumentsLen},
 	{"__tostring", LUAGLUE_HELPERCLASS::__tostring},
 };
 
@@ -125,39 +128,39 @@ int FunctionArgumentsOpenInLua(lua_State * L)
 	return 1;
 }
 
-
-int rtnTypeIndex(lua_State * L)
-{
-	FunctionPtr & ptr = getInstance(L, 1, PROPERTIES_METATABLENAME_RETURNTYPE);
-	std::string index(luaL_checkstring(L, 2));
-	return TypeInfoLuaMetaData::Index(L, ptr->GetReturnType(), index);
-}
-
-static const struct luaL_Reg returnTypeMetaTableMethods[]=
-{
-	{"__eq", LUAGLUE_HELPERCLASS::__eq},
-	{"__gc", LUAGLUE_HELPERCLASS::luaGc},
-	{"__index", rtnTypeIndex},
-	{"__tostring", LUAGLUE_HELPERCLASS::__tostring},
-	{nullptr, nullptr}
-};
-
-int FunctionReturnTypeInfoOpenInLua(lua_State * L)
-{
-	DEBUGLOG_WRITE("FunctionReturnTypeInfo OpenInLua begins...");
-
-	luaL_getmetatable(L, PROPERTIES_METATABLENAME_RETURNTYPE);
-	if (lua_isnil(L, -1) != 1)
-	{
-		DEBUGLOG_WRITE("... SKIP! FunctionReturnTypeInfo");
-		return 0;
-	}
-	luaL_newmetatable(L, PROPERTIES_METATABLENAME_RETURNTYPE); // create metaTable
-	luaL_register(L, nullptr, returnTypeMetaTableMethods);
-
-	DEBUGLOG_WRITE("... FunctionReturnTypeInfo ends.");
-	return 1;
-}
+//
+//int rtnTypeIndex(lua_State * L)
+//{
+//	FunctionPtr & ptr = getInstance(L, 1, PROPERTIES_METATABLENAME_RETURNTYPE);
+//	std::string index(luaL_checkstring(L, 2));
+//	return TypeLuaMetaData::Index(L, ptr->GetReturnType(), index);
+//}
+//
+//static const struct luaL_Reg returnTypeMetaTableMethods[]=
+//{
+//	{"__eq", LUAGLUE_HELPERCLASS::__eq},
+//	{"__gc", LUAGLUE_HELPERCLASS::luaGc},
+//	{"__index", rtnTypeIndex},
+//	{"__tostring", LUAGLUE_HELPERCLASS::__tostring},
+//	{nullptr, nullptr}
+//};
+//
+//int FunctionReturnTypeInfoOpenInLua(lua_State * L)
+//{
+//	DEBUGLOG_WRITE("FunctionReturnTypeInfo OpenInLua begins...");
+//
+//	luaL_getmetatable(L, PROPERTIES_METATABLENAME_RETURNTYPE);
+//	if (lua_isnil(L, -1) != 1)
+//	{
+//		DEBUGLOG_WRITE("... SKIP! FunctionReturnTypeInfo");
+//		return 0;
+//	}
+//	luaL_newmetatable(L, PROPERTIES_METATABLENAME_RETURNTYPE); // create metaTable
+//	luaL_register(L, nullptr, returnTypeMetaTableMethods);
+//
+//	DEBUGLOG_WRITE("... FunctionReturnTypeInfo ends.");
+//	return 1;
+//}
 
 
 END_NAMESPACE

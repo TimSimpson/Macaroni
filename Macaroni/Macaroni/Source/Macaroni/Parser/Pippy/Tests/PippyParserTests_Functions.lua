@@ -86,19 +86,18 @@ tests = {
                 Test.assert("Function", this.func.TypeName);                  
             end,            
             ["Go's return type is void."] = function(this)                                
-                Test.assert("void", this.func.ReturnType.Node.Name);  --                
+                Test.assert("void", this.func.ReturnType.Node.Name);
             end,            
-            ["Main's argument list has one entry."] = function(this)  
-                print("OPEEE");                              
-                Test.assert(1, #this.func.Arguments);    --              
+            ["Main's argument list has one entry."] = function(this)                 
+                Test.assert(1, #this.func.Arguments);    
             end,   
             ["Go's argument #1 is std::string."] = function(this)
                 local args = this.func.Arguments;
-                print("OPEEE222");
                 local number = #args;
-                local arg1 = args[1];                         
-                local arg1Name = arg1.Node.FullName;       
-                Test.assert("std::string", arg1Name); 
+                local arg1 = args[1];                   
+                local arg1Type = arg1.Type;
+                local arg1TypeName = arg1Type.Node.FullName;       
+                Test.assert("std::string", arg1TypeName); 
             end,                       
         }
     },  

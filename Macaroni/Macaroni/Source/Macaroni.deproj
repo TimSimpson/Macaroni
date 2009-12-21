@@ -46,12 +46,6 @@
     <filename>Macaroni\Parser\Pippy\Tests\Simple.lua</filename>
   </file>
   <file>
-    <filename>Macaroni\Parser\Pippy\Tests\Namespace.lua</filename>
-  </file>
-  <file>
-    <filename>Macaroni\Parser\Pippy\Tests\Variables.lua</filename>
-  </file>
-  <file>
     <filename>Macaroni\Parser\Pippy\Tests\Milestones.lua</filename>
   </file>
   <file>
@@ -83,5 +77,11 @@
   </file>
   <file>
     <filename>Macaroni\Parser\Pippy\Tests\PippyParserTests_Class.lua</filename>
+  </file>
+  <file>
+    <filename>Macaroni\Parser\Pippy\Tests\PippyParserTests_Variables.lua</filename>
+  </file>
+  <file>
+    <filename>Macaroni\Parser\Pippy\Tests\PippyParserTests_Namespace.lua</filename>
   </file>
 </project>

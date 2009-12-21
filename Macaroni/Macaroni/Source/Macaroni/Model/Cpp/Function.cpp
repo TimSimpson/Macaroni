@@ -21,21 +21,21 @@ using class Macaroni::Model::Node;
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 
-Function::Function(Node * home, Model::ReasonPtr reason, Access access, const TypeInfo & rtnTypeInfo, bool constMember)
+Function::Function(Node * home, Model::ReasonPtr reason, Access access, const TypePtr rtnTypeInfo, bool constMember)
 :ScopeMember(home, "Function", reason, access),
  codeAttached(false),
  codeBlock(),
  constMember(constMember),
- returnTypeInfo(rtnTypeInfo)
+ returnType(rtnTypeInfo)
 {
 }
 
-Function::Function(Node * home, const char * typeName, Model::ReasonPtr reason, Access access, const TypeInfo & rtnTypeInfo, bool constMember)
+Function::Function(Node * home, const char * typeName, Model::ReasonPtr reason, Access access, const TypePtr rtnType, bool constMember)
 :ScopeMember(home, typeName, reason, access),
  codeAttached(false),
  codeBlock(),
  constMember(constMember),
- returnTypeInfo(rtnTypeInfo)
+ returnType(rtnType)
 {
 }
 
@@ -45,7 +45,7 @@ Function::~Function()
 
 bool Function::DoesDefinitionReference(NodePtr node) const
 {
-	return this->returnTypeInfo.Node == node ? true
+	return this->returnType->GetNode() == node ? true
 		: this->Member::DoesDefinitionReference(node);
 }
 
@@ -69,28 +69,28 @@ bool Function::canBeChildOf(const Member * other) const
 	return dynamic_cast<const Scope *>(other) != nullptr;
 }
 
-FunctionPtr Function::Create(NodePtr host, const Access access, const TypeInfo & rtnTypeInfo, 
+FunctionPtr Function::Create(NodePtr host, const Access access, const TypePtr rtnType, 
 							 bool constMember, Model::ReasonPtr reason)
 {
 	if (!host->GetMember())
 	{
-		return FunctionPtr(new Function(host.get(), reason, access, rtnTypeInfo, constMember));
+		return FunctionPtr(new Function(host.get(), reason, access, rtnType, constMember));
 	}
 	Member * member = host->GetMember().get();
 	Function * existingFunc = dynamic_cast<Function *>(member);
 	if (existingFunc == nullptr)
 	{
 		// Will throw an error message.
-		return FunctionPtr(new Function(host.get(), reason, access, rtnTypeInfo, constMember));
+		return FunctionPtr(new Function(host.get(), reason, access, rtnType, constMember));
 	}
 
-	if (existingFunc != nullptr && !(existingFunc->returnTypeInfo == rtnTypeInfo))
+	if (existingFunc != nullptr && !(existingFunc->returnType == rtnType))
 	{
 		std::stringstream ss;
-		existingFunc->returnTypeInfo.DescribeDifferences(rtnTypeInfo, ss);
+		//existingFunc->returnType->DescribeDifferences(rtnType, ss);
 
 		ss << "Function was already defined with a conflicting return type. ";	
-		existingFunc->returnTypeInfo.DescribeDifferences(rtnTypeInfo, ss);
+		existingFunc->returnType->DescribeDifferences(rtnType, ss);
 		
 		throw ModelInconsistencyException(member->GetReasonCreated(),
 											  reason,

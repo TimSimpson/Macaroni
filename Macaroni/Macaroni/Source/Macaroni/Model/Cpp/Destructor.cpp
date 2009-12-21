@@ -23,22 +23,20 @@ BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 namespace
 {
-	inline TypeInfo voidTypeInfo()
+	inline TypePtr voidType()
 	{
-		//ContextPtr context = home->GetContext();
-
-		TypeInfo typeInfo;
-		typeInfo.IsConst = false;
-		typeInfo.IsConstPointer = false;
-		typeInfo.IsPointer = false;
-		typeInfo.IsReference = false;
-		typeInfo.Node = NodePtr();//CppContext::GetPrimitives(context)->Find("void");
-		return typeInfo;
+		TypeModifiers modifiers;
+		modifiers.Const = 
+			modifiers.ConstPointer = 
+			modifiers.Pointer = 
+			modifiers.Reference = 
+			false;
+		return TypePtr(new Type(NodePtr(), modifiers));		
 	}
 };
 
 Destructor::Destructor(Node * home, Model::ReasonPtr reason, Access access)
-:Function(home, "Destructor", reason, access, voidTypeInfo(), false)
+:Function(home, "Destructor", reason, access, voidType(), false)
 {
 }
 

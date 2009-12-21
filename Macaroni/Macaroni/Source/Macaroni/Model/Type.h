@@ -34,7 +34,9 @@ public:
 	
 	~Type();
 	
-	NodePtr GetNode();
+	void DescribeDifferences(const TypePtr info, std::stringstream & stream) const;
+
+	NodePtr GetNode() const;
 
 	TypeArgumentListPtr GetTypeArguments();
 	

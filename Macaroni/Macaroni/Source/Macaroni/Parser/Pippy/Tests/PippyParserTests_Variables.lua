@@ -55,7 +55,7 @@ tests = {
                 Test.assert("Variable", this.var.TypeName);                  
             end,            
             ["C is not const."] = function(this)                                
-                Test.assert(false, this.var.Const);                  
+                Test.assert(false, this.var.Type.Const);                  
             end,                        
         }
     },
@@ -86,10 +86,10 @@ tests = {
                 Test.assert("Variable", this.var.TypeName);                  
             end,            
             ["C is not const."] = function(this)                                
-                Test.assert(false, this.var.Const);                  
+                Test.assert(false, this.var.Type.Const);                  
             end,                        
             ["K is not const."] = function(this)                                
-                Test.assert(false, this.var2.Const);                  
+                Test.assert(false, this.var2.Type.Const);                  
             end,                        
         }
     },
@@ -112,7 +112,7 @@ tests = {
         end,
         tests = {
             ["C is not const."] = function(this)                                
-                Test.assert(true, this.var.Const);                  
+                Test.assert(true, this.var.Type.Const);                  
             end,          
         }
     },  
@@ -133,13 +133,13 @@ tests = {
         end,
         tests = {
             ["C is const."] = function(this)                                
-                Test.assert(true, this.var.Const);                  
+                Test.assert(true, this.var.Type.Const); 
             end,          
             ["C is not a pointer."] = function(this)                                
-                Test.assert(false, this.var.Pointer);                  
+                Test.assert(false, this.var.Type.Pointer);                  
             end, 
             ["C is not a reference."] = function(this)                                
-                Test.assert(false, this.var.Reference);                  
+                Test.assert(false, this.var.Type.Reference);                  
             end,                
         }
     },  
@@ -198,10 +198,10 @@ tests = {
                 Test.assert("Variable", this.var.TypeName);                  
             end,            
             ["C is not const."] = function(this)                                
-                Test.assert(false, this.var.Const);                  
+                Test.assert(false, this.var.Type.Const);                  
             end,                        
             ["K is const."] = function(this)                                
-                Test.assert(true, this.var2.Const);                  
+                Test.assert(true, this.var2.Type.Const);                  
             end,                        
         }
     },
@@ -229,10 +229,10 @@ tests = {
                 Test.assert("Variable", this.var.TypeName);                  
             end,            
             ["C is const."] = function(this)                                
-                Test.assert(true, this.var.Const);                  
+                Test.assert(true, this.var.Type.Const);                  
             end,                        
             ["C is a pointer."] = function(this)                                
-                Test.assert(true, this.var.Pointer);                  
+                Test.assert(true, this.var.Type.Pointer);                  
             end,                
         }
     },
@@ -260,10 +260,10 @@ tests = {
                 Test.assert("Variable", this.var.TypeName);                  
             end,            
             ["C is const."] = function(this)                                
-                Test.assert(true, this.var.Const);                  
+                Test.assert(true, this.var.Type.Const);                  
             end,                        
             ["C is a pointer."] = function(this)                                
-                Test.assert(true, this.var.Pointer);                  
+                Test.assert(true, this.var.Type.Pointer);                  
             end,                
         }
     },
@@ -291,16 +291,16 @@ tests = {
                 Test.assert("Variable", this.var.TypeName);                  
             end,            
             ["C is const."] = function(this)                                
-                Test.assert(true, this.var.Const);                  
+                Test.assert(true, this.var.Type.Const);                  
             end,                        
             ["C is a pointer."] = function(this)                                
-                Test.assert(true, this.var.Pointer);                  
+                Test.assert(true, this.var.Type.Pointer);                  
             end,    
             ["C is a const pointer."] = function(this)                                
-                Test.assert(true, this.var.ConstPointer);                  
+                Test.assert(true, this.var.Type.ConstPointer);                  
             end,     
             ["C is not a reference."] = function(this)                                
-                Test.assert(false, this.var.Reference);                  
+                Test.assert(false, this.var.Type.Reference);                  
             end,        
         }
     },
@@ -328,16 +328,16 @@ tests = {
                 Test.assert("Variable", this.var.TypeName);                  
             end,            
             ["C is not const."] = function(this)                                
-                Test.assert(false, this.var.Const);                  
+                Test.assert(false, this.var.Type.Const);                  
             end,                        
             ["C is not a pointer."] = function(this)                                
-                Test.assert(false, this.var.Pointer);                  
+                Test.assert(false, this.var.Type.Pointer);                  
             end,    
             ["C is not a const pointer."] = function(this)                                
-                Test.assert(false, this.var.ConstPointer);                  
+                Test.assert(false, this.var.Type.ConstPointer);                  
             end,            
             ["C is a reference."] = function(this)                                
-                Test.assert(true, this.var.Reference);                  
+                Test.assert(true, this.var.Type.Reference);                  
             end,            
         }
     },
@@ -365,16 +365,16 @@ tests = {
                 Test.assert("Variable", this.var.TypeName);                  
             end,            
             ["C is const."] = function(this)                                
-                Test.assert(true, this.var.Const);                  
+                Test.assert(true, this.var.Type.Const);                  
             end,                        
             ["C is a pointer."] = function(this)                                
-                Test.assert(true, this.var.Pointer);                  
+                Test.assert(true, this.var.Type.Pointer);                  
             end,    
             ["C is a const pointer."] = function(this)                                
-                Test.assert(true, this.var.ConstPointer);                  
+                Test.assert(true, this.var.Type.ConstPointer);                  
             end,     
             ["C is a reference."] = function(this)                                
-                Test.assert(true, this.var.Reference);                  
+                Test.assert(true, this.var.Type.Reference);                  
             end,        
         }
     },

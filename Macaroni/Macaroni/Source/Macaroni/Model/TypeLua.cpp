@@ -25,22 +25,22 @@
 	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr, 
 									  const std::string & index)
 	{				
-		if (index == "IsConst")
+		if (index == "Const")
 		{
 			lua_pushboolean(L, ptr->IsConst());
 			return 1;
 		}
-		else if (index == "IsConstPointer")
+		else if (index == "ConstPointer")
 		{
 			lua_pushboolean(L, ptr->IsConstPointer());
 			return 1;
 		}
-		else if (index == "IsPointer")
+		else if (index == "Pointer")
 		{
 			lua_pushboolean(L, ptr->IsPointer());
 			return 1;
 		}
-		else if (index == "IsReference")
+		else if (index == "Reference")
 		{
 			lua_pushboolean(L, ptr->IsReference());
 			return 1;

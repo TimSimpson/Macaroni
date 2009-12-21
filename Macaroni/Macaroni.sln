@@ -6,6 +6,7 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Boost Test|Win32 = Boost Test|Win32
+		Debug - Full Tests|Win32 = Debug - Full Tests|Win32
 		Debug|Win32 = Debug|Win32
 		Lua Unit Tests|Win32 = Lua Unit Tests|Win32
 		Release|Win32 = Release|Win32
@@ -13,6 +14,8 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{D57C9ED8-414C-419C-B331-04A8978DEFA4}.Boost Test|Win32.ActiveCfg = Boost Test|Win32
 		{D57C9ED8-414C-419C-B331-04A8978DEFA4}.Boost Test|Win32.Build.0 = Boost Test|Win32
+		{D57C9ED8-414C-419C-B331-04A8978DEFA4}.Debug - Full Tests|Win32.ActiveCfg = Debug - Full Tests|Win32
+		{D57C9ED8-414C-419C-B331-04A8978DEFA4}.Debug - Full Tests|Win32.Build.0 = Debug - Full Tests|Win32
 		{D57C9ED8-414C-419C-B331-04A8978DEFA4}.Debug|Win32.ActiveCfg = Debug|Win32
 		{D57C9ED8-414C-419C-B331-04A8978DEFA4}.Debug|Win32.Build.0 = Debug|Win32
 		{D57C9ED8-414C-419C-B331-04A8978DEFA4}.Lua Unit Tests|Win32.ActiveCfg = Lua Unit Tests|Win32

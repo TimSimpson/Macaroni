@@ -3,10 +3,13 @@ require "Macaroni.Generator.Output.Path";
 require "Macaroni.Model.Node";
 require "Macaroni.Model.Context";
 require "Macaroni.Model.Context";
-require "Macaroni.Model.Cpp.Function";
+--require "Macaroni.Model.Cpp.Function";
 require "Macaroni.Model.Member";
 require "Macaroni.Model.Node";
 require "Macaroni.Model.Cpp.VariableAssignment";
+require "Macaroni.Model.Type";
+require "Macaroni.Model.TypeArgument";
+require "Macaroni.Model.TypeList";
 require "debug";
 require "io";
 
@@ -26,6 +29,7 @@ Macaroni.Model.TypeNames =
 Common = {
 
 };
+
 
 function Generate(context, path)
     print("I play no part in this cosmic dance. I prance, and prance, and prance...");

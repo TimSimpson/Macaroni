@@ -14,7 +14,7 @@
 #include "../../Model/Cpp/Primitive.h"
 #include <string>
 #include <sstream>
-#include "../../Model/Cpp/TypeInfo.h"
+#include "../../Model/Type.h"
 #include "../../Model/Cpp/Variable.h"
 #include "../../Model/Cpp/VariableAssignment.h"
 
@@ -37,7 +37,8 @@ using Macaroni::Model::NodeList;
 using Macaroni::Model::NodeListPtr;
 using boost::filesystem::path;
 using Macaroni::Model::Cpp::Primitive;
-using Macaroni::Model::Cpp::TypeInfo;
+using Macaroni::Model::Type;
+using Macaroni::Model::TypePtr;
 using Macaroni::Model::Cpp::Variable;
 using Macaroni::Model::Cpp::VariableAssignment;
 using Macaroni::Model::Cpp::VariablePtr;
@@ -176,7 +177,7 @@ public:
 
 	virtual void writeVariable(const Macaroni::Model::Cpp::Variable & var)
 	{	
-		writeTypeInfoHFile(var.GetTypeInfo());
+		writeTypeInfoHFile(var.GetType());
 
 		hFile << var.GetName() << ";";
 		//cppFile << var.GetName() << ";";
@@ -262,7 +263,7 @@ protected:
 					startLine();
 				}
 				VariablePtr arg = func.GetArgument(i);
-				writeTypeInfo(arg->GetTypeInfo());
+				writeTypeInfo(arg->GetType());
 				//write(" ");
 				write(arg->GetName());			
 			}
@@ -334,44 +335,44 @@ protected:
 
 	
 
-	void writeTypeInfo(const TypeInfo & type)
+	void writeTypeInfo(const TypePtr type)
 	{
-		if (type.IsConst)
+		if (type->IsConst())
 		{
 			write("const ");			
 		}
-		hFile << type.Node->GetPrettyFullName("::") <<  " ";
-		cppFile << type.Node->GetPrettyFullName("::") << " ";
-		if (type.IsPointer)
+		hFile << type->GetNode()->GetPrettyFullName("::") <<  " ";
+		cppFile << type->GetNode()->GetPrettyFullName("::") << " ";
+		if (type->IsPointer())
 		{
 			write("* ");			
-			if (type.IsConstPointer)
+			if (type->IsConstPointer())
 			{
 				write("const ");				
 			}
 		}
-		if (type.IsReference)
+		if (type->IsReference())
 		{
 			write("& ");			
 		}		
 	}
 
-	void writeTypeInfoHFile(const TypeInfo & type)
+	void writeTypeInfoHFile(const TypePtr type)
 	{
-		if (type.IsConst)
+		if (type->IsConst())
 		{
 			hFile << "const ";			
 		}
-		hFile << type.Node->GetPrettyFullName("::") <<  " ";
-		if (type.IsPointer)
+		hFile << type->GetNode()->GetPrettyFullName("::") <<  " ";
+		if (type->IsPointer())
 		{
 			hFile << "* ";			
-			if (type.IsConstPointer)
+			if (type->IsConstPointer())
 			{
 				hFile << "const ";				
 			}
 		}
-		if (type.IsReference)
+		if (type->IsReference())
 		{
 			hFile << "& ";			
 		}		

@@ -223,7 +223,7 @@ ClassGenerator = {
         self:writeTabs();
         local variable = node.Member;
         self:writeVariableInfo(variable);
-        self:write(variable.TypeNode.FullName .. " ");
+        self:write(variable.Type.Node.FullName .. " ");
         self:write(node.Name .. ";\n");
     end,
     
@@ -246,7 +246,7 @@ ClassGenerator = {
                     seenOne = true;
                 end
                 self:writeVariableInfo(c.Member);
-                self:write(c.Member.TypeNode.FullName);
+                self:write(c.Member.Type.Node.FullName);
                 self:write(" ");
                 self:write(c.Name);               
             end            
@@ -260,16 +260,16 @@ ClassGenerator = {
     end,
     
     writeVariableInfo = function(self, variable)
-        if (variable.Const) then
+        if (variable.Type.Const) then
             self:write("const ");
         end
-        if (variable.Pointer) then
+        if (variable.Type.Pointer) then
             self:write("* ");
         end
-        if (variable.Reference) then
+        if (variable.Type.Reference) then
             self:write("& ");
         end
-        if (variable.ConstPointer) then
+        if (variable.Type.ConstPointer) then
             self:write("const ");
         end
     end,

@@ -1,0 +1,8 @@
+// Macaroni header files for the standard C++ library.
+// This file is used by Macaroni to define the Nodes it needs to know about
+// to work with the standard libs.
+namespace std
+{
+  class std::string{  ~hfile=<string> };
+}
+

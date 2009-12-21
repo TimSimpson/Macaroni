@@ -1,19 +1,19 @@
-#ifndef MACARONI_COMPILER_CPP
-#define MACARONI_COMPILER_CPP
+#ifndef MACARONI_BUILD_COMPILER_CPP
+#define MACARONI_BUILD_COMPILER_CPP
 
-#include "Compiler.h"
-#include "Model/Context.h"
-#include "Generator/Cpp/CppSourceGenerator.h"
-#include "Generator/DebugEnumerator.h"
-#include "Exception.h"
-#include "Model/FileName.h"
+#include "MCompilerOptions.h"
+#include "../Model/Context.h"
+#include "../Generator/Cpp/CppSourceGenerator.h"
+#include "../Generator/DebugEnumerator.h"
+#include "../Exception.h"
+#include "../Model/FileName.h"
 #include <memory>
-#include "Model/Node.h"
-#include "Model/MemberVisitor.h"
-#include "Parser/ParserException.h"
-#include "Parser/Pippy/PippyParser.h"
-#include "Generator/DynamicGenerators.h"
-#include "Model/Source.h"
+#include "../Model/Node.h"
+#include "../Model/MemberVisitor.h"
+#include "../Parser/ParserException.h"
+#include "../Parser/Pippy/PippyParser.h"
+#include "../Generator/DynamicGenerators.h"
+#include "../Model/Source.h"
 
 using Macaroni::Model::Context;
 using Macaroni::Model::ContextPtr;
@@ -35,12 +35,26 @@ using Macaroni::Model::SourcePtr;
 #include <string>
 #include <sstream>
 
-namespace Macaroni {
+namespace Macaroni { namespace Build {
 
-namespace Compiler
+class MCompiler
 {
+public:
+	void Compile(const MCompilerOptions & options);
 
-static void readFile(std::stringstream & contents, const std::string & filePath)
+private:
+	/** Iteratres all input files, parsing each one into the given context. */
+	bool buildModel(ContextPtr context, FileSet inputFiles);
+	/** Reads from the model to generates output files. */
+	bool generateFiles(ContextPtr context, path output);
+	/** Parses the file and stores it into the Model context. */
+	void parseFile(Macaroni::Model::ContextPtr context, path filePath);
+	/** Reads the contents of a file into the contents stringstream. */
+	void readFile(std::stringstream & contents, const std::string & filePath);
+};
+
+
+void MCompiler::readFile(std::stringstream & contents, const std::string & filePath)
 {
 	std::ifstream file(filePath.c_str());
 	if (!file.is_open())
@@ -58,7 +72,7 @@ static void readFile(std::stringstream & contents, const std::string & filePath)
 	file.close();
 }
 
-static void parseFile(ContextPtr context, path filePath)
+void MCompiler::parseFile(ContextPtr context, path filePath)
 {
 	std::stringstream fileContents;
 	readFile(fileContents, filePath.string());
@@ -69,7 +83,7 @@ static void parseFile(ContextPtr context, path filePath)
 	parser.Read(context, source, fileContents.str());
 }
 
-static bool buildModel(ContextPtr context, FileSet inputFiles)
+bool MCompiler::buildModel(ContextPtr context, FileSet inputFiles)
 {	
 	std::cout << "Builing Macaroni::Model...\n";
 
@@ -94,7 +108,7 @@ static bool buildModel(ContextPtr context, FileSet inputFiles)
 	return true;
 }
 
-static bool generateFiles(ContextPtr context, path output)
+bool MCompiler::generateFiles(ContextPtr context, path output)
 {
 	
 	std::cout << "Debug Tree\n";
@@ -116,7 +130,7 @@ static bool generateFiles(ContextPtr context, path output)
 	return true;
 }
 
-void Compile(const CompilerOptions & options)
+void MCompiler::Compile(const MCompilerOptions & options)
 {
 	std::cout << "Macaroni for C++\n";
 	std::cout << "(C) Tim Simpson\n";
@@ -149,9 +163,7 @@ void Compile(const CompilerOptions & options)
 
 }
 
-};
 
-
-}
+} }
 
 #endif

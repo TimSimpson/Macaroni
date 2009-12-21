@@ -1,17 +1,18 @@
-#ifndef MACARONI_COMPILEROPTIONS_H
-#define MACARONI_COMPILEROPTIONS_H
+#ifndef MACARONI_BUILD_MCOMPILEROPTIONS_H
+#define MACARONI_BUILD_MCOMPILEROPTIONS_H
 
 #include <boost/filesystem/operations.hpp>
-#include "../Gestalt/FileSystem/FileSet.h"
+#include "../../Gestalt/FileSystem/FileSet.h"
 
-namespace Macaroni {
+namespace Macaroni { namespace Build {
 
-class CompilerOptions
+/** Defines options for the Macaroni compiler.  */
+class MCompilerOptions
 {
 public:
-	CompilerOptions(const Gestalt::FileSystem::FileSet & input, 
+	MCompilerOptions(const Gestalt::FileSystem::FileSet & input, 
 					const boost::filesystem::path & output);
-	~CompilerOptions();
+	~MCompilerOptions();
 	
 	inline const Gestalt::FileSystem::FileSet & GetInput() const
 	{
@@ -31,6 +32,6 @@ private:
 };
 
 
-}
+} }
 
 #endif

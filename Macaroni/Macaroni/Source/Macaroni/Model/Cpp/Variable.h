@@ -6,7 +6,7 @@
 #include "../Reason.lh"
 #include "ScopeMember.h"
 #include "Variable.lh"
-#include "TypeInfo.h"
+#include "../Type.h"
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
@@ -19,7 +19,7 @@ friend void intrusive_ptr_release(Variable * p);
 
 public:
 
-	static VariablePtr Create(NodePtr home, Access access, const TypeInfo & typeInfo, Model::ReasonPtr reason);
+	static VariablePtr Create(NodePtr home, Access access, const TypePtr type, Model::ReasonPtr reason);
 
 	virtual ~Variable();
 
@@ -29,40 +29,41 @@ public:
 
 	virtual const char * GetTypeName() const;
 
-	inline const TypeInfo & GetTypeInfo() const
+	inline const TypePtr GetType() const
 	{
-		return typeInfo;
+		return type;
 	}
 
-	Model::NodePtr GetTypeNode() const;
+	//Model::NodePtr GetTypeNode() const;
 
-	inline bool IsConst()
-	{
-		return typeInfo.IsConst;
-	}
+	////TODO: Remove these accessors, they're obnoxiously redundant.
+	//inline bool IsConst()
+	//{
+	//	return type->IsConst;
+	//}
 
-	inline bool IsConstPointer()
-	{
-		return typeInfo.IsConstPointer;
-	}
+	//inline bool IsConstPointer()
+	//{
+	//	return type->IsConstPointer;
+	//}
 
-	inline bool IsPointer()
-	{
-		return typeInfo.IsPointer;
-	}
+	//inline bool IsPointer()
+	//{
+	//	return type->IsPointer;
+	//}
 
-	inline bool IsReference()
-	{
-		return typeInfo.IsReference;
-	}
+	//inline bool IsReference()
+	//{
+	//	return type->IsReference;
+	//}
 
 	virtual void Visit(MemberVisitor * visitor) const;
 
 private:
 	
-	Variable(Node * home, Model::ReasonPtr reason, Access access, const TypeInfo & typeInfo);
+	Variable(Node * home, Model::ReasonPtr reason, Access access, const TypePtr type);
 
-	TypeInfo typeInfo;
+	TypePtr type;
 };
 
 END_NAMESPACE

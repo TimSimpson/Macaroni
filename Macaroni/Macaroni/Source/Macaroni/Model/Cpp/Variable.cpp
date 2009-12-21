@@ -18,9 +18,9 @@ using class Macaroni::Model::Node;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-Variable::Variable(Node * parent, ReasonPtr reason, Access access, const TypeInfo & info)
+Variable::Variable(Node * parent, ReasonPtr reason, Access access, const TypePtr type)
 :ScopeMember(parent, "Variable", reason, access),
- typeInfo(info)
+ type(type)
 {
 }
 
@@ -35,37 +35,39 @@ bool Variable::canBeChildOf(const Member * other) const
 	return dynamic_cast<const Scope *>(other) != nullptr;
 }
 
-VariablePtr Variable::Create(NodePtr host, Access access, const TypeInfo & info, ReasonPtr reason)
+VariablePtr Variable::Create(NodePtr host, Access access, const TypePtr type, ReasonPtr reason)
 {
 	if (!host->GetMember())
 	{
-		return VariablePtr(new Variable(host.get(), reason, access, info));
+		//return Variable::Create(host, access, type, reason);
+		return VariablePtr(new Variable(host.get(), reason, access, type));
 	}
 	Member * member = host->GetMember().get();
 	Variable * existingVar = dynamic_cast<Variable *>(member);
 	if (existingVar == nullptr)
 	{
 		// Will throw an error message.
-		return VariablePtr(new Variable(host.get(), reason, access, info));
+		//return Variable::Create(host, access, type, reason);
+		return VariablePtr(new Variable(host.get(), reason, access, type));
 	}
 
-	if (existingVar != nullptr && !(existingVar->typeInfo == info))
+	if (existingVar != nullptr && !(existingVar->type == type))
 	{
 		std::stringstream ss;
 		ss << "Variable was already defined with conflicting type information. ";	
-		if (existingVar->typeInfo.IsConst && !info.IsConst)
+		if (existingVar->type->IsConst() && !type->IsConst())
 		{
 			ss << "Previous definition was const.";
 		}
-		if (existingVar->typeInfo.IsConstPointer && !info.IsConstPointer)
+		if (existingVar->type->IsConstPointer() && !type->IsConstPointer())
 		{
 			ss << "Previous definition was const pointer.";
 		}
-		if (existingVar->typeInfo.IsPointer && !info.IsPointer)
+		if (existingVar->type->IsPointer() && !type->IsPointer())
 		{
 			ss << "Previous definition was pointer.";
 		}
-		if (existingVar->typeInfo.IsReference && !info.IsReference)
+		if (existingVar->type->IsReference() && !type->IsReference())
 		{
 			ss << "Previous definition was reference.";
 		}
@@ -79,7 +81,7 @@ VariablePtr Variable::Create(NodePtr host, Access access, const TypeInfo & info,
 
 bool Variable::DoesDefinitionReference(NodePtr node) const
 {
-	return typeInfo.Node == node ? true 
+	return type->GetNode() == node ? true 
 		: this->Member::DoesDefinitionReference(node);
 }
 
@@ -88,10 +90,10 @@ const char * Variable::GetTypeName() const
 	return "Variable";
 }
 
-Model::NodePtr Variable::GetTypeNode() const
-{
-	return typeInfo.Node;
-}
+////Model::NodePtr Variable::GetTypeNode() const
+////{
+////	return typeInfo.Node;
+////}
 
 void intrusive_ptr_add_ref(Variable * p)
 {

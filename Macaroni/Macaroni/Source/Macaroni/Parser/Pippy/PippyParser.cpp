@@ -1099,17 +1099,17 @@ public:
 		{	
 			Iterator oldItr = itr;
 			Access access;
-			TypeInfo typeInfo;
+			TypePtr type;
 			std::string argName;
 			if ((seenArg && !itr.ConsumeChar(','))
 				||
-				!Variable(itr, access, typeInfo, argName))
+				!Variable(itr, access, type, argName))
 			{
 				throw ParserException(itr.GetSource(),
 				Messages::Get("CppParser.Function.ExpectedEndingParenthesis"));
 			}
 			NodePtr node = currentScope->FindOrCreate(argName);
-			Variable::Create(node, access, typeInfo,
+			Variable::Create(node, access, type,
 				Reason::Create(CppAxioms::VariableScopeCreation(), oldItr.GetSource()));
 			seenArg = true;
 		}
@@ -1306,26 +1306,35 @@ public:
 		Assert(SimpleName(createTestItr("AVeryLongName2_3a:")) == 17);
 	}
 
+	/** Consumes type info into the form of Type, in the format of
+	 * [const] [TypeNodeAndArgs] [*] [const] [&]
+	 * and sets the new (or, potentially later, found) Type object in "info."
+	 * This includes even nested template instances.
+	 * Moves itr.
+	 */
 	bool Type(Iterator & itr, TypePtr & info)
 	{
+		Iterator newItr = itr;
+
 		NodePtr mainNode;
 		TypeModifiers modifiers;
 		TypeArgumentListPtr typeArgumentList;
 
-		ConsumeWhitespace(itr);		
-		if (itr.ConsumeWord("const"))
+		ConsumeWhitespace(newItr);		
+		if (newItr.ConsumeWord("const"))
 		{
 			modifiers.Const = true;
-			ConsumeWhitespace(itr);
+			ConsumeWhitespace(newItr);
 		}
 
-		if (!ConsumeTypeMainNodeAndArguments(itr, mainNode, typeArgumentList))
+		Iterator beforeTypeInfoItr = newItr;
+		if (!ConsumeTypeMainNodeAndArguments(newItr, mainNode, typeArgumentList))
 		{
 			if (modifiers.Const)
 			{
 				// If we saw const, they're committed.
-				throw ParserException(itr.GetSource(),
-				Messages::Get("CppParser.Variable.ConstMaybeBeforeVar")); 
+				throw ParserException(newItr.GetSource(),
+					Messages::Get("CppParser.Variable.ConstMaybeBeforeVar")); 
 			}
 			else
 			{
@@ -1335,12 +1344,15 @@ public:
 			}
 		}
 				
-		// At this point, we're committed.
+		// At this point, we're committed, so start using the actual itr passed 
+		// in.
 		if (!mainNode) // The function could not find the node.
  		{
-			throw ParserException(itr.GetSource(),
+			throw ParserException(beforeTypeInfoItr.GetSource(),
 				Messages::Get("CppParser.Variable.UnknownTypeName")); 
 		}
+
+		itr = newItr;
 
 		ConsumeWhitespace(itr);
 		if (itr.ConsumeWord("const"))
@@ -1423,19 +1435,22 @@ public:
 		return true;
 	}
 
-	
 	/** Attempts to parse a variable. Returns false if it can't.  Will move
 	 * itr.  If it finds variable type info followed by a complex name it
 	 * will return the typeInfo and name.  Otherwise an exception gets thrown.
 	 * Does not parse the semicolon though, just stops after the name. */
-	bool Variable(Iterator & itr, Access & access, TypeInfo & typeInfo, std::string & varName)
+	bool Variable(Iterator & itr, Access & access, TypePtr & type, std::string & varName)
 	{
 		access = AccessKeyword(itr);
 
-		if (!VariableType(itr, typeInfo))
+		if (!Type(itr, type))
 		{
 			return false;
 		}
+		//if (!VariableType(itr, typeInfo))
+		//{
+		//	return false;
+		//}
 
 		// Now we need to see a name.
 		if (!ConsumeComplexName(itr, varName))
@@ -1458,11 +1473,11 @@ public:
 		bool global = GlobalKeyword(itr);		
 
 		Access access;
-		TypeInfo typeInfo;
+		TypePtr type;
 		std::string varName;
 		Iterator oldItr = itr; // Save it in case we need to define where the
 							   // var definition began.
-		if (!Variable(itr, access, typeInfo, varName))
+		if (!Variable(itr, access, type, varName))
 		{
 			if (global)
 			{
@@ -1504,7 +1519,7 @@ public:
 		
 		if (itr.ConsumeChar(';'))
 		{			
-			Variable::Create(node, access, typeInfo,
+			Variable::Create(node, access, type,
 				Reason::Create(CppAxioms::VariableScopeCreation(), oldItr.GetSource()));
 		
 		} 
@@ -1537,7 +1552,7 @@ public:
 						Messages::Get("CppParser.Function.SemicolonExpected")); 
 				}
 			}
-			FunctionPtr function = Function::Create(node, access, typeInfo, constMember,
+			FunctionPtr function = Function::Create(node, access, type, constMember,
 				Reason::Create(CppAxioms::FunctionCreation(), oldItr.GetSource()));
 			if (codeAttached)
 			{
@@ -1554,80 +1569,80 @@ public:
 		return true;
 	}
 
-	/** Attempts to parse a variable's type information.
-	 * expects: [const] [typeComplexName] [const] [*] [const] [&]
-     */
-	bool VariableType(Iterator & itr, TypeInfo & info)
-	{
-		info = TypeInfo();
+	/////** Attempts to parse a variable's type information.
+	//// * expects: [const] [typeComplexName] [const] [*] [const] [&]
+ ////    */
+	////bool VariableType(Iterator & itr, TypeInfo & info)
+	////{
+	////	info = TypeInfo();
 
-		ConsumeWhitespace(itr);		
-		if (itr.ConsumeWord("const"))
-		{
-			info.IsConst = true;
-			ConsumeWhitespace(itr);
-		}
+	////	ConsumeWhitespace(itr);		
+	////	if (itr.ConsumeWord("const"))
+	////	{
+	////		info.IsConst = true;
+	////		ConsumeWhitespace(itr);
+	////	}
 
-		if (!ConsumeNodeName(itr, info.Node))
-		{
-			if (info.IsConst)
-			{
-				// If we saw const, they're committed.
-				throw ParserException(itr.GetSource(),
-				Messages::Get("CppParser.Variable.ConstMaybeBeforeVar")); 
-			}
-			else
-			{
-				// Didn't see false and that didn't look like a typename, so
-				// we're fine.
-				return false;
-			}
-		}
-		
-		// At this point, we're committed.
+	////	if (!ConsumeNodeName(itr, info.Node))
+	////	{
+	////		if (info.IsConst)
+	////		{
+	////			// If we saw const, they're committed.
+	////			throw ParserException(itr.GetSource(),
+	////			Messages::Get("CppParser.Variable.ConstMaybeBeforeVar")); 
+	////		}
+	////		else
+	////		{
+	////			// Didn't see false and that didn't look like a typename, so
+	////			// we're fine.
+	////			return false;
+	////		}
+	////	}
+	////	
+	////	// At this point, we're committed.
 
-		if (!info.Node)
-		{
-			throw ParserException(itr.GetSource(),
-				Messages::Get("CppParser.Variable.UnknownTypeName")); 
-		}
+	////	if (!info.Node)
+	////	{
+	////		throw ParserException(itr.GetSource(),
+	////			Messages::Get("CppParser.Variable.UnknownTypeName")); 
+	////	}
 
-		ConsumeWhitespace(itr);
-		if (itr.ConsumeWord("const"))
-		{
-			if (info.IsConst)
-			{
-				// Appeared twice!? How dare it!
-				throw ParserException(itr.GetSource(0, -5),
-					Messages::Get("CppParser.Variable.ConstSeenTwice")); 
-			}
-			info.IsConst = true;
-			ConsumeWhitespace(itr);
-		}
+	////	ConsumeWhitespace(itr);
+	////	if (itr.ConsumeWord("const"))
+	////	{
+	////		if (info.IsConst)
+	////		{
+	////			// Appeared twice!? How dare it!
+	////			throw ParserException(itr.GetSource(0, -5),
+	////				Messages::Get("CppParser.Variable.ConstSeenTwice")); 
+	////		}
+	////		info.IsConst = true;
+	////		ConsumeWhitespace(itr);
+	////	}
 
-		// Now, we check for reference.
-		if (itr.ConsumeChar('*'))
-		{
-			info.IsPointer = true;
-			ConsumeWhitespace(itr);
-			if (itr.ConsumeWord("const"))
-			{
-				info.IsConstPointer = true;				
-				ConsumeWhitespace(itr);
-			}
-		}
+	////	// Now, we check for reference.
+	////	if (itr.ConsumeChar('*'))
+	////	{
+	////		info.IsPointer = true;
+	////		ConsumeWhitespace(itr);
+	////		if (itr.ConsumeWord("const"))
+	////		{
+	////			info.IsConstPointer = true;				
+	////			ConsumeWhitespace(itr);
+	////		}
+	////	}
 
-		// Now, we check for reference.
-		if (itr.ConsumeChar('&'))
-		{
-			info.IsReference = true;
-			ConsumeWhitespace(itr);
-		}
+	////	// Now, we check for reference.
+	////	if (itr.ConsumeChar('&'))
+	////	{
+	////		info.IsReference = true;
+	////		ConsumeWhitespace(itr);
+	////	}
 
-		// At this point, we've seen all we can of the type info.
-		return true;
+	////	// At this point, we've seen all we can of the type info.
+	////	return true;
 
-	}
+	////}
 
 
 	static void RunTests()
@@ -1635,7 +1650,7 @@ public:
 		ComplexNameTests();
 		FindNodeTest();
 		FindNodeFromImportsTest();
-		SimpleNameTests();
+		SimpleNameTests();		
 	}
 };
 

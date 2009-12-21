@@ -434,13 +434,17 @@ int NodeLuaMetaData::OpenInLua(lua_State * L)
 
 	//ScopeMemberLuaMetaData::OpenInLua(L);
 	
+	NodeListLuaMetaData::OpenInLua(L);	
+	// 2009-10-31- Taking this out as it is EVIL!! 
+	// Causes some kind of memory corruption error:
+	MemberLuaMetaData::OpenInLua(L);
+
 	// Creates or reuses a table called "Macaroni_File" and puts it in global 
 	// scope.
 	luaL_register(L, GLOBALTABLENAME, tableMethods);
 
 	//FileNameLuaMetaData::OpenInLua(L);
-	NodeListLuaMetaData::OpenInLua(L);
-	MemberLuaMetaData::OpenInLua(L);
+		
 
 	DEBUGLOG_WRITE("... open in lua ends.");
 	return 1;

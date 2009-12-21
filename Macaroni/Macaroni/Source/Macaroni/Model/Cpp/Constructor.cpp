@@ -23,17 +23,15 @@ BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 namespace
 {
-	inline TypeInfo voidTypeInfo()
+	inline TypePtr voidTypeInfo()
 	{
-		//ContextPtr context = home->GetContext();
-
-		TypeInfo typeInfo;
-		typeInfo.IsConst = false;
-		typeInfo.IsConstPointer = false;
-		typeInfo.IsPointer = false;
-		typeInfo.IsReference = false;
-		typeInfo.Node = NodePtr();//CppContext::GetPrimitives(context)->Find("void");
-		return typeInfo;
+		TypeModifiers modifiers;
+		modifiers.Const = 
+			modifiers.ConstPointer = 
+			modifiers.Pointer = 
+			modifiers.Reference = 
+			false;
+		return TypePtr(new Type(NodePtr(), modifiers));		
 	}
 };
 

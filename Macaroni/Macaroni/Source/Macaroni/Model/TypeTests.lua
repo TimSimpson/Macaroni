@@ -98,7 +98,7 @@ Test.register(
                     Test.assert(self.stdstring, self.typeString.Node);
                 end,  
                 ["Type is const."] = function(self)
-                    Test.assert(true, self.typeString.IsConst);
+                    Test.assert(true, self.typeString.Const);
                 end,              
             }
         },
@@ -113,7 +113,7 @@ Test.register(
                     Test.assert(self.stdstring, self.typeString.Node);
                 end,  
                 ["Type is pointer."] = function(self)
-                    Test.assert(true, self.typeString.IsPointer);
+                    Test.assert(true, self.typeString.Pointer);
                 end,              
             }
         },
@@ -128,7 +128,7 @@ Test.register(
                     Test.assert(self.stdstring, self.typeString.Node);
                 end,  
                 ["Type is reference."] = function(self)
-                    Test.assert(true, self.typeString.IsReference);
+                    Test.assert(true, self.typeString.Reference);
                 end,              
             }
         },
@@ -143,7 +143,7 @@ Test.register(
                     Test.assert(self.stdstring, self.typeString.Node);
                 end,  
                 ["Type is const pointer."] = function(self)
-                    Test.assert(true, self.typeString.IsConstPointer);
+                    Test.assert(true, self.typeString.ConstPointer);
                 end,              
             }
         },
@@ -156,16 +156,16 @@ Test.register(
             end,
             tests = {
                 ["Type is const."] = function(self)
-                    Test.assert(true, self.typeString.IsConst);
+                    Test.assert(true, self.typeString.Const);
                 end,
                 ["Type points to the Node represent std::string."] = function(self)
                     Test.assert(self.stdstring, self.typeString.Node);
                 end,  
                 ["Type is const pointer."] = function(self)
-                    Test.assert(true, self.typeString.IsConstPointer);
+                    Test.assert(true, self.typeString.ConstPointer);
                 end,            
                 ["Type is pointer."] = function(self)
-                    Test.assert(true, self.typeString.IsPointer);
+                    Test.assert(true, self.typeString.Pointer);
                 end,    
             }
         },
