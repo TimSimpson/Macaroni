@@ -1,0 +1,16 @@
+~import std::string;
+
+
+namespace Fruits {
+	class Apple
+	{
+		int five;
+
+		Apple() : five(5) {}
+
+		int FindWormCount(string wormtype)
+		{
+			return 4 * 3;
+		}
+	}
+}

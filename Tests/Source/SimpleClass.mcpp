@@ -1,0 +1,23 @@
+~import std::string;
+
+namespace BorderTown::AnimalFriends
+{
+
+	class Doggy
+	{
+		int age;
+	
+		int GetDogYears()
+		{
+			return age * 7;
+		}
+	
+		int GetName()
+		{
+			return name;
+		}
+	
+		string name;
+	}
+
+}
