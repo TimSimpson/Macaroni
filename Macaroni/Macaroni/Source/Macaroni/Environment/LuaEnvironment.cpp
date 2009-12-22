@@ -41,6 +41,60 @@ void LuaEnvironment::BLARGOS()
 	//}			
 }
 
+std::vector<const std::string> LuaEnvironment::GetVectorFromCurrentTable(const char * tableName)
+{
+	if (!(lua_istable(state, -1)))
+	{
+		throw Macaroni::Exception("Lua Table expected to be on top of stack before call to get local table.");
+	}
+
+	std::vector<const std::string> vec;
+
+	lua_pushstring(state, tableName); // push key to get table
+	lua_gettable(state, -2); // get table
+	if (lua_istable(state, -1))
+	{
+		vec = GetVectorFromTable();		
+	}
+
+	lua_pop(state, 1);
+	return vec;
+}
+
+std::vector<const std::string> LuaEnvironment::GetVectorFromGlobalTable(const char * tableName)
+{
+	lua_getglobal(state, tableName);
+	if (lua_isnil(state, -1))
+	{
+		std::vector<const std::string> vec;
+		return vec;
+	}
+	else
+	{
+		return GetVectorFromTable();
+	}
+	lua_pop(state, 1);
+}
+
+std::vector<const std::string> LuaEnvironment::GetVectorFromTable()
+{
+	std::vector<const std::string> vec;	
+	
+	lua_pushnil(state); // first key
+	const int tableIndex = -2;
+	while(lua_next(state, tableIndex)  != 0)
+	{
+		if (lua_isstring(state, -1))
+		{
+			std::string newStr(lua_tolstring(state, -1, NULL));
+			vec.push_back(newStr);
+		}
+		lua_pop(state, 1); // pops off value, saves key
+	}
+	
+	return vec;
+}
+
 lua_State * LuaEnvironment::GetState()
 {
 	return state;
@@ -71,7 +125,7 @@ const char * LuaEnvironment::loadString(lua_State * L, void * data, size_t * siz
 
 void LuaEnvironment::ParseFile(std::string filePath)
 {
-	DEBUGLOG_WRITE("Opening file-\ ");
+	DEBUGLOG_WRITE("Opening file-\\ ");
 	DEBUGLOG_WRITE(filePath);
 
 	input = new std::ifstream(filePath.c_str(), std::ios::binary);

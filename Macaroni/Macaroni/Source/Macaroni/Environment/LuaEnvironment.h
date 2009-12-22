@@ -10,6 +10,7 @@ extern "C" {
 
 #include <fstream>
 #include <string>
+#include <vector>
 
 BEGIN_NAMESPACE2(Macaroni, Environment)
 
@@ -26,6 +27,18 @@ public:
 	lua_State * GetState();
 
 	void BLARGOS();
+
+	/** Assumes that a table is at the top of the stack, and finds a table within
+	 * this table to read an array from. */
+	std::vector<const std::string> GetVectorFromCurrentTable(const char * tableName);
+
+	/** Finds the table of the given name and reads each element into the String
+	 * Vector which is returned. */
+	std::vector<const std::string> GetVectorFromGlobalTable(const char * tableName);	
+
+	/** Assumes that a table is on top of the stack, and reads its elements into
+	 * Vector of Strings. */
+	std::vector<const std::string> GetVectorFromTable();	
 
 	void ParseFile(std::string filePath);
 

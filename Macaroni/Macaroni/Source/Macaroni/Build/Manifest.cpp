@@ -9,12 +9,12 @@ using Macaroni::Environment::LuaEnvironment;
 
 namespace Macaroni { namespace Build {
 
-Configuration createConfiguration(lua_State * L, const char * name);
-std::vector<const Configuration> createConfigurations(lua_State * L);
+Configuration createConfiguration(LuaEnvironment & env, const char * name);
+std::vector<const Configuration> createConfigurations(LuaEnvironment & env);
 void getFromLuaVarOrDefault(std::string & rtnValue, lua_State * L, const char * name, const char * dflt);
-std::vector<const std::string> getVectorFromGlobalLuaTable(lua_State * L, const char * name);
-std::vector<const std::string> getVectorFromLocalLuaTable(lua_State * L, const char * name);
-std::vector<const std::string> getVectorFromLuaTable(lua_State * L);
+//std::vector<const std::string> getVectorFromGlobalLuaTable(lua_State * L, const char * name);
+//std::vector<const std::string> getVectorFromLocalLuaTable(lua_State * L, const char * name);
+//std::vector<const std::string> getVectorFromLuaTable(lua_State * L);
 void setManifestId(ManifestId & id, lua_State * L);
 
 Manifest::Manifest(const boost::filesystem::path & manifestFile)
@@ -31,7 +31,7 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile)
 	boost::filesystem::path manifestDir = manifestFile;
 	manifestDir.remove_filename();
 
-	cInclude = getVectorFromGlobalLuaTable(L, "cInclude");
+	cInclude = env.GetVectorFromGlobalLuaTable(L, "cInclude");
 	if (cInclude.size() == 0)
 	{
 		cInclude.push_back("MWork/GeneratedSource");
@@ -43,7 +43,7 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile)
 
 	getFromLuaVarOrDefault(description, L, "description", "");
 	
-	mSource = getVectorFromGlobalLuaTable(L, "mSource");
+	mSource = env.GetVectorFromGlobalLuaTable(L, "mSource");
 	if (mSource.size() == 0)
 	{
 		mSource.push_back("Source");
@@ -56,13 +56,14 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile)
 	getFromLuaVarOrDefault(mOutput, L, "mOutput", "MWork/GeneratedSource");
 	mOutput = (manifestDir / mOutput).string();
 
-	configurations = createConfigurations(L);
+	configurations = createConfigurations(env);
 }
 
-std::vector<const Configuration> createConfigurations(lua_State * L)
+std::vector<const Configuration> createConfigurations(LuaEnvironment & env)
 {
 	std::vector<const Configuration> configs;
 
+	lua_State * L = env.GetState();
 	lua_getglobal(L, "configurations");
 	if (!lua_isnil(L, -1))
 	{		
@@ -78,7 +79,7 @@ std::vector<const Configuration> createConfigurations(lua_State * L)
 			{
 				name = "NO_NAME";
 			}
-			configs.push_back(createConfiguration(L, name.c_str()));
+			configs.push_back(createConfiguration(env, name.c_str()));
 			lua_pop(L, 1);
 		}
 	}
@@ -87,14 +88,14 @@ std::vector<const Configuration> createConfigurations(lua_State * L)
 	return configs;
 }
 
-Configuration createConfiguration(lua_State * L, const char * name)
+Configuration createConfiguration(LuaEnvironment & env, const char * name)
 {
 	// Expects a configuration table to be on top of stack (-1)
 	Configuration config;
 	
 	config.SetName(name);
 
-	std::vector<const std::string> generators = getVectorFromLocalLuaTable(L, "generators");
+	std::vector<const std::string> generators = env.GetVectorFromLocalLuaTable(L, "generators");
 	config.SetGenerators(generators);
 
 	return config;
@@ -126,55 +127,55 @@ void getFromLuaVarOrDefault(std::string & rtnValue, lua_State * L, const char * 
 	}
 	lua_pop(L, 1);
 }
-
-std::vector<const std::string> getVectorFromLocalLuaTable(lua_State * L, const char * name)
-{
-	std::vector<const std::string> vec;
-
-	lua_pushstring(L, name); // push key to get table
-	lua_gettable(L, -2); // get table
-	if (lua_istable(L, -1))
-	{
-		vec = getVectorFromLuaTable(L);		
-	}
-
-	lua_pop(L, 1);
-	return vec;
-}
-
-std::vector<const std::string> getVectorFromGlobalLuaTable(lua_State * L, const char * name)
-{
-	lua_getglobal(L, name);
-	if (lua_isnil(L, -1))
-	{
-		std::vector<const std::string> vec;
-		return vec;
-	}
-	else
-	{
-		return getVectorFromLuaTable(L);
-	}
-	lua_pop(L, 1);
-}
-
-std::vector<const std::string> getVectorFromLuaTable(lua_State * L)
-{
-	std::vector<const std::string> vec;	
-	
-	lua_pushnil(L); // first key
-	const int tableIndex = -2;
-	while(lua_next(L, tableIndex)  != 0)
-	{
-		if (lua_isstring(L, -1))
-		{
-			std::string newStr(lua_tolstring(L, -1, NULL));
-			vec.push_back(newStr);
-		}
-		lua_pop(L, 1); // pops off value, saves key
-	}
-	
-	return vec;
-}
+//
+//std::vector<const std::string> getVectorFromLocalLuaTable(lua_State * L, const char * name)
+//{
+//	std::vector<const std::string> vec;
+//
+//	lua_pushstring(L, name); // push key to get table
+//	lua_gettable(L, -2); // get table
+//	if (lua_istable(L, -1))
+//	{
+//		vec = getVectorFromLuaTable(L);		
+//	}
+//
+//	lua_pop(L, 1);
+//	return vec;
+//}
+//
+//std::vector<const std::string> getVectorFromGlobalLuaTable(lua_State * L, const char * name)
+//{
+//	lua_getglobal(L, name);
+//	if (lua_isnil(L, -1))
+//	{
+//		std::vector<const std::string> vec;
+//		return vec;
+//	}
+//	else
+//	{
+//		return getVectorFromLuaTable(L);
+//	}
+//	lua_pop(L, 1);
+//}
+//
+//std::vector<const std::string> getVectorFromLuaTable(lua_State * L)
+//{
+//	std::vector<const std::string> vec;	
+//	
+//	lua_pushnil(L); // first key
+//	const int tableIndex = -2;
+//	while(lua_next(L, tableIndex)  != 0)
+//	{
+//		if (lua_isstring(L, -1))
+//		{
+//			std::string newStr(lua_tolstring(L, -1, NULL));
+//			vec.push_back(newStr);
+//		}
+//		lua_pop(L, 1); // pops off value, saves key
+//	}
+//	
+//	return vec;
+//}
 
 void setManifestId(ManifestId & id, lua_State * L)
 {
