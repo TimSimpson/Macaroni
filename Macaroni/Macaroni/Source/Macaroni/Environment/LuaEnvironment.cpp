@@ -16,13 +16,17 @@ BEGIN_NAMESPACE2(Macaroni, Environment)
 LuaEnvironment::LuaEnvironment()
 :input(nullptr)
 {
+	DEBUGLOG_WRITE("Creating a new Lua state.");
 	state = luaL_newstate();
+	DEBUGLOG_WRITE("Opening standard Lua libs.");
 	luaL_openlibs(state);
+	DEBUGLOG_WRITE("Opening Macaroni Internal Lua Modules.");
 	registerInternalLuaModules();
 }
 
 LuaEnvironment::~LuaEnvironment()
 {
+	DEBUGLOG_WRITE("Destroying Lua Environment; Calling close.");
 	lua_close(state);
 	if (input != nullptr)
 	{
@@ -155,6 +159,9 @@ void LuaEnvironment::ParseFile(std::string filePath)
 
 void LuaEnvironment::ParseString(const char * chunkName, const char * code)
 {
+	DEBUGLOG_WRITE("Parsing code:");
+	DEBUGLOG_WRITE(code);
+
 	lua_Reader reader = loadString;
 	int eCode = lua_load(this->state, reader, (void *) code, chunkName);
 	if (eCode != 0)

@@ -112,9 +112,9 @@ bool MCompiler::generateFiles(ContextPtr context, path output,
 							  const MCompilerOptions & options)
 {
 	
-	std::cout << "Debug Tree\n";
-	DebugEnumerator de;
-	de.Iterate(context, std::cout);
+	///*std::cout << "Debug Tree\n";
+	//DebugEnumerator de;
+	//de.Iterate(context, std::cout);*/
 
 	/*
 	std::cout << "Generating output...";

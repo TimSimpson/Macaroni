@@ -31,7 +31,7 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile)
 	boost::filesystem::path manifestDir = manifestFile;
 	manifestDir.remove_filename();
 
-	cInclude = env.GetVectorFromGlobalLuaTable(L, "cInclude");
+	cInclude = env.GetVectorFromGlobalTable("cInclude");
 	if (cInclude.size() == 0)
 	{
 		cInclude.push_back("MWork/GeneratedSource");
@@ -43,7 +43,7 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile)
 
 	getFromLuaVarOrDefault(description, L, "description", "");
 	
-	mSource = env.GetVectorFromGlobalLuaTable(L, "mSource");
+	mSource = env.GetVectorFromGlobalTable("mSource");
 	if (mSource.size() == 0)
 	{
 		mSource.push_back("Source");
@@ -95,7 +95,7 @@ Configuration createConfiguration(LuaEnvironment & env, const char * name)
 	
 	config.SetName(name);
 
-	std::vector<const std::string> generators = env.GetVectorFromLocalLuaTable(L, "generators");
+	std::vector<const std::string> generators = env.GetVectorFromCurrentTable("generators");
 	config.SetGenerators(generators);
 
 	return config;

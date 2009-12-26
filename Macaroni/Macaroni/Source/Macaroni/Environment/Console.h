@@ -31,12 +31,12 @@ public:
 
 	void WriteLine(const char * msg) const
 	{
-		std::cout << msg << "\n";
+		std::cout << msg << std::endl;
 	}
 
 	void WriteLine(const std::string & msg) const
 	{
-		std::cout << msg << "\n";
+		std::cout << msg << std::endl;
 	}
 
 private:	
