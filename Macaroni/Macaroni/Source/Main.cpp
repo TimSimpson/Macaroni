@@ -92,11 +92,13 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 	CmdLine cmd(convertedArgs, output);
 	cmd.Execute();
 
-	std::cout << "Program finished.";
-	std::cout << "press enter to quit.";
-	char ch;
-	std::cin >> ch;
-
+	std::cout << std::endl << "Program finished." << std::endl;
+	if (cmd.EndPrompt())
+	{	
+		std::cout << "press enter to quit.";
+		char ch;
+		std::cin >> ch;
+	}
 	//bool debugMode = false;
 	//bool endPrompt = false;
 

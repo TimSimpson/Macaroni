@@ -27,7 +27,7 @@ struct lua_State;
 #define LUAGLUE_CLASSFULLCPPNAME Macaroni::Model::Cpp::Constructor
 #define LUAGLUE_REGISTRATIONCLASSNAME ConstructorLuaMetaData
 #define LUAGLUE_HELPERCLASS ConstructorLuaFunctions
-#define LUAGLUE_OPENOTHERMODULES Macaroni::Model::NodeLuaMetaData::OpenInLua(L); FunctionLuaMetaData::OpenInLua(L);
+#define LUAGLUE_OPENOTHERMODULES //Macaroni::Model::NodeLuaMetaData::OpenInLua(L); FunctionLuaMetaData::OpenInLua(L);
 #define LUAGLUE_CREATEMETATABLE 
 
 #define ASSIGNMENTS_METATABLENAME_ARGUMENTS "Macaroni.Model.Cpp.Constructor.Assignments"

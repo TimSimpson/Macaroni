@@ -22,9 +22,9 @@
 #define LUAGLUE_CLASSFULLCPPNAME Macaroni::Model::Member
 #define LUAGLUE_REGISTRATIONCLASSNAME MemberLuaMetaData
 #define LUAGLUE_OPENOTHERMODULES \
-	Macaroni::Model::NodeLuaMetaData::OpenInLua(L); \
-	Macaroni::Model::Cpp::FunctionLuaMetaData::OpenInLua(L); \
-	Macaroni::Model::Cpp::ClassLuaMetaData::OpenInLua(L);  \
+	//Macaroni::Model::NodeLuaMetaData::OpenInLua(L); \
+	//Macaroni::Model::Cpp::FunctionLuaMetaData::OpenInLua(L); \
+	//Macaroni::Model::Cpp::ClassLuaMetaData::OpenInLua(L);  \
 	//Macaroni::Model::Cpp::TypedefLuaMetaData::OpenInLua(L);
 #define LUAGLUE_CREATEMETATABLE YESPLEASE
 

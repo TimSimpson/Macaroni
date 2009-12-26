@@ -22,9 +22,9 @@ struct lua_State;
 #define LUAGLUE_CLASSFULLCPPNAME Macaroni::Generator::Output::Path
 #define LUAGLUE_REGISTRATIONCLASSNAME PathLuaMetaData
 #define LUAGLUE_HELPERCLASS PathsLuaFunctions
-#define LUAGLUE_OPENOTHERMODULES Macaroni::Generator::Output::PathLuaMetaData::OpenInLua(L); \
+#define LUAGLUE_OPENOTHERMODULES /*Macaroni::Generator::Output::PathLuaMetaData::OpenInLua(L); \
 		luaL_newmetatable(L, "Macaroni.Generator.Output.Path.PathList"); \
-		luaL_register(L, nullptr, PathsProperty_MetaTableMethods);
+		luaL_register(L, nullptr, PathsProperty_MetaTableMethods);*/
 
 #define LUAGLUE_CREATEMETATABLE 
 

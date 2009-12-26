@@ -19,7 +19,7 @@
 #define LUAGLUE_CLASSFULLLUANAME		"Macaroni.Model.NodeList"
 #define LUAGLUE_CLASSFULLCPPNAME		Macaroni::Model::NodeList
 #define LUAGLUE_REGISTRATIONCLASSNAME	NodeListLuaMetaData
-#define LUAGLUE_OPENOTHERMODULES		Macaroni::Model::NodeLuaMetaData::OpenInLua(L); 
+#define LUAGLUE_OPENOTHERMODULES		/*Macaroni::Model::NodeLuaMetaData::OpenInLua(L); */
 #define LUAGLUE_CREATEMETATABLE YESPLEASE
 #define LUAGLUE_HELPERCLASS				NodeListLuaGlueHelperClass
 

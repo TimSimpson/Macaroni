@@ -18,6 +18,7 @@ class CmdLine
 public:
 	CmdLine(const std::vector<const std::string> & args,
 			Macaroni::Environment::Console & console);
+	bool EndPrompt();
 	void Execute();
 private:	
 	std::string config;

@@ -260,6 +260,10 @@ ClassGenerator = {
     end,
     
     writeVariableInfo = function(self, variable)
+        if (variable.Type == nil) then
+            self:write("/* variable's type was NIL!? '_'*? For node:" .. variable.Node.FullName .. "*/ ");
+            return;
+        end
         if (variable.Type.Const) then
             self:write("const ");
         end

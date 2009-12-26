@@ -15,7 +15,7 @@
 #define LUAGLUE_CLASSFULLLUANAME		"Macaroni.Model.TypeList"
 #define LUAGLUE_CLASSFULLCPPNAME		Macaroni::Model::TypeList
 #define LUAGLUE_REGISTRATIONCLASSNAME	TypeListLuaMetaData
-#define LUAGLUE_OPENOTHERMODULES		Macaroni::Model::TypeListLuaMetaData::OpenInLua(L); 
+#define LUAGLUE_OPENOTHERMODULES		//Macaroni::Model::TypeListLuaMetaData::OpenInLua(L); 
 #define LUAGLUE_CREATEMETATABLE			YESPLEASE
 #define LUAGLUE_HELPERCLASS				TypeListLuaGlueHelperClass
 

@@ -24,7 +24,9 @@ configurations = {
         compiler = "default",
         generators =
         {
-            "SimpleGenerator.lua"
+            "HFile.lua",
+            "CppFile.lua"
+            --"SimpleGenerator.lua"
         },
         dependencies =
         {

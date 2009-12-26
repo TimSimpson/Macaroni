@@ -16,7 +16,7 @@
 #define LUAGLUE_CLASSFULLLUANAME "Macaroni.Model.TypeArgumentList"
 #define LUAGLUE_CLASSFULLCPPNAME Macaroni::Model::TypeArgumentList
 #define LUAGLUE_REGISTRATIONCLASSNAME TypeArgumentListLuaMetaData
-#define LUAGLUE_OPENOTHERMODULES Macaroni::Model::TypeArgumentLuaMetaData::OpenInLua(L), Macaroni::Model::NodeLuaMetaData::OpenInLua(L); Macaroni::Model::NodeListLuaMetaData::OpenInLua(L);
+#define LUAGLUE_OPENOTHERMODULES /* Macaroni::Model::TypeArgumentLuaMetaData::OpenInLua(L), Macaroni::Model::NodeLuaMetaData::OpenInLua(L); Macaroni::Model::NodeListLuaMetaData::OpenInLua(L); */
 #define LUAGLUE_CREATEMETATABLE YESPLEASE
 #define LUAGLUE_HELPERCLASS				TypeArgumentListLuaGlueHelperClass
 

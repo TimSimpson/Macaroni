@@ -20,7 +20,7 @@ struct lua_State;
 #define LUAGLUE_CLASSFULLLUANAME "Macaroni.Model.Cpp.VariableAssignment"
 #define LUAGLUE_CLASSFULLCPPNAME Macaroni::Model::Cpp::VariableAssignment
 #define LUAGLUE_REGISTRATIONCLASSNAME VariableAssignmentLuaMetaData
-#define LUAGLUE_OPENOTHERMODULES Macaroni::Model::NodeLuaMetaData::OpenInLua(L);
+#define LUAGLUE_OPENOTHERMODULES //Macaroni::Model::NodeLuaMetaData::OpenInLua(L);
 #define LUAGLUE_CREATEMETATABLE YESPLEASE
 
 #include "../../LuaGlue.hpp"

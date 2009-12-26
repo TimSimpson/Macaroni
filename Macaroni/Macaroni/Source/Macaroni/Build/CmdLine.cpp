@@ -86,6 +86,11 @@ void CmdLine::directCompile()
 	}
 }
 
+bool CmdLine::EndPrompt()
+{
+	return endPrompt;
+}
+
 void CmdLine::Execute()
 {
 	if (!luaTestsPath.empty())

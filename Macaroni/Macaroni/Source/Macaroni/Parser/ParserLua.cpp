@@ -24,7 +24,7 @@ using Macaroni::Model::SourceLuaMetaData;
 #define LUAGLUE_CLASSFULLCPPNAME Macaroni::Parser::Parser
 #define LUAGLUE_REGISTRATIONCLASSNAME ParserLuaMetaData
 #define LUAGLUE_HELPERCLASS ParserLuaFunctions
-#define LUAGLUE_OPENOTHERMODULES ParserExceptionLuaMetaData::OpenInLua(L);
+#define LUAGLUE_OPENOTHERMODULES /*ParserExceptionLuaMetaData::OpenInLua(L);*/
 #define LUAGLUE_CREATEMETATABLE YESPLEASE
 
 #include "../LuaGlue.hpp"
