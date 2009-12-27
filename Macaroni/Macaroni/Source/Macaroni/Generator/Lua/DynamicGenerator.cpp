@@ -3,15 +3,15 @@
 
 #include "DynamicGenerator.h"
 #include "../../Model/ContextLua.h"
-#include "../Output/Path.h"
-#include "../Output/PathLua.h"
+#include "../../IO/Path.h"
+#include "../../IO/PathLua.h"
 #include <iostream>
 #include <sstream>
 
 using Macaroni::Model::ContextLuaMetaData;
-using Macaroni::Generator::Output::Path;
-using Macaroni::Generator::Output::PathLuaMetaData;
-using Macaroni::Generator::Output::PathPtr;
+using Macaroni::IO::Path;
+using Macaroni::IO::PathLuaMetaData;
+using Macaroni::IO::PathPtr;
 
 BEGIN_NAMESPACE(Macaroni, Generator, Lua)
 

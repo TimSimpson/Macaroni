@@ -285,7 +285,7 @@ ClassGenerator = {
         if (path == nil) then 
             path = '<' .. import:GetPrettyFullName("/") .. '>'; 
         end        
-        self:write('#include ' .. path .. ';\n');        
+        self:write('#include ' .. path .. '\n');        
     end,
     
     writeTabs = function(self)

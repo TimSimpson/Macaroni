@@ -15,7 +15,7 @@
 #include "../Model/ReasonLua.h"
 #include "../Parser/ParserLua.h"
 #include "../Parser/ParserExceptionLua.h"
-#include "../Generator/Output/PathLua.h"
+#include "../IO/PathLua.h"
 #include "../Parser/Cpp/CppParserLua.h"
 #include "../Parser/Pippy/PippyParserLua.h"
 #include "../Model/SourceLua.h"
@@ -41,7 +41,7 @@ static const struct luaL_Reg libs[] = {
 	{"Macaroni.Model.Source", Model::SourceLuaMetaData::OpenInLua},
 	{"Macaroni.Parser.Parser", Parser::ParserLuaMetaData::OpenInLua},
 	{"Macaroni.Parser.ParserException", Parser::ParserExceptionLuaMetaData::OpenInLua},
-	{"Macaroni.Generator.Output.Path", Generator::Output::PathLuaMetaData::OpenInLua},
+	{"Macaroni.IO.Path", IO::PathLuaMetaData::OpenInLua},
 	{"Macaroni.Parser.Cpp.CppParser", Parser::Cpp::CppParserLuaMetaData::OpenInLua},
 	{"Macaroni.Parser.Pippy.PippyParser", Parser::Pippy::PippyParserLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Type", Macaroni::Model::TypeLuaMetaData::OpenInLua},

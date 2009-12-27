@@ -15,6 +15,11 @@ class Configuration
 public:
 	Configuration(){}
 
+	inline const std::string GetCompiler() const
+	{
+		return compiler;
+	}
+
 	inline const std::vector<const std::string> & GetGenerators() const
 	{
 		return generators;
@@ -23,6 +28,11 @@ public:
 	inline const std::string & GetName() const
 	{
 		return name;
+	}
+
+	inline void SetCompiler(std::string & value)
+	{
+		compiler = value;
 	}
 
 	inline void SetGenerators(std::vector<const std::string> & value)
@@ -36,6 +46,8 @@ public:
 	}
 
 private:
+	std::string compiler;
+
 	std::vector<const std::string> generators;
 
 	std::string name;

@@ -1,12 +1,12 @@
-#ifndef MACARONI_GENERATOR_OUTPUT_DIRECTORY_H
-#define MACARONI_GENERATOR_OUTPUT_DIRECTORY_H
+#ifndef MACARONI_IO_PATH_H
+#define MACARONI_IO_PATH_H
 
-#include "../../ME.h"
+#include "../ME.h"
 #include <boost/filesystem/path.hpp>
 #include <boost/shared_ptr.hpp>
 #include <vector>
 
-BEGIN_NAMESPACE(Macaroni, Generator, Output)
+BEGIN_NAMESPACE2(Macaroni, IO)
 
 class Path;
 typedef boost::shared_ptr<Path> PathPtr;
@@ -21,25 +21,28 @@ public:
 	Path(const Path & other); 
 	Path(boost::filesystem::path rootPath, boost::filesystem::path path);
 	
-	void CreateDirectory();
+	void CreateDirectory() const;
 
-	bool Exists();
+	bool Exists() const;
 
-	std::string GetAbsolutePath();
+	std::string GetAbsolutePath() const;
 
-	PathListPtr GetPaths();
+	PathListPtr GetPaths() const;
 
-	bool IsDirectory();
+	bool IsDirectory() const;
 
 	/** Creates a new path with the current path's name as the suffix. */
-	PathPtr NewPath(const std::string & name);
+	PathPtr NewPath(const std::string & name) const;
+
+	/** Creates a new path but forces a slash to appear. */
+	PathPtr Path::NewPathForceSlash(const std::string & name) const;
 
 	/** Opens a file in the current directory for writing. */
 	// std::ofstream OpenFile(const char * name);
 	// lua function OpenFile(name);
 
 	/** The path in String form. */
-	std::string ToString();
+	std::string ToString() const;
 	
 private:	
 
@@ -52,7 +55,7 @@ private:
 	static bool stringBeginsWith(const std::string & str, const std::string begins);
 };
 
-END_NAMESPACE
+END_NAMESPACE2
 
 #endif
 

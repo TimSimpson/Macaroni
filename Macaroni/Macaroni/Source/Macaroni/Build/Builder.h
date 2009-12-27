@@ -3,6 +3,7 @@
 
 #include "../ME.h"
 #include "../Environment/Console.h"
+#include "Cpp/CppFile.h"
 #include "Manifest.h"
 #include <string>
 #include <vector>
@@ -15,6 +16,8 @@ public:
 	Builder(const Manifest & manifest, const Configuration & config, Environment::Console & console);
 
 	void CompileCpp();
+
+	void CreateCppFileList(std::vector<Cpp::CppFile> & files);
 
 	void Execute();
 

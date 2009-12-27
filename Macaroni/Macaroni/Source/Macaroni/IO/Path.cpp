@@ -1,14 +1,15 @@
-#ifndef MACARONI_GENERATOR_OUTPUT_DIRECTORY_CPP
-#define MACARONI_GENERATOR_OUTPUT_DIRECTORY_CPP
+#ifndef MACARONI_IO_PATH_CPP
+#define MACARONI_IO_PATH_CPP
 
 #include "Path.h"
-#include "../../../Gestalt/FileSystem/FileSet.h"
-#include "../../Exception.h"
+#include "../../Gestalt/FileSystem/FileSet.h"
+#include "../Exception.h"
+#include <iostream>
 #include <sstream>
 
 using Gestalt::FileSystem::FileSet;
 
-BEGIN_NAMESPACE(Macaroni, Generator, Output)
+BEGIN_NAMESPACE2(Macaroni, IO)
 
 
 Path::Path(boost::filesystem::path rootPath, const char * path)
@@ -25,7 +26,7 @@ Path::Path(const Path & other)
 
 Path::Path(boost::filesystem::path rootPath, boost::filesystem::path path)
 :rootPath(rootPath), path(path)
-{
+{		
 	assertPathExistsInRootPath();
 }
 
@@ -44,26 +45,26 @@ void Path::assertPathExistsInRootPath()
 	}
 }
 
-void Path::CreateDirectory()
+void Path::CreateDirectory() const
 {
 	if (Exists())
 	{
 		return;
-	}
-	boost::filesystem::create_directory(path);
+	}	
+	boost::filesystem::create_directory(path);	
 }
 
-bool Path::Exists()
+bool Path::Exists() const
 {
 	return boost::filesystem::exists(this->path);
 }
 
-std::string Path::GetAbsolutePath()
+std::string Path::GetAbsolutePath() const
 {
 	return path.string();
 }
 
-PathListPtr Path::GetPaths()
+PathListPtr Path::GetPaths() const
 {
 	PathListPtr rtnList(new PathList());
 
@@ -77,15 +78,26 @@ PathListPtr Path::GetPaths()
 	return rtnList;
 }
 
-bool Path::IsDirectory()
+bool Path::IsDirectory() const
 {
 	return boost::filesystem::is_directory(path);
 }
 
-PathPtr Path::NewPath(const std::string & name)
+PathPtr Path::NewPath(const std::string & name) const
 {	
 	std::string newStr(this->path.string() + name);	
 	boost::filesystem::path newPath(newStr);
+	if (!stringBeginsWith(newPath.string(), this->rootPath.string()))
+	{
+		throw new Macaroni::Exception("Illegal directory.");
+	}
+	return PathPtr(new Path(this->rootPath, newPath));
+}
+
+PathPtr Path::NewPathForceSlash(const std::string & name) const
+{	
+	//std::string newStr(this->path.string() + name);	
+	boost::filesystem::path newPath(this->path / name);////newStr);
 	if (!stringBeginsWith(newPath.string(), this->rootPath.string()))
 	{
 		throw new Macaroni::Exception("Illegal directory.");
@@ -103,7 +115,7 @@ bool Path::stringBeginsWith(const std::string & str, const std::string begins)
 	return (sub == begins);
 }
 
-std::string Path::ToString()
+std::string Path::ToString() const
 {
 	std::string fullPath(path.string());
 	std::string rootPathStr = rootPath.string();
@@ -112,7 +124,7 @@ std::string Path::ToString()
 	return relativePath;
 }
 	
-END_NAMESPACE
+END_NAMESPACE2
 
 #endif
 

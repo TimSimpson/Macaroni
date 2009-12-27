@@ -1,10 +1,6 @@
-print("HFILE TIME BABY!\n");
--- Eventually put this next part in C++:
-package.path = "F:/Lp3/Projects/Macaroni/Code/trunk/Macaroni/Debug/Generators/?.lua"
-print("NOO I AM NOT OPTIMUMS PRIME!\n");
-require "CppCommon";
 
-print("PLESE D NOT BIT HEERASER");
+package.path = "F:/Lp3/Projects/Macaroni/Code/trunk/Macaroni/Debug/Generators/?.lua"
+require "CppCommon";
 
 local Context = Macaroni.Model.Context;
 local Node = Macaroni.Model.Node;
@@ -32,7 +28,10 @@ end
 
 function parseNamespace(node, path)
     assert(node.Member.TypeName == TypeNames.Namespace);    
+    print "pee butt";
+    print(path);
     path:CreateDirectory();
+    print "pee bf";
     iterateNodes(node.Children, path);
 end
 

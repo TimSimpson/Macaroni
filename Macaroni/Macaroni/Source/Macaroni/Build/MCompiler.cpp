@@ -142,18 +142,17 @@ bool MCompiler::generateFiles(ContextPtr context, path output,
 
 void MCompiler::Compile(const MCompilerOptions & options)
 {
-	std::cout << "Macaroni for C++\n";
+	/*std::cout << "Macaroni for C++\n";
 	std::cout << "(C) Tim Simpson\n";
 	std::cout << "Version 0.0.1, June 22, 2009\n";
-	std::cout << "\n";
-
-	std::cout << 
-"Compiler options-------------------------------------------------------------\n"
-<< "|\tInput:" << options.GetInput().GetRoot().string().c_str() << "\n"
-	<< "|\tOutput:" << options.GetOutput().string().c_str() << "\n"
-	<< 
-" ----------------------------------------------------------------------------\n"
-	<< "\n";
+	std::cout << "\n";*/
+//	std::cout << 
+//"Compiler options-------------------------------------------------------------\n"
+//<< "|\tInput:" << options.GetInput().GetRoot().string().c_str() << "\n"
+//	<< "|\tOutput:" << options.GetOutput().string().c_str() << "\n"
+//	<< 
+//" ----------------------------------------------------------------------------\n"
+//	<< "\n";
 
 	ContextPtr context(new Context(std::string("%ROOT%")));
 	
@@ -169,7 +168,7 @@ void MCompiler::Compile(const MCompilerOptions & options)
 		return;
 	}
 
-	std::cerr << "YOU WIN!\n";
+	//std::cerr << "YOU WIN!\n";
 
 }
 

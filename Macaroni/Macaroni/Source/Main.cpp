@@ -87,10 +87,21 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 		convert(std::wstring(argv[i]), convertedString);
 		convertedArgs.push_back(convertedString);
 	}
-
+	
 	Console output;
 	CmdLine cmd(convertedArgs, output);
-	cmd.Execute();
+	try 
+	{
+		cmd.Execute();
+	} catch(Macaroni::Exception ex) 
+	{
+		std::cerr << "MACARONI EXCEPTION!" << std::endl;
+		std::cerr << ex.GetMessage() << std::endl;
+	}catch(Macaroni::Exception * ex) 
+	{
+		std::cerr << "MACARONI EXCEPTION!" << std::endl;
+		std::cerr << ex->GetMessage() << std::endl;
+	}
 
 	std::cout << std::endl << "Program finished." << std::endl;
 	if (cmd.EndPrompt())

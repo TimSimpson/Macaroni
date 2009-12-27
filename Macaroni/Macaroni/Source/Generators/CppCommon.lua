@@ -1,5 +1,4 @@
-print("CppCommon.lua is a jerk.");
-require "Macaroni.Generator.Output.Path";
+require "Macaroni.IO.Path";
 require "Macaroni.Model.Node";
 require "Macaroni.Model.Context";
 require "Macaroni.Model.Context";

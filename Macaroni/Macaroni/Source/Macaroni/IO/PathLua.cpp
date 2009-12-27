@@ -1,25 +1,25 @@
-#ifndef MACARONI_GENERATOR_OUTPUT_PATHLUA_CPP
-#define MACARONI_GENERATOR_OUTPUT_PATHLUA_CPP
+#ifndef MACARONI_IO_PATHLUA_CPP
+#define MACARONI_IO_PATHLUA_CPP
 
 #include "PathLua.h"
 
 extern "C" {
-	#include "../../../Lua/lua.h"
-	#include "../../../Lua/lauxlib.h"
-	#include "../../../Lua/lualib.h"
+	#include "../../Lua/lua.h"
+	#include "../../Lua/lauxlib.h"
+	#include "../../Lua/lualib.h"
 }
 
 
 struct lua_State;
 
-#define PATHSMETATABLENAME "Macaroni.Generator.Output.Path.PathList"
+#define PATHSMETATABLENAME "Macaroni.IO.Path.PathList"
 
-#define LUAGLUE_STARTNAMESPACE BEGIN_NAMESPACE(Macaroni, Generator, Output)
-#define LUAGLUE_ENDNAMESPACE	END_NAMESPACE
+#define LUAGLUE_STARTNAMESPACE BEGIN_NAMESPACE2(Macaroni, IO)
+#define LUAGLUE_ENDNAMESPACE	END_NAMESPACE2
 #define LUAGLUE_CLASSNAME Path
 #define LUAGLUE_CLASSREFNAME PathPtr
-#define LUAGLUE_CLASSFULLLUANAME "Macaroni.Generator.Output.Path"
-#define LUAGLUE_CLASSFULLCPPNAME Macaroni::Generator::Output::Path
+#define LUAGLUE_CLASSFULLLUANAME "Macaroni.IO.Path"
+#define LUAGLUE_CLASSFULLCPPNAME Macaroni::IO::Path
 #define LUAGLUE_REGISTRATIONCLASSNAME PathLuaMetaData
 #define LUAGLUE_HELPERCLASS PathsLuaFunctions
 #define LUAGLUE_OPENOTHERMODULES /*Macaroni::Generator::Output::PathLuaMetaData::OpenInLua(L); \
@@ -29,7 +29,7 @@ struct lua_State;
 #define LUAGLUE_CREATEMETATABLE 
 
 
-BEGIN_NAMESPACE(Macaroni, Generator, Output)
+BEGIN_NAMESPACE2(Macaroni, IO)
 
 namespace {
 
@@ -99,9 +99,9 @@ namespace {
 	};
 } // end anon namespace
 
-END_NAMESPACE
+END_NAMESPACE2
 
-#include "../../LuaGlue.hpp"
+#include "../LuaGlue.hpp"
 
 	static int createDirectory(lua_State * L)
 	{
@@ -200,6 +200,6 @@ END_NAMESPACE
 	#define LUAGLUE_ADDITIONALTABLEMETHODS \
 		/*{"LuaCreate", LUAGLUE_HELPERCLASS::LuaCreate},*/
 
-#include "../../LuaGlue2.hpp"
+#include "../LuaGlue2.hpp"
 
 #endif

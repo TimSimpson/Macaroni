@@ -18,10 +18,12 @@ mSource =
 }
 mOutput = "MWork/GeneratedSource"
 
+cppOutput = "MWork/Objects"
+
 configurations = {
     all =
     {
-        compiler = "default",
+        compiler = "Windows-VS9",
         generators =
         {
             "HFile.lua",

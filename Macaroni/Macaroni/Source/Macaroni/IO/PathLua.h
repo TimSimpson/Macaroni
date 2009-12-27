@@ -1,11 +1,11 @@
-#ifndef MACARONI_GENERATOR_OUTPUT_PATHLUA_H
-#define MACARONI_GENERATOR_OUTPUT_PATHLUA_H
+#ifndef MACARONI_IO_PATHLUA_H
+#define MACARONI_IO_PATHLUA_H
 
 #include "Path.h"
 
 struct lua_State;
 
-BEGIN_NAMESPACE(Macaroni, Generator, Output)
+BEGIN_NAMESPACE2(Macaroni, IO)
 
 struct PathLuaMetaData
 {	
@@ -17,6 +17,6 @@ struct PathLuaMetaData
 };
 
 
-END_NAMESPACE
+END_NAMESPACE2
 
 #endif

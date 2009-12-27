@@ -21,6 +21,8 @@ public:
 	LuaEnvironment();
 	~LuaEnvironment();
 	
+	void GetFromGlobalVarOrDefault(std::string & rtnValue, const char * name, const char * dflt);
+
 	/** It would be pointless to wrap every call to Lua, and that isn't the
 	 * point of this class- the point is it creates a common place to put code
 	 * for loading files and registering modules to enforce consistency. */

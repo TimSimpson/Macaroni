@@ -11,7 +11,7 @@ namespace Macaroni { namespace Build {
 
 Configuration createConfiguration(LuaEnvironment & env, const char * name);
 std::vector<const Configuration> createConfigurations(LuaEnvironment & env);
-void getFromLuaVarOrDefault(std::string & rtnValue, lua_State * L, const char * name, const char * dflt);
+//void getFromLuaVarOrDefault(std::string & rtnValue, lua_State * L, const char * name, const char * dflt);
 //std::vector<const std::string> getVectorFromGlobalLuaTable(lua_State * L, const char * name);
 //std::vector<const std::string> getVectorFromLocalLuaTable(lua_State * L, const char * name);
 //std::vector<const std::string> getVectorFromLuaTable(lua_State * L);
@@ -19,7 +19,8 @@ void setManifestId(ManifestId & id, lua_State * L);
 
 Manifest::Manifest(const boost::filesystem::path & manifestFile)
 :description(""),
- id()
+ id(),
+ rootDirectory(manifestFile.branch_path(), manifestFile.branch_path())
 {
 	LuaEnvironment env;
 	env.ParseFile(manifestFile.string());
@@ -41,7 +42,7 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile)
 		cInclude[i] = (manifestDir / cInclude[i]).string();
 	}
 
-	getFromLuaVarOrDefault(description, L, "description", "");
+	env.GetFromGlobalVarOrDefault(description, "description", "");
 	
 	mSource = env.GetVectorFromGlobalTable("mSource");
 	if (mSource.size() == 0)
@@ -53,8 +54,10 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile)
 		mSource[i] = (manifestDir / mSource[i]).string();
 	}	
 
-	getFromLuaVarOrDefault(mOutput, L, "mOutput", "MWork/GeneratedSource");
+	env.GetFromGlobalVarOrDefault(mOutput, "mOutput", "MWork/GeneratedSource");
+	env.GetFromGlobalVarOrDefault(cppOutput, "cppOutput", "MWork/Objects");
 	mOutput = (manifestDir / mOutput).string();
+	
 
 	configurations = createConfigurations(env);
 }
@@ -95,9 +98,24 @@ Configuration createConfiguration(LuaEnvironment & env, const char * name)
 	
 	config.SetName(name);
 
+	std::string compiler;
+	lua_pushstring(env.GetState(), "compiler");
+		lua_gettable(env.GetState(), -2);
+		if (lua_isstring(env.GetState(), -1))
+		{
+			compiler = lua_tostring(env.GetState(), -1);
+		} 
+		else 
+		{
+			compiler = "default";
+		}
+		lua_pop(env.GetState(), 1);
+	config.SetCompiler(compiler);
+
 	std::vector<const std::string> generators = env.GetVectorFromCurrentTable("generators");
 	config.SetGenerators(generators);
 
+	
 	return config;
 }
 
@@ -113,20 +131,20 @@ const Configuration * Manifest::GetConfiguration(const std::string & configName)
 	return nullptr;
 }
 
-
-void getFromLuaVarOrDefault(std::string & rtnValue, lua_State * L, const char * name, const char * dflt)
-{
-	lua_getglobal(L, name);
-	if (!lua_isnil(L, -1))
-	{
-		rtnValue = std::string(lua_tolstring(L, -1, NULL));
-	}
-	else
-	{
-		rtnValue = std::string(dflt);
-	}
-	lua_pop(L, 1);
-}
+//
+//void getFromLuaVarOrDefault(std::string & rtnValue, lua_State * L, const char * name, const char * dflt)
+//{
+//	lua_getglobal(L, name);
+//	if (!lua_isnil(L, -1))
+//	{
+//		rtnValue = std::string(lua_tolstring(L, -1, NULL));
+//	}
+//	else
+//	{
+//		rtnValue = std::string(dflt);
+//	}
+//	lua_pop(L, 1);
+//}
 //
 //std::vector<const std::string> getVectorFromLocalLuaTable(lua_State * L, const char * name)
 //{

@@ -88,7 +88,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy &quot;$(ProjectDir)\Source\Messages.txt&quot; &quot;$(OutDir)\Messages.txt&quot;&#x0D;&#x0A;mkdir &quot;$(OutDir)\Generators&quot;&#x0D;&#x0A;xcopy &quot;$(ProjectDir)\Source\Generators&quot; &quot;$(OutDir)\Generators&quot; /y /s /e&#x0D;&#x0A;cd &quot;$(ProjectDir)\Source&quot;&#x0D;&#x0A;&quot;$(OutDir)\Macaroni.exe&quot; -luaTests &quot;$(ProjectDir)\Source&quot;&#x0D;&#x0A;"
+				CommandLine="copy &quot;$(ProjectDir)\Source\Messages.txt&quot; &quot;$(OutDir)\Messages.txt&quot;&#x0D;&#x0A;mkdir &quot;$(OutDir)\Generators&quot;&#x0D;&#x0A;mkdir &quot;$(OutDir)\Compilers&quot;&#x0D;&#x0A;xcopy &quot;$(ProjectDir)\Source\Generators&quot; &quot;$(OutDir)\Generators&quot; /y /s /e&#x0D;&#x0A;xcopy &quot;$(ProjectDir)\Source\Compilers&quot; &quot;$(OutDir)\Compilers&quot; /y /s /e&#x0D;&#x0A;cd &quot;$(ProjectDir)\Source&quot;&#x0D;&#x0A;&quot;$(OutDir)\Macaroni.exe&quot; -luaTests &quot;$(ProjectDir)\Source&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -423,6 +423,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Macaroni\Build\Cpp\CompilerSettings.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Macaroni\Model\Cpp\Constructor.cpp"
 				>
 			</File>
@@ -448,6 +452,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\Macaroni\Model\Cpp\CppContext.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Build\Cpp\CppFile.cpp"
 				>
 			</File>
 			<File
@@ -719,11 +727,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Generator\Output\Path.cpp"
+				RelativePath=".\Source\Macaroni\IO\Path.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Generator\Output\PathLua.cpp"
+				RelativePath=".\Source\Macaroni\IO\PathLua.cpp"
 				>
 			</File>
 			<File
@@ -744,6 +752,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\Lua\print.c"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Environment\Process.cpp"
 				>
 			</File>
 			<File
@@ -873,7 +885,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Build\CompilerSettings.h"
+				RelativePath=".\Source\Macaroni\Build\Cpp\CompilerSettings.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Build\Cpp\CompilerSettingsLookUp.h"
 				>
 			</File>
 			<File
@@ -918,6 +934,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\Macaroni\Model\Cpp\CppContext.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Build\Cpp\CppFile.h"
 				>
 			</File>
 			<File
@@ -1205,11 +1225,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Generator\Output\Path.h"
+				RelativePath=".\Source\Macaroni\IO\Path.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Generator\Output\PathLua.h"
+				RelativePath=".\Source\Macaroni\IO\PathLua.h"
 				>
 			</File>
 			<File
@@ -1226,6 +1246,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\Macaroni\Model\Cpp\Primitive.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Environment\Process.h"
 				>
 			</File>
 			<File
@@ -1254,6 +1278,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\Macaroni\Model\SourceLua.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Platform\Windows\Strings.h"
 				>
 			</File>
 			<File
