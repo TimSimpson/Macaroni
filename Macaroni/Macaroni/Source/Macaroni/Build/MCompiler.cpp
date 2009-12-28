@@ -93,17 +93,17 @@ bool MCompiler::buildModel(ContextPtr context, FileSet inputFiles)
 	{	
 		path p = *itr;
 		std::cout << p.string() << "\n";
-		try
-		{
+		/*try
+		{*/
 			parseFile(context, p);
-		} 
+		/*} 
 		catch(ParserException pe)
 		{
 			std::cerr << "ERROR: ";
 			std::cerr << pe.GetSource()->ToString() << "\n";
 			std::cerr << pe.GetMessage() << "\n";			
 			return false;
-		}
+		}*/
 	}
 	return true;
 }

@@ -42,6 +42,7 @@ std::string createFromWChar(wchar_t * buffer)
 	delete[] oldBuffer;
 }
 
+
 std::string Paths::GetExePath()
 { 
 	wchar_t buffer[MAX_PATH + 1];

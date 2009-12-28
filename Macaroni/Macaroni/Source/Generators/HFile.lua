@@ -1,6 +1,6 @@
 
 package.path = "F:/Lp3/Projects/Macaroni/Code/trunk/Macaroni/Debug/Generators/?.lua"
-require "CppCommon";
+require "Cpp/Common";
 
 local Context = Macaroni.Model.Context;
 local Node = Macaroni.Model.Node;
@@ -28,15 +28,17 @@ end
 
 function parseNamespace(node, path)
     assert(node.Member.TypeName == TypeNames.Namespace);    
-    print "pee butt";
-    print(path);
     path:CreateDirectory();
-    print "pee bf";
     iterateNodes(node.Children, path);
 end
 
 function parseNode(node, path)
     print("~~~ " .. node.FullName);
+    if (not NodeHelper.worthIteration(node)) then
+        print(" Skipped.\n");
+        return;
+    end
+    
     local m = node.Member;
     if (m == nil) then
         return;
@@ -104,7 +106,7 @@ ClassGenerator = {
     end,
     
     classEnd = function(self)        
-        self.writer:write("} // End of class " .. self.node.Name .. "\n");
+        self.writer:write("}; // End of class " .. self.node.Name .. "\n");
         self:addTabs(-1);
     end,
     
@@ -119,13 +121,19 @@ ClassGenerator = {
     
     includeGuardHeader = function(self)
         local guardName = self:getGuardName();
-        self.writer:write("#ifndef " .. guardName .. "\n");
+        self.writer:write("#ifndef " .. guardName .. "/* MAO! */\n");
         self.writer:write("#define " .. guardName .. "\n");       
     end,
     
-    includeStatements = function(self)
+    includeStatements = function(self)    
+        local statements = IncludeFiles.getHFileIncludeStatementsForNode(self.node);
+        self.writer:write("/* ~ Includes ~ */\n");
+        for i = 1, #statements do
+            self.writer:write(statements[i]);
+        end                   
         -- alas, this is impossible.
         -- The NodePtrList type needs LuaGlue so the property can be accessed from the Class member.
+        -- UPDATE: It does?
     end,
     
     iterateClassMembers = function(self, nodeChildren)
@@ -146,7 +154,7 @@ ClassGenerator = {
     
     namespaceEnd = function(self)
         local names = Node.SplitComplexName(self.node.FullName);
-        for i,v in pairs(names) do
+        for i = 1, #names - 1 do
             self:write("} ");
         end
         self:write("// End namespace ");

@@ -1,6 +1,6 @@
 require "Macaroni.Model.Cpp.Access";
-require "Macaroni.Model.Cpp.Class";
 require "Macaroni.Model.Context";
+require "Macaroni.Model.FileName";
 require "Macaroni.Environment.Messages";
 require "Macaroni.Parser.Pippy.PippyParser";
 require "Macaroni.Parser.Parser";
@@ -10,10 +10,9 @@ require "Macaroni.Model.Type";
 require "Macaroni.Model.TypeArgument";
 require "Macaroni.Model.TypeArgumentList";
 require "Macaroni.Model.TypeList";
-require "Macaroni.Model.Cpp.Typedef";
 
 local Access = Macaroni.Model.Cpp.Access;
-local Class = Macaroni.Model.Cpp.Class;
+--local Class = Macaroni.Model.Cpp.Class;
 local Context = Macaroni.Model.Context;
 local Messages = Macaroni.Environment.Messages;
 local PippyParser = Macaroni.Parser.Pippy.PippyParser;
@@ -23,7 +22,7 @@ local Type = Macaroni.Model.Type;
 local TypeArgument = Macaroni.Model.TypeArgument;
 local TypeArgumentList = Macaroni.Model.TypeArgumentList;
 local TypeList = Macaroni.Model.TypeList;
-local Typedef = Macaroni.Model.Cpp.Typedef;
+--local Typedef = Macaroni.Model.Cpp.Typedef;
 
 -- Convience method returns result of the parse, then status, and 
 -- finally an err message.
@@ -46,6 +45,33 @@ Test.register(
 {	
 name = "PippyParser Tests :: Class",    
 tests = {          
+    {   
+        name = "Creating a place holder for a typical C++ dependency.",
+        init = function(self)
+            self.parser = PippyParser.Create();     
+            self.context = Context.New("{ROOT}");
+            self.file = FileName.Create("a_std.mcpp");           
+            self.root = self.context.Root;
+            self.src = Source.Create(self.file, 1, 1);
+            
+            self.parser:Read(self.context, self.src, [[                
+                namespace std {
+                    class string { ~hfile=<string> }
+                }
+            ]]);         
+            self.classNode = self.root.Children[2].Children[1];   
+            self.class = self.classNode.Member;   
+        end,
+        tests = {
+            ["ClassNode has name 'string'."] = function(self)                               
+                Test.assert("string", self.classNode.Name);                                  
+            end,                        
+            ["ClassNode has hfile of <string>."] = function(self)
+                local actual = self.classNode.HFilePath;
+                Test.assert("<string>", tostring(self.classNode.HFilePath));            
+            end      
+        }
+    },  
     {   
         name = "Creating an typedef for string.",
         init = function(self)

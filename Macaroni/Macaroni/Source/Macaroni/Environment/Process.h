@@ -16,6 +16,7 @@ class Process
 {
 public:
 	Process(boost::filesystem::path fileName, const std::string & args, 
+			boost::filesystem::path workingDirectory,
 		    const std::vector<const std::string> paths);
 	bool Run(const Console & console);
 private:
@@ -27,6 +28,8 @@ private:
 	void mixinPathEnvVariables();
 
 	std::vector<const std::string> paths;
+
+	boost::filesystem::path workingDirectory;
 };
 
 

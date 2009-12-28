@@ -176,14 +176,14 @@ tests = {
         init = function(this)
             this.parser = PippyParser.Create();     
             this.context = Context.New("{ROOT}");
-            this.file = FileName.Create("Blah1.mcpp");           
+            this.file = FileName.Create("DoubleDribbler.mcpp");           
             this.root = this.context.Root;
             this.src = Source.Create(this.file, 1, 1);
             
             this.parser:Read(this.context, this.src, [[
-                char c;
-                double const k;
-                const double k;
+                char c;  // Apparently, this was allowed but isn't anymore.
+                double const k; // I'd like to keep the feature though so IOU
+                const double k; // one bug fix. ~ Tim of the Past
             ]]);         
             this.var = this.root.Children[2].Member;   
             this.var2 = this.root.Children[3].Member;   

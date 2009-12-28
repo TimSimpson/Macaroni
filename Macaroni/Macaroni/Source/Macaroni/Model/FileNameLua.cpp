@@ -13,8 +13,8 @@ extern "C" {
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
-#define METATABLENAME "Macaroni.Model.FileName"
-#define GLOBALTABLENAME "Macaroni.Model.FileName"
+#define METATABLENAME_FN "Macaroni.Model.FileName"
+#define GLOBALTABLENAME_FN "Macaroni.Model.FileName"
 namespace {
 
 	static inline void createFileNamePtrUserData(lua_State * L, const FileNamePtr & source)
@@ -26,7 +26,7 @@ namespace {
 
 	static inline FileNamePtr & getInstance(lua_State * L, int index)
 	{
-		FileNamePtr * ptrToPtr = (FileNamePtr *) luaL_checkudata(L, index, METATABLENAME);
+		FileNamePtr * ptrToPtr = (FileNamePtr *) luaL_checkudata(L, index, METATABLENAME_FN);
 		FileNamePtr & ptr = dynamic_cast<FileNamePtr &>(*ptrToPtr);
 		return ptr;
 	}
@@ -40,7 +40,7 @@ namespace {
 	static inline void putFileNameInstanceOnStack(lua_State * L, const FileNamePtr & source)
 	{
 		createFileNamePtrUserData(L, source);
-		luaL_getmetatable(L, METATABLENAME);
+		luaL_getmetatable(L, METATABLENAME_FN);
 		lua_setmetatable(L, -2); 
 	}
 
@@ -50,7 +50,7 @@ struct FileNameLuaFunctions
 {
 	static int luaGc(lua_State * L)
 	{
-		FileNamePtr * ptr = (FileNamePtr *) luaL_checkudata(L, 1, METATABLENAME);
+		FileNamePtr * ptr = (FileNamePtr *) luaL_checkudata(L, 1, METATABLENAME_FN);
 		ptr->~FileNamePtr();
 		return 0;
 	}	
@@ -126,7 +126,7 @@ bool FileNameLuaMetaData::IsType(lua_State * L, int index)
 		// Compares metatable from user data to one in registry.
 		if (lua_getmetatable(L, index))
 		{
-			lua_getfield(L, LUA_REGISTRYINDEX, METATABLENAME);
+			lua_getfield(L, LUA_REGISTRYINDEX, METATABLENAME_FN);
 			if (lua_rawequal(L, -1, -2))
 			{
 				returnValue = true;
@@ -141,17 +141,17 @@ int FileNameLuaMetaData::OpenInLua(lua_State * L)
 {	
 	DEBUGLOG_WRITE("OpenInLua begins...");
 
-	luaL_getmetatable(L, METATABLENAME);
+	luaL_getmetatable(L, METATABLENAME_FN);
 	if (lua_isnil(L, -1) != 1)
 	{
 		return 0; // Already loaded, DO NOT WASTE TIME DUMMY.
 	}
-	luaL_newmetatable(L, METATABLENAME); // create metaTable
+	luaL_newmetatable(L, METATABLENAME_FN); // create metaTable
 	luaL_register(L, nullptr, metaTableMethods);
 
 	// Creates or reuses a table called "Macaroni_File" and puts it in global 
 	// scope.
-	luaL_register(L, GLOBALTABLENAME, tableMethods);
+	luaL_register(L, GLOBALTABLENAME_FN, tableMethods);
 
 	DEBUGLOG_WRITE("... open in lua ends.");
 	return 1;

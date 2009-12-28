@@ -95,10 +95,9 @@ void CmdLine::Execute()
 {
 	if (!luaTestsPath.empty())
 	{
-		//runLuaTests();
+		runLuaTests();
 	}
-
-	if (!(inputPath.empty() && outputPath.empty()))
+	else if (!(inputPath.empty() && outputPath.empty()))
 	{
 		directCompile();
 	}		

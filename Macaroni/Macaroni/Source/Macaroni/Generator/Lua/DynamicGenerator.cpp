@@ -3,6 +3,7 @@
 
 #include "DynamicGenerator.h"
 #include "../../Model/ContextLua.h"
+#include "../../Exception.h"
 #include "../../IO/Path.h"
 #include "../../IO/PathLua.h"
 #include <iostream>
@@ -33,7 +34,7 @@ DynamicGenerator::~DynamicGenerator()
 {
 }
 	
-void DynamicGenerator::Run()
+bool DynamicGenerator::Run()
 {
 	env.Run();
 
@@ -57,9 +58,10 @@ void DynamicGenerator::Run()
 		std::stringstream ss;
 		ss << "Error running Lua:";
 		ss << luaL_checkstring(L, -1);
-		std::cerr << ss.str() << std::endl;
-		//throw new Macaroni::Exception(ss);
+		//std::cerr << ss.str() << std::endl;
+		throw Macaroni::Exception(ss.str().c_str());
 	}
+	return true;
 }
 
 

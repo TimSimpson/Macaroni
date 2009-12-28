@@ -28,7 +28,7 @@ public:
 	
 	~DynamicGenerator();
 	
-	void Run();
+	bool Run();
 
 private:
 	Model::ContextPtr context;

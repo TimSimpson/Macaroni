@@ -20,6 +20,7 @@ class CppFile
 public:
 	CppFile(boost::filesystem::path srcRoot, boost::filesystem::path srcPath, boost::filesystem::path outputDirectory);//Path srcPath, Path objPath);
 	void Compile(CompilerSettings & settings, const Environment::Console & console);
+	void CreateObjectFileDirectories();
 	void DeleteObjectFile(const Environment::Console & console);
 private:
 	IO::Path obj;

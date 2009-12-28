@@ -1,7 +1,8 @@
+require "Macaroni.Model.Cpp.Access";
 require "Macaroni.Model.Context";
 require "Macaroni.Model.Node";
 
-local Access = Macaroni.Model.Access;
+local Access = Macaroni.Model.Cpp.Access;
 local Context = Macaroni.Model.Context;
 local Node = Macaroni.Model.Node;
 
@@ -29,10 +30,12 @@ tests = {
                 Test.assert(1, #nodes);
                 Test.assert(foundNode, nodes[0]);
             end,
-            ["The default of a node is private."] = function(this)
-                local foundNode = this.root:Find("Dog");
-                Test.assert(Access.Private, foundNode.Access); 
-            end,
+            --["The default of a node is private."] = function(this)
+            --    local foundNode = this.root:Find("Dog");
+            --    local expected = Access.Private;
+            --    local actual = foundNode.Access;
+            --    Test.assert(expected, actual); 
+            --end,
         }        
     },
     
@@ -118,6 +121,14 @@ tests = {
                 Test.assert(false, Node.IsSimpleName("Animals::Doggy"));		
                 Test.assert(false, Node.IsSimpleName("Ryu::Enemies::DogCatDemonHide"));		
             end,   
+            
+            ["SplitComplexName returns component parts."] = function(this)
+                local names = Node.SplitComplexName("boost::filesystem::path");                               
+                Test.assert(3, #names);		
+                Test.assert("boost", names[1]);
+                Test.assert("filesystem", names[2]);
+                Test.assert("path", names[3]);                
+            end,                
             
             ["SplitFirstNameOffComplexName returns nothing for nothing."] = function(this)        
                 local firstPart, lastPart = Node.SplitFirstNameOffComplexName("")        

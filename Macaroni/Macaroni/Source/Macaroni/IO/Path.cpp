@@ -61,7 +61,7 @@ bool Path::Exists() const
 
 std::string Path::GetAbsolutePath() const
 {
-	return path.string();
+	return boost::filesystem::system_complete(path).string();
 }
 
 PathListPtr Path::GetPaths() const

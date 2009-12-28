@@ -2,7 +2,7 @@
 print("AWESWIF");
 package.path = "F:/Lp3/Projects/Macaroni/Code/trunk/Macaroni/Debug/Generators/?.lua"
 print("I CRAYZ");
-require "CppCommon";
+require "Cpp/Common";
 
 local Context = Macaroni.Model.Context;
 local Node = Macaroni.Model.Node;
@@ -39,6 +39,11 @@ end
 
 function parseNode(node, path)
     print("~~~ " .. node.FullName);
+    if (not NodeHelper.worthIteration(node)) then
+        print(" Skipped.\n");
+        return;
+    end
+    
     local m = node.Member;
     if (m == nil) then
         return;
@@ -125,12 +130,13 @@ ClassGenerator = {
     includeStatements = function(self)
         local class = self.node.Member;
         local imports = class.ImportedNodes;
+        -- Put the include to this classes H file.
+        local hFile = '#include "' .. self.node.Name .. '.h"\n';
+        self.writer:write(hFile);
         for i = 1, #imports do                      
             local import = imports[i];        
             self:writeInclude(import);                
         end
-        -- alas, this is impossible.
-        -- The NodePtrList type needs LuaGlue so the property can be accessed from the Class member.
     end,
     
     iterateClassMembers = function(self, nodeChildren)
@@ -151,7 +157,7 @@ ClassGenerator = {
     
     namespaceEnd = function(self)
         local names = Node.SplitComplexName(self.node.FullName);
-        for i,v in pairs(names) do
+        for i = 1, #names -1 do
             self:write("} ");
         end
         self:write("// End namespace ");
@@ -164,6 +170,8 @@ ClassGenerator = {
             self:includeGuardHeader();
             self.writer:write('\n');
             self:includeStatements();
+            self.writer:write('\n');
+            self:usingStatements();
             self.writer:write('\n');
             self:namespaceBegin();
             self.writer:write('\n');
@@ -276,22 +284,35 @@ ClassGenerator = {
         end
     end,
     
-    writeInclude = function(self, import)
-        if (import.Member ~= nil and import.Member.TypeName == TypeNames.Primitive) then
-            return;
-        end
-        local path = nil;
-        path = import.HFilePath;
-        if (path == nil) then 
-            path = '<' .. import:GetPrettyFullName("/") .. '>'; 
-        end        
-        self:write('#include ' .. path .. '\n');        
+    writeInclude = function(self, import)        
+        local statement = IncludeFiles.createStatementForNode(import);
+        if (statement ~= nil) then self:write(statement); end
     end,
-    
+       
     writeTabs = function(self)
         for i = 1, self.tabs do
             self.writer:write('\t');
         end
+    end,
+    
+    writeUsing = function(self, import)             
+        local statement = nil;
+        local generateWarning = true;
+        if (import.Member ~= nil) then
+            if (import.Member.TypeName == TypeNames.Class) then
+                statement = "using " .. import:GetPrettyFullName("::") .. ";\n";
+            elseif (import.Member.TypeName == TypeNames.Primitive) then
+                generateWarning = false;
+            end            
+        end
+        if (statement == nil) then
+            if (generateWarning) then 
+                statement = "/* ~ <(I don't know how to generate a using statement for " .. tostring(import) .. ".) */\n";
+            else
+                statement = "";
+            end
+        end
+        self:write(statement);
     end,
     
     writeVariableInfo = function(self, variable)
@@ -308,4 +329,14 @@ ClassGenerator = {
             self:write("const ");
         end
     end,
+    
+    usingStatements = function(self)
+        local class = self.node.Member;
+        local imports = class.ImportedNodes;
+        for i = 1, #imports do                      
+            local import = imports[i];        
+            self:writeUsing(import);                
+        end
+    end,
+    
 };

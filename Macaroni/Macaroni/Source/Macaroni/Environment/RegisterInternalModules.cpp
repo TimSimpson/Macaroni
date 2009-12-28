@@ -8,6 +8,7 @@
 #include "../Model/ContextLua.h"
 //#include "../Model/Document.h"
 #include "../Model/FileNameLua.h"
+#include "../Model/Cpp/FunctionLua.h"
 #include "../Model/MemberLua.h"
 #include "MessagesLua.h"
 //#include "../Model/NamespaceLua.h"
@@ -23,6 +24,7 @@
 #include "../Model/TypeLua.h"
 #include "../Model/TypeArgumentListLua.h"
 #include "../Model/TypeArgumentLua.h"
+#include "../Model/Cpp/TypedefLua.h"
 #include "../Model/TypeListLua.h"
 #include "../Model/Cpp/VariableAssignmentLua.h"
 #include <windows.h>
@@ -35,6 +37,7 @@ static const struct luaL_Reg libs[] = {
 	{"Macaroni.Model.Axiom", Model::AxiomLuaMetaData::OpenInLua},	
 	{"Macaroni.Model.Context", Model::ContextLuaMetaData::OpenInLua},	
 	{"Macaroni.Model.FileName", Model::FileNameLuaMetaData::OpenInLua},
+	{"Macaroni.Model.Cpp.Function", Model::Cpp::FunctionLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Member", Model::MemberLuaMetaData::OpenInLua},	
 	{"Macaroni.Model.Node", Model::NodeLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Reason", Model::ReasonLuaMetaData::OpenInLua},	
@@ -47,6 +50,7 @@ static const struct luaL_Reg libs[] = {
 	{"Macaroni.Model.Type", Macaroni::Model::TypeLuaMetaData::OpenInLua},
 	{"Macaroni.Model.TypeArgument", Macaroni::Model::TypeArgumentLuaMetaData::OpenInLua},
 	{"Macaroni.Model.TypeArgumentList", Macaroni::Model::TypeArgumentListLuaMetaData::OpenInLua},
+	{"Macaroni.Model.Cpp.TypeDef", Macaroni::Model::Cpp::TypedefLuaMetaData::OpenInLua},
 	{"Macaroni.Model.TypeList", Macaroni::Model::TypeListLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Cpp.VariableAssignment", Macaroni::Model::Cpp::VariableAssignmentLuaMetaData::OpenInLua},
 	{nullptr, nullptr} /* sentinel */

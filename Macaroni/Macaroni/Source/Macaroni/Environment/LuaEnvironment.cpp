@@ -149,7 +149,9 @@ void LuaEnvironment::ParseFile(std::string filePath)
 	input = new std::ifstream(filePath.c_str(), std::ios::binary);
 	if (!input->is_open())
 	{
-		std::cerr << "Could not open file \"" << filePath << "\".\n";
+		std::stringstream ss;
+		ss << "Could not open Lua file \"" << filePath << "\".\n";
+		throw Macaroni::Exception(ss.str().c_str());
 	}
 	else
 	{
@@ -162,8 +164,8 @@ void LuaEnvironment::ParseFile(std::string filePath)
 			std::stringstream ss;
 			ss << "Error while loading Lua file:";
 			ss << luaL_checkstring(this->state, -1);
-			std::cerr << ss.str() <<  std::endl;
-			//throw new Macaroni::Exception(ss);
+			//std::cerr << ss.str() <<  std::endl;
+			throw Macaroni::Exception(ss.str().c_str());
 		}
 		input->close();			
 	}
@@ -183,8 +185,8 @@ void LuaEnvironment::ParseString(const char * chunkName, const char * code)
 		std::stringstream ss;
 		ss << "Error while loading Lua string:";
 		ss << luaL_checkstring(this->state, -1);
-		std::cerr << ss.str() <<  std::endl;
-		//throw new Macaroni::Exception(ss);
+		//std::cerr << ss.str() <<  std::endl;
+		throw Macaroni::Exception(ss.str().c_str());
 	}
 }
 
@@ -197,8 +199,8 @@ void LuaEnvironment::Run()
 		std::stringstream ss;
 		ss << "Error running Lua:";
 		ss << luaL_checkstring(this->state, -1);
-		std::cerr << ss.str() << std::endl;
-		//throw new Macaroni::Exception(ss);
+		//std::cerr << ss.str() << std::endl;
+		throw Macaroni::Exception(ss.str().c_str());
 	}
 	DEBUGLOG_WRITE("... run complete.");
 }

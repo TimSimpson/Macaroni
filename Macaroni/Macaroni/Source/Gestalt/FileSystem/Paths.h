@@ -11,6 +11,7 @@ BEGIN_NAMESPACE2(Gestalt, FileSystem)
 class Paths
 {
 public:
+
 	/** Certain constants are stored here, such as the reference directory of
 	 * Generators or libraries.  Think of this as what you'd find in the
 	 * unwritable Program Files directory of Windows. */

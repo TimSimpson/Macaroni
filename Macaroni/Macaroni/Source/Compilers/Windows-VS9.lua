@@ -3,7 +3,8 @@ oSwitch="/Fo"
 additionalCompilerArgs="/EHsc"
 paths=
 {
-    [[C:\Program Files\Common Files\microsoft shared\VSA\9.0\VsaEnv]]
+    [[C:\Program Files\Common Files\microsoft shared\VSA\9.0\VsaEnv]],
+    [[C:\Program Files\Microsoft Visual Studio 9.0\VC\lib]]
 }
 environmentVariables=
 {

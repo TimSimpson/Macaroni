@@ -21,7 +21,7 @@ public:
 
 	void Execute();
 
-	void CompileMacaroni();
+	bool CompileMacaroni();
 private:
 	const Configuration & configuration;
 	const Environment::Console & console;

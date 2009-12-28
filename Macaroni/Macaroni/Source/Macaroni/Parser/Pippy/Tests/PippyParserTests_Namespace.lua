@@ -1,5 +1,8 @@
 require "Macaroni.Model.Context";
+require "Macaroni.Model.Cpp.Function";
 require "Macaroni.Environment.Messages";
+require "Macaroni.Model.Member";
+require "Macaroni.Model.Node";
 require "Macaroni.Parser.Pippy.PippyParser";
 require "Macaroni.Parser.Parser";
 require "Macaroni.Parser.ParserException";
@@ -48,20 +51,25 @@ tests = {
             this.parser:Read(this.context, this.src, [[
                 namespace Apple { }
             ]]);
-            
         end,
-        tests = {
+        tests = {           
             ["Only two nodes are found within the Context"] = function(this)
+                -- This unit test always fails, but its due to some condition caused
+                -- by a prior unit test.  I can make another method just like it and it
+                -- passes.
+                Test.assert(2, #this.root.Children);
+            end,
+            ["Only two nodes are found within the Context 2"] = function(this)               
                 Test.assert(2, #this.root.Children);
             end,
             ["Second node in Root is Apple."] = function(this)
-                Test.assert("Apple", this.root.Children[2].Name);  
-            end,
+                Test.assert("Apple", this.root.Children[2].Name);                  
+            end,            
             ["Apple namespace has no children."] = function(this)
                 Test.assert(0, #this.root.Children[2].Children);  
             end,
             ["Type of Node is Namespace."] = function(this)
-                Test.assert("Namespace", this.root.Children[2].Member.TypeName);  
+                Test.assert("Namespace", this.root.Children[2].Member.TypeName);                  
             end,
         }
     },
@@ -94,7 +102,7 @@ tests = {
                 Test.assert("Seed", this.root.Children[2].Children[1].Name);  
             end,
             ["Seed namespace has no children."] = function(this)
-                Test.assert(0, #this.root.Children[1].Children[1].Children);  
+                Test.assert(0, #this.root.Children[2].Children[1].Children);  
             end,        
         }
     },    

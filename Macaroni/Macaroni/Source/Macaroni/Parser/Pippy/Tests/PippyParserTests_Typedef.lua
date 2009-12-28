@@ -8,7 +8,7 @@ require "Macaroni.Model.Type";
 require "Macaroni.Model.TypeArgument";
 require "Macaroni.Model.TypeArgumentList";
 require "Macaroni.Model.TypeList";
-require "Macaroni.Model.Cpp.Typedef";
+--require "Macaroni.Model.Cpp.Typedef";
 
 local Context = Macaroni.Model.Context;
 local Messages = Macaroni.Environment.Messages;
@@ -19,7 +19,7 @@ local Type = Macaroni.Model.Type;
 local TypeArgument = Macaroni.Model.TypeArgument;
 local TypeArgumentList = Macaroni.Model.TypeArgumentList;
 local TypeList = Macaroni.Model.TypeList;
-local Typedef = Macaroni.Model.Cpp.Typedef;
+--local Typedef = Macaroni.Model.Cpp.Typedef;
 
 -- Convience method returns result of the parse, then status, and 
 -- finally an err message.

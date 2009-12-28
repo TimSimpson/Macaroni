@@ -1,15 +1,24 @@
 require "Macaroni.Model.Context";
+require "Macaroni.Model.Cpp.Function";
 require "Macaroni.Environment.Messages";
 require "Macaroni.Parser.Pippy.PippyParser";
 require "Macaroni.Parser.Parser";
 require "Macaroni.Parser.ParserException";
 require "Macaroni.Model.Source";
+require "Macaroni.Model.Type";
+require "Macaroni.Model.TypeArgument";
+require "Macaroni.Model.TypeArgumentList";
+require "Macaroni.Model.TypeList";
 
 local Context = Macaroni.Model.Context;
 local Messages = Macaroni.Environment.Messages;
 local PippyParser = Macaroni.Parser.Pippy.PippyParser;
 local FileName = Macaroni.Model.FileName;
 local Source = Macaroni.Model.Source;
+local Type = Macaroni.Model.Type;
+local TypeArgument = Macaroni.Model.TypeArgument;
+local TypeArgumentList = Macaroni.Model.TypeArgumentList;
+local TypeList = Macaroni.Model.TypeList;
 
 -- Convience method returns result of the parse, then status, and 
 -- finally an err message.

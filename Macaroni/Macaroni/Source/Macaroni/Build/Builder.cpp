@@ -4,12 +4,15 @@
 #include "Builder.h"
 #include "Cpp/CompilerSettings.h"
 #include "Cpp/CppFile.h"
+#include "../Exception.h"
 #include "../Gestalt/FileSystem/FileSet.h"
 #include "MCompilerOptions.h"
 #include "MCompiler.h"
 #include "../IO/Path.h"
+#include "../Parser/ParserException.h"
 #include <boost/filesystem/path.hpp>
 #include "../../Gestalt/FileSystem/Paths.h"
+#include "../Model/Source.h"
 
 using Macaroni::Build::Cpp::CppFile;
 using Macaroni::Build::Cpp::CompilerSettings;
@@ -17,6 +20,8 @@ using Macaroni::Environment::Console;
 using Gestalt::FileSystem::FileSet;
 using Macaroni::IO::Path;
 using Macaroni::IO::PathPtr;
+using Macaroni::Model::Source;
+using Macaroni::Model::SourcePtr;
 
 namespace Macaroni { namespace Build {
 
@@ -50,7 +55,7 @@ void Builder::CompileCpp()
 }
 
 
-void Builder::CompileMacaroni()
+bool Builder::CompileMacaroni()
 {
 	console.WriteLine("~ Compiling Macaroni Source into C++ ~");
 	
@@ -61,7 +66,26 @@ void Builder::CompileMacaroni()
 							 boost::filesystem::path(mOut),
 							 configuration.GetGenerators());
 	MCompiler compiler;
-	compiler.Compile(options);	
+
+	try
+	{
+		compiler.Compile(options);	
+	} 
+	catch(Macaroni::Exception ex)
+	{
+		console.WriteLine("An error occured during Macaroni phase.");
+		console.WriteLine(ex.GetSource());
+		console.WriteLine(ex.GetMessage());
+		return false;
+	}
+	catch(Macaroni::Parser::ParserException pe)
+	{
+		console.WriteLine("Error parsing Macaroni code: ");
+		console.WriteLine(pe.GetSource()->ToString());
+		console.WriteLine(pe.GetMessage());
+		return false;
+	}
+	return true;
 }
 
 void Builder::CreateCppFileList(std::vector<CppFile> & files)
@@ -108,10 +132,14 @@ void Builder::Execute()
 	PathPtr genSrc = mWork->NewPathForceSlash("/GeneratedSource");
 	genSrc->CreateDirectory();
 
-	CompileMacaroni();
-
-
-	CompileCpp();
+	if (!CompileMacaroni())
+	{
+		console.WriteLine(" ~ GAME OVER ~ ");
+	}
+	else
+	{
+		CompileCpp();
+	}
 }
 
 } }

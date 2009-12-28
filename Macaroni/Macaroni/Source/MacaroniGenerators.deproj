@@ -4,12 +4,12 @@
     <filename>Generators\HFile.lua</filename>
   </file>
   <file>
-    <filename>Generators\CppCommon.lua</filename>
-  </file>
-  <file>
     <filename>Generators\CppFile.lua</filename>
   </file>
   <file>
     <filename>Generators\Dumb.lua</filename>
+  </file>
+  <file>
+    <filename>Generators\Cpp\Common.lua</filename>
   </file>
 </project>

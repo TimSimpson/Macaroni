@@ -335,7 +335,7 @@ void Node::SplitFirstNameOffComplexName(const std::string & complexName,
 		lastPart = complexName.substr(index + 2);
 	}
 }
-
+ 
 void Node::SplitNodeAndMemberName(const std::string & complexName,
 			  				 std::string & scopeName, std::string & memberName)
 {
@@ -367,7 +367,7 @@ void Node::SplitComplexName(const std::string & complexName,
 		}
 		else
 		{
-			subNames.push_back(complexName.substr(0, index));
+			subNames.push_back(complexName.substr(currentPos, index - currentPos));
 			currentPos = index + 2;
 		}
 	}

@@ -2,6 +2,7 @@
 #define MACARONI_BUILD_CPP_CPPFILE_CPP
 
 #include "CppFile.h"
+#include <boost/filesystem/convenience.hpp>
 #include "../../Environment/Process.h"
 #include <sstream>
 
@@ -23,22 +24,37 @@ CppFile::CppFile(boost::filesystem::path srcRoot, boost::filesystem::path srcPat
 
 void CppFile::Compile(CompilerSettings & settings, const Console & console)
 {
+	CreateObjectFileDirectories();
+	console.WriteLine(
+"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++"
+	);
 	console.Write("Compiling ");
 	console.Write(src.GetAbsolutePath());
 	console.Write(" ==> ");
 	console.WriteLine(obj.GetAbsolutePath());
 
-	std::stringstream args;
-	args << "-c \"" << src.GetAbsolutePath() << "\"" 
-		 << " -o \"" << obj.GetAbsolutePath() << "\"";
+	boost::filesystem::path objPath(obj.GetAbsolutePath());
+	objPath.branch_path();
+
+	std::stringstream args;	
+	args << "/Fo" << obj.GetAbsolutePath() << " ";
+	args << "/c \"" << src.GetAbsolutePath() << "\" ";
+	//args << " \"" << src.GetAbsolutePath() << "\" ";
 	args << " " << settings.GetAdditionalCompilerArgs();
 	for (int i = 0; i < settings.GetIncludePaths().size(); i ++)
 	{
 		args << " -I\"" << settings.GetIncludePaths()[i] << "\"";
 	}
 
-	Process process(settings.GetCompilerExe(), args.str(), settings.GetPaths());
+	Process process(settings.GetCompilerExe(), args.str(), objPath.branch_path(), settings.GetPaths());
 	process.Run(console);	
+}
+
+void CppFile::CreateObjectFileDirectories()
+{
+	using boost::filesystem::path;
+	path objPath = path(obj.GetAbsolutePath()).branch_path();
+	boost::filesystem::create_directories(objPath);
 }
 
 void CppFile::DeleteObjectFile(const Console & console)

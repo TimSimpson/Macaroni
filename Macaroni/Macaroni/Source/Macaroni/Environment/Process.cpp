@@ -12,10 +12,12 @@
 namespace Macaroni { namespace Environment {
 
 Process::Process(boost::filesystem::path fileName, const std::string & args, 
+				 boost::filesystem::path workingDirectory,
 		         const std::vector<const std::string> paths)
 : args(args),
   fileName(fileName),
-  paths(paths)
+  paths(paths),
+  workingDirectory(workingDirectory)
 {
 }
 
@@ -51,6 +53,7 @@ bool Process::Run(const Console & console)
 	
 	Macaroni::Platform::Windows::WideString wideFileName(fileName.native_file_string());
 	Macaroni::Platform::Windows::WideString wideArgs(args);
+	Macaroni::Platform::Windows::WideString wideWorkingDir(workingDirectory.string());
 
 	/*LoadLibrary(TEXT("shell32.dll"));
 	ShellExecute(GetDesktopWindow(),
@@ -71,7 +74,7 @@ bool Process::Run(const Console & console)
 					  FALSE,
 					  CREATE_DEFAULT_ERROR_MODE,
 					  NULL,
-					  NULL,
+					  wideWorkingDir.get(),
 					  &startupInfo,
 					  &processInfo) == FALSE) 
 	{
