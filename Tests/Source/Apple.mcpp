@@ -6,9 +6,9 @@ namespace Fruits {
 	{
 		int five;
 
-		Apple() : five(5) {}
+		public Apple() : five(5) {}
 
-		int FindWormCount(string wormtype)
+		public int FindWormCount(string wormtype)
 		{
 			return 4 * 3;
 		}

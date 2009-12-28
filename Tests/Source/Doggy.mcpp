@@ -12,7 +12,7 @@ namespace BorderTown::AnimalFriends
 			return age * 7;
 		}
 	
-		int GetName()
+		string GetName()
 		{
 			return name;
 		}

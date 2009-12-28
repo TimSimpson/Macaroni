@@ -1,5 +1,5 @@
 namespace std
 {
-  class std::string{  ~hfile=<string> };
+  class string{  ~hfile=<string> };
 }
 
