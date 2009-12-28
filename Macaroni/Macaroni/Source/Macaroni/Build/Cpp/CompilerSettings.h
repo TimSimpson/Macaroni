@@ -11,6 +11,8 @@ BEGIN_NAMESPACE(Macaroni, Build, Cpp)
 class CompilerSettings
 {
 public:
+	CompilerSettings();	
+
 	CompilerSettings(const boost::filesystem::path & filePath);	
 
 	inline const std::string & GetAdditionalCompilerArgs() const
@@ -28,6 +30,11 @@ public:
 		return includePaths;
 	}
 
+	inline const std::string & GetLinkerExe() const
+	{
+		return linkerExe;
+	}
+
 	inline const std::vector<const std::string> & GetPaths() const 
 	{
 		return paths;
@@ -42,6 +49,7 @@ private:
 	StrVec environmentVariables;
 	std::string firstLinkedObjects;
 	StrVec includePaths;
+	std::string linkerExe;
 	StrVec linkerPaths;
 	std::string oSwitch;
 	StrVec paths;

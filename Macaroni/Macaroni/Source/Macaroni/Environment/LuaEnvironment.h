@@ -21,6 +21,8 @@ public:
 	LuaEnvironment();
 	~LuaEnvironment();
 	
+	void GetFromCurrentTableVarOrDefault(std::string & rtnValue, const char * name, const char * dflt);
+
 	void GetFromGlobalVarOrDefault(std::string & rtnValue, const char * name, const char * dflt);
 
 	/** It would be pointless to wrap every call to Lua, and that isn't the

@@ -45,6 +45,21 @@ void LuaEnvironment::BLARGOS()
 	//}			
 }
 
+void LuaEnvironment::GetFromCurrentTableVarOrDefault(std::string & rtnValue, const char * name, const char * dflt)
+{
+	lua_pushstring(state, name);
+	lua_gettable(state, -2);
+	if (lua_isstring(state, -1))
+	{
+		rtnValue = lua_tostring(state, -1);
+	}
+	else
+	{
+		rtnValue = dflt;
+	}
+	lua_pop(state, 1);
+}
+
 void LuaEnvironment::GetFromGlobalVarOrDefault(std::string & rtnValue, const char * name, const char * dflt)
 {
 	lua_getglobal(state, name);

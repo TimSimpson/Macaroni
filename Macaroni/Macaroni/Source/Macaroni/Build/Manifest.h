@@ -33,6 +33,11 @@ public:
 		return id;
 	}
 
+	inline const std::string GetFinalOutput() const
+	{
+		return fOutput;
+	}
+
 	inline const std::string GetMOutput() const
 	{
 		return mOutput;
@@ -57,6 +62,7 @@ private:
 	std::vector<const Configuration> configurations;
 	std::string cppOutput;
 	std::string description;
+	std::string fOutput;
 	//std::vector<std::string> generators;
 	ManifestId id;	
 	std::vector<const std::string> cInclude;

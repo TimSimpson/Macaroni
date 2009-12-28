@@ -2,6 +2,7 @@
 #define MACARONI_IO_PATH_CPP
 
 #include "Path.h"
+#include <boost/filesystem/convenience.hpp>
 #include "../../Gestalt/FileSystem/FileSet.h"
 #include "../Exception.h"
 #include <iostream>
@@ -51,7 +52,8 @@ void Path::CreateDirectory() const
 	{
 		return;
 	}	
-	boost::filesystem::create_directory(path);	
+	boost::filesystem::create_directories(path);
+	//boost::filesystem::create_directory(path);	
 }
 
 bool Path::Exists() const

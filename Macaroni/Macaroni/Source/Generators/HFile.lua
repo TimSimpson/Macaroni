@@ -2,6 +2,7 @@
 package.path = "F:/Lp3/Projects/Macaroni/Code/trunk/Macaroni/Debug/Generators/?.lua"
 require "Cpp/Common";
 
+local Access = Macaroni.Model.Cpp.Access;
 local Context = Macaroni.Model.Context;
 local Node = Macaroni.Model.Node;
 local TypeNames = Macaroni.Model.TypeNames;
@@ -101,7 +102,12 @@ ClassGenerator = {
     
     classBody = function(self)
         self:classBegin();
-        self:iterateClassMembers(self.node.Children);
+        self:write("public:\n");
+        self:iterateClassMembers(self.node.Children, "Access_Public");
+        self:write("protected:\n");
+        self:iterateClassMembers(self.node.Children, "Access_Protected");
+        self:write("private:\n");
+        self:iterateClassMembers(self.node.Children, "Access_Private");
         self:classEnd();
     end,
     
@@ -136,10 +142,16 @@ ClassGenerator = {
         -- UPDATE: It does?
     end,
     
-    iterateClassMembers = function(self, nodeChildren)
+    iterateClassMembers = function(self, nodeChildren, access)
         for i=1, #nodeChildren do
             node = nodeChildren[i];
-            self:parseMember(node);
+            if (node.Member ~= nil) then
+                if (node.Member.Access == access) then
+                    self:parseMember(node);
+                elseif (node.Member.Access == nil) then
+                    self:write("/* ~<( Nil access for Node :" .. tostring(node) .. ".) */\n");
+                end
+            end
         end
     end,
     

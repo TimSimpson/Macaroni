@@ -8,6 +8,21 @@ using Macaroni::Environment::LuaEnvironment;
 
 BEGIN_NAMESPACE(Macaroni, Build, Cpp)
 
+CompilerSettings::CompilerSettings()
+:additionalCompilerArgs(""),
+ additionalLinkerArgs(""),
+ compilerExe(""),
+ environmentVariables(),
+ firstLinkedObjects(),
+ includePaths(),
+ linkerExe(),
+ linkerPaths(),
+ oSwitch(),
+ paths(),
+ preprocessorDirectives()
+{
+}
+
 CompilerSettings::CompilerSettings(const boost::filesystem::path & filePath)
 :additionalCompilerArgs(""),
  additionalLinkerArgs(""),
@@ -15,6 +30,7 @@ CompilerSettings::CompilerSettings(const boost::filesystem::path & filePath)
  environmentVariables(),
  firstLinkedObjects(),
  includePaths(),
+ linkerExe(),
  linkerPaths(),
  oSwitch(),
  paths(),
@@ -30,6 +46,7 @@ CompilerSettings::CompilerSettings(const boost::filesystem::path & filePath)
 	env.GetFromGlobalVarOrDefault(compilerExe, "compilerExe", "");
 	env.GetFromGlobalVarOrDefault(firstLinkedObjects, "firstLinkedObjects", "");
 	includePaths = env.GetVectorFromGlobalTable("includePaths");
+	env.GetFromGlobalVarOrDefault(linkerExe, "linkerExe", "");
 	linkerPaths = env.GetVectorFromGlobalTable("linkerPaths");
 	env.GetFromGlobalVarOrDefault(oSwitch, "oSwitch", "");
 	environmentVariables = env.GetVectorFromGlobalTable("environmentVariables");

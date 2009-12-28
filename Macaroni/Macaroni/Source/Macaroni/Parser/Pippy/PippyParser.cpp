@@ -523,9 +523,16 @@ public:
 
 	bool ConstructorOrDestructor(Iterator & itr)
 	{
+		using namespace Macaroni::Model::Cpp;
+
 		Iterator newItr = itr;
 		
 		Access access = AccessKeyword(newItr);
+		
+		if (access == Access_NotSpecified)
+		{
+			access = Access_Private;
+		}
 
 		ConsumeWhitespace(newItr);
 		bool tilda = false;

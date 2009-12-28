@@ -1,4 +1,5 @@
 compilerExe=[[C:\program files\Microsoft Visual Studio 9.0\VC\bin\cl.exe]]
+linkerExe=[[C:\program files\Microsoft Visual Studio 9.0\VC\bin\link.exe]]
 oSwitch="/Fo"
 additionalCompilerArgs="/EHsc"
 paths=

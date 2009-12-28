@@ -54,6 +54,7 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile)
 		mSource[i] = (manifestDir / mSource[i]).string();
 	}	
 
+	env.GetFromGlobalVarOrDefault(fOutput, "fOutput", "MWork/Final");
 	env.GetFromGlobalVarOrDefault(mOutput, "mOutput", "MWork/GeneratedSource");
 	env.GetFromGlobalVarOrDefault(cppOutput, "cppOutput", "MWork/Objects");
 	mOutput = (manifestDir / mOutput).string();
@@ -98,7 +99,14 @@ Configuration createConfiguration(LuaEnvironment & env, const char * name)
 	
 	config.SetName(name);
 
+	std::string additionalLinkerArgs;
+	env.GetFromCurrentTableVarOrDefault(additionalLinkerArgs, "additionalLinkerArgs", "");
+	config.SetAdditionalLinkerArgs(additionalLinkerArgs);
+
+
 	std::string compiler;
+	env.GetFromCurrentTableVarOrDefault(compiler, "compiler", "default");
+	/*
 	lua_pushstring(env.GetState(), "compiler");
 		lua_gettable(env.GetState(), -2);
 		if (lua_isstring(env.GetState(), -1))
@@ -111,6 +119,12 @@ Configuration createConfiguration(LuaEnvironment & env, const char * name)
 		}
 		lua_pop(env.GetState(), 1);
 	config.SetCompiler(compiler);
+	*/
+	config.SetCompiler(compiler);
+
+	std::string final;
+	env.GetFromCurrentTableVarOrDefault(final, "final", "final");
+	config.SetFinal(final);
 
 	std::vector<const std::string> generators = env.GetVectorFromCurrentTable("generators");
 	config.SetGenerators(generators);

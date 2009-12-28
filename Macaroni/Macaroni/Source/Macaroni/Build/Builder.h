@@ -3,8 +3,10 @@
 
 #include "../ME.h"
 #include "../Environment/Console.h"
+#include "Cpp/CompilerSettings.h"
 #include "Cpp/CppFile.h"
 #include "Manifest.h"
+#include <boost/filesystem/path.hpp>
 #include <string>
 #include <vector>
 
@@ -15,17 +17,26 @@ class Builder
 public:
 	Builder(const Manifest & manifest, const Configuration & config, Environment::Console & console);
 
-	void CompileCpp();
+	bool CompileCpp();	
 
-	void CreateCppFileList(std::vector<Cpp::CppFile> & files);
+	bool CompileMacaroni();
 
 	void Execute();
 
-	bool CompileMacaroni();
+	bool Link();
+
 private:
+	Cpp::CompilerSettings cppCompiler;
+	std::vector<Cpp::CppFile> cppFiles;
+	std::vector<const std::string> cppSrcRoots;
 	const Configuration & configuration;
 	const Environment::Console & console;
-	const Manifest & manifest;
+	boost::filesystem::path findCppCompilerSettingsFile();
+	const Manifest & manifest;	
+
+	void createCppFileList();
+
+	void createCppSrcRoots();
 };
 
 } }

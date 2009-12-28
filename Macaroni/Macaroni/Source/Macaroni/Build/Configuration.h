@@ -15,9 +15,19 @@ class Configuration
 public:
 	Configuration(){}
 
+	inline const std::string GetAdditionalLinkerArgs() const
+	{
+		return additionalLinkerArgs;
+	}
+
 	inline const std::string GetCompiler() const
 	{
 		return compiler;
+	}
+
+	inline const std::string GetFinal() const
+	{
+		return final;
 	}
 
 	inline const std::vector<const std::string> & GetGenerators() const
@@ -30,9 +40,19 @@ public:
 		return name;
 	}
 
+	inline void SetAdditionalLinkerArgs(std::string & value)
+	{
+		additionalLinkerArgs = value;
+	}
+
 	inline void SetCompiler(std::string & value)
 	{
 		compiler = value;
+	}
+
+	inline void SetFinal(const std::string & value)
+	{
+		final = value;
 	}
 
 	inline void SetGenerators(std::vector<const std::string> & value)
@@ -46,7 +66,11 @@ public:
 	}
 
 private:
+	std::string additionalLinkerArgs;
+
 	std::string compiler;
+
+	std::string final;
 
 	std::vector<const std::string> generators;
 

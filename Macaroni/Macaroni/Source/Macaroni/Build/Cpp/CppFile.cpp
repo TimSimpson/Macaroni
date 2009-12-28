@@ -22,7 +22,9 @@ CppFile::CppFile(boost::filesystem::path srcRoot, boost::filesystem::path srcPat
 	obj = Path(outputDirectory, objFile);
 }
 
-void CppFile::Compile(CompilerSettings & settings, const Console & console)
+bool CppFile::Compile(CompilerSettings & settings, 
+					  const std::vector<const std::string> & configIncludePaths,
+					  const Console & console)
 {
 	CreateObjectFileDirectories();
 	console.WriteLine(
@@ -41,13 +43,19 @@ void CppFile::Compile(CompilerSettings & settings, const Console & console)
 	args << "/c \"" << src.GetAbsolutePath() << "\" ";
 	//args << " \"" << src.GetAbsolutePath() << "\" ";
 	args << " " << settings.GetAdditionalCompilerArgs();
-	for (int i = 0; i < settings.GetIncludePaths().size(); i ++)
+	for (unsigned int i = 0; i < settings.GetIncludePaths().size(); i ++)
 	{
 		args << " -I\"" << settings.GetIncludePaths()[i] << "\"";
+	}
+	for (unsigned int i = 0; i < configIncludePaths.size(); i ++)
+	{
+		args << " -I\"" << configIncludePaths[i] << "\"";
 	}
 
 	Process process(settings.GetCompilerExe(), args.str(), objPath.branch_path(), settings.GetPaths());
 	process.Run(console);	
+	
+	return ObjectFileExists();
 }
 
 void CppFile::CreateObjectFileDirectories()
@@ -61,6 +69,16 @@ void CppFile::DeleteObjectFile(const Console & console)
 {
 	console.Write("Deleting ");
 	console.WriteLine(obj.GetAbsolutePath());
+}
+
+boost::filesystem::path CppFile::GetObjectFilePath()
+{
+	return boost::filesystem::path(obj.GetAbsolutePath());
+}
+
+bool CppFile::ObjectFileExists()
+{
+	return obj.Exists();
 }
 
 END_NAMESPACE

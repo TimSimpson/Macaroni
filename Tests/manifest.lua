@@ -20,6 +20,8 @@ mOutput = "MWork/GeneratedSource"
 
 cppOutput = "MWork/Objects"
 
+fOutput = "MWork/Final"
+
 configurations = {
     all =
     {
@@ -34,7 +36,8 @@ configurations = {
         {
             -- No dependencies yet exist, but if they did we'd put 'em here like this:
             -- localName = module("name","version","configuration")
-        }    
+        },
+        final = "Test.exe"
     }
     -- Need to have some kind of inheretence mechanism for configurations, so
     -- most configs will inhereit from "all" by default.
