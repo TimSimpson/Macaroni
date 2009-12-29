@@ -1,15 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
   <file>
-    <filename>Generators\HFile.lua</filename>
+    <filename>Generators\Cpp.lua</filename>
   </file>
   <file>
-    <filename>Generators\CppFile.lua</filename>
+    <filename>Generators\Cpp\ClassCppFileGenerator.lua</filename>
   </file>
   <file>
-    <filename>Generators\Dumb.lua</filename>
+    <filename>Generators\Cpp\ClassFileGenerator.lua</filename>
+  </file>
+  <file>
+    <filename>Generators\Cpp\ClassHFileGenerator.lua</filename>
   </file>
   <file>
     <filename>Generators\Cpp\Common.lua</filename>
+  </file>
+  <file>
+    <filename>Generators\Cpp\CppFileGenerator.lua</filename>
+  </file>
+  <file>
+    <filename>Generators\Cpp\HFileGenerator.lua</filename>
   </file>
 </project>

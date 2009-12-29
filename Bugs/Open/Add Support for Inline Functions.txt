@@ -1,0 +1,2 @@
+The PippyParser needs to detect the keyword "inline" and add a modifier to the Function being generated.
+Then, this function should be created within the header file instead of the CPP file.

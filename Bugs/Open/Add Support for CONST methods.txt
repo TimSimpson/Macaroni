@@ -1,0 +1,3 @@
+The PippyParser seems to detect the const keyword following a method argument list, but it doesn't store anything useful in the Model or the Generators don't use it.
+
+Please add.

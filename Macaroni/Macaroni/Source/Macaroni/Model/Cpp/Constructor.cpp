@@ -23,7 +23,7 @@ BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 namespace
 {
-	inline TypePtr voidTypeInfo()
+	inline TypePtr voidTypeInfo(Node * home)
 	{
 		TypeModifiers modifiers;
 		modifiers.Const = 
@@ -31,12 +31,12 @@ namespace
 			modifiers.Pointer = 
 			modifiers.Reference = 
 			false;
-		return TypePtr(new Type(NodePtr(), modifiers));		
+		return TypePtr(new Type(NodePtr(home), modifiers));		
 	}
 };
 
 Constructor::Constructor(Node * home, Model::ReasonPtr reason, Access access)
-:Function(home, "Constructor", reason, access, voidTypeInfo(), false), assignments()
+:Function(home, "Constructor", reason, access, voidTypeInfo(home), false), assignments()
 {
 }
 

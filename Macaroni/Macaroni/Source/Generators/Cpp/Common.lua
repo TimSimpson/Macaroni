@@ -22,6 +22,7 @@ Macaroni.Model.TypeNames =
     Function="Function", 
     Namespace = "Namespace", 
     Primitive="Primitive",
+    Typedef="Typedef",
     Variable="Variable"
 };
 
@@ -62,7 +63,7 @@ IncludeFiles = {
         if (node.HFilePath ~= nil) then 
             path = tostring(node.HFilePath);
         else
-            path = '<' .. node:GetPrettyFullName("/") .. '>'; 
+            path = '<' .. node:GetPrettyFullName("/") .. '.h>'; 
         end        
         return ('#include ' .. path .. '\n');        
     end,
@@ -83,9 +84,12 @@ IncludeFiles = {
         end
         if (member.TypeName == Macaroni.Model.TypeNames.Function) then                            
             local include = IncludeFiles.createStatementForNode(member.ReturnType.Node);
-             if (include ~= nil) then
+            if (include ~= nil) then
                 rtnTable[include] = true;
-            end
+            end            
+        end
+        if (member.TypeName == Macaroni.Model.TypeNames.Function or
+            member.TypeName == Macaroni.Model.TypeNames.Constructor) then      
             IncludeFiles.getStatementsForArgumentList(member.Arguments, rtnTable);
         end
     end,

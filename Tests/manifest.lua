@@ -5,7 +5,7 @@ id =
     version="1.0.0.0"
 }
 
-description="An example Project to be compiled by Macaroni."
+description="An example Test Project to be compiled by Macaroni."
 
 cInclude =  -- These include paths are the default for a manifest, I'm putting it here to illustrate it.
 {   -- This refers to the Includes you'd give the C++ compiler, btw. Macaroni Compiler does not use it.
@@ -28,8 +28,7 @@ configurations = {
         compiler = "Windows-VS9",
         generators =
         {
-            "HFile.lua",
-            "CppFile.lua"
+            "Cpp.lua",            
             --"SimpleGenerator.lua"
         },
         dependencies =
