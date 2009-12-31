@@ -124,7 +124,7 @@ FileGenerator = {
     
     writeVariableDefinition = function(self, node)
         self:writeTabs();
-        local variable = node.Member;
+        local variable = node.Member; 
         self:writeType(variable.Type);
         self:write(node.Name .. ";\n");
     end
