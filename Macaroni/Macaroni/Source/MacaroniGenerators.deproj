@@ -21,4 +21,16 @@
   <file>
     <filename>Generators\Cpp\HFileGenerator.lua</filename>
   </file>
+  <file>
+    <filename>Generators\Cpp\NodeFileGenerator.lua</filename>
+  </file>
+  <file>
+    <filename>Generators\Cpp\NamespaceFileGenerator.lua</filename>
+  </file>
+  <file>
+    <filename>Generators\Cpp\FileGenerator.lua</filename>
+  </file>
+  <file>
+    <filename>Generators\Cpp\NamespaceHFileGenerator.lua</filename>
+  </file>
 </project>

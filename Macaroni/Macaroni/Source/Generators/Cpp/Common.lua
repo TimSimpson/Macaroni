@@ -26,6 +26,27 @@ Macaroni.Model.TypeNames =
     Variable="Variable"
 };
 
+-- Identical to "assert" but points the error at the calling method.
+function check(condition, errorMsg) 
+    if (not condition) then
+        error(errorMsg, 3);
+    end
+end
+
+Util = {
+    linkToSubClass = function(superClass, subClass)
+        check(superClass ~= nil, "Argument 1 (superClass) must not be nil.");
+        check(subClass ~= nil, "Argument 2 (subClass) must not be nil.");
+        subClass.__index = function(t, k)
+            local v = subClass[k];
+            if (not v) then 
+                v = superClass[k];
+            end
+            return v;
+        end;
+    end,
+};
+
 NodeHelper = {
     worthIteration = function(node) 
         if (node == nil) then

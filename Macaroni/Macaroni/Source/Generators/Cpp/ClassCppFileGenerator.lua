@@ -27,13 +27,7 @@ ClassCppFileGenerator = {
         end
         
         setmetatable(args, ClassCppFileGenerator);
-        ClassCppFileGenerator.__index = function(t, k)
-            local v = ClassCppFileGenerator[k];
-            if (not v) then 
-                v = ClassFileGenerator[k];
-            end
-            return v;
-        end;
+        
         return args;
     end,    
     
@@ -252,4 +246,4 @@ ClassCppFileGenerator = {
     
 };
 
-setmetatable(ClassCppFileGenerator, ClassFileGenerator);
+Util.linkToSubClass(FileGenerator, ClassCppFileGenerator);

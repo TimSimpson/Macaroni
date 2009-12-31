@@ -26,15 +26,7 @@ ClassHFileGenerator = {
             args.writer = writer;
         end
         
-        setmetatable(args, ClassHFileGenerator);
-        ClassHFileGenerator.__index = function(t, k)
-            local v = ClassHFileGenerator[k];
-            if (not v) then 
-                v = ClassFileGenerator[k];
-            end
-            return v;
-        end;
-             
+        setmetatable(args, ClassHFileGenerator);                
         return args;
     end,
     
@@ -87,6 +79,8 @@ ClassHFileGenerator = {
     end,
     
     includeGuardHeader = function(self)
+        check(self ~= nil, "Member called as static.");
+        check(self.writer ~= nil, "The 'writer' field was set to nil. :(");
         local guardName = self:getGuardName();
         self.writer:write("#ifndef " .. guardName .. "/* MAO! */\n");
         self.writer:write("#define " .. guardName .. "\n");       
@@ -105,6 +99,8 @@ ClassHFileGenerator = {
     
     -- Entry function.
     parse = function(self)        
+        check(self ~= nil, "Instance method called without self.");
+        check(self.writer ~= nil, "Instance writer missing.");
         if (not self.isNested) then  
             self:includeGuardHeader();
             self.writer:write('\n');
@@ -175,3 +171,5 @@ ClassHFileGenerator = {
     end,
     
 };
+
+Util.linkToSubClass(FileGenerator, ClassHFileGenerator);             
