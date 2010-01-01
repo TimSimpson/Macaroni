@@ -3,7 +3,7 @@
 
 #include "DynamicGenerators.h"
 #include "Lua/DynamicGenerator.h"
-#include "../Gestalt/FileSystem/FileSet.h"
+#include "../../Gestalt/FileSystem/FileSet.h"
 #include <iostream>
 #include "../../Gestalt/FileSystem/Paths.h"
 #include <sstream>

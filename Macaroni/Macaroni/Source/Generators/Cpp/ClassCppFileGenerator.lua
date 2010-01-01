@@ -1,5 +1,6 @@
 require "Cpp/Common";
 require "Cpp/ClassFileGenerator";
+require "Cpp/NodeInfo"
 
 local Access = Macaroni.Model.Cpp.Access;
 local Context = Macaroni.Model.Context;
@@ -74,16 +75,7 @@ ClassCppFileGenerator = {
             end
         end
     end,
-    
-    includeGuardFooter = function(self)        
-        self.writer:write("#endif // end of " .. self:getGuardName());    
-    end,
-    
-    includeGuardHeader = function(self)
-        local guardName = self:getGuardName();
-        self.writer:write("#ifndef " .. guardName .. "\n");
-        self.writer:write("#define " .. guardName .. "\n");       
-    end,
+ 
     
     includeStatements = function(self)
         local class = self.node.Member;
@@ -114,7 +106,7 @@ ClassCppFileGenerator = {
             self.writer:write('\n');
             self:usingStatements();
             self.writer:write('\n');            
-            self:namespaceBegin();
+            self:namespaceBegin(self.node.Node);
             self.writer:write('\n');
             self:globals();
             self.writer:write('\n');
@@ -122,7 +114,7 @@ ClassCppFileGenerator = {
         self:classBody();
         if (not self.isNested) then
             self.writer:write('\n');
-            self:namespaceEnd();
+            self:namespaceEnd(self.node.Node);
             self.writer:write('\n');
             self:includeGuardFooter();
         end
@@ -212,6 +204,8 @@ ClassCppFileGenerator = {
     end,      
     
     writeUsing = function(self, import) 
+        self:write(NodeInfoList[import].using);
+    --[[
         if (import.Node.IsRoot) then
             -- Avoid writing using statements for Nodes belonging to ROOT.
             return;
@@ -219,7 +213,8 @@ ClassCppFileGenerator = {
         local statement = nil;
         local generateWarning = true;
         if (import.Member ~= nil) then
-            if (import.Member.TypeName == TypeNames.Class) then
+            if (import.Member.TypeName == TypeNames.Class 
+                or import.Member.TypeName == TypeNames.Typedef) then
                 statement = "using " .. import:GetPrettyFullName("::") .. ";\n";
             elseif (import.Member.TypeName == TypeNames.Primitive) then
                 generateWarning = false;
@@ -232,7 +227,7 @@ ClassCppFileGenerator = {
                 statement = "";
             end
         end
-        self:write(statement);
+        self:write(statement);]]--
     end,       
     
     usingStatements = function(self)

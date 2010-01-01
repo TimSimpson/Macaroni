@@ -6,6 +6,7 @@
 #include "Macaroni/Exception.h"
 #include "Macaroni/Environment/LuaEnvironment.h"
 #include "Macaroni/Environment/Messages.h"
+#include "Macaroni/Platform/Windows/Strings.h"
 #include "Gestalt/FileSystem/FileSet.h"
 #include <iostream>
 #include <sstream>
@@ -23,6 +24,8 @@ using Macaroni::Build::MCompiler;
 using Macaroni::Build::MCompilerOptions;
 using Gestalt::FileSystem::FileSet;
 using Macaroni::Environment::Messages;
+using Macaroni::Platform::Windows::NonWindowsString;
+using Macaroni::Platform::Windows::WindowsString;
 //
 //void compileProjectFiles()
 //{
@@ -83,9 +86,8 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 	std::vector<const std::string> convertedArgs;
 	for (int i = 0; i < argc; i ++)
 	{
-		std::string convertedString("");
-		convert(std::wstring(argv[i]), convertedString);
-		convertedArgs.push_back(convertedString);
+		NonWindowsString convertedString(argv[i]);
+		convertedArgs.push_back(convertedString.get());
 	}
 	
 	Console output;

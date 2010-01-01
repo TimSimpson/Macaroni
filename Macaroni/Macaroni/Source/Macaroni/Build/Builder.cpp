@@ -6,7 +6,7 @@
 #include <boost/filesystem/convenience.hpp>
 #include "Cpp/CppFile.h"
 #include "../Exception.h"
-#include "../Gestalt/FileSystem/FileSet.h"
+#include "../../Gestalt/FileSystem/FileSet.h"
 #include "MCompilerOptions.h"
 #include "MCompiler.h"
 #include "../IO/Path.h"

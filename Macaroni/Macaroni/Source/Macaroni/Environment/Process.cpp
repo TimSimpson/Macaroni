@@ -51,9 +51,9 @@ bool Process::Run(const Console & console)
 	
 	console.WriteLine(ss.str());
 	
-	Macaroni::Platform::Windows::WideString wideFileName(fileName.native_file_string());
-	Macaroni::Platform::Windows::WideString wideArgs(args);
-	Macaroni::Platform::Windows::WideString wideWorkingDir(workingDirectory.string());
+	Macaroni::Platform::Windows::WindowsString wideFileName(fileName.native_file_string());
+	Macaroni::Platform::Windows::WindowsString wideArgs(args);
+	Macaroni::Platform::Windows::WindowsString wideWorkingDir(workingDirectory.string());
 
 	/*LoadLibrary(TEXT("shell32.dll"));
 	ShellExecute(GetDesktopWindow(),

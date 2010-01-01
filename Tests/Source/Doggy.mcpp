@@ -1,7 +1,13 @@
+~import BorderTown::AnimalFriends::DoggyList;
 ~import std::string;
+~import std::vector;
 
 namespace BorderTown::AnimalFriends
 {
+
+	class Doggy{}
+
+	typedef vector<Doggy> DoggyList;
 
 	class Doggy
 	{
@@ -15,6 +21,12 @@ namespace BorderTown::AnimalFriends
 		string GetName()
 		{
 			return name;
+		}
+
+		DoggyList createList()
+		{
+			DoggyList newList;
+			return newList;
 		}
 	
 		string name;

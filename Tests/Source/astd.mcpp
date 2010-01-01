@@ -1,5 +1,6 @@
 namespace std
 {
   class string{  ~hfile=<string> };
+  class vector{  ~hfile=<vector> };
 }
 

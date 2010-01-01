@@ -1,3 +1,4 @@
+~import BorderTown::AnimalFriends::DoggyList;
 ~import std::string;
 
 
@@ -11,6 +12,11 @@ namespace Fruits {
 		public int FindWormCount(string wormtype)
 		{
 			return 4 * 3;
+		}
+
+		public DoggyList getListOfDogs()
+		{
+			return DoggyList();
 		}
 	}
 }

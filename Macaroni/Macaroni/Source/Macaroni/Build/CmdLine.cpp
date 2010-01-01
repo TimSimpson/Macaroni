@@ -11,7 +11,7 @@
 #include "../Exception.h"
 #include "../Environment/LuaEnvironment.h"
 #include "../Environment/Messages.h"
-#include "../Gestalt/FileSystem/FileSet.h"
+#include "../../Gestalt/FileSystem/FileSet.h"
 #include <vector>
 #include <string>
 #include <sstream>

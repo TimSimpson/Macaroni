@@ -72,19 +72,7 @@ ClassHFileGenerator = {
     
     getNodeAlias = function(self, node)
         return node.FullName;
-    end,
-    
-    includeGuardFooter = function(self)        
-        self.writer:write("#endif // end of " .. self:getGuardName());    
-    end,
-    
-    includeGuardHeader = function(self)
-        check(self ~= nil, "Member called as static.");
-        check(self.writer ~= nil, "The 'writer' field was set to nil. :(");
-        local guardName = self:getGuardName();
-        self.writer:write("#ifndef " .. guardName .. "/* MAO! */\n");
-        self.writer:write("#define " .. guardName .. "\n");       
-    end,
+    end,       
     
     includeStatements = function(self)    
         local statements = IncludeFiles.getHFileIncludeStatementsForNode(self.node);
@@ -92,9 +80,6 @@ ClassHFileGenerator = {
         for i = 1, #statements do
             self.writer:write(statements[i]);
         end                   
-        -- alas, this is impossible.
-        -- The NodePtrList type needs LuaGlue so the property can be accessed from the Class member.
-        -- UPDATE: It does?
     end,  
     
     -- Entry function.
@@ -104,19 +89,32 @@ ClassHFileGenerator = {
         if (not self.isNested) then  
             self:includeGuardHeader();
             self.writer:write('\n');
-            self:includeStatements();            
-            self.writer:write('\n');            
-            self:namespaceBegin();
-            self.writer:write('\n');
+        end
+        
+        self:write("// Forward declaration necessary if this depends on anything which also depend on this.\n");
+        if (not self.isNested) then 
+            self:namespaceBegin(self.node.Node);
         end
         self.writer:write("class " .. self.node.Name .. ";\n");
+        if (not self.isNested) then
+            self:namespaceEnd(self.node.Node);
+        end
+        self:write("\n");
+        
+        if (not self.isNested) then  
+            self:includeStatements();            
+            self.writer:write('\n');            
+            self:namespaceBegin(self.node.Node);
+            self.writer:write('\n');
+        end
+        
         self.writer:write('\n');
         self:classPublicGlobals();
         self.writer:write('\n');
         self:classBody();
         if (not self.isNested) then
             self.writer:write('\n');
-            self:namespaceEnd();
+            self:namespaceEnd(self.node.Node);
             self.writer:write('\n');
             self:includeGuardFooter();
         end

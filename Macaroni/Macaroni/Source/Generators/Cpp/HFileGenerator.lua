@@ -31,7 +31,7 @@ HFileGenerator = {
     end,
     
     createNamespaceFileGenerator = function (self, node, path)
-        local filePath = path:NewPath(".h");
+        local filePath = path:NewPath("/_.h");
         local ng = NamespaceHFileGenerator.new{node = node, path = filePath};
         return ng;
     end,

@@ -72,9 +72,16 @@ namespace {
 
 	static inline void putNodeInstanceOnStack(lua_State * L, const NodePtr & source)
 	{
-		createNodePtrUserData(L, source);
-		luaL_getmetatable(L, METATABLENAME);
-		lua_setmetatable(L, -2); 
+		if (!source) 
+		{
+			lua_pushnil(L);
+		}
+		else
+		{
+			createNodePtrUserData(L, source);
+			luaL_getmetatable(L, METATABLENAME);
+			lua_setmetatable(L, -2); 
+		}
 	}
 
 } // End Anon namespace
@@ -268,7 +275,7 @@ struct NodeLuaFunctions
 	{
 		NodePtr & ptr = MembersProperty_GetInstance(L);
 		std::stringstream ss;
-		ss << "Node\"" << ptr->GetName() << "\" Member Count = ";
+		ss << "Node\"" << ptr->GetName() << "\" Children, Count = ";
 		ss << ptr->GetChildCount();
 		lua_pushlstring(L, ss.str().c_str(), ss.str().length());
 		return 1;
@@ -316,7 +323,18 @@ int NodeLuaMetaData::Index(lua_State * L, NodePtr & ptr, const std::string & ind
 		return 1;  
 	}	
 	else*/ 
-	if (index == "Find")
+	if (index == "AdoptedHome") 
+	{
+		NodePtr adoptedHome = ptr->GetAdoptedHome();
+		if (!adoptedHome) 
+		{
+			lua_pushnil(L);
+		} else 
+		{
+			NodeLuaMetaData::PutInstanceOnStack(L, adoptedHome);
+		}
+	}
+	else if (index == "Find")
 	{
 		lua_pushcfunction(L, NodeLuaFunctions::Find);	
 		return 1;

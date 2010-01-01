@@ -33,4 +33,10 @@
   <file>
     <filename>Generators\Cpp\NamespaceHFileGenerator.lua</filename>
   </file>
+  <file>
+    <filename>Generators\Cpp\DependencyList.lua</filename>
+  </file>
+  <file>
+    <filename>Generators\Cpp\NodeInfo.lua</filename>
+  </file>
 </project>

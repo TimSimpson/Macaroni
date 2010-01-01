@@ -18,6 +18,7 @@
 #include "../Parser/ParserExceptionLua.h"
 #include "../IO/PathLua.h"
 #include "../Parser/Cpp/CppParserLua.h"
+#include "../../Gestalt/FileSystem/Paths.h"
 #include "../Parser/Pippy/PippyParserLua.h"
 #include "../Model/SourceLua.h"
 #include <sstream>
@@ -82,15 +83,16 @@ void LuaEnvironment::registerInternalLuaModules()
 	TCHAR szDirectory[SZDIRECTORYSIZE];
 	MACARONI_ASSERT(GetCurrentDirectory(SZDIRECTORYSIZE - 1, szDirectory) != 0,
 					"Failure getting working directory!");
-	char directory[SZDIRECTORYSIZE];
-	int ret = WideCharToMultiByte(CP_ACP, 0, szDirectory, -1, 
-								  directory, 256, NULL, NULL);
-	MACARONI_ASSERT(ret != 0, "Couldn't convert the dumb directory string.");
+	std::string directory = Gestalt::FileSystem::Paths::GetExeDirectoryPath();
+	///*char directory[SZDIRECTORYSIZE];
+	//int ret = WideCharToMultiByte(CP_ACP, 0, szDirectory, -1, 
+	//							  directory, 256, NULL, NULL);
+	//MACARONI_ASSERT(ret != 0, "Couldn't convert the dumb directory string.");*/
 
-	lua_pushstring(state, directory);
+	lua_pushstring(state, directory.c_str());
 	lua_setglobal(state, "LUA_PATH");
 
-	lua_pushstring(state, directory);
+	lua_pushstring(state, directory.c_str());
 	lua_setglobal(state, "package.path");
 
 	std::stringstream ss;	

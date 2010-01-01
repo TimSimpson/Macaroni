@@ -1,53 +1,81 @@
 #ifndef MACARONI_PLATFORM_WINDOWS_STRINGS_H
 #define MACARONI_PLATFORM_WINDOWS_STRINGS_H
 
-#include "../ME.h"
+#include "../../ME.h"
 #include <string>
+#include <tchar.h>
 #include <windows.h>
 
 BEGIN_NAMESPACE(Macaroni, Platform, Windows)
+//
+//void ConvertToNormalString(std::wstring & original, std::string & rtnString)
+//{
+//	std::stringstream ss;	  
+//	for(unsigned int i = 0; i < original.size(); i ++)
+//	{
+//		ss << ((char)original[i]);
+//	}
+//	rtnString = ss.str();
+//}
 
-void ConvertToNormalString(std::wstring & original, std::string & rtnString)
-{
-	std::stringstream ss;	  
-	for(unsigned int i = 0; i < original.size(); i ++)
-	{
-		ss << ((char)original[i]);
-	}
-	rtnString = ss.str();
-}
+#ifdef _UNICODE
 
-class WideString
+class WindowsString
 {
 public:
-	WideString(const std::string & original)
-	{
-		const char * orginalAsCStr = original.c_str();
-		int lenA = lstrlenA(orginalAsCStr);
-		int lenW = MultiByteToWideChar(CP_ACP, 0, orginalAsCStr, lenA, 0, 0);
-		if (lenW > 0)
-		{
-			unicode = SysAllocStringLen(0, lenW);
-			MultiByteToWideChar(CP_ACP, 0, orginalAsCStr, lenA, unicode, lenW);
-		}
-		else
-		{
-			throw Macaroni::Exception("Error converting normal string to Windows string.");
-		}
-	}
+	WindowsString(const std::string & original);
 	
-	~WideString() 
-	{
-		SysFreeString(unicode);	
-	}
+	~WindowsString() ;
 	
-	inline BSTR get()
+	inline TCHAR  * get()
 	{
-		return unicode;
+		return windowsString;
 	}
 private:
-	BSTR unicode;
+	wchar_t * windowsString;
 };
+
+class NonWindowsString
+{
+public:
+	NonWindowsString(const wchar_t * wStr);
+	inline std::string & get()
+	{
+		return str;
+	}
+private:
+	
+	std::string createFromWChar(const wchar_t * buffer);
+	std::string str;
+};
+#else // if ascii
+
+class WindowsString
+{
+public:
+	WindowsString(const std::string & original);
+	~WindowsString() ;
+	
+	inline char * get()
+	{
+		return str;
+	}
+private:
+	char * str;
+};
+
+class NonWindowsString
+{
+public:
+	NonWindowsString(const char * cStr);
+	inline std::string & get()
+	{
+		return str;
+	}
+private:
+	std::string str;
+};
+#endif // not unicode
 
 END_NAMESPACE
 
