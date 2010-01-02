@@ -23,6 +23,8 @@ HFileGenerator = {
 
         return args;
     end,
+
+    attemptShortName = false,
     
     createClassGenerator = function (self, node, path)
         local filePath = path:NewPath(".h");

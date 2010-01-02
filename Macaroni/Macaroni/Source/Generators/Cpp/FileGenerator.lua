@@ -9,26 +9,7 @@ FileGenerator = {
     addTabs = function(self, tabCount)
         self.tabs = self.tabs + tabCount;
     end,
-    
-    -- given node A::B::C, returns array { A, A::B, A::B::C }
-    createPathListFromNode = function(self, node)
-        check(node ~= nil, "Cannot iterate nil node!");
-        local i = 0;
-        local itr = node;
-        while (not itr.IsRoot) do
-            i = i + 1;
-            itr = itr.Node;
-        end        
-        local rtn = {}
-        local itr2 = node;
-        while (not itr2.IsRoot) do
-            rtn[i] = itr2;
-            i = i - 1;
-            itr2 = itr2.Node;
-        end
-        return rtn;        
-    end,   
-    
+        
     getNodeAlias = function(self, node) -- The Alias of a Node for this kind of file.
         return node.FullName;
     end,    
@@ -101,18 +82,7 @@ FileGenerator = {
         self:write(node.Name .. ";\n");
     end,  
     
-     -- Searches the TypeArgumentList for a TypeArgument with the given node.
-    searchTypeArgumentListForNode = function(self, typeArgList, node)
-        check(typeArgList ~= nil, "TypeArgument list can't be nil.");
-        check(node ~= nil, "Node can't be nil.");
-        for i = 1, #typeArgList do
-            local tArg = typeArgList[i];
-            if (tArg.Node == node) then
-                return tArg;
-            end
-        end
-        return nil;
-    end,   
+    
     
     write = function(self, text)
         if (type(text) ~= "string") then
@@ -160,43 +130,9 @@ FileGenerator = {
     writeType = function(self, type)    
         check(self ~= nil, "Member method called without instance.");
         check(type ~= nil, 'Argument 2 "type" can not be null.');    
-        if (type == nil) then
-            error("Type argument cannot be nil.", 2);           
-        end
-        if (type.Const) then
-            self:write("const ");
-        end
-        local typeArguments = type.TypeArguments;
-        if (typeArguments == nil or #typeArguments <= 0) then
-            self:write(self:getNodeAlias(type.Node));
-        else
-            local nodeList = self:createPathListFromNode(type.Node);            
-            for i = 1, #nodeList do
-                local nodePart = nodeList[i];
-                local typeArg = self:searchTypeArgumentListForNode(typeArguments, nodePart);
-                self:write(nodePart.Name);
-                if (typeArg ~= nil) then
-                    self:write("<");                      
-                    for i = 1, #typeArg.Arguments do                        
-                        self:writeType(typeArg.Arguments[i]);
-                    end
-                    self:write(">");                     
-                end
-                if (i < #nodeList) then
-                    self:write("::");
-                end
-            end            
-        end        
-        self:write(' ');
-        if (type.Pointer) then
-            self:write("* ");
-        end
-        if (type.Reference) then
-            self:write("& ");
-        end
-        if (type.ConstPointer) then
-            self:write("const ");
-        end
+        local typeUtil = TypeUtil.new();
+        local str = typeUtil:createTypeDefinition(type, self.attemptShortName);
+        self:write(str);        
     end,
     
     writeVariableDefinition = function(self, node)

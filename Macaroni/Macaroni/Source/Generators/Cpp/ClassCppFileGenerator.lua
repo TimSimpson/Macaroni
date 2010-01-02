@@ -201,7 +201,15 @@ ClassCppFileGenerator = {
     writeInclude = function(self, import)        
         local statement = IncludeFiles.createStatementForNode(import);
         if (statement ~= nil) then self:write(statement); end
-    end,      
+    end,          
+    
+    writeType = function(self, type)    
+        check(self ~= nil, "Member method called without instance.");
+        check(type ~= nil, 'Argument 2 "type" can not be null.');    
+        local typeUtil = TypeUtil.new();
+        local str = typeUtil:createTypeDefinition(type, true);
+        self:write(str);        
+    end,
     
     writeUsing = function(self, import) 
         self:write(NodeInfoList[import].using);

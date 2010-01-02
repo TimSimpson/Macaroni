@@ -30,6 +30,7 @@ ClassHFileGenerator = {
         return args;
     end,
     
+    
     addTabs = function(self, tabCount)
         self.tabs = self.tabs + tabCount;
     end,

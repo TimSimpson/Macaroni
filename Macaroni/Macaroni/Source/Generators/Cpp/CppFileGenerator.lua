@@ -22,6 +22,8 @@ CppFileGenerator = {
         return self;
     end,
     
+    attemptShortName = true,
+    
     createClassGenerator = function (self, node, path)
         local filePath = path:NewPath(".cpp");
         local cg = ClassCppFileGenerator.new{node = node, path = filePath};

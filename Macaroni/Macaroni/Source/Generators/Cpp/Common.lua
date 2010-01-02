@@ -198,6 +198,108 @@ IncludeFiles = {
     end
 }
 
+TypeUtil = {
+    new = function() 
+        local self = {};
+        setmetatable(self, { ["__index"] = TypeUtil } );
+        --setmetatable(self, TypeUtil);
+        return self;
+    end,
+    
+    -- Returns a String with code defining the type.  If attemptShortName is
+    -- true, it will not use the full name of the Type node.  If the type is
+    -- complex, full names are used regardless.
+    createTypeDefinition = function(self, type, attemptShortName) 
+        check(self ~= nil, "Member method called without instance.");
+        check(type ~= nil, 'Argument 2 "type" can not be null.');    
+        
+        local rtnStr = "";
+        if (type == nil) then
+            error("Type argument cannot be nil.", 2);           
+        end
+        if (type.Const) then
+            rtnStr = rtnStr .. "const ";
+        end
+        local typeArguments = type.TypeArguments;
+        if (self:forceShortName(type, attemptShortName)) then
+            rtnStr = rtnStr .. type.Node.Name;
+        else
+            local nodeList = self:createPathListFromNode(type.Node);            
+            for i = 1, #nodeList do
+                local nodePart = nodeList[i];
+                local typeArg = self:searchTypeArgumentListForNode(typeArguments, nodePart);
+                rtnStr = rtnStr .. nodePart.Name;
+                if (typeArg ~= nil) then
+                    rtnStr = rtnStr .. "<";                      
+                    for i = 1, #typeArg.Arguments do                        
+                        rtnStr = rtnStr .. self:createTypeDefinition(typeArg.Arguments[i]);
+                    end
+                    rtnStr = rtnStr .. ">";                     
+                end
+                if (i < #nodeList) then
+                    rtnStr = rtnStr .. "::";
+                end
+            end            
+        end        
+        rtnStr = rtnStr .. ' ';
+        if (type.Pointer) then
+            rtnStr = rtnStr .. "* ";
+        end
+        if (type.Reference) then
+            rtnStr = rtnStr .. "& ";
+        end
+        if (type.ConstPointer) then
+            rtnStr = rtnStr .. "const ";
+        end    
+        
+        return rtnStr;
+    end,
+    
+    -- given node A::B::C, returns array { A, A::B, A::B::C }
+    createPathListFromNode = function(self, node)
+        check(node ~= nil, "Cannot iterate nil node!");
+        local i = 0;
+        local itr = node;
+        while (not itr.IsRoot) do
+            i = i + 1;
+            itr = itr.Node;
+        end        
+        local rtn = {}
+        local itr2 = node;
+        while (not itr2.IsRoot) do
+            rtn[i] = itr2;
+            i = i - 1;
+            itr2 = itr2.Node;
+        end
+        return rtn;        
+    end,   
+    
+     -- Searches the TypeArgumentList for a TypeArgument with the given node.
+    searchTypeArgumentListForNode = function(self, typeArgList, node)
+        check(typeArgList ~= nil, "TypeArgument list can't be nil.");
+        check(node ~= nil, "Node can't be nil.");
+        for i = 1, #typeArgList do
+            local tArg = typeArgList[i];
+            if (tArg.Node == node) then
+                return tArg;
+            end
+        end
+        return nil;
+    end,   
+    
+    -- True if the short name of the type's node should be forced.
+    forceShortName = function(self, type, desireShortName) 
+        if (type.Node.Member ~= nil  and type.Node.Member.TypeName == Macaroni.Model.TypeNames.Primitive) then
+            return true;
+        end
+        if (desireShortName and 
+            (type.TypeArguments == nil or #type.TypeArguments <= 0)) then
+            return true;
+        end
+        return false;
+    end,
+}
+
 --function Generate(context, path)
 --    print("I play no part in this cosmic dance. I prance, and prance, and prance...");
 --end
