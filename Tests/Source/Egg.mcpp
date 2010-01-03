@@ -1,0 +1,14 @@
+~import BorderTown::AnimalFriends::Chicken;
+~import BorderTown::AnimalFriends::DoggyList;
+~import std::string;
+~import std::vector;
+
+namespace BorderTown::AnimalFriends
+{
+
+	class Egg
+	{
+		Chicken * chicken;			
+	}
+
+}

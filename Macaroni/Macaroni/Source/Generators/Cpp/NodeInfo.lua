@@ -1,4 +1,5 @@
 require "Cpp/Common";
+require "Cpp/DependencyList";
 
 local Access = Macaroni.Model.Cpp.Access;
 local Context = Macaroni.Model.Context;
@@ -7,38 +8,113 @@ local TypeNames = Macaroni.Model.TypeNames;
 
 -- Stores quick lookup info about Nodes.
 NodeInfo = {
+    dependencies = nil,
+    heavyDef = nil,
     lightDef = nil,
     using = nil,
     
     new = function(node)    
         check(node ~= nil, "Node cannot be nil!");      
         local self = {}
-        setmetatable(self, NodeInfo);       
+        setmetatable(self, {["__index"]=NodeInfo});       
         self.node = node;
-        self.lightDef = NodeInfo.createLightDef(self.node);
-        self.using = NodeInfo.createUsingStatement(self.node);
+        self.dependencies = self:createDependencyList(self.node);
+        self.heavyDef = self:createHeavyDef(self.node);
+        self.lightDef = self:createLightDef(self.node);
+        self.using = self:createUsingStatement(self.node);
         return self;
     end,    
     
+    createDependencyList = function(self, node)
+        -- Functions and variables don't currently get these because their 
+        -- info is too dependent on context.
+        check(self ~= nil, "Member function called without self.");
+        check(node ~= nil, "Node cannot be nil.");
+        local list = DependencyList.new();
+        list:addDependenciesForNode(node);
+        return list;
+    end,
+    
+    -- Creates the heavy definition- the include statement.
+    createHeavyDef = function(self, node)
+        check(self ~= nil, "Member function called without self.");
+        check(node ~= nil, "Argument 2, 'node', cannot be nil.");
+        if (node.Member ~= nil and 
+            node.Member.TypeName == Macaroni.Model.TypeNames.Primitive) then
+            return "";
+        end
+        local path = nil;
+        if (node.HFilePath ~= nil) then 
+            path = tostring(node.HFilePath);
+        else
+            if (node.AdoptedHome ~= nil) then
+                return self:createHeavyDef(node.AdoptedHome);
+            end
+            if (node.Member ~= nil and node.Member.TypeName == Macaroni.Model.TypeNames.Class) then
+                path = '<' .. node:GetPrettyFullName("/") .. '.h>'; 
+            else
+                path = '<' .. node.Node:GetPrettyFullName("/") .. '/_.h>';
+            end            
+        end        
+        return ('#include ' .. path .. '\n');            
+    end,
+    
+    beginNs =  function(self, namespaceNode)
+        check(namespaceNode ~= nil, "namespaceNode cannot be nil.");
+        local fs = namespaceNode.FullName;
+        local names = Macaroni.Model.Node.SplitComplexName(fs);
+        local rtn = "";
+        for i = 1, #names do
+            rtn = rtn .. "namespace " .. names[i] .. " { ";
+        end
+        rtn = rtn .. "\n";
+        return rtn;
+    end,    
+    
+    endNs = function(self, namespaceNode)
+        check(namespaceNode ~= nil, "namespaceNode cannot be nil.");
+        local names = Macaroni.Model.Node.SplitComplexName(namespaceNode.FullName);
+        local rtn = "";
+        for i = 1, #names do
+            rtn = rtn .. "} ";
+        end
+        rtn = rtn .. "// End namespace ";
+        rtn = rtn .. "\n";
+        return rtn;
+    end,
+    
     -- Creates the light definition, in the form of a String. Includes newlines.
-    createLightDef = function(node)
+    createLightDef = function(self, node)
+        check(self ~= nil, "Member method called without self.");
         check(node ~= nil, "Argument one must be node.");
-        if (node.IsRoot) then
+        if (node.IsRoot or node.HFilePath ~= nil) then
             return ""; -- Ignore
         end
         local generateWarning = true;
         if (node.Member ~= nil) then            
             if (node.Member.TypeName == TypeNames.Class) then
-                return 'class ' .. node.FullName .. ';\n';   
+                local rtn = self:beginNs(node.Node);
+                rtn = rtn ..  'class ' .. node.Name .. ';\n';   
+                rtn = rtn .. self:endNs(node.Node);
+                return rtn;
             elseif (node.Member.TypeName == TypeNames.Primitive) then
                 return ""; -- Ignore
+            elseif (node.Member.TypeName == TypeNames.Typedef) then
+                local typeUtil = TypeUtil.new();
+                local rtn = self:beginNs(node.Node);
+                rtn = rtn ..  'typedef ' .. 
+                            typeUtil:createTypeDefinition(node.Member.Type, false) ..
+                            ' ' .. node.Name .. ';';   
+                rtn = rtn .. self:endNs(node.Node);
+                return rtn;               
             end            
         end
         return "/* ~ <(I don't know how to generate definition for " .. node.FullName .. ".) */\n"; 
     end,
     
     -- Creates using statement.
-    createUsingStatement = function(node)
+    createUsingStatement = function(self, node)
+        check(self ~= nil, "Member method called without self.");
         check(node ~= nil, "Argument one must be node.");
         if (node.IsRoot) then
             return ""; -- Ignore
@@ -47,7 +123,8 @@ NodeInfo = {
         if (node.Member ~= nil) then            
             if (node.Member.TypeName == TypeNames.Class
                 or node.Member.TypeName == TypeNames.Typedef) then
-                return 'using ' .. node.FullName .. ';\n';   
+                local rtn = 'using ' .. node.FullName .. ';\n';   
+                return rtn;
             elseif (node.Member.TypeName == TypeNames.Primitive) then
                 return ""; -- Ignore
             end            
@@ -77,6 +154,7 @@ NodeInfoList = {
     end,
     
     __index = function(self, key)
+        check(key ~= nil, "Node cannot be nil!");
         local rtn = self.nodes[key];
         if (rtn == nil) then
             rtn = NodeInfo.new(key);

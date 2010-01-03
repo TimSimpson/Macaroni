@@ -49,6 +49,30 @@ Util = {
 };
 
 NodeHelper = {
+    --[[createNamespaceOpener =  function(namespaceNode)
+        check(namespaceNode ~= nil, "namespaceNode cannot be nil.");
+        local fs = namespaceNode.FullName;
+        local names = Macaroni.Model.Node.SplitComplexName(fs);
+        local rtn = "";
+        for i = 1, #names do
+            rtn = rtn .. "namespace " .. names[i] .. " { ";
+        end
+        rtn = rtn .. "\n";
+        return rtn;
+    end,    
+    
+    createNamespaceCloser = function(namespaceNode)
+        check(namespaceNode ~= nil, "namespaceNode cannot be nil.");
+        local names = Macaroni.Model.Node.SplitComplexName(namespaceNode.FullName);
+        local rtn = "";
+        for i = 1, #names do
+            rtn = rtn .. "} ";
+        end
+        rtn = rtn .. "// End namespace ";
+        rtn = rtn .. "\n";
+        return rtn;
+    end,]]--
+    
     worthIteration = function(node) 
         if (node == nil) then
             error("Nil not allowed for node argument.", 2);
@@ -73,7 +97,7 @@ NodeHelper = {
 }
 
 Common = {
-
+    
 };
 
 IncludeFiles = {
@@ -224,22 +248,26 @@ TypeUtil = {
         if (self:forceShortName(type, attemptShortName)) then
             rtnStr = rtnStr .. type.Node.Name;
         else
-            local nodeList = self:createPathListFromNode(type.Node);            
-            for i = 1, #nodeList do
-                local nodePart = nodeList[i];
-                local typeArg = self:searchTypeArgumentListForNode(typeArguments, nodePart);
-                rtnStr = rtnStr .. nodePart.Name;
-                if (typeArg ~= nil) then
-                    rtnStr = rtnStr .. "<";                      
-                    for i = 1, #typeArg.Arguments do                        
-                        rtnStr = rtnStr .. self:createTypeDefinition(typeArg.Arguments[i]);
+            if (typeArguments == nil) then
+                rtnStr = rtnStr .. type.Node.FullName;
+            else
+                local nodeList = self:createPathListFromNode(type.Node);            
+                for i = 1, #nodeList do
+                    local nodePart = nodeList[i];
+                    local typeArg = self:searchTypeArgumentListForNode(typeArguments, nodePart);
+                    rtnStr = rtnStr .. nodePart.Name;
+                    if (typeArg ~= nil) then
+                        rtnStr = rtnStr .. "<";                      
+                        for i = 1, #typeArg.Arguments do                        
+                            rtnStr = rtnStr .. self:createTypeDefinition(typeArg.Arguments[i]);
+                        end
+                        rtnStr = rtnStr .. ">";                     
                     end
-                    rtnStr = rtnStr .. ">";                     
-                end
-                if (i < #nodeList) then
-                    rtnStr = rtnStr .. "::";
-                end
-            end            
+                    if (i < #nodeList) then
+                        rtnStr = rtnStr .. "::";
+                    end
+                end            
+            end
         end        
         rtnStr = rtnStr .. ' ';
         if (type.Pointer) then
@@ -274,6 +302,18 @@ TypeUtil = {
         return rtn;        
     end,   
     
+    -- True if the short name of the type's node should be forced.
+    forceShortName = function(self, type, desireShortName) 
+        if (type.Node.Member ~= nil  and type.Node.Member.TypeName == Macaroni.Model.TypeNames.Primitive) then
+            return true;
+        end
+        if (desireShortName and 
+            (type.TypeArguments == nil or #type.TypeArguments <= 0)) then
+            return true;
+        end
+        return false;
+    end,
+    
      -- Searches the TypeArgumentList for a TypeArgument with the given node.
     searchTypeArgumentListForNode = function(self, typeArgList, node)
         check(typeArgList ~= nil, "TypeArgument list can't be nil.");
@@ -286,18 +326,7 @@ TypeUtil = {
         end
         return nil;
     end,   
-    
-    -- True if the short name of the type's node should be forced.
-    forceShortName = function(self, type, desireShortName) 
-        if (type.Node.Member ~= nil  and type.Node.Member.TypeName == Macaroni.Model.TypeNames.Primitive) then
-            return true;
-        end
-        if (desireShortName and 
-            (type.TypeArguments == nil or #type.TypeArguments <= 0)) then
-            return true;
-        end
-        return false;
-    end,
+        
 }
 
 --function Generate(context, path)

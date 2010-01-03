@@ -1,5 +1,6 @@
 require "Cpp/Common";
 require "Cpp/FileGenerator";
+require "Cpp/DependencySection";
 
 local Access = Macaroni.Model.Cpp.Access;
 local Context = Macaroni.Model.Context;
@@ -45,23 +46,76 @@ NamespaceHFileGenerator = {
         return rtn;
     end,
     
+    debugOutDependencyGraph = function(self) 
+        self.writer:write("/* ~ Debug Output of Dependency Graph ~ */\n");
+        for i = 1, #self.minors do
+            local m = self.minors[i];            
+            self:write("/* " .. m.FullName .. '\n');
+            local info = NodeInfoList[m];            
+            self:write('     ld    : ' .. info.lightDef .. ' \n');
+            self:write('     hd    : ' .. info.heavyDef .. ' \n');
+            self:write('     using : ' .. info.using .. ' \n');
+            local d = info.dependencies;
+            self:write("     light dependencies : \n");
+            for k,v in pairs(d.light) do
+                self:write('                   ' .. k.FullName .. '\n');
+            end
+            self:write("\n");
+            self:write("     HEAVY dependencies : \n");
+            for k,v in pairs(d.heavy) do
+                self:write('                   ' .. k.FullName .. '\n');
+            end
+            self:write("*/\n");           
+        end           
+    end,  
+    
     getGuardName = function(self)
         local guardName = "MACARONI_COMPILE_GUARD_" .. self.node:GetPrettyFullName("_") .. "___H";
         return guardName;
     end,
     
-    includeStatements = function(self)    
-        local statements = IncludeFiles.getListOfStatementsForNodeList(self.minors);
+    includeStatements = function(self) 
+        local section = DependencySection.new();
+        for i = 1, #self.minors do
+            section:add(self.minors[i]);
+        end
+        for i = 1, #section.list do
+            local s = section.list[i];
+            if (s.heavy == false) then
+                self:write(NodeInfoList[s.node].lightDef);
+            else
+                self:write(NodeInfoList[s.node].heavyDef);
+            end
+        end        
+        --[[
         self.writer:write("/* ~ Includes ~ */\n");
-        for i = 1, #statements do
-            self.writer:write(statements[i]);
-        end 
+        for i = 1, #self.minors do
+            local m = self.minors[i];            
+            self:write("// " .. m.FullName .. '\n');
+            local info = NodeInfoList[m];                        
+            for k,v in pairs(info.dependencies.light) do
+                self:write(NodeInfoList[k].lightDef .. '\n');
+            end
+        end   
+        for i = 1, #self.minors do
+            local m = self.minors[i];            
+            self:write("// " .. m.FullName .. '\n');
+            local info = NodeInfoList[m];                        
+            for k,v in pairs(info.dependencies.heavy) do
+                self:write(NodeInfoList[k].heavyDef .. '\n');
+            end
+        end   
+        --local statements = IncludeFiles.getListOfStatementsForNodeList(self.minors);        
+        --for i = 1, #statements do
+        --    self.writer:write(statements[i]);
+        --end ]]--
     end,  
         
     parse = function(self)
         check(self ~= nil, "Instance method called without self.");
         check(self.writer ~= nil, "Instance writer missing.");
         self:includeGuardHeader();
+        self:debugOutDependencyGraph();
         self.writer:write('\n');
         self:includeStatements();            
         self.writer:write('\n');            

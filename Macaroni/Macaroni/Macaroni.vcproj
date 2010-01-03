@@ -3,10 +3,9 @@
 	ProjectType="Visual C++"
 	Version="9.00"
 	Name="Macaroni"
-	ProjectGUID="{D57C9ED8-414C-419C-B331-04A8978DEFA4}"
+	ProjectGUID="{58950B52-DACC-43B6-AF3B-8A7631112FB1}"
 	RootNamespace="Macaroni"
 	Keyword="Win32Proj"
-	AssemblyReferenceSearchPaths="&quot;..\..\..\..\..\..\..\Tools\boost_1_37_0\stage&quot;"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
@@ -42,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="F:\Tools\boost_1_37_0;C:\Tools\boost_1_39_0;Source/Cpp;Source/GeneratedCpp"
+				AdditionalIncludeDirectories="F:\Tools\boost_1_39_0"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -63,7 +62,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="F:\Tools\boost_1_37_0\stage\lib;F:\Tools\boost_1_37_0\stage\lib;C:\Tools\boost_1_39_0\stage\lib;C:\Tools\boost_1_39_0\stage\lib;"
+				AdditionalLibraryDirectories="F:\Tools\boost_1_39_0\stage\lib"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -88,7 +87,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy &quot;$(ProjectDir)\Source\Messages.txt&quot; &quot;$(OutDir)\Messages.txt&quot;&#x0D;&#x0A;mkdir &quot;$(OutDir)\Generators&quot;&#x0D;&#x0A;mkdir &quot;$(OutDir)\Compilers&quot;&#x0D;&#x0A;xcopy &quot;$(ProjectDir)\Source\Generators&quot; &quot;$(OutDir)\Generators&quot; /y /s /e&#x0D;&#x0A;xcopy &quot;$(ProjectDir)\Source\Compilers&quot; &quot;$(OutDir)\Compilers&quot; /y /s /e&#x0D;&#x0A;cd &quot;$(ProjectDir)\Source&quot;&#x0D;&#x0A;&quot;$(OutDir)\Macaroni.exe&quot; -luaTests &quot;$(ProjectDir)\Source&quot;&#x0D;&#x0A;"
+				CommandLine="PrepDebug.bat"
 			/>
 		</Configuration>
 		<Configuration
@@ -165,218 +164,6 @@
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
-		<Configuration
-			Name="Boost Test|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
-			CharacterSet="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-				CommandLine="copy &quot;F:\Tools\boost_1_37_0\stage\lib\boost_unit_test_framework-vc90-mt-gd-1_37.dll&quot; &quot;$(TargetDir)&quot;"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="F:\Tools\boost_1_37_0;C:\Tools\boost_1_39_0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;COMPILE_TARGET_TESTS;BOOST_TEST_DYN_LINK;"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				DebugInformationFormat="4"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				LinkIncremental="2"
-				AdditionalLibraryDirectories="F:\Tools\boost_1_37_0\stage\lib;F:\Tools\boost_1_37_0\stage\lib;F:\Tools\boost_1_37_0\stage\boost_unit_test_framework-vc90-mt-gd-1_37.dll"
-				GenerateDebugInformation="true"
-				SubSystem="1"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				Description="Auto run boost tests"
-				CommandLine="&quot;$(TargetDir)\$(TargetName).exe&quot; -result_code=no -report_level=no"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Lua Unit Tests|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
-			CharacterSet="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="F:\Tools\boost_1_37_0;C:\Tools\boost_1_39_0;Source/Cpp;Source/GeneratedCpp"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				DebugInformationFormat="4"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				LinkIncremental="2"
-				AdditionalLibraryDirectories="F:\Tools\boost_1_37_0\stage\lib;F:\Tools\boost_1_37_0\stage\lib;C:\Tools\boost_1_39_0\stage\lib;C:\Tools\boost_1_39_0\stage\lib;"
-				GenerateDebugInformation="true"
-				SubSystem="1"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				CommandLine="copy &quot;$(ProjectDir)\Source\Messages.txt&quot; &quot;$(OutDir)\Messages.txt&quot;&#x0D;&#x0A;cd &quot;$(ProjectDir)\Source&quot;&#x0D;&#x0A;&quot;$(OutDir)\Macaroni.exe&quot; -luaTests &quot;$(ProjectDir)\Source&quot;&#x0D;&#x0A;"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug - Full Tests|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="F:\Tools\boost_1_37_0;C:\Tools\boost_1_39_0;Source/Cpp;Source/GeneratedCpp"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				LinkIncremental="2"
-				AdditionalLibraryDirectories="F:\Tools\boost_1_37_0\stage\lib;F:\Tools\boost_1_37_0\stage\lib;C:\Tools\boost_1_39_0\stage\lib;C:\Tools\boost_1_39_0\stage\lib;"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -408,10 +195,6 @@
 			</File>
 			<File
 				RelativePath=".\Source\Macaroni\Model\Cpp\Class.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\Macaroni\Generator\Cpp\ClassHFileGenerator._cpp"
 				>
 			</File>
 			<File
@@ -787,6 +570,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Macaroni\Platform\Windows\Strings.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Macaroni\Model\Type.cpp"
 				>
 			</File>
@@ -881,10 +668,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Macaroni\CompilerOptions.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\Macaroni\Build\Cpp\CompilerSettings.h"
 				>
 			</File>
@@ -957,6 +740,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Macaroni\Generator\CppSourceGenerator2.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Macaroni\Generator\Cpp\CppSourceGenerator2.h"
 				>
 			</File>
@@ -1014,10 +801,6 @@
 			</File>
 			<File
 				RelativePath=".\Source\Macaroni\Model\Cpp\FunctionLua.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Plan\InlineFunctions.txt"
 				>
 			</File>
 			<File
@@ -1197,15 +980,19 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Parser\Parser.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\Macaroni\Parser.h"
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Macaroni\Parser\Parser.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Macaroni\Parser\ParserException.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Model\ParserException.h"
 				>
 			</File>
 			<File
@@ -1359,510 +1146,6 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 		</Filter>
-		<File
-			RelativePath=".\RealTest\Input\astd.mcpp"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Model\Axiom.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\Axiom.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Model\AxiomTests.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\AxiomTests.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Archives\boost\boost.mh"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Model\Cpp\Class.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\Cpp\Class.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\TestData\Class.mcpp"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Generators\Cpp\ClassCppFileGenerator.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Generators\Cpp\ClassFileGenerator.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Generators\Cpp\ClassHFileGenerator.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\ClassTests.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Generators\Cpp\Common.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Model\Context.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\Context.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\ContextTests.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Model\ContextTests.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Generators\Cpp.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Generators\Cpp\CppFileGenerator.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Generators\CppFileOLDE.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Parser\Cpp\CppParser.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Parser\Cpp\CppParser.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Parser\Cpp\CppParser.spirit"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Parser\Cpp\CppParser.spirit"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Parser\Cpp\CppParserAlt.spirit"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Parser\Cpp\CppParserAlt.spirit"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\doodlebug.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Compilers\Dreamcast-Cygwin.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Generators\Dumb.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Plan\Sample\Explanation.txt"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\FileName.mcpp"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Model\FileName.mcpp"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\FileNamePtr.h"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\FileNameTests.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Model\FileNameTests.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\TestData\FileTests.mcpp"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\Cpp\Function.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Model\Cpp\Function.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Parser\Pippy\Tests\Functions.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\DocumentTests\FunctionTests.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Model\DocumentTests\FunctionTests.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\FunctionTests.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Parser\Cpp\General.spirit"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Parser\Cpp\General.spirit"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\General.spirit"
-			>
-		</File>
-		<File
-			RelativePath=".\Plan\GlobalFunction.txt"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Generators\HFile.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Generators\Cpp\HFileGenerator.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Parser\Pippy\Tests\Import.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Parser\Pippy\Tests\Import.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Parser\Pippy\Tests\Index.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Parser\Pippy\Tests\Index.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Plan\Sample\LuaAnnotations.txt"
-			>
-		</File>
-		<File
-			RelativePath=".\Plan\LuaGlue.txt"
-			>
-		</File>
-		<File
-			RelativePath=".\Plan\LuaGlueGeneration.txt"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Main.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Lua\Main.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Lua\Makefile"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Archives\boost\manifest.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\Member.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Model\Member.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Model\MemberTests.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\MemberTests.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Messages.txt"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Parser\Pippy\Tests\Milestones.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Parser\Pippy\Tests\Milestones.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\Cpp\Namespace.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Model\Cpp\Namespace.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Parser\Pippy\Tests\Namespace.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Parser\Cpp\Tests\Namespaces.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Parser\Cpp\Tests\Namespaces.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Model\Node.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\Node.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Model\NodeListTests.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Model\NodeTests.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\NodeTests.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Parser\Parser.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Parser\Parser.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\Parser.spirit"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Parser\ParserException.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Parser\ParserException.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Plan\ParserLooseModel.txt"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Parser\Pippy\PippyParser.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Parser\Pippy\PippyParser.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Parser\Pippy\PippyParser.spirit"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Parser\Pippy\PippyParser.spirit"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Parser\Pippy\Tests\PippyParserTests_Class.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Parser\Pippy\Tests\PippyParserTests_Functions.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Parser\Pippy\Tests\PippyParserTests_Namespace.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Parser\Pippy\Tests\PippyParserTests_Typedef.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Parser\Pippy\Tests\PippyParserTests_Variables.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\Cpp\Primitive.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Model\Cpp\Primitive.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\PrimitiveTests.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Model\Reason.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\Reason.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\ReasonTests.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Model\ReasonTests.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Plan\Sample\Sample.mcd"
-			>
-		</File>
-		<File
-			RelativePath=".\Plan\Sample\Sample3.mcd"
-			>
-		</File>
-		<File
-			RelativePath=".\Plan\Sample\SampleAlt.mcd"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\Cpp\Scope.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Model\Cpp\Scope.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Model\Cpp\ScopeMember.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\Cpp\ScopeMember.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\TestData\simple.mcpp"
-			>
-		</File>
-		<File
-			RelativePath=".\RealTest\Input\Simple.mcpp"
-			>
-		</File>
-		<File
-			RelativePath=".\RealTest\Input\SimpleClass.mcpp"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Model\Source.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\Source.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Model\SourceTests.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\SourceTests.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Archives\std\std.mh"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Test.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Test.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Tests.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Lua\Tests.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Model\TypeArgumentListTests.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Model\TypeArgumentTests.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Model\TypeListTests.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Model\TypeTests.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Macaroni\Model\Cpp\Variable.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Model\Cpp\Variable.lh"
-			>
-		</File>
-		<File
-			RelativePath=".\Macaroni\Parser\Pippy\Tests\Variables.lua"
-			>
-		</File>
-		<File
-			RelativePath=".\Source\Compilers\Windows-VS9.lua"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

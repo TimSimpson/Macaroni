@@ -1,6 +1,7 @@
 require "Cpp/Common";
 require "Cpp/ClassFileGenerator";
 require "Cpp/NodeInfo"
+require "Cpp/DependencySection";
 
 local Access = Macaroni.Model.Cpp.Access;
 local Context = Macaroni.Model.Context;
@@ -79,7 +80,8 @@ ClassCppFileGenerator = {
     
     includeStatements = function(self)
         local class = self.node.Member;
-        local imports = class.ImportedNodes;
+        local imports = class.ImportedNodes;                       
+        
         -- Put the include to this classes H file.
         local hFile = '#include "' .. self.node.Name .. '.h"\n';
         self.writer:write(hFile);

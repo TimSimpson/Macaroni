@@ -9,6 +9,8 @@ namespace BorderTown::AnimalFriends
 
 	typedef vector<Doggy> DoggyList;
 
+	typedef DoggyList DoggyListType;
+
 	class Doggy
 	{
 		int age;

@@ -75,12 +75,24 @@ ClassHFileGenerator = {
         return node.FullName;
     end,       
     
-    includeStatements = function(self)    
-        local statements = IncludeFiles.getHFileIncludeStatementsForNode(self.node);
+    includeStatements = function(self)            
+        local section = DependencySection.new();
+        section:add(self.node);
+        section:eraseDuplicates();
+        for i = 1, #section.list do
+            local s = section.list[i];
+            if (s.heavy == false) then
+                self:write(NodeInfoList[s.node].lightDef);
+            else
+                self:write(NodeInfoList[s.node].heavyDef);
+            end
+        end       
+        
+        --[[local statements = IncludeFiles.getHFileIncludeStatementsForNode(self.node);
         self.writer:write("/* ~ Includes ~ */\n");
         for i = 1, #statements do
             self.writer:write(statements[i]);
-        end                   
+        end ]]--                  
     end,  
     
     -- Entry function.

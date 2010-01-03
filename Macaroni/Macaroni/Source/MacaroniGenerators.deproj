@@ -39,4 +39,7 @@
   <file>
     <filename>Generators\Cpp\NodeInfo.lua</filename>
   </file>
+  <file>
+    <filename>Generators\Cpp\DependencySection.lua</filename>
+  </file>
 </project>
