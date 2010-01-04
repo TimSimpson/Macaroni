@@ -118,6 +118,25 @@ FileGenerator = {
         end
     end,
   
+    writeConstructorAssignments = function(self, assignments)        
+        local seenOne = false;
+        for i = 1, #assignments do
+            local assignment = assignments[i];
+            if (not seenOne) then
+                self:write(": ");
+                seenOne = true;
+            else
+                self:write(", ");
+            end
+            self:write(assignment.Variable.Name .. "(" 
+                       .. assignment.Expression .. ")");
+        end
+        if (seenOne) then
+            self:write("\n");
+            self:writeTabs();    
+        end        
+    end,
+    
     --[[ Writes a function definition, not including the Class name before the
          function name. ]]--
     writeFunctionDefinition = function(self, functionNode)
@@ -126,14 +145,16 @@ FileGenerator = {
         if (functionNode.Member.Static) then
             self:write("static ");
         end
+        if (functionNode.Member.Inline) then
+            self:write("inline ");
+        end
         self:writeType(func.ReturnType);
         self:write(" " .. functionNode.Name .. "(");
         self:writeArgumentList(functionNode);
         self:write(")");
         if (func.Const) then
             self:write(" const");
-        end
-        self:write(";\n");       
+        end         
     end,
         
     writeType = function(self, type)    

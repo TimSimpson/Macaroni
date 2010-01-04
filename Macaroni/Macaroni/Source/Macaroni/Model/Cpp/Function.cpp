@@ -21,21 +21,22 @@ using class Macaroni::Model::Node;
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 
-Function::Function(Node * home, Model::ReasonPtr reason, Access access, const bool isStatic, const TypePtr rtnTypeInfo, bool constMember)
+Function::Function(Node * home, Model::ReasonPtr reason, bool isInline, Access access, const bool isStatic, const TypePtr rtnTypeInfo, bool constMember)
 :ScopeMember(home, "Function", reason, access, isStatic),
  codeAttached(false),
  codeBlock(),
  constMember(constMember),
+ isInline(isInline),
  returnType(rtnTypeInfo)
 {
 }
 
-Function::Function(Node * home, const char * typeName, Model::ReasonPtr reason, Access access, const bool isStatic, const TypePtr rtnType, bool constMember)
+Function::Function(Node * home, const char * typeName, Model::ReasonPtr reason, bool isInline, Access access, const bool isStatic, const TypePtr rtnType, bool constMember)
 :ScopeMember(home, typeName, reason, access, isStatic),
  codeAttached(false),
  codeBlock(),
  constMember(constMember),
-
+ isInline(isInline),
  returnType(rtnType)
 {
 }
@@ -86,19 +87,19 @@ bool Function::canBeChildOf(const Member * other) const
 	return dynamic_cast<const Scope *>(other) != nullptr;
 }
 
-FunctionPtr Function::Create(NodePtr host, const Access access, const bool isStatic, const TypePtr rtnType, 
+FunctionPtr Function::Create(NodePtr host, bool isInline, const Access access, const bool isStatic, const TypePtr rtnType, 
 							 bool constMember, Model::ReasonPtr reason)
 {
 	if (!host->GetMember())
 	{
-		return FunctionPtr(new Function(host.get(), reason, access, isStatic, rtnType, constMember));
+		return FunctionPtr(new Function(host.get(), reason, isInline, access, isStatic, rtnType, constMember));
 	}
 	Member * member = host->GetMember().get();
 	Function * existingFunc = dynamic_cast<Function *>(member);
 	if (existingFunc == nullptr)
 	{
 		// Will throw an error message.
-		return FunctionPtr(new Function(host.get(), reason, access, isStatic, rtnType, constMember));
+		return FunctionPtr(new Function(host.get(), reason, isInline, access, isStatic, rtnType, constMember));
 	}
 
 	if (existingFunc != nullptr && !(existingFunc->returnType == rtnType))

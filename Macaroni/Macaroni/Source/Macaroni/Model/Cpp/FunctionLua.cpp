@@ -39,6 +39,11 @@ int FunctionLuaMetaData::Index(lua_State * L, const FunctionPtr & ptr,
 		lua_pushboolean(L, ptr->IsConst());
 		return 1;
 	}
+	else if (index == "Inline")
+	{
+		lua_pushboolean(L, ptr->IsInline());
+		return 1;
+	}
 	else if (index == "ReturnType")
 	{
 		TypeLuaMetaData::PutInstanceOnStack(L, ptr->GetReturnType());

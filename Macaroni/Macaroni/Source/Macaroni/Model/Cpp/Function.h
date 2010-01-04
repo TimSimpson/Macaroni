@@ -26,7 +26,7 @@ public:
 	/** Clears the given list and fills it with the Argument nodes. */
 	Model::NodeListPtr GetArguments() const;
 
-	static FunctionPtr Create(NodePtr home, const Access access, const bool isStatic, const TypePtr rtnType, bool constMember, Model::ReasonPtr reason);
+	static FunctionPtr Create(NodePtr home, bool isInline, const Access access, const bool isStatic, const TypePtr rtnType, bool constMember, Model::ReasonPtr reason);
 
 	virtual ~Function();
 
@@ -50,6 +50,11 @@ public:
 		return constMember;
 	}
 
+	inline bool IsInline() const
+	{
+		return isInline;
+	}
+
 	/** Attaches code to this function. If code was already attached, throws a
 	 * ModelInconsistencyException. */
 	void SetCodeBlock(std::string & code, SourcePtr startOfCode);
@@ -57,11 +62,11 @@ public:
 	virtual void Visit(MemberVisitor * visitor) const;
 
 protected:
-	Function(Node * home, const char * typeName, Model::ReasonPtr reason, Access access, const bool isStatic, const TypePtr rtnType, bool constMember);
+	Function(Node * home, const char * typeName, Model::ReasonPtr reason, bool isInline, Access access, const bool isStatic, const TypePtr rtnType, bool constMember);
 
 private:
 	
-	Function(Node * home, Model::ReasonPtr reason, Access access, const bool isStatic, const TypePtr rtnTypeInfo, bool constMember);
+	Function(Node * home, Model::ReasonPtr reason, bool isInline, Access access, const bool isStatic, const TypePtr rtnTypeInfo, bool constMember);
 
 	bool codeAttached;
 
@@ -70,6 +75,8 @@ private:
 	SourcePtr codeSource;
 
 	bool constMember;
+
+	const bool isInline;
 
 	TypePtr returnType;
 };

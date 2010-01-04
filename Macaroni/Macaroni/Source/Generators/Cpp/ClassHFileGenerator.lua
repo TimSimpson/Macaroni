@@ -135,20 +135,71 @@ ClassHFileGenerator = {
     
     ["parse" .. TypeNames.Constructor] = function(self, node)
         self:writeTabs();
+        if (node.Member.Inline) then
+            self:write("inline ");
+        end
         self:write(self.node.Name .. "(");
         self:writeArgumentList(node);
-        self:write(");\n");        
+        self:write(")");        
+        if (not node.Member.Inline) then
+            self:write(";\n");
+        else
+            self:writeConstructorAssignments(node.Member.Assignments);
+            self:write("\n");
+            self:writeTabs();
+            self:write("{\n");
+            self:addTabs(1);
+            
+            self:writeTabs();
+            self:write(node.Member.CodeBlock .. "\n");
+            
+            self:addTabs(-1);        
+            self:writeTabs();
+            self:write("}\n");
+        end       
     end,
     
     ["parse" .. TypeNames.Destructor] = function(self, node)
         self:writeTabs();
+        if (node.Member.Inline) then
+            self:write("inline ");
+        end
         self:write('~' .. self.node.Name .. "(");
         self:writeArgumentList(node);
-        self:write(");\n");        
+        self:write(")");
+        if (not node.Member.Inline) then
+            self:write(";\n");
+        else
+            self:write("\n");
+            self:writeTabs();
+            self:write("{\n");
+            self:addTabs(1);
+            
+            self:writeTabs();
+            self:write(node.Member.CodeBlock .. "\n");
+            
+            self:addTabs(-1);        
+            self:writeTabs();
+            self:write("}\n");
+        end        
     end,
     
     ["parse" .. TypeNames.Function] = function(self, node)
         self:writeFunctionDefinition(node);
+        if (not node.Member.Inline) then
+            self:write(";\n");
+        else
+            self:writeTabs();
+            self:write("{\n");
+            self:addTabs(1);
+            
+            self:writeTabs();
+            self:write(node.Member.CodeBlock .. "\n");
+            
+            self:addTabs(-1);        
+            self:writeTabs();
+            self:write("}\n");
+        end
     end,    
     
     parseMember = function(self, node)

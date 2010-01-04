@@ -72,7 +72,8 @@ ClassCppFileGenerator = {
             if (node.Member ~= nil and
                 node.Member.TypeName == TypeNames.Function and
                 node.Member.Access == "Access_Private") then
-                    self:writeFunctionDefinition(node);                
+                    self:writeFunctionDefinition(node);         
+                    self:write(";\n");       
             end
         end
     end,
@@ -122,13 +123,17 @@ ClassCppFileGenerator = {
         end
     end,    
     
-    ["parse" .. TypeNames.Constructor] = function(self, node)
+    ["parse" .. TypeNames.Constructor] = function(self, node)   
+        if (node.Member.Inline) then
+            self:write("//~<(Skipping inline constructor.)\n");
+            return;
+        end
         self:writeTabs();
         self:write(self.node.Name .. "::" .. self.node.Name .. "(");
         self:writeArgumentList(node);
         self:write(")\n");        
         self:writeTabs();
-        local assignments = node.Member.Assignments;
+        --[[local assignments = node.Member.Assignments;
         local seenOne = false;
         for i = 1, #assignments do
             local assignment = assignments[i];
@@ -144,7 +149,9 @@ ClassCppFileGenerator = {
         if (seenOne) then
             self:write("\n");
             self:writeTabs();    
-        end        
+        end]]--
+        self:writeConstructorAssignments(node.Member.Assignments);
+        
         self:write("{\n");
         self:addTabs(1);
         
@@ -157,6 +164,10 @@ ClassCppFileGenerator = {
     end,
     
     ["parse" .. TypeNames.Destructor] = function(self, node)
+        if (node.Member.Inline) then
+            self:write("//~<(Skipping inline destructor.)\n");
+            return;
+        end
         self:writeTabs();
         self:write(self.node.Name .. "::~" .. self.node.Name .. "(");
         self:writeArgumentList(node);
@@ -174,6 +185,10 @@ ClassCppFileGenerator = {
     end,
     
     ["parse" .. TypeNames.Function] = function(self, node)
+        if (node.Member.Inline) then
+            self:write('//~<(Skipping inline function "' .. node.FullName .. '")\n');
+            return;
+        end        
         self:writeTabs();
         local func = node.Member;
         self:writeType(func.ReturnType);

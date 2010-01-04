@@ -534,6 +534,8 @@ public:
 			access = Access_Private;
 		}
 
+		bool isInline = InlineKeyword(newItr);
+
 		ConsumeWhitespace(newItr);
 		bool tilda = false;
 		if (newItr.ConsumeChar('~'))
@@ -585,7 +587,7 @@ public:
 
 		if (!tilda)
 		{
-			ConstructorPtr ctor = Constructor::Create(ctorNode, access, 
+			ConstructorPtr ctor = Constructor::Create(ctorNode, isInline, access, 
 				Reason::Create(CppAxioms::CtorCreation(), itr.GetSource()));			
 			fPtr = boost::dynamic_pointer_cast<Function>(ctor);
 
@@ -627,7 +629,7 @@ public:
 		} // end !tilda
 		else
 		{
-			DestructorPtr dtor = Destructor::Create(ctorNode,  access,
+			DestructorPtr dtor = Destructor::Create(ctorNode,  isInline, access,
 				Reason::Create(CppAxioms::DtorCreation(), itr.GetSource()));
 			fPtr = boost::dynamic_pointer_cast<Function>(dtor);
 		}
@@ -1113,12 +1115,13 @@ public:
 			Iterator oldItr = itr;
 			Access access;
 			bool global;
+			bool isInline;
 			bool isStatic;
 			TypePtr type;
 			std::string argName;
 			if ((seenArg && !itr.ConsumeChar(','))
 				||
-				!Variable(itr, access, global, isStatic, type, argName))
+				!Variable(itr, access, global, isInline, isStatic, type, argName))
 			{
 				throw ParserException(itr.GetSource(),
 				Messages::Get("CppParser.Function.ExpectedEndingParenthesis"));
@@ -1127,6 +1130,11 @@ public:
 			{
 				throw ParserException(oldItr.GetSource(),
 					"CppParser.Variable.GlobalNotAllowedForArg");
+			}
+			if (isInline)
+			{
+				throw ParserException(oldItr.GetSource(),
+					"CppParser.Variable.InlineNotAllowedForVariable");
 			}
 			if (isStatic)
 			{
@@ -1208,6 +1216,12 @@ public:
 		NodePtr importNode = context->GetRoot()->FindOrCreate(name);
 		AddImport(importNode);
 		return true;
+	}
+
+	bool InlineKeyword(Iterator & itr)
+	{
+		ConsumeWhitespace(itr);
+		return itr.ConsumeWord("inline");
 	}
 
 	// looks for "namespace [complexName]{}" Ignores whitespace.
@@ -1471,30 +1485,47 @@ public:
 	 * itr.  If it finds variable type info followed by a complex name it
 	 * will return the typeInfo and name.  Otherwise an exception gets thrown.
 	 * Does not parse the semicolon though, just stops after the name. */
-	bool Variable(Iterator & itr, Access & access, bool & global, bool & isStatic, TypePtr & type, std::string & varName)
+	bool Variable(Iterator & itr, Access & access, bool & global, bool & isInline, bool & isStatic, TypePtr & type, std::string & varName)
 	{
 		using namespace Macaroni::Model::Cpp;
 
-		access = AccessKeyword(itr); // try access first.
-		global = GlobalKeyword(itr);
-		if (global == true && access == Access_NotSpecified) 
+		access = Access_NotSpecified;
+		global = false;
+		isInline = false;
+		isStatic = false;
+		while(
+				(access == Access_NotSpecified 
+					&& (access = AccessKeyword(itr)) != Access_NotSpecified)
+				|| (!global && (global = GlobalKeyword(itr)))
+				|| (!isInline && (isInline = InlineKeyword(itr)))
+				|| (!isStatic && (isStatic = StaticKeyword(itr)))
+			  )
 		{
-			// In case of "global access" try access again.
-			access = AccessKeyword(itr);
+			//       ~Monkey
+			//  ^..^
+			// ~."".
 		}
-		isStatic = StaticKeyword(itr);
-		if (isStatic == true && access == Access_NotSpecified)
-		{
-			// In case of "static access" try access again.
-			access = AccessKeyword(itr);
-			if (!global)
-			{
-				// In case of "static global" try global again.
-				global = GlobalKeyword(itr);
-				// In case of "static global access" try access YET AGAIN!!
-				access = AccessKeyword(itr);
-			}
-		}
+
+		//access = AccessKeyword(itr); // try access first.
+		//global = GlobalKeyword(itr);
+		//if (global == true && access == Access_NotSpecified) 
+		//{
+		//	// In case of "global access" try access again.
+		//	access = AccessKeyword(itr);
+		//}
+		//isStatic = StaticKeyword(itr);
+		//if (isStatic == true && access == Access_NotSpecified)
+		//{
+		//	// In case of "static access" try access again.
+		//	access = AccessKeyword(itr);
+		//	if (!global)
+		//	{
+		//		// In case of "static global" try global again.
+		//		global = GlobalKeyword(itr);
+		//		// In case of "static global access" try access YET AGAIN!!
+		//		access = AccessKeyword(itr);
+		//	}
+		//}
 
 		if (access == Access_Public && global && isStatic) 
 		{
@@ -1532,12 +1563,13 @@ public:
 
 		Access access;
 		bool global;
+		bool isInline;
 		bool isStatic;
 		TypePtr type;
 		std::string varName;
 		Iterator oldItr = itr; // Save it in case we need to define where the
 							   // var definition began.
-		if (!Variable(itr, access, global, isStatic, type, varName))
+		if (!Variable(itr, access, global, isInline, isStatic, type, varName))
 		{
 			if (global)
 			{
@@ -1612,7 +1644,7 @@ public:
 						Messages::Get("CppParser.Function.SemicolonExpected")); 
 				}
 			}
-			FunctionPtr function = Function::Create(node, access, isStatic, type, constMember,
+			FunctionPtr function = Function::Create(node, isInline, access, isStatic, type, constMember,
 				Reason::Create(CppAxioms::FunctionCreation(), oldItr.GetSource()));
 			if (codeAttached)
 			{
