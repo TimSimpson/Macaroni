@@ -21,8 +21,8 @@ using class Macaroni::Model::Node;
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 
-Function::Function(Node * home, Model::ReasonPtr reason, Access access, const TypePtr rtnTypeInfo, bool constMember)
-:ScopeMember(home, "Function", reason, access),
+Function::Function(Node * home, Model::ReasonPtr reason, Access access, const bool isStatic, const TypePtr rtnTypeInfo, bool constMember)
+:ScopeMember(home, "Function", reason, access, isStatic),
  codeAttached(false),
  codeBlock(),
  constMember(constMember),
@@ -30,11 +30,12 @@ Function::Function(Node * home, Model::ReasonPtr reason, Access access, const Ty
 {
 }
 
-Function::Function(Node * home, const char * typeName, Model::ReasonPtr reason, Access access, const TypePtr rtnType, bool constMember)
-:ScopeMember(home, typeName, reason, access),
+Function::Function(Node * home, const char * typeName, Model::ReasonPtr reason, Access access, const bool isStatic, const TypePtr rtnType, bool constMember)
+:ScopeMember(home, typeName, reason, access, isStatic),
  codeAttached(false),
  codeBlock(),
  constMember(constMember),
+
  returnType(rtnType)
 {
 }
@@ -49,19 +50,35 @@ bool Function::DoesDefinitionReference(NodePtr node) const
 		: this->Member::DoesDefinitionReference(node);
 }
 
-VariablePtr Function::GetArgument(int index) const
-{
-	NodePtr child = getNode()->GetChild(index);
-	MACARONI_ASSERT(!!child->GetMember(), "Member for function argument set to null.");
-	MemberPtr member = child->GetMember();
-	MACARONI_ASSERT(boost::dynamic_pointer_cast<Variable>(member), 
-					"Member was not of type variable - code is out of date.");
-	return boost::dynamic_pointer_cast<Variable>(member);
-}
+////VariablePtr Function::GetArgument(int index) const
+////{
+////	NodePtr child = getNode()->GetChild(index);
+////	MACARONI_ASSERT(!!child->GetMember(), "Member for function argument set to null.");
+////	MemberPtr member = child->GetMember();
+////	MACARONI_ASSERT(boost::dynamic_pointer_cast<Variable>(member), 
+////					"Member was not of type variable - code is out of date.");
+////	return boost::dynamic_pointer_cast<Variable>(member);
+////}
+////
+////int Function::GetArgumentCount() const
+////{
+////	return getNode()->GetChildCount();
+////}
 
-int Function::GetArgumentCount() const
+NodeListPtr Function::GetArguments() const
 {
-	return getNode()->GetChildCount();
+	NodeListPtr argList(new NodeList());	
+	NodeListPtr args(new NodeList());
+	for (unsigned int i = 0; i < getNode()->GetChildCount(); i ++)
+	{
+		NodePtr child = getNode()->GetChild(i);
+		MACARONI_ASSERT(!!child->GetMember(), "Member for function argument set to null.");
+		MemberPtr member = child->GetMember();
+		MACARONI_ASSERT(boost::dynamic_pointer_cast<Variable>(member), 
+					"Member was not of type variable - code is out of date.");
+		argList->push_back(child);
+	}	
+	return argList;
 }
 
 bool Function::canBeChildOf(const Member * other) const
@@ -69,19 +86,19 @@ bool Function::canBeChildOf(const Member * other) const
 	return dynamic_cast<const Scope *>(other) != nullptr;
 }
 
-FunctionPtr Function::Create(NodePtr host, const Access access, const TypePtr rtnType, 
+FunctionPtr Function::Create(NodePtr host, const Access access, const bool isStatic, const TypePtr rtnType, 
 							 bool constMember, Model::ReasonPtr reason)
 {
 	if (!host->GetMember())
 	{
-		return FunctionPtr(new Function(host.get(), reason, access, rtnType, constMember));
+		return FunctionPtr(new Function(host.get(), reason, access, isStatic, rtnType, constMember));
 	}
 	Member * member = host->GetMember().get();
 	Function * existingFunc = dynamic_cast<Function *>(member);
 	if (existingFunc == nullptr)
 	{
 		// Will throw an error message.
-		return FunctionPtr(new Function(host.get(), reason, access, rtnType, constMember));
+		return FunctionPtr(new Function(host.get(), reason, access, isStatic, rtnType, constMember));
 	}
 
 	if (existingFunc != nullptr && !(existingFunc->returnType == rtnType))

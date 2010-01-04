@@ -20,11 +20,13 @@ friend void intrusive_ptr_release(Function * p);
 
 public:
 
-	VariablePtr GetArgument(int index) const;
+	//VariablePtr GetArgument(int index) const;
 
-	int GetArgumentCount() const;
+	//int GetArgumentCount() const;
+	/** Clears the given list and fills it with the Argument nodes. */
+	Model::NodeListPtr GetArguments() const;
 
-	static FunctionPtr Create(NodePtr home, const Access access, const TypePtr rtnType, bool constMember, Model::ReasonPtr reason);
+	static FunctionPtr Create(NodePtr home, const Access access, const bool isStatic, const TypePtr rtnType, bool constMember, Model::ReasonPtr reason);
 
 	virtual ~Function();
 
@@ -55,11 +57,11 @@ public:
 	virtual void Visit(MemberVisitor * visitor) const;
 
 protected:
-	Function(Node * home, const char * typeName, Model::ReasonPtr reason, Access access, const TypePtr rtnType, bool constMember);
+	Function(Node * home, const char * typeName, Model::ReasonPtr reason, Access access, const bool isStatic, const TypePtr rtnType, bool constMember);
 
 private:
 	
-	Function(Node * home, Model::ReasonPtr reason, Access access, const TypePtr rtnTypeInfo, bool constMember);
+	Function(Node * home, Model::ReasonPtr reason, Access access, const bool isStatic, const TypePtr rtnTypeInfo, bool constMember);
 
 	bool codeAttached;
 

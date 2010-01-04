@@ -3,6 +3,7 @@
 
 #include "Cpp/AccessLua.h"
 #include "Cpp/ClassLua.h"
+#include "Cpp/ConstructorLua.h"
 #include "Cpp/FunctionLua.h"
 #include "MemberLua.h"
 #include "Member.h"
@@ -22,6 +23,7 @@
 #define LUAGLUE_CLASSFULLCPPNAME Macaroni::Model::Member
 #define LUAGLUE_REGISTRATIONCLASSNAME MemberLuaMetaData
 #define LUAGLUE_OPENOTHERMODULES \
+	Macaroni::Model::Cpp::ConstructorLuaMetaData::AssignmentListOpenInLua(L);
 	//Macaroni::Model::NodeLuaMetaData::OpenInLua(L); \
 	//Macaroni::Model::Cpp::FunctionLuaMetaData::OpenInLua(L); \
 	//Macaroni::Model::Cpp::ClassLuaMetaData::OpenInLua(L);  \
@@ -40,6 +42,16 @@
 			{
 				Cpp::Access access = smPtr->GetAccess();
 				Cpp::AccessLuaMetaData::PushInstanceOnStack(L, access);
+				return 1;
+			}
+		}
+		else if (index == "Static")
+		{
+			Cpp::ScopeMemberPtr smPtr = boost::dynamic_pointer_cast<Cpp::ScopeMember>(ptr);
+			if (!!smPtr)
+			{
+				bool isStatic = smPtr->IsStatic();
+				lua_pushboolean(L, isStatic);
 				return 1;
 			}
 		}
@@ -63,7 +75,7 @@
 			}
 			return 1;
 		}
-
+		
 		if (!!boost::dynamic_pointer_cast<Cpp::Class>(ptr))
 		{
 			int rtnCnt = Cpp::ClassLuaMetaData::Index(L, boost::dynamic_pointer_cast<Cpp::Class>(ptr), index);
@@ -83,6 +95,14 @@
 		if (!!boost::dynamic_pointer_cast<Cpp::Function>(ptr))
 		{
 			int rtnCnt = Cpp::FunctionLuaMetaData::Index(L, boost::dynamic_pointer_cast<Cpp::Function>(ptr), index);
+			if (rtnCnt > 0)
+			{
+				return rtnCnt;
+			}
+		}
+		if (!!boost::dynamic_pointer_cast<Cpp::Constructor>(ptr))
+		{
+			int rtnCnt = Cpp::ConstructorLuaMetaData::Index(L, boost::dynamic_pointer_cast<Cpp::Constructor>(ptr), index);
 			if (rtnCnt > 0)
 			{
 				return rtnCnt;

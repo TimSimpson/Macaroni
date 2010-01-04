@@ -116,7 +116,7 @@ NodeInfo = {
     createUsingStatement = function(self, node)
         check(self ~= nil, "Member method called without self.");
         check(node ~= nil, "Argument one must be node.");
-        if (node.IsRoot) then
+        if (node.IsRoot or node.Node.IsRoot) then
             return ""; -- Ignore
         end
         local generateWarning = true;

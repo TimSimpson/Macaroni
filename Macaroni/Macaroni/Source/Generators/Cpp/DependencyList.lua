@@ -45,7 +45,7 @@ DependencyList = {
         check(argumentList ~= nil, "ArgumentList cannot be nil.");     
         check(DependencyTraveller.isType(traveller), "Argument 3 'traveller' must be either true or false.");
         for i = 1, #argumentList do
-            self:addDependenciesForType(argumentList[i].Type, traveller);            
+            self:addDependenciesForType(argumentList[i].Member.Type, traveller);            
         end
     end,
 

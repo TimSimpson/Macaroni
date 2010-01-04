@@ -4,14 +4,14 @@ require "Macaroni.Model.Node";
 require "Macaroni.Model.Context";
 require "Macaroni.Model.Context";
 require "Macaroni.Model.FileName"
-require "Macaroni.Model.Cpp.Function";
+--require "Macaroni.Model.Cpp.Function";
 require "Macaroni.Model.Member";
 require "Macaroni.Model.Node";
-require "Macaroni.Model.Cpp.VariableAssignment";
 require "Macaroni.Model.Type";
 require "Macaroni.Model.TypeArgument";
 require "Macaroni.Model.TypeArgumentList";
 require "Macaroni.Model.TypeList";
+require "Macaroni.Model.Cpp.VariableAssignment";
 require "debug";
 require "io";
 
@@ -20,6 +20,7 @@ Macaroni.Model.TypeNames =
 { 
     Class = "Class", 
     Constructor="Constructor", 
+    Destructor="Destructor", 
     Function="Function", 
     Namespace = "Namespace", 
     Primitive="Primitive",

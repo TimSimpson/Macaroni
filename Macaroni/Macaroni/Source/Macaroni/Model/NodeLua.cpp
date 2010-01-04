@@ -363,7 +363,7 @@ int NodeLuaMetaData::Index(lua_State * L, NodePtr & ptr, const std::string & ind
 		{
 			FileNameLuaMetaData::PutInstanceOnStack(L, ptr->GetHFilePath());
 		}		
-	}	
+	}		
 	else if (index == "IsRoot")
 	{
 		lua_pushboolean(L, ptr->IsRoot());
@@ -394,7 +394,7 @@ int NodeLuaMetaData::Index(lua_State * L, NodePtr & ptr, const std::string & ind
 	else if (index == "ParseComplexName")
 	{
 		lua_pushcfunction(L, NodeLuaFunctions::ParseComplexName);
-	}		
+	}	
 	else
 	{
 		lua_pushnil(L);

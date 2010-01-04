@@ -8,7 +8,13 @@ namespace BorderTown::AnimalFriends
 
 	class Chicken
 	{
-		Egg * egg;			
+		Egg * egg;
+
+		public Chicken()
+		{
+			int five = Egg::GetNumberFive();
+			const char * fiveAsString = GetNumberFive();
+		}
 	}
 
 }

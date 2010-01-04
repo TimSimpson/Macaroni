@@ -128,6 +128,40 @@ ClassCppFileGenerator = {
         self:writeArgumentList(node);
         self:write(")\n");        
         self:writeTabs();
+        local assignments = node.Member.Assignments;
+        local seenOne = false;
+        for i = 1, #assignments do
+            local assignment = assignments[i];
+            if (not seenOne) then
+                self:write(": ");
+                seenOne = true;
+            else
+                self:write(", ");
+            end
+            self:write(assignment.Variable.Name .. "(" 
+                       .. assignment.Expression .. ")");
+        end
+        if (seenOne) then
+            self:write("\n");
+            self:writeTabs();    
+        end        
+        self:write("{\n");
+        self:addTabs(1);
+        
+        self:writeTabs();
+        self:write(node.Member.CodeBlock .. "\n");
+        
+        self:addTabs(-1);        
+        self:writeTabs();
+        self:write("}\n");
+    end,
+    
+    ["parse" .. TypeNames.Destructor] = function(self, node)
+        self:writeTabs();
+        self:write(self.node.Name .. "::~" .. self.node.Name .. "(");
+        self:writeArgumentList(node);
+        self:write(")\n");        
+        self:writeTabs();
         self:write("{\n");
         self:addTabs(1);
         
@@ -151,7 +185,11 @@ ClassCppFileGenerator = {
         end        
         self:write("(");
         self:writeArgumentList(node);
-        self:write(")\n");        
+        self:write(")");
+        if (func.Const) then
+            self:write(" const");
+        end
+        self:write("\n");        
         
         self:writeTabs();
         self:write("{\n");

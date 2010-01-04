@@ -547,7 +547,13 @@ public:
 			{
 				return false;
 			}
-			throw new ParserException(newItr.GetSource(),
+			if (newItr.ConsumeWord("global"))
+			{
+				// Oh, it wasn't trying to define a destructor, it was just the
+				// friendly global keyword! How silly of us!
+				return false;
+			}
+			throw ParserException(newItr.GetSource(),
 				Messages::Get("CppParser.Constructor.ClassNameExpected")); 
 		}		
 		ConsumeWhitespace(newItr);
@@ -556,7 +562,7 @@ public:
 		{
 			if (tilda)
 			{
-				throw new ParserException(newItr.GetSource(),
+				throw ParserException(newItr.GetSource(),
 					Messages::Get("CppParser::Constructor::ArgumentListExpected"));
 			}
 			else
@@ -797,7 +803,7 @@ public:
 		
 		if (itr.Finished())
 		{
-			throw new ParserException(itr.GetSource(),
+			throw ParserException(itr.GetSource(),
 				Messages::Get("CppParser.FileNameExpected"));
 		}
 		ss << itr.Current();
@@ -1106,17 +1112,30 @@ public:
 		{	
 			Iterator oldItr = itr;
 			Access access;
+			bool global;
+			bool isStatic;
 			TypePtr type;
 			std::string argName;
 			if ((seenArg && !itr.ConsumeChar(','))
 				||
-				!Variable(itr, access, type, argName))
+				!Variable(itr, access, global, isStatic, type, argName))
 			{
 				throw ParserException(itr.GetSource(),
 				Messages::Get("CppParser.Function.ExpectedEndingParenthesis"));
 			}
+			if (global)
+			{
+				throw ParserException(oldItr.GetSource(),
+					"CppParser.Variable.GlobalNotAllowedForArg");
+			}
+			if (isStatic)
+			{
+				throw ParserException(oldItr.GetSource(),
+					"CppParser.Variable.StaticNotAllowedForArg");
+			}
+
 			NodePtr node = currentScope->FindOrCreate(argName);
-			Variable::Create(node, access, type,
+			Variable::Create(node, access, isStatic, type,
 				Reason::Create(CppAxioms::VariableScopeCreation(), oldItr.GetSource()));
 			seenArg = true;
 		}
@@ -1125,7 +1144,7 @@ public:
 	bool GlobalKeyword(Iterator & itr)
 	{
 		ConsumeWhitespace(itr);
-		return itr.ConsumeWord("global");
+		return itr.ConsumeWord("~global");
 	}
 
 	bool HFileDirective(Iterator & itr)
@@ -1313,6 +1332,12 @@ public:
 		Assert(SimpleName(createTestItr("AVeryLongName2_3a:")) == 17);
 	}
 
+	bool StaticKeyword(Iterator & itr)
+	{
+		ConsumeWhitespace(itr);
+		return itr.ConsumeWord("static");
+	}
+
 	/** Consumes type info into the form of Type, in the format of
 	 * [const] [TypeNodeAndArgs] [*] [const] [&]
 	 * and sets the new (or, potentially later, found) Type object in "info."
@@ -1446,9 +1471,36 @@ public:
 	 * itr.  If it finds variable type info followed by a complex name it
 	 * will return the typeInfo and name.  Otherwise an exception gets thrown.
 	 * Does not parse the semicolon though, just stops after the name. */
-	bool Variable(Iterator & itr, Access & access, TypePtr & type, std::string & varName)
+	bool Variable(Iterator & itr, Access & access, bool & global, bool & isStatic, TypePtr & type, std::string & varName)
 	{
-		access = AccessKeyword(itr);
+		using namespace Macaroni::Model::Cpp;
+
+		access = AccessKeyword(itr); // try access first.
+		global = GlobalKeyword(itr);
+		if (global == true && access == Access_NotSpecified) 
+		{
+			// In case of "global access" try access again.
+			access = AccessKeyword(itr);
+		}
+		isStatic = StaticKeyword(itr);
+		if (isStatic == true && access == Access_NotSpecified)
+		{
+			// In case of "static access" try access again.
+			access = AccessKeyword(itr);
+			if (!global)
+			{
+				// In case of "static global" try global again.
+				global = GlobalKeyword(itr);
+				// In case of "static global access" try access YET AGAIN!!
+				access = AccessKeyword(itr);
+			}
+		}
+
+		if (access == Access_Public && global && isStatic) 
+		{
+			throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.Variable.PublicGlobalStaticMakesNoSense")); 			
+		}
 
 		if (!Type(itr, type))
 		{
@@ -1477,14 +1529,15 @@ public:
 	{
 		using namespace Macaroni::Model::Cpp;
 
-		bool global = GlobalKeyword(itr);		
 
 		Access access;
+		bool global;
+		bool isStatic;
 		TypePtr type;
 		std::string varName;
 		Iterator oldItr = itr; // Save it in case we need to define where the
 							   // var definition began.
-		if (!Variable(itr, access, type, varName))
+		if (!Variable(itr, access, global, isStatic, type, varName))
 		{
 			if (global)
 			{
@@ -1520,13 +1573,13 @@ public:
 		else
 		{
 			node = currentScope->FindOrCreate(varName);
-		}
+		}		
 
 		ConsumeWhitespace(itr);
 		
 		if (itr.ConsumeChar(';'))
 		{			
-			Variable::Create(node, access, type,
+			Variable::Create(node, access, isStatic, type,
 				Reason::Create(CppAxioms::VariableScopeCreation(), oldItr.GetSource()));
 		
 		} 
@@ -1559,7 +1612,7 @@ public:
 						Messages::Get("CppParser.Function.SemicolonExpected")); 
 				}
 			}
-			FunctionPtr function = Function::Create(node, access, type, constMember,
+			FunctionPtr function = Function::Create(node, access, isStatic, type, constMember,
 				Reason::Create(CppAxioms::FunctionCreation(), oldItr.GetSource()));
 			if (codeAttached)
 			{

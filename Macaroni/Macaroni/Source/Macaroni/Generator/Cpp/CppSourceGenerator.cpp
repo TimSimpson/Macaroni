@@ -5,6 +5,7 @@
 #include "../../Model/Cpp/Class.h"
 #include "../../Model/Cpp/Constructor.h"
 #include "../../Model/Cpp/Destructor.h"
+#include "../../Exception.h"
 #include <fstream>
 #include "../../Model/Cpp/Function.h"
 #include <iostream>
@@ -245,7 +246,8 @@ protected:
 	
 	void writeFunctionArgumentList(const Macaroni::Model::Cpp::Function & func)
 	{
-		if (func.GetArgumentCount() == 0)
+		NodeListPtr args = func.GetArguments();
+		if (args->size() == 0)
 		{
 			write("()");
 		}
@@ -255,14 +257,21 @@ protected:
 			write("(");		
 			depth ++;		
 			startLine();
-			for(int i = 0; i < func.GetArgumentCount(); i ++)
+			for(unsigned int i = 0; i < args->size(); i ++)
 			{
+				//TODO - Updating this code after months of not even seeing it
+				// due to changes in how function handles arguments.
+				// The Lua generator stuff is SO much nicer for this that
+				// I don't think I care if this ever works, but just in case
+				// I ever try it again...
+				throw Macaroni::Exception("BLA!");
 				if (i > 0)
 				{
 					write(", ");
 					startLine();
 				}
-				VariablePtr arg = func.GetArgument(i);
+				MemberPtr member = (*args)[i]->GetMember();
+				VariablePtr arg = boost::dynamic_pointer_cast<Variable>(member);				
 				writeTypeInfo(arg->GetType());
 				//write(" ");
 				write(arg->GetName());			

@@ -140,6 +140,13 @@ ClassHFileGenerator = {
         self:write(");\n");        
     end,
     
+    ["parse" .. TypeNames.Destructor] = function(self, node)
+        self:writeTabs();
+        self:write('~' .. self.node.Name .. "(");
+        self:writeArgumentList(node);
+        self:write(");\n");        
+    end,
+    
     ["parse" .. TypeNames.Function] = function(self, node)
         self:writeFunctionDefinition(node);
     end,    

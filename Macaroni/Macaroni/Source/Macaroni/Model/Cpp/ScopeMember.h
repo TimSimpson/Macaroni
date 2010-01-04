@@ -26,10 +26,15 @@ public:
 
 	std::string GetFullName() const;	
 
+	inline bool IsStatic() const
+	{
+		return isStatic;
+	}
+
 protected:
 	ScopeMember(Model::Node * node, const char * typeName, ReasonPtr reason);
 
-	ScopeMember(Model::Node * node, const char * typeName, ReasonPtr reason, Access access);
+	ScopeMember(Model::Node * node, const char * typeName, ReasonPtr reason, Access access, bool isStatic);
 
 	ScopeMember(const ScopeMember & other);
 
@@ -37,6 +42,7 @@ protected:
 
 private:
 	Access access;
+	const bool isStatic;
 };
 
 END_NAMESPACE

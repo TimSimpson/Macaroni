@@ -18,8 +18,8 @@ using class Macaroni::Model::Node;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-Variable::Variable(Node * parent, ReasonPtr reason, Access access, const TypePtr type)
-:ScopeMember(parent, "Variable", reason, access),
+Variable::Variable(Node * parent, ReasonPtr reason, Access access, bool isStatic, const TypePtr type)
+:ScopeMember(parent, "Variable", reason, access, isStatic),
  type(type)
 {
 }
@@ -35,12 +35,12 @@ bool Variable::canBeChildOf(const Member * other) const
 	return dynamic_cast<const Scope *>(other) != nullptr;
 }
 
-VariablePtr Variable::Create(NodePtr host, Access access, const TypePtr type, ReasonPtr reason)
+VariablePtr Variable::Create(NodePtr host, Access access, bool isStatic, const TypePtr type, ReasonPtr reason)
 {
 	if (!host->GetMember())
 	{
 		//return Variable::Create(host, access, type, reason);
-		return VariablePtr(new Variable(host.get(), reason, access, type));
+		return VariablePtr(new Variable(host.get(), reason, access, isStatic, type));
 	}
 	Member * member = host->GetMember().get();
 	Variable * existingVar = dynamic_cast<Variable *>(member);
@@ -48,7 +48,7 @@ VariablePtr Variable::Create(NodePtr host, Access access, const TypePtr type, Re
 	{
 		// Will throw an error message.
 		//return Variable::Create(host, access, type, reason);
-		return VariablePtr(new Variable(host.get(), reason, access, type));
+		return VariablePtr(new Variable(host.get(), reason, access, isStatic, type));
 	}
 
 	if (existingVar != nullptr && !(existingVar->type == type))

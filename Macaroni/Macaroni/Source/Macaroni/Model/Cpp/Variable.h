@@ -19,7 +19,7 @@ friend void intrusive_ptr_release(Variable * p);
 
 public:
 
-	static VariablePtr Create(NodePtr home, Access access, const TypePtr type, Model::ReasonPtr reason);
+	static VariablePtr Create(NodePtr home, Access access, bool isStatic, const TypePtr type, Model::ReasonPtr reason);
 
 	virtual ~Variable();
 
@@ -61,7 +61,7 @@ public:
 
 private:
 	
-	Variable(Node * home, Model::ReasonPtr reason, Access access, const TypePtr type);
+	Variable(Node * home, Model::ReasonPtr reason, Access access, bool isStatic, const TypePtr type);
 
 	TypePtr type;
 };

@@ -36,7 +36,7 @@ namespace
 };
 
 Destructor::Destructor(Node * home, Model::ReasonPtr reason, Access access)
-:Function(home, "Destructor", reason, access, voidType(), false)
+:Function(home, "Destructor", reason, access, true, voidType(), false)
 {
 }
 

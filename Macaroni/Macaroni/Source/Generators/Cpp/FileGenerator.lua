@@ -123,10 +123,17 @@ FileGenerator = {
     writeFunctionDefinition = function(self, functionNode)
         self:writeTabs();
         local func = functionNode.Member;
+        if (functionNode.Member.Static) then
+            self:write("static ");
+        end
         self:writeType(func.ReturnType);
         self:write(" " .. functionNode.Name .. "(");
         self:writeArgumentList(functionNode);
-        self:write(");\n");       
+        self:write(")");
+        if (func.Const) then
+            self:write(" const");
+        end
+        self:write(";\n");       
     end,
         
     writeType = function(self, type)    
@@ -140,6 +147,9 @@ FileGenerator = {
     writeVariableDefinition = function(self, node)
         self:writeTabs();
         local variable = node.Member; 
+        if (variable.Static) then
+            self:write("static ");
+        end
         self:writeType(variable.Type);
         self:write(node.Name .. ";\n");
     end

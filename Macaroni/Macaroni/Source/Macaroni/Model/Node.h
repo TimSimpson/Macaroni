@@ -162,6 +162,7 @@ private:
 
 	//TO-DO: Rename to "parent"
 	Node * scope;
+	
 };
 
 END_NAMESPACE2

@@ -36,7 +36,7 @@ namespace
 };
 
 Constructor::Constructor(Node * home, Model::ReasonPtr reason, Access access)
-:Function(home, "Constructor", reason, access, voidTypeInfo(home), false), assignments()
+:Function(home, "Constructor", reason, access, true, voidTypeInfo(home), false), assignments()
 {
 }
 
