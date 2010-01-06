@@ -43,7 +43,12 @@ int VariableLuaMetaData::Index(lua_State * L, const VariablePtr var,
 	//	Model::NodeLuaMetaData::PutInstanceOnStack(L, var->GetType()->GetNode());
 	//	return 1;
 	//}*/
-	if (index == "Type")
+	if (index == "Initializer")
+	{
+		lua_pushstring(L, var->GetInitializer().c_str());
+		return 1;
+	}
+	else if (index == "Type")
 	{
 		Model::TypeLuaMetaData::PutInstanceOnStack(L, var->GetType());
 		return 1;

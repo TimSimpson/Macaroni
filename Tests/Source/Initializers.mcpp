@@ -1,0 +1,33 @@
+~import Macaroni::Tests::Initializers::Singleton;
+~import std::string;
+
+namespace Macaroni::Tests::Initializers
+{
+	class Singleton
+	{
+		private ~global static const char * DEFAULT_TEXT = "blah";
+		private static Singleton * instance = 0;
+		private const char * text;
+
+		public Singleton(const char * text = "DEFAULT")
+			:text(text)
+		{
+		}
+
+		public static Singleton * GetInstance()
+		{
+			if (instance == 0)
+			{
+				instance = new Singleton(DEFAULT_TEXT);
+			}
+			return instance;
+		}
+
+		public const char * GetText()
+		{
+			return text;
+		}
+	};
+
+
+}

@@ -616,8 +616,9 @@ public:
 					}
 					
 					std::string exprCode;
-					ConsumeExpression(newItr, ')', exprCode);
-					
+					ConsumeExpression(newItr, ")", exprCode);
+					newItr.Advance(1);
+
 					VariableAssignment va;
 					va.Expression = exprCode;
 					va.Variable = varNode;
@@ -732,14 +733,14 @@ public:
 		return true;
 	}
 
-	/** Reads through an arbitrary block of code, stopping at the provided
-	 *  expression. 
+	/** Reads through an arbitrary block of code, stopping at one of the provided
+	 *  chars.  StopAtChars must be terminated with \0.
 	 *  Does NOT return on ) or } if these close a block; for example, you
 	 *  must push the iterator to past the first { if you plan on stopping at
 	 *  }, or else the parser will simply think the { is new and increase
 	 *  its depth.
 	 **/
-	void ConsumeExpression(Iterator & itr, char stopAt, std::string & code)
+	void ConsumeExpression(Iterator & itr, char * stopAtChars, std::string & code)
 	{
 		Iterator exceptionItr = itr;
 
@@ -767,11 +768,17 @@ public:
 			{
 				blocks.pop_back();
 			}
-			else if (c == stopAt)
+			else 
 			{
-				code = ss.str();
-				itr.Advance(1);
-				return;
+				for (int stopAtI = 0; stopAtChars[stopAtI] != '\0'; stopAtI ++)
+				{
+					if (c == stopAtChars[stopAtI])
+					{
+						code = ss.str();
+						//itr.Advance(1); //2010-01-03 Changed to not advance past char.
+						return;
+					}
+				}
 			}
 			
 			ss << c;
@@ -1116,6 +1123,7 @@ public:
 			Access access;
 			bool global;
 			bool isInline;
+			std::string initializer;
 			bool isStatic;
 			TypePtr type;
 			std::string argName;
@@ -1125,6 +1133,11 @@ public:
 			{
 				throw ParserException(itr.GetSource(),
 				Messages::Get("CppParser.Function.ExpectedEndingParenthesis"));
+			}
+			itr.ConsumeWhitespace();
+			if (itr.ConsumeChar('='))
+			{
+				ConsumeExpression(itr, ",)", initializer);
 			}
 			if (global)
 			{
@@ -1143,7 +1156,7 @@ public:
 			}
 
 			NodePtr node = currentScope->FindOrCreate(argName);
-			Variable::Create(node, access, isStatic, type,
+			Variable::Create(node, access, isStatic, type, initializer,
 				Reason::Create(CppAxioms::VariableScopeCreation(), oldItr.GetSource()));
 			seenArg = true;
 		}
@@ -1491,7 +1504,7 @@ public:
 
 		access = Access_NotSpecified;
 		global = false;
-		isInline = false;
+		isInline = false;		
 		isStatic = false;
 		while(
 				(access == Access_NotSpecified 
@@ -1505,27 +1518,7 @@ public:
 			//  ^..^
 			// ~."".
 		}
-
-		//access = AccessKeyword(itr); // try access first.
-		//global = GlobalKeyword(itr);
-		//if (global == true && access == Access_NotSpecified) 
-		//{
-		//	// In case of "global access" try access again.
-		//	access = AccessKeyword(itr);
-		//}
-		//isStatic = StaticKeyword(itr);
-		//if (isStatic == true && access == Access_NotSpecified)
-		//{
-		//	// In case of "static access" try access again.
-		//	access = AccessKeyword(itr);
-		//	if (!global)
-		//	{
-		//		// In case of "static global" try global again.
-		//		global = GlobalKeyword(itr);
-		//		// In case of "static global access" try access YET AGAIN!!
-		//		access = AccessKeyword(itr);
-		//	}
-		//}
+		
 
 		if (access == Access_Public && global && isStatic) 
 		{
@@ -1548,6 +1541,8 @@ public:
 			throw ParserException(itr.GetSource(),
 					Messages::Get("CppParser.Variable.NameExpected")); 
 		}		
+
+		itr.ConsumeWhitespace();
 		
 		return true;
 	}
@@ -1609,14 +1604,30 @@ public:
 
 		ConsumeWhitespace(itr);
 		
+		std::string initializer;
+
+		if (itr.ConsumeChar('='))
+		{
+			// Initializer expression following var
+			ConsumeExpression(itr, ";", initializer);
+		}
+
 		if (itr.ConsumeChar(';'))
 		{			
-			Variable::Create(node, access, isStatic, type,
+			Variable::Create(node, access, isStatic, type, initializer,
 				Reason::Create(CppAxioms::VariableScopeCreation(), oldItr.GetSource()));
 		
 		} 
 		else if (itr.ConsumeChar('('))
 		{
+			// Was going to throw exception if initializer found, but really 
+			// it will parse to ; anyway...
+			///*if (!initializer.empty())
+			//{
+			//	throw ParserException(itr.GetSource(),
+			//			Messages::Get("CppParser.Variable.InitializerNotAllowedemicolonExpected")); 
+			//}*/
+
 			NodePtr oldScope = currentScope;
 			currentScope = node;
 				FunctionArgumentList(itr);

@@ -165,13 +165,22 @@ FileGenerator = {
         self:write(str);        
     end,
     
-    writeVariableDefinition = function(self, node)
+    writeVariableDefinition = function(self, node, includeInitializer, prefixWithClassName)
         self:writeTabs();
         local variable = node.Member; 
         if (variable.Static) then
             self:write("static ");
         end
         self:writeType(variable.Type);
-        self:write(node.Name .. ";\n");
+        self:write(' ');
+        if (prefixWithClassName) then
+            self:write(node.Node.Name .. '::');
+        end
+        self:write(node.Name);
+        if (includeInitializer and variable.Initializer ~= "") then
+            self:write(' = ');
+            self:write(variable.Initializer);
+        end
+        self:write(";\n");        
     end
 };

@@ -18,8 +18,9 @@ using class Macaroni::Model::Node;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-Variable::Variable(Node * parent, ReasonPtr reason, Access access, bool isStatic, const TypePtr type)
+Variable::Variable(Node * parent, ReasonPtr reason, Access access, bool isStatic, const TypePtr type, std::string initializer)
 :ScopeMember(parent, "Variable", reason, access, isStatic),
+ initializer(initializer),
  type(type)
 {
 }
@@ -35,12 +36,12 @@ bool Variable::canBeChildOf(const Member * other) const
 	return dynamic_cast<const Scope *>(other) != nullptr;
 }
 
-VariablePtr Variable::Create(NodePtr host, Access access, bool isStatic, const TypePtr type, ReasonPtr reason)
+VariablePtr Variable::Create(NodePtr host, Access access, bool isStatic, const TypePtr type, std::string initializer, ReasonPtr reason)
 {
 	if (!host->GetMember())
 	{
 		//return Variable::Create(host, access, type, reason);
-		return VariablePtr(new Variable(host.get(), reason, access, isStatic, type));
+		return VariablePtr(new Variable(host.get(), reason, access, isStatic, type, initializer));
 	}
 	Member * member = host->GetMember().get();
 	Variable * existingVar = dynamic_cast<Variable *>(member);
@@ -48,7 +49,7 @@ VariablePtr Variable::Create(NodePtr host, Access access, bool isStatic, const T
 	{
 		// Will throw an error message.
 		//return Variable::Create(host, access, type, reason);
-		return VariablePtr(new Variable(host.get(), reason, access, isStatic, type));
+		return VariablePtr(new Variable(host.get(), reason, access, isStatic, type, initializer));
 	}
 
 	if (existingVar != nullptr && !(existingVar->type == type))

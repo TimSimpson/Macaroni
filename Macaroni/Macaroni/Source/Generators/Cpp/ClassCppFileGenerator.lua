@@ -248,9 +248,19 @@ ClassCppFileGenerator = {
     end,
     
     ["parse" .. TypeNames.Variable] = function(self, node)
-        if (self:isNodeGlobal(node)) then
-            self:writeVariableDefinition(node);
-        end        
+        if (self:isNodeGlobal(node)) then            
+            self:writeVariableDefinition(node, true);
+        elseif (node.Member.Static) then
+            self:writeTabs();
+            local variable = node.Member;            
+            self:writeType(variable.Type);
+            self:write(' ' .. node.Node.Name .. '::' .. node.Name);
+            if (variable.Initializer ~= "") then
+                self:write(' = ');
+                self:write(variable.Initializer);
+            end
+            self:write(";\n");        
+        end                
     end,        
     
     writeInclude = function(self, import)        

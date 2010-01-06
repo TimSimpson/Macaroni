@@ -1,0 +1,52 @@
+~import Macaroni::Tests::ConstsTests::Cat;
+~import Macaroni::Tests::ConstsTests::Dog;
+~import Macaroni::Tests::Inline::Sprite;
+~import std::string;
+
+namespace Macaroni::Tests::Inline
+{
+	class Sprite
+	{
+		private int x;
+		private int y;
+		
+		public inline Sprite(int x, int y) 
+			: x(x), y(y) 
+		{
+		}
+
+		public inline ~Sprite()
+		{
+		}
+
+		public static Sprite Create(int x, int y)
+		{
+			Sprite s(10, 10);
+			s.SetX(x);
+			s.SetY(y);
+			return s;
+		}
+
+		public inline int GetX() const
+		{
+			return x;
+		}
+
+		public inline int GetY() const
+		{
+			return y;
+		}
+		
+		public void SetX(int x) 
+		{
+			this->x = x;
+		}
+	
+		public void SetY(int y) 
+		{
+			this->y = y;
+		}
+	};
+
+
+}

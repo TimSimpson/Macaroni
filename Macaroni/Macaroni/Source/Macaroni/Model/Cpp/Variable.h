@@ -19,7 +19,7 @@ friend void intrusive_ptr_release(Variable * p);
 
 public:
 
-	static VariablePtr Create(NodePtr home, Access access, bool isStatic, const TypePtr type, Model::ReasonPtr reason);
+	static VariablePtr Create(NodePtr home, Access access, bool isStatic, const TypePtr type, std::string initializer, Model::ReasonPtr reason);
 
 	virtual ~Variable();
 
@@ -34,34 +34,18 @@ public:
 		return type;
 	}
 
-	//Model::NodePtr GetTypeNode() const;
-
-	////TODO: Remove these accessors, they're obnoxiously redundant.
-	//inline bool IsConst()
-	//{
-	//	return type->IsConst;
-	//}
-
-	//inline bool IsConstPointer()
-	//{
-	//	return type->IsConstPointer;
-	//}
-
-	//inline bool IsPointer()
-	//{
-	//	return type->IsPointer;
-	//}
-
-	//inline bool IsReference()
-	//{
-	//	return type->IsReference;
-	//}
+	inline const std::string & GetInitializer() const
+	{
+		return initializer;
+	}
 
 	virtual void Visit(MemberVisitor * visitor) const;
 
 private:
 	
-	Variable(Node * home, Model::ReasonPtr reason, Access access, bool isStatic, const TypePtr type);
+	Variable(Node * home, Model::ReasonPtr reason, Access access, bool isStatic, const TypePtr type, std::string initializer);
+
+	std::string initializer;
 
 	TypePtr type;
 };
