@@ -36,7 +36,7 @@ void Member::assertChildrenAreLegal()
 				ss << "Error creating member " << GetTypeName() << " at "
 					<< node->GetFullName() << ": child "
 					<< child->GetFullName() << " cannot be nested under this type.";
-				throw new Macaroni::Exception(ss.str().c_str());
+				throw Macaroni::Exception(ss.str().c_str());
 			}
 		}
 	}

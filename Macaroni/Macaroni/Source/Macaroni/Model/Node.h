@@ -4,6 +4,7 @@
 #include "../ME.h"
 #include "Context.lh"
 #include "FileNamePtr.h"
+#include "Library.h"
 #include "Member.lh"
 #include "Node.lh"
 #include "Reason.lh"

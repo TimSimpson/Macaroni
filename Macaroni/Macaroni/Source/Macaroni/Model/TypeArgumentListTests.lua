@@ -1,4 +1,5 @@
 require "Macaroni.Model.Context";
+require "Macaroni.Model.Library";
 require "Macaroni.Environment.Messages";
 require "Macaroni.Model.Node";
 require "Macaroni.Model.NodeList";
@@ -40,13 +41,14 @@ type information earlier.
 
 local function mixinContext(self)
     self.context = Context.New("{ROOT}");
+    self.library = self.context:CreateLibrary("TypeArgumentListTests", "1.0");
     
     local parser = PippyParser.Create();         
     local file = FileName.Create("Blah1.mcpp");           
     local root = self.context.Root;
     local src = Source.Create(file, 1, 1);
             
-    parser:Read(self.context, src, [[ 
+    parser:Read(self.library, src, [[ 
         namespace std
         {
             class string{}            

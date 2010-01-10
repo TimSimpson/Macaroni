@@ -62,7 +62,7 @@ namespace {
 	//		}		
 	//	}
 	//	luaL_typerror(L, index, METATABLENAME);
-	//	throw new Macaroni::Exception("Code will never reach this point.");		
+	//	throw Macaroni::Exception("Code will never reach this point.");		
 	//}*/
 
 	static inline NodePtr & getInstance(lua_State * L)

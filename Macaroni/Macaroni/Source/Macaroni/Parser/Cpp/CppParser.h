@@ -17,7 +17,7 @@ public:
 
 	static CppParserPtr Create();
 
-	virtual int Read(Model::ContextPtr c, Model::SourcePtr source, const std::string & text);
+	virtual int Read(Model::LibraryPtr l, Model::SourcePtr source, const std::string & text);
 private:
 	//boost::spirit::parser p;
 

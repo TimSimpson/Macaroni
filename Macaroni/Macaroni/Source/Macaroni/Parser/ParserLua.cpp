@@ -5,6 +5,8 @@
 #include "Parser.h"
 #include "../Model/Context.h"
 #include "../Model/ContextLua.h"
+#include "../Model/Library.h"
+#include "../Model/LibraryLua.h"
 #include "ParserException.h"
 #include "ParserExceptionLua.h"
 #include "../Model/Source.h"
@@ -13,6 +15,9 @@
 
 using Macaroni::Model::ContextPtr;
 using Macaroni::Model::ContextLuaMetaData;
+using Macaroni::Model::Library;
+using Macaroni::Model::LibraryPtr;
+using Macaroni::Model::LibraryLuaMetaData;
 using Macaroni::Model::SourcePtr;
 using Macaroni::Model::SourceLuaMetaData;
 
@@ -53,19 +58,21 @@ using Macaroni::Model::SourceLuaMetaData;
 	static int Read(lua_State * L)
 	{
 		ParserPtr self = getInstance(L, 1);
-		ContextPtr context = ContextLuaMetaData::GetInstance(L, 2);
+		LibraryPtr library = LibraryLuaMetaData::GetInstance(L, 2);
 		SourcePtr src = SourceLuaMetaData::GetInstance(L, 3);
 		std::string text(luaL_checkstring(L, 4));
 
 		try
 		{
-			int result = self->Read(context, src, text);
+			int result = self->Read(library, src, text);
 			lua_pushinteger(L, result);
 			return 1;
 		}
-		catch(Macaroni::Parser::ParserException pe)
+		catch(Macaroni::Parser::ParserException & pe)
 		{
-			ParserExceptionPtr newPtr(new ParserException(pe));
+			Macaroni::Parser::ParserException * copy = new Macaroni::Parser::ParserException(pe.GetSource(), pe.GetMessage());
+
+			ParserExceptionPtr newPtr(copy);
 			ParserExceptionLuaMetaData::PutInstanceOnStack(L, newPtr);
 			lua_error(L); // DOES NOT RETURN
 			return 0;

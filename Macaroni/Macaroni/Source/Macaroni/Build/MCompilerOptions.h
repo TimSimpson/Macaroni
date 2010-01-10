@@ -12,7 +12,7 @@ namespace Macaroni { namespace Build {
 class MCompilerOptions
 {
 public:
-	MCompilerOptions(const Gestalt::FileSystem::FileSet & input, 
+	MCompilerOptions(const std::vector<Gestalt::FileSystem::FileSet> & input, 
 					 const boost::filesystem::path & output,
 					 const std::vector<const std::string> generators);
 
@@ -23,7 +23,7 @@ public:
 		return generators;
 	}
 
-	inline const Gestalt::FileSystem::FileSet & GetInput() const
+	inline const std::vector<Gestalt::FileSystem::FileSet> & GetInput() const
 	{
 		return input;
 	}
@@ -36,7 +36,7 @@ public:
 
 private:
 	const std::vector<const std::string> generators;
-	Gestalt::FileSystem::FileSet input;
+	std::vector<Gestalt::FileSystem::FileSet> input;
 	boost::filesystem::path output;	
 };
 

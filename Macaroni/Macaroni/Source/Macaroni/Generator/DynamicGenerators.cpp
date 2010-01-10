@@ -4,12 +4,15 @@
 #include "DynamicGenerators.h"
 #include "Lua/DynamicGenerator.h"
 #include "../../Gestalt/FileSystem/FileSet.h"
+#include "../Model/Library.h"
 #include <iostream>
 #include "../../Gestalt/FileSystem/Paths.h"
 #include <sstream>
 
 using Macaroni::Model::ContextPtr;
 using Gestalt::FileSystem::FileSet;
+using Macaroni::Model::Library;
+using Macaroni::Model::LibraryPtr;
 using boost::filesystem::path;
 
 BEGIN_NAMESPACE2(Macaroni, Generator)
@@ -24,7 +27,7 @@ path GetGeneratorsPath()
 	return generatorPath;
 }
 
-path ResolveGeneratorPath(const Gestalt::FileSystem::FileSet & localDir, 
+path ResolveGeneratorPath(const std::vector<Gestalt::FileSystem::FileSet> & srcDirs, 
 						  const std::string & name)
 {	
 	///*FileSet::Iterator end = localDirs.End();
@@ -37,10 +40,14 @@ path ResolveGeneratorPath(const Gestalt::FileSystem::FileSet & localDir,
 	//		return guess;
 	//	}
 	//}*/
-	path guess = localDir.GetRoot() / name;
-	if (boost::filesystem::exists(guess))
+	for (unsigned int i = 0; i < srcDirs.size(); i ++)
 	{
-		return guess;
+		const Gestalt::FileSystem::FileSet & localDir = srcDirs[i];
+		path guess = localDir.GetRoot() / name;
+		if (boost::filesystem::exists(guess))
+		{
+			return guess;
+		}
 	}
 
 	path referencePath = GetGeneratorsPath() / name;
@@ -52,13 +59,13 @@ path ResolveGeneratorPath(const Gestalt::FileSystem::FileSet & localDir,
 	return path("");
 }
 
-void RunDynamicGenerator(ContextPtr context, const path & rootPath, const path & filePath)
+void RunDynamicGenerator(LibraryPtr library, const path & rootPath, const path & filePath)
 {
-	Lua::DynamicGenerator file(context, rootPath, filePath);
+	Lua::DynamicGenerator file(library, rootPath, filePath);
 	file.Run();
 }
 
-void RunDynamicGenerators(ContextPtr context, const path & rootPath)
+void RunDynamicGenerators(LibraryPtr library, const path & rootPath)
 {
 	std::string exePath = Gestalt::FileSystem::Paths::GetExeDirectoryPath();	
 	std::stringstream finalFilePath;
@@ -72,7 +79,7 @@ void RunDynamicGenerators(ContextPtr context, const path & rootPath)
 	{	
 		path p = *itr;
 		std::cout << p.string() << "\n";
-		RunDynamicGenerator(context, rootPath, p);
+		RunDynamicGenerator(library, rootPath, p);
 	}
 }
 

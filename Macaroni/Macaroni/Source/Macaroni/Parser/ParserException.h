@@ -2,6 +2,7 @@
 #define MACARONI_PARSER_PARSEREXCEPTION_H
 
 #include "../ME.h"
+#include <exception>
 #include <string>
 #include "ParserException.lh"
 #include "../Model/Source.lh"
@@ -9,12 +10,17 @@
 BEGIN_NAMESPACE2(Macaroni, Parser)
 
 /** Any exception which occurs within the Parser. */
-class ParserException 
+class ParserException : public std::exception
 {
 public:
 	ParserException(Model::SourcePtr source, const std::string & msg)
 		: source(source), msg(msg)
 	{
+	}
+	
+	Model::SourcePtr GetSource() const  
+	{
+		return source;
 	}
 
 	const char * GetMessage() const
@@ -22,9 +28,9 @@ public:
 		return msg.c_str(); 
 	}
 
-	Model::SourcePtr GetSource() const  
+	virtual const char * what() const throw()
 	{
-		return source;
+		return GetMessage(); 
 	}
 
 private: 

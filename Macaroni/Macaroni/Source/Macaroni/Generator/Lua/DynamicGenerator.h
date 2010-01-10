@@ -3,6 +3,7 @@
 
 #include "../../ME.h"
 #include "../../Model/Context.h"
+#include "../../Model/Library.h"
 #include "../../Environment/LuaEnvironment.h"
 #include "../../Model/MemberVisitor.h"
 #include <fstream>
@@ -22,7 +23,7 @@ BEGIN_NAMESPACE(Macaroni, Generator, Lua)
 class DynamicGenerator
 {
 public:
-	DynamicGenerator(Model::ContextPtr context, 
+	DynamicGenerator(Model::LibraryPtr context, 
 					 const boost::filesystem::path & rootPath,
 					 const boost::filesystem::path & luaFile);
 	
@@ -31,7 +32,7 @@ public:
 	bool Run();
 
 private:
-	Model::ContextPtr context;
+	Model::LibraryPtr library;
 
 	Macaroni::Environment::LuaEnvironment env;
 

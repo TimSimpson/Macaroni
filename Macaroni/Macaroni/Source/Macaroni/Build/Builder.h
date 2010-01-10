@@ -4,7 +4,9 @@
 #include "../ME.h"
 #include "../Environment/Console.h"
 #include "Cpp/CompilerSettings.h"
+#include "../Model/Context.lh"
 #include "Cpp/CppFile.h"
+#include "../Model/Library.lh"
 #include "Manifest.h"
 #include <boost/filesystem/path.hpp>
 #include <string>
@@ -15,11 +17,20 @@ namespace Macaroni { namespace Build {
 class Builder
 {
 public:
-	Builder(const Manifest & manifest, const Configuration & config, Environment::Console & console);
+	Builder(Macaroni::Model::ContextPtr context, 
+		    const Manifest & manifest, 
+			const Configuration & config, 
+			Environment::Console & console);
 
 	bool CompileCpp();	
 
 	bool CompileMacaroni();
+
+	bool CopyHeaderFiles();
+
+	bool CreateInterface();
+
+	bool CreateInterfaceMh();
 
 	void Execute();
 
@@ -32,8 +43,9 @@ private:
 	const Configuration & configuration;
 	const Environment::Console & console;
 	boost::filesystem::path findCppCompilerSettingsFile();
-	const Manifest & manifest;	
-
+	Macaroni::Model::LibraryPtr library;
+	const Manifest & manifest;		
+	
 	void createCppFileList();
 
 	void createCppSrcRoots();

@@ -358,6 +358,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Macaroni\Model\Library.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Model\LibraryLua.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Lua\linit.c"
 				>
 			</File>
@@ -832,6 +840,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Macaroni\Model\Library.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Model\LibraryLua.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Lua\llex.h"
 				>
 			</File>
@@ -988,11 +1004,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Model\ParserException.h"
+				RelativePath=".\Source\Macaroni\Parser\ParserException.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Parser\ParserException.h"
+				RelativePath=".\Source\Macaroni\Model\ParserException.h"
 				>
 			</File>
 			<File
@@ -1146,6 +1162,18 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 		</Filter>
+		<File
+			RelativePath=".\Source\Generators\InterfaceMh.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\Macaroni\Model\Library.lh"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\Generators\Macaroni\MhFileGenerator.lua"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

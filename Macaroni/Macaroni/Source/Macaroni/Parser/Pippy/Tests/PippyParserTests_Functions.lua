@@ -1,5 +1,4 @@
 require "Macaroni.Model.Context";
-require "Macaroni.Model.Cpp.Function";
 require "Macaroni.Environment.Messages";
 require "Macaroni.Parser.Pippy.PippyParser";
 require "Macaroni.Parser.Parser";
@@ -46,11 +45,12 @@ tests = {
         init = function(this)
             this.parser = PippyParser.Create();     
             this.context = Context.New("{ROOT}");
+            this.library = this.context:CreateLibrary("PippyParserTests::Functions", "9.5");
             this.file = FileName.Create("Blah1.mcpp");           
             this.root = this.context.Root;
             this.src = Source.Create(this.file, 1, 1);
             
-            this.parser:Read(this.context, this.src, [[
+            this.parser:Read(this.library, this.src, [[
                 void main(){}
             ]]);         
             this.func = this.root.Children[2].Member;   
@@ -76,11 +76,12 @@ tests = {
         init = function(this)
             this.parser = PippyParser.Create();     
             this.context = Context.New("{ROOT}");
+            this.library = this.context:CreateLibrary("ArgList tyeps", "3.x");
             this.file = FileName.Create("Blah1.mcpp");           
             this.root = this.context.Root;
             this.src = Source.Create(this.file, 1, 1);
             
-            this.parser:Read(this.context, this.src, [[
+            this.parser:Read(this.library, this.src, [[
                 ~import std::string;
                 void go(string blah){}
             ]]);         
@@ -104,7 +105,7 @@ tests = {
                 local args = this.func.Arguments;
                 local number = #args;
                 local arg1 = args[1];                   
-                local arg1Type = arg1.Type;
+                local arg1Type = arg1.Member.Type;
                 local arg1TypeName = arg1Type.Node.FullName;       
                 Test.assert("std::string", arg1TypeName); 
             end,                       

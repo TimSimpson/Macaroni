@@ -94,6 +94,11 @@ FileGenerator = {
         self.writer:write(text);
     end,    
     
+    writeAfterTabs = function(self, text)
+        self:writeTabs();
+        self:write(text);
+    end,
+    
     writeTabs = function(self)
         for i = 1, self.tabs do
             self.writer:write('\t');

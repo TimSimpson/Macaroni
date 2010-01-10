@@ -7,7 +7,7 @@ using Gestalt::FileSystem::FileSet;
 
 namespace Macaroni { namespace Build {
 
-MCompilerOptions::MCompilerOptions(const FileSet & input, 
+MCompilerOptions::MCompilerOptions(const std::vector<FileSet> & input, 
 				                   const boost::filesystem::path & output,
 								   const std::vector<const std::string> generators)
 :input(input),

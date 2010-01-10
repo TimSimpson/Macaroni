@@ -3,6 +3,7 @@
 
 #include "../ME.h"
 #include "../Model/Context.lh"
+#include "../Model/Library.lh"
 #include "Parser.lh"
 #include "../Model/Source.lh"
 
@@ -17,7 +18,7 @@ public:
 
 	/** Returns lines read.  Throws Model::ModelInconsistencyException, or 
 	 * Parser::ParserException. */
-	virtual int Read(Model::ContextPtr c, // Context to read into.
+	virtual int Read(Model::LibraryPtr l, // Library to read into.
 					  Model::SourcePtr source, // Where the text begins. 
 					  const std::string & text // Text.
 					  ) = 0;

@@ -3,10 +3,12 @@
 
 #include "Builder.h"
 #include "Cpp/CompilerSettings.h"
+#include "../Model/Context.h"
 #include <boost/filesystem/convenience.hpp>
 #include "Cpp/CppFile.h"
 #include "../Exception.h"
 #include "../../Gestalt/FileSystem/FileSet.h"
+#include "../Model/Library.h"
 #include "MCompilerOptions.h"
 #include "MCompiler.h"
 #include "../IO/Path.h"
@@ -20,7 +22,11 @@
 using Macaroni::Build::Cpp::CppFile;
 using Macaroni::Build::Cpp::CompilerSettings;
 using Macaroni::Environment::Console;
+using Macaroni::Model::Context;
+using Macaroni::Model::ContextPtr;
 using Gestalt::FileSystem::FileSet;
+using Macaroni::Model::Library;
+using Macaroni::Model::LibraryPtr;
 using Macaroni::IO::Path;
 using Macaroni::IO::PathPtr;
 using Macaroni::Environment::Process;
@@ -29,10 +35,11 @@ using Macaroni::Model::SourcePtr;
 
 namespace Macaroni { namespace Build {
 
-Builder::Builder(const Manifest & manifest, const Configuration & config, Console & console)
+Builder::Builder(ContextPtr context, const Manifest & manifest, const Configuration & config, Console & console)
 : configuration(config),
-  console(console),
+  console(console),  
   cppCompiler(),
+  library(context->CreateLibrary(manifest.GetName(), manifest.GetVersion())),
   manifest(manifest)
 {
 	boost::filesystem::path cppCompilerSettingsFile = findCppCompilerSettingsFile();
@@ -60,25 +67,28 @@ bool Builder::CompileMacaroni()
 	console.WriteLine("~ Compiling Macaroni Source into C++ ~");
 	
 	std::string mSrc = manifest.GetMSource()[0];
-	std::string mOut = manifest.GetMOutput();
-	FileSet input(boost::filesystem::path(mSrc), "\\.mcpp$");
-	MCompilerOptions options(input, 
+	std::string mOut = manifest.GetMOutput(); 
+	std::vector<FileSet> inputFiles;
+	//TODO: Include all dependents here, so they get iterated first.
+	inputFiles.push_back(FileSet(boost::filesystem::path(mSrc), "\\.mcpp$"));
+
+	MCompilerOptions options(inputFiles, 
 							 boost::filesystem::path(mOut),
 							 configuration.GetGenerators());
 	MCompiler compiler;
 
 	try
 	{
-		compiler.Compile(options);	
+		compiler.Compile(library, options);	
 	} 
-	catch(Macaroni::Exception ex)
+	catch(Macaroni::Exception & ex)
 	{
 		console.WriteLine("An error occured during Macaroni phase.");
 		console.WriteLine(ex.GetSource());
 		console.WriteLine(ex.GetMessage());
 		return false;
 	}
-	catch(Macaroni::Parser::ParserException pe)
+	catch(Macaroni::Parser::ParserException & pe)
 	{
 		console.WriteLine("Error parsing Macaroni code: ");
 		console.WriteLine(pe.GetSource()->ToString());
@@ -88,11 +98,40 @@ bool Builder::CompileMacaroni()
 	return true;
 }
 
+bool Builder::CopyHeaderFiles()
+{
+	const Path & rootDir = manifest.GetRootDirectory();
+	PathPtr headersDirPath = rootDir.NewPathForceSlash(manifest.GetCppHeadersOutput());
+	headersDirPath->CreateDirectory();
+
+	boost::filesystem::path headersDir(headersDirPath->GetAbsolutePath());
+	
+	std::vector<Path> hFiles;
+
+	std::vector<const std::string>::iterator itr;
+	for(itr = cppSrcRoots.begin(); itr != cppSrcRoots.end(); itr ++)
+	{
+		const std::string & srcDirectory = *itr;
+		boost::filesystem::path srcDirectoryPath = 
+			boost::filesystem::path(srcDirectory);
+		FileSet input(srcDirectoryPath, "\\.h");
+		FileSet::Iterator itr2 = input.Begin();
+		FileSet::Iterator end = input.End();
+		for(; itr2 != end; ++ itr2)
+		{			
+			Path path(srcDirectoryPath, *itr2);
+			path.CopyToDifferentRootPath(headersDir);
+		}	
+	}
+
+	return true;
+}
+
 void Builder::createCppSrcRoots()
 {
 	cppSrcRoots = manifest.GetMSource();
 	cppSrcRoots.push_back(manifest.GetMOutput());
-	for (int i = 0; i < cppSrcRoots.size(); i ++) 
+	for (unsigned int i = 0; i < cppSrcRoots.size(); i ++) 
 	{
 		boost::filesystem::path srcPath(cppSrcRoots[i]);
 		cppSrcRoots[i] = boost::filesystem::system_complete(srcPath).string();
@@ -129,6 +168,17 @@ void Builder::createCppFileList()
 	}
 }
 
+bool Builder::CreateInterface()
+{
+	return CreateInterfaceMh() &&
+		   CopyHeaderFiles();
+}
+
+bool Builder::CreateInterfaceMh()
+{
+	//TODO: Call Macaroni generator somehow.
+	return true;
+}
 
 void Builder::Execute()
 {
@@ -151,7 +201,10 @@ void Builder::Execute()
 
 		if (CompileCpp() && Link())
 		{
-			success = true;
+			if (CreateInterface())
+			{
+				success = true;
+			}
 		}		
 	}
 
@@ -179,14 +232,17 @@ boost::filesystem::path Builder::findCppCompilerSettingsFile()
 
 bool Builder::Link()
 {
-	if (configuration.GetFinal().empty())
-	{
-		return true;
-	}
-
 	console.WriteLine(
 "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ LINK"
 		);
+
+	if (configuration.GetFinal().empty())
+	{
+		console.WriteLine("The manifest's final directory is empty!");
+		return true;
+	}
+
+	
 
 	std::stringstream args;
 	std::vector<CppFile>::iterator itr;

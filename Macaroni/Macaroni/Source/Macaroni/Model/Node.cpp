@@ -140,7 +140,7 @@ Node * Node::findOrCreate(const std::string & name, const std::string & hFilePat
 			<< "\" in Node \"" << GetFullName() << "\"-"
 			<< "Can not create UnknownScope for name \""
 			<< firstPart << "\"- found type which is ScopeMember, not Node.";
-		throw new Macaroni::Exception(ss.str().c_str());
+		throw Macaroni::Exception(ss.str().c_str());
 	}
 
 	if (s == nullptr)

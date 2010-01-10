@@ -220,6 +220,17 @@ void LuaEnvironment::Run()
 	DEBUGLOG_WRITE("... run complete.");
 }
 
+void LuaEnvironment::SetPackageDirectory(const std::string & path)
+{
+	lua_getglobal(GetState(), "package");
+	lua_pushstring(GetState(), "path");
+	std::stringstream ss;
+	ss << path << "/?.lua";
+	lua_pushstring(GetState(), ss.str().c_str());
+	lua_settable(GetState(), -3);
+	lua_pop(GetState(), 1);
+}
+
 END_NAMESPACE2
 
 #endif

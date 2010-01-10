@@ -2,13 +2,16 @@
 #define MACARONI_BUILD_MCOMPILER_H
 
 #include "MCompilerOptions.h"
+#include "../Model/Context.lh"
+#include "../Model/Library.lh"
 
 namespace Macaroni { namespace Build {
 
 class MCompiler
 {
 public:
-	void Compile(const MCompilerOptions & options);
+	void Compile(Macaroni::Model::LibraryPtr library,
+		         const MCompilerOptions & options);
 };
 
 

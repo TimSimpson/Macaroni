@@ -5,6 +5,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/intrusive_ptr.hpp>
 #include "Context.lh"
+#include "Library.lh"
 #include "Node.lh"
 
 BEGIN_NAMESPACE2(Macaroni, Model)
@@ -21,12 +22,16 @@ public:
 	
 	~Context();
 
+	LibraryPtr CreateLibrary(const std::string & name, const std::string & version);
+	
 	int GetReferenceCount() const;
 
 	/** The root Node could be considered the global namespace. */
 	NodePtr GetRoot();
 
 private:
+
+	std::vector<Library> libraries;
 
 	//ScopeMember * findMember(const Node * scope, const std::string & complexName);
 
@@ -37,6 +42,7 @@ private:
 	int referenceCount;
 	
 	Node * root;
+	
 };
 
 inline void intrusive_ptr_add_ref(Context * p)

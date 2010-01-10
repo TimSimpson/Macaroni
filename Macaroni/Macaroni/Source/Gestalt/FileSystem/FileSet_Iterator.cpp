@@ -67,7 +67,7 @@ path FileSet::Iterator::operator*()
 	}
 	if (finished())
 	{
-		throw new Macaroni::Exception("FileSet iterator is finished.");
+		throw Macaroni::Exception("FileSet iterator is finished.");
 	}
 	directory_iterator & itr = stack.back();
 	boost::filesystem::path path = *itr;
@@ -85,14 +85,14 @@ FileSet::Iterator FileSet::Iterator::operator++()
 	}
 	if (finished())
 	{
-		throw new Macaroni::Exception("Index out of bounds.");
+		throw Macaroni::Exception("Index out of bounds.");
 	}
 	iterate(false);
 	return *this;
 //	using boost::filesystem::is_directory;
 //	if (finished())
 //	{
-//		throw new Gestalt::RuntimeException("Index out of bounds.");
+//		throw Gestalt::RuntimeException("Index out of bounds.");
 //	}
 //	directory_iterator end_itr;
 //	bool freshItr = false;

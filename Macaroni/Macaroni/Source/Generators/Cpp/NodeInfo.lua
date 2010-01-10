@@ -9,6 +9,7 @@ local TypeNames = Macaroni.Model.TypeNames;
 -- Stores quick lookup info about Nodes.
 NodeInfo = {
     dependencies = nil,
+    headerFile = nil,
     heavyDef = nil,
     lightDef = nil,
     using = nil,
@@ -19,6 +20,7 @@ NodeInfo = {
         setmetatable(self, {["__index"]=NodeInfo});       
         self.node = node;
         self.dependencies = self:createDependencyList(self.node);
+        self.headerFile = self:createHeaderFile(self.node);
         self.heavyDef = self:createHeavyDef(self.node);
         self.lightDef = self:createLightDef(self.node);
         self.using = self:createUsingStatement(self.node);
@@ -35,8 +37,7 @@ NodeInfo = {
         return list;
     end,
     
-    -- Creates the heavy definition- the include statement.
-    createHeavyDef = function(self, node)
+    createHeaderFile = function(self, node)
         check(self ~= nil, "Member function called without self.");
         check(node ~= nil, "Argument 2, 'node', cannot be nil.");
         if (node.Member ~= nil and 
@@ -45,18 +46,30 @@ NodeInfo = {
         end
         local path = nil;
         if (node.HFilePath ~= nil) then 
-            path = tostring(node.HFilePath);
+            return tostring(node.HFilePath);
         else
             if (node.AdoptedHome ~= nil) then
-                return self:createHeavyDef(node.AdoptedHome);
+                return self:createHeaderFile(node.AdoptedHome);
             end
             if (node.Member ~= nil and node.Member.TypeName == Macaroni.Model.TypeNames.Class) then
-                path = '<' .. node:GetPrettyFullName("/") .. '.h>'; 
+                return '<' .. node:GetPrettyFullName("/") .. '.h>'; 
             else
-                path = '<' .. node.Node:GetPrettyFullName("/") .. '/_.h>';
+                return '<' .. node.Node:GetPrettyFullName("/") .. '/_.h>';
             end            
-        end        
-        return ('#include ' .. path .. '\n');            
+        end
+        return "";        
+    end,
+    
+    -- Creates the heavy definition- the include statement.
+    createHeavyDef = function(self, node)
+        check(self ~= nil, "Member function called without self.");
+        check(node ~= nil, "Argument 2, 'node', cannot be nil.");
+        local headerFilePath = self:createHeaderFile(node);
+        if (headerFilePath == "") then
+            return "";
+        else
+            return ('#include ' .. headerFilePath .. '\n');      
+        end       
     end,
     
     beginNs =  function(self, namespaceNode)

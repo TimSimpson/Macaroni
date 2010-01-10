@@ -47,11 +47,12 @@ tests = {
         init = function(self)
             self.parser = PippyParser.Create();     
             self.context = Context.New("{ROOT}");
+            self.library = self.context:CreateLibrary("Test", "1.0");
             self.file = FileName.Create("Blah1.mcpp");           
             self.root = self.context.Root;
             self.src = Source.Create(self.file, 1, 1);
             
-            self.parser:Read(self.context, self.src, [[
+            self.parser:Read(self.library, self.src, [[
                 ~import std::string;
                 
                 typedef std::string stringType;
@@ -82,11 +83,12 @@ tests = {
         init = function(self)
             self.parser = PippyParser.Create();     
             self.context = Context.New("{ROOT}");
+            self.library = self.context:CreateLibrary("Test", "1.0");
             self.file = FileName.Create("Blah1.mcpp");           
             self.root = self.context.Root;
             self.src = Source.Create(self.file, 1, 1);
             
-            self.parser:Read(self.context, self.src, [[
+            self.parser:Read(self.library, self.src, [[
                 ~import std::string;
                 ~import std::vector;
                 

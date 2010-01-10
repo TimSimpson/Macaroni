@@ -49,6 +49,8 @@ public:
 	void ParseString(const char * chunkName, const char * code);
 
 	void Run();
+
+	void SetPackageDirectory(const std::string & path);
 private:
 	static const char * loadFile(lua_State * L, void * data, size_t *size);
 	static const char * loadString(lua_State * L, void * data, size_t *size);

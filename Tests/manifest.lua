@@ -7,18 +7,23 @@ id =
 
 description="An example Test Project to be compiled by Macaroni."
 
-cInclude =  -- These include paths are the default for a manifest, I'm putting it here to illustrate it.
-{   -- This refers to the Includes you'd give the C++ compiler, btw. Macaroni Compiler does not use it.
-    "MWork/GeneratedSource",
-    "Source"
-}
 mSource = 
 {   -- Ditto.  This is also the default.
     "Source"
 }
 mOutput = "MWork/GeneratedSource"
 
-cppOutput = "MWork/Objects"
+cppInput =  -- These include paths are the default for a manifest, I'm putting it here to illustrate it.
+{   -- This refers to the Includes you'd give the C++ compiler, btw. Macaroni Compiler does not use it.
+    "MWork/GeneratedSource",
+    "Source"
+}
+
+cppOutput = {
+    headers="MWork/Headers",  -- All headers are copied to this directory, where they can be reused.
+    objects="MWork/Objects",  -- All object files are placed here.
+}
+
 
 fOutput = "MWork/Final"
 
@@ -28,7 +33,8 @@ configurations = {
         compiler = "Windows-VS9",
         generators =
         {
-            "Cpp.lua",            
+            "Cpp.lua",       
+            "InterfaceMh.lua"     
             --"SimpleGenerator.lua"
         },
         dependencies =

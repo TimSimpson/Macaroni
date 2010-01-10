@@ -8,7 +8,7 @@
 BEGIN_NAMESPACE2(Macaroni, Model)
 
 /** Any exception which occurs because the Source is incorrect. */
-class SourceException
+class SourceException : public std::exception
 {
 public:
 	SourceException(SourcePtr source, const std::string & msg)
@@ -24,6 +24,11 @@ public:
 	SourcePtr GetSource() const
 	{
 		return source;
+	}
+
+	virtual const char * what() const throw()
+	{
+		return GetMessage().c_str();
 	}
 
 private:

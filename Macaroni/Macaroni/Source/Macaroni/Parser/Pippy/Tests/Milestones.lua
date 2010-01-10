@@ -21,11 +21,12 @@ tests = {
         init = function(this)
             this.parser = PippyParser.Create();     
             this.context = Context.New("{ROOT}");
+            this.library = this.context:CreateLibrary("Test", "1.0");
             this.file = FileName.Create("Blah1.mcpp");           
             this.root = this.context.Root;
             this.src = Source.Create(this.file, 1, 1);
             
-            this.parser:Read(this.context, this.src, [[
+            this.parser:Read(this.library, this.src, [[
                 ~import std::string;
                 
                 string hello;

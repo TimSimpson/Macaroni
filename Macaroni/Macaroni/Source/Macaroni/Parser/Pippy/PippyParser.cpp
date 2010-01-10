@@ -14,6 +14,7 @@
 #include "../../Exception.h"
 #include "../../Model/FileName.h"
 #include "../../Model/Cpp/Function.h"
+#include "../../Model/Library.h"
 #include "../../Environment/Messages.h"
 #include "../../Model/ModelInconsistencyException.h"
 #include "../../Model/Cpp/Namespace.h"
@@ -51,6 +52,8 @@ using Macaroni::Model::FileName;
 using Macaroni::Model::FileNamePtr;
 using Macaroni::Model::Cpp::Function;
 using Macaroni::Model::Cpp::FunctionPtr;
+using Macaroni::Model::Library;
+using Macaroni::Model::LibraryPtr;
 using Macaroni::Environment::Messages;
 using Macaroni::Model::ModelInconsistencyException;
 using Macaroni::Model::Cpp::Namespace;
@@ -224,7 +227,7 @@ public:
 			// Thus, an exception must be thrown.
 			Assert(false); 
 		}
-		catch(Macaroni::Exception *)
+		catch(Macaroni::Exception &)
 		{
 			// Good
 		}
@@ -1770,10 +1773,10 @@ PippyParserPtr PippyParser::Create()
 	return PippyParserPtr(new PippyParser());
 }
 
-int PippyParser::Read(Model::ContextPtr c, Model::SourcePtr source, const std::string & text)
+int PippyParser::Read(Model::LibraryPtr l, Model::SourcePtr source, const std::string & text)
 {
-	CppContext::CreateCppNodes(c);
-	ParserFunctions funcs(c);		
+	CppContext::CreateCppNodes(l->GetContext());
+	ParserFunctions funcs(l->GetContext());		
 	Iterator itr(text.begin(), 
 			   text.end(), 
 			   source);
@@ -1781,7 +1784,7 @@ int PippyParser::Read(Model::ContextPtr c, Model::SourcePtr source, const std::s
 	{
 		funcs.Document(itr);
 	}
-	catch(ModelInconsistencyException mie)
+	catch(ModelInconsistencyException & mie)
 	{
 		throw ParserException(mie.GetSource(), mie.GetMessage());
 	}

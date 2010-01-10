@@ -1,13 +1,14 @@
 #ifndef MACARONI_EXCEPTION_H
 #define MACARONI_EXCEPTION_H
 
+#include <exception>
 #include <string>
 
 namespace Macaroni{
 
 /** A very simple Exception class which stores the source of the exception
  * as well as the exception message as std::strings. */
-class Exception
+class Exception : public std::exception
 {
 public:
 
@@ -61,6 +62,11 @@ public:
 	{
 		return message.c_str();
 	}
+
+	virtual const char* what() const throw()
+    {
+		return GetMessage();
+    } 
 
 private:
 	std::string source;

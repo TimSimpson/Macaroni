@@ -9,6 +9,7 @@
 //#include "../Model/Document.h"
 #include "../Model/FileNameLua.h"
 #include "../Model/Cpp/FunctionLua.h"
+#include "../Model/LibraryLua.h"
 #include "../Model/MemberLua.h"
 #include "MessagesLua.h"
 //#include "../Model/NamespaceLua.h"
@@ -38,6 +39,7 @@ static const struct luaL_Reg libs[] = {
 	{"Macaroni.Model.Axiom", Model::AxiomLuaMetaData::OpenInLua},	
 	{"Macaroni.Model.Context", Model::ContextLuaMetaData::OpenInLua},	
 	{"Macaroni.Model.FileName", Model::FileNameLuaMetaData::OpenInLua},	
+	{"Macaroni.Model.Library", Model::LibraryLuaMetaData::OpenInLua},	
 	{"Macaroni.Model.Member", Model::MemberLuaMetaData::OpenInLua},	
 	{"Macaroni.Model.Node", Model::NodeLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Reason", Model::ReasonLuaMetaData::OpenInLua},	

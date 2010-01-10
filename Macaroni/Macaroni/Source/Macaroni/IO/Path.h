@@ -21,6 +21,11 @@ public:
 	Path(const Path & other); 
 	Path(boost::filesystem::path rootPath, boost::filesystem::path path);
 	
+	/** An example would be to copy a file from "src/blah/a.txt" to 
+	 * "output/blah/a.txt", where "src" is the original root path and
+	 * "output" is the argument to this function. */
+	void CopyToDifferentRootPath(boost::filesystem::path rootPath);
+
 	void CreateDirectory() const;
 
 	bool Exists() const;
@@ -28,6 +33,8 @@ public:
 	std::string GetAbsolutePath() const;
 
 	PathListPtr GetPaths() const;
+
+	std::string GetRelativePath() const;
 
 	bool IsDirectory() const;
 

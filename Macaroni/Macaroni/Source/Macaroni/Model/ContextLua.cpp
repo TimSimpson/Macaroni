@@ -9,6 +9,7 @@ extern "C" {
 #include "Context.h"
 #include "ContextLua.h"
 #include "../Environment/DebugLog.h"
+#include "LibraryLua.h"
 #include "Node.h"
 #include "NodeLua.h"
 #include <sstream>
@@ -54,6 +55,16 @@ namespace {
 
 struct ContextLuaFunctions
 {	
+	static int createLibrary(lua_State * L)
+	{
+		ContextPtr context = getInstance(L);
+		std::string name(luaL_checkstring(L, 2));
+		std::string version(luaL_checkstring(L, 3));
+		LibraryPtr library = context->CreateLibrary(name, version);
+		LibraryLuaMetaData::PutInstanceOnStack(L, library);
+		return 1;
+	}
+
 	static int luaGc(lua_State * L)
 	{
 		ContextPtr * nsPtr = (ContextPtr *) luaL_checkudata(L, 1, METATABLENAME);
@@ -75,7 +86,11 @@ struct ContextLuaFunctions
 
 		std::string index(luaL_checkstring(L, 2));
 		
-		if (index == "GetReferenceCount")
+		if (index == "CreateLibrary")
+		{
+			lua_pushcfunction(L, createLibrary);
+		}
+		else if (index == "GetReferenceCount")
 		{
 			lua_pushcfunction(L, GetReferenceCount);	
 		}

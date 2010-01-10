@@ -54,9 +54,30 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile)
 		mSource[i] = (manifestDir / mSource[i]).string();
 	}	
 
+	lua_getglobal(env.GetState(), "id");
+	if (!lua_isnil(env.GetState(), -1))
+	{
+		env.GetFromGlobalVarOrDefault(name, "name", manifestFile.string().c_str());
+		env.GetFromCurrentTableVarOrDefault(version, "version", "???");			
+	}
+	lua_pop(env.GetState(), 1);
+
+
+	lua_getglobal(env.GetState(), "cppOutput");
+	if (!lua_isnil(env.GetState(), -1))
+	{
+		env.GetFromGlobalVarOrDefault(cppHeadersOutput, "headers", "MWork/Headers");
+		env.GetFromCurrentTableVarOrDefault(cppOutput, "objects", "MWork/Objects");			
+	}
+	lua_pop(env.GetState(), 1);
+
+	//env.GetFromGlobalVarOrDefault(cppOutput, "cppOutput", "MWork/Objects");
+	//	env.GetFromGlobalVarOrDefault(iOutput, "iOutput", "MWork/Interface");
+
 	env.GetFromGlobalVarOrDefault(fOutput, "fOutput", "MWork/Final");
+
 	env.GetFromGlobalVarOrDefault(mOutput, "mOutput", "MWork/GeneratedSource");
-	env.GetFromGlobalVarOrDefault(cppOutput, "cppOutput", "MWork/Objects");
+
 	mOutput = (manifestDir / mOutput).string();
 	
 

@@ -4,6 +4,7 @@
 #include "CppParser.h"
 #include "../../Model/Context.h"
 #include "CppParserState.h"
+#include "../../Model/Library.h"
 #include "../../Model/Source.h"
 #include "../../Model/FileName.h"
 #include "CppParser.spirit"
@@ -15,6 +16,8 @@
 
 using Macaroni::Model::Context;
 using Macaroni::Model::ContextPtr;
+using Macaroni::Model::Library;
+using Macaroni::Model::LibraryPtr;
 using Macaroni::Model::Source;
 using Macaroni::Model::SourcePtr;
 
@@ -56,10 +59,10 @@ CppParserPtr CppParser::Create()
 	return CppParserPtr(new CppParser());
 }
 
-int CppParser::Read(ContextPtr c, SourcePtr source, const std::string & text)
+int CppParser::Read(LibraryPtr l, SourcePtr source, const std::string & text)
 {
 	CppParserState state;
-	state.SetContext(c);
+	state.SetContext(l->GetContext());
 	state.SetCurrentSource(source);
 	
 	DocumentGrammar cppGrammar;

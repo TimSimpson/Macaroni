@@ -46,6 +46,13 @@ void Path::assertPathExistsInRootPath()
 	}
 }
 
+void Path::CopyToDifferentRootPath(boost::filesystem::path newRootPath)
+{
+	boost::filesystem::path dstPath = newRootPath / GetRelativePath();
+	boost::filesystem::create_directories(dstPath.branch_path());
+	boost::filesystem::copy_file(this->path, dstPath);
+}
+
 void Path::CreateDirectory() const
 {
 	if (Exists())
@@ -91,7 +98,7 @@ PathPtr Path::NewPath(const std::string & name) const
 	boost::filesystem::path newPath(newStr);
 	if (!stringBeginsWith(newPath.string(), this->rootPath.string()))
 	{
-		throw new Macaroni::Exception("Illegal directory.");
+		throw Macaroni::Exception("Illegal directory.");
 	}
 	return PathPtr(new Path(this->rootPath, newPath));
 }
@@ -102,7 +109,7 @@ PathPtr Path::NewPathForceSlash(const std::string & name) const
 	boost::filesystem::path newPath(this->path / name);////newStr);
 	if (!stringBeginsWith(newPath.string(), this->rootPath.string()))
 	{
-		throw new Macaroni::Exception("Illegal directory.");
+		throw Macaroni::Exception("Illegal directory.");
 	}
 	return PathPtr(new Path(this->rootPath, newPath));
 }
@@ -117,13 +124,18 @@ bool Path::stringBeginsWith(const std::string & str, const std::string begins)
 	return (sub == begins);
 }
 
-std::string Path::ToString() const
+std::string Path::GetRelativePath() const
 {
 	std::string fullPath(path.string());
 	std::string rootPathStr = rootPath.string();
 	size_t rootPathSize = rootPathStr.length();
 	std::string relativePath = fullPath.substr(rootPathSize);
 	return relativePath;
+}
+
+std::string Path::ToString() const
+{
+	return GetRelativePath();
 }
 	
 END_NAMESPACE2

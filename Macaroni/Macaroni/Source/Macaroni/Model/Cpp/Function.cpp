@@ -148,7 +148,7 @@ void Function::SetCodeBlock(std::string & code, SourcePtr startOfCode)
 			<< " because one was already defined at "
 			<< codeSource->ToString() 
 			<< ".";
-		throw new ModelInconsistencyException(startOfCode, msg.str());
+		throw ModelInconsistencyException(startOfCode, msg.str());
 	}
 	codeBlock = code;
 	codeAttached = true;

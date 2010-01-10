@@ -93,20 +93,14 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 	Console output;
 
 	CmdLine cmd(convertedArgs, output);
-	/*try 
-	{*/
+	try 
+	{
 		cmd.Execute();
-	/*} catch(Macaroni::Exception ex) 
+	} catch(std::exception & ex) 
 	{
-		std::cerr << "MACARONI EXCEPTION!" << std::endl;
-		std::cerr << ex.GetMessage() << std::endl;
-		std::cerr << ex.GetSource() << std::endl;
-	}catch(Macaroni::Exception * ex) 
-	{
-		std::cerr << "MACARONI EXCEPTION!" << std::endl;
-		std::cerr << ex->GetMessage() << std::endl;
-		std::cerr << ex->GetSource() << std::endl;
-	}*/
+		std::cerr << "An unexpected error occured.\n" << std::endl;
+		std::cerr << ex.what()  << std::endl;		
+	}
 
 	std::cout << std::endl << "Program finished." << std::endl;
 	if (cmd.EndPrompt())
@@ -185,17 +179,11 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 	//		{
 	//			execute(inputPath, outputPath);
 	//		}
-	//		catch(Macaroni::Exception ex)
+	//		catch(Macaroni::Exception & ex)
 	//		{
 	//			std::cerr << "UNHANDLED EXCEPTION:\n";
 	//			std::cerr << "Msg:" << ex.GetMessage() << "\n";
 	//			std::cerr << "Src:" << ex.GetSource() << "\n";
-	//		}
-	//		catch(Macaroni::Exception * ex)
-	//		{
-	//			std::cerr << "UNHANDLED EXCEPTION:\n";
-	//			std::cerr << "Msg:" << ex->GetMessage() << "\n";
-	//			std::cerr << "Src:" << ex->GetSource() << "\n";
 	//		}
 	//	}		
 	//}
@@ -213,7 +201,7 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 	//	//{
 	//	//	CmdLine(args);
 	//	//}
-	//	//catch(Macaroni::Exception me)
+	//	//catch(Macaroni::Exception & me)
 	//	//{
 	//	//	std::cerr << "Oh no, an error occured!";
 	//	//	std::cerr << me.

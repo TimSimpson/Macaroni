@@ -4,6 +4,8 @@
 #include "../ME.h"
 #include "Builder.h"
 #include "CmdLine.h"
+#include "../Model/Context.h"
+#include "../Model/Library.h"
 #include "MCompiler.h"
 #include "MCompilerOptions.h"
 #include "Manifest.h"
@@ -19,7 +21,11 @@
 using Macaroni::Environment::Console;
 using Macaroni::Build::MCompiler;
 using Macaroni::Build::MCompilerOptions;
+using Macaroni::Model::Context;
+using Macaroni::Model::ContextPtr;
 using Gestalt::FileSystem::FileSet;
+using Macaroni::Model::Library;
+using Macaroni::Model::LibraryPtr;
 using Macaroni::Environment::Messages;
 
 namespace Macaroni { namespace Build {
@@ -64,25 +70,22 @@ void CmdLine::directCompile()
 		try
 		{
 			const std::vector<const std::string> generators;
-			FileSet input(boost::filesystem::path(inputPath), "\\.mcpp$");
+			std::vector<FileSet> input;
+			input.push_back(FileSet(boost::filesystem::path(inputPath), "\\.mcpp$"));
 			MCompilerOptions options(input, 
 									 boost::filesystem::path(outputPath),
 									 generators);
 			MCompiler compiler;
-			compiler.Compile(options);
+			ContextPtr context(new Context(std::string("%ROOT%")));
+			LibraryPtr library = context->CreateLibrary("Command Line", "???");
+			compiler.Compile(library, options);
 		}
-		catch(Macaroni::Exception ex)
+		catch(Macaroni::Exception & ex)
 		{
 			console.Write("UNHANDLED EXCEPTION:\n");
 			console.WriteLine(ex.GetMessage());
 			console.WriteLine(ex.GetSource());
-		}
-		catch(Macaroni::Exception * ex)
-		{
-			console.Write("UNHANDLED EXCEPTION:\n");
-			console.WriteLine(ex->GetMessage());
-			console.WriteLine(ex->GetSource());
-		}
+		} 
 	}
 }
 
@@ -178,7 +181,11 @@ void CmdLine::runLuaTests()
 {
 	console.WriteLine("Running arbitrary LUA files.");
 	Macaroni::Environment::LuaEnvironment lua;
-	lua.ParseFile("Main.lua"); 
+	lua.SetPackageDirectory(luaTestsPath);
+
+	std::stringstream ss;
+	ss << luaTestsPath << "/Tests.lua";
+	lua.ParseFile(ss.str()); 
 	lua.Run();
 }
 
@@ -207,7 +214,8 @@ void CmdLine::runManifest()
 	}
 	const Configuration & mRefConfig = *mConfig;
 
-	Builder builder(manifest, mRefConfig, console);
+	ContextPtr context(new Context("%ROOT%"));
+	Builder builder(context, manifest, mRefConfig, console);
 	builder.Execute();
 }
 

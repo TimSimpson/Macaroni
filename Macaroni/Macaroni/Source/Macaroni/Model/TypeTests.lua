@@ -38,13 +38,14 @@ type information earlier.
 
 local function mixinContext(self)
     self.context = Context.New("{ROOT}");
+    self.library = self.context:CreateLibrary("TypeTests", "1.5");
     
     local parser = PippyParser.Create();         
     local file = FileName.Create("Blah1.mcpp");           
     local root = self.context.Root;
     local src = Source.Create(file, 1, 1);
             
-    parser:Read(self.context, src, [[ 
+    parser:Read(self.library, src, [[ 
         namespace std
         {
             class string{}            

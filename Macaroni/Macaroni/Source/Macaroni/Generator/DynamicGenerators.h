@@ -4,6 +4,7 @@
 #include "../ME.h"
 #include "../Model/Context.h"
 #include "../../Gestalt/FileSystem/FileSet.h"
+#include "../Model/Library.h"
 #include "../Model/MemberVisitor.h"
 #include <fstream>
 #include <boost/filesystem/operations.hpp>
@@ -15,14 +16,14 @@ boost::filesystem::path GetGeneratorsPath();
 /** Looks for the Generator file first in the given FileSet of local directories
  * (it appends the file name to each one) and then in the Generator path. 
  */
-boost::filesystem::path ResolveGeneratorPath(const Gestalt::FileSystem::FileSet & localDirs,
+boost::filesystem::path ResolveGeneratorPath(const std::vector<Gestalt::FileSystem::FileSet> & srcDirs,
 											 const std::string & guess);
 
-void RunDynamicGenerator(Model::ContextPtr context, 
+void RunDynamicGenerator(Model::LibraryPtr library, 
 						  const boost::filesystem::path & rootPath,
 						  const boost::filesystem::path & generatorFilePath);
 
-void RunDynamicGenerators(Model::ContextPtr context, const boost::filesystem::path & rootPath);
+void RunDynamicGenerators(Model::LibraryPtr library, const boost::filesystem::path & rootPath);
 
 END_NAMESPACE2
 

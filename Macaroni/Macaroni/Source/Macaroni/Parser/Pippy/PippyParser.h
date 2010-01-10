@@ -2,6 +2,7 @@
 #define MACARONI_PARSER_PIPPY_PIPPYPARSER_H
 
 #include "../../ME.h"
+#include "../../Model/Library.lh"
 #include "PippyParser.lh"
 #include "../Parser.h"
 
@@ -16,7 +17,7 @@ public:
 
 	static PippyParserPtr Create();
 
-	virtual int Read(Model::ContextPtr c, Model::SourcePtr source, const std::string & text);
+	virtual int Read(Model::LibraryPtr c, Model::SourcePtr source, const std::string & text);
 
 	static void RunTests(); 
 

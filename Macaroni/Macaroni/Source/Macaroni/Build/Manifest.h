@@ -33,6 +33,11 @@ public:
 		return id;
 	}
 
+	inline const std::string GetCppHeadersOutput() const
+	{
+		return cppHeadersOutput;
+	}
+
 	inline const std::string GetFinalOutput() const
 	{
 		return fOutput;
@@ -43,6 +48,12 @@ public:
 		return mOutput;
 	}
 
+	inline const std::string & GetName() const
+	{
+		return name;
+	}
+
+
 	inline const IO::Path & GetRootDirectory() const
 	{
 		return rootDirectory;
@@ -51,6 +62,11 @@ public:
 	inline const std::vector<const std::string> GetMSource() const
 	{
 		return mSource;
+	}
+
+	inline const std::string & GetVersion() const
+	{
+		return version;
 	}
 
 	inline void SetDescription(std::string & value)
@@ -66,9 +82,12 @@ private:
 	//std::vector<std::string> generators;
 	ManifestId id;	
 	std::vector<const std::string> cInclude;
+	std::string cppHeadersOutput;
 	std::string mOutput;
 	std::vector<const std::string> mSource;
+	std::string name;
 	IO::Path rootDirectory;
+	std::string version;
 };
 
 

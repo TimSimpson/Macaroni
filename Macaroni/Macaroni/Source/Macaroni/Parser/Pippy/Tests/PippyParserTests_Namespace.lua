@@ -1,5 +1,4 @@
 require "Macaroni.Model.Context";
-require "Macaroni.Model.Cpp.Function";
 require "Macaroni.Environment.Messages";
 require "Macaroni.Model.Member";
 require "Macaroni.Model.Node";
@@ -23,11 +22,12 @@ tests = {
         init = function(this)
             this.parser = PippyParser.Create();     
             this.context = Context.New("{ROOT}");
+            this.library = this.context:CreateLibrary("Test", "1.0");
             this.file = FileName.Create("Blah1.mcpp");           
             this.root = this.context.Root;
             this.src = Source.Create(this.file, 1, 1);
             
-            this.parser:Read(this.context, this.src, "");            
+            this.parser:Read(this.library, this.src, "");            
         end,
         tests = {
             ["One node exists within the Context"] = function(this)
@@ -44,11 +44,12 @@ tests = {
         init = function(this)
             this.parser = PippyParser.Create();     
             this.context = Context.New("{ROOT}");
+            this.library = this.context:CreateLibrary("Test", "1.0");
             this.file = FileName.Create("Blah1.mcpp");           
             this.root = this.context.Root;
             this.src = Source.Create(this.file, 1, 1);
             
-            this.parser:Read(this.context, this.src, [[
+            this.parser:Read(this.library, this.src, [[
                 namespace Apple { }
             ]]);
         end,
@@ -79,11 +80,12 @@ tests = {
         init = function(this)
             this.parser = PippyParser.Create();     
             this.context = Context.New("{ROOT}");
+            this.library = this.context:CreateLibrary("Test", "1.0");
             this.file = FileName.Create("Blah1.mcpp");           
             this.root = this.context.Root;
             this.src = Source.Create(this.file, 1, 1);
             
-            this.parser:Read(this.context, this.src, [[
+            this.parser:Read(this.library, this.src, [[
                 namespace Apple { 
                     namespace Seed 
                     { 
@@ -115,12 +117,13 @@ tests = {
         tryParse = function(text)
             local parser = PippyParser.Create();
             local context = Context.New("{ROOT}");
+            local library = context:CreateLibrary("Test", "1.0");
             local file = FileName.Create("Blah1.mcpp");
             local src = Source.Create(file, 1, 1);
             
             local result = nil;
             local status, err = pcall(function() 
-                    result = parser:Read(context, src, text);
+                    result = parser:Read(library, src, text);
                 end
             );
             return status, err;

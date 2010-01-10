@@ -10,6 +10,8 @@
 #include <sstream>
 
 using Macaroni::Model::ContextLuaMetaData;
+using Macaroni::Model::Library;
+using Macaroni::Model::LibraryPtr;
 using Macaroni::IO::Path;
 using Macaroni::IO::PathLuaMetaData;
 using Macaroni::IO::PathPtr;
@@ -18,15 +20,16 @@ BEGIN_NAMESPACE(Macaroni, Generator, Lua)
 
 DynamicGenerator::DynamicGenerator
 (	
-	Model::ContextPtr				context, 
+	Model::LibraryPtr				library, 
 	const boost::filesystem::path & rootPath,
 	const boost::filesystem::path & luaFile	
 )
-:	context(context),
+:	library(library),
 	env(),
 	rootPath(rootPath)
 {
 	//env.ParseString("FileWriter", LUACODE);
+	env.SetPackageDirectory(luaFile.branch_path().string());
 	env.ParseFile(luaFile.string());
 }	 
 
@@ -42,7 +45,7 @@ bool DynamicGenerator::Run()
 	
 	// call Generate(context, rootPath, output);
 	lua_getglobal(L, "Generate");
-	ContextLuaMetaData::PutInstanceOnStack(L, context);
+	ContextLuaMetaData::PutInstanceOnStack(L, library->GetContext());
 	
 	PathPtr path(new Path(rootPath, rootPath));
 	PathLuaMetaData::PutInstanceOnStack(L, path);
