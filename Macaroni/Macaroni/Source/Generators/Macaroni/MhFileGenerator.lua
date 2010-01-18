@@ -1,5 +1,6 @@
 require "Cpp/Common";
 require "Cpp/ClassHFileGenerator";
+require "Macaroni.Model.Library";
 require "Cpp/NamespaceHFileGenerator";
 require "Cpp/NodeFileGenerator";
 require "Cpp/NodeInfo";
@@ -43,24 +44,28 @@ MhFileGenerator = {
     end,
 
     parseClass = function(self, node)
-        local info = NodeInfoList[node];
-        self:writeAfterTabs('class ' .. node.Name .. ' {\n');
-        self:addTabs(1);
-        self:writeAfterTabs('~hfile=' .. info.headerFile .. ';\n');
-        self:iterateNodes(node.Children);
-        self:addTabs(-1);
-        self:writeAfterTabs('}\n');
-        -- Find the hFile
+        if (node.Member.Library == targetLibrary) then
+            local info = NodeInfoList[node];
+            self:writeAfterTabs('class ' .. node.Name .. ' {\n');
+            self:addTabs(1);
+            self:writeAfterTabs('~hfile=' .. info.headerFile .. '\n');
+            self:iterateNodes(node.Children);
+            self:addTabs(-1);
+            self:writeAfterTabs('};\n');
+            -- Find the hFile
+        end
     end,
     
     parseNamespace = function(self, node)
-        local info = NodeInfoList[node];
-        self:writeAfterTabs("namespace " .. node.Name .. ' {\n');
-        self:addTabs(1);        
-        -- self:writeAfterTabs('~hfile=' .. info.headerFile .. ';\n');        
-        self:iterateNodes(node.Children);
-        self:addTabs(-1);
-        self:writeAfterTabs("}\n");    
+        if (node.Member.Library == targetLibrary) then
+            local info = NodeInfoList[node];
+            self:writeAfterTabs("namespace " .. node.Name .. ' {\n');
+            self:addTabs(1);        
+            -- self:writeAfterTabs('~hfile=' .. info.headerFile .. ';\n');        
+            self:iterateNodes(node.Children);
+            self:addTabs(-1);
+            self:writeAfterTabs("}\n");    
+        end
     end,
     
     parseNode = function(self, node) 

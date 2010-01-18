@@ -2,12 +2,13 @@
 require "Cpp/Common";
 require "Cpp/CppFileGenerator";
 require "Cpp/HFileGenerator";
+require "Macaroni.Model.Library";
 
-function Generate(context, path)
+function Generate(library, path)
     print "Generating H Files\n";
     local hGen = HFileGenerator.new();
-    hGen:iterateNodes(context.Root.Children, path); 
+    hGen:iterateNodes(library.Context.Root.Children, path); 
     print "Generating Cpp Files\n";
     local cppGen = CppFileGenerator.new();
-    cppGen:iterateNodes(context.Root.Children, path); 
+    cppGen:iterateNodes(library.Context.Root.Children, path); 
 end
