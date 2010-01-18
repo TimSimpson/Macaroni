@@ -29,9 +29,13 @@ public:
 	/** The root Node could be considered the global namespace. */
 	NodePtr GetRoot();
 
+	LibraryPtr GetRootLibrary();
+
 private:
 
-	std::vector<Library> libraries;
+	bool hasBeenDeleted;
+
+	std::vector<Library *> libraries;
 
 	//ScopeMember * findMember(const Node * scope, const std::string & complexName);
 

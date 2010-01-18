@@ -8,26 +8,33 @@
 BEGIN_NAMESPACE2(Macaroni, Model)
 
 Context::Context(const std::string & rootName)
-:libraries(),
+:hasBeenDeleted(false),
+ libraries(),
  referenceCount(0), 
  root(nullptr)
 {
 	root = new Node(nullptr, rootName);
 	root->context = this;
+
+	libraries.push_back(new Library(this, "%ROOT%", ""));
 }
 	
 Context::~Context()
 {
 	MACARONI_ASSERT(referenceCount == 0, "Ref count != 0 on Context destruction!");
 	delete root;
-
+	for (unsigned int i = 0; i < libraries.size(); i ++)
+	{
+		delete libraries[i];
+	}
+	hasBeenDeleted = true;
 }
 
 LibraryPtr Context::CreateLibrary(const std::string & name, const std::string & version)
 {
-	libraries.push_back(Library(this, name, version));
-	Library & newLib = libraries.back();
-	return LibraryPtr(&newLib);
+	libraries.push_back(new Library(this, name, version));
+	Library * newLib = libraries.back();
+	return LibraryPtr(newLib);
 }
 
 int Context::GetReferenceCount() const
@@ -38,6 +45,12 @@ int Context::GetReferenceCount() const
 NodePtr Context::GetRoot()
 {
 	return NodePtr(root);
+}
+
+LibraryPtr Context::GetRootLibrary()
+{
+	Library * lib = libraries[0];
+	return LibraryPtr(lib);
 }
 
 void Context::onAddReference()

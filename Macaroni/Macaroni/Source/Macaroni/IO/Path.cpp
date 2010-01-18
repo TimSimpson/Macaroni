@@ -3,12 +3,12 @@
 
 #include "Path.h"
 #include <boost/filesystem/convenience.hpp>
-#include "../../Gestalt/FileSystem/FileSet.h"
+#include "../IO/FileSet.h"
 #include "../Exception.h"
 #include <iostream>
 #include <sstream>
 
-using Gestalt::FileSystem::FileSet;
+using Macaroni::IO::FileSet;
 
 BEGIN_NAMESPACE2(Macaroni, IO)
 
@@ -46,10 +46,36 @@ void Path::assertPathExistsInRootPath()
 	}
 }
 
+void Path::CopyDirectoryContents(boost::filesystem::path & bSrc,
+								 boost::filesystem::path & bDst)
+{
+	Path src(bSrc, bSrc);
+	CopyDirectoryContents(src, bDst);
+}
+
+void Path::CopyDirectoryContents(Path & src,
+								 boost::filesystem::path & bDst)
+{
+	PathListPtr paths = src.GetPaths();
+	for(unsigned int i = 0; i < paths->size(); i ++)
+	{
+		PathPtr p = (*paths)[i];
+		if (!p->IsDirectory())
+		{
+			p->CopyToDifferentRootPath(bDst);
+		} 
+		else
+		{
+			CopyDirectoryContents(*p, bDst);
+		}
+	}
+}
+
 void Path::CopyToDifferentRootPath(boost::filesystem::path newRootPath)
 {
 	boost::filesystem::path dstPath = newRootPath / GetRelativePath();
 	boost::filesystem::create_directories(dstPath.branch_path());
+	boost::filesystem::remove(dstPath);
 	boost::filesystem::copy_file(this->path, dstPath);
 }
 

@@ -3,7 +3,7 @@
 
 #include "../ME.h"
 #include "../Model/Context.h"
-#include "../../Gestalt/FileSystem/FileSet.h"
+#include "../IO/FileSet.h"
 #include "../Model/Library.h"
 #include "../Model/MemberVisitor.h"
 #include <fstream>
@@ -16,7 +16,7 @@ boost::filesystem::path GetGeneratorsPath();
 /** Looks for the Generator file first in the given FileSet of local directories
  * (it appends the file name to each one) and then in the Generator path. 
  */
-boost::filesystem::path ResolveGeneratorPath(const std::vector<Gestalt::FileSystem::FileSet> & srcDirs,
+boost::filesystem::path ResolveGeneratorPath(const std::vector<Macaroni::IO::FileSet> & srcDirs,
 											 const std::string & guess);
 
 void RunDynamicGenerator(Model::LibraryPtr library, 

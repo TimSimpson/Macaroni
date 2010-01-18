@@ -74,6 +74,45 @@ void LuaEnvironment::GetFromGlobalVarOrDefault(std::string & rtnValue, const cha
 	lua_pop(state, 1);
 }
 
+std::vector<StringPair> LuaEnvironment::GetStringPairsFromGlobalTable(const char * tableName)
+{
+	lua_getglobal(state, tableName);
+	if (lua_isnil(state, -1))
+	{
+		std::vector<StringPair> bag;
+		return bag;
+	}
+	else
+	{
+		return GetStringPairsFromTable();
+	}
+	lua_pop(state, 1);
+}
+
+std::vector<StringPair> LuaEnvironment::GetStringPairsFromTable()
+{
+	std::vector<StringPair> bag;
+	
+	lua_pushnil(state); // first key
+	const int tableIndex = -2;
+	while(lua_next(state, tableIndex)  != 0)
+	{
+		StringPair entry;		
+		if (lua_isstring(state, -2))
+		{
+			entry.Name = lua_tolstring(state, -2, NULL);
+			if (lua_isstring(state, -1))
+			{
+				entry.Value = lua_tolstring(state, -1, NULL);				
+				bag.push_back(entry);
+			}
+		}
+		lua_pop(state, 1); // pops off value, saves key
+	}
+	
+	return bag;
+}
+
 std::vector<const std::string> LuaEnvironment::GetVectorFromCurrentTable(const char * tableName)
 {
 	if (!(lua_istable(state, -1)))

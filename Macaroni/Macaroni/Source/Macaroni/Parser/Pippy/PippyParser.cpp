@@ -323,10 +323,14 @@ private:
 	NodePtr currentScope;
 	std::string hFilesForNewNodes;
 	NodeListPtr importedNodes;
+	LibraryPtr library;
 public:
 
-	ParserFunctions(ContextPtr context)
-		:context(context), currentScope(context->GetRoot()), importedNodes(new NodeList())
+	ParserFunctions(ContextPtr context, LibraryPtr library)
+		:context(context), 
+		 currentScope(context->GetRoot()), 
+		 importedNodes(new NodeList()),
+		 library(library)
 	{			
 		MACARONI_ASSERT(!!CppContext::GetPrimitives(context),
 			"Cpp nodes must be found to parse successfully.");
@@ -394,7 +398,7 @@ public:
 
 		NodePtr oldScope = currentScope;
 		currentScope = currentScope->FindOrCreate(name, hFilesForNewNodes);
-		Class::Create(currentScope, importedNodes,  
+		Class::Create(library, currentScope, importedNodes,  
 			Reason::Create(CppAxioms::ClassCreation(), newItr.GetSource()));
 
 		ConsumeWhitespace(newItr);
@@ -1032,8 +1036,9 @@ public:
 	static void FindNodeTest()
 	{
 		ContextPtr c(new Context("{ROOT}"));
+		LibraryPtr l = c->CreateLibrary("FindNodeTest", "");
 		CppContext::CreateCppNodes(c);
-		ParserFunctions funcs(c);
+		ParserFunctions funcs(c, l);
 
 		// It is found.
 		NodePtr nodeInt = funcs.FindNode(std::string("signed int"));
@@ -1058,7 +1063,8 @@ public:
 	{
 		ContextPtr c(new Context("{ROOT}"));
 		CppContext::CreateCppNodes(c);
-		ParserFunctions funcs(c);
+		LibraryPtr l = c->CreateLibrary("FindNodeFromImportsTest", "");
+		ParserFunctions funcs(c, l);
 
 		// It is found.
 		NodePtr nodeInt = funcs.FindNodeFromImports(std::string("signed int"));
@@ -1274,7 +1280,7 @@ public:
 		{
 			if (ns->GetMember() == nullptr)
 			{
-				Namespace::Create(ns, 
+				Namespace::Create(library, ns, 
 					Reason::Create(CppAxioms::NamespaceCreation(), newItr.GetSource()));
 			}
 			ns = ns->GetNode();
@@ -1776,7 +1782,7 @@ PippyParserPtr PippyParser::Create()
 int PippyParser::Read(Model::LibraryPtr l, Model::SourcePtr source, const std::string & text)
 {
 	CppContext::CreateCppNodes(l->GetContext());
-	ParserFunctions funcs(l->GetContext());		
+	ParserFunctions funcs(l->GetContext(), l);		
 	Iterator itr(text.begin(), 
 			   text.end(), 
 			   source);

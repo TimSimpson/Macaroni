@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <boost/shared_ptr.hpp>
+#include "../Library.lh"
 #include "../Member.h"
 #include "../MemberVisitor.h"
 #include "Namespace.lh"
@@ -18,7 +19,7 @@ friend struct NamespaceLuaFunctions;
 friend void intrusive_ptr_add_ref(Namespace * p);
 friend void intrusive_ptr_release(Namespace * p);
 public:	
-	static NamespacePtr Create(NodePtr home, ReasonPtr reason);
+	static NamespacePtr Create(LibraryPtr library, NodePtr home, ReasonPtr reason);
 
 	//ClassPtr FindClass(std::string & name);
 
@@ -40,7 +41,7 @@ public:
 	virtual void Visit(MemberVisitor * visitor) const;
 
 protected:	
-	Namespace(Node * home, ReasonPtr reason);
+	Namespace(Library * library, Node * home, ReasonPtr reason);
 private:
 	
 	/** Assumes the given namespace does not exist and creates it as a child

@@ -5,10 +5,12 @@
 #include <boost/filesystem/convenience.hpp>
 #include "../../Environment/Process.h"
 #include <sstream>
+#include "../../Environment/StringPair.h"
 
 using Macaroni::Environment::Console;
 using Macaroni::IO::Path;
 using Macaroni::Environment::Process;
+using Macaroni::Environment::StringPair;
 
 BEGIN_NAMESPACE(Macaroni, Build, Cpp)
 
@@ -52,7 +54,9 @@ bool CppFile::Compile(CompilerSettings & settings,
 		args << " -I\"" << configIncludePaths[i] << "\"";
 	}
 
-	Process process(settings.GetCompilerExe(), args.str(), objPath.branch_path(), settings.GetPaths());
+	Process process(settings.GetCompilerExe(), args.str(), 
+					objPath.branch_path(), settings.GetPaths(), 
+					settings.GetEnvironmentVariables());
 	process.Run(console);	
 	
 	return ObjectFileExists();

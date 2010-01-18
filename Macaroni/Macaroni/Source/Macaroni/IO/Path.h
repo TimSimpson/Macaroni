@@ -13,7 +13,9 @@ typedef boost::shared_ptr<Path> PathPtr;
 typedef std::vector<PathPtr> PathList;
 typedef boost::shared_ptr<PathList> PathListPtr;
 
-/** Directory or file relative to the root output folder. */
+/** Directory or file relative to another directory or file.
+ * This class is surprisingly useful as many Macaroni operations involve 
+ * dealing with relative paths with an assumed root directory. */
 class Path
 {
 public:
@@ -21,6 +23,12 @@ public:
 	Path(const Path & other); 
 	Path(boost::filesystem::path rootPath, boost::filesystem::path path);
 	
+	static void CopyDirectoryContents(boost::filesystem::path & src,
+									  boost::filesystem::path & dst);
+
+	static void CopyDirectoryContents(Path & src,
+									  boost::filesystem::path & dst);
+
 	/** An example would be to copy a file from "src/blah/a.txt" to 
 	 * "output/blah/a.txt", where "src" is the original root path and
 	 * "output" is the argument to this function. */

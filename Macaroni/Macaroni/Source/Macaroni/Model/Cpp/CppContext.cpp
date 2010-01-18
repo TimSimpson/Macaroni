@@ -30,7 +30,8 @@ void CppContext::CreateCppNodes(ContextPtr & context)
 	{
 		FileNamePtr file = FileName::Create(std::string("Cpp Parser"));
 		SourcePtr src = Source::Create(file, 0, 0);
-		Namespace::Create(context->GetRoot(), 
+		Namespace::Create(context->GetRootLibrary(),
+			              context->GetRoot(), 
 						  Reason::Create(MessageAxiom::Create("CppAxioms.NamespaceRoot"), src)
 						  );
 	}

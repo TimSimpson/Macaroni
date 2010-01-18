@@ -2,6 +2,7 @@
 #define MACARONI_BUILD_MANIFESTID_H
 
 #include "../ME.h"
+#include <boost/filesystem/operations.hpp>
 #include <string>
 #include <vector>
 
@@ -13,6 +14,7 @@ class ManifestId
 public:
 	ManifestId(){}
 	
+	boost::filesystem::path FindFinalManifestFile() const;
 
 	inline const std::string & GetGroup() const
 	{

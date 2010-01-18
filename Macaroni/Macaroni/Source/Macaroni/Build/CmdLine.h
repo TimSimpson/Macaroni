@@ -27,6 +27,7 @@ private:
 	void directCompile();
 	bool endPrompt;
 	std::string inputPath;	
+	bool install;
 	std::string luaTestsPath;
 	std::string manifestPath;
 	std::string outputPath;

@@ -14,12 +14,14 @@ namespace Macaroni { namespace Build {
 class Manifest
 {
 public:
+	Manifest();
+
 	Manifest(const boost::filesystem::path & manifestFile);
 	
 	inline std::string GetDescription() const
 	{
 		return description;
-	}
+	}	
 
 	inline const std::string & GetCppOutput() const
 	{
@@ -43,6 +45,16 @@ public:
 		return fOutput;
 	}
 
+	inline const std::string & GetGroup() const
+	{
+		return group;
+	}
+
+	inline const boost::filesystem::path & GetManifestFile() const
+	{
+		return manifestFile;
+	}
+
 	inline const std::string GetMOutput() const
 	{
 		return mOutput;
@@ -54,7 +66,7 @@ public:
 	}
 
 
-	inline const IO::Path & GetRootDirectory() const
+	inline const boost::filesystem::path & GetRootDirectory() const
 	{
 		return rootDirectory;
 	}
@@ -69,24 +81,31 @@ public:
 		return version;
 	}
 
+	void SaveAs(boost::filesystem::path & filePath);
+
 	inline void SetDescription(std::string & value)
 	{
 		description = value;
 	}
 
+	inline void SetMSource(std::vector<const std::string> & value)
+	{
+		mSource = value;
+	}
 private:	
 	std::vector<const Configuration> configurations;
 	std::string cppOutput;
 	std::string description;
-	std::string fOutput;
+	std::string fOutput;	
 	//std::vector<std::string> generators;
+	std::string group;
 	ManifestId id;	
-	std::vector<const std::string> cInclude;
 	std::string cppHeadersOutput;
+	boost::filesystem::path manifestFile;
 	std::string mOutput;
 	std::vector<const std::string> mSource;
 	std::string name;
-	IO::Path rootDirectory;
+	boost::filesystem::path rootDirectory;
 	std::string version;
 };
 

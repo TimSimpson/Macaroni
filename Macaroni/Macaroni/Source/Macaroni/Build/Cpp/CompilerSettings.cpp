@@ -5,6 +5,7 @@
 #include "../../Environment/LuaEnvironment.h"
 
 using Macaroni::Environment::LuaEnvironment;
+using Macaroni::Environment::StringPair;
 
 BEGIN_NAMESPACE(Macaroni, Build, Cpp)
 
@@ -16,7 +17,7 @@ CompilerSettings::CompilerSettings()
  firstLinkedObjects(),
  includePaths(),
  linkerExe(),
- linkerPaths(),
+ linkerLibraryPaths(),
  oSwitch(),
  paths(),
  preprocessorDirectives()
@@ -31,7 +32,7 @@ CompilerSettings::CompilerSettings(const boost::filesystem::path & filePath)
  firstLinkedObjects(),
  includePaths(),
  linkerExe(),
- linkerPaths(),
+ linkerLibraryPaths(),
  oSwitch(),
  paths(),
  preprocessorDirectives()
@@ -47,9 +48,9 @@ CompilerSettings::CompilerSettings(const boost::filesystem::path & filePath)
 	env.GetFromGlobalVarOrDefault(firstLinkedObjects, "firstLinkedObjects", "");
 	includePaths = env.GetVectorFromGlobalTable("includePaths");
 	env.GetFromGlobalVarOrDefault(linkerExe, "linkerExe", "");
-	linkerPaths = env.GetVectorFromGlobalTable("linkerPaths");
+	linkerLibraryPaths = env.GetVectorFromGlobalTable("linkerLibraryPaths");
 	env.GetFromGlobalVarOrDefault(oSwitch, "oSwitch", "");
-	environmentVariables = env.GetVectorFromGlobalTable("environmentVariables");
+	environmentVariables = env.GetStringPairsFromGlobalTable("environmentVariables");
 	paths = env.GetVectorFromGlobalTable("paths");
 	preprocessorDirectives = env.GetVectorFromGlobalTable("preprocessorDirectives");
 }

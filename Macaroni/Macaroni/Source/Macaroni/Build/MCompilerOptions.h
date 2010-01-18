@@ -2,7 +2,7 @@
 #define MACARONI_BUILD_MCOMPILEROPTIONS_H
 
 #include <boost/filesystem/operations.hpp>
-#include "../../Gestalt/FileSystem/FileSet.h"
+#include "../IO/FileSet.h"
 #include <string>
 #include <vector>
 
@@ -12,7 +12,7 @@ namespace Macaroni { namespace Build {
 class MCompilerOptions
 {
 public:
-	MCompilerOptions(const std::vector<Gestalt::FileSystem::FileSet> & input, 
+	MCompilerOptions(const std::vector<Macaroni::IO::FileSet> & input, 
 					 const boost::filesystem::path & output,
 					 const std::vector<const std::string> generators);
 
@@ -23,7 +23,7 @@ public:
 		return generators;
 	}
 
-	inline const std::vector<Gestalt::FileSystem::FileSet> & GetInput() const
+	inline const std::vector<Macaroni::IO::FileSet> & GetInput() const
 	{
 		return input;
 	}
@@ -36,7 +36,7 @@ public:
 
 private:
 	const std::vector<const std::string> generators;
-	std::vector<Gestalt::FileSystem::FileSet> input;
+	std::vector<Macaroni::IO::FileSet> input;
 	boost::filesystem::path output;	
 };
 

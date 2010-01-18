@@ -10,6 +10,7 @@ extern "C" {
 
 #include <fstream>
 #include <string>
+#include "StringPair.h"
 #include <vector>
 
 BEGIN_NAMESPACE2(Macaroni, Environment)
@@ -31,6 +32,10 @@ public:
 	lua_State * GetState();
 
 	void BLARGOS();
+
+	std::vector<StringPair> GetStringPairsFromGlobalTable(const char * tableName);
+
+	std::vector<StringPair> GetStringPairsFromTable();
 
 	/** Assumes that a table is at the top of the stack, and finds a table within
 	 * this table to read an array from. */

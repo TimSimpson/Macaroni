@@ -19,7 +19,7 @@
 #include "../Parser/ParserExceptionLua.h"
 #include "../IO/PathLua.h"
 #include "../Parser/Cpp/CppParserLua.h"
-#include "../../Gestalt/FileSystem/Paths.h"
+#include "../IO/Paths.h"
 #include "../Parser/Pippy/PippyParserLua.h"
 #include "../Model/SourceLua.h"
 #include <sstream>
@@ -84,7 +84,7 @@ void LuaEnvironment::registerInternalLuaModules()
 	TCHAR szDirectory[SZDIRECTORYSIZE];
 	MACARONI_ASSERT(GetCurrentDirectory(SZDIRECTORYSIZE - 1, szDirectory) != 0,
 					"Failure getting working directory!");
-	std::string directory = Gestalt::FileSystem::Paths::GetExeDirectoryPath();
+	std::string directory = Macaroni::IO::Paths::GetExeDirectoryPath();
 	///*char directory[SZDIRECTORYSIZE];
 	//int ret = WideCharToMultiByte(CP_ACP, 0, szDirectory, -1, 
 	//							  directory, 256, NULL, NULL);

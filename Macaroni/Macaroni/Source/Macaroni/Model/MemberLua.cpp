@@ -5,6 +5,7 @@
 #include "Cpp/ClassLua.h"
 #include "Cpp/ConstructorLua.h"
 #include "Cpp/FunctionLua.h"
+#include "LibraryLua.h"
 #include "MemberLua.h"
 #include "Member.h"
 #include "Node.h"
@@ -75,7 +76,17 @@
 			}
 			return 1;
 		}
-		
+			
+		LibraryMember * lm;
+		if ((lm = dynamic_cast<LibraryMember *>(ptr.get())) != nullptr)
+		{
+			if (index == "Library")
+			{
+				LibraryLuaMetaData::PutInstanceOnStack(L, lm->GetLibrary());
+				return 1;
+			}
+		}
+
 		if (!!boost::dynamic_pointer_cast<Cpp::Class>(ptr))
 		{
 			int rtnCnt = Cpp::ClassLuaMetaData::Index(L, boost::dynamic_pointer_cast<Cpp::Class>(ptr), index);

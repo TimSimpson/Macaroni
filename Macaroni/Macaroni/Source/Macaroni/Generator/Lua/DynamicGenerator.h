@@ -32,6 +32,8 @@ public:
 	bool Run();
 
 private:
+	boost::filesystem::path luaFilePath;
+
 	Model::LibraryPtr library;
 
 	Macaroni::Environment::LuaEnvironment env;

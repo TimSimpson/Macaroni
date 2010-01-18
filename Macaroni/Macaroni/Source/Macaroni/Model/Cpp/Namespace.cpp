@@ -3,6 +3,7 @@
 
 #include "Namespace.h"
 #include "../../Exception.h"
+#include "../Library.h"
 #include "../Node.h"
 #include <memory>
 #include <sstream>
@@ -11,8 +12,8 @@ using class Macaroni::Model::Node;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-Namespace::Namespace(Node * parent, ReasonPtr reason)
-:Scope(parent, "Namespace", reason)
+Namespace::Namespace(Library * library, Node * parent, ReasonPtr reason)
+:Scope(library, parent, "Namespace", reason)
 {
 }
 
@@ -26,9 +27,9 @@ bool Namespace::canBeChildOf(const Member * other) const
 	return dynamic_cast<const Namespace *>(other) != nullptr;
 }
 
-NamespacePtr Namespace::Create(NodePtr parent, ReasonPtr reason)
+NamespacePtr Namespace::Create(LibraryPtr library, NodePtr parent, ReasonPtr reason)
 {
-	return NamespacePtr(new Namespace(parent.get(), reason));
+	return NamespacePtr(new Namespace(library.get(), parent.get(), reason));
 }
 
 const char * Namespace::GetTypeName() const

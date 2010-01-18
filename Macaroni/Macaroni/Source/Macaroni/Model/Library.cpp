@@ -16,6 +16,11 @@ Library::Library(Context * context, const std::string & name, const std::string 
 {
 }
 
+Library::~Library()
+{
+	int five = 5;
+}
+
 void intrusive_ptr_add_ref(Library * p)
 {
 	intrusive_ptr_add_ref(p->context);

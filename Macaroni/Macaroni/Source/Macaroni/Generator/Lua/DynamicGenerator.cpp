@@ -4,6 +4,7 @@
 #include "DynamicGenerator.h"
 #include "../../Model/ContextLua.h"
 #include "../../Exception.h"
+#include "../../Model/LibraryLua.h"
 #include "../../IO/Path.h"
 #include "../../IO/PathLua.h"
 #include <iostream>
@@ -11,6 +12,7 @@
 
 using Macaroni::Model::ContextLuaMetaData;
 using Macaroni::Model::Library;
+using Macaroni::Model::LibraryLuaMetaData;
 using Macaroni::Model::LibraryPtr;
 using Macaroni::IO::Path;
 using Macaroni::IO::PathLuaMetaData;
@@ -24,7 +26,8 @@ DynamicGenerator::DynamicGenerator
 	const boost::filesystem::path & rootPath,
 	const boost::filesystem::path & luaFile	
 )
-:	library(library),
+:	luaFilePath(luaFile),
+    library(library),
 	env(),
 	rootPath(rootPath)
 {
@@ -45,7 +48,7 @@ bool DynamicGenerator::Run()
 	
 	// call Generate(context, rootPath, output);
 	lua_getglobal(L, "Generate");
-	ContextLuaMetaData::PutInstanceOnStack(L, library->GetContext());
+	LibraryLuaMetaData::PutInstanceOnStack(L, library);
 	
 	PathPtr path(new Path(rootPath, rootPath));
 	PathLuaMetaData::PutInstanceOnStack(L, path);
@@ -59,7 +62,7 @@ bool DynamicGenerator::Run()
 	if (eCode != 0)
 	{	
 		std::stringstream ss;
-		ss << "Error running Lua:";
+		ss << "Error running Generator \"" << luaFilePath.string() << "\":";
 		ss << luaL_checkstring(L, -1);
 		//std::cerr << ss.str() << std::endl;
 		throw Macaroni::Exception(ss.str().c_str());

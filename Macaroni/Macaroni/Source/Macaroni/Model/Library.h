@@ -20,6 +20,7 @@ friend void intrusive_ptr_add_ref(Library * p);
 friend void intrusive_ptr_release(Library * p);
 
 public:			
+	~Library();
 
 	inline ContextPtr GetContext() const
 	{

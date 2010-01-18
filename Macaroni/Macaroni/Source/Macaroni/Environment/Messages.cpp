@@ -4,10 +4,10 @@
 #include "Messages.h"
 
 #include <fstream>
-#include "../../Gestalt/FileSystem/Paths.h"
+#include "../IO/Paths.h"
 #include <sstream>
 
-using Gestalt::FileSystem::Paths;
+using Macaroni::IO::Paths;
 
 BEGIN_NAMESPACE2(Macaroni, Environment)
 

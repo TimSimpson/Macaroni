@@ -13,7 +13,7 @@
 #include "../Exception.h"
 #include "../Environment/LuaEnvironment.h"
 #include "../Environment/Messages.h"
-#include "../../Gestalt/FileSystem/FileSet.h"
+#include "../IO/FileSet.h"
 #include <vector>
 #include <string>
 #include <sstream>
@@ -23,7 +23,7 @@ using Macaroni::Build::MCompiler;
 using Macaroni::Build::MCompilerOptions;
 using Macaroni::Model::Context;
 using Macaroni::Model::ContextPtr;
-using Gestalt::FileSystem::FileSet;
+using Macaroni::IO::FileSet;
 using Macaroni::Model::Library;
 using Macaroni::Model::LibraryPtr;
 using Macaroni::Environment::Messages;
@@ -37,6 +37,7 @@ CmdLine::CmdLine(const std::vector<const std::string> & args, Console & console)
   debugMode(false),
   endPrompt(false),
   inputPath(""),
+  install(false),
   luaTestsPath(""),
   manifestPath(""),
   outputPath("")
@@ -127,6 +128,10 @@ void CmdLine::parseArg(const std::string & arg, const std::string & next)
 	{
 		debugMode = true;
 	}
+	else if (arg == "-install")
+	{
+		install = true;
+	}
 	else if (arg == "-luaTests")
 	{
 		if (next.empty())
@@ -215,7 +220,7 @@ void CmdLine::runManifest()
 	const Configuration & mRefConfig = *mConfig;
 
 	ContextPtr context(new Context("%ROOT%"));
-	Builder builder(context, manifest, mRefConfig, console);
+	Builder builder(context, manifest, mRefConfig, console, install);
 	builder.Execute();
 }
 

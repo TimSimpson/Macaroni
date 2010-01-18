@@ -2,6 +2,7 @@
 #define MACARONI_MODEL_CPP_SCOPE_CPP
 
 #include "Scope.h"
+#include "../Library.h"
 #include "../Node.h"
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
@@ -16,9 +17,15 @@ void intrusive_ptr_release(Scope * p)
 	intrusive_ptr_add_ref((ScopeMember *)p);
 }
 
-Scope::Scope(Node * node, const char * typeName, ReasonPtr reason)
-:ScopeMember(node, typeName, reason)
+Scope::Scope(Library * library, Node * node, const char * typeName, ReasonPtr reason)
+:ScopeMember(node, typeName, reason),
+ library(library)
 {
+}
+
+LibraryPtr Scope::GetLibrary() const
+{
+	return LibraryPtr(library);
 }
 
 size_t Scope::GetMemberCount() const

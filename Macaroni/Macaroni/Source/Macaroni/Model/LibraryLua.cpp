@@ -6,6 +6,7 @@ extern "C" {
 	#include "../../Lua/lauxlib.h"
 	#include "../../Lua/lualib.h"
 }
+#include "ContextLua.h"
 #include "../Exception.h"
 #include "../Environment/DebugLog.h"
 #include "FileNameLua.h"
@@ -109,7 +110,12 @@ static const struct luaL_Reg metaTableMethods[]=
 
 int LibraryLuaMetaData::Index(lua_State * L, LibraryPtr & ptr, const std::string & index)
 {	
-	if (index == "Name") 
+	if (index == "Context")
+	{
+		ContextLuaMetaData::PutInstanceOnStack(L, ptr->GetContext());
+		return 1;
+	}
+	else if (index == "Name") 
 	{
 		lua_pushstring(L, ptr->GetName().c_str());
 		return 1;

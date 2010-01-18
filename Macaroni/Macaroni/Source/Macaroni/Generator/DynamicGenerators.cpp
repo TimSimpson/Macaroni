@@ -3,14 +3,14 @@
 
 #include "DynamicGenerators.h"
 #include "Lua/DynamicGenerator.h"
-#include "../../Gestalt/FileSystem/FileSet.h"
+#include "../IO/FileSet.h"
 #include "../Model/Library.h"
 #include <iostream>
-#include "../../Gestalt/FileSystem/Paths.h"
+#include "../IO/Paths.h"
 #include <sstream>
 
 using Macaroni::Model::ContextPtr;
-using Gestalt::FileSystem::FileSet;
+using Macaroni::IO::FileSet;
 using Macaroni::Model::Library;
 using Macaroni::Model::LibraryPtr;
 using boost::filesystem::path;
@@ -19,7 +19,7 @@ BEGIN_NAMESPACE2(Macaroni, Generator)
 
 path GetGeneratorsPath()
 {
-	std::string exePath = Gestalt::FileSystem::Paths::GetExeDirectoryPath();
+	std::string exePath = Macaroni::IO::Paths::GetExeDirectoryPath();
 	std::stringstream finalFilePath;
 	finalFilePath << exePath << "Generators/";
 
@@ -27,7 +27,7 @@ path GetGeneratorsPath()
 	return generatorPath;
 }
 
-path ResolveGeneratorPath(const std::vector<Gestalt::FileSystem::FileSet> & srcDirs, 
+path ResolveGeneratorPath(const std::vector<Macaroni::IO::FileSet> & srcDirs, 
 						  const std::string & name)
 {	
 	///*FileSet::Iterator end = localDirs.End();
@@ -42,7 +42,7 @@ path ResolveGeneratorPath(const std::vector<Gestalt::FileSystem::FileSet> & srcD
 	//}*/
 	for (unsigned int i = 0; i < srcDirs.size(); i ++)
 	{
-		const Gestalt::FileSystem::FileSet & localDir = srcDirs[i];
+		const FileSet & localDir = srcDirs[i];
 		path guess = localDir.GetRoot() / name;
 		if (boost::filesystem::exists(guess))
 		{
@@ -67,7 +67,7 @@ void RunDynamicGenerator(LibraryPtr library, const path & rootPath, const path &
 
 void RunDynamicGenerators(LibraryPtr library, const path & rootPath)
 {
-	std::string exePath = Gestalt::FileSystem::Paths::GetExeDirectoryPath();	
+	std::string exePath = Macaroni::IO::Paths::GetExeDirectoryPath();	
 	std::stringstream finalFilePath;
 	finalFilePath << exePath << "Generators/";
 

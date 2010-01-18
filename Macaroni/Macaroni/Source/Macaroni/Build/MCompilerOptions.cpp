@@ -3,7 +3,7 @@
 
 #include "MCompilerOptions.h"
 
-using Gestalt::FileSystem::FileSet;
+using Macaroni::IO::FileSet;
 
 namespace Macaroni { namespace Build {
 

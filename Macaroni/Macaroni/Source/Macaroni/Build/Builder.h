@@ -9,6 +9,7 @@
 #include "../Model/Library.lh"
 #include "Manifest.h"
 #include <boost/filesystem/path.hpp>
+#include <boost/shared_ptr.hpp>
 #include <string>
 #include <vector>
 
@@ -20,13 +21,14 @@ public:
 	Builder(Macaroni::Model::ContextPtr context, 
 		    const Manifest & manifest, 
 			const Configuration & config, 
-			Environment::Console & console);
+			Environment::Console & console,
+			bool install = false);
 
 	bool CompileCpp();	
 
 	bool CompileMacaroni();
 
-	bool CopyHeaderFiles();
+	bool CopyHeaderFiles(boost::filesystem::path headersDir);
 
 	bool CreateInterface();
 
@@ -34,15 +36,23 @@ public:
 
 	void Execute();
 
+	bool Install();
+
 	bool Link();
 
 private:
-	Cpp::CompilerSettings cppCompiler;
+	boost::shared_ptr<Cpp::CompilerSettings> cppCompiler;
 	std::vector<Cpp::CppFile> cppFiles;
 	std::vector<const std::string> cppSrcRoots;
 	const Configuration & configuration;
 	const Environment::Console & console;
+
+	void createIncludePaths(std::vector<const std::string> & includes);
+	void createIncludePaths(std::vector<const std::string> & includes,
+						    const Configuration & config);
+
 	boost::filesystem::path findCppCompilerSettingsFile();
+	bool install;
 	Macaroni::Model::LibraryPtr library;
 	const Manifest & manifest;		
 	

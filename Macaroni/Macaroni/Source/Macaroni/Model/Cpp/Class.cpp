@@ -24,8 +24,11 @@ using Macaroni::Model::Cpp::VariablePtr;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-Class::Class(Node * parent, NodeListPtr importedNodes, ReasonPtr reason)
-:Scope(parent, "Class", reason), friends(new NodeList()), globals(new NodeList()), imports(importedNodes)
+Class::Class(Library * library, Node * parent, NodeListPtr importedNodes, ReasonPtr reason)
+:Scope(library, parent, "Class", reason), 
+ friends(new NodeList()), 
+ globals(new NodeList()), 
+ imports(importedNodes)
 {
 }
 
@@ -50,7 +53,7 @@ bool Class::canBeChildOf(const Member * other) const
 	return dynamic_cast<const Scope *>(other) != nullptr;
 }
 
-ClassPtr Class::Create(NodePtr parent, NodeListPtr importedNodes, ReasonPtr reason)
+ClassPtr Class::Create(LibraryPtr library, NodePtr parent, NodeListPtr importedNodes, ReasonPtr reason)
 {
 	MemberPtr existingMember = parent->GetMember();
 	if (!!existingMember)
@@ -68,7 +71,7 @@ ClassPtr Class::Create(NodePtr parent, NodeListPtr importedNodes, ReasonPtr reas
 		return existingClass;
 	}
 	ClassPtr other = boost::dynamic_pointer_cast<Class>(existingMember);
-	return ClassPtr(new Class(parent.get(), importedNodes, reason));
+	return ClassPtr(new Class(library.get(), parent.get(), importedNodes, reason));
 }
 
 bool Class::DoesDefinitionReference(NodePtr node) const

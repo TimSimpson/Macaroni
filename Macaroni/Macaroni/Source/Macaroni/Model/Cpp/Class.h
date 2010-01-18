@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <boost/shared_ptr.hpp>
+#include "../Library.h"
 #include "../Member.h"
 #include "Class.lh"
 #include "Scope.h"
@@ -16,7 +17,7 @@ class Class : public Scope
 friend void intrusive_ptr_add_ref(Class * p);
 friend void intrusive_ptr_release(Class * p);
 public:	
-	static ClassPtr Create(NodePtr home, Model::NodeListPtr importedNodes, ReasonPtr reason);
+	static ClassPtr Create(LibraryPtr library, NodePtr home, Model::NodeListPtr importedNodes, ReasonPtr reason);
 
 	virtual ~Class();
 
@@ -49,7 +50,7 @@ public:
 	virtual void Visit(MemberVisitor * visitor) const;
 
 protected:	
-	Class(Node * home, Model::NodeListPtr importedNodes, ReasonPtr reason);
+	Class(Library * library, Node * home, Model::NodeListPtr importedNodes, ReasonPtr reason);
 private:
 
 	NodeListPtr friends;

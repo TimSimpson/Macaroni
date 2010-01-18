@@ -24,7 +24,7 @@ using boost::filesystem::directory_iterator;
 using Macaroni::Exception;
 using Macaroni::Model::FileName;
 using Macaroni::Model::FileNamePtr;
-using Gestalt::FileSystem::FileSet;
+using Macaroni::IO::FileSet;
 #include <fstream>
 #include <iostream>
 using Macaroni::Model::Library;
@@ -45,12 +45,12 @@ namespace Macaroni { namespace Build {
 class MCompiler
 {
 public:
+	/** Iteratres all input files, parsing each one into the given context. */
+	bool BuildModel(LibraryPtr library, const std::vector<FileSet> filePath);
 	void Compile(LibraryPtr library,
 				 const MCompilerOptions & options);
 
-private:
-	/** Iteratres all input files, parsing each one into the given context. */
-	bool buildModel(LibraryPtr library, const std::vector<FileSet> filePath);
+private:	
 	/** Reads from the model to generates output files. */
 	bool generateFiles(LibraryPtr library, path output, const MCompilerOptions & options);
 	/** Parses the file and stores it into the Model context. */
@@ -90,7 +90,7 @@ void MCompiler::parseFile(LibraryPtr library, path filePath)
 	parser.Read(library, source, fileContents.str());
 }
 
-bool MCompiler::buildModel(LibraryPtr library, const std::vector<FileSet> inputFiles)
+bool MCompiler::BuildModel(LibraryPtr library, const std::vector<FileSet> inputFiles)
 {	
 	std::cout << "Builing Macaroni::Model...\n";
 	for (unsigned int i = 0; i < inputFiles.size(); i ++)
@@ -152,7 +152,7 @@ void MCompiler::Compile(LibraryPtr library, const MCompilerOptions & options)
 //" ----------------------------------------------------------------------------\n"
 //	<< "\n";	
 	
-	if (!buildModel(library, options.GetInput()))
+	if (!BuildModel(library, options.GetInput()))
 	{
 		std::cerr << "GAME OVER\n";
 		return;
