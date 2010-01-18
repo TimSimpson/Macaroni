@@ -44,7 +44,7 @@ suiteNames = {};
 output = {
     enterSuite = function(testName)
         suiteNames[#suiteNames + 1] = testName;
-        --print("[" .. currentSuite .. "]");
+        --print("[" .. testName .. "]\n");
     end,
     
     exitSuite = function(testName)

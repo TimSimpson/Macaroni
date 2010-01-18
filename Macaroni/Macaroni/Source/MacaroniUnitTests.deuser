@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+  <command>F:\Lp3\Projects\Macaroni\Code\trunk\Macaroni\Macaroni\Debug\Macaroni.exe</command>
+  <command_arguments>-luaTests "F:\Lp3\Projects\Macaroni\Code\trunk\Macaroni\Macaroni\Source"</command_arguments>
+  <working_directory>F:\Lp3\Projects\Macaroni\Code\trunk\Macaroni\Macaroni\Debug</working_directory>
+  <symbols_directory>F:\Lp3\Projects\Macaroni\Code\trunk\Macaroni\Macaroni\Debug</symbols_directory>
+  <scc>
+    <provider></provider>
+    <user></user>
+    <project_name></project_name>
+    <local_path></local_path>
+    <aux_project_path></aux_project_path>
+  </scc>
+  <files>
+    <file>
+      <filename>Macaroni\Model\TypeArgumentListTests.lua</filename>
+      <breakpoint>
+        <line>101</line>
+      </breakpoint>
+      <breakpoint>
+        <line>99</line>
+      </breakpoint>
+      <breakpoint>
+        <line>102</line>
+      </breakpoint>
+      <breakpoint>
+        <line>42</line>
+      </breakpoint>
+    </file>
+    <file>
+      <filename>Macaroni\Parser\Pippy\Tests\PippyParserTests_Variables.lua</filename>
+      <breakpoint>
+        <line>447</line>
+      </breakpoint>
+    </file>
+  </files>
+</project>

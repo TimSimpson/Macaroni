@@ -7,7 +7,7 @@
 #include "Macaroni/Environment/LuaEnvironment.h"
 #include "Macaroni/Environment/Messages.h"
 #include "Macaroni/Platform/Windows/Strings.h"
-#include "Gestalt/FileSystem/FileSet.h"
+#include "Macaroni/IO/FileSet.h"
 #include <iostream>
 #include <sstream>
 #include <tchar.h>
@@ -22,7 +22,7 @@ using Macaroni::Build::CmdLine;
 using Macaroni::Environment::Console;
 using Macaroni::Build::MCompiler;
 using Macaroni::Build::MCompilerOptions;
-using Gestalt::FileSystem::FileSet;
+using Macaroni::IO::FileSet;
 using Macaroni::Environment::Messages;
 using Macaroni::Platform::Windows::NonWindowsString;
 using Macaroni::Platform::Windows::WindowsString;
