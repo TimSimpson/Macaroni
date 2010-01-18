@@ -1,0 +1,22 @@
+~import boost::filesystem::path;
+~import std::string;
+
+namespace Macaroni::DependencyTests::Boost
+{
+	class FilePath
+	{
+		path p;
+
+		FilePath(path p)
+			:p(p)
+		{
+		}
+
+		inline const path & GetPath() const
+		{
+			return p;
+		}
+	};
+
+
+}

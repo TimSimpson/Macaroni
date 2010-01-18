@@ -39,8 +39,17 @@ configurations = {
         },
         dependencies =
         {
-            -- No dependencies yet exist, but if they did we'd put 'em here like this:
-            -- localName = module("name","version","configuration")
+            boost = {
+                group="Macaroni",
+                name="Boost",
+                version="1.39.0-0",
+            },
+            std = {
+                group="Macaroni",
+                name="CppStd",
+                version="1.0.0.0",
+                --configuration="all" -- <--  todo: determine how this will work.
+            }
         },
         final = "Test.exe"
     }
