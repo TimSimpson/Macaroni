@@ -290,6 +290,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Macaroni\Platform\Windows\EnvironmentVariable.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Platform\Windows\EnvironmentVariables.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Macaroni\Exception.cpp"
 				>
 			</File>
@@ -302,11 +310,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Gestalt\FileSystem\FileSet.cpp"
+				RelativePath=".\Source\Macaroni\IO\FileSet.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Gestalt\FileSystem\FileSet_Iterator.cpp"
+				RelativePath=".\Source\Macaroni\IO\FileSet_Iterator.cpp"
 				>
 			</File>
 			<File
@@ -462,6 +470,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Macaroni\Build\ManifestId.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Macaroni\Build\MCompiler.cpp"
 				>
 			</File>
@@ -526,7 +538,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Gestalt\FileSystem\Paths.cpp"
+				RelativePath=".\Source\Macaroni\IO\PathResolver.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\IO\Paths.cpp"
 				>
 			</File>
 			<File
@@ -688,6 +704,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Macaroni\Build\ConfigurationId.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Macaroni\Environment\Console.h"
 				>
 			</File>
@@ -748,11 +768,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Generator\Cpp\CppSourceGenerator2.h"
+				RelativePath=".\Source\Macaroni\Generator\CppSourceGenerator2.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Generator\CppSourceGenerator2.h"
+				RelativePath=".\Source\Macaroni\Generator\Cpp\CppSourceGenerator2.h"
 				>
 			</File>
 			<File
@@ -784,6 +804,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Macaroni\Platform\Windows\EnvironmentVariable.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Platform\Windows\EnvironmentVariables.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Macaroni\Exception.h"
 				>
 			</File>
@@ -800,7 +828,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Gestalt\FileSystem\FileSet.h"
+				RelativePath=".\Source\Macaroni\IO\FileNotFoundException.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\IO\FileSet.h"
 				>
 			</File>
 			<File
@@ -845,6 +877,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\Macaroni\Model\LibraryLua.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Model\LibraryMember.h"
 				>
 			</File>
 			<File
@@ -1036,7 +1072,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Gestalt\FileSystem\Paths.h"
+				RelativePath=".\Source\Macaroni\IO\PathResolver.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\IO\Paths.h"
 				>
 			</File>
 			<File
@@ -1081,6 +1121,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\Macaroni\Model\SourceLua.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Environment\StringPair.h"
 				>
 			</File>
 			<File
