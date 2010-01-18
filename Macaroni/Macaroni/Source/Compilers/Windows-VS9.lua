@@ -23,3 +23,10 @@ includePaths=
 {
     [[C:\Program Files\Microsoft DirectX SDK (November 2007)\Include]]
 }
+linkerLibraryPaths=
+{
+    -- C++ std
+    [[C:\Program Files\Microsoft Visual Studio 9.0\VC\lib]],
+    -- Windows
+    [[C:\Program Files\Microsoft SDKs\Windows\v6.0A\Lib]],
+}
