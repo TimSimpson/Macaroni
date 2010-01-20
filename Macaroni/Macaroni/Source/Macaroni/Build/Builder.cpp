@@ -37,6 +37,9 @@ using Macaroni::Model::SourcePtr;
 
 namespace Macaroni { namespace Build {
 
+//TODO: Library dependencies are not added recursively; i.e. all of the dependencies
+//libs are added but nothing past that.
+// TODO: ditto with include files.
 Builder::Builder(ContextPtr context, const Manifest & manifest, const Configuration & config, Console & console, bool install)
 : configuration(config),
   console(console),  

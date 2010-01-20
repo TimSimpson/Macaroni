@@ -38,6 +38,7 @@ CompilerSettings::CompilerSettings(const boost::filesystem::path & filePath)
  preprocessorDirectives()
 {
 	LuaEnvironment env;
+	env.SetPackageDirectory(filePath.branch_path().string());
 	env.ParseFile(filePath.string());
 	env.Run();
 	lua_State * L = env.GetState();
@@ -52,7 +53,7 @@ CompilerSettings::CompilerSettings(const boost::filesystem::path & filePath)
 	env.GetFromGlobalVarOrDefault(oSwitch, "oSwitch", "");
 	environmentVariables = env.GetStringPairsFromGlobalTable("environmentVariables");
 	paths = env.GetVectorFromGlobalTable("paths");
-	preprocessorDirectives = env.GetVectorFromGlobalTable("preprocessorDirectives");
+	preprocessorDirectives = env.GetStringPairsFromGlobalTable("preprocessorDirectives");
 }
 
 END_NAMESPACE

@@ -51,6 +51,11 @@ public:
 		return paths;
 	}
 
+	inline const std::vector<Macaroni::Environment::StringPair> & GetPreprocessorDirectives() const
+	{
+		return preprocessorDirectives;
+	}
+
 	inline void SetIncludePaths(std::vector<const std::string> & value)
 	{
 		includePaths = value;
@@ -69,7 +74,7 @@ private:
 	StrVec linkerLibraryPaths;
 	std::string oSwitch;
 	StrVec paths;
-	StrVec preprocessorDirectives; 	
+	std::vector<Macaroni::Environment::StringPair> preprocessorDirectives; 	
 };
 
 

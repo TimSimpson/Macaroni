@@ -768,11 +768,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Generator\CppSourceGenerator2.h"
+				RelativePath=".\Source\Macaroni\Generator\Cpp\CppSourceGenerator2.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Generator\Cpp\CppSourceGenerator2.h"
+				RelativePath=".\Source\Macaroni\Generator\CppSourceGenerator2.h"
 				>
 			</File>
 			<File
@@ -1040,11 +1040,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Parser\ParserException.h"
+				RelativePath=".\Source\Macaroni\Model\ParserException.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Model\ParserException.h"
+				RelativePath=".\Source\Macaroni\Parser\ParserException.h"
 				>
 			</File>
 			<File
@@ -1216,6 +1216,14 @@
 		</File>
 		<File
 			RelativePath=".\Source\Generators\Macaroni\MhFileGenerator.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\Compilers\Windows-VS9-Console.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\Compilers\Windows-VS9-Lp3.lua"
 			>
 		</File>
 	</Files>

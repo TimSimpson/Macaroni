@@ -30,7 +30,12 @@ fOutput = "MWork/Final"
 configurations = {
     all =
     {
-        compiler = "Windows-VS9",
+        compiler = "Windows-VS9-Console",
+        --compilerOptions = {
+        --    preprocessorDirectives = {
+        --        _MDd=
+        --    },
+        --},
         generators =
         {
             "Cpp.lua",       

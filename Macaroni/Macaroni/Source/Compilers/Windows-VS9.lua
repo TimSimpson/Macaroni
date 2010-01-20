@@ -15,13 +15,12 @@ preprocessorDirectives=
 {
    WIN32="",
    _DEBUG="",
-   _WINDOWS="",
-   COMPILE_TARGET_WINDOWS="",
-   COMPILE_USETOOLS="" 
+   _WINDOWS="",  
+   _UNICODE="",
+   UNICODE="",
 }
 includePaths=
 {
-    [[C:\Program Files\Microsoft DirectX SDK (November 2007)\Include]]
 }
 linkerLibraryPaths=
 {

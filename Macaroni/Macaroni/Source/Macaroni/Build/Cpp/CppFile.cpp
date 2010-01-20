@@ -54,6 +54,17 @@ bool CppFile::Compile(CompilerSettings & settings,
 		args << " -I\"" << configIncludePaths[i] << "\"";
 	}
 
+	for (unsigned int i = 0; i < settings.GetPreprocessorDirectives().size(); i ++)
+	{
+		const StringPair & pair = settings.GetPreprocessorDirectives()[i];
+		args << " /D \"" << pair.Name << "\"";		
+		if (!pair.Value.empty())
+		{
+			args << "=\"" << pair.Value << "\"";
+		}
+		args << " ";
+	}
+
 	Process process(settings.GetCompilerExe(), args.str(), 
 					objPath.branch_path(), settings.GetPaths(), 
 					settings.GetEnvironmentVariables());
