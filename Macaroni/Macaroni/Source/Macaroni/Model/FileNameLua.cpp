@@ -77,7 +77,7 @@ struct FileNameLuaFunctions
 		}
 		return 1;
 	}
-
+ 
 	static int __tostring(lua_State * L)
 	{
 		FileNamePtr & ptr = getInstance(L);

@@ -1,0 +1,241 @@
+~import Macaroni::Build::Builder;
+~import Macaroni::Environment::Console;
+~import Macaroni::Model::Context;
+~import Macaroni::Model::ContextPtr;
+~import Macaroni::IO::FileSet;
+~import Macaroni::Exception;
+~import Macaroni::Model::Library;
+~import Macaroni::Model::LibraryPtr;
+~import Macaroni::Environment::LuaEnvironment;
+~import Macaroni::Build::Manifest;
+~import Macaroni::Build::MCompiler;
+~import Macaroni::Build::MCompilerOptions;
+~import Macaroni::Environment::Messages;
+~import std::string;
+~import std::stringstream;
+~import std::vector;
+
+namespace Macaroni::Build { 
+
+class CmdLine
+{
+	private bool compile;
+	private string config;
+	private Console & console;
+	private bool debugMode;	
+	private bool endPrompt;
+	private bool generate;
+	private string inputPath;	
+	private bool install;
+	private string luaTestsPath;
+	private string manifestPath;
+	private string outputPath;	
+
+	public CmdLine(const vector<const string> & args, Console & console)
+	:	compile(false),
+	    config(""),
+		console(console),
+		debugMode(false),
+		endPrompt(false),
+		generate(false),
+		inputPath(""),
+		install(false),
+		luaTestsPath(""),
+		manifestPath(""),
+		outputPath("")
+	{
+		for(unsigned int i = 0; i < args.size(); i ++)
+		{
+			const std::string arg = args[i];
+			const std::string nextArg;
+			if (i < args.size() - 1) {
+				const std::string nextArg = args[i + 1];
+				parseArg(arg, nextArg);	
+			} else {
+				parseArg(arg, "");
+			}				
+		}	
+	}
+
+	private void directCompile()
+	{
+		if (!inputPath.empty() && outputPath.empty())
+		{
+			console.Write("Missing option outputDirectory.");
+		}
+		else if (inputPath.empty() && !outputPath.empty())
+		{
+			console.Write("Missing option inputDirectory.");
+		}
+		else
+		{
+			console.Write("Executing compiler directly (no manifest).");
+			try
+			{
+				const std::vector<const std::string> generators;
+				std::vector<FileSet> input;
+				input.push_back(FileSet(boost::filesystem::path(inputPath), "\\.mcpp$"));
+				MCompilerOptions options(input, 
+										 boost::filesystem::path(outputPath),
+										 generators);
+				MCompiler compiler;
+				ContextPtr context(new Context(std::string("%ROOT%")));
+				LibraryPtr library = context->CreateLibrary("Command Line", "???");
+				compiler.Compile(library, options);
+			}
+			catch(Macaroni::Exception & ex)
+			{
+				console.Write("UNHANDLED EXCEPTION:\n");
+				console.WriteLine(ex.GetMessage());
+				console.WriteLine(ex.GetSource());
+			} 
+		}
+	}
+
+	public bool EndPrompt()
+	{
+		return endPrompt;
+	}
+
+	public void Execute()
+	{
+		if (!luaTestsPath.empty())
+		{
+			runLuaTests();
+		}
+		else if (!(inputPath.empty() && outputPath.empty()))
+		{
+			directCompile();
+		}		
+		else 
+		{
+			runManifest();// TODO: Read manifest from local directory and attempt build.
+		}
+	}
+
+	private void parseArg(const string & arg, const string & next)
+	{
+		if (arg == "-configuration")
+		{
+			if (next.empty())
+			{
+				config = "";
+			}
+			else
+			{
+				config = next;
+			}
+		}
+		else if (arg == "-compile")
+		{
+			compile = true;
+		}
+		else if (arg == "-debug")
+		{
+			debugMode = true;
+		}
+		else if (arg == "-generate")
+		{
+			generate = true;
+		}
+		else if (arg == "-install")
+		{
+			install = true;
+		}
+		else if (arg == "-luaTests")
+		{
+			if (next.empty())
+			{
+				console.Write("No input specified for luaTests command.");
+			}
+			else
+			{
+				luaTestsPath = next;			
+			}
+		}
+		else if (arg == "-inputDirectory")
+		{
+			if (next.empty())
+			{
+				console.Write("No input directory given following \"-inputDirectory\" arg.");
+			}
+			else
+			{
+				inputPath = next;
+			}
+		}
+		else if (arg == "-manifest")
+		{
+			if (next.empty())
+			{
+				console.WriteLine("No file given following \"manifest\" arg.");
+			}
+			else
+			{
+				manifestPath = next;
+			}
+		}
+		else if (arg == "-outputDirectory")
+		{
+			if (next.empty())
+			{
+				console.Write("No output directory given following \"-outputDirectory\" arg.");
+			}
+			else
+			{
+				outputPath = next;
+			}
+		}
+		else if (arg == "-endprompt")
+		{
+			endPrompt = true;
+		}
+	}
+
+	private void runLuaTests()
+	{
+		console.WriteLine("Running arbitrary LUA files.");
+		Macaroni::Environment::LuaEnvironment lua;
+		lua.SetPackageDirectory(luaTestsPath);
+
+		std::stringstream ss;
+		ss << luaTestsPath << "/Tests.lua";
+		lua.ParseFile(ss.str()); 
+		lua.Run();
+	}
+
+	private void runManifest()
+	{
+		if (manifestPath.empty())
+		{
+			manifestPath = "manifest.lua";
+		}
+
+		if (config.empty())
+		{
+			config = "all";
+		}
+
+		boost::filesystem::path manifestFilePath(manifestPath);	
+		Manifest manifest(manifestFilePath);
+
+		const Configuration * mConfig = manifest.GetConfiguration(config);
+		if (mConfig == nullptr)
+		{
+			console.Write("Could not find config \"");
+			console.Write(config);
+			console.Write("\" in manifest.");
+			return;
+		}
+		const Configuration & mRefConfig = *mConfig;
+
+		ContextPtr context(new Context("%ROOT%"));
+		Builder builder(context, manifest, mRefConfig, console, install);	
+		compile = compile || install;
+		generate = generate || compile;
+		builder.Execute(generate, compile, install);
+	}
+
+} // end class
+
+} // end ns

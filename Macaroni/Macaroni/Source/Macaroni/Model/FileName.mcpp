@@ -1,51 +1,51 @@
-#import Macaroni::Model::FileNamePtr;
-#import std::string;
-#import Macaroni::Model::FileName; // Have to include this line due to a bug in Macaroni.
-
-namespace Macaroni::Model{
-
-/** Represents any file name which could be the Source of Model information. */
-class FileName
-{
-	FileName(const string & name)
-		:name(name), 
-		 referenceCount(0)
-	{
-	}
-
-	~FileName()
-	{
-	}
-
-	FileNamePtr Create(const string & name)
-	{
-		return FileNamePtr(new FileName(name));
-	}
-
-	const string & GetName() const
-	{
-		return name;
-	}
-
-	int GetReferenceCount() const
-	{
-		return referenceCount;
-	}
-
-	global void intrusive_ptr_add_ref(FileName * p)
-	{
-		p->referenceCount ++;
-	}
-
-	global void intrusive_ptr_release(FileName * p)
-	{
-		p->referenceCount --;
-		if (p->referenceCount < 1)
-		{
-			delete p;
-		}
-	}
-
-}
-
-}
+////#import Macaroni::Model::FileNamePtr;
+////#import std::string;
+////#import Macaroni::Model::FileName; // Have to include this line due to a bug in Macaroni.
+////
+////namespace Macaroni::Model{
+////
+/////** Represents any file name which could be the Source of Model information. */
+////class FileName
+////{
+////	FileName(const string & name)
+////		:name(name), 
+////		 referenceCount(0)
+////	{
+////	}
+////
+////	~FileName()
+////	{
+////	}
+////
+////	FileNamePtr Create(const string & name)
+////	{
+////		return FileNamePtr(new FileName(name));
+////	}
+////
+////	const string & GetName() const
+////	{
+////		return name;
+////	}
+////
+////	int GetReferenceCount() const
+////	{
+////		return referenceCount;
+////	}
+////
+////	global void intrusive_ptr_add_ref(FileName * p)
+////	{
+////		p->referenceCount ++;
+////	}
+////
+////	global void intrusive_ptr_release(FileName * p)
+////	{
+////		p->referenceCount --;
+////		if (p->referenceCount < 1)
+////		{
+////			delete p;
+////		}
+////	}
+////
+////}
+////
+////}

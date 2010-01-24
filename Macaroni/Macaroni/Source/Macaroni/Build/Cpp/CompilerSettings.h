@@ -21,6 +21,11 @@ public:
 		return additionalCompilerArgs;
 	}
 
+	inline const std::string & GetAdditionalLinkerArgs() const
+	{
+		return additionalLinkerArgs;
+	}
+
 	inline const std::string & GetCompilerExe() const
 	{
 		return compilerExe;

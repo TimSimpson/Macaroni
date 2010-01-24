@@ -1,5 +1,9 @@
 require "Cpp/Common";
 require "Cpp/ClassFileGenerator";
+require "Macaroni.Model.FileName";
+require "Macaroni.Model.Reason";
+require "Macaroni.Model.Source";
+
 
 local Access = Macaroni.Model.Cpp.Access;
 local Context = Macaroni.Model.Context;
@@ -104,6 +108,10 @@ ClassHFileGenerator = {
             self.writer:write('\n');
         end
         
+        local reason = self.node.Member.ReasonCreated;
+        local src = reason.Source;
+                
+        self:write("// This class was originally defined in " .. tostring(src.FileName) .. "\n");
         self:write("// Forward declaration necessary if this depends on anything which also depend on this.\n");
         if (not self.isNested) then 
             self:namespaceBegin(self.node.Node);

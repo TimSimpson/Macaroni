@@ -1,0 +1,28 @@
+// This file contains foward refs to all types within the project.
+
+class Macaroni::Environment::Console { ~hfile=<Macaroni/Environment/Console.h> }
+class Macaroni::Build::Cpp::CompilerSettings { ~hfile=<Macaroni/Build/Cpp/CompilerSettings.h> }
+class Macaroni::Build::Cpp::CompilerSettingsPtr { ~hfile=<Macaroni/Build/Cpp/CompilerSettings.h> }
+class Macaroni::Build::Configuration { ~hfile=<Macaroni/Build/Configuration.h> }
+class Macaroni::Build::ConfigurationId { ~hfile=<Macaroni/Build/ConfigurationId.h> }
+class Macaroni::Model::Context { ~hfile=<Macaroni/Model/Context.h> }
+class Macaroni::Model::ContextPtr { ~hfile=<Macaroni/Model/Context.lh> }
+class Macaroni::Exception { ~hfile=<Macaroni/Exception.h> }
+class Macaroni::IO::FileSet { ~hfile=<Macaroni/IO/FileSet.h> }
+class Macaroni::Environment::LuaEnvironment { ~hfile=<Macaroni/Environment/LuaEnvironment.h> }
+class Macaroni::Model::Library { ~hfile=<Macaroni/Model/Library.h> }
+class Macaroni::Model::LibraryPtr { ~hfile=<Macaroni/Model/Library.lh> }
+class Macaroni::Build::Manifest { ~hfile=<Macaroni/Build/Manifest.h> }
+class Macaroni::Build::MCompiler { ~hfile=<Macaroni/Build/MCompiler.h> }
+class Macaroni::Build::MCompilerOptions { ~hfile=<Macaroni/Build/MCompilerOptions.h> }
+class Macaroni::Environment::Messages { ~hfile=<Macaroni/Environment/Messages.h> }
+class nullptr { ~hfile=<Macaroni/ME.h> }
+class Macaroni::Parser::ParserException { ~hfile=<Macaroni/Parser/ParserException.h> }
+class Macaroni::IO::Path { ~hfile=<Macaroni/IO/Path.h> }
+class Macaroni::IO::PathPtr { ~hfile=<Macaroni/IO/Path.h> }
+class Macaroni::IO::Paths { ~hfile=<Macaroni/IO/Paths.h> }
+class Macaroni::Environment::Process { ~hfile=<Macaroni/Environment/Process.h> }
+class Macaroni::Model::Source { ~hfile=<Macaroni/Model/Source.h> }
+class Macaroni::Environment::StringPair { ~hfile=<Macaroni/Environment/StringPair.h> }
+
+class boost::filesystem::create_directories { ~hfile=<boost/filesystem/convenience.hpp> }

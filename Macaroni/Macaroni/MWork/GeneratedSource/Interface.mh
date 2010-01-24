@@ -1,0 +1,103 @@
+// Skipping {C++ Primitives}
+namespace Macaroni {
+	// Skipping Environment
+	namespace Build {
+		namespace Cpp {
+			class CompilerSettings {
+				~hfile=<Macaroni/Build/Cpp/CompilerSettings.h>
+			};
+			class CompilerSettingsPtr {
+				~hfile=<Macaroni/Build/Cpp/CompilerSettings.h>
+			};
+			class CppFile {
+				~hfile=<Macaroni/Build/Cpp/CppFile.h>
+				//WARNING: Do not know how to handle obj with Member type Variable.
+				//WARNING: Do not know how to handle src with Member type Variable.
+				//WARNING: Do not know how to handle $ctor with Member type Constructor.
+				//WARNING: Do not know how to handle Compile with Member type Function.
+				//WARNING: Do not know how to handle CreateObjectFileDirectories with Member type Function.
+				//WARNING: Do not know how to handle DeleteObjectFile with Member type Function.
+				//WARNING: Do not know how to handle GetObjectFilePath with Member type Function.
+				//WARNING: Do not know how to handle ObjectFileExists with Member type Function.
+			};
+			class LinkerSettings {
+				~hfile=<Macaroni/Build/Cpp/LinkerSettings.h>
+				//WARNING: Do not know how to handle libPaths with Member type Variable.
+				//WARNING: Do not know how to handle AddCompilerLibPaths with Member type Function.
+				//WARNING: Do not know how to handle AddConfigurationLibPaths with Member type Function.
+				//WARNING: Do not know how to handle GetLibPaths with Member type Function.
+			};
+		}
+		class Configuration {
+			~hfile=<Macaroni/Build/Configuration.h>
+		};
+		class ConfigurationId {
+			~hfile=<Macaroni/Build/ConfigurationId.h>
+		};
+		class Manifest {
+			~hfile=<Macaroni/Build/Manifest.h>
+		};
+		class MCompiler {
+			~hfile=<Macaroni/Build/MCompiler.h>
+		};
+		class MCompilerOptions {
+			~hfile=<Macaroni/Build/MCompilerOptions.h>
+		};
+		class Builder {
+			~hfile=<Macaroni/Build/Builder.h>
+			//WARNING: Do not know how to handle configuration with Member type Variable.
+			//WARNING: Do not know how to handle console with Member type Variable.
+			//WARNING: Do not know how to handle cppCompiler with Member type Variable.
+			//WARNING: Do not know how to handle cppFiles with Member type Variable.
+			//WARNING: Do not know how to handle cppSrcRoots with Member type Variable.
+			//WARNING: Do not know how to handle install with Member type Variable.
+			//WARNING: Do not know how to handle library with Member type Variable.
+			//WARNING: Do not know how to handle linkerSettings with Member type Variable.
+			//WARNING: Do not know how to handle manifest with Member type Variable.
+			//WARNING: Do not know how to handle $ctor with Member type Constructor.
+			//WARNING: Do not know how to handle CompileCpp with Member type Function.
+			//WARNING: Do not know how to handle CompileMacaroni with Member type Function.
+			//WARNING: Do not know how to handle CopyHeaderFiles with Member type Function.
+			//WARNING: Do not know how to handle createCppFileList with Member type Function.
+			//WARNING: Do not know how to handle createCppSrcRoots with Member type Function.
+			//WARNING: Do not know how to handle createIncludePaths with Member type Function.
+			//WARNING: Do not know how to handle createIncludePaths2 with Member type Function.
+			//WARNING: Do not know how to handle CreateInterface with Member type Function.
+			//WARNING: Do not know how to handle CreateInterfaceMh with Member type Function.
+			//WARNING: Do not know how to handle Execute with Member type Function.
+			//WARNING: Do not know how to handle findCppCompilerSettingsFile with Member type Function.
+			//WARNING: Do not know how to handle Install with Member type Function.
+			//WARNING: Do not know how to handle Link with Member type Function.
+		};
+		class CmdLine {
+			~hfile=<Macaroni/Build/CmdLine.h>
+			//WARNING: Do not know how to handle compile with Member type Variable.
+			//WARNING: Do not know how to handle config with Member type Variable.
+			//WARNING: Do not know how to handle console with Member type Variable.
+			//WARNING: Do not know how to handle debugMode with Member type Variable.
+			//WARNING: Do not know how to handle endPrompt with Member type Variable.
+			//WARNING: Do not know how to handle generate with Member type Variable.
+			//WARNING: Do not know how to handle inputPath with Member type Variable.
+			//WARNING: Do not know how to handle install with Member type Variable.
+			//WARNING: Do not know how to handle luaTestsPath with Member type Variable.
+			//WARNING: Do not know how to handle manifestPath with Member type Variable.
+			//WARNING: Do not know how to handle outputPath with Member type Variable.
+			//WARNING: Do not know how to handle $ctor with Member type Constructor.
+			//WARNING: Do not know how to handle directCompile with Member type Function.
+			//WARNING: Do not know how to handle EndPrompt with Member type Function.
+			//WARNING: Do not know how to handle Execute with Member type Function.
+			//WARNING: Do not know how to handle parseArg with Member type Function.
+			//WARNING: Do not know how to handle runLuaTests with Member type Function.
+			//WARNING: Do not know how to handle runManifest with Member type Function.
+		};
+	}
+	// Skipping Model
+	class Exception {
+		~hfile=<Macaroni/Exception.h>
+	};
+	// Skipping IO
+	// Skipping Parser
+}
+class nullptr {
+	~hfile=<Macaroni/ME.h>
+};
