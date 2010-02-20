@@ -3,6 +3,10 @@ require "Cpp/ClassHFileGenerator";
 require "Cpp/NamespaceHFileGenerator";
 require "Cpp/NodeFileGenerator";
 
+require "Macaroni.Model.FileName";
+require "Macaroni.Model.Reason";
+require "Macaroni.Model.Source";
+
 local Access = Macaroni.Model.Cpp.Access;
 local Context = Macaroni.Model.Context;
 local Node = Macaroni.Model.Node;
@@ -27,10 +31,18 @@ HFileGenerator = {
     attemptShortName = false,
     
     createClassGenerator = function (self, node, path)
+        local reason = node.Member.ReasonCreated;
+        local srcFile = tostring(reason.Source.FileName);        
         local filePath = path:NewPath(".h");
-        local cg = ClassHFileGenerator.new{node = node, path = filePath};
-        return cg;
+        if (filePath:IsFileOlderThan(srcFile)) then            
+            local cg = ClassHFileGenerator.new{node = node, path = filePath};
+            return cg;
+        else
+            -- Skip if no new changes detected.
+            return { parse = function() end };
+        end        
     end,
+    
     
     createNamespaceFileGenerator = function (self, node, path)
         local filePath = path:NewPath("/_.h");

@@ -1,21 +1,27 @@
 // This file contains foward refs to all types within the project.
 
+class Macaroni::Model::Cpp::Access { ~hfile=<Macaroni/Model/Cpp/Access.h> }
+class Macaroni::Model::Cpp::AccessLuaMetaData { ~hfile=<Macaroni/Model/Cpp/AccessLua.h> }
+class Macaroni::Model::Cpp::Class { ~hfile=<Macaroni/Model/Cpp/Class.h> }
+class Macaroni::Model::Cpp::ClassPtr { ~hfile=<Macaroni/Model/Cpp/ClassPtr.h> }
 class Macaroni::Environment::Console { ~hfile=<Macaroni/Environment/Console.h> }
 class Macaroni::Build::Cpp::CompilerSettings { ~hfile=<Macaroni/Build/Cpp/CompilerSettings.h> }
 class Macaroni::Build::Cpp::CompilerSettingsPtr { ~hfile=<Macaroni/Build/Cpp/CompilerSettings.h> }
 class Macaroni::Build::Configuration { ~hfile=<Macaroni/Build/Configuration.h> }
 class Macaroni::Build::ConfigurationId { ~hfile=<Macaroni/Build/ConfigurationId.h> }
 class Macaroni::Model::Context { ~hfile=<Macaroni/Model/Context.h> }
-class Macaroni::Model::ContextPtr { ~hfile=<Macaroni/Model/Context.lh> }
+class Macaroni::Model::ContextPtr { ~hfile=<Macaroni/Model/ContextPtr.h> }
 class Macaroni::Exception { ~hfile=<Macaroni/Exception.h> }
 class Macaroni::IO::FileSet { ~hfile=<Macaroni/IO/FileSet.h> }
+class boost::intrusive_ptr { ~hfile=<boost/shared_ptr.hpp> }
 class Macaroni::Environment::LuaEnvironment { ~hfile=<Macaroni/Environment/LuaEnvironment.h> }
 class Macaroni::Model::Library { ~hfile=<Macaroni/Model/Library.h> }
-class Macaroni::Model::LibraryPtr { ~hfile=<Macaroni/Model/Library.lh> }
+class Macaroni::Model::LibraryPtr { ~hfile=<Macaroni/Model/LibraryPtr.h> }
 class Macaroni::Build::Manifest { ~hfile=<Macaroni/Build/Manifest.h> }
 class Macaroni::Build::MCompiler { ~hfile=<Macaroni/Build/MCompiler.h> }
 class Macaroni::Build::MCompilerOptions { ~hfile=<Macaroni/Build/MCompilerOptions.h> }
 class Macaroni::Environment::Messages { ~hfile=<Macaroni/Environment/Messages.h> }
+class Macaroni::Model::Node { ~hfile=<Macaroni/Model/Node.h> }
 class nullptr { ~hfile=<Macaroni/ME.h> }
 class Macaroni::Parser::ParserException { ~hfile=<Macaroni/Parser/ParserException.h> }
 class Macaroni::IO::Path { ~hfile=<Macaroni/IO/Path.h> }

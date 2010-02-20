@@ -54,6 +54,16 @@ DependencyList = {
         check(self ~= nil, "Missing self.");
         check(node ~= nil, "Missing node.");
         check(DependencyTraveller.isType(traveller), "Argument 3 'traveller' must be DependencyTraveller.");
+        check(node.Member ~= nil and node.Member.TypeName == TypeNames.Class, "Node must be Class.");
+        for i = 1, #node.Member.FriendNodes do
+            local friend = node.Member.FriendNodes[i];
+            if (friend.Member ~= nil and friend.Member.TypeName=="Class" or 
+                friend.Member ~= nil and friend.Member.TypeName=="Typedef") then
+                --local newTraveller = traveller:clone();
+                --newTraveller.heavy = false;
+                self:addLightDependencyNode(friend);                
+            end            
+        end
         for i = 1, #node.Children do
             self:addDependenciesForNode(node.Children[i], traveller);
         end        

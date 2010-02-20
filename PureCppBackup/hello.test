@@ -1,0 +1,19 @@
+//  Copyright (c) 2003 Vladimir Prus
+//
+//  Distributed under the Boost Software License, Version 1.0. (See
+//  accompanying file LICENSE_1_0.txt or copy at
+//  http://www.boost.org/LICENSE_1_0.txt)
+//
+//  http://www.boost.org
+// 
+
+#include <iostream>
+#include <boost/filesystem/convenience.hpp>
+
+int main()
+{
+    std::cout << "Hello!\n";
+    boost::filesystem::path p("Source");
+    std::cout << "Mac source is:" << p.string() << "\n";
+    return 1;
+}

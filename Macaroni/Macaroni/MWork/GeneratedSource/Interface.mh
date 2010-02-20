@@ -1,5 +1,54 @@
 // Skipping {C++ Primitives}
 namespace Macaroni {
+	namespace Model {
+		namespace Cpp {
+			class Access {
+				~hfile=<Macaroni/Model/Cpp/Access.h>
+			};
+			class AccessLuaMetaData {
+				~hfile=<Macaroni/Model/Cpp/AccessLua.h>
+			};
+			class Class {
+				~hfile=<Macaroni/Model/Cpp/Class.h>
+			};
+			class ClassPtr {
+				~hfile=<Macaroni/Model/Cpp/ClassPtr.h>
+			};
+			class ClassParent {
+				~hfile=<Macaroni/Model/Cpp/ClassParent.h>
+				//WARNING: Do not know how to handle access with Member type Variable.
+				//WARNING: Do not know how to handle child with Member type Variable.
+				//WARNING: Do not know how to handle _virtual with Member type Variable.
+				//WARNING: Do not know how to handle parent with Member type Variable.
+				//WARNING: Do not know how to handle $ctor with Member type Constructor.
+				//WARNING: Do not know how to handle GetAccess with Member type Function.
+			};
+			class ClassParentPtr { ~hfile=<Macaroni/Model/Cpp/_.h>; }
+			class ClassParentList { ~hfile=<Macaroni/Model/Cpp/_.h>; }
+			class ClassParentListPtr { ~hfile=<Macaroni/Model/Cpp/_.h>; }
+			//WARNING: Do not know how to handle intrusive_ptr_add_ref with Member type Function.
+			//WARNING: Do not know how to handle intrusive_ptr_release with Member type Function.
+		}
+		class Context {
+			~hfile=<Macaroni/Model/Context.h>
+		};
+		class ContextPtr {
+			~hfile=<Macaroni/Model/ContextPtr.h>
+		};
+		class Library {
+			~hfile=<Macaroni/Model/Library.h>
+		};
+		class LibraryPtr {
+			~hfile=<Macaroni/Model/LibraryPtr.h>
+		};
+		class Node {
+			~hfile=<Macaroni/Model/Node.h>
+		};
+		class Source {
+			~hfile=<Macaroni/Model/Source.h>
+		};
+		// Skipping NodePtr
+	}
 	// Skipping Environment
 	namespace Build {
 		namespace Cpp {
@@ -18,6 +67,7 @@ namespace Macaroni {
 				//WARNING: Do not know how to handle CreateObjectFileDirectories with Member type Function.
 				//WARNING: Do not know how to handle DeleteObjectFile with Member type Function.
 				//WARNING: Do not know how to handle GetObjectFilePath with Member type Function.
+				//WARNING: Do not know how to handle IsObjectFileOutOfDate with Member type Function.
 				//WARNING: Do not know how to handle ObjectFileExists with Member type Function.
 			};
 			class LinkerSettings {
@@ -57,6 +107,7 @@ namespace Macaroni {
 			//WARNING: Do not know how to handle $ctor with Member type Constructor.
 			//WARNING: Do not know how to handle CompileCpp with Member type Function.
 			//WARNING: Do not know how to handle CompileMacaroni with Member type Function.
+			//WARNING: Do not know how to handle CopyCppFiles with Member type Function.
 			//WARNING: Do not know how to handle CopyHeaderFiles with Member type Function.
 			//WARNING: Do not know how to handle createCppFileList with Member type Function.
 			//WARNING: Do not know how to handle createCppSrcRoots with Member type Function.
@@ -68,6 +119,7 @@ namespace Macaroni {
 			//WARNING: Do not know how to handle findCppCompilerSettingsFile with Member type Function.
 			//WARNING: Do not know how to handle Install with Member type Function.
 			//WARNING: Do not know how to handle Link with Member type Function.
+			//WARNING: Do not know how to handle SaveCppSource with Member type Function.
 		};
 		class CmdLine {
 			~hfile=<Macaroni/Build/CmdLine.h>
@@ -82,7 +134,9 @@ namespace Macaroni {
 			//WARNING: Do not know how to handle luaTestsPath with Member type Variable.
 			//WARNING: Do not know how to handle manifestPath with Member type Variable.
 			//WARNING: Do not know how to handle outputPath with Member type Variable.
+			//WARNING: Do not know how to handle saveCppSource with Member type Variable.
 			//WARNING: Do not know how to handle $ctor with Member type Constructor.
+			//WARNING: Do not know how to handle $dtor with Member type Destructor.
 			//WARNING: Do not know how to handle directCompile with Member type Function.
 			//WARNING: Do not know how to handle EndPrompt with Member type Function.
 			//WARNING: Do not know how to handle Execute with Member type Function.
@@ -91,12 +145,23 @@ namespace Macaroni {
 			//WARNING: Do not know how to handle runManifest with Member type Function.
 		};
 	}
-	// Skipping Model
 	class Exception {
 		~hfile=<Macaroni/Exception.h>
 	};
 	// Skipping IO
 	// Skipping Parser
+	namespace CmdLine {
+		class CmdLineOption {
+			~hfile=<Macaroni/CmdLine/CmdLineOption.h>
+			//WARNING: Do not know how to handle description with Member type Variable.
+			//WARNING: Do not know how to handle name with Member type Variable.
+			//WARNING: Do not know how to handle $ctor with Member type Constructor.
+			//WARNING: Do not know how to handle GetDescription with Member type Function.
+			//WARNING: Do not know how to handle GetName with Member type Function.
+			//WARNING: Do not know how to handle SetDescription with Member type Function.
+			//WARNING: Do not know how to handle SetName with Member type Function.
+		};
+	}
 }
 class nullptr {
 	~hfile=<Macaroni/ME.h>

@@ -4,6 +4,6 @@ mkdir "..\Macaroni\Macaroni\Debug\Generators"
 xcopy "..\Macaroni\Macaroni\Source\Generators" "..\Macaroni\Macaroni\\Debug\Generators" /y /s /e
 xcopy "..\Macaroni\Macaroni\Source\Messages.txt" "..\Macaroni\Macaroni\\Debug\Messages.txt" /y /s /e
 
-..\Macaroni\Macaroni\Debug\Macaroni.exe
+echo ..\Macaroni\Macaroni\Debug\Macaroni.exe generate saveCppSource compile install
 
 

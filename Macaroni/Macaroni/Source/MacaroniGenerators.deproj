@@ -51,4 +51,13 @@
   <file>
     <filename>Generators\InterfaceMh.lua</filename>
   </file>
+  <file>
+    <filename>Generators\LuaGlue\LuaGlueHFile.lua</filename>
+  </file>
+  <file>
+    <filename>Generators\LuaGlue\LuaGlueCppFile.lua</filename>
+  </file>
+  <file>
+    <filename>Generators\LuaGlue.lua</filename>
+  </file>
 </project>

@@ -123,6 +123,13 @@ ClassCppFileGenerator = {
         end
     end,    
     
+    ["parse" .. TypeNames.Block] = function(self, node)    
+        local block = node.Member;            
+        if (block.Id == "cpp") then
+            self:write(block.Code);
+        end
+    end,
+    
     ["parse" .. TypeNames.Constructor] = function(self, node)   
         if (node.Member.Inline) then
             self:write("//~<(Skipping inline constructor.)\n");

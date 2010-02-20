@@ -18,6 +18,7 @@ require "io";
 -- Eventually put this next part in C++.
 Macaroni.Model.TypeNames = 
 { 
+    Block = "Block",
     Class = "Class", 
     Constructor="Constructor", 
     Destructor="Destructor", 

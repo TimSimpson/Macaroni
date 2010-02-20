@@ -30,6 +30,7 @@ class CmdLine
 	private string luaTestsPath;
 	private string manifestPath;
 	private string outputPath;	
+	private bool saveCppSource;
 
 	public CmdLine(const vector<const string> & args, Console & console)
 	:	compile(false),
@@ -42,7 +43,8 @@ class CmdLine
 		install(false),
 		luaTestsPath(""),
 		manifestPath(""),
-		outputPath("")
+		outputPath(""),
+		saveCppSource(false)
 	{
 		for(unsigned int i = 0; i < args.size(); i ++)
 		{
@@ -55,6 +57,13 @@ class CmdLine
 				parseArg(arg, "");
 			}				
 		}	
+	}
+
+	public ~CmdLine()
+	{
+		outputPath = "";
+		config = "";
+		luaTestsPath = "";
 	}
 
 	private void directCompile()
@@ -115,7 +124,7 @@ class CmdLine
 
 	private void parseArg(const string & arg, const string & next)
 	{
-		if (arg == "-configuration")
+		if (arg == "configuration")
 		{
 			if (next.empty())
 			{
@@ -126,23 +135,23 @@ class CmdLine
 				config = next;
 			}
 		}
-		else if (arg == "-compile")
+		else if (arg == "compile")
 		{
 			compile = true;
 		}
-		else if (arg == "-debug")
+		else if (arg == "debug")
 		{
 			debugMode = true;
 		}
-		else if (arg == "-generate")
+		else if (arg == "generate")
 		{
 			generate = true;
 		}
-		else if (arg == "-install")
+		else if (arg == "install")
 		{
 			install = true;
 		}
-		else if (arg == "-luaTests")
+		else if (arg == "luaTests")
 		{
 			if (next.empty())
 			{
@@ -153,7 +162,7 @@ class CmdLine
 				luaTestsPath = next;			
 			}
 		}
-		else if (arg == "-inputDirectory")
+		else if (arg == "inputDirectory")
 		{
 			if (next.empty())
 			{
@@ -164,7 +173,7 @@ class CmdLine
 				inputPath = next;
 			}
 		}
-		else if (arg == "-manifest")
+		else if (arg == "manifest")
 		{
 			if (next.empty())
 			{
@@ -175,7 +184,7 @@ class CmdLine
 				manifestPath = next;
 			}
 		}
-		else if (arg == "-outputDirectory")
+		else if (arg == "outputDirectory")
 		{
 			if (next.empty())
 			{
@@ -186,10 +195,14 @@ class CmdLine
 				outputPath = next;
 			}
 		}
-		else if (arg == "-endprompt")
+		else if (arg == "endprompt")
 		{
 			endPrompt = true;
 		}
+		else if (arg == "saveCppSource")
+        {
+            saveCppSource = true;
+        }
 	}
 
 	private void runLuaTests()
@@ -233,7 +246,7 @@ class CmdLine
 		Builder builder(context, manifest, mRefConfig, console, install);	
 		compile = compile || install;
 		generate = generate || compile;
-		builder.Execute(generate, compile, install);
+		builder.Execute(generate, saveCppSource, compile, install);
 	}
 
 } // end class

@@ -25,9 +25,16 @@ CppFileGenerator = {
     attemptShortName = true,
     
     createClassGenerator = function (self, node, path)
+        local reason = node.Member.ReasonCreated;
+        local srcFile = tostring(reason.Source.FileName);        
         local filePath = path:NewPath(".cpp");
-        local cg = ClassCppFileGenerator.new{node = node, path = filePath};
-        return cg;
+        if (filePath:IsFileOlderThan(srcFile)) then            
+            local cg = ClassCppFileGenerator.new{node = node, path = filePath};
+            return cg;
+        else
+            -- Skip if no new changes detected.
+            return { parse = function() end };
+        end
     end, 
     
 }; -- end CppFileGenerator

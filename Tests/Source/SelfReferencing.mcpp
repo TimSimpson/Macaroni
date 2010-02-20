@@ -1,0 +1,18 @@
+~import Macaroni::Tests::ConstsTests::Cat;
+~import Macaroni::Tests::ConstsTests::Dog;
+~import Macaroni::Tests::Inline::Sprite;
+~import std::string;
+
+// This test asserts that Macaroni can allow a class to reference itself during
+// its own definition.
+namespace Macaroni::Tests::SelfReferencing
+{
+	class Blah
+	{
+		Blah * me;
+		static void DoSomething(Blah * other){}
+		public ~global void SomethingElse(Blah * other){}
+		friend SomethingElse  ;
+	};
+
+}

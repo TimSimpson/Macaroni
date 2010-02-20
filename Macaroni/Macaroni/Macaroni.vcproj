@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="F:\Tools\boost_1_39_0"
+				AdditionalIncludeDirectories="F:\Tools\boost_1_39_0;F:\Lp3\Projects\Macaroni\Code\trunk\Macaroni\Macaroni\Source;F:\Lp3\Projects\Macaroni\Code\trunk\Macaroni\Macaroni\MWork\GeneratedSource"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -186,11 +186,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Macaroni\Model\Block.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Model\BlockLua.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\BoostTestTest.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Build\Builder.cpp"
+				RelativePath=".\MWork\GeneratedSource\Macaroni\Build\Builder.cpp"
 				>
 			</File>
 			<File
@@ -202,7 +210,23 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Build\CmdLine.cpp"
+				RelativePath=".\MWork\GeneratedSource\Macaroni\Model\Cpp\ClassParent.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Model\Cpp\ClassParent.mcpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MWork\GeneratedSource\Macaroni\Build\CmdLine.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MWork\GeneratedSource\Macaroni\CmdLine\CmdLineOption.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\CmdLine\CmdLineOptions.cpp"
 				>
 			</File>
 			<File
@@ -238,7 +262,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Build\Cpp\CppFile.cpp"
+				RelativePath=".\MWork\GeneratedSource\Macaroni\Build\Cpp\CppFile.cpp"
 				>
 			</File>
 			<File
@@ -318,6 +342,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Macaroni\Platform\Windows\FileTime.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Macaroni\Model\Cpp\Function.cpp"
 				>
 			</File>
@@ -375,6 +403,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\Lua\linit.c"
+				>
+			</File>
+			<File
+				RelativePath=".\MWork\GeneratedSource\Macaroni\Build\Cpp\LinkerSettings.cpp"
 				>
 			</File>
 			<File
@@ -656,6 +688,10 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\MWork\GeneratedSource\Macaroni\Model\Cpp\_.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Macaroni\Model\Cpp\Access.h"
 				>
 			</File>
@@ -676,7 +712,23 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Build\Builder.h"
+				RelativePath=".\Source\Macaroni\Model\AxiomPtr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Model\Block.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Model\BlockLua.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Model\BlockPtr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MWork\GeneratedSource\Macaroni\Build\Builder.h"
 				>
 			</File>
 			<File
@@ -688,7 +740,19 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Build\CmdLine.h"
+				RelativePath=".\MWork\GeneratedSource\Macaroni\Model\Cpp\ClassParent.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Model\Cpp\ClassPtr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MWork\GeneratedSource\Macaroni\Build\CmdLine.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MWork\GeneratedSource\Macaroni\CmdLine\CmdLineOption.h"
 				>
 			</File>
 			<File
@@ -732,6 +796,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Macaroni\Model\ContextPtr.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Macaroni\Cpp.h"
 				>
 			</File>
@@ -748,7 +816,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Build\Cpp\CppFile.h"
+				RelativePath=".\Source\Macaroni\Model\Cpp\CppContextPtr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MWork\GeneratedSource\Macaroni\Build\Cpp\CppFile.h"
 				>
 			</File>
 			<File
@@ -760,6 +832,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Macaroni\Parser\Cpp\CppParserPtr.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Macaroni\Parser\Cpp\CppParserState.h"
 				>
 			</File>
@@ -768,11 +844,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Generator\Cpp\CppSourceGenerator2.h"
+				RelativePath=".\Source\Macaroni\Generator\CppSourceGenerator2.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Generator\CppSourceGenerator2.h"
+				RelativePath=".\Source\Macaroni\Generator\Cpp\CppSourceGenerator2.h"
 				>
 			</File>
 			<File
@@ -836,11 +912,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Macaroni\Platform\Windows\FileTime.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Macaroni\Model\Cpp\Function.h"
 				>
 			</File>
 			<File
 				RelativePath=".\Source\Macaroni\Model\Cpp\FunctionLua.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Model\Cpp\FunctionPtr.h"
 				>
 			</File>
 			<File
@@ -881,6 +965,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\Macaroni\Model\LibraryMember.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MWork\GeneratedSource\Macaroni\Build\Cpp\LinkerSettings.h"
 				>
 			</File>
 			<File
@@ -992,6 +1080,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Macaroni\Model\MemberPtr.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Macaroni\Model\MemberVisitor.h"
 				>
 			</File>
@@ -1020,6 +1112,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Macaroni\Model\Cpp\NamespacePtr.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Macaroni\Model\Node.h"
 				>
 			</File>
@@ -1032,7 +1128,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Parser.h"
+				RelativePath=".\Source\Macaroni\Model\NodePtr.h"
 				>
 			</File>
 			<File
@@ -1040,7 +1136,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Model\ParserException.h"
+				RelativePath=".\Source\Macaroni\Parser.h"
 				>
 			</File>
 			<File
@@ -1048,7 +1144,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Macaroni\Model\ParserException.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Macaroni\Parser\ParserExceptionLua.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Parser\ParserExceptionPtr.h"
 				>
 			</File>
 			<File
@@ -1061,6 +1165,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\Macaroni\Parser\ParserLua.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Parser\ParserPtr.h"
 				>
 			</File>
 			<File
@@ -1088,6 +1196,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Macaroni\Parser\Pippy\PippyParserPtr.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Macaroni\Model\Cpp\Primitive.h"
 				>
 			</File>
@@ -1104,11 +1216,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Macaroni\Model\ReasonPtr.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Macaroni\Model\Cpp\Scope.h"
 				>
 			</File>
 			<File
 				RelativePath=".\Source\Macaroni\Model\Cpp\ScopeMember.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Model\Cpp\ScopeMemberPtr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Model\Cpp\ScopePtr.h"
 				>
 			</File>
 			<File
@@ -1121,6 +1245,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\Macaroni\Model\SourceLua.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Model\SourcePtr.h"
 				>
 			</File>
 			<File
@@ -1199,6 +1327,10 @@
 				RelativePath=".\Source\Macaroni\Model\Cpp\VariableLua.h"
 				>
 			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Model\Cpp\VariablePtr.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
@@ -1207,15 +1339,55 @@
 			>
 		</Filter>
 		<File
+			RelativePath=".\Source\Macaroni\A_.mcpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\Macaroni\Build\Builder.mcpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\Macaroni\Build\CmdLine.mcpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\Macaroni\CmdLine\CmdLineOption.mcpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\Macaroni\Build\Cpp\CppFile.mcpp"
+			>
+		</File>
+		<File
 			RelativePath=".\Source\Generators\InterfaceMh.lua"
 			>
 		</File>
 		<File
-			RelativePath=".\Source\Macaroni\Model\Library.lh"
+			RelativePath=".\Source\Macaroni\Model\LibraryPtr.h"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\Macaroni\Build\Cpp\LinkerSettings.mcpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\Generators\LuaGlue.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\Generators\LuaGlue\LuaGlueCppFile.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\Generators\LuaGlue\LuaGlueHFile.lua"
 			>
 		</File>
 		<File
 			RelativePath=".\Source\Generators\Macaroni\MhFileGenerator.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\Macaroni\Model\Cpp\PrimitivePtr.h"
 			>
 		</File>
 		<File

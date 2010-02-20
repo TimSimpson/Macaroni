@@ -1,0 +1,175 @@
+~import Macaroni::Model::Cpp::Access;
+~import Macaroni::Model::Cpp::Class;
+~import Macaroni::Model::Cpp::ClassPtr;
+~import boost::intrusive_ptr;
+~import Macaroni::Model::Node;
+~import Macaroni::Model::NodePtr;
+~import std::vector;
+
+namespace Macaroni::Model::Cpp
+{
+    
+class ClassParent {};
+typedef intrusive_ptr<ClassParent> ClassParentPtr;
+
+typedef vector<ClassParent> ClassParentList;
+typedef intrusive_ptr<ClassParentList> ClassParentListPtr;
+
+class ClassParent
+{ 
+	friend Class;
+
+	private Access access;
+	private Class * child;
+	private bool _virtual;
+	private Node * parent;
+   
+	private ClassParent(Class * node, Node * parent, Access access, bool _virtual)
+	:	access(access),
+		child(node),
+		parent(parent),
+		_virtual(_virtual)
+	{
+	}
+
+	public ~global void intrusive_ptr_add_ref(ClassParent * p)
+	{
+		intrusive_ptr_add_ref(p->child);
+	}
+	
+	friend intrusive_ptr_add_ref;
+
+	public ~global void intrusive_ptr_release(ClassParent * p)
+	{
+		intrusive_ptr_release(p->child);
+	}
+
+	friend intrusive_ptr_release;
+	
+	// TODO: In the future, it would be cool to have an attribute / annotation
+	// type thing to mark functions as property accessors.
+	// Or heck, just have properties.
+	public inline Access GetAccess() const 
+	{
+		return access;
+	}
+
+	
+	/**
+		summary 
+		[{[
+			Blah blah blah
+		]}]
+		[{[
+			This is how we do it.
+		]}]
+	 */
+	// Blocks of text which appear during the course of generation.
+	// These blocks are intended for the h and cpp generators....
+	//~#block1
+	//~block "h global"
+	//{
+	//}
+	//~block "h" 
+	//{
+	//}		
+};
+
+/*
+~import lua_State;
+
+class ClassParentLuaMetaData
+{
+	~block "cpp"
+	{
+		#define METATABLENAME "Macaroni.Model.Cpp.ClassParent"
+		#define GLOBALTABLENAME "Macaroni.Model.Cpp.ClassParent"		
+	}
+
+	private static ~global int __eq(lua_State * L)
+	{
+		ClassParentPtr & a = getInstance(L, 1); 
+		ClassParentPtr & b = getInstance(L, 2);
+		lua_pushboolean(L, a.get()==b.get() ? 1 : 0);
+		return 1;
+	}
+
+	private static ~global int __index(lua_State * L)
+	{
+		ClassParentPtr & ptr = getInstance(L);
+		std::string index(luaL_checkstring(L, 2));
+		return ClassParentLuaMetaData::Index(L, ptr, index);
+	}
+
+	private static ~global int __lgc(lua_State * L)
+	{
+		ClassParentPtr * ptr = (ClassParentPtr *) luaL_checkudata(L, 1, METATABLENAME);
+		ptr->~ClassParentPtr();
+		return 0;
+	}
+
+	private static ~global int __tostring(lua_State * L)
+	{
+		lua_pushlstring(L, ":-p", 3);
+		return 1;
+	}
+
+	~block "cpp"
+	{
+		static const struct luaL_Reg tableMethods[] =
+		{
+			static const struct luaL_Reg metaTableMethods[]=
+			{
+				{"__eq", NodeLuaFunctions::__eq},
+				{"__gc", NodeLuaFunctions::luaGc},
+				{"__index", NodeLuaFunctions::__index},
+				{"__tostring", NodeLuaFunctions::__tostring},
+				{nullptr, nullptr}
+			};
+
+		}
+	}
+
+	private static ~global inline void createUserDate(lua_State * L, const ClassParent & src)
+	{
+		void * memory = lua_newuserdata(L, sizeof(ClassParentPtr));
+		ClassParentPtr * instance = new (memory) ClassParentPtr();
+		(*instance).operator=(src);
+	}
+
+	private static ~global inline ClassParentPtr & getInstance(lua_State * L, int index)
+	{
+		ClassParentPtr * ptrToPtr = (ClassParentPtr *) luaL_checkudata(L, index, METATABLENAME);
+		ClassParentPtr & ptr = dynamic_cast<ClassParentPtr &>(*ptrToPtr);
+		return ptr;
+	}
+
+	private static ~global inline ClassParentPtr & getInstance(lua_State * L)
+	{
+		return getInstance(L, 1);
+	}
+
+	public static bool IsType(lua_State * L, int index);
+	public static int OpenInLua(lua_State * L);
+	public static ClassParentPtr & GetInstance(lua_State * L, int index);
+	public static int Index(lua_State * L, ClassParentPtr & ptr, const std::string & index);
+	
+	public static void PutInstanceOnStack(lua_State * L, const ClassParentPtr & ptr);
+
+	private static ~global inline void putInstanceOnStack(lua_State * L, const ClassParentPtr & src)
+	{
+		if (!source) 
+		{
+			lua_pushnil(L);
+		}
+		else
+		{
+			createUserData(L, source);
+			luaL_getmetatable(L, METATABLENAME);
+			lua_setmetatable(L, -2); 
+		}
+	}
+
+}; // end class parent lua meta data
+*/
+} // end ns

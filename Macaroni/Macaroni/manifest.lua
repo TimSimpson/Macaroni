@@ -32,6 +32,7 @@ cppInput =
 cppOutput = {
     headers="MWork/Headers",
     objects="MWork/Objects",
+    cppSource="MWork/CppSource"
 }
 
 
@@ -44,7 +45,8 @@ configurations = {
         generators =
         {
             "Cpp.lua",       
-            "InterfaceMh.lua"                 
+            "LuaGlue.lua",
+            "InterfaceMh.lua",              
         },
         dependencies =
         {

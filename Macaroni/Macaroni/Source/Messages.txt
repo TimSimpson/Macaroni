@@ -4,6 +4,7 @@
 Macaroni.Intro=Macaroni for C++\n(C) Tim Simpson 2009\n
 
 # C++ Axioms
+CppAxioms.BlockCreation=Keyword "~block" creates a block of code in the current node.
 CppAxioms.ClassCreation=Keyword "class" begins or continues classes.
 CppAxioms.ConstructorCreation=Name of class without type creates constructor.
 CppAxioms.DestructorCreation=Tilda (~) followed by name of class begins destructor definition.
@@ -24,6 +25,7 @@ CppAxioms.VariableScopeCreation=Variable definition encountered.
 CppParser.Class.NoID1=Identifier expected following class keyword.
 CppParser.Class.NoOpeningBrace=Expected '{' following class signature.
 CppParser.Class.NoEndingBrace=Expected '}' at this point to end class definition.
+CppParser.CodeBlock.Expected=Expected to see a code block (i.e. "{ blah blah }").
 CppParser.Constructor.ArgumentListExpected=Constructor argument list expected here.
 CppParser.Constructor.ClassNameExpected=Class name expected following destructor symbol '~'.
 CppParser.Expression.CouldNotMatch
@@ -33,6 +35,7 @@ CppParser.Directive.HFileFilePathExpected=A file path was expected here.
 CppParser.FileNameExpected=Expected a file name surrounded with quotes or ankle brackets.
 CppParser.Friend.FriendKeywordOnlyForClasses=Keyword "friend" cannot be used outside of a class.
 CppParser.Friend.CouldNotFindNode=Could not find information on type in friend declaration.  Sorry, but friend info must be specified early using either an import or forward reference.
+CppParser.Friend.Modifier.Only.For.Globals=The friend modifier only makes sense for ~global members.  A non-global member is always your friend.
 CppParser.Friend.MissingSemicolon=Missing semicolon on friend declaration.
 CppParser.Function.SemicolonExpected=Semicolon expected following function definition.
 CppParser.Global.AllowedForClassesOnly=The global keyword is allowed only within class definitions.
@@ -43,6 +46,8 @@ CppParser.Namespace.NoEndingBrace=Syntax error while searching for '}' to comple
 CppParser.Namespace.NoOpeningBrace=Syntax error after identifier keyword; expected '{'.
 CppParser.Document.SyntaxError=Syntax error.
 CppParser.Function.ExpectedEndingParenthesis=Expected to see ')'.
+CppParser.StringLiteralStartExpected=Expected to see the a String literal here.
+CppParser.StringLiteralEndingExpected=Expected to see the ending of a String literal.
 CppParser.Type.TypeDefinitionArgumentExpected=Expected to see type definition within ankle brackets.
 CppParser.Type.TypeDefinitionCommaOrClosingBracketExpected=Expected to see "," or ">" here.
 CppParser.Typedef.NoName=No name was given for typedef following type definition.
@@ -50,6 +55,7 @@ CppParser.Typedef.NoSemicolon=No semicolon found for typedef.
 CppParser.Typedef.NoTypeDefinitionFound=Did not find a valid type definition following "typedef" keyword.
 CppParser.Variable.ConstMaybeBeforeVar=Identifier was expected following keyword "const."
 CppParser.Variable.ConstSeenTwice=Identifier was expected following keyword "const."
+CppParser.Variable.FriendNotAllowedForArg=Keyword "~friend" is not allowed for function arguments.
 CppParser.Variable.GlobalNotAllowedForArg=Keyword "~global" is not allowed for function arguments.
 CppParser.Variable.InlineNotAllowedForVariable=Keyword "inline" is not allowed for variables.
 CppParser.Variable.MustFollowGlobalKeyword=Keyword "global" must be followed by member definition.

@@ -47,12 +47,16 @@ ClassHFileGenerator = {
     
     classBody = function(self)
         self:classBegin();
+        self:classFriends();
+        --[[
         self:write("public:\n");
         self:iterateMembers(self.node.Children, "Access_Public");
         self:write("protected:\n");
         self:iterateMembers(self.node.Children, "Access_Protected");
         self:write("private:\n");
         self:iterateMembers(self.node.Children, "Access_Private");
+        ]]--
+        self:iterateMembers(self.node.Children);
         self:classEnd();
     end,
     
@@ -68,6 +72,23 @@ ClassHFileGenerator = {
         local globals = self.node.Member.GlobalNodes;    
         self:write("/* Public Global Methods */\n");  
         self:iterateMembers(globals, "Access_Public");       
+    end,
+    
+    classFriends = function(self)
+        assert(self.node.Member ~= nil 
+               and 
+               self.node.Member.TypeName == TypeNames.Class);
+        local friends = self.node.Member.FriendNodes;
+        for i=1, #friends do
+            friend = friends[i];
+            if (friend.Member ~= nil and friend.Member.TypeName == TypeNames.Function) then
+                self:write("friend ");
+                self:writeFunctionDefinition(friend);
+                self:write(";\n");
+            else
+                self:write("friend " .. friend.FullName .. ";\n");
+            end
+        end 
     end,
     
     getGuardName = function(self)
@@ -141,8 +162,16 @@ ClassHFileGenerator = {
         end
     end,    
     
+    ["parse" .. TypeNames.Block] = function(self, node)    
+        local block = node.Member;            
+        if (block.Id == "h") then
+            self:write(block.Code);
+        end
+    end,
+    
     ["parse" .. TypeNames.Constructor] = function(self, node)
         self:writeTabs();
+        self:writeAccess(node.Member.Access);
         if (node.Member.Inline) then
             self:write("inline ");
         end
@@ -169,6 +198,7 @@ ClassHFileGenerator = {
     
     ["parse" .. TypeNames.Destructor] = function(self, node)
         self:writeTabs();
+        self:writeAccess(node.Member.Access);
         if (node.Member.Inline) then
             self:write("inline ");
         end
@@ -193,6 +223,9 @@ ClassHFileGenerator = {
     end,
     
     ["parse" .. TypeNames.Function] = function(self, node)
+        if (node.Node == self.node) then
+            self:writeAccess(node.Member.Access);
+        end        
         self:writeFunctionDefinition(node);
         if (not node.Member.Inline) then
             self:write(";\n");
@@ -226,7 +259,7 @@ ClassHFileGenerator = {
             handlerFunc = self["parse" .. typeName];
         end
         
-        if (handlerFunc ~= nil) then
+        if (handlerFunc ~= nil) then                       
             handlerFunc(self, node);
         else
             self:writeTabs();
@@ -240,6 +273,9 @@ ClassHFileGenerator = {
     end,
     
     ["parse" .. TypeNames.Variable] = function(self, node)
+        if (node.Node == self.node) then
+            self:writeAccess(node.Member.Access);
+        end
         self:writeVariableDefinition(node);
         --[[self:writeTabs();
         local variable = node.Member;
@@ -247,6 +283,19 @@ ClassHFileGenerator = {
         self:write(node.Name .. ";\n");]]--
     end,
     
+    writeAccess = function(self, access)
+        local text = nil;
+        if (access == "Access_Public") then
+            text = "public: ";
+        elseif (access == "Access_Protected") then
+            text = "protected: ";
+        elseif (access == "Access_Private") then
+            text = "private: ";
+        else
+            text = "/* ~ <(nil access?) */";
+        end
+        self:write(text);            
+    end,
 };
 
 Util.linkToSubClass(FileGenerator, ClassHFileGenerator);             

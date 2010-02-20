@@ -122,7 +122,7 @@ NodeInfo = {
                 return rtn;               
             end            
         end
-        return "/* ~ <(I don't know how to generate definition for " .. node.FullName .. ".) */\n"; 
+        return "// ~ <(I don't know how to generate definition for " .. node.FullName .. ".)\n"; 
     end,
     
     -- Creates using statement.
@@ -142,7 +142,7 @@ NodeInfo = {
                 return ""; -- Ignore
             end            
         end
-        return "/* ~ <(I don't know how to generate a using statement for " .. node.FullName .. ".) */\n";        
+        return "// ~ <(I don't know how to generate a using statement for " .. node.FullName .. ".) \n";        
     end,
     
 };
@@ -168,10 +168,11 @@ NodeInfoList = {
     
     __index = function(self, key)
         check(key ~= nil, "Node cannot be nil!");
-        local rtn = self.nodes[key];
+        local keyName = key.FullName;
+        local rtn = self.nodes[keyName];
         if (rtn == nil) then
             rtn = NodeInfo.new(key);
-            self.nodes[key] = rtn;
+            self.nodes[keyName] = rtn;
         end
         return rtn;
     end,

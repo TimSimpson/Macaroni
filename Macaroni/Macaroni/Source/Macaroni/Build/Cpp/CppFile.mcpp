@@ -30,6 +30,11 @@ class CppFile
 						const vector<const string> & configIncludePaths,
 						const Console & console)
 	{
+		if (!IsObjectFileOutOfDate())
+		{
+			return true;
+		}
+
 		CreateObjectFileDirectories();
 		console.WriteLine(
 		"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C++"
@@ -90,6 +95,11 @@ class CppFile
 	public path GetObjectFilePath()
 	{
 		return boost::filesystem::path(obj.GetAbsolutePath());
+	}
+
+	public bool IsObjectFileOutOfDate() const
+	{
+		return obj.IsFileOlderThan(src.GetAbsolutePath());
 	}
 
 	public inline bool ObjectFileExists() const

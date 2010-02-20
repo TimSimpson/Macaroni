@@ -145,6 +145,35 @@ class Builder
 		return true;
 	}
 
+	public bool CopyCppFiles(path exportCppDir)
+	{
+		//const Path & rootDir = manifest.GetRootDirectory();
+		//PathPtr headersDirPath = rootDir.NewPathForceSlash(manifest.GetCppHeadersOutput());
+		//headersDirPath->CreateDirectory();
+
+		//boost::filesystem::path headersDir(headersDirPath->GetAbsolutePath());
+		
+		std::vector<Path> cppFiles;
+
+		std::vector<const std::string>::iterator itr;
+		for(itr = cppSrcRoots.begin(); itr != cppSrcRoots.end(); itr ++)
+		{
+			const std::string & srcDirectory = *itr;
+			boost::filesystem::path srcDirectoryPath = 
+				boost::filesystem::path(srcDirectory);
+			FileSet input(srcDirectoryPath, "\\.c(pp)?$");
+			FileSet::Iterator itr2 = input.Begin();
+			FileSet::Iterator end = input.End();
+			for(; itr2 != end; ++ itr2)
+			{			
+				Path path(srcDirectoryPath, *itr2);
+				path.CopyToDifferentRootPath(exportCppDir);
+			}	
+		}
+
+		return true;
+	}
+
 	public bool CopyHeaderFiles(path headersDir)
 	{
 		//const Path & rootDir = manifest.GetRootDirectory();
@@ -161,7 +190,7 @@ class Builder
 			const std::string & srcDirectory = *itr;
 			boost::filesystem::path srcDirectoryPath = 
 				boost::filesystem::path(srcDirectory);
-			FileSet input(srcDirectoryPath, "\\.h");
+			FileSet input(srcDirectoryPath, "\\.h(pp)?$");
 			FileSet::Iterator itr2 = input.Begin();
 			FileSet::Iterator end = input.End();
 			for(; itr2 != end; ++ itr2)
@@ -260,7 +289,7 @@ class Builder
 		return true;
 	}
 
-	public void Execute(bool generate, bool compile, bool install)
+	public void Execute(bool generate, bool saveCppSource, bool compile, bool install)
 	{
 		console.WriteLine("--------------------------------------------------------------------------------");
 		console.Write("Configuration: "); console.WriteLine(configuration.GetName());
@@ -279,23 +308,34 @@ class Builder
 			success = CompileMacaroni();			
 		}
 
-		if (success && compile)
+		if (success) 
 		{
 			createCppSrcRoots();
 			createCppFileList();
-			if (!cppCompiler)
+
+			if (saveCppSource)
 			{
-				console.WriteLine("No Compiler specified.");
+				success = SaveCppSource();
 			}
-			else
+
+			if (success && compile)
 			{
-				success = CompileCpp() && Link();
+				createCppSrcRoots();
+				createCppFileList();
+				if (!cppCompiler)
+				{
+					console.WriteLine("No Compiler specified.");
+				}
+				else
+				{
+					success = CompileCpp() && Link();
+				}
 			}
-		}
-			
-		if (success && install)
-		{
-			success = Install();
+				
+			if (success && install)
+			{
+				success = Install();
+			}
 		}
 
 		if (success)
@@ -340,6 +380,12 @@ class Builder
 		boost::filesystem::create_directories(headersInstall);
 		CopyHeaderFiles(headersInstall);
 
+		// Export C++ source
+		path exportCppLocal(manifest.GetCppSourceOutput());
+		path exportCppInstall = installPath / "Cpp";
+		boost::filesystem::create_directories(exportCppInstall);
+		CopyCppFiles(exportCppInstall);
+		
 		// Interface.mh 
 		path localMhInterface(manifest.GetRootDirectory());
 		localMhInterface = localMhInterface / manifest.GetMOutput();
@@ -456,6 +502,24 @@ class Builder
 		proc.Run(console);
 		
 		return finalFile->Exists();
+	}
+
+	public bool SaveCppSource() 
+	{				
+		createCppSrcRoots();
+        createCppFileList();
+
+		path cppSourceLocal(manifest.GetCppSourceOutput());		
+
+		std::stringstream ss;
+		ss << "Saving generated C++ sourc code to " <<
+				cppSourceLocal.string() << ".";
+		console.WriteLine(ss.str());
+
+		boost::filesystem::create_directories(cppSourceLocal);
+		CopyHeaderFiles(cppSourceLocal);
+		CopyCppFiles(cppSourceLocal);
+		return true;
 	}
 	
 };
