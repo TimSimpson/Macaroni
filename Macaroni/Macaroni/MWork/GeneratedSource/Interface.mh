@@ -1,61 +1,9 @@
 // Skipping {C++ Primitives}
 namespace Macaroni {
-	namespace Model {
-		namespace Cpp {
-			class Access {
-				~hfile=<Macaroni/Model/Cpp/Access.h>
-			};
-			class AccessLuaMetaData {
-				~hfile=<Macaroni/Model/Cpp/AccessLua.h>
-			};
-			class Class {
-				~hfile=<Macaroni/Model/Cpp/Class.h>
-			};
-			class ClassPtr {
-				~hfile=<Macaroni/Model/Cpp/ClassPtr.h>
-			};
-			class ClassParent {
-				~hfile=<Macaroni/Model/Cpp/ClassParent.h>
-				//WARNING: Do not know how to handle access with Member type Variable.
-				//WARNING: Do not know how to handle child with Member type Variable.
-				//WARNING: Do not know how to handle _virtual with Member type Variable.
-				//WARNING: Do not know how to handle parent with Member type Variable.
-				//WARNING: Do not know how to handle $ctor with Member type Constructor.
-				//WARNING: Do not know how to handle GetAccess with Member type Function.
-			};
-			class ClassParentPtr { ~hfile=<Macaroni/Model/Cpp/_.h>; }
-			class ClassParentList { ~hfile=<Macaroni/Model/Cpp/_.h>; }
-			class ClassParentListPtr { ~hfile=<Macaroni/Model/Cpp/_.h>; }
-			//WARNING: Do not know how to handle intrusive_ptr_add_ref with Member type Function.
-			//WARNING: Do not know how to handle intrusive_ptr_release with Member type Function.
-		}
-		class Context {
-			~hfile=<Macaroni/Model/Context.h>
-		};
-		class ContextPtr {
-			~hfile=<Macaroni/Model/ContextPtr.h>
-		};
-		class Library {
-			~hfile=<Macaroni/Model/Library.h>
-		};
-		class LibraryPtr {
-			~hfile=<Macaroni/Model/LibraryPtr.h>
-		};
-		class Node {
-			~hfile=<Macaroni/Model/Node.h>
-		};
-		class Source {
-			~hfile=<Macaroni/Model/Source.h>
-		};
-		// Skipping NodePtr
-	}
 	// Skipping Environment
 	namespace Build {
 		namespace Cpp {
 			class CompilerSettings {
-				~hfile=<Macaroni/Build/Cpp/CompilerSettings.h>
-			};
-			class CompilerSettingsPtr {
 				~hfile=<Macaroni/Build/Cpp/CompilerSettings.h>
 			};
 			class CppFile {
@@ -77,12 +25,12 @@ namespace Macaroni {
 				//WARNING: Do not know how to handle AddConfigurationLibPaths with Member type Function.
 				//WARNING: Do not know how to handle GetLibPaths with Member type Function.
 			};
+			class CompilerSettingsPtr {
+				~hfile=<Macaroni/Build/Cpp/CompilerSettings.h>
+			};
 		}
 		class Configuration {
 			~hfile=<Macaroni/Build/Configuration.h>
-		};
-		class ConfigurationId {
-			~hfile=<Macaroni/Build/ConfigurationId.h>
 		};
 		class Manifest {
 			~hfile=<Macaroni/Build/Manifest.h>
@@ -144,6 +92,58 @@ namespace Macaroni {
 			//WARNING: Do not know how to handle runLuaTests with Member type Function.
 			//WARNING: Do not know how to handle runManifest with Member type Function.
 		};
+		class ConfigurationId {
+			~hfile=<Macaroni/Build/ConfigurationId.h>
+		};
+	}
+	namespace Model {
+		class Context {
+			~hfile=<Macaroni/Model/Context.h>
+		};
+		class ContextPtr {
+			~hfile=<Macaroni/Model/ContextPtr.h>
+		};
+		class Library {
+			~hfile=<Macaroni/Model/Library.h>
+		};
+		class LibraryPtr {
+			~hfile=<Macaroni/Model/LibraryPtr.h>
+		};
+		class Source {
+			~hfile=<Macaroni/Model/Source.h>
+		};
+		namespace Cpp {
+			class Access {
+				~hfile=<Macaroni/Model/Cpp/Access.h>
+			};
+			class AccessLuaMetaData {
+				~hfile=<Macaroni/Model/Cpp/AccessLua.h>
+			};
+			class Class {
+				~hfile=<Macaroni/Model/Cpp/Class.h>
+			};
+			class ClassPtr {
+				~hfile=<Macaroni/Model/Cpp/ClassPtr.h>
+			};
+			class ClassParent {
+				~hfile=<Macaroni/Model/Cpp/ClassParent.h>
+				//WARNING: Do not know how to handle access with Member type Variable.
+				//WARNING: Do not know how to handle child with Member type Variable.
+				//WARNING: Do not know how to handle _virtual with Member type Variable.
+				//WARNING: Do not know how to handle parent with Member type Variable.
+				//WARNING: Do not know how to handle $ctor with Member type Constructor.
+				//WARNING: Do not know how to handle GetAccess with Member type Function.
+			};
+			class ClassParentPtr { ~hfile=<Macaroni/Model/Cpp/_.h>; }
+			class ClassParentList { ~hfile=<Macaroni/Model/Cpp/_.h>; }
+			class ClassParentListPtr { ~hfile=<Macaroni/Model/Cpp/_.h>; }
+			//WARNING: Do not know how to handle intrusive_ptr_add_ref with Member type Function.
+			//WARNING: Do not know how to handle intrusive_ptr_release with Member type Function.
+		}
+		class Node {
+			~hfile=<Macaroni/Model/Node.h>
+		};
+		// Skipping NodePtr
 	}
 	class Exception {
 		~hfile=<Macaroni/Exception.h>
