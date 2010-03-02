@@ -8,7 +8,6 @@
 #include <sstream>
 #include <string>
 
-using Macaroni::Environment::DebugLog;
 
 BEGIN_NAMESPACE2(Macaroni, Environment)
 
@@ -16,17 +15,13 @@ BEGIN_NAMESPACE2(Macaroni, Environment)
 LuaEnvironment::LuaEnvironment()
 :input(nullptr)
 {
-	DEBUGLOG_WRITE("Creating a new Lua state.");
 	state = luaL_newstate();
-	DEBUGLOG_WRITE("Opening standard Lua libs.");
 	luaL_openlibs(state);
-	DEBUGLOG_WRITE("Opening Macaroni Internal Lua Modules.");
 	registerInternalLuaModules();
 }
 
 LuaEnvironment::~LuaEnvironment()
 {
-	DEBUGLOG_WRITE("Destroying Lua Environment; Calling close.");
 	lua_close(state);
 	if (input != nullptr)
 	{
@@ -196,10 +191,7 @@ const char * LuaEnvironment::loadString(lua_State * L, void * data, size_t * siz
 }
 
 void LuaEnvironment::ParseFile(std::string filePath)
-{
-	DEBUGLOG_WRITE("Opening file-\\ ");
-	DEBUGLOG_WRITE(filePath);
-
+{	
 	input = new std::ifstream(filePath.c_str(), std::ios::binary);
 	if (!input->is_open())
 	{
@@ -223,15 +215,10 @@ void LuaEnvironment::ParseFile(std::string filePath)
 		}
 		input->close();			
 	}
-
-	DEBUGLOG_WRITE("\\- Finished reading file.");
 }
 
 void LuaEnvironment::ParseString(const char * chunkName, const char * code)
 {
-	DEBUGLOG_WRITE("Parsing code:");
-	DEBUGLOG_WRITE(code);
-
 	lua_Reader reader = loadString;
 	int eCode = lua_load(this->state, reader, (void *) code, chunkName);
 	if (eCode != 0)
@@ -246,7 +233,6 @@ void LuaEnvironment::ParseString(const char * chunkName, const char * code)
 
 void LuaEnvironment::Run()
 {
-	DEBUGLOG_WRITE("Run...");
 	int eCode = lua_pcall(state, 0, 0, 0);
 	if (eCode != 0)
 	{	
@@ -255,8 +241,7 @@ void LuaEnvironment::Run()
 		ss << luaL_checkstring(this->state, -1);
 		//std::cerr << ss.str() << std::endl;
 		throw Macaroni::Exception(ss.str().c_str());
-	}
-	DEBUGLOG_WRITE("... run complete.");
+	}	
 }
 
 void LuaEnvironment::SetPackageDirectory(const std::string & path)

@@ -26,11 +26,14 @@ LuaGlueCppFile = {
         args.functionWrapperName = args.node.Name .. "LuaFunctions";
         args.globalTableName = args.node:GetPrettyFullName(".");
         args.metaTableName = args.node:GetPrettyFullName(".");
+        args.attemptShortName = false;
         
         setmetatable(args, LuaGlueCppFile);                
         return args;        
     end,
-   
+    
+    attemptShortName = false,
+    
     getGuardName = function(self)
         local guardName = "MACARONI_COMPILE_GUARD_" .. self.node:GetPrettyFullName("_") .. "_LUA_GLUE_CPP";
         return guardName;
@@ -189,6 +192,8 @@ namespace {
     writeFunctionWrapperStart = function(self)    
         self:write([[
  struct ]] .. self.functionWrapperName  .. [[
+ {
+ 
     static int luaGc(lua_State * L)
     {
         ]] .. self.ptrNode.Name .. [[ * ptr = (]] .. self.ptrNode.Name .. [[ *) luaL_checkudata(L, 1, "]] .. self.metaTableName .. [[");
@@ -215,7 +220,7 @@ namespace {
 	
 	writeFunctionWrapperEnd = function(self)
 	    self:write([[
-} // end of function wrappers
+}; // end of function wrappers
  ]]);
     end,
     
@@ -234,7 +239,10 @@ namespace {
         if (rtnType == nil) then
             rtnType = func.ReturnType;
         end
-        self:writeType(rtnType);
+        -- TODO: Whenever attributes are finished, the ptr type needs to be an actual
+        -- Type, not the Node!
+        self:write(rtnType.FullName);
+        --self:writeType(rtnType);
         self:write(" __rtnValue = ptr->" .. func.Node.Name .. "(/* TODO: capabiltiy of arguments */);\n");
         if (useWrappedLuaFunc) then
             self:write(luaGlueType.Name .. "::PutInstanceOnStack(L, __rtnValue);\n");
@@ -252,6 +260,7 @@ namespace {
     
     writeIncludes = function(self)
         self:writeLuaInclude();
+        self:write('#include "' .. self.node.Name .. 'Lua.h"\n');
         self:includeStatements();        
     end,
     
@@ -270,7 +279,7 @@ namespace {
             end
             self:write('if (index == "' .. fNode.Name .. '")\n');
             self:write('\t{\n');
-            self:write('\t\tlua_pushcfunction(L, ' .. glueName .. '::' .. fNode.Name .. ');\n');
+            self:write('\t\tlua_pushcfunction(L, ' .. self.functionWrapperName .. '::' .. fNode.Name .. ');\n');
             self:write('\t\treturn 1;\n');            
             self:write('\t}\n');
         end);
@@ -324,7 +333,7 @@ namespace {
 	return getInstance(L, index);
 }        
 
-bool ]] .. glueName .. [[::IsType(lua_State * L, int index, const char * metaTableName)
+bool ]] .. glueName .. [[::IsType(lua_State * L, int index)
 {
     // Copied this from the luaL_checkudata function
 	void * p = lua_touserdata(L, index);
@@ -334,7 +343,7 @@ bool ]] .. glueName .. [[::IsType(lua_State * L, int index, const char * metaTab
 		// Compares metatable from user data to one in registry.
 		if (lua_getmetatable(L, index))
 		{
-			lua_getfield(L, LUA_REGISTRYINDEX, metaTableName);
+			lua_getfield(L, LUA_REGISTRYINDEX, "]] .. self.metaTableName .. [[");
 			if (lua_rawequal(L, -1, -2))
 			{
 				returnValue = true;
@@ -343,11 +352,6 @@ bool ]] .. glueName .. [[::IsType(lua_State * L, int index, const char * metaTab
 		}
 	}
 	return returnValue;
-}
-
-bool ]] .. glueName .. [[::IsType(lua_State * L, int index)
-{
-	return IsType(L, index, "]] .. self.metaTableName .. [[");
 }
 
 int ]] .. glueName .. [[::OpenInLua(lua_State * L)

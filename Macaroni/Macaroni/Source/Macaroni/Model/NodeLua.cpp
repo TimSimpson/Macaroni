@@ -434,13 +434,10 @@ bool NodeLuaMetaData::IsType(lua_State * L, int index)
 }
 
 int NodeLuaMetaData::OpenInLua(lua_State * L)
-{	
-	DEBUGLOG_WRITE("Node open in lua begins...");
-	
+{		
 	luaL_getmetatable(L, METATABLENAME);
 	if (lua_isnil(L, -1) != 1)
 	{
-		DEBUGLOG_WRITE("... SKIP Node open in lua.");
 		return 0; // Already loaded, DO NOT WASTE TIME DUMMY.
 	}
 
@@ -463,8 +460,6 @@ int NodeLuaMetaData::OpenInLua(lua_State * L)
 
 	//FileNameLuaMetaData::OpenInLua(L);
 		
-
-	DEBUGLOG_WRITE("... open in lua ends.");
 	return 1;
 }
 

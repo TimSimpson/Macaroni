@@ -1,5 +1,6 @@
 require "Cpp/Common";
 require "Cpp/FileGenerator";
+require "Cpp/NodeInfo";
 
 local Access = Macaroni.Model.Cpp.Access;
 local Context = Macaroni.Model.Context;
@@ -35,10 +36,13 @@ LuaGlueHFile = {
         check(self.writer ~= nil, "Instance writer missing.");
         
         self:includeGuardHeader();
+        self:write("#include <string>\n");
+        self:write(NodeInfoList[self.node].heavyDef .. '\n');   
+        self:write(NodeInfoList[self.ptrNode].heavyDef .. '\n'); 
+        self:write("\n");
         self:write("struct lua_State;\n");
-        self:namespaceBegin(self.node.Node);        
-            self.writer:write("class " .. self.node.Name .. ";\n");
-            self.writer:write("class " .. self.ptrNode.Name .. ";\n");
+        self:write("\n");
+        self:namespaceBegin(self.node.Node);              
             self:writeStructDefinition();
         self:namespaceEnd(self.node.Node);
         self:includeGuardFooter();        
@@ -53,7 +57,7 @@ struct ]] .. self.node.Name .. [[LuaMetaData
     static ]] .. self.ptrNode.Name .. [[ & GetInstance(lua_State * L, int index);
     static int Index(lua_State * L, ]] .. self.ptrNode.Name .. [[ & ptr, const std::string & index);
     static void PutInstanceOnStack(lua_State * L, const ]] .. self.ptrNode.Name .. [[ & ptr); 
-}        
+};       
         ]]);
     end,    
 };

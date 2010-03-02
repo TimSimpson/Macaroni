@@ -82,26 +82,19 @@ int LUAGLUE_REGISTRATIONCLASSNAME::OpenInLua(lua_State * L)
 	luaL_getmetatable(L, metaTableName.c_str());
 	if (lua_isnil(L, -1) != 1)
 	{
-		Macaroni::Environment::DebugLog::Write(LUAGLUE_CLASSFULLLUANAME, __LINE__, "Skipping!!");
 		return 0; // Already loaded, DO NOT WASTE TIME DUMMY.
 	}				
 
 	luaL_newmetatable(L, metaTableName.c_str()); // create metaTable
-	Macaroni::Environment::DebugLog::Write(metaTableName.c_str(), __LINE__, " <== Metatable.");
-
+	
 	#ifdef LUAGLUE_CREATEMETATABLE
 		luaL_register(L, nullptr, metaTableMethods);
 	#endif
 
-	Macaroni::Environment::DebugLog::Write(LUAGLUE_CLASSFULLLUANAME, __LINE__, "About to call register...");
 	// Creates or reuses a table called "Macaroni_File" and puts it in global 
 	// scope.
 	luaL_register(L, GLOBALTABLENAME, tableMethods);
-	Macaroni::Environment::DebugLog::Write(LUAGLUE_CLASSFULLLUANAME, __LINE__, "...registration Completed.");
-
-	Macaroni::Environment::DebugLog::Write(LUAGLUE_CLASSFULLLUANAME, __LINE__, "Opening other modules...");
 	LUAGLUE_OPENOTHERMODULES;
-	Macaroni::Environment::DebugLog::Write(LUAGLUE_CLASSFULLLUANAME, __LINE__, "...finished opening other modules.");
 	return 1;
 }
 

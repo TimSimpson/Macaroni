@@ -139,8 +139,6 @@ bool FileNameLuaMetaData::IsType(lua_State * L, int index)
 
 int FileNameLuaMetaData::OpenInLua(lua_State * L)
 {	
-	DEBUGLOG_WRITE("OpenInLua begins...");
-
 	luaL_getmetatable(L, METATABLENAME_FN);
 	if (lua_isnil(L, -1) != 1)
 	{
@@ -153,7 +151,6 @@ int FileNameLuaMetaData::OpenInLua(lua_State * L)
 	// scope.
 	luaL_register(L, GLOBALTABLENAME_FN, tableMethods);
 
-	DEBUGLOG_WRITE("... open in lua ends.");
 	return 1;
 }
 

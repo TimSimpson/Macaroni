@@ -43,7 +43,7 @@
 			if (!!smPtr)
 			{
 				Cpp::Access access = smPtr->GetAccess();
-				Cpp::AccessLuaMetaData::PushInstanceOnStack(L, access);
+				Cpp::AccessLuaMetaData::PutInstanceOnStack(L, access);
 				return 1;
 			}
 		}

@@ -61,8 +61,6 @@ void intrusive_ptr_release(Typedef * p)
 void Typedef::Visit(MemberVisitor * visitor) const
 {
 	// Ignore! I HATE THIS IDEA! 
-	Macaroni::Environment::DebugLog::Write(__FILE__, __LINE__, 
-		"Whoa- are we still using this?");
 }
 
 END_NAMESPACE

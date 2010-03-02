@@ -150,7 +150,6 @@ bool ReasonLuaMetaData::IsType(lua_State * L, int index)
 
 int ReasonLuaMetaData::OpenInLua(lua_State * L)
 {	
-	DEBUGLOG_WRITE("OpenInLua begins...");
 	luaL_getmetatable(L, METATABLENAME);
 	if (lua_isnil(L, -1) != 1)
 	{
@@ -166,7 +165,6 @@ int ReasonLuaMetaData::OpenInLua(lua_State * L)
 	// scope.
 	luaL_register(L, GLOBALTABLENAME, tableMethods);
 
-	DEBUGLOG_WRITE("... open in lua ends.");
 	return 1;
 }
 

@@ -19,7 +19,7 @@ END_NAMESPACE
 #include "../Member.h"
 #include "ClassPtr.h"
 #include "Scope.h"
-
+ 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 class Class : public Scope

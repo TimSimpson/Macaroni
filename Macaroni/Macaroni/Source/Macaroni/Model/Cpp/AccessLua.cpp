@@ -22,7 +22,7 @@ static const struct luaL_Reg tableMethods[]=
 };
 
 
-int AccessLuaMetaData::PushInstanceOnStack(lua_State * L, Access access)
+int AccessLuaMetaData::PutInstanceOnStack(lua_State * L, Access access)
 {
 	if (access == Access_Private)
 	{

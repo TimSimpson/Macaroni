@@ -166,11 +166,9 @@ bool AxiomLuaMetaData::IsType(lua_State * L, int index)
 
 int AxiomLuaMetaData::OpenInLua(lua_State * L)
 {	
-	DEBUGLOG_WRITE("Axiom open in lua...");
 	luaL_getmetatable(L, METATABLENAME);
 	if (lua_isnil(L, -1) != 1)
 	{
-		DEBUGLOG_WRITE("... SKIP Axiom");
 		return 0; // Already loaded, DO NOT WASTE TIME DUMMY.
 	}
 	luaL_newmetatable(L, METATABLENAME); // create metaTable
@@ -180,7 +178,6 @@ int AxiomLuaMetaData::OpenInLua(lua_State * L)
 	// scope.
 	luaL_register(L, GLOBALTABLENAME, tableMethods);
 
-	DEBUGLOG_WRITE("... end Axiom open in lua.");
 	return 1;
 }
 

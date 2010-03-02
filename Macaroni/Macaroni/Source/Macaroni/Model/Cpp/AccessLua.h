@@ -10,7 +10,7 @@ BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 struct AccessLuaMetaData
 {	
 	static int OpenInLua(lua_State * L);
-	static int PushInstanceOnStack(lua_State * L, Access access);
+	static int PutInstanceOnStack(lua_State * L, Access access);
 };
 
 

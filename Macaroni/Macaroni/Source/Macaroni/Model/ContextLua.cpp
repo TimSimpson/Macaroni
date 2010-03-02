@@ -159,12 +159,9 @@ ContextPtr & ContextLuaMetaData::GetInstance(lua_State * L, int index)
 
 int ContextLuaMetaData::OpenInLua(lua_State * L)
 {
-	DEBUGLOG_WRITE("Context open in lua...");
-
 	luaL_getmetatable(L, METATABLENAME);
 	if (lua_isnil(L, -1) != 1)
 	{
-		DEBUGLOG_WRITE("... SKIP Context.");
 		return 0; // Already loaded, DO NOT WASTE TIME DUMMY.
 	}
 	luaL_newmetatable(L, METATABLENAME); // create metaTable
@@ -194,7 +191,6 @@ int ContextLuaMetaData::OpenInLua(lua_State * L)
 	/** Now open dependent libraries. */
 	NodeLuaMetaData::OpenInLua(L);
 
-	DEBUGLOG_WRITE("... end Context.");
 	return 1;
 }
 

@@ -164,13 +164,10 @@ bool LibraryLuaMetaData::IsType(lua_State * L, int index)
 }
 
 int LibraryLuaMetaData::OpenInLua(lua_State * L)
-{	
-	DEBUGLOG_WRITE("Library open in lua begins...");
-	
+{		
 	luaL_getmetatable(L, METATABLENAME);
 	if (lua_isnil(L, -1) != 1)
 	{
-		DEBUGLOG_WRITE("... SKIP Library open in lua.");
 		return 0; // Already loaded, DO NOT WASTE TIME DUMMY.
 	}
 
@@ -178,7 +175,6 @@ int LibraryLuaMetaData::OpenInLua(lua_State * L)
 	luaL_register(L, nullptr, metaTableMethods);
 	luaL_register(L, GLOBALTABLENAME, tableMethods);
 
-	DEBUGLOG_WRITE("... open in lua ends.");
 	return 1;
 }
 

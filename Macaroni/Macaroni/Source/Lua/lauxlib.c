@@ -623,18 +623,12 @@ LUALIB_API int (luaL_loadstring) (lua_State *L, const char *s) {
 /* }====================================================== */
 
 static void *l_alloc (void *ud, void *ptr, size_t osize, size_t nsize) {
-  FILE * log;
-
   (void)ud;
   (void)osize;   
   
-  log = DebugGetLogFile();	
-
   if (nsize == 0) {
     if (osize != 0) // bug in KOS?
     {
-		fprintf(log, "LUA_FREE : %p SIZE IS ZERO?!\n", ptr);
-		fflush(log);
         free(ptr);
     }
     return NULL;
@@ -647,11 +641,7 @@ static void *l_alloc (void *ud, void *ptr, size_t osize, size_t nsize) {
 		{
 			void * returnMe = malloc(nsize);
 			memcpy(returnMe, ptr, osize); 
-			fprintf(log, "LUA_COPY FREE : %p SIZE: %i\n", ptr, osize);
-			fflush(log);
 			free(ptr);
-			fprintf(log, "LUA_COPY CREATE : %p SIZE: %i\n", returnMe, nsize);			
-			fflush(log);
 			return returnMe;
 		}
 		else 
@@ -665,19 +655,13 @@ static void *l_alloc (void *ud, void *ptr, size_t osize, size_t nsize) {
 			Of course the fix is possibly ineffecient and even dangerous.
 			*/	
 			void * returnMe = realloc(ptr, nsize);
-			fprintf(log, "LUA_COPY2 FREE : %p SIZE: %i\n", ptr, osize);	
-			fflush(log);
-			fprintf(log, "LUA_COPY2 CREATE : %p SIZE: %i\n", returnMe, nsize);				
-			fflush(log);
 			return returnMe;
 		}
     }
     else
     {
         void * returnMe2 = malloc(nsize);
-		fprintf(log, "LUA_NEW : %p SIZE: %i\n", returnMe2, nsize);			
-		fflush(log);
-        return returnMe2;
+		return returnMe2;
     }
   }
 }

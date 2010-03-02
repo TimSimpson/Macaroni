@@ -106,8 +106,6 @@ static const struct luaL_Reg assignmentsMetaTableMethods[]=
 
 int ConstructorLuaMetaData::AssignmentListOpenInLua(lua_State * L)
 {
-	DEBUGLOG_WRITE("ConstructorAssignmentsOpenInLua begins...");
-
 	luaL_getmetatable(L, "Macaroni.Model.Cpp.Constructor.Assignments");
 	if (lua_isnil(L, -1) != 1)
 	{
@@ -116,7 +114,6 @@ int ConstructorLuaMetaData::AssignmentListOpenInLua(lua_State * L)
 	luaL_newmetatable(L, "Macaroni.Model.Cpp.Constructor.Assignments"); // create metaTable
 	luaL_register(L, nullptr, assignmentsMetaTableMethods);
 
-	DEBUGLOG_WRITE("... ConstructorAssignments open in lua ends...");
 	return 1;
 }
 END_NAMESPACE
