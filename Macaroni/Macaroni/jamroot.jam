@@ -1,0 +1,72 @@
+# Root Boost Build file for Macaroni.
+
+import boost ;
+boost.use-project 1.42 ;
+
+using testing ;
+		
+###############################################################################
+#		We specify all of the sources defined in the two directories,
+#	plus the main unit as it is not included with the normal source.
+###############################################################################
+
+alias sources
+	:	Source//source
+		MWork/GeneratedSource//generated
+	;
+			
+unit-test tests 
+	:	Source//tests
+		sources
+	;
+
+exe macaroni 
+	:	sources		
+		Source/Main.cpp		
+	;
+
+###############################################################################
+#		The feature <dependency> ensures the targets are built and exist
+#	even if target named (the unit tests) are kept up to date
+#	when the exe is updated, but it doesn't attempt to actually use them for
+#	the exe.
+###############################################################################
+# Store macaroni.exe in the Release directory.
+install installmsgs
+	:	Source//messages
+	:	<variant>debug:<location>release/debug
+		<variant>release:<location>release/release
+	;
+	
+install installgenerators
+	:	Source//luagenerators
+	:	<variant>debug:<location>release/debug/Generators
+		<variant>release:<location>release/release/Generators
+		<install-source-root>Source/Generators
+	;
+	
+		
+alias final-deps 
+	:	tests #Source//nodeTests
+		installgenerators
+		installmsgs
+	#:	<dependency>Source//nodeTests
+	#	<dependency>installexe
+	#	<dependency>installmsgs
+	#	<dependency>installgenerators
+	;
+	
+install final 
+	:	macaroni		 
+		#<file>Source/Messages.txt
+	:	<install-dependencies>on <install-type>EXE
+		<install-type>LIB
+		<variant>debug:<location>release/debug
+		<variant>release:<location>release/release
+		<dependency>final-deps
+		#<dependency>Source//nodeTests
+		#<dependency>installmsgs	
+		#<dependency>installgenerators
+	;
+
+		
