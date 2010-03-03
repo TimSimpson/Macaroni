@@ -3,11 +3,6 @@ project
 		<include>./		
 		<include>../MWork/GeneratedSource
 	;
-
-unit-test nodeTests 
-	:	./Macaroni/Model/NodeTest.cpp 
-		/boost//date_time	
-	;
 	
 alias source
 	:	[ glob-tree *.c	: .svn ]
@@ -18,13 +13,21 @@ alias source
 		<include>../MWork/GeneratedSource	
 	;
 
-alias tests
-	:	[ glob-tree *Test.cpp	: .svn ]	
-		/boost//filesystem
-		/boost//regex
-	:	<include>./		
-		<include>../MWork/GeneratedSource	
-	;
+#unit-test Macaroni_Model_NodeTests 
+#	:	./Macaroni/Model/NodeTest.cpp
+#		source		
+#	: 	<include>./		
+#		<include>../MWork/GeneratedSource	
+#	;
+
+#alias tests : Macaroni_Model_NodeTests  ;
+#alias tests
+#	:	[ glob-tree *Test.cpp	: .svn ]	
+#		/boost//filesystem
+#		/boost//regex
+#	:	<include>./		
+#		<include>../MWork/GeneratedSource	
+#	;
 	
 alias messages
 	:	./Messages.txt
