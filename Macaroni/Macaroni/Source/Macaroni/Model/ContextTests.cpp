@@ -33,16 +33,16 @@ BOOST_AUTO_TEST_CASE(ParseComplexName_will_morph_unknown_Nodes_into_Namespaces)
 	BOOST_CHECK_EQUAL(d_c->GetFullName(), "A::B::C");
     NodePtr d_b = d_c->GetNode();
     BOOST_CHECK_EQUAL(d_b->GetFullName(), "A::B");
-    local d_a = d_b.Node;
-    Test.assert("A", d_a.FullName);       
-    Test.assert(1, #(context.Root.Children));
+	NodePtr d_a = d_b->GetNode();
+    BOOST_CHECK_EQUAL(d_a->GetFullName(), "A");       
+	BOOST_CHECK_EQUAL(1, context->GetRoot()->GetChildCount());
    
-    -- Must reuse A, and morph it into an Namespace...
-    -- I.. am.. morphing...
-    local a = context.Root:FindOrCreate("A");
-    Test.assert("A", a.FullName);
-    Test.assert(a, d_a);
-    Test.assert(1, #(context.Root.Children));
+    // Must reuse A, and morph it into an Namespace...
+    // I.. am.. morphing...
+    NodePtr a = context->GetRoot()->FindOrCreate("A");
+    BOOST_CHECK_EQUAL("A", a->GetFullName());
+    BOOST_CHECK_EQUAL(a.get(), d_a.get());
+    BOOST_CHECK_EQUAL(1, context->GetRoot()->GetChildCount());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

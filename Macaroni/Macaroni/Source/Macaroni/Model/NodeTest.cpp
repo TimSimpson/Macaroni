@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE(makeContext)
 	NodePtr root = context->GetRoot();
 	BOOST_CHECK( !!root );
 	std::string name = root->GetName();
-	BOOST_CHECK_EQUAL(root->GetName(), "%ROOeT%");	
+	BOOST_CHECK_EQUAL(root->GetName(), "%ROOT%");	
 }
 
 BOOST_AUTO_TEST_CASE(checkFailure)
