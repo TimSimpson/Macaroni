@@ -1,7 +1,7 @@
 project
 	:	usage-requirements
 		<include>./		
-		<include>../MWork/GeneratedSource
+		<include>../GeneratedSource
 	;
 	
 alias source
@@ -10,14 +10,14 @@ alias source
 		/boost//filesystem
 		/boost//regex			
 	:	<include>./		
-		<include>../MWork/GeneratedSource	
+		<include>../GeneratedSource	
 	;
 
 #unit-test Macaroni_Model_NodeTests 
 #	:	./Macaroni/Model/NodeTest.cpp
 #		source		
 #	: 	<include>./		
-#		<include>../MWork/GeneratedSource	
+#		<include>../GeneratedSource	
 #	;
 
 #alias tests : Macaroni_Model_NodeTests  ;
@@ -26,7 +26,7 @@ alias source
 #		/boost//filesystem
 #		/boost//regex
 #	:	<include>./		
-#		<include>../MWork/GeneratedSource	
+#		<include>../GeneratedSource	
 #	;
 	
 alias messages

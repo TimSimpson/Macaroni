@@ -138,11 +138,6 @@ Configuration createConfiguration(LuaEnvironment & env, const char * name)
 	
 	config.SetName(name);
 
-	std::string additionalLinkerArgs;
-	env.GetFromCurrentTableVarOrDefault(additionalLinkerArgs, "additionalLinkerArgs", "");
-	config.SetAdditionalLinkerArgs(additionalLinkerArgs);
-
-
 	std::string compiler;
 	env.GetFromCurrentTableVarOrDefault(compiler, "compiler", "default");
 	/*
@@ -159,12 +154,6 @@ Configuration createConfiguration(LuaEnvironment & env, const char * name)
 		lua_pop(env.GetState(), 1);
 	config.SetCompiler(compiler);
 	*/
-	config.SetCompiler(compiler);
-	
-	std::vector<const std::string> cInclude = 
-		env.GetVectorFromCurrentTable("cInclude");
-	config.SetCInclude(cInclude);
-
 	std::vector<const ConfigurationId> dependencies;
 	lua_pushstring(env.GetState(), "dependencies");
 	lua_gettable(env.GetState(), -2); // key "dependencies" is popped off.
@@ -196,14 +185,6 @@ Configuration createConfiguration(LuaEnvironment & env, const char * name)
 	lua_pop(env.GetState(), 1); // pop off "dependnency" table.
 	config.SetDependencies(dependencies);
 	// Stack should be back to normal now.
-
-	std::vector<const std::string> libs = 
-		env.GetVectorFromCurrentTable("linkerLibraries");	
-	config.SetLinkerLibraries(libs);	
-
-	std::string final;
-	env.GetFromCurrentTableVarOrDefault(final, "final", "final");
-	config.SetFinal(final);
 
 	std::vector<const std::string> generators = env.GetVectorFromCurrentTable("generators");
 	config.SetGenerators(generators);
@@ -342,15 +323,7 @@ void Manifest::SaveAs(boost::filesystem::path & filePath)
 		{
 			const Configuration & config = this->configurations[i];
 			file << "\t" << config.GetName() << " = " << endl
-				<< "\t{" << endl;
-			file << "\t\tcompiler=[[" << config.GetCompiler() << "]]," << endl;
-			file << "\t\tcInclude=" << endl
-				<< "\t\t{" << endl;			
-			for (unsigned int i = 0; i < config.GetCInclude().size(); i ++)
-			{
-				file << "\t\t\t[[" << config.GetCInclude()[i] << "]]," << endl;
-			}		
-			file << "\t\t}," << endl;
+				<< "\t{" << endl;			
 			file << "\t\tdependencies=" << endl
 				 << "\t\t{" << endl;
 			for (unsigned int j = 0; j < config.GetDependencies().size(); j ++)
@@ -364,15 +337,7 @@ void Manifest::SaveAs(boost::filesystem::path & filePath)
 				file << "\t\t\t}" << endl;
 			}
 			file << "\t\t}," << endl;
-
-			file << "\t\tlinkerLibraries=" << endl
-				<<  "\t\t{" << endl;
-			for (unsigned int j = 0; j < config.GetLinkerLibraries().size(); j ++)
-			{
-				file << "\t\t\t[[" << config.GetLinkerLibraries()[j] << "]]," << endl;
-			}
-			file << "\t\t}," << endl;
-			file << "\t\tfinal=[[" << config.GetFinal() << "]]," << endl;
+			
 			file << "\t}," << endl;
 		}
 		file << "}" << endl;

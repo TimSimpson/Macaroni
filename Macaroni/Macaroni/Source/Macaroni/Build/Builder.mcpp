@@ -1,5 +1,4 @@
 ~import Macaroni::Environment::Console;
-~import Macaroni::Build::Cpp::CompilerSettings;
 ~import Macaroni::Build::Configuration;
 ~import Macaroni::Model::Context;
 ~import Macaroni::Model::ContextPtr;
@@ -9,7 +8,6 @@
 ~import Macaroni::IO::FileSet;
 ~import Macaroni::Model::Library;
 ~import Macaroni::Model::LibraryPtr;
-~import Macaroni::Build::Cpp::LinkerSettings;
 ~import Macaroni::Build::Manifest;
 ~import Macaroni::Build::MCompiler;
 ~import Macaroni::Build::MCompilerOptions;
@@ -30,64 +28,22 @@ namespace Macaroni::Build {
 class Builder
 {
 	private const Configuration & configuration;
-	private const Console & console;
-	private shared_ptr<CompilerSettings> cppCompiler;
+	private const Console & console;	
 	private vector<CppFile> cppFiles;
 	private vector<const string> cppSrcRoots;		
 	private bool install;
 	private LibraryPtr library;
-	private LinkerSettings linkerSettings;
 	private const Manifest & manifest;		
 	
 	public Builder(ContextPtr context, const Manifest & manifest, 
 		const Configuration & config, Console & console, bool install)
 	:	configuration(config),
 		console(console),  
-		cppCompiler(),
 		install(install),
 		library(context->CreateLibrary(manifest.GetName(), manifest.GetVersion())),
-		linkerSettings(),
 		manifest(manifest)
-	{
-		if (configuration.GetCompiler() != "skip")
-		{		
-			boost::filesystem::path cppCompilerSettingsFile = findCppCompilerSettingsFile();
-			cppCompiler = boost::shared_ptr<CompilerSettings>(new CompilerSettings(cppCompilerSettingsFile));
-			linkerSettings.AddCompilerLibPaths(*(cppCompiler.get()));
-			linkerSettings.AddConfigurationLibPaths(configuration);
-		}		
-	}
-
-	public bool CompileCpp()
-	{
-		if (!cppCompiler)
-		{
-			std::stringstream ss;
-			ss << "CompileCpp called but no compiler is set for this configuration "
-				<< "(configuration " << configuration.GetName() << " for "
-				<< manifest.GetGroup() << "/" << manifest.GetName() << " version "
-				<< manifest.GetVersion() << ").";
-			throw Macaroni::Exception(ss.str().c_str());
-		}
-
-		// Add include paths of the dependencies
-		std::vector<const std::string> includes;
-		createIncludePaths(includes);
-		cppCompiler->SetIncludePaths(includes);
-		// -
-		
-		std::vector<CppFile>::iterator itr;
-		bool perfect = true;
-		for(itr = cppFiles.begin(); itr != cppFiles.end(); itr ++)
-		{
-			CppFile & file = *itr;
-			if (!file.Compile(*(cppCompiler.get()), cppSrcRoots, console))
-			{
-				perfect = false;
-			}
-		}
-		return perfect;
-	}
+	{		
+	}	
 
 	public bool CompileMacaroni()
 	{
@@ -146,13 +102,7 @@ class Builder
 	}
 
 	public bool CopyCppFiles(path exportCppDir)
-	{
-		//const Path & rootDir = manifest.GetRootDirectory();
-		//PathPtr headersDirPath = rootDir.NewPathForceSlash(manifest.GetCppHeadersOutput());
-		//headersDirPath->CreateDirectory();
-
-		//boost::filesystem::path headersDir(headersDirPath->GetAbsolutePath());
-		
+	{			
 		std::vector<Path> cppFiles;
 
 		std::vector<const std::string>::iterator itr;
@@ -175,13 +125,7 @@ class Builder
 	}
 
 	public bool CopyHeaderFiles(path headersDir)
-	{
-		//const Path & rootDir = manifest.GetRootDirectory();
-		//PathPtr headersDirPath = rootDir.NewPathForceSlash(manifest.GetCppHeadersOutput());
-		//headersDirPath->CreateDirectory();
-
-		//boost::filesystem::path headersDir(headersDirPath->GetAbsolutePath());
-		
+	{	
 		std::vector<Path> hFiles;
 
 		std::vector<const std::string>::iterator itr;
@@ -244,41 +188,6 @@ class Builder
 		}
 	}
 
-	private void createIncludePaths(vector<const string> & includes)
-	{
-		for (unsigned int i = 0; i < cppCompiler->GetIncludePaths().size(); i ++)
-		{
-			includes.push_back(cppCompiler->GetIncludePaths()[i]);
-		}
-		createIncludePaths2(includes, configuration);
-	}
-
-	private void createIncludePaths2(vector<const string> & includes,
-	   								const Configuration & config)
-	{
-		const std::vector<const std::string> & configIncludes = config.GetCInclude();
-		for (unsigned int i = 0; i < configIncludes.size(); i ++)
-		{
-			includes.push_back(configIncludes[i]);
-		}
-
-		const std::vector<const ConfigurationId> & deps = config.GetDependencies();
-		for (unsigned int i = 0; i < deps.size(); i ++)
-		{
-			const ConfigurationId & cId = deps[i];
-			const Manifest dm(cId.GetManifestId().FindFinalManifestFile());
-			const Configuration * dConfig = dm.GetConfiguration(cId.GetName());
-			if (dConfig == nullptr)
-			{
-				std::stringstream ss;
-				ss << "Could not find configuration \"" << cId.GetName() 
-					<< "\" for dependency file \"" << cId.GetManifestId().FindFinalManifestFile()  << "\".";
-				throw Macaroni::Exception(ss.str().c_str());
-			}
-			createIncludePaths2(includes, *dConfig);
-		}
-	}
-
 	public bool CreateInterface()
 	{
 		return CreateInterfaceMh();
@@ -316,26 +225,7 @@ class Builder
 			if (saveCppSource)
 			{
 				success = SaveCppSource();
-			}
-
-			if (success && compile)
-			{
-				createCppSrcRoots();
-				createCppFileList();
-				if (!cppCompiler)
-				{
-					console.WriteLine("No Compiler specified.");
-				}
-				else
-				{
-					success = CompileCpp() && Link();
-				}
-			}
-				
-			if (success && install)
-			{
-				success = Install();
-			}
+			}			
 		}
 
 		if (success)
@@ -347,19 +237,7 @@ class Builder
 			console.WriteLine(" ~ GAME OVER ~ ");
 		}
 	}
-
-	private path findCppCompilerSettingsFile()
-	{
-		boost::filesystem::path exePath(Macaroni::IO::Paths::GetExeDirectoryPath());
-		boost::filesystem::path compilerDirPath = exePath / "Compilers";
-		boost::filesystem::path compilerFilePath = compilerDirPath / configuration.GetCompiler();
-		if (!boost::filesystem::exists(compilerFilePath))
-		{
-			compilerFilePath = compilerDirPath / (configuration.GetCompiler() + ".lua");
-		}
-		return compilerFilePath;
-	}
-
+	
 	public bool Install()
 	{
 		path userPath(Paths::GetUserPath());
@@ -373,136 +251,20 @@ class Builder
 		{
 			boost::filesystem::create_directories(installPath);
 		}
-
-		// Headers-
-		path headersLocal(manifest.GetCppHeadersOutput());
-		path headersInstall = installPath / "Headers";
-		boost::filesystem::create_directories(headersInstall);
-		CopyHeaderFiles(headersInstall);
-
-		// Export C++ source
-		path exportCppLocal(manifest.GetCppSourceOutput());
-		path exportCppInstall = installPath / "Cpp";
-		boost::filesystem::create_directories(exportCppInstall);
-		CopyCppFiles(exportCppInstall);
 		
-		// Interface.mh 
+		// Interface.mh - copy this file to root of directory.
 		path localMhInterface(manifest.GetRootDirectory());
 		localMhInterface = localMhInterface / manifest.GetMOutput();
 		localMhInterface = localMhInterface / "Interface.mh";
 		path exportMhInterfaceDir(installPath);
-		exportMhInterfaceDir = exportMhInterfaceDir / "Interface";
+		exportMhInterfaceDir = exportMhInterfaceDir;
 		boost::filesystem::create_directories(exportMhInterfaceDir);
 		path exportMhInterface = exportMhInterfaceDir/ "Interface.mh";
 		boost::filesystem::copy_file(localMhInterface, exportMhInterface);
-
-		// Install manifest
-		Manifest finalManifest(manifest.GetManifestFile());
-		// change MSource
-		std::vector<const std::string> newSrc;
-		Path interfaceRelativePath(installPath, exportMhInterfaceDir);
-		newSrc.push_back(interfaceRelativePath.GetRelativePath());
-		finalManifest.SetMSource(newSrc);
-		// Add headers to includes.
-		Path headersRelativePath(installPath, headersInstall);
-		const Configuration * allConfig = finalManifest.GetConfiguration("all");
-		if (allConfig == nullptr) 
-		{
-			throw Macaroni::Exception("Could not find \"all\" configuration.");
-		}
-		// This is a bad programming practice; however, consider that me want do 
-		// this now.
-		Configuration * mutableAllConfig = const_cast<Configuration *>(allConfig);
-		mutableAllConfig->GetMutableCInclude().push_back(headersRelativePath.GetRelativePath());
-		// Save to different path.
-		path installManifestPath = installPath / "manifest-final.lua";	
-		finalManifest.SaveAs(installManifestPath); 
-		//boost::filesystem::copy_file(manifest.GetManifestFile(), installManifestPath);	
 		
 		//Path::CopyDirectoryContents(headersLocal, headersInstall);
 		return true;
 	}	
-
-	public bool Link()
-	{
-		console.WriteLine(
-		"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ LINK"
-			);
-
-		if (configuration.GetFinal().empty())
-		{
-			console.WriteLine("The manifest's final directory is empty!");
-			return true;
-		}
-				
-		const vector<const string> & libPaths = linkerSettings.GetLibPaths();
-		/* // COMPUTE Lib paths:
-		for (unsigned int i = 0; i < cppCompiler->GetLinkerLibraryPaths().size(); i ++)
-		{
-			libPaths.push_back(cppCompiler->GetLinkerLibraryPaths()[i]);
-		}
-		for (unsigned int i = 0; i < configuration.GetDependencies().size(); i ++)
-		{		
-			const ConfigurationId & dId = configuration.GetDependencies()[i];
-			Manifest dm(dId.GetManifestId().FindFinalManifestFile());	
-			const Configuration * dConfig = dm.GetConfiguration(dId.GetName());
-			if (dConfig == nullptr)
-			{
-				std::stringstream ss;
-				ss << "Could not find configuration \"" 
-					<< dId.GetName() << " for dependency (" 
-					<< dId.GetManifestId().GetGroup() << ", "
-					<< dId.GetManifestId().GetName() << ", "
-					<< dId.GetManifestId().GetVersion() 
-					<< ").";
-				throw Macaroni::Exception(ss.str().c_str());
-			}
-			const std::vector<const std::string> dLibs = 
-				dConfig->GetLinkerLibraries();
-			for (unsigned int j = 0; j < dLibs.size(); j ++)
-			{
-				libPaths.push_back(dLibs[j]);
-			}
-		}
-		//end if*/
-
-		std::stringstream args;
-		for (unsigned int i = 0; i < libPaths.size(); i ++)
-		{
-			args << " /LIBPATH:\"" << libPaths[i] << "\" ";
-		}
-
-		for(std::vector<CppFile>::iterator itr = cppFiles.begin(); 
-			itr != cppFiles.end(); itr ++)
-		{
-			CppFile & file = *itr;
-			args << " \"" << file.GetObjectFilePath() << "\" ";
-		}
-
-		if (!cppCompiler->GetAdditionalLinkerArgs().empty())
-		{
-			args << cppCompiler->GetAdditionalLinkerArgs();
-		}
-
-		const Path rootDir(manifest.GetRootDirectory(), manifest.GetRootDirectory());
-		PathPtr finalDirRoot = rootDir.NewPathForceSlash(manifest.GetFinalOutput());
-		PathPtr dir = finalDirRoot->NewPathForceSlash(configuration.GetName());
-		dir->CreateDirectory();
-		PathPtr finalFile = dir->NewPathForceSlash(configuration.GetFinal());
-
-		args << " /OUT:\"" << finalFile->GetAbsolutePath() << "\" ";
-
-		args << configuration.GetAdditionalLinkerArgs();
-
-		Process proc(cppCompiler->GetLinkerExe(),
-					 args.str(),
-					 dir->GetAbsolutePath(),
-					 cppCompiler->GetPaths(),
-					 cppCompiler->GetEnvironmentVariables());
-		proc.Run(console);
-		
-		return finalFile->Exists();
-	}
 
 	public bool SaveCppSource() 
 	{				
@@ -512,7 +274,7 @@ class Builder
 		path cppSourceLocal(manifest.GetCppSourceOutput());		
 
 		std::stringstream ss;
-		ss << "Saving generated C++ sourc code to " <<
+		ss << "Saving generated and non-generated C++ source code to " <<
 				cppSourceLocal.string() << ".";
 		console.WriteLine(ss.str());
 

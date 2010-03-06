@@ -129,7 +129,14 @@ bool Path::IsFileOlderThan(const std::string & filePath) const
 	} 
 	boost::filesystem::path one(this->GetAbsolutePath());
 	boost::filesystem::path two(filePath);
-	return FileTime::File1IsOlderThanFile2(one, two);
+	try {
+		return FileTime::File1IsOlderThanFile2(one, two);
+	} 
+	catch( ... ) 
+	{
+		// When in doubt, delete the generated file.
+		return true;
+	}
 }
 
 PathPtr Path::NewPath(const std::string & name) const

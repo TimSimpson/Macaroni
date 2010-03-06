@@ -1,0 +1,22 @@
+# Root Boost Build file for Macaroni Regression Tests.
+
+import boost ;
+boost.use-project 1.42 ;
+
+using testing ;
+
+alias sources
+	:	Source//source
+		GeneratedSource//generated
+	;
+
+lib tlib
+	:	sources
+	:	<link>static 
+	;
+	
+exe tests
+	:	tlib
+		Source/Main.cpp	
+		Macaroni.rc
+	;

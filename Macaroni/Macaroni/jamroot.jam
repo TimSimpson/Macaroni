@@ -12,7 +12,7 @@ using testing ;
 
 alias sources
 	:	Source//source
-		MWork/GeneratedSource//generated
+		GeneratedSource//generated
 	;
 			
 #unit-test tests 

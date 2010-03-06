@@ -1,4 +1,4 @@
-id = 
+id =  -- Not needed.
 {    
     group="Macaroni",
     name="Macaroni",
@@ -21,7 +21,7 @@ mSource =
 {  
     "Source"
 }
-mOutput = "MWork/GeneratedSource"
+mOutput = "GeneratedSource"
 
 cppInput =  
 {
@@ -32,7 +32,7 @@ cppInput =
 cppOutput = {
     headers="MWork/Headers",
     objects="MWork/Objects",
-    cppSource="MWork/CppSource"
+    cppSource="PureCppBackup"
 }
 
 

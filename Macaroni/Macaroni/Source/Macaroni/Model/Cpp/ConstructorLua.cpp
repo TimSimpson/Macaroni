@@ -102,6 +102,7 @@ static const struct luaL_Reg assignmentsMetaTableMethods[]=
 	{"__index", assignmentsIndex},
 	{"__len", assignmentsLen},
 	{"__tostring", assignmentsToString},
+	{nullptr, nullptr}
 };
 
 int ConstructorLuaMetaData::AssignmentListOpenInLua(lua_State * L)

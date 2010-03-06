@@ -202,10 +202,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\MWork\GeneratedSource\Macaroni\Build\Builder.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\Macaroni\Model\Cpp\Class.cpp"
 				>
 			</File>
@@ -214,23 +210,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\MWork\GeneratedSource\Macaroni\Model\Cpp\ClassParent.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\Macaroni\Model\Cpp\ClassParent.mcpp"
-				>
-			</File>
-			<File
-				RelativePath=".\MWork\GeneratedSource\Macaroni\Model\Cpp\ClassParentLua.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\MWork\GeneratedSource\Macaroni\Build\CmdLine.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\MWork\GeneratedSource\Macaroni\CmdLine\CmdLineOption.cpp"
 				>
 			</File>
 			<File
@@ -267,10 +247,6 @@
 			</File>
 			<File
 				RelativePath=".\Source\Macaroni\Model\Cpp\CppContext.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\MWork\GeneratedSource\Macaroni\Build\Cpp\CppFile.cpp"
 				>
 			</File>
 			<File
@@ -411,10 +387,6 @@
 			</File>
 			<File
 				RelativePath=".\Source\Lua\linit.c"
-				>
-			</File>
-			<File
-				RelativePath=".\MWork\GeneratedSource\Macaroni\Build\Cpp\LinkerSettings.cpp"
 				>
 			</File>
 			<File
@@ -696,10 +668,6 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\MWork\GeneratedSource\Macaroni\Model\Cpp\_.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\Macaroni\Model\Cpp\Access.h"
 				>
 			</File>
@@ -740,10 +708,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\MWork\GeneratedSource\Macaroni\Build\Builder.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\Macaroni\Model\Cpp\Class.h"
 				>
 			</File>
@@ -752,23 +716,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\MWork\GeneratedSource\Macaroni\Model\Cpp\ClassParent.h"
-				>
-			</File>
-			<File
-				RelativePath=".\MWork\GeneratedSource\Macaroni\Model\Cpp\ClassParentLua.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\Macaroni\Model\Cpp\ClassPtr.h"
-				>
-			</File>
-			<File
-				RelativePath=".\MWork\GeneratedSource\Macaroni\Build\CmdLine.h"
-				>
-			</File>
-			<File
-				RelativePath=".\MWork\GeneratedSource\Macaroni\CmdLine\CmdLineOption.h"
 				>
 			</File>
 			<File
@@ -833,10 +781,6 @@
 			</File>
 			<File
 				RelativePath=".\Source\Macaroni\Model\Cpp\CppContextPtr.h"
-				>
-			</File>
-			<File
-				RelativePath=".\MWork\GeneratedSource\Macaroni\Build\Cpp\CppFile.h"
 				>
 			</File>
 			<File
@@ -981,10 +925,6 @@
 			</File>
 			<File
 				RelativePath=".\Source\Macaroni\Model\LibraryMember.h"
-				>
-			</File>
-			<File
-				RelativePath=".\MWork\GeneratedSource\Macaroni\Build\Cpp\LinkerSettings.h"
 				>
 			</File>
 			<File
@@ -1148,19 +1088,19 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Parser.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\Macaroni\Parser\Parser.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Parser\ParserException.h"
+				RelativePath=".\Source\Macaroni\Parser.h"
 				>
 			</File>
 			<File
 				RelativePath=".\Source\Macaroni\Model\ParserException.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Parser\ParserException.h"
 				>
 			</File>
 			<File

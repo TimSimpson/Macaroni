@@ -11,31 +11,12 @@ mSource =
 {   -- Ditto.  This is also the default.
     "Source"
 }
-mOutput = "MWork/GeneratedSource"
+mOutput = "GeneratedSource"
 
-cppInput =  -- These include paths are the default for a manifest, I'm putting it here to illustrate it.
-{   -- This refers to the Includes you'd give the C++ compiler, btw. Macaroni Compiler does not use it.
-    "MWork/GeneratedSource",
-    "Source"
-}
-
-cppOutput = {
-    headers="MWork/Headers",  -- All headers are copied to this directory, where they can be reused.
-    objects="MWork/Objects",  -- All object files are placed here.
-}
-
-
-fOutput = "MWork/Final"
 
 configurations = {
     all =
-    {
-        compiler = "Windows-VS9-Console",
-        --compilerOptions = {
-        --    preprocessorDirectives = {
-        --        _MDd=
-        --    },
-        --},
+    {        
         generators =
         {
             "Cpp.lua",       
