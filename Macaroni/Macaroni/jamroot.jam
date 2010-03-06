@@ -49,10 +49,11 @@ alias tests
 		[ run Source/Macaroni/Model/ContextTests.cpp mlib ]		
 	;
 
-
 exe macaroni 
-	:	mlib #sources		
-		Source/Main.cpp		
+	:	mlib
+		Source/Main.cpp	
+		Macaroni.rc
+	:	<dependency>tests # <-- Force tests to pass before creating EXE	
 	;
 
 ###############################################################################
