@@ -1,3 +1,4 @@
+~import BOOST_FOREACH;
 ~import Macaroni::Environment::Console;
 ~import Macaroni::Build::Configuration;
 ~import Macaroni::Model::Context;
@@ -28,47 +29,47 @@ namespace Macaroni::Build {
 class Builder
 {
 	private const Configuration & configuration;
-	private const Console & console;	
+	private const Console & console;
 	private vector<CppFile> cppFiles;
-	private vector<const string> cppSrcRoots;		
+	private vector<const string> cppSrcRoots;
 	private bool install;
 	private LibraryPtr library;
-	private const Manifest & manifest;		
-	
-	public Builder(ContextPtr context, const Manifest & manifest, 
+	private const Manifest & manifest;
+
+	public Builder(ContextPtr context, const Manifest & manifest,
 		const Configuration & config, Console & console, bool install)
 	:	configuration(config),
-		console(console),  
+		console(console),
 		install(install),
 		library(context->CreateLibrary(manifest.GetName(), manifest.GetVersion())),
 		manifest(manifest)
-	{		
-	}	
+	{
+	}
 
 	public bool CompileMacaroni()
 	{
 		console.WriteLine("~ Compiling Macaroni Source into C++ ~");
-	
+
 		std::string mSrc = manifest.GetMSource()[0];
-		std::string mOut = manifest.GetMOutput(); 
+		std::string mOut = manifest.GetMOutput();
 		std::vector<FileSet> inputFiles;
-		
+
 		MCompiler compiler;
 
 		// Include dependencies
 		const std::vector<const ConfigurationId> & dependencies = this->configuration.GetDependencies();
-		for (unsigned int i = 0; i < dependencies.size(); i ++)
+		BOOST_FOREACH(const ConfigurationId & dependency, dependencies)
 		{
-			const ManifestId & id = dependencies[i].GetManifestId();
+			const ManifestId & id = dependency.GetManifestId();
 			Manifest dManifest(id.FindFinalManifestFile());
 			const std::vector<const std::string> dSrc = dManifest.GetMSource();
-			for (unsigned int j = 0; j < dSrc.size(); j ++)
+			BOOST_FOREACH(const string & dir, dSrc)
 			{
 				LibraryPtr dLib = library->GetContext()->CreateLibrary(
-					dManifest.GetName(), dManifest.GetVersion());			
+					dManifest.GetName(), dManifest.GetVersion());
 				std::vector<FileSet> dInput;
-				dInput.push_back(FileSet(boost::filesystem::path(dSrc[j]), "\\.m(cpp|h)?$"));
-				compiler.BuildModel(dLib, dInput);			
+				dInput.push_back(FileSet(boost::filesystem::path(dir), "\\.m(cpp|h)?$"));
+				compiler.BuildModel(dLib, dInput);
 				//compiler.BuildModel(library, dInput);
 			}
 		}
@@ -76,16 +77,16 @@ class Builder
 
 		inputFiles.push_back(FileSet(boost::filesystem::path(mSrc), "\\.mcpp$"));
 
-		MCompilerOptions options(inputFiles, 
+		MCompilerOptions options(inputFiles,
 								 boost::filesystem::path(mOut),
-								 configuration.GetGenerators());	
+								 configuration.GetGenerators());
 
 		try
 		{
-			compiler.Compile(library, options);	
-		} 
+			compiler.Compile(library, options);
+		}
 		catch(Macaroni::Exception & ex)
-		{ 
+		{
 			console.WriteLine("An error occured during Macaroni phase.");
 			console.WriteLine(ex.GetSource());
 			console.WriteLine(ex.GetMessage());
@@ -102,46 +103,42 @@ class Builder
 	}
 
 	public bool CopyCppFiles(path exportCppDir)
-	{			
+	{
 		std::vector<Path> cppFiles;
 
-		std::vector<const std::string>::iterator itr;
-		for(itr = cppSrcRoots.begin(); itr != cppSrcRoots.end(); itr ++)
+        BOOST_FOREACH(const string & srcDirectory, cppSrcRoots)
 		{
-			const std::string & srcDirectory = *itr;
-			boost::filesystem::path srcDirectoryPath = 
+			boost::filesystem::path srcDirectoryPath =
 				boost::filesystem::path(srcDirectory);
 			FileSet input(srcDirectoryPath, "\\.c(pp)?$");
 			FileSet::Iterator itr2 = input.Begin();
 			FileSet::Iterator end = input.End();
 			for(; itr2 != end; ++ itr2)
-			{			
+			{
 				Path path(srcDirectoryPath, *itr2);
 				path.CopyToDifferentRootPath(exportCppDir);
-			}	
+			}
 		}
 
 		return true;
 	}
 
 	public bool CopyHeaderFiles(path headersDir)
-	{	
+	{
 		std::vector<Path> hFiles;
 
-		std::vector<const std::string>::iterator itr;
-		for(itr = cppSrcRoots.begin(); itr != cppSrcRoots.end(); itr ++)
+        BOOST_FOREACH(const string & srcDirectory, cppSrcRoots)
 		{
-			const std::string & srcDirectory = *itr;
-			boost::filesystem::path srcDirectoryPath = 
+            boost::filesystem::path srcDirectoryPath =
 				boost::filesystem::path(srcDirectory);
 			FileSet input(srcDirectoryPath, "\\.h(pp)?$");
 			FileSet::Iterator itr2 = input.Begin();
 			FileSet::Iterator end = input.End();
 			for(; itr2 != end; ++ itr2)
-			{			
+			{
 				Path path(srcDirectoryPath, *itr2);
 				path.CopyToDifferentRootPath(headersDir);
-			}	
+			}
 		}
 
 		return true;
@@ -158,11 +155,9 @@ class Builder
 		PathPtr objFilesDir = objFilesDirRoot->NewPathForceSlash(configuration.GetName());
 		objFilesDir->CreateDirectory();
 
-		std::vector<const std::string>::iterator itr;
-		for(itr = cppSrcRoots.begin(); itr != cppSrcRoots.end(); itr ++)
-		{
-			const std::string & srcDirectory = *itr;
-			boost::filesystem::path srcDirectoryPath = 
+        BOOST_FOREACH(const string & srcDirectory, cppSrcRoots)
+        {
+			boost::filesystem::path srcDirectoryPath =
 				boost::filesystem::path(srcDirectory);
 			FileSet input(srcDirectoryPath, "\\.c(pp)?$");
 			FileSet::Iterator itr2 = input.Begin();
@@ -170,10 +165,10 @@ class Builder
 			for(; itr2 != end; ++ itr2)
 			{
 				boost::filesystem::path p = *itr2;
-				cppFiles.push_back(CppFile(srcDirectoryPath, 
-								p, 
+				cppFiles.push_back(CppFile(srcDirectoryPath,
+								p,
 								objFilesDir->GetAbsolutePath()));
-			}	
+			}
 		}
 	}
 
@@ -181,9 +176,9 @@ class Builder
 	{
 		cppSrcRoots = manifest.GetMSource();
 		cppSrcRoots.push_back(manifest.GetMOutput());
-		for (unsigned int i = 0; i < cppSrcRoots.size(); i ++) 
+		BOOST_FOREACH(const string & srcDir, cppSrcRoots)
 		{
-			boost::filesystem::path srcPath(cppSrcRoots[i]);
+			boost::filesystem::path srcPath(srcDir);
 			cppSrcRoots[i] = boost::filesystem::system_complete(srcPath).string();
 		}
 	}
@@ -214,10 +209,10 @@ class Builder
 		bool success = true;
 		if (generate)
 		{
-			success = CompileMacaroni();			
+			success = CompileMacaroni();
 		}
 
-		if (success) 
+		if (success)
 		{
 			createCppSrcRoots();
 			createCppFileList();
@@ -225,7 +220,11 @@ class Builder
 			if (saveCppSource)
 			{
 				success = SaveCppSource();
-			}			
+			}
+			if (install)
+			{
+			    Install();
+			}
 		}
 
 		if (success)
@@ -237,11 +236,11 @@ class Builder
 			console.WriteLine(" ~ GAME OVER ~ ");
 		}
 	}
-	
+
 	public bool Install()
 	{
 		path userPath(Paths::GetUserPath());
-		path installPath = userPath / "Libraries" / manifest.GetGroup() 
+		path installPath = userPath / "Libraries" / manifest.GetGroup()
 							/ manifest.GetName() / manifest.GetVersion();
 		if (boost::filesystem::exists(installPath))
 		{
@@ -251,7 +250,7 @@ class Builder
 		{
 			boost::filesystem::create_directories(installPath);
 		}
-		
+
 		// Interface.mh - copy this file to root of directory.
 		path localMhInterface(manifest.GetRootDirectory());
 		localMhInterface = localMhInterface / manifest.GetMOutput();
@@ -261,17 +260,17 @@ class Builder
 		boost::filesystem::create_directories(exportMhInterfaceDir);
 		path exportMhInterface = exportMhInterfaceDir/ "Interface.mh";
 		boost::filesystem::copy_file(localMhInterface, exportMhInterface);
-		
+
 		//Path::CopyDirectoryContents(headersLocal, headersInstall);
 		return true;
-	}	
+	}
 
-	public bool SaveCppSource() 
-	{				
+	public bool SaveCppSource()
+	{
 		createCppSrcRoots();
         createCppFileList();
 
-		path cppSourceLocal(manifest.GetCppSourceOutput());		
+		path cppSourceLocal(manifest.GetCppSourceOutput());
 
 		std::stringstream ss;
 		ss << "Saving generated and non-generated C++ source code to " <<
@@ -283,7 +282,7 @@ class Builder
 		CopyCppFiles(cppSourceLocal);
 		return true;
 	}
-	
+
 };
 
 } // end namespace
