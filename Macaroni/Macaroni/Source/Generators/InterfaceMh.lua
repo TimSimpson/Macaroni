@@ -1,4 +1,3 @@
-package.path = "F:/Lp3/Projects/Macaroni/Code/trunk/Macaroni/Macaroni/Debug/Generators/?.lua"
 require "Cpp/Common";
 require "Cpp/CppFileGenerator";
 require "Cpp/HFileGenerator";

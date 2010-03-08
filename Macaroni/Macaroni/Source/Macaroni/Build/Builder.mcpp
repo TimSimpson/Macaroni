@@ -176,11 +176,11 @@ class Builder
 	{
 		cppSrcRoots = manifest.GetMSource();
 		cppSrcRoots.push_back(manifest.GetMOutput());
-		BOOST_FOREACH(const string & srcDir, cppSrcRoots)
-		{
-			boost::filesystem::path srcPath(srcDir);
-			cppSrcRoots[i] = boost::filesystem::system_complete(srcPath).string();
-		}
+		for (unsigned int i = 0; i < cppSrcRoots.size(); i ++)
+        {
+            boost::filesystem::path srcPath(cppSrcRoots[i]);
+            cppSrcRoots[i] = boost::filesystem::system_complete(srcPath).string();
+        }
 	}
 
 	public bool CreateInterface()
