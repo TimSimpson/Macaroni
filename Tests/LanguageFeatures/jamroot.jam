@@ -12,11 +12,10 @@ alias sources
 
 lib tlib
 	:	sources
-	:	<link>static 
+	:	<link>static
 	;
-	
+
 exe tests
 	:	tlib
-		Source/Main.cpp	
-		Macaroni.rc
+		Source/Main.cpp
 	;

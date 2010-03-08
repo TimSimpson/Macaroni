@@ -1,16 +1,22 @@
+namespace Macaroni::Tests::BlockTests
+{
+
 class Blocks
 {
 	~block "h"
 	{
-		hbfdhklblfdjkbdf
-			bgfscbjdfkgjksdf
-			"gsdfbhfsd
+        public: Blocks();
+        private : int x;
+        public: inline int X() { return x; }
 	}
 	~block "cpp"
 	{
-		fgsdjgh
-			gfdjkgjdfgfsglkfds
-			dfsakl'fdkslgjk
+		Blocks::Blocks()
+            : x(318)
+		{
+		}
 	}
 };
 
+
+} // end namespace
