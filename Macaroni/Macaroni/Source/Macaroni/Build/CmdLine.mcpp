@@ -15,21 +15,21 @@
 ~import std::stringstream;
 ~import std::vector;
 
-namespace Macaroni::Build { 
+namespace Macaroni::Build {
 
 class CmdLine
 {
 	private bool compile;
 	private string config;
 	private Console & console;
-	private bool debugMode;	
+	private bool debugMode;
 	private bool endPrompt;
 	private bool generate;
-	private string inputPath;	
+	private string inputPath;
 	private bool install;
 	private string luaTestsPath;
 	private string manifestPath;
-	private string outputPath;	
+	private string outputPath;
 	private bool saveCppSource;
 
 	public CmdLine(const vector<const string> & args, Console & console)
@@ -52,11 +52,11 @@ class CmdLine
 			const std::string nextArg;
 			if (i < args.size() - 1) {
 				const std::string nextArg = args[i + 1];
-				parseArg(arg, nextArg);	
+				parseArg(arg, nextArg);
 			} else {
 				parseArg(arg, "");
-			}				
-		}	
+			}
+		}
 	}
 
 	public ~CmdLine()
@@ -84,7 +84,7 @@ class CmdLine
 				const std::vector<const std::string> generators;
 				std::vector<FileSet> input;
 				input.push_back(FileSet(boost::filesystem::path(inputPath), "\\.mcpp$"));
-				MCompilerOptions options(input, 
+				MCompilerOptions options(input,
 										 boost::filesystem::path(outputPath),
 										 generators);
 				MCompiler compiler;
@@ -97,7 +97,7 @@ class CmdLine
 				console.Write("UNHANDLED EXCEPTION:\n");
 				console.WriteLine(ex.GetMessage());
 				console.WriteLine(ex.GetSource());
-			} 
+			}
 		}
 	}
 
@@ -115,8 +115,8 @@ class CmdLine
 		else if (!(inputPath.empty() && outputPath.empty()))
 		{
 			directCompile();
-		}		
-		else 
+		}
+		else
 		{
 			runManifest();// TODO: Read manifest from local directory and attempt build.
 		}
@@ -159,7 +159,7 @@ class CmdLine
 			}
 			else
 			{
-				luaTestsPath = next;			
+				luaTestsPath = next;
 			}
 		}
 		else if (arg == "inputDirectory")
@@ -203,6 +203,11 @@ class CmdLine
         {
             saveCppSource = true;
         }
+        else if (arg == "wait")
+        {
+            std::string stuff;
+            std::cin >> stuff;
+        }
 	}
 
 	private void runLuaTests()
@@ -213,7 +218,7 @@ class CmdLine
 
 		std::stringstream ss;
 		ss << luaTestsPath << "/Tests.lua";
-		lua.ParseFile(ss.str()); 
+		lua.ParseFile(ss.str());
 		lua.Run();
 	}
 
@@ -229,7 +234,7 @@ class CmdLine
 			config = "all";
 		}
 
-		boost::filesystem::path manifestFilePath(manifestPath);	
+		boost::filesystem::path manifestFilePath(manifestPath);
 		Manifest manifest(manifestFilePath);
 
 		const Configuration * mConfig = manifest.GetConfiguration(config);
@@ -243,7 +248,7 @@ class CmdLine
 		const Configuration & mRefConfig = *mConfig;
 
 		ContextPtr context(new Context("%ROOT%"));
-		Builder builder(context, manifest, mRefConfig, console, install);	
+		Builder builder(context, manifest, mRefConfig, console, install);
 		compile = compile || install;
 		generate = generate || compile;
 		builder.Execute(generate, saveCppSource, compile, install);

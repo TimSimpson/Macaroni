@@ -13,6 +13,11 @@ using Macaroni::IO::Paths;
 
 namespace Macaroni { namespace Build {
 
+static int dependency(lua_State * L);
+
+static int _dependency(lua_State * L);
+static int _source(lua_State * L);
+
 Configuration createConfiguration(LuaEnvironment & env, const char * name);
 std::vector<const Configuration> createConfigurations(LuaEnvironment & env);
 //void getFromLuaVarOrDefault(std::string & rtnValue, lua_State * L, const char * name, const char * dflt);
@@ -25,6 +30,7 @@ Manifest::Manifest()
 :configurations(),
  cppHeadersOutput(),
  cppOutput(""),
+ dependencies(),
  description(""),
  fOutput(""),
  group(""),
@@ -38,29 +44,39 @@ Manifest::Manifest()
 }
 
 Manifest::Manifest(const boost::filesystem::path & manifestFile)
-:description(""),
+:dependencies(),
+ description(""),
  id(),
+ luaEnv(),
  manifestFile(manifestFile),
  rootDirectory(manifestFile.branch_path())
 {
-	LuaEnvironment env;
-	
 	boost::filesystem::path settingsPath(Paths::GetUserPath());
 	settingsPath = settingsPath / "Settings";
-	env.SetPackageDirectory(settingsPath.string());
+	luaEnv.SetPackageDirectory(settingsPath.string());
 
-	env.ParseFile(manifestFile.string());
-	env.Run();
-	lua_State * L = env.GetState();
+	luaEnv.ParseFile(manifestFile.string());
+
+	lua_State * L = luaEnv.GetState();
+
+    lua_pushlightuserdata(L, &(this->mSource));
+    lua_pushcclosure(L, &_source, 1);
+	lua_setglobal(L, "source");
+
+    lua_pushlightuserdata(L, &(this->dependencies));
+    lua_pushcclosure(L, &_dependency, 1);
+	lua_setglobal(L, "dependency");
+
+	luaEnv.Run();
 
 	setManifestId(id, L);
-	
-	boost::filesystem::path manifestDir = manifestFile;
-	manifestDir.remove_filename();	
 
-	env.GetFromGlobalVarOrDefault(description, "description", "");
-	
-	mSource = env.GetVectorFromGlobalTable("mSource");
+	boost::filesystem::path manifestDir = manifestFile;
+	manifestDir.remove_filename();
+
+	luaEnv.GetFromGlobalVarOrDefault(description, "description", "");
+
+	mSource = luaEnv.GetVectorFromGlobalTable("mSource");
 	if (mSource.size() == 0)
 	{
 		mSource.push_back("Source");
@@ -68,38 +84,97 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile)
 	for(unsigned int i = 0; i < mSource.size(); i ++)
 	{
 		mSource[i] = (manifestDir / mSource[i]).string();
-	}	
-
-	lua_getglobal(env.GetState(), "id");
-	if (!lua_isnil(env.GetState(), -1))
-	{
-		env.GetFromCurrentTableVarOrDefault(group, "group", "Unknown");
-		env.GetFromCurrentTableVarOrDefault(name, "name", manifestFile.string().c_str());
-		env.GetFromCurrentTableVarOrDefault(version, "version", "???");			
 	}
-	lua_pop(env.GetState(), 1);
 
-
-	lua_getglobal(env.GetState(), "cppOutput");
-	if (!lua_isnil(env.GetState(), -1))
+	lua_getglobal(luaEnv.GetState(), "id");
+	if (!lua_isnil(luaEnv.GetState(), -1))
 	{
-		env.GetFromGlobalVarOrDefault(cppHeadersOutput, "headers", "MWork/Headers");
-		env.GetFromCurrentTableVarOrDefault(cppOutput, "objects", "MWork/Objects");	
-		env.GetFromGlobalVarOrDefault(cppSourceOutput, "cpp", "MWork/Cpp");
+		luaEnv.GetFromCurrentTableVarOrDefault(group, "group", "Unknown");
+		luaEnv.GetFromCurrentTableVarOrDefault(name, "name", manifestFile.string().c_str());
+		luaEnv.GetFromCurrentTableVarOrDefault(version, "version", "???");
 	}
-	lua_pop(env.GetState(), 1);
+	lua_pop(luaEnv.GetState(), 1);
+
+
+	lua_getglobal(luaEnv.GetState(), "cppOutput");
+	if (!lua_isnil(luaEnv.GetState(), -1))
+	{
+		luaEnv.GetFromGlobalVarOrDefault(cppHeadersOutput, "headers", "MWork/Headers");
+		luaEnv.GetFromCurrentTableVarOrDefault(cppOutput, "objects", "MWork/Objects");
+		luaEnv.GetFromGlobalVarOrDefault(cppSourceOutput, "cpp", "MWork/Cpp");
+	}
+	lua_pop(luaEnv.GetState(), 1);
 
 	//env.GetFromGlobalVarOrDefault(cppOutput, "cppOutput", "MWork/Objects");
 	//	env.GetFromGlobalVarOrDefault(iOutput, "iOutput", "MWork/Interface");
 
-	env.GetFromGlobalVarOrDefault(fOutput, "fOutput", "MWork/Final");
+	luaEnv.GetFromGlobalVarOrDefault(fOutput, "fOutput", "MWork/Final");
 
-	env.GetFromGlobalVarOrDefault(mOutput, "mOutput", "MWork/GeneratedSource");
+	luaEnv.GetFromGlobalVarOrDefault(mOutput, "mOutput", "MWork/GeneratedSource");
 
 	mOutput = (manifestDir / mOutput).string();
-	
 
-	configurations = createConfigurations(env);
+
+	configurations = createConfigurations(luaEnv);
+
+	lua_gc(L, LUA_GCCOLLECT, NULL);
+}
+
+Manifest::~Manifest()
+{
+    std::cout << "Deleting " << this->id.GetGroup() << "::"
+        << this->id.GetName() << "::"
+        << this->id.GetVersion() << "...\n";
+    for (unsigned int i = 0; i < dependencies.size(); i ++)
+    {
+        Manifest * m = dependencies[i];
+        delete m;
+    }
+    this->dependencies.clear();
+    lua_gc(luaEnv.GetState(), LUA_GCCOLLECT, NULL);
+    luaEnv.~LuaEnvironment();
+}
+
+int _dependency(lua_State * L)
+{
+    ManifestId dId;
+    lua_getfield(L, 1, "group");
+    if (!lua_isnil(L, -1))
+    {
+        dId.SetGroup(std::string(lua_tostring(L, -1)));
+    }
+    lua_pop(L, 1);
+    lua_getfield(L, 1, "name");
+    if (!lua_isnil(L, -1))
+    {
+        dId.SetName(std::string(lua_tostring(L, -1)));
+    }
+    lua_pop(L, 1);
+    lua_getfield(L, 1, "version");
+    if (!lua_isnil(L, -1))
+    {
+        dId.SetVersion(std::string(lua_tostring(L, -1)));
+    }
+    lua_pop(L, 1);
+
+    boost::filesystem::path manifestFilePath(dId.FindFinalManifestFile());
+
+    void * ptr = lua_touserdata(L, lua_upvalueindex(1));
+    std::vector<Manifest *> * dependencies =
+        reinterpret_cast<std::vector<Manifest *> *>(ptr);
+
+    dependencies->push_back(new Manifest(manifestFilePath));
+    return 0;
+}
+
+int _source(lua_State * L)
+{
+    void * ptr = lua_touserdata(L, lua_upvalueindex(1));
+    //Manifest * me = dynamic_cast<Manifest *>(oldThis);
+    std::vector<const std::string> * sources =
+        reinterpret_cast<std::vector<const std::string> *>(ptr);
+    sources->push_back(std::string(lua_tolstring(L, 1, NULL)));
+    return 1;
 }
 
 std::vector<const Configuration> createConfigurations(LuaEnvironment & env)
@@ -109,7 +184,7 @@ std::vector<const Configuration> createConfigurations(LuaEnvironment & env)
 	lua_State * L = env.GetState();
 	lua_getglobal(L, "configurations");
 	if (!lua_isnil(L, -1))
-	{		
+	{
 		lua_pushnil(L);
 		while(lua_next(L, -2) != 0)
 		{
@@ -135,7 +210,7 @@ Configuration createConfiguration(LuaEnvironment & env, const char * name)
 {
 	// Expects a configuration table to be on top of stack (-1)
 	Configuration config;
-	
+
 	config.SetName(name);
 
 	std::string compiler;
@@ -146,8 +221,8 @@ Configuration createConfiguration(LuaEnvironment & env, const char * name)
 		if (lua_isstring(env.GetState(), -1))
 		{
 			compiler = lua_tostring(env.GetState(), -1);
-		} 
-		else 
+		}
+		else
 		{
 			compiler = "default";
 		}
@@ -189,12 +264,22 @@ Configuration createConfiguration(LuaEnvironment & env, const char * name)
 	std::vector<const std::string> generators = env.GetVectorFromCurrentTable("generators");
 	config.SetGenerators(generators);
 
-	
+
 	return config;
 }
 
+int dependency(lua_State * L)
+{
+    void * ptr = lua_touserdata(L, lua_upvalueindex(1));
+    //Manifest * me = dynamic_cast<Manifest *>(oldThis);
+    std::vector<const std::string> * sources =
+        reinterpret_cast<std::vector<const std::string> *>(ptr);
+    sources->push_back(std::string(lua_tolstring(L, 1, NULL)));
+    return 1;
+}
+
 const Configuration * Manifest::GetConfiguration(const std::string & configName) const
-{	
+{
 	for(unsigned int i = 0; i < configurations.size(); i ++)
 	{
 		if (configurations[i].GetName() == configName)
@@ -235,7 +320,7 @@ const Configuration * Manifest::GetConfiguration(const std::string & configName)
 //	lua_gettable(L, -2); // get table
 //	if (lua_istable(L, -1))
 //	{
-//		vec = getVectorFromLuaTable(L);		
+//		vec = getVectorFromLuaTable(L);
 //	}
 //
 //	lua_pop(L, 1);
@@ -259,8 +344,8 @@ const Configuration * Manifest::GetConfiguration(const std::string & configName)
 //
 //std::vector<const std::string> getVectorFromLuaTable(lua_State * L)
 //{
-//	std::vector<const std::string> vec;	
-//	
+//	std::vector<const std::string> vec;
+//
 //	lua_pushnil(L); // first key
 //	const int tableIndex = -2;
 //	while(lua_next(L, tableIndex)  != 0)
@@ -272,7 +357,7 @@ const Configuration * Manifest::GetConfiguration(const std::string & configName)
 //		}
 //		lua_pop(L, 1); // pops off value, saves key
 //	}
-//	
+//
 //	return vec;
 //}
 
@@ -294,13 +379,13 @@ void Manifest::SaveAs(boost::filesystem::path & filePath)
 			<< "\tversion=[[" << this->GetVersion() << "]]" << endl
 			<< "}" << endl;
 		file << "description=[[" << this->GetDescription() << "]]" << endl;
-		
+
 		file << "mSource=" << endl
-			<< "{" << endl;			
+			<< "{" << endl;
 		for (unsigned int i = 0; i < this->GetMSource().size(); i ++)
 		{
 			file << "\t[[" << this->GetMSource()[i] << "]]," << endl;
-		}		
+		}
 		file << "}" << endl;
 
 		file << "mOutput=[[" << this->GetMOutput() << "]]" << endl;
@@ -309,21 +394,21 @@ void Manifest::SaveAs(boost::filesystem::path & filePath)
 		////	<< "{" << endl;
 		////for (unsigned int i = 0; i < this->GetCpp
 		////file << "}" << endl;
-		
+
 
 		file << "cppOutput={" << endl;
-		file << "\tobjects=[[" << this->GetCppOutput() << "]]," << endl;		
+		file << "\tobjects=[[" << this->GetCppOutput() << "]]," << endl;
 		file << "}" << endl;
 
 		file << "fOutput=[[" << this->GetFinalOutput() << "]]" << endl;
-		
+
 		file << "configurations = " << endl
 			<< "{" << endl;
 		for (unsigned int i = 0; i < this->configurations.size(); i ++)
 		{
 			const Configuration & config = this->configurations[i];
 			file << "\t" << config.GetName() << " = " << endl
-				<< "\t{" << endl;			
+				<< "\t{" << endl;
 			file << "\t\tdependencies=" << endl
 				 << "\t\t{" << endl;
 			for (unsigned int j = 0; j < config.GetDependencies().size(); j ++)
@@ -337,7 +422,7 @@ void Manifest::SaveAs(boost::filesystem::path & filePath)
 				file << "\t\t\t}" << endl;
 			}
 			file << "\t\t}," << endl;
-			
+
 			file << "\t}," << endl;
 		}
 		file << "}" << endl;
@@ -376,7 +461,6 @@ void setManifestId(ManifestId & id, lua_State * L)
 
 	lua_pop(L, 1);
 }
-
 
 
 

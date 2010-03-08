@@ -20,7 +20,7 @@ source "Source"
 output = "GeneratedSource"
 
 dependency {group="Macaroni", name="Boost", version="1.39.0-0"}
-dependency {group="Macaroni", name="CppStd", version=LATEST}
+--dependency {group="Macaroni", name="CppStd", version=LATEST}
 
 
 function generate()

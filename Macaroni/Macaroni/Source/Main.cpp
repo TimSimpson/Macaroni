@@ -14,7 +14,7 @@
 
 #ifdef COMPILE_TARGET_TESTS
 	//#include <boost/test/unit_test.hpp>
-#endif 
+#endif
 
 using namespace Macaroni;
 using namespace Macaroni;
@@ -30,7 +30,7 @@ using Macaroni::Platform::Windows::WindowsString;
 //void compileProjectFiles()
 //{
 //	FileSet input(boost::filesystem::path("../Source"), "\\.mcpp$");
-//	MCompilerOptions options(input, 
+//	MCompilerOptions options(input,
 //							boost::filesystem::path("..\\GeneratedSource"));
 //	MCompiler compiler;
 //	compiler.Compile(options);
@@ -39,7 +39,7 @@ using Macaroni::Platform::Windows::WindowsString;
 //void compileToyFiles()
 //{
 //	FileSet input(boost::filesystem::path("../RealTest/Input"), "\\.mcpp$");
-//	MCompilerOptions options(input, 
+//	MCompilerOptions options(input,
 //							boost::filesystem::path("../RealTest/Output"));
 //	MCompiler compiler;
 //	compiler.Compile(options);
@@ -48,23 +48,23 @@ using Macaroni::Platform::Windows::WindowsString;
 //void execute(const std::string & inputPath, const std::string & outputPath)
 //{
 //	FileSet input(boost::filesystem::path(inputPath), "\\.mcpp$");
-//	MCompilerOptions options(input, 
+//	MCompilerOptions options(input,
 //							boost::filesystem::path(outputPath));
 //	MCompiler compiler;
 //	compiler.Compile(options);
 //}
 //
 ////obsolete
-//void runLuaTests() 
+//void runLuaTests()
 //{
 //	Macaroni::Environment::LuaEnvironment lua;
-//	lua.ParseFile("Main.lua"); 
+//	lua.ParseFile("Main.lua");
 //	lua.Run();
 //}
 
 void convert(std::wstring & original, std::string & rtnString)
 {
-	std::stringstream ss;	  
+	std::stringstream ss;
 	for(unsigned int i = 0; i < original.size(); i ++)
 	{
 		ss << ((char)original[i]);
@@ -80,7 +80,10 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 #ifdef COMPILE_TARGET_TESTS
 	//return init_unit_tests();//main(argc, nullptr);
 #endif
-	
+
+    std::string stuff;
+    std::cin >> stuff;
+
 	std::cout << Messages::Get("Macaroni.Intro");
 
 	std::vector<const std::string> convertedArgs;
@@ -89,22 +92,22 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 		NonWindowsString convertedString(argv[i]);
 		convertedArgs.push_back(convertedString.get());
 	}
-	
+
 	Console output;
 
 	CmdLine cmd(convertedArgs, output);
-	try 
+	try
 	{
 		cmd.Execute();
-	} catch(std::exception & ex) 
+	} catch(std::exception & ex)
 	{
 		std::cerr << "An unexpected error occured.\n" << std::endl;
-		std::cerr << ex.what()  << std::endl;		
+		std::cerr << ex.what()  << std::endl;
 	}
 
 	std::cout << std::endl << "Program finished." << std::endl;
 	if (cmd.EndPrompt())
-	{	
+	{
 		std::cout << "press enter to quit.";
 		char ch;
 		std::cin >> ch;
@@ -117,22 +120,22 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 	//	std::string inputPath;
 	//	std::string outputPath;
 	//	for (int i = 0; i < argc; i ++)
-	//	{			 
+	//	{
 	//		const TCHAR * tcharString = argv[i];
 	//		std::wstring arg(tcharString);
 	//		if (arg == _TEXT("debug"))
 	//		{
 	//			debugMode = true;
-	//			runLuaTests();   
+	//			runLuaTests();
 	//		}
 	//		else if (arg == _TEXT("-luaTests"))
 	//		{
-	//			if (i == argc - 1) 
+	//			if (i == argc - 1)
 	//			{
 	//				std::cerr << "No input specified.";
 	//			}
-	//			else 
-	//			{ 
+	//			else
+	//			{
 	//				std::string testPath;
 	//				convert(std::wstring(argv[i + 1]), testPath);
 	//				runLuaTests();
@@ -164,7 +167,7 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 	//		{
 	//			endPrompt = true;
 	//		}
-	//	}		
+	//	}
 	//	if (outputPath.empty())
 	//	{
 	//		std::cerr << "Missing option -outputDirectory.";
@@ -174,7 +177,7 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 	//		std::cerr << "Missing option -inputDirectory.";
 	//	}
 	//	else
-	//	{ 
+	//	{
 	//		try
 	//		{
 	//			execute(inputPath, outputPath);
@@ -185,16 +188,16 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 	//			std::cerr << "Msg:" << ex.GetMessage() << "\n";
 	//			std::cerr << "Src:" << ex.GetSource() << "\n";
 	//		}
-	//	}		
+	//	}
 	//}
 	//else
 	//{
 
-	//	
-	//	//args.push_back("../Tests/simple.mcpp");	
+	//
+	//	//args.push_back("../Tests/simple.mcpp");
 
 	//	//compileToyFiles();
-	//	
+	//
 	//	compileProjectFiles();
 	//
 	//	//try

@@ -3,6 +3,7 @@
 
 #include <boost/filesystem/operations.hpp>
 #include "Configuration.h"
+#include "../Environment/LuaEnvironment.h"
 #include "ManifestId.h"
 #include "../ME.h"
 #include "../IO/Path.h"
@@ -17,11 +18,13 @@ public:
 	Manifest();
 
 	Manifest(const boost::filesystem::path & manifestFile);
-	
+
+    ~Manifest();
+
 	inline std::string GetDescription() const
 	{
 		return description;
-	}	
+	}
 
 	inline const std::string & GetCppOutput() const
 	{
@@ -32,10 +35,10 @@ public:
 	{
 		return cppSourceOutput;
 	}
-	
+
 	const Configuration * GetConfiguration(const std::string & configName) const;
 
-	inline const ManifestId GetId() const 
+	inline const ManifestId GetId() const
 	{
 		return id;
 	}
@@ -97,16 +100,19 @@ public:
 	{
 		mSource = value;
 	}
-private:	
+
+private:
 	std::vector<const Configuration> configurations;
 	std::string cppOutput;
 	std::string cppSourceOutput;
+	std::vector<Manifest *> dependencies;
 	std::string description;
-	std::string fOutput;	
+	std::string fOutput;
 	//std::vector<std::string> generators;
 	std::string group;
-	ManifestId id;	
+	ManifestId id;
 	std::string cppHeadersOutput;
+	Macaroni::Environment::LuaEnvironment luaEnv;
 	boost::filesystem::path manifestFile;
 	std::string mOutput;
 	std::vector<const std::string> mSource;

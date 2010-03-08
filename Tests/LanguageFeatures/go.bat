@@ -1,3 +1,3 @@
-..\Macaroni\Macaroni\release\debug\macaroni.exe generate
+..\..\Macaroni\Macaroni\release\debug\macaroni.exe generate
 
 
