@@ -1,0 +1,27 @@
+~import std::string;
+
+namespace Macaroni::Tests::Initializers
+{
+	class Poco
+	{	
+		private int age;
+		private string name;		
+
+		public Poco(const char * name, int age)
+		:	age(age),
+			name(name)
+		{
+		}
+
+		public int GetAge() const
+		{
+			return age;
+		}
+
+		public const string & GetName() const
+		{
+			return name;
+		}
+
+	};
+}

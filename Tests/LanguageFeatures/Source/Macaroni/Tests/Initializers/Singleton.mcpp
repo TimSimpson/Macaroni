@@ -5,7 +5,9 @@ namespace Macaroni::Tests::Initializers
 {
 	class Singleton
 	{
-		private ~global static const char * DEFAULT_TEXT = "blah";
+		private static const char * DEFAULT_TEXT = "default text";
+		private ~global static const char * DEFAULT_GLOBAL_TEXT = 
+			"default global text";
 		private static Singleton * instance = 0;
 		private const char * text;
 
@@ -14,12 +16,27 @@ namespace Macaroni::Tests::Initializers
 		{
 		}
 
+		public static const char * GetDefaultText()
+		{
+			return DEFAULT_TEXT;
+		}
+
+		public static const char * GetDefaultGlobalText()
+		{
+			return DEFAULT_GLOBAL_TEXT;
+		}
+
 		public static Singleton * GetInstance()
 		{
 			if (instance == 0)
 			{
 				instance = new Singleton(DEFAULT_TEXT);
 			}
+			return instance;
+		}
+
+		public static Singleton * PeekAtHiddenStatic()
+		{
 			return instance;
 		}
 

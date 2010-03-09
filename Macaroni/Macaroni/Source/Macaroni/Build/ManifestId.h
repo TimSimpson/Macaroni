@@ -8,6 +8,7 @@
 
 namespace Macaroni { namespace Build {
 
+//TODO: Rename this to LibraryId.
 /** The part of a Manifest which can identify the Module. */
 class ManifestId
 {

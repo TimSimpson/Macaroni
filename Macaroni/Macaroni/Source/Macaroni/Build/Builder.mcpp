@@ -1,15 +1,16 @@
 ~import BOOST_FOREACH;
 ~import Macaroni::Environment::Console;
-~import Macaroni::Build::Configuration;
 ~import Macaroni::Model::Context;
 ~import Macaroni::Model::ContextPtr;
 ~import Macaroni::Build::Cpp::CppFile;
 ~import boost::filesystem::create_directories;
 ~import Macaroni::Exception;
 ~import Macaroni::IO::FileSet;
+~import Macaroni::Build::GeneratorContext;
 ~import Macaroni::Model::Library;
 ~import Macaroni::Model::LibraryPtr;
 ~import Macaroni::Build::Manifest;
+~import Macaroni::Build::ManifestPtr;
 ~import Macaroni::Build::MCompiler;
 ~import Macaroni::Build::MCompilerOptions;
 ~import Macaroni::Parser::ParserException;
@@ -28,20 +29,18 @@ namespace Macaroni::Build {
 
 class Builder
 {
-	private const Configuration & configuration;
 	private const Console & console;
 	private vector<CppFile> cppFiles;
 	private vector<const string> cppSrcRoots;
 	private bool install;
 	private LibraryPtr library;
-	private const Manifest & manifest;
+	private ManifestPtr manifest;
 
-	public Builder(ContextPtr context, const Manifest & manifest,
-		const Configuration & config, Console & console, bool install)
-	:	configuration(config),
-		console(console),
+	public Builder(ContextPtr context, ManifestPtr manifest,
+		Console & console, bool install)
+	:	console(console),
 		install(install),
-		library(context->CreateLibrary(manifest.GetName(), manifest.GetVersion())),
+		library(context->CreateLibrary(manifest->GetName(), manifest->GetVersion())),
 		manifest(manifest)
 	{
 	}
@@ -50,17 +49,16 @@ class Builder
 	{
 		console.WriteLine("~ Compiling Macaroni Source into C++ ~");
 
-		std::string mSrc = manifest.GetMSource()[0];
-		std::string mOut = manifest.GetMOutput();
+		std::string mSrc = manifest->GetMSource()[0];
+		std::string mOut = manifest->GetMOutput();
 		std::vector<FileSet> inputFiles;
 
 		MCompiler compiler;
 
 		// Include dependencies
-		const std::vector<const ConfigurationId> & dependencies = this->configuration.GetDependencies();
-		BOOST_FOREACH(const ConfigurationId & dependency, dependencies)
+		BOOST_FOREACH(ManifestPtr dependency, manifest->GetDependencies()) 
 		{
-			const ManifestId & id = dependency.GetManifestId();
+			const ManifestId id = dependency->GetId();
 			Manifest dManifest(id.FindFinalManifestFile());
 			const std::vector<const std::string> dSrc = dManifest.GetMSource();
 			BOOST_FOREACH(const string & dir, dSrc)
@@ -77,9 +75,10 @@ class Builder
 
 		inputFiles.push_back(FileSet(boost::filesystem::path(mSrc), "\\.mcpp$"));
 
+		std::vector<const std::string> blankGeneratorSelection;
 		MCompilerOptions options(inputFiles,
 								 boost::filesystem::path(mOut),
-								 configuration.GetGenerators());
+								 blankGeneratorSelection);
 
 		try
 		{
@@ -149,11 +148,12 @@ class Builder
 		cppFiles = std::vector<CppFile>();
 
 		console.WriteLine("~ Generating listing of C++ source files. ~");
-		const Path rootDir(manifest.GetRootDirectory(), manifest.GetRootDirectory());
+		const Path rootDir(manifest->GetRootDirectory(), manifest->GetRootDirectory());
 		//PathPtr mWork = rootDir.NewPath("./MWork");
-		PathPtr objFilesDirRoot = rootDir.NewPathForceSlash(manifest.GetCppOutput());
-		PathPtr objFilesDir = objFilesDirRoot->NewPathForceSlash(configuration.GetName());
-		objFilesDir->CreateDirectory();
+		PathPtr objFilesDirRoot = rootDir.NewPathForceSlash(manifest->GetCppOutput());
+		// TODO: Configs- and CppFiles- are no longer needed, remove:
+		PathPtr objFilesDir = objFilesDirRoot->NewPathForceSlash("oldConfigName");
+		//objFilesDir->CreateDirectory();
 
         BOOST_FOREACH(const string & srcDirectory, cppSrcRoots)
         {
@@ -174,8 +174,8 @@ class Builder
 
 	private void createCppSrcRoots()
 	{
-		cppSrcRoots = manifest.GetMSource();
-		cppSrcRoots.push_back(manifest.GetMOutput());
+		cppSrcRoots = manifest->GetMSource();
+		cppSrcRoots.push_back(manifest->GetMOutput());
 		for (unsigned int i = 0; i < cppSrcRoots.size(); i ++)
         {
             boost::filesystem::path srcPath(cppSrcRoots[i]);
@@ -196,10 +196,10 @@ class Builder
 	public void Execute(bool generate, bool saveCppSource, bool compile, bool install)
 	{
 		console.WriteLine("--------------------------------------------------------------------------------");
-		console.Write("Configuration: "); console.WriteLine(configuration.GetName());
+		console.Write(" TODO: Change this part.");
 		console.WriteLine("--------------------------------------------------------------------------------");
 
-		const Path dir(manifest.GetRootDirectory(), manifest.GetRootDirectory());
+		const Path dir(manifest->GetRootDirectory(), manifest->GetRootDirectory());
 		PathPtr mWork = dir.NewPathForceSlash("./MWork");
 		mWork->CreateDirectory();
 
@@ -210,6 +210,8 @@ class Builder
 		if (generate)
 		{
 			success = CompileMacaroni();
+			GeneratorContextPtr gCon(new GeneratorContext(library, genSrc));
+			manifest->RunTarget(gCon, "generate");
 		}
 
 		if (success)
@@ -240,8 +242,8 @@ class Builder
 	public bool Install()
 	{
 		path userPath(Paths::GetUserPath());
-		path installPath = userPath / "Libraries" / manifest.GetGroup()
-							/ manifest.GetName() / manifest.GetVersion();
+		path installPath = userPath / "Libraries" / manifest->GetGroup()
+							/ manifest->GetName() / manifest->GetVersion();
 		if (boost::filesystem::exists(installPath))
 		{
 			boost::filesystem::remove_all(installPath);
@@ -252,8 +254,8 @@ class Builder
 		}
 
 		// Interface.mh - copy this file to root of directory.
-		path localMhInterface(manifest.GetRootDirectory());
-		localMhInterface = localMhInterface / manifest.GetMOutput();
+		path localMhInterface(manifest->GetRootDirectory());
+		localMhInterface = localMhInterface / manifest->GetMOutput();
 		localMhInterface = localMhInterface / "Interface.mh";
 		path exportMhInterfaceDir(installPath);
 		exportMhInterfaceDir = exportMhInterfaceDir;
@@ -270,7 +272,7 @@ class Builder
 		createCppSrcRoots();
         createCppFileList();
 
-		path cppSourceLocal(manifest.GetCppSourceOutput());
+		path cppSourceLocal(manifest->GetCppSourceOutput());
 
 		std::stringstream ss;
 		ss << "Saving generated and non-generated C++ source code to " <<

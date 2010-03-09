@@ -2,15 +2,20 @@
 #define MACARONI_BUILD_MANIFEST_H
 
 #include <boost/filesystem/operations.hpp>
+#include <Macaroni/Build/_.h>
 #include "Configuration.h"
 #include "../Environment/LuaEnvironment.h"
 #include "ManifestId.h"
 #include "../ME.h"
 #include "../IO/Path.h"
+#include <boost/shared_ptr.hpp>
 #include <string>
 #include <vector>
 
 namespace Macaroni { namespace Build {
+
+class Manifest;
+typedef boost::shared_ptr<Manifest> ManifestPtr;
 
 class Manifest
 {
@@ -46,6 +51,11 @@ public:
 	inline const std::string GetCppHeadersOutput() const
 	{
 		return cppHeadersOutput;
+	}
+
+	inline const std::vector<ManifestPtr> & GetDependencies() 
+	{
+		return dependencies;
 	}
 
 	inline const std::string GetFinalOutput() const
@@ -89,6 +99,8 @@ public:
 		return version;
 	}
 
+	void RunTarget(GeneratorContextPtr generatorContext, const std::string & name);
+
 	void SaveAs(boost::filesystem::path & filePath);
 
 	inline void SetDescription(std::string & value)
@@ -105,7 +117,7 @@ private:
 	std::vector<const Configuration> configurations;
 	std::string cppOutput;
 	std::string cppSourceOutput;
-	std::vector<Manifest *> dependencies;
+	std::vector<ManifestPtr> dependencies;
 	std::string description;
 	std::string fOutput;
 	//std::vector<std::string> generators;

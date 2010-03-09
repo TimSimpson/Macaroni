@@ -12,6 +12,7 @@ namespace Macaroni { namespace Build {
 class MCompilerOptions
 {
 public:
+	//TODO: Remove the generators which goto this as an argument.
 	MCompilerOptions(const std::vector<Macaroni::IO::FileSet> & input, 
 					 const boost::filesystem::path & output,
 					 const std::vector<const std::string> generators);

@@ -16,6 +16,9 @@ boost::filesystem::path GetGeneratorsPath();
 /** Looks for the Generator file first in the given FileSet of local directories
  * (it appends the file name to each one) and then in the Generator path. 
  */
+boost::filesystem::path ResolveGeneratorPath(const std::vector<const std::string> & srcDirs, 
+						  const std::string & name);
+
 boost::filesystem::path ResolveGeneratorPath(const std::vector<Macaroni::IO::FileSet> & srcDirs,
 											 const std::string & guess);
 

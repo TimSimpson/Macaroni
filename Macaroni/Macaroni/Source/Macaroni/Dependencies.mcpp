@@ -18,6 +18,7 @@ class Macaroni::Environment::LuaEnvironment { ~hfile=<Macaroni/Environment/LuaEn
 class Macaroni::Model::Library { ~hfile=<Macaroni/Model/Library.h> }
 class Macaroni::Model::LibraryPtr { ~hfile=<Macaroni/Model/LibraryPtr.h> }
 class Macaroni::Build::Manifest { ~hfile=<Macaroni/Build/Manifest.h> }
+class Macaroni::Build::ManifestPtr { ~hfile=<Macaroni/Build/Manifest.h> }
 class Macaroni::Build::MCompiler { ~hfile=<Macaroni/Build/MCompiler.h> }
 class Macaroni::Build::MCompilerOptions { ~hfile=<Macaroni/Build/MCompilerOptions.h> }
 class Macaroni::Environment::Messages { ~hfile=<Macaroni/Environment/Messages.h> }

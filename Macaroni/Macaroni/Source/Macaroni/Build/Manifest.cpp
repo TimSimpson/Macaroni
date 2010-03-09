@@ -2,14 +2,30 @@
 #define MACARONI_BUILD_MANIFEST_CPP
 
 #include "Manifest.h"
+#include <Macaroni/Model/ContextLua.h>
+#include <Macaroni/Generator/DynamicGenerators.h>
 #include "../Exception.h"
+#include <Macaroni/Build/GeneratorContext.h>
+#include <Macaroni/Model/Library.h>
+#include <Macaroni/Model/LibraryLua.h>
 #include "../Environment/LuaEnvironment.h"
 #include <iostream>
 #include <fstream>
+#include <Macaroni/IO/PathLua.h>
 #include "../IO/Paths.h"
+#include <sstream>
 
+using Macaroni::Model::ContextLuaMetaData;
+using Macaroni::Model::ContextPtr;
+using Macaroni::Model::Library;
+using Macaroni::Model::LibraryPtr;
+using Macaroni::Model::LibraryLuaMetaData;
 using Macaroni::Environment::LuaEnvironment;
+using Macaroni::IO::PathLuaMetaData;
+using Macaroni::IO::PathPtr;
 using Macaroni::IO::Paths;
+
+#define LATEST_LUA_VALUE "~LATEST~"
 
 namespace Macaroni { namespace Build {
 
@@ -58,6 +74,9 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile)
 	luaEnv.ParseFile(manifestFile.string());
 
 	lua_State * L = luaEnv.GetState();
+
+	lua_pushstring(L, LATEST_LUA_VALUE);	
+	lua_setglobal(L, "LATEST");
 
     lua_pushlightuserdata(L, &(this->mSource));
     lua_pushcclosure(L, &_source, 1);
@@ -110,7 +129,7 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile)
 
 	luaEnv.GetFromGlobalVarOrDefault(fOutput, "fOutput", "MWork/Final");
 
-	luaEnv.GetFromGlobalVarOrDefault(mOutput, "mOutput", "MWork/GeneratedSource");
+	luaEnv.GetFromGlobalVarOrDefault(mOutput, "output", "GeneratedSource");
 
 	mOutput = (manifestDir / mOutput).string();
 
@@ -122,17 +141,11 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile)
 
 Manifest::~Manifest()
 {
-    std::cout << "Deleting " << this->id.GetGroup() << "::"
-        << this->id.GetName() << "::"
-        << this->id.GetVersion() << "...\n";
-    for (unsigned int i = 0; i < dependencies.size(); i ++)
-    {
-        Manifest * m = dependencies[i];
-        delete m;
-    }
+	//HACKY BUG FIX CODE...
+	//						... REMOVE??!! (To be continued...)
     this->dependencies.clear();
     lua_gc(luaEnv.GetState(), LUA_GCCOLLECT, NULL);
-    luaEnv.~LuaEnvironment();
+    //luaEnv.~LuaEnvironment();
 }
 
 int _dependency(lua_State * L)
@@ -160,10 +173,38 @@ int _dependency(lua_State * L)
     boost::filesystem::path manifestFilePath(dId.FindFinalManifestFile());
 
     void * ptr = lua_touserdata(L, lua_upvalueindex(1));
-    std::vector<Manifest *> * dependencies =
-        reinterpret_cast<std::vector<Manifest *> *>(ptr);
+    std::vector<ManifestPtr> * dependencies =
+        reinterpret_cast<std::vector<ManifestPtr> *>(ptr);
 
-    dependencies->push_back(new Manifest(manifestFilePath));
+    dependencies->push_back(ManifestPtr(new Manifest(manifestFilePath)));
+    return 0;
+}
+
+int _runGenerator(lua_State * L)
+{
+	//ContextPtr context = ContextLuaMetaData::GetInstance(L, lua_upvalueindex(1));
+	LibraryPtr library = LibraryLuaMetaData::GetInstance(L, lua_upvalueindex(1));
+	PathPtr path = PathLuaMetaData::GetInstance(L, lua_upvalueindex(2));	
+	void * ptr = lua_touserdata(L, lua_upvalueindex(3));    
+    std::vector<const std::string> * sources =
+        reinterpret_cast<std::vector<const std::string> *>(ptr);
+	
+	std::string generatorName(std::string(lua_tolstring(L, 1, NULL)));
+
+	boost::filesystem::path genPath =
+			Generator::ResolveGeneratorPath(*sources, generatorName);
+	if (!genPath.empty())
+	{
+		boost::filesystem::path output(path->GetAbsolutePath());
+		Generator::RunDynamicGenerator(library, output, genPath);
+	}
+	else
+	{
+		std::stringstream ss;
+		ss << "Could not find generator " << generatorName << ".";
+		lua_pushstring(L, ss.str().c_str());
+		lua_error(L);
+	}
     return 0;
 }
 
@@ -360,6 +401,24 @@ const Configuration * Manifest::GetConfiguration(const std::string & configName)
 //
 //	return vec;
 //}
+
+void Manifest::RunTarget(GeneratorContextPtr gContext, const std::string & name)
+{
+	lua_State * L = luaEnv.GetState();
+
+	LibraryLuaMetaData::OpenInLua(L);
+	PathLuaMetaData::OpenInLua(L);
+
+	//ContextLuaMetaData::PutInstanceOnStack(L, gContext->GetContext());
+	LibraryLuaMetaData::PutInstanceOnStack(L, gContext->GetLibrary());
+	PathLuaMetaData::PutInstanceOnStack(L, gContext->GetPath());
+	lua_pushlightuserdata(L, &(this->mSource));
+	lua_pushcclosure(L, &_runGenerator, 3);
+	lua_setglobal(L, "runGenerator");
+
+	lua_getfield(L, LUA_GLOBALSINDEX, name.c_str());
+	lua_call(L, 0, 0);
+}
 
 void Manifest::SaveAs(boost::filesystem::path & filePath)
 {

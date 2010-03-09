@@ -1,0 +1,33 @@
+~import Macaroni::Model::Library;
+~import Macaroni::Model::LibraryPtr;
+~import Macaroni::IO::Path;
+~import Macaroni::IO::PathPtr;
+~import boost::shared_ptr;
+
+namespace Macaroni::Build {
+
+class GeneratorContext
+{	
+	private LibraryPtr library;
+	private PathPtr path;
+
+	public GeneratorContext(LibraryPtr library, PathPtr path)
+	: library(library),
+	  path(path)
+	{
+	}
+
+	public inline LibraryPtr GetLibrary() 
+	{
+		return library;
+	}
+
+	public inline PathPtr & GetPath()
+	{
+		return path;
+	}
+};
+
+typedef shared_ptr<GeneratorContext> GeneratorContextPtr;
+
+}// end namespace

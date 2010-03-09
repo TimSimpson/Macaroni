@@ -8,6 +8,7 @@
 ~import Macaroni::Model::LibraryPtr;
 ~import Macaroni::Environment::LuaEnvironment;
 ~import Macaroni::Build::Manifest;
+~import Macaroni::Build::ManifestPtr;
 ~import Macaroni::Build::MCompiler;
 ~import Macaroni::Build::MCompilerOptions;
 ~import Macaroni::Environment::Messages;
@@ -235,9 +236,9 @@ class CmdLine
 		}
 
 		boost::filesystem::path manifestFilePath(manifestPath);
-		Manifest manifest(manifestFilePath);
+		ManifestPtr manifest(new Manifest(manifestFilePath));
 
-		const Configuration * mConfig = manifest.GetConfiguration(config);
+		/*const Configuration * mConfig = manifest.GetConfiguration(config);
 		if (mConfig == nullptr)
 		{
 			console.Write("Could not find config \"");
@@ -245,10 +246,10 @@ class CmdLine
 			console.Write("\" in manifest.");
 			return;
 		}
-		const Configuration & mRefConfig = *mConfig;
+		const Configuration & mRefConfig = *mConfig;*/
 
 		ContextPtr context(new Context("%ROOT%"));
-		Builder builder(context, manifest, mRefConfig, console, install);
+		Builder builder(context, manifest, console, install);
 		compile = compile || install;
 		generate = generate || compile;
 		builder.Execute(generate, saveCppSource, compile, install);

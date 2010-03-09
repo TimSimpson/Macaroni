@@ -1,6 +1,7 @@
 #ifndef MACARONI_GENERATOR_DYNAMICGENERATORS_CPP
 #define MACARONI_GENERATOR_DYNAMICGENERATORS_CPP
 
+#include <boost/foreach.hpp>
 #include "DynamicGenerators.h"
 #include "Lua/DynamicGenerator.h"
 #include "../IO/FileSet.h"
@@ -27,36 +28,51 @@ path GetGeneratorsPath()
 	return generatorPath;
 }
 
-path ResolveGeneratorPath(const std::vector<Macaroni::IO::FileSet> & srcDirs, 
+path ResolveGeneratorPath(const std::vector<const std::string> & srcDirs, 
 						  const std::string & name)
-{	
-	///*FileSet::Iterator end = localDirs.End();
-	//for(FileSet::Iterator itr = localDirs.Begin(); itr != end; ++ itr)
-	//{	
-	//	path p = *itr;
-	//	path guess = p / name;
-	//	if (boost::filesystem::exists(guess))
-	//	{
-	//		return guess;
-	//	}
-	//}*/
-	for (unsigned int i = 0; i < srcDirs.size(); i ++)
+{
+	std::stringstream ss;
+	ss << name << ".lua";
+	std::string name2(ss.str());
+
+	BOOST_FOREACH(const std::string dir, srcDirs)
 	{
-		const FileSet & localDir = srcDirs[i];
-		path guess = localDir.GetRoot() / name;
-		if (boost::filesystem::exists(guess))
+		path dirPath(dir);	
+		path guess = dirPath / name;
+		if (boost::filesystem::exists(guess) && boost::filesystem::is_regular(guess))
 		{
 			return guess;
+		}				
+		path guess2 = dirPath / name2;
+		if (boost::filesystem::exists(guess2) && boost::filesystem::is_regular(guess2))
+		{
+			return guess2;
 		}
 	}
-
 	path referencePath = GetGeneratorsPath() / name;
-	if (boost::filesystem::exists(referencePath))
+	if (boost::filesystem::exists(referencePath) && boost::filesystem::is_regular(referencePath))
 	{
 		return referencePath;
 	}
+	path referencePath2 = GetGeneratorsPath() / name2;
+	if (boost::filesystem::exists(referencePath2) && boost::filesystem::is_regular(referencePath2))
+	{
+		return referencePath2;
+	}
 
 	return path("");
+}
+
+path ResolveGeneratorPath(const std::vector<Macaroni::IO::FileSet> & srcDirs, 
+						  const std::string & name)
+{	
+	std::vector<const std::string> dirs;
+	for (unsigned int i = 0; i < srcDirs.size(); i ++)
+	{
+		const FileSet & localDir = srcDirs[i];
+		dirs.push_back(localDir.GetRoot().string());
+	}
+	return ResolveGeneratorPath(dirs, name);
 }
 
 void RunDynamicGenerator(LibraryPtr library, const path & rootPath, const path & filePath)

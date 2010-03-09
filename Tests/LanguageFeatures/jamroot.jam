@@ -15,7 +15,15 @@ lib tlib
 	:	<link>static
 	;
 
-exe tests
+alias tests
+	:	[ run Source/Macaroni/Tests/Initializers/ConstructorInitializersTest.cpp 
+			tlib ]
+		[ run Source/Macaroni/Tests/Initializers/FieldInitializersTest.cpp 
+			tlib ]
+	;
+
+exe binary
 	:	tlib
 		Source/Main.cpp
+	:	<dependency>tests
 	;
