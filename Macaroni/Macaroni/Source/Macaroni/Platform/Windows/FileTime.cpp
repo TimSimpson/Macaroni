@@ -19,7 +19,7 @@ struct FT
 
 	FT(path p)
 	{
-		WindowsString wStr(p.string());
+		WindowsString wStr(p.native_file_string());
 
 		HANDLE h = ::CreateFile(wStr.get(),
 							 GENERIC_READ,
@@ -30,6 +30,7 @@ struct FT
 							 NULL);
 		if (h == INVALID_HANDLE_VALUE)
 		{
+			DWORD err = ::GetLastError();
 			std::stringstream ss;
 			ss << "Could not open file \"" << p.string() << "\" to get time.";
 			throw Macaroni::Exception(ss.str().c_str());

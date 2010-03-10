@@ -75,8 +75,9 @@ std::string NonWindowsString::createFromWChar(const wchar_t * buffer)
 WindowsString::WindowsString(const std::string & original)
 	:str(NULL)
 {
-	str = new char[original.size()];
+	str = new char[original.size() + 1];
 	strncpy(str, original.c_str(), original.size());
+	str[original.size()] = '\0';
 }
 	
 WindowsString::~WindowsString() 

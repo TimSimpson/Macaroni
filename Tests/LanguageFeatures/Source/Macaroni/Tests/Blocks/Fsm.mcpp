@@ -1,0 +1,44 @@
+namespace Macaroni::Tests::Blocks
+{
+
+class Fsm
+{
+	private int state;
+
+	public Fsm()
+		: state(0)
+	{
+	}
+
+	~block "h"
+	{
+		#define EVEN 0
+		#define ODD 1
+		#define GETSTATE(Fsm) Fsm.GetState()
+		public : inline int GetState() const
+		{ 
+			return state; 
+		};       	
+	}
+
+	~block "cpp"
+	{
+		#define BEGIN if (false) {
+		#define STATE(name) } else if (state == name) {
+		#define END }
+		#define SETSTATE(value) state = value;
+	}	
+
+	public void Execute()
+	{
+		BEGIN
+		STATE(0)
+			SETSTATE(1)
+		STATE(1)
+			SETSTATE(0)
+		END
+	}
+};
+
+
+} // end namespace

@@ -1,0 +1,22 @@
+~import Macaroni::Tests::ConstsTests::Cat;
+~import Macaroni::Tests::ConstsTests::Dog;
+~import std::string;
+
+namespace Macaroni::Tests::Const
+{
+	class Dog
+	{
+		private const Cat & cat;
+
+		public Dog(const Cat & cat)
+			:cat(cat)
+		{					
+		}
+
+		public int GetCatFeet() const
+		{
+			return cat.GetFeet();
+		}
+
+	};
+}

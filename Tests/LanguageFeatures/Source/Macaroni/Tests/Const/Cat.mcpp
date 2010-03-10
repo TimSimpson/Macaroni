@@ -1,0 +1,20 @@
+~import Macaroni::Tests::ConstsTests::Cat;
+
+namespace Macaroni::Tests::Const
+{
+	class Cat
+	{
+		private int feet;
+
+		public Cat() 
+			: feet(4) 
+		{
+		}
+
+		public int GetFeet() const
+		{
+			return feet;
+		}
+	};
+	
+}

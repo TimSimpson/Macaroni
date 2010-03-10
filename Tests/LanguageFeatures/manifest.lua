@@ -30,10 +30,11 @@ function generate()
     runGenerator "InterfaceMh"
     runGenerator "Cpp"
     runGenerator "JamGenerator"
+    local rtnCode = os.execute("bjam")
+    print("BJAM return code = " .. rtnCode .. ".")
+    if (rtnCode ~= 0) then
+        error("Looks like the plan's not going swell.")
+    end
 end
 
-function default()
-    generate()
-    os.execute("bjam")
-end
 

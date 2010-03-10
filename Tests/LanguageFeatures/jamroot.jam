@@ -16,9 +16,15 @@ lib tlib
 	;
 
 alias tests
-	:	[ run Source/Macaroni/Tests/Initializers/ConstructorInitializersTest.cpp 
+	:	[ run Source/Macaroni/Tests/Blocks/BlocksTest.cpp 
+			tlib ]
+		[ run Source/Macaroni/Tests/Const/ConstTest.cpp 
+			tlib ]
+		[ run Source/Macaroni/Tests/Initializers/ConstructorInitializersTest.cpp 
 			tlib ]
 		[ run Source/Macaroni/Tests/Initializers/FieldInitializersTest.cpp 
+			tlib ]
+		[ run Source/Macaroni/Tests/Typedefs/TypedefsTest.cpp 
 			tlib ]
 	;
 

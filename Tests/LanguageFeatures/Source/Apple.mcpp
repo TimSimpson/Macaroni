@@ -1,4 +1,4 @@
-~import BorderTown::AnimalFriends::DoggyList;
+~import Macaroni::Tests::Typedefs::DoggyList;
 ~import std::string;
 
 

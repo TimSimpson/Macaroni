@@ -43,9 +43,6 @@
     <filename>Generators\Cpp\DependencySection.lua</filename>
   </file>
   <file>
-    <filename>Generators\MacaroniHeader.lua</filename>
-  </file>
-  <file>
     <filename>Generators\Macaroni\MhFileGenerator.lua</filename>
   </file>
   <file>

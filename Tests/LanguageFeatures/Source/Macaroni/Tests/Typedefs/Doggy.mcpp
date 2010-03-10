@@ -1,8 +1,8 @@
-~import BorderTown::AnimalFriends::DoggyList;
+~import Macaroni::Tests::Typedefs::DoggyList;
 ~import std::string;
 ~import std::vector;
 
-namespace BorderTown::AnimalFriends
+namespace Macaroni::Tests::Typedefs
 {
 
 	class Doggy{}
@@ -15,12 +15,18 @@ namespace BorderTown::AnimalFriends
 	{
 		int age;
 	
-		int GetDogYears()
+		public Doggy(string name, int age)
+		:	age(age),
+			name(name)
+		{
+		}
+
+		public int GetDogYears()
 		{
 			return age * 7;
 		}
 	
-		string GetName()
+		public string GetName()
 		{
 			return name;
 		}
