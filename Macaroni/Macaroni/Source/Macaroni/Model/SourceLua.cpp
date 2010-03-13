@@ -1,11 +1,11 @@
 #ifndef MACARONI_MODEL_SOURCELUA_CPP
 #define MACARONI_MODEL_SOURCELUA_CPP
 
-extern "C" {
+//MARIO extern "C" {
 	#include "../../Lua/lua.h"
 	#include "../../Lua/lauxlib.h"
 	#include "../../Lua/lualib.h"
-}
+//MARIO }
 #include "SourceLua.h"
 #include "Source.h"
 #include "../Environment/DebugLog.h"

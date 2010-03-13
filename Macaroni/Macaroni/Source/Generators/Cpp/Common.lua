@@ -1,4 +1,5 @@
 require "Macaroni.Model.Cpp.Access";
+require "Macaroni.IO.GeneratedFileWriter";
 require "Macaroni.IO.Path";
 require "Macaroni.Model.Node";
 require "Macaroni.Model.Context";

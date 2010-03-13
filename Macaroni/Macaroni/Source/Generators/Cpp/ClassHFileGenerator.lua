@@ -23,11 +23,11 @@ ClassHFileGenerator = {
             assert(args.writer ~= nil);
         else
             --TODO: Somehow calling C++ NewFileWriter() method currently results in entire Lua call from C++ ending.
-            local writer, errorMsg, errorNumber = io.open(args.path.AbsolutePath, 'w+'); --args.path:NewFileWriter(); 
-            if (writer == nil) then
-                error(tostring(errorNumber) .. " " .. errorMsg, 2);                
-            end
-            args.writer = writer;
+            --local writer, errorMsg, errorNumber = io.open(args.path.AbsolutePath, 'w+'); --args.path:NewFileWriter(); 
+            --if (writer == nil) then
+            --    error(tostring(errorNumber) .. " " .. errorMsg, 2);                
+            --end
+            args.writer = args.path:CreateFile();--writer;
         end
         
         setmetatable(args, ClassHFileGenerator);                
@@ -40,8 +40,8 @@ ClassHFileGenerator = {
     end,
     
     classBegin = function(self)
-        self.writer:write("class " .. self.node.Name .. "\n");
-        self.writer:write("{\n");
+        self:write("class " .. self.node.Name .. "\n");
+        self:write("{\n");
         self:addTabs(1);
     end,
     
@@ -61,7 +61,7 @@ ClassHFileGenerator = {
     end,
     
     classEnd = function(self)        
-        self.writer:write("}; // End of class " .. self.node.Name .. "\n");
+        self:write("}; // End of class " .. self.node.Name .. "\n");
         self:addTabs(-1);
     end,
     
@@ -126,7 +126,7 @@ ClassHFileGenerator = {
         check(self.writer ~= nil, "Instance writer missing.");
         if (not self.isNested) then  
             self:includeGuardHeader();
-            self.writer:write('\n');
+            self:write('\n');
         end
         
         local reason = self.node.Member.ReasonCreated;
@@ -137,7 +137,7 @@ ClassHFileGenerator = {
         if (not self.isNested) then 
             self:namespaceBegin(self.node.Node);
         end
-        self.writer:write("class " .. self.node.Name .. ";\n");
+        self:write("class " .. self.node.Name .. ";\n");
         if (not self.isNested) then
             self:namespaceEnd(self.node.Node);
         end
@@ -145,19 +145,19 @@ ClassHFileGenerator = {
         
         if (not self.isNested) then  
             self:includeStatements();            
-            self.writer:write('\n');            
+            self:write('\n');            
             self:namespaceBegin(self.node.Node);
-            self.writer:write('\n');
+            self:write('\n');
         end
         
-        self.writer:write('\n');
+        self:write('\n');
         self:classPublicGlobals();
-        self.writer:write('\n');
+        self:write('\n');
         self:classBody();
         if (not self.isNested) then
-            self.writer:write('\n');
+            self:write('\n');
             self:namespaceEnd(self.node.Node);
-            self.writer:write('\n');
+            self:write('\n');
             self:includeGuardFooter();
         end
     end,    

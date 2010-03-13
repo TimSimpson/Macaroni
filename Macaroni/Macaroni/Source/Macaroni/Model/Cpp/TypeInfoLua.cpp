@@ -3,11 +3,11 @@
 
 #include "../NodeLua.h"
 #include "TypeInfoLua.h"
-extern "C" {
+//MARIO extern "C" {
 	#include "../../../Lua/lua.h"
 	#include "../../../Lua/lauxlib.h"
 	#include "../../../Lua/lualib.h"
-}
+//MARIO }
 
 struct lua_State;
 

@@ -4,6 +4,7 @@
 #include "../ME.h"
 #include <boost/filesystem/path.hpp>
 #include <boost/shared_ptr.hpp>
+#include <Macaroni/IO/GeneratedFileWriter.h>
 #include <vector>
 
 BEGIN_NAMESPACE2(Macaroni, IO)
@@ -36,6 +37,9 @@ public:
 
 	void CreateDirectory() const;
 
+	/** Opens a file in the current directory for writing. */
+	GeneratedFileWriterPtr CreateFile() const;
+
 	bool Exists() const;
 
 	std::string GetAbsolutePath() const;
@@ -54,10 +58,6 @@ public:
 
 	/** Creates a new path but forces a slash to appear. */
 	PathPtr Path::NewPathForceSlash(const std::string & name) const;
-
-	/** Opens a file in the current directory for writing. */
-	// std::ofstream OpenFile(const char * name);
-	// lua function OpenFile(name);
 
 	/** The path in String form. */
 	std::string ToString() const;

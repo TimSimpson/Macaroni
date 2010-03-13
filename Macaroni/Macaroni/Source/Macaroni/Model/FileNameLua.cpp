@@ -1,11 +1,11 @@
 #ifndef MACARONI_MODEL_FILENAMELUA_CPP
 #define MACARONI_MODEL_FILENAMELUA_CPP
 
-extern "C" {
+//MARIO extern "C" {
 	#include "../../Lua/lua.h"
 	#include "../../Lua/lauxlib.h"
 	#include "../../Lua/lualib.h"
-}
+//MARIO }
 #include "FileNameLua.h"
 #include "FileName.h"
 #include "../Environment/DebugLog.h"

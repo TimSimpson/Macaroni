@@ -1,13 +1,14 @@
 #ifndef MACARONI_IO_PATHLUA_CPP
 #define MACARONI_IO_PATHLUA_CPP
 
+#include "GeneratedFileWriterLuaMetaData.h"
 #include "PathLua.h"
 
-extern "C" {
+//extern "C" {
 	#include "../../Lua/lua.h"
 	#include "../../Lua/lauxlib.h"
 	#include "../../Lua/lualib.h"
-}
+//}
 
 
 struct lua_State;
@@ -133,6 +134,11 @@ END_NAMESPACE2
 			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::createDirectory);
 			return 1;
 		}
+		else if (index == "CreateFile")
+		{	
+			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::createFile);
+			return 1;
+		}
 		else if (index == "Exists")
 		{	bool exists = ptr->Exists();
 			lua_pushboolean(L, exists);
@@ -148,12 +154,7 @@ END_NAMESPACE2
 		{
 			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::isFileOlderThan);
 			return 1; 
-		}
-		else if (index == "NewFileWriter")
-		{
-			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::newFileWriter);
-			return 1;			
-		}	
+		} 
 		else if (index == "NewPath")
 		{
 			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::newPath);
@@ -169,27 +170,21 @@ END_NAMESPACE2
 		return 1;
 	}
 
-	static int newFileWriter(lua_State * L)
+	static int createFile(lua_State * L)
 	{
 		PathPtr ptr = getInstance(L);
-		//std::stringstream code;
-		//code << "io.open(\"" << ptr->ToString() << "\", 'w+');";
-		//std::string str(code.str());
-		//luaL_loadbuffer(L, str.c_str(), str.length(), "File Open Call");
-		//lua_pcall(L, 0, 0, 0);
-		// Never returns I think.
-		lua_getglobal(L, "io");
-		lua_pushstring(L, "open");
-		lua_gettable(L, -2); // pushes function, removes key value "open" 
-		lua_remove(L, -2); // remove "io"
-		// function io.open should be at top of stack now.
-		lua_pushstring(L, ptr->GetAbsolutePath().c_str()); // arg1
-		lua_pushstring(L, "w+"); // arg2
-		int stackSize = lua_gettop(L);
-		lua_call(L, 2, 1);//LUA_MULTRET);
-		int rtnCount = lua_gettop(L) - stackSize;
-
-		return rtnCount;
+		try 
+		{
+			GeneratedFileWriterPtr writer = ptr->CreateFile();
+			GeneratedFileWriterLuaMetaData::PutInstanceOnStack(L, writer);
+			return 1;
+		} 
+		catch(const std::exception & ex)
+		{
+			lua_pushstring(L, ex.what());
+			lua_error(L);
+		}
+		return 0; // line will never be reached
 	}
 
 	static int newPath(lua_State * L)

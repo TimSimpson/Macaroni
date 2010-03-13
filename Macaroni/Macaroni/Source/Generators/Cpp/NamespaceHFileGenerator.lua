@@ -21,11 +21,12 @@ NamespaceHFileGenerator = {
         if (args.path == nil) then
             assert(args.writer ~= nil);
         else
-            local writer, errorMsg, errorNumber = io.open(args.path.AbsolutePath, 'w+'); --args.path:NewFileWriter(); 
-            if (writer == nil) then
-                error(tostring(errorNumber) .. " " .. errorMsg, 2);                
-            end
-            args.writer = writer;
+            --local writer, errorMsg, errorNumber = io.open(args.path.AbsolutePath, 'w+'); --args.path:NewFileWriter(); 
+            --if (writer == nil) then
+            --    error(tostring(errorNumber) .. " " .. errorMsg, 2);                
+            --end
+            --args.writer = writer;
+            args.writer = args.path:CreateFile();
         end
         
         setmetatable(args, NamespaceHFileGenerator);   
@@ -47,7 +48,7 @@ NamespaceHFileGenerator = {
     end,
     
     debugOutDependencyGraph = function(self) 
-        self.writer:write("/* ~ Debug Output of Dependency Graph ~ */\n");
+        self:write("/* ~ Debug Output of Dependency Graph ~ */\n");
         for i = 1, #self.minors do
             local m = self.minors[i];            
             self:write("/* " .. m.FullName .. '\n');
@@ -116,11 +117,11 @@ NamespaceHFileGenerator = {
         check(self.writer ~= nil, "Instance writer missing.");
         self:includeGuardHeader();
         self:debugOutDependencyGraph();
-        self.writer:write('\n');
+        self:write('\n');
         self:includeStatements();            
-        self.writer:write('\n');            
+        self:write('\n');            
         self:namespaceBegin(self.node);
-        self.writer:write('\n');
+        self:write('\n');
         
         self:iterateMembers(self.minors);
         --for i = 1, #self.minors do
@@ -133,9 +134,9 @@ NamespaceHFileGenerator = {
         --self.writer:write('\n');
         --self:classBody();
         
-        self.writer:write('\n');
+        self:write('\n');
         self:namespaceEnd(self.node);
-        self.writer:write('\n');
+        self:write('\n');
         self:includeGuardFooter();       
     end,
         

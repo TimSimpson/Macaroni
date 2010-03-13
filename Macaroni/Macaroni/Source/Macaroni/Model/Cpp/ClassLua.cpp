@@ -8,11 +8,11 @@
 #include "TypeInfoLua.h"
 #include "VariableLua.h"
 
-extern "C" {
+//extern "C" {
 	#include "../../../Lua/lua.h"
 	#include "../../../Lua/lauxlib.h"
 	#include "../../../Lua/lualib.h"
-}
+//}
 
 
 struct lua_State;

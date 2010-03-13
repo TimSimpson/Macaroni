@@ -9,11 +9,11 @@
 #include "../NodeListLua.h"
 #include "../TypeLua.h"
 
-extern "C" {
+//MARIO extern "C" {
 	#include "../../../Lua/lua.h"
 	#include "../../../Lua/lauxlib.h"
 	#include "../../../Lua/lualib.h"
-}
+//MARIO }
 
 
 struct lua_State;

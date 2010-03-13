@@ -96,6 +96,7 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 	Console output;
 
 	CmdLine cmd(convertedArgs, output);
+//#ifndef _DEBUG
 	try
 	{
 		cmd.Execute();
@@ -104,6 +105,9 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 		std::cerr << "An unexpected error occured.\n" << std::endl;
 		std::cerr << ex.what()  << std::endl;
 	}
+//#else
+//	cmd.Execute();
+//#endif
 
 	std::cout << std::endl << "Program finished." << std::endl;
 	if (cmd.EndPrompt())

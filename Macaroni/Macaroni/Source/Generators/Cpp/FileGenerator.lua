@@ -15,15 +15,15 @@ FileGenerator = {
     end,    
     
     includeGuardFooter = function(self)        
-        self.writer:write("#endif // end of " .. self:getGuardName());    
+        self:write("#endif // end of " .. self:getGuardName());    
     end,
 
     includeGuardHeader = function(self)
         check(self ~= nil, "Member called as static.");
         check(self.writer ~= nil, "The 'writer' field was set to nil. :(");
         local guardName = self:getGuardName();
-        self.writer:write("#ifndef " .. guardName .. "\n");
-        self.writer:write("#define " .. guardName .. "\n");       
+        self:write("#ifndef " .. guardName .. "\n");
+        self:write("#define " .. guardName .. "\n");       
     end,
     
       
@@ -51,9 +51,9 @@ FileGenerator = {
         local fs = namespaceNode.FullName;
         local names = Node.SplitComplexName(fs);
         for i = 1, #names do
-            self.writer:write("namespace " .. names[i] .. " { ");
+            self:write("namespace " .. names[i] .. " { ");
         end
-        self.writer:write("\n");
+        self:write("\n");
     end,    
     
     namespaceEnd = function(self, namespaceNode)
@@ -91,7 +91,7 @@ FileGenerator = {
             error("String was expected in call to write, but got " .. type(text) .. " instead.", 2);
         end
         --print("DEBUG:" .. debug.traceback());       
-        self.writer:write(text);
+        self.writer:Write(text);
     end,    
     
     writeAfterTabs = function(self, text)
@@ -101,7 +101,7 @@ FileGenerator = {
     
     writeTabs = function(self)
         for i = 1, self.tabs do
-            self.writer:write('\t');
+            self:write('\t');
         end
     end,
     

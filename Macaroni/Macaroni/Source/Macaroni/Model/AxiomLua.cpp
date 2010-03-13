@@ -1,11 +1,11 @@
 #ifndef MACARONI_MODEL_AXIOMLUA_CPP
 #define MACARONI_MODEL_AXIOMLUA_CPP
 
-extern "C" {
+//MARIO extern "C" {
 	#include "../../Lua/lua.h"
 	#include "../../Lua/lauxlib.h"
 	#include "../../Lua/lualib.h"
-}
+//MARIO }
 #include "AxiomLua.h"
 #include "Axiom.h"
 #include "../Environment/DebugLog.h"

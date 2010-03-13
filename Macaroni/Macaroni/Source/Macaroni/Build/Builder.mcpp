@@ -200,10 +200,10 @@ class Builder
 		console.WriteLine("--------------------------------------------------------------------------------");
 
 		const Path dir(manifest->GetRootDirectory(), manifest->GetRootDirectory());
-		PathPtr mWork = dir.NewPathForceSlash("./MWork");
-		mWork->CreateDirectory();
+		//PathPtr mWork = dir.NewPathForceSlash("./MWork");
+		//mWork->CreateDirectory();
 
-		PathPtr genSrc = mWork->NewPathForceSlash("/GeneratedSource");
+		PathPtr genSrc = dir.NewPathForceSlash(manifest->GetMOutput());//"/GeneratedSource");
 		genSrc->CreateDirectory();
 
 		bool success = true;

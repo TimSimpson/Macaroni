@@ -25,11 +25,12 @@ MhFileGenerator = {
 
         local filePath = path:NewPath("/Interface.mh");
         --TODO: Somehow calling C++ NewFileWriter() method currently results in entire Lua call from C++ ending.
-        local writer, errorMsg, errorNumber = io.open(filePath.AbsolutePath, 'w+'); --args.path:NewFileWriter(); 
-        if (writer == nil) then
-            error(tostring(errorNumber) .. " " .. errorMsg, 2);                
-        end
-        args.writer = writer;
+        --local writer, errorMsg, errorNumber = io.open(filePath.AbsolutePath, 'w+'); --args.path:NewFileWriter(); 
+        --if (writer == nil) then
+        --    error(tostring(errorNumber) .. " " .. errorMsg, 2);                
+        --end
+        --args.writer = writer;
+        args.writer = filePath:CreateFile();
         args.tabs = 0;
         
         return args;

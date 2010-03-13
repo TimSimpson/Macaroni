@@ -91,6 +91,12 @@ void Path::CreateDirectory() const
 	//boost::filesystem::create_directory(path);	
 }
 
+GeneratedFileWriterPtr Path::CreateFile() const
+{
+	boost::filesystem::path absolute = boost::filesystem::system_complete(path);
+	return GeneratedFileWriterPtr(new GeneratedFileWriter(absolute));
+}
+
 bool Path::Exists() const
 {
 	return boost::filesystem::exists(this->path);

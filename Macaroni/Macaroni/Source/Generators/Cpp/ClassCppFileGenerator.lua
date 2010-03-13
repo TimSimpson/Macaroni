@@ -21,11 +21,11 @@ ClassCppFileGenerator = {
             assert(args.writer ~= nil);
         else
             --TODO: Somehow calling C++ NewFileWriter() method currently results in entire Lua call from C++ ending.
-            local writer, errorMsg, errorNumber = io.open(args.path.AbsolutePath, 'w+'); --args.path:NewFileWriter(); 
-            if (writer == nil) then
-                error(tostring(errorNumber) .. " " .. errorMsg, 2);                
-            end
-            args.writer = writer;
+            --local writer, errorMsg, errorNumber = io.open(args.path.AbsolutePath, 'w+'); --args.path:NewFileWriter(); 
+            --if (writer == nil) then
+            --    error(tostring(errorNumber) .. " " .. errorMsg, 2);                
+            --end
+            args.writer = args.path:CreateFile();--writer;
         end
         
         setmetatable(args, ClassCppFileGenerator);
@@ -85,7 +85,7 @@ ClassCppFileGenerator = {
         
         -- Put the include to this classes H file.
         local hFile = '#include "' .. self.node.Name .. '.h"\n';
-        self.writer:write(hFile);
+        self:write(hFile);
         for i = 1, #imports do                      
             local import = imports[i];        
             self:writeInclude(import);                
@@ -104,21 +104,21 @@ ClassCppFileGenerator = {
     parse = function(self)      
         if (not self.isNested) then  
             self:includeGuardHeader();
-            self.writer:write('\n');
+            self:write('\n');
             self:includeStatements();
-            self.writer:write('\n');
+            self:write('\n');
             self:usingStatements();
-            self.writer:write('\n');            
+            self:write('\n');            
             self:namespaceBegin(self.node.Node);
-            self.writer:write('\n');
+            self:write('\n');
             self:globals();
-            self.writer:write('\n');
+            self:write('\n');
         end
         self:classBody();
         if (not self.isNested) then
-            self.writer:write('\n');
+            self:write('\n');
             self:namespaceEnd(self.node.Node);
-            self.writer:write('\n');
+            self:write('\n');
             self:includeGuardFooter();
         end
     end,    

@@ -2,6 +2,7 @@
 #define MACARONI_EXCEPTION_H
 
 #include <exception>
+#include <iostream>
 #include <string>
 
 namespace Macaroni{
@@ -15,31 +16,49 @@ public:
 	Exception(const char * message)
 		:source("Unspecified source."), message(message)
 	{
+		#ifndef _DEBUG
+			std::cout << "THROWN EXCEPTION:" << message << std::endl;
+		#endif
 	}
 
 	Exception(const char * source, const char * message)
 		: source(source), message(message)
 	{
+		#ifndef _DEBUG
+			std::cout << "THROWN EXCEPTION at " << source << ":" << message << std::endl;
+		#endif
 	}
 
 	Exception(std::string const & source, const char * message)
 		: source(source), message(message)
 	{
+		#ifndef _DEBUG
+			std::cout << "THROWN EXCEPTION at " << source << ":" << message << std::endl;
+		#endif
 	}
 
 	Exception(const char * source, std::string const & message)
 		: source(source), message(message)
 	{
+		#ifndef _DEBUG
+			std::cout << "THROWN EXCEPTION at " << source << ":" << message << std::endl;
+		#endif
 	}
 
 	Exception(std::string const & source, std::string const & message)
 		: source(source), message(message)
 	{
+		#ifndef _DEBUG
+			std::cout << "THROWN EXCEPTION at " << source << ":" << message << std::endl;
+		#endif
 	}
 	
 	Exception(Exception const & other) // Copy ctor
 		: source(other.source), message(other.message)
 	{
+		#ifndef _DEBUG
+			std::cout << "THROWN EXCEPTION at " << source << ":" << message << std::endl;
+		#endif
 	}
 
 	Exception & operator =(const Exception & other) // Copy assignment.

@@ -1,11 +1,11 @@
 #ifndef MACARONI_MODEL_CPP_ACCESSLUAREGISTER_CPP
 #define MACARONI_MODEL_CPP_ACCESSLUAREGISTER_CPP
 
-extern "C" {
+//extern "C" {
 	#include "../../../Lua/lua.h"
 	#include "../../../Lua/lauxlib.h"
 	#include "../../../Lua/lualib.h"
-}
+//}
 #include "Access.h"
 #include "AccessLua.h"
 #include "../../Exception.h"

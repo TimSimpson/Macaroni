@@ -15,11 +15,11 @@ LuaGlueHFile = {
         if (args.path == nil) then
             assert(args.writer ~= nil);
         else
-            local writer, errorMsg, errorNumber = io.open(args.path.AbsolutePath, 'w+'); --args.path:NewFileWriter(); 
-            if (writer == nil) then
-                error(tostring(errorNumber) .. " " .. errorMsg, 2);                
-            end
-            args.writer = writer;
+            --local writer, errorMsg, errorNumber = io.open(args.path.AbsolutePath, 'w+'); --args.path:NewFileWriter(); 
+            --if (writer == nil) then
+            --    error(tostring(errorNumber) .. " " .. errorMsg, 2);                
+            --end
+            args.writer = args.path:CreateFile();--writer;
         end
         
         setmetatable(args, LuaGlueHFile);                
