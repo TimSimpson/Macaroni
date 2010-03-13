@@ -1,0 +1,120 @@
+~import boost::filesystem::create_directories;
+~import Macaroni::Exception;
+~import std::ofstream;
+~import std::ifstream;
+~import std::ostream;
+~import boost::filesystem::path;
+~import boost::shared_ptr;
+~import std::string;
+~import std::stringstream;
+
+namespace Macaroni::IO 
+{
+
+typedef shared_ptr<ostream> ostreamptr;
+
+class GeneratedFileWriter
+{
+	//TODO: Move to outside of class def. due to bug in Macaroni.
+	//Fix bug and move back!
+	//typedef shared_ptr<ostream> ostreamptr;
+
+	bool directToFile;
+	path filePath;		
+	ostreamptr writer;	
+
+	public GeneratedFileWriter(path filePath)
+	:	filePath(filePath), writer()
+	{
+		if (boost::filesystem::exists(filePath)) 
+		{
+			if (!boost::filesystem::is_regular(filePath))
+			{
+				stringstream msg;
+				msg << "Cannot overwrite non-regular file " << filePath.string()
+					<< ".";
+				throw Macaroni::Exception(msg.str().c_str());
+			}
+			writer = ostreamptr(new stringstream());
+			directToFile = false;
+		}
+		else
+		{
+			writer = ostreamptr(new ofstream(filePath.native_file_string().c_str(), ofstream::trunc));
+			directToFile = true;
+		}
+	}
+
+	public ~GeneratedFileWriter()
+	{
+		Close();
+	}
+
+	public void Close()
+	{
+		if (directToFile) 
+		{
+			(dynamic_cast<ofstream *>(writer.get()))->close();
+		}
+		else
+		{
+			stringstream & ss = dynamic_cast<stringstream &>(
+				*(dynamic_cast<stringstream *>(writer.get()))
+				);
+			overwriteFileWithBufferIfDifferent(filePath, ss);
+		}		
+	}
+
+	public static bool isFileDifferentThanBuffer(const path & filePath, stringstream & current)
+	{
+		char buf1[256];
+		char buf2[256];
+		
+		ifstream existing(filePath.native_file_string().c_str());
+		current.seekg(std::ios_base::beg);
+
+		bool eof = false;
+		while(!eof)
+		{
+			existing.read(buf1, 256);
+			current.read(buf2, 256);
+			if (existing.gcount() != current.gcount())
+			{
+				return true;
+			}
+			else if (existing.gcount() != 256)
+			{
+				eof = true;
+			}
+			if (strncmp(buf1, buf2, existing.gcount()) != 0)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static void overwriteFileWithBufferIfDifferent(const path & filePath, stringstream & current)
+	{
+		if (!isFileDifferentThanBuffer(filePath, current))
+		{
+			return;
+		}
+		current.seekg(std::ios_base::beg);
+		ofstream output(filePath.native_file_string().c_str(), ofstream::trunc);
+		output << current.str() ;
+		output.close();
+	}
+
+	public void Write(const std::string & text)
+	{
+		(*writer) << text;
+	}
+
+	public void WriteLine(const std::string & text)
+	{
+		(*writer) << text << std::endl;
+	}
+};
+
+} // end namespace

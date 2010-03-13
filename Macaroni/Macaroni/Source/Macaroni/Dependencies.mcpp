@@ -1,5 +1,17 @@
 // This file contains foward refs to all types within the project.
 
+// Std lib stuff
+class std::auto_ptr { ~hfile=<memory> }
+class std::ifstream { ~hfile=<fstream> }
+class std::fstream { ~hfile=<fstream> }
+class std::istream { ~hfile=<iostream> }
+class std::ofstream { ~hfile=<iostream> }
+class std::ostream { ~hfile=<iostream> }
+
+// Boost
+class boost::filesystem::create_directories { ~hfile=<boost/filesystem/convenience.hpp> }
+class boost::intrusive_ptr { ~hfile=<boost/shared_ptr.hpp> }
+
 class Macaroni::Model::Cpp::Access { ~hfile=<Macaroni/Model/Cpp/Access.h> }
 class Macaroni::Model::Cpp::AccessLuaMetaData { ~hfile=<Macaroni/Model/Cpp/AccessLua.h> }
 class Macaroni::Model::Cpp::Class { ~hfile=<Macaroni/Model/Cpp/Class.h> }
@@ -13,7 +25,6 @@ class Macaroni::Model::Context { ~hfile=<Macaroni/Model/Context.h> }
 class Macaroni::Model::ContextPtr { ~hfile=<Macaroni/Model/ContextPtr.h> }
 class Macaroni::Exception { ~hfile=<Macaroni/Exception.h> }
 class Macaroni::IO::FileSet { ~hfile=<Macaroni/IO/FileSet.h> }
-class boost::intrusive_ptr { ~hfile=<boost/shared_ptr.hpp> }
 class Macaroni::Environment::LuaEnvironment { ~hfile=<Macaroni/Environment/LuaEnvironment.h> }
 class Macaroni::Model::Library { ~hfile=<Macaroni/Model/Library.h> }
 class Macaroni::Model::LibraryPtr { ~hfile=<Macaroni/Model/LibraryPtr.h> }
@@ -32,4 +43,6 @@ class Macaroni::Environment::Process { ~hfile=<Macaroni/Environment/Process.h> }
 class Macaroni::Model::Source { ~hfile=<Macaroni/Model/Source.h> }
 class Macaroni::Environment::StringPair { ~hfile=<Macaroni/Environment/StringPair.h> }
 
-class boost::filesystem::create_directories { ~hfile=<boost/filesystem/convenience.hpp> }
+
+
+

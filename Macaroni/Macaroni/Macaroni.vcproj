@@ -338,6 +338,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Macaroni\IO\GeneratedFileWriterTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Lua\lapi.c"
 				>
 			</File>
@@ -888,6 +892,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Macaroni\IO\GeneratedFileWriter.mcpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Build\GeneratorContext.mcpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Lua\lapi.h"
 				>
 			</File>
@@ -1088,11 +1100,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Parser\Parser.h"
+				RelativePath=".\Source\Macaroni\Parser.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Parser.h"
+				RelativePath=".\Source\Macaroni\Parser\Parser.h"
 				>
 			</File>
 			<File
@@ -1380,6 +1392,10 @@
 		</File>
 		<File
 			RelativePath=".\Source\Macaroni\Model\Cpp\PrimitivePtr.h"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\Macaroni\IO\TestFile.txt"
 			>
 		</File>
 		<File
