@@ -6,62 +6,33 @@ id =  -- Not needed.
     author="Tim Simpson"
 }
 
-description=
-[[
-    ~~     ~~                                     ~
-   ~~ ~~ ~~ ~~   ~~ ~~   ~~  ~~~    ~~~   ~  ~         ~~  ~
-  ~~   ~~  ~~  ~  ~    ~  ~  ~  ~ ~   ~  ~ ~ ~  ~    ~   ~~ 
- ~~       ~~    ~~  ~~  ~~  ~      ~~~  ~   ~  ~      
+description= [[  
     Macaroni is a builder / parser for C++ that aims to increase
     DRYness by slimming down boilerplate and eliminating the need to store
     redundant information.
 ]]
 
-mSource = 
-{  
-    "Source"
-}
-mOutput = "GeneratedSource"
+source "Source"
+output = "GeneratedSource"
 
-cppInput =  
-{
-    "MWork/GeneratedSource",
-    "Source"
-}
-
-cppOutput = {
-    headers="MWork/Headers",
-    objects="MWork/Objects",
-    cppSource="PureCppBackup"
-}
-
-
-fOutput = "MWork/Final"
-
-configurations = {
-    all =
-    {
-        compiler = "Windows-VS9-Console",        
-        generators =
-        {
-            "Cpp.lua",       
-            "LuaGlue.lua",
-            "InterfaceMh.lua",              
-        },
-        dependencies =
-        {
-            boost = {
-                group="Macaroni",
-                name="Boost",
-                version="1.39.0-0",
-            },
-            std = {
-                group="Macaroni",
-                name="CppStd",
-                version="1.0.0.0",
-                --configuration="all" -- <--  todo: determine how this will work.
-            }
-        },
-        final = "Macaroni.exe"
-    }
-}
+dependency { group="Macaroni", name="Boost", version="1.39.0-0" }
+dependency { group="Macaroni", name="CppStd", version="1.0.0.0" }
+    
+function bjam()
+    local rtnCode = os.execute("bjam")
+    return rtnCode == 0
+end
+        
+function generate()
+    runGenerator "Cpp"
+    runGenerator "LuaGlue"
+    runGenerator "InterfaceMh"
+    runGenerator "JamGenerator"
+    print "Code Generation successful.  Calling Boost Build."
+    if (bjam()) then
+        print "~ YOU WIN! ~"
+    else
+        print "~ YOU LOSE ~"          
+    end
+end
+   

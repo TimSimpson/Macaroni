@@ -46,6 +46,7 @@ alias tests
 		#		mlib	
 		#]
 		[ run Source/Macaroni/IO/GeneratedFileWriterTest.cpp mlib ]
+		[ run Source/Macaroni/Model/AttributeValueTest.cpp mlib ]
 		[ run Source/Macaroni/Model/NodeTest.cpp mlib ]
 		[ run Source/Macaroni/Model/ContextTests.cpp mlib ]				
 	;

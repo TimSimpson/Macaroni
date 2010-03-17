@@ -1,0 +1,165 @@
+~import A::B::Cat;
+~import A::B::Dog;
+~import Macaroni::Attributes::Keywords::precondition;
+
+/** Wow, its been awhile since I looked at these!
+ * Let me try to adapt Sample3.mcd to something a bit more current.
+ * I'm doing this to try to get a handle on how Attributes should work. 
+ */
+namespace A::B::C 
+{
+
+/**
+ * Summary.
+ */
+class ClassName
+{
+    /** Summary of a member field. */
+    type fieldName;
+    
+    /* Summary for method. */
+    public returnType methodName
+    (
+        // Argument summary, could be
+        int X1
+        @precondition { arg <= 0 } // <-- "Precondition" defines a String which 
+		@precondition { arg >= 0 } //     the Lua generator parses.
+		  // Some danger I see with this approach is that when originally
+		  // devising these I thought the C++ generator and then the doc
+		  // generator (though I didn't call them that) could both use them.
+		  // But if I leave the parsing of complex statements up to Lua, it
+		  // could make things a bit messy.
+		,
+        int X2
+		@precondition { arg <= MAXCOUNT or throw soAndSoException }
+		, // Lua then turns this into the appropriate C++ code at the start
+		  // of the method.
+		  // I don't like the example below anymore.  It seems too complex for
+		  // little gain.
+        @precondition { X1 < X2 
+            or throw soAndSoException(“Bad arg.”) exception.count = 1;}
+    )
+	@precondition { field=fieldName, condition="<= 0" }
+	// I like the idea of precondition above- field would translate to a
+	// NodePtr (as its a literal that doesn't parse to a number) and condition
+	// is then a string.  Hrrrmm!
+	// Here's yet another idea of how to do it.
+	@precondition [ field=fieldName, condition={<= 0 } ]
+	// The idea above is that because braces aren't used to enclose the 
+	// attribute, they can be used for what are really just strings.
+	// Here's another idea:
+	@precondition { field=fieldName, condition=(<=0) }
+	// Oooh, that's sexy.  That might be favorite in terms of this one 
+	// example.  But if the expression within the string became more complex
+	// that might not look as nice anymore.
+	@precondition ( field=fieldName, condition={<= 0} )
+	// The last idea is to use "(" instead of "{".  In some ways, this makes
+	// a lot of sense as it makes it resemble a function call, and you are
+	// in fact instantiating an attribute.
+    {
+        method definiton in normal C++
+    }	
+	// Let me define the "return value post-condition" below a few different
+	// ways...
+    @returnValue ( >= 0 )
+	@returnValue { >= 0 }
+	@returnValue(" >= 0 ")
+	@returnValue " >= 0 ";
+	@returnValue({ >= 0 })
+	@returnValue {>=0}
+	// An attribute value starts right after an attribute name,
+	// so @returnValue is like blah=.  
+	// But for multiple values, you HAVE to make that a table
+	// and this requires using "(".
+	
+
+	/* So, the "establish" idea- one of my old favorites from when I was 
+	 * originally thinking about this - suddenly looks incredibly daunting.
+	 * The big problem is how in the hell I'm going to get that delicious code
+	 * block out of there.  */
+    @establish("Such and such occurs when calling this method.", {
+		ClassName c();
+		c.methodName(0,10);
+		ensure(c.SomethingOccured());
+    })
+	@establish(name="Such and such occurs when calling this method.", code={
+		ClassName c();
+		c.methodName(0,10);
+		ensure(c.SomethingOccured());
+    })
+
+	/* One idea is to provide "custom parsers" which would *HAVE* to be included
+	 * before the target project (as this would be the only way to ensure they
+	 * were parsed first) and, when given a keyword like so, would get the
+	 * parser Iterator and do whatever they wanted with it. */
+	~establish "Such and such occurs when calling this method." {
+		ClassName c();
+		c.methodName(0,10);
+		ensure(c.SomethingOccured());
+    }
+
+	/* A third idea would be to begin Strings with "[". */
+	@establish{"Such and such occurs when calling this method." [
+		ClassName c();
+		c.methodName(0,10);
+		ensure(c.SomethingOccured());
+	]}
+
+	@establish{"Such and such occurs when calling this method." (
+		ClassName c();
+		c.methodName(0,10);
+		ensure(c.SomethingOccured());
+	)}
+
+    /*~ example "Making a new instance." {
+        ClassName c();
+        returnType r = c.methodName(0,3);
+        ensure(r.getValue() == 3);
+    } */
+    [establish "MethodName always returns the value of X1 + X2."
+     example "Using ClassName to add."{
+		ClassName c();
+		returnType r = c.methodName(12,16);
+		ensure(r.getValue() == 28);
+    }]    
+    [test {
+		C++ code here..
+    }]
+    
+    /* Summary for method. */
+    public returnType methodName
+    (
+        // Argument summary, could be
+        int X1,
+        [arg <= 0]
+        int X2
+        [arg <= MAXCOUNT or throw soAndSoException]
+        [X1 < X2 or throw soAndSoException(“Bad arg.”){exception.count = 1;}]
+    )
+    [fieldName <= 0 or throw soAndSoException]
+    {
+        method definiton in normal C++
+    }
+    [returnValue >= 0]
+    [establish "Such and such occurs when calling this method."{
+		ClassName c();
+		c.methodName(0,10);
+		ensure(c.SomethingOccured());
+    }]
+    [example "Making a new instance." {
+        ClassName c();
+        returnType r = c.methodName(0,3);
+        ensure(r.getValue() == 3);
+    }]
+    [establish "MethodName always returns the value of X1 + X2."
+     example "Using ClassName to add."{
+		ClassName c();
+		returnType r = c.methodName(12,16);
+		ensure(r.getValue() == 28);
+    }]    
+    [test {
+		C++ code here..
+    }]
+}
+
+} // end namespace

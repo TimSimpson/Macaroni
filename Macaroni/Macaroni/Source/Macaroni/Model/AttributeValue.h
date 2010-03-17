@@ -2,70 +2,95 @@
 #define MACARONI_MODEL_ATTRIBUTEVALUE_H
 
 #include "../ME.h"
+#include "AttributeTablePtr.h"
 #include "NodePtr.h"
+#include <boost/shared_ptr.hpp>
+#include <boost/variant.hpp>
 #include <string>
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
+class AttributeValue;
+
+typedef boost::shared_ptr<AttributeValue> AttributeValuePtr;
+
 class AttributeValue
 {
+public:
 
-	private: enum Type
+	enum TypeCode
 	{
-		Type_Attribute,
 		Type_Bool,
 		Type_Node,
 		Type_Number,
-		Type_String
+		Type_String,
+		Type_Table
 	};
+
+	AttributeValue(const std::string & name, const bool value);
 	
-	private: const std::string name;
-	private: Type type;
-	private: void * value;	
-	
-	public: AttributeValue(const std::string & name, const bool value);
-	
-	public: AttributeValue(const std::string & name, const double value);
+	AttributeValue(const std::string & name, const double value);
 
-	public: AttributeValue(const std::string & name, NodePtr node);
+	AttributeValue(const std::string & name, NodePtr node);
 
-	public: AttributeValue(const std::string & name, const std::string & value);
+	AttributeValue(const std::string & name, const std::string & value);
 
-	public: ~AttributeValue();
+	AttributeValue(const std::string & name, AttributeTablePtr value);
 
-	public: inline const std::string & GetName() const
+	~AttributeValue();
+
+	inline const std::string & GetName() const
 	{
 		return name;
 	}
-	
-	public : inline bool IsAttribute() const
+
+	std::string GetTypeString() const;
+
+	bool GetValueAsBool() const;
+
+	NodePtr GetValueAsNode() const;
+
+	double GetValueAsNumber() const;
+
+	std::string GetValueAsString() const;
+
+	AttributeTablePtr GetValueAsTable() const;
+
+	inline bool IsBool() const
 	{
-		return type == Type_Attribute;
+		return getTypeCode() == Type_Bool;
 	}
 
-	public : inline bool IsBool() const
+	inline bool IsNode() const
 	{
-		return type == Type_Bool;
-	}
-
-	public : inline bool IsNode() const
-	{
-		return type == Type_Node;
+		return getTypeCode() == Type_Node;
 	}	
 
-	public : inline bool IsNumber() const
+	inline bool IsNumber() const
 	{
-		return type == Type_Number;
+		return getTypeCode() == Type_Number;
 	}
 
-	public : inline bool IsString() const
+	inline bool IsString() const
 	{
-		return type == Type_String;
+		return getTypeCode() == Type_String;
 	}
 
+	inline bool IsTable() const
+	{
+		return getTypeCode() == Type_Table;
+	}
 
+private: 
 	
+	typedef boost::variant<bool, const NodePtr, double, const std::string, const AttributeTablePtr> Type;
+			
+	const std::string name;
+	Type value;
 
+	TypeCode getTypeCode() const;
+
+	std::string getTypeCodeString() const;
 };
 
 END_NAMESPACE2
