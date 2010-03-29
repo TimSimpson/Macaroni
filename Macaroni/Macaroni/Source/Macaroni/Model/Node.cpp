@@ -12,15 +12,23 @@
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
+Node::Node(Context & context, const std::string & name)
+: adoptedHome(), 
+  attributes(context),
+  context(&context), 
+  hFilePath(), hFilePathReason(),
+  member(nullptr), name(name), scope(nullptr)
+{	
+}
+
 Node::Node(Node * scope, const std::string & name)
-: adoptedHome(), context(nullptr), 
+: adoptedHome(), 
+  attributes(*(scope->context)),
+  context(scope->context), 
   hFilePath(), hFilePathReason(),
   member(nullptr), name(name), scope(scope)
-{
-	if (scope != nullptr)
-	{
-		context = scope->context;
-	}
+{	
+
 }
 
 Node::~Node()
@@ -30,6 +38,7 @@ Node::~Node()
 		delete children[i];
 	}
 }
+
 
 //Class * Node::createClass(const std::string & simpleName)
 //{	
@@ -173,6 +182,11 @@ Node * Node::findOrCreate(const std::string & name, const std::string & hFilePat
 NodePtr Node::GetAdoptedHome()
 {
 	return adoptedHome;
+}
+
+ContextPtr Node::GetContext()
+{
+	return ContextPtr(context);
 }
 
 std::string Node::GetFullName() const

@@ -2,6 +2,8 @@
 #define MACARONI_MODEL_NODE_H
 
 #include "../ME.h"
+#include "AttributeValuePtr.h"
+#include "AttributeTable.h"
 #include "ContextPtr.h"
 #include "FileNamePtr.h"
 #include "Library.h"
@@ -14,6 +16,7 @@ BEGIN_NAMESPACE2(Macaroni, Model)
 
 class Namespace;
 
+
 class Node
 { 
 friend Context;
@@ -22,7 +25,7 @@ friend void intrusive_ptr_add_ref(Node * p);
 friend void intrusive_ptr_release(Node * p);
 
 public:		
-
+		
 	///** Returns an existing class with the given name, or returns nullptr if
 	// * a clash is discovered. */
 	//ClassPtr FindOrCreateClass(const std::string & name);
@@ -43,6 +46,13 @@ public:
 
 	//NamespacePtr Find(std::string & name);	
 	NodePtr GetAdoptedHome();
+		
+	inline AttributeTable & GetAttributes()
+	{
+		return attributes;
+	}
+
+	ContextPtr GetContext();
 
 	// TODO: This is pitifully sloppy! Information on where the official C++
 	// definition is should probably optionally be attached to its own object
@@ -147,11 +157,17 @@ protected:
 
 private:
 
+	// This constructor creates a Root node of a context, and is accessible
+	// only by the Context class.
+	Node(Context & context, const std::string & name);
+
 	/** This refers not to where a node officially lives, but where it might
 	 * be stored for organization purposes.  For example, if you have an 
 	 * overloaded operator it might be better to store it in the same H file
 	 * as the class even though that's not really it's scope.  Can be null. */
 	NodePtr adoptedHome;
+
+	AttributeTable attributes;
 
 	std::vector<Node *> children;
 

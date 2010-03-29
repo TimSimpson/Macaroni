@@ -11,6 +11,7 @@ BEGIN_NAMESPACE(Macaroni, Parser, Cpp)
 
 namespace CppAxioms
 {
+	AxiomPtr AttributeValueCreation();
 	AxiomPtr BlockCreation();
 	AxiomPtr ClassCreation();
 	AxiomPtr CtorCreation();

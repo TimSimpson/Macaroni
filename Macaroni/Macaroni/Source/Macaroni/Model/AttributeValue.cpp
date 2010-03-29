@@ -1,42 +1,65 @@
 #ifndef MACARONI_MODEL_ATTRIBUTEVALUE_CPP
 #define MACARONI_MODEL_ATTRIBUTEVALUE_CPP
 
+#include "AttributeDefinition.h"
 #include "AttributeTable.h"
 #include "AttributeValue.h"
 #include "AttributeValueTypeException.h"
+#include "Node.h"
 #include <sstream>
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
 namespace 
 {
-	
+	Node & nodePtrToRef(NodePtr node)
+	{
+		if (!node)
+		{
+			throw Macaroni::Exception("Attempted to assign AttributeValue a name which was a null node.");
+		}
+		return *(node.get());
+	}
+
+	Node & nodePtrToRefValue(NodePtr node)
+	{
+		if (!node)
+		{
+			throw Macaroni::Exception("Attempted to assign AttributeValue a node value which was null.");
+		}
+		return *(node.get());
+	}
 }; // end anonymous namespace
 
 
-AttributeValue::AttributeValue(const std::string & name, const bool value)
-:name(name), value(value)
+AttributeValue::AttributeValue(NodePtr name, const bool value, const ReasonPtr & reason)
+:name(nodePtrToRef(name)), value(value)
 {
+	AttributeDefinition::Define(name, AttributeDefinition::Type_Bool, reason);
 }
 	
-AttributeValue::AttributeValue(const std::string & name, const double value)
-:name(name), value(value)
+AttributeValue::AttributeValue(NodePtr name, const double value, const ReasonPtr & reason)
+:name(nodePtrToRef(name)), value(value)
 {
+	AttributeDefinition::Define(name, AttributeDefinition::Type_Number, reason);
 }
 
-AttributeValue::AttributeValue(const std::string & name, NodePtr value)
-:name(name), value(value)
+AttributeValue::AttributeValue(NodePtr name, NodePtr value, const ReasonPtr & reason)
+:name(nodePtrToRef(name)), value(nodePtrToRefValue(value))
 {
+	AttributeDefinition::Define(name, AttributeDefinition::Type_Node, reason);
 }
 
-AttributeValue::AttributeValue(const std::string & name, const std::string & value)
-:name(name), value(value)
+AttributeValue::AttributeValue(NodePtr name, const std::string & value, const ReasonPtr & reason)
+:name(nodePtrToRef(name)), value(value)
 {
+	AttributeDefinition::Define(name, AttributeDefinition::Type_String, reason);
 }
 
-AttributeValue::AttributeValue(const std::string & name, AttributeTablePtr value)
-:name(name), value(value)
+AttributeValue::AttributeValue(NodePtr name, const ReasonPtr & reason)
+:name(nodePtrToRef(name)), value(AttributeTableInternalPtr(new AttributeTable(*(name.get()))))
 {
+	AttributeDefinition::Define(name, AttributeDefinition::Type_Table, reason);
 }
 
 AttributeValue::~AttributeValue()
@@ -56,7 +79,7 @@ AttributeValue::TypeCode AttributeValue::getTypeCode() const
 		{
 			return AttributeValue::Type_Number;
 		}
-		AttributeValue::TypeCode operator()(const NodePtr & node) const
+		AttributeValue::TypeCode operator()(const Node & node) const
 		{
 			return AttributeValue::Type_Node;
 		}
@@ -64,7 +87,7 @@ AttributeValue::TypeCode AttributeValue::getTypeCode() const
 		{
 			return AttributeValue::Type_String;
 		}
-		AttributeValue::TypeCode operator()(const AttributeTablePtr & table) const
+		AttributeValue::TypeCode operator()(const AttributeTableInternalPtr & table) const
 		{
 			return AttributeValue::Type_Table;
 		}
@@ -86,7 +109,7 @@ std::string AttributeValue::GetTypeString() const
 		{
 			return std::string("number");
 		}
-		std::string operator()(const NodePtr node) const
+		std::string operator()(const Node & node) const
 		{
 			return std::string("node");
 		}
@@ -94,7 +117,7 @@ std::string AttributeValue::GetTypeString() const
 		{
 			return std::string("string");
 		}
-		std::string operator()(const AttributeTablePtr & table) const
+		std::string operator()(const AttributeTableInternalPtr & table) const
 		{
 			return std::string("table");
 		}
@@ -124,7 +147,8 @@ NodePtr AttributeValue::GetValueAsNode() const
 			<< " attribute as a node.";
 		throw AttributeValueTypeException(ss.str());
 	}
-	return boost::get<NodePtr>(value);
+	Node & node = boost::get<Node &>(value);
+	return NodePtr(&node);
 }
 
 double AttributeValue::GetValueAsNumber() const
@@ -160,9 +184,19 @@ AttributeTablePtr AttributeValue::GetValueAsTable() const
 			<< " attribute as a table.";
 		throw AttributeValueTypeException(ss.str());
 	}
-	return boost::get<AttributeTablePtr>(value);
+	AttributeTableInternalPtr table = boost::get<AttributeTableInternalPtr>(value);
+	return AttributeTablePtr(table.get());
 }
 
+void intrusive_ptr_add_ref(AttributeValue * p)
+{
+	intrusive_ptr_add_ref(&(p->name));
+}
+
+void intrusive_ptr_release(AttributeValue * p)
+{
+	intrusive_ptr_release(&(p->name));
+}
 
 END_NAMESPACE2
 

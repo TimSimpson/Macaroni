@@ -47,7 +47,23 @@ void intrusive_ptr_release(Reason * p)
 const std::string Reason::ToString() const
 {
 	std::stringstream ss;
-	ss << source->ToString() << ": " << axiom->ToString();
+	if (!!source)
+	{
+		ss << source->ToString();
+	}
+	else
+	{
+		ss << "[Source was null!]";
+	}
+	ss << ": ";
+	if (!!axiom)
+	{
+		ss << axiom->ToString();
+	}
+	else
+	{
+		ss << "[Axiom was null!]";
+	}	
 	return ss.str();
 }
 

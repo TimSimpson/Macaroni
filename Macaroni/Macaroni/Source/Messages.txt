@@ -5,6 +5,7 @@ Macaroni.Version=0.5.0
 Macaroni.Intro=Macaroni for C++\n(C) Tim Simpson 2009\n
 
 # C++ Axioms
+CppAxioms.AttributeValueCreation=Character '@' signifies an Attribute value to be attached to the current Node.
 CppAxioms.BlockCreation=Keyword "~block" creates a block of code in the current node.
 CppAxioms.ClassCreation=Keyword "class" begins or continues classes.
 CppAxioms.ConstructorCreation=Name of class without type creates constructor.
@@ -23,6 +24,13 @@ CppAxioms.TypedefCreation=Typedef is created by typedef keyword.
 CppAxioms.VariableScopeCreation=Variable definition encountered.
 
 # C++ Parser Exception Messages
+CppParser.Attribute.AttributeFoundOutsideOfAnyScope=An attribute (or '@' symbol) was found outside of any Node scope.  An attribute must be attached to a Node.
+CppParser.Attribute.EndBracketOrSimpleNameExpectedInsideAttributeTable=Either an ']' or a simple name for a table entry (no "::") was expected inside the attribute table.
+CppParser.Attribute.NodeNameExpectedAfterAt=Expected attribute name following '@' symbol.
+CppParser.Attribute.TableEntryEqualsExpected=Expected to see '=' following the table entry name ("::" not allowed as a name).
+CppParser.Attribute.TableEntryValueExpected=Expected to see a value for the Attribute table entry following the name and '='.
+CppParser.Attribute.ValueNoNodeByTheGivenNameFound=It seems as a Node value for an Attribute was specified here, but no Node by that name could be found (are you missing an ~import?).
+CppParser.Attribute.ValueExpectedFollowingNodeName=No attribute value was found following the attribute name.
 CppParser.Class.NoID1=Identifier expected following class keyword.
 CppParser.Class.NoOpeningBrace=Expected '{' following class signature.
 CppParser.Class.NoEndingBrace=Expected '}' at this point to end class definition.
@@ -65,3 +73,5 @@ CppParser.Variable.PublicGlobalStaticMakesNoSense=A public global static does no
 CppParser.Variable.SemicolonExpected=Expected ';' following variable identifier.
 CppParser.Variable.StaticNotAllowedForArg=Keyword "static" is not allowed for function arguments.
 CppParser.Variable.UnknownTypeName=Unknown type name for variable.  Are you missing an import statement or forward declaration?
+
+MacaroniAxioms.Attribute.Definition.Implicit=Attributes may be implicitly defined during use.

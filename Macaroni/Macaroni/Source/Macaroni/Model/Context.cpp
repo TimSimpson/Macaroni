@@ -13,9 +13,9 @@ Context::Context(const std::string & rootName)
  referenceCount(0), 
  root(nullptr)
 {
-	root = new Node(nullptr, rootName);
-	root->context = this;
-
+	root = new Node(*this, rootName);
+	/*root->context = this;
+	 */
 	libraries.push_back(new Library(this, "%ROOT%", ""));
 }
 	

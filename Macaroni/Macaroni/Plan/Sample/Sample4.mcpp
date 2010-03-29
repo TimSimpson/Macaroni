@@ -111,6 +111,25 @@ class ClassName
 		ensure(c.SomethingOccured());
 	)}
 
+	@establish["Such and such occurs when calling this method." 
+	{
+		ClassName c();
+		c.methodName(0,10);
+		ensure(c.SomethingOccured());
+	}]
+
+	@tests[
+		["Such and such occurs when calling this method."
+		{
+			ClassName c();
+			c.methodName(0,10);
+			ensure(c.SomethingOccured());
+		}],
+		["hfdhg" 
+		{ } ]
+	]
+
+
     /*~ example "Making a new instance." {
         ClassName c();
         returnType r = c.methodName(0,3);

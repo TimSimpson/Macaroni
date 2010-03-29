@@ -2,6 +2,9 @@
 #define MACARONI_PARSER_PIPPY_PIPPYPARSER_CPP
 
 #include "../../ME.h"
+#include <Macaroni/Model/AttributeTable.h>
+#include <Macaroni/Model/AttributeValue.h>
+#include <Macaroni/Model/AttributeValuePtr.h>
 #include "../../Model/Cpp/Access.h"
 #include "../../Model/Block.h"
 #include "../../Model/Cpp/Class.h"
@@ -38,6 +41,12 @@
 #include <string>
 
 using Macaroni::Model::Cpp::Access;
+using Macaroni::Model::AttributeTable;
+using Macaroni::Model::AttributeTableInternalPtr;
+using Macaroni::Model::AttributeTablePtr;
+using Macaroni::Model::AttributeValue;
+using Macaroni::Model::AttributeValueInternalPtr;
+using Macaroni::Model::AttributeValuePtr;
 using Macaroni::Model::Block;
 using Macaroni::Model::Cpp::Class;
 using Macaroni::Model::Cpp::ClassPtr;
@@ -374,7 +383,178 @@ public:
 	{
 		importedNodes->push_back(node);
 	}
-	
+
+	bool Attribute(Iterator & itr)
+	{
+		Iterator attrBegin = itr;
+		if (!itr.ConsumeChar('@'))
+		{
+			return false;
+		}
+		// COMMITTED
+		if (!this->currentScope)
+		{
+			throw ParserException(itr.GetSource(),
+				Messages::Get("CppParser.Attribute.AttributeFoundOutsideOfAnyScope"));
+		}
+		NodePtr name;
+		if (!ConsumeNodeName(itr, name))
+		{
+			throw ParserException(itr.GetSource(),
+				Messages::Get("CppParser.Attribute.NodeNameExpectedAfterAt"));
+		}
+
+		AttributeValueInternalPtr attributeValue;
+		if (AttributeValue_(itr, attrBegin, name, attributeValue))
+		{
+			itr.ConsumeWhitespace();
+			itr.ConsumeChar(';'); // Consume this (its optional)
+			currentScope->GetAttributes().Add(attributeValue);
+			return true;
+		}
+		throw ParserException(itr.GetSource(),
+				Messages::Get("CppParser.Attribute.ValueExpectedFollowingNodeName"));
+	}	
+
+	bool AttributeValue_(Iterator & itr, Iterator & attrBegin, 
+						 const NodePtr & name, 
+						 AttributeValueInternalPtr & attributeValue)
+	{
+		itr.ConsumeWhitespace();
+		// At this point, can see the following:
+		// bool - true or false,
+		// node - another node name
+		// number - a number literal
+		// string - a string in the form "blah", {blah}, or (blah)
+		// table - starts with [
+		
+		bool valueBool;
+		double valueNumber;
+		NodePtr valueNode;
+		std::string valueString;
+		if (AttributeValueBool(itr, valueBool))
+		{	
+			attributeValue = AttributeValueInternalPtr(new AttributeValue(name, valueBool, 
+					Reason::Create(CppAxioms::AttributeValueCreation(), attrBegin.GetSource())
+				));
+		}
+		else if (AttributeValueNumber(itr, valueNumber))
+		{
+			attributeValue = AttributeValueInternalPtr(new AttributeValue(name, valueNumber, 
+					Reason::Create(CppAxioms::AttributeValueCreation(), attrBegin.GetSource())
+				));
+		}
+		else if (AttributeValueNode(itr, valueNode))
+		{
+			attributeValue = AttributeValueInternalPtr(new AttributeValue(name, valueNode, 
+					Reason::Create(CppAxioms::AttributeValueCreation(), attrBegin.GetSource())
+				));
+		}
+		else if (AttributeValueString(itr, valueString))
+		{
+			attributeValue = AttributeValueInternalPtr(new AttributeValue(name, valueString, 
+					Reason::Create(CppAxioms::AttributeValueCreation(), attrBegin.GetSource())
+				));
+		}
+		else if (itr.ConsumeChar('['))
+		{
+			attributeValue = AttributeValueInternalPtr(new AttributeValue(name, 
+					Reason::Create(CppAxioms::AttributeValueCreation(), attrBegin.GetSource())
+				));			
+			attributeTableContents(itr, attributeValue->GetValueAsTable());
+		}
+		return !!attributeValue;
+	}
+
+
+	void attributeTableContents(Iterator & itr, const AttributeTablePtr & table)
+	{
+		itr.ConsumeWhitespace();
+		while(!itr.Is(']'))
+		{
+			Iterator attrBegin = itr;
+			std::string name;
+			if (!ConsumeSimpleName(itr, name))
+			{
+				throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.Attribute.EndBracketOrSimpleNameExpectedInsideAttributeTable"));
+			}			
+			itr.ConsumeWhitespace();
+			if (!itr.ConsumeChar('='))
+			{
+				throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.Attribute.TableEntryEqualsExpected"));
+			}
+			itr.ConsumeWhitespace();
+
+			NodePtr home = table->GetHomeNode();
+			NodePtr entryName = home->FindOrCreate(name);
+
+			AttributeValueInternalPtr attributeValue;
+			if (!AttributeValue_(itr, attrBegin, entryName, attributeValue))
+			{
+				throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.Attribute.TableEntryValueExpected"));
+			}
+			table->Add(attributeValue);
+			itr.ConsumeWhitespace();
+			if (itr.ConsumeChar(',')) // optional
+			{
+				itr.ConsumeWhitespace();
+			}				
+		}
+		itr.Advance(1);
+	}
+
+	bool AttributeValueBool(Iterator & itr, bool & value)
+	{
+		if (itr.ConsumeWord("true"))
+		{
+			value = true;
+			return true;
+		}
+		if (itr.ConsumeWord("false"))
+		{
+			value = false;
+			return true;
+		}
+		return false;
+	}
+
+	bool AttributeValueNode(Iterator & itr, NodePtr & value)
+	{
+		if (this->ConsumeNodeName(itr, value))
+		{
+			if (!value)
+			{
+				// Means it looked like a Node, but no Node with that
+				// name was found.
+				throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.Attribute.ValueNoNodeByTheGivenNameFound"));
+			}
+			return true;
+		}
+		return false;
+	}
+
+	bool AttributeValueNumber(Iterator & itr, double & value)
+	{
+		return RealNumber(itr, value);		
+	}
+
+	bool AttributeValueString(Iterator & itr, std::string & value)
+	{
+		if (ConsumeStringLiteral(itr, value))
+		{
+			return true;
+		}
+		if (CodeBlock(itr, value))
+		{
+			return true;
+		}
+		return false;
+	}	
+
 	bool Block(Iterator & itr)
 	{
 		{
@@ -895,6 +1075,28 @@ public:
 		return true;
 	}
 
+	/** If no simple name found, nothing happens. 
+	 * If one is found, it is consumed and the name itself is placed in result. 
+	 * Btw, if this finds a Complex name it stops right at :: and returns
+	 * true, so be prepared for that sucka.
+	 */
+	static bool ConsumeSimpleName(Iterator & itr, std::string & result)
+	{
+		int length = SimpleName(itr);
+		if (length < 1)
+		{
+			return false;
+		}
+		std::stringstream ss;
+		for(int i = 0; i < length; i ++)
+		{
+			ss << itr.Current();
+			itr.Advance(1);
+		}
+		result = ss.str();
+		return true;
+	}
+
 	/** Searches for "anything". Will move itr, and places result in rtnString. */
 	bool ConsumeStringLiteral(Iterator & itr, std::string & rtnString)
 	{
@@ -1190,6 +1392,13 @@ public:
 			{
 				rtn = FindNodeFromImports(complexName);
 			}
+		}
+		if (!rtn)
+		{
+			// 2010-03-28 - Adding this code may break something as I haven't
+			// been thinking about this section lately but I think this will
+			// fix it so you can use long names for Nodes...
+			rtn = this->context->GetRoot()->Find(complexName);
 		}
 		return rtn;
 	}	
@@ -1524,6 +1733,48 @@ public:
 		return true;
 	}
 
+	// Looks for a number beginning at the iterator exactly.
+	// If it sees ANYTHING in the form "1" or "." etc it will advance
+	// the iterator.  It returns IMMEDIETELY following the number.
+	bool RealNumber(Iterator & itr, double & number)
+	{		
+		Iterator newItr = itr;
+		std::stringstream ss;
+		bool seenDot = false;
+		bool seenDigit = false;
+		bool isDigit;
+		while(true)
+		{
+			isDigit = false;
+			char c = newItr.Current();
+			if (c >= '0' && c <= '9')
+			{
+				isDigit = true;
+				seenDigit = true;
+			}
+			else if (!seenDot && c == '.')
+			{
+				seenDot = true;
+				isDigit = true;
+			}
+			else
+			{
+				break;
+			}
+			ss << c;
+			newItr.Advance(1);
+		}
+		if (seenDigit) 
+		{
+			
+			ss.seekg(std::ios_base::beg);
+			ss >> number;
+			itr = newItr;
+			return true;
+		}
+		return false;
+	}
+
 	// Very destructive - takes the itr and attempts to consume
 	// anything that could be fit in a Scope.
 	void ScopeFiller(Iterator & itr)
@@ -1537,6 +1788,7 @@ public:
 				|| Class(itr)
 				|| Typedef(itr)
 				|| VariableOrFunction(itr)
+				|| Attribute(itr)
 				)
 		{
 		}

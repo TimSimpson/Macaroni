@@ -1,0 +1,34 @@
+~import FakeORM::IsSimple;
+~import FakeORM::MaxInstances;
+~import FakeORM::Partner;
+~import FakeORM::Partner2;
+~import FakeORM::CodeBlock;
+~import FakeORM::PersonalizedGreeting;
+~import FakeORM::Sleep;
+
+~import Reosui::Database::Dog;
+
+namespace Reosui::Database 
+{
+
+class Dog
+{
+};
+
+class Employee
+{
+	@IsSimple false;
+	
+	@MaxInstances 20;
+
+	@Partner Reosui::Database::Dog;
+
+	@Partner2 Dog; 
+
+	@CodeBlock { Look, arbitrary! }
+
+	@PersonalizedGreeting "blah blah blah";
+
+	@Sleep[often="yes", awayMessage="Please... let me sleep... a little more... please..."]
+};
+}

@@ -36,21 +36,23 @@ Messages::Messages(const char * filePath)
 	std::stringstream finalFilePath;
 	finalFilePath << exePath << "Messages.txt";
 	file.open(finalFilePath.str().c_str());
-	MACARONI_ASSERT(!(!file), "Unable to open Messages file!");
-	std::string next;
-		
- 	do
+	if (!!file) 
 	{
-		std::getline(file, next);
-		int index = next.find_first_of("=");
-		if (next.size() > 0 && next[0] != '#')
+		std::string next;
+			
+ 		do
 		{
-			std::string key = next.substr(0, index);
-			std::string content = next.substr(index + 1, next.size() - index);
-			add(key, content);
-		}		
-	}while(!file.eof());
-	file.close();
+			std::getline(file, next);
+			int index = next.find_first_of("=");
+			if (next.size() > 0 && next[0] != '#')
+			{
+				std::string key = next.substr(0, index);
+				std::string content = next.substr(index + 1, next.size() - index);
+				add(key, content);
+			}		
+		}while(!file.eof());
+		file.close();
+	}
 }
 
 void Messages::add(std::string key, std::string content)

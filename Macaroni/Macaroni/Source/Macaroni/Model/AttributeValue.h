@@ -3,19 +3,19 @@
 
 #include "../ME.h"
 #include "AttributeTablePtr.h"
+#include "AttributeValuePtr.h"
 #include "NodePtr.h"
 #include <boost/shared_ptr.hpp>
+#include "Reason.h"
 #include <boost/variant.hpp>
 #include <string>
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
-class AttributeValue;
-
-typedef boost::shared_ptr<AttributeValue> AttributeValuePtr;
-
 class AttributeValue
 {
+friend void intrusive_ptr_add_ref(AttributeValue * p);
+friend void intrusive_ptr_release(AttributeValue * p);
 public:
 
 	enum TypeCode
@@ -27,21 +27,22 @@ public:
 		Type_Table
 	};
 
-	AttributeValue(const std::string & name, const bool value);
+	AttributeValue(NodePtr name, const bool value, const ReasonPtr & reason);
 	
-	AttributeValue(const std::string & name, const double value);
+	AttributeValue(NodePtr name, const double value, const ReasonPtr & reason);
 
-	AttributeValue(const std::string & name, NodePtr node);
+	AttributeValue(NodePtr name, NodePtr node, const ReasonPtr & reason);
 
-	AttributeValue(const std::string & name, const std::string & value);
+	AttributeValue(NodePtr name, const std::string & value, const ReasonPtr & reason);
 
-	AttributeValue(const std::string & name, AttributeTablePtr value);
+	//TODO: Review later if its unclear that this constructs a table.
+	AttributeValue(NodePtr name, const ReasonPtr & reason);
 
 	~AttributeValue();
 
-	inline const std::string & GetName() const
+	inline NodePtr GetName() const
 	{
-		return name;
+		return NodePtr(&name);
 	}
 
 	std::string GetTypeString() const;
@@ -83,9 +84,9 @@ public:
 
 private: 
 	
-	typedef boost::variant<bool, const NodePtr, double, const std::string, const AttributeTablePtr> Type;
+	typedef boost::variant<bool, Node &, double, const std::string, AttributeTableInternalPtr> Type;
 			
-	const std::string name;
+	Node & name;
 	Type value;
 
 	TypeCode getTypeCode() const;

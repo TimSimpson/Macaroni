@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="F:\Tools\boost_1_39_0;F:\Lp3\Projects\Macaroni\Code\trunk\Macaroni\Macaroni\Source;F:\Lp3\Projects\Macaroni\Code\trunk\Macaroni\Macaroni\MWork\GeneratedSource"
+				AdditionalIncludeDirectories="F:\Tools\boost_1_42_0;F:\Lp3\Projects\Macaroni\Code\trunk\Macaroni\Macaroni\Source;F:\Lp3\Projects\Macaroni\Code\trunk\Macaroni\Macaroni\GeneratedSource"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -62,7 +62,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="F:\Tools\boost_1_39_0\stage\lib"
+				AdditionalLibraryDirectories="F:\Tools\boost_1_42_0\stage\lib"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -178,7 +178,27 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Macaroni\Model\AttributeDefinition.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Model\AttributeTable.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Model\AttributeTableLua.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Macaroni\Model\AttributeValue.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Model\AttributeValueLua.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Model\AttributeValueTest.cpp"
 				>
 			</File>
 			<File
@@ -338,47 +358,51 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Macaroni\IO\GeneratedFileWriterLuaMetaData.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Macaroni\IO\GeneratedFileWriterTest.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\lapi.c"
+				RelativePath=".\Source\Lua\lapi.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\lauxlib.c"
+				RelativePath=".\Source\Lua\lauxlib.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\lbaselib.c"
+				RelativePath=".\Source\Lua\lbaselib.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\lcode.c"
+				RelativePath=".\Source\Lua\lcode.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\ldblib.c"
+				RelativePath=".\Source\Lua\ldblib.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\ldebug.c"
+				RelativePath=".\Source\Lua\ldebug.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\ldo.c"
+				RelativePath=".\Source\Lua\ldo.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\ldump.c"
+				RelativePath=".\Source\Lua\ldump.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\lfunc.c"
+				RelativePath=".\Source\Lua\lfunc.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\lgc.c"
+				RelativePath=".\Source\Lua\lgc.cpp"
 				>
 			</File>
 			<File
@@ -390,75 +414,75 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\linit.c"
+				RelativePath=".\Source\Lua\linit.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\liolib.c"
+				RelativePath=".\Source\Lua\liolib.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\llex.c"
+				RelativePath=".\Source\Lua\llex.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\lmathlib.c"
+				RelativePath=".\Source\Lua\lmathlib.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\lmem.c"
+				RelativePath=".\Source\Lua\lmem.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\loadlib.c"
+				RelativePath=".\Source\Lua\loadlib.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\lobject.c"
+				RelativePath=".\Source\Lua\lobject.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\lopcodes.c"
+				RelativePath=".\Source\Lua\lopcodes.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\loslib.c"
+				RelativePath=".\Source\Lua\loslib.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\lparser.c"
+				RelativePath=".\Source\Lua\lparser.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\lstate.c"
+				RelativePath=".\Source\Lua\lstate.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\lstring.c"
+				RelativePath=".\Source\Lua\lstring.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\lstrlib.c"
+				RelativePath=".\Source\Lua\lstrlib.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\ltable.c"
+				RelativePath=".\Source\Lua\ltable.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\ltablib.c"
+				RelativePath=".\Source\Lua\ltablib.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\ltm.c"
+				RelativePath=".\Source\Lua\ltm.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\lua.c"
+				RelativePath=".\Source\Lua\lua.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\luac.c"
+				RelativePath=".\Source\Lua\luac.cpp"
 				>
 			</File>
 			<File
@@ -466,15 +490,23 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\lundump.c"
+				RelativePath=".\Source\Lua\lundump.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\lvm.c"
+				RelativePath=".\Source\Lua\lvm.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\lzio.c"
+				RelativePath=".\Source\Lua\lzio.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Parser\Macaroni\MacaroniAxiom.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Parser\Macaroni\MacaroniAxioms.cpp"
 				>
 			</File>
 			<File
@@ -574,7 +606,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Lua\print.c"
+				RelativePath=".\Source\Lua\print.cpp"
 				>
 			</File>
 			<File
@@ -684,7 +716,43 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\Macaroni\Model\AttributeDefinition.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Model\AttributeDefinitionPtr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Model\AttributeList.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Model\AttributeTable.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Model\AttributeTableLua.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Model\AttributeTablePtr.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\Macaroni\Model\AttributeValue.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Model\AttributeValueLua.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Model\AttributeValuePtr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Model\AttributeValueTypeException.h"
 				>
 			</File>
 			<File
@@ -808,11 +876,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Generator\CppSourceGenerator2.h"
+				RelativePath=".\Source\Macaroni\Generator\Cpp\CppSourceGenerator2.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Macaroni\Generator\Cpp\CppSourceGenerator2.h"
+				RelativePath=".\Source\Macaroni\Generator\CppSourceGenerator2.h"
 				>
 			</File>
 			<File
@@ -893,6 +961,10 @@
 			</File>
 			<File
 				RelativePath=".\Source\Macaroni\IO\GeneratedFileWriter.mcpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\IO\GeneratedFileWriterLuaMetaData.h"
 				>
 			</File>
 			<File
@@ -1017,6 +1089,14 @@
 			</File>
 			<File
 				RelativePath=".\Source\Lua\lzio.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Parser\Macaroni\MacaroniAxiom.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\Macaroni\Parser\Macaroni\MacaroniAxioms.h"
 				>
 			</File>
 			<File
@@ -1331,11 +1411,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Source\build.jam"
+			RelativePath=".\MWork\GeneratedSource\build.jam"
 			>
 		</File>
 		<File
-			RelativePath=".\MWork\GeneratedSource\build.jam"
+			RelativePath=".\Source\build.jam"
 			>
 		</File>
 		<File
@@ -1363,6 +1443,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Source\JamGenerator.lua"
+			>
+		</File>
+		<File
 			RelativePath=".\Source\Macaroni\Model\LibraryPtr.h"
 			>
 		</File>
@@ -1383,6 +1467,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Source\Messages.txt"
+			>
+		</File>
+		<File
 			RelativePath=".\Source\Generators\Macaroni\MhFileGenerator.lua"
 			>
 		</File>
@@ -1392,6 +1480,10 @@
 		</File>
 		<File
 			RelativePath=".\Source\Macaroni\Model\Cpp\PrimitivePtr.h"
+			>
+		</File>
+		<File
+			RelativePath=".\Plan\Sample\Sample4.mcpp"
 			>
 		</File>
 		<File

@@ -93,6 +93,7 @@ bool FileTime::File1IsOlderThanFile2(boost::filesystem::path & one,
 	{
 		return t1.wMilliseconds < t2.wMilliseconds;
 	}
+	return false;
 }
 
 END_NAMESPACE

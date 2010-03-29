@@ -6,6 +6,7 @@
 	#include "../../Lua/lauxlib.h"
 	#include "../../Lua/lualib.h"
 //MARIO }
+#include "AttributeTableLua.h"
 #include "../Exception.h"
 #include "../Environment/DebugLog.h"
 #include "FileNameLua.h"
@@ -333,6 +334,12 @@ int NodeLuaMetaData::Index(lua_State * L, NodePtr & ptr, const std::string & ind
 		{
 			NodeLuaMetaData::PutInstanceOnStack(L, adoptedHome);
 		}
+	}
+	else if (index == "Attributes")
+	{
+		AttributeTable & table = ptr->GetAttributes();
+		AttributeTablePtr tPtr(&table);
+		AttributeTableLuaMetaData::PutInstanceOnStack(L, tPtr);
 	}
 	else if (index == "Find")
 	{
