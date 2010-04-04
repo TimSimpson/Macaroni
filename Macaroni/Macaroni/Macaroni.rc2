@@ -5,7 +5,7 @@
 #endif //APSTUDIO_INVOKED
 
 
-#include "VersionNo.h"
+#include <Macaroni/VersionNo.h>
 #define FILEVER        MACARONI_VERSION
 #define PRODUCTVER     MACARONI_VERSION
 #define STRFILEVER     MACARONI_VERSION_STRING "\0"

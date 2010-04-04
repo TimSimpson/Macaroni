@@ -11,6 +11,7 @@
 #include <iostream>
 #include <sstream>
 #include <tchar.h>
+#include <Macaroni/VersionNo.h>
 
 #ifdef COMPILE_TARGET_TESTS
 	//#include <boost/test/unit_test.hpp>
@@ -80,11 +81,12 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 #ifdef COMPILE_TARGET_TESTS
 	//return init_unit_tests();//main(argc, nullptr);
 #endif
-
-    std::string stuff;
-    std::cin >> stuff;
-
-	std::cout << Messages::Get("Macaroni.Intro");
+	//std::cout << Messages::Get("Macaroni.Intro");
+	std::cout << MACARONI_FILE_DESCRIPTION << std::endl;
+	std::cout << MACARONI_COPYRIGHT << std::endl;
+	std::cout << "Version " << MACARONI_VERSION_STRING << 
+		" built at " << BUILD_TIMESTAMP_LOCAL << std::endl;
+	std::cout << std::endl;
 
 	std::vector<const std::string> convertedArgs;
 	for (int i = 0; i < argc; i ++)
@@ -96,6 +98,16 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 	Console output;
 
 	CmdLine cmd(convertedArgs, output);
+
+	if (cmd.StartPrompt())
+	{
+		std::cout << 
+			"\"startPrompt\" was specified- waiting for user to enter text and "
+			"hit enter." << std::endl;
+		std::string stuff;
+		std::cin >> stuff;
+	}
+
 //#ifndef _DEBUG
 	try
 	{

@@ -32,6 +32,7 @@ class CmdLine
 	private string manifestPath;
 	private string outputPath;
 	private bool saveCppSource;
+	private bool startPrompt;
 
 	public CmdLine(const vector<const string> & args, Console & console)
 	:	compile(false),
@@ -45,7 +46,8 @@ class CmdLine
 		luaTestsPath(""),
 		manifestPath(""),
 		outputPath(""),
-		saveCppSource(false)
+		saveCppSource(false),
+		startPrompt(false)
 	{
 		for(unsigned int i = 0; i < args.size(); i ++)
 		{
@@ -204,6 +206,10 @@ class CmdLine
         {
             saveCppSource = true;
         }
+		else if (arg == "startPrompt")
+		{
+			startPrompt = true;
+		}
         else if (arg == "wait")
         {
             std::string stuff;
@@ -253,6 +259,11 @@ class CmdLine
 		compile = compile || install;
 		generate = generate || compile;
 		builder.Execute(generate, saveCppSource, compile, install);
+	}
+
+	public inline bool StartPrompt()
+	{
+		return startPrompt;
 	}
 
 } // end class

@@ -109,8 +109,7 @@ install savePureCppSource3
 	:	icon1.ico
 		Macaroni.rc
 		Macaroni.rc2
-		resource.h	
-		VersionNo.h	
+		resource.h			
 	:	<location>release/pureCppSource
 	;
 	

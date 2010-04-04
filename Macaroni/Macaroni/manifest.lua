@@ -2,7 +2,7 @@ id =  -- Not needed.
 {    
     group="Macaroni",
     name="Macaroni",
-    version="1.0.0.0",
+    version="0.1.0.4",
     author="Tim Simpson"
 }
 
@@ -28,6 +28,7 @@ function generate()
     runGenerator "LuaGlue"
     runGenerator "InterfaceMh"
     runGenerator "JamGenerator"
+    runGenerator "VersionInfoGenerator"
     print "Code Generation successful.  Calling Boost Build."
     if (bjam()) then
         print "~ YOU WIN! ~"
