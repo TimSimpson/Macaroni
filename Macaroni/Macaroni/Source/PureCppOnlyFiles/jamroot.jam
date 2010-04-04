@@ -1,0 +1,20 @@
+# Root jam file for "pure" C++ version of Macaroni
+
+import boost ;
+boost.use-project 1.42 ;
+
+alias sources
+	:	[ glob-tree *.c	: .svn ]
+		[ glob-tree *.cpp	: .svn *Test.cpp *Tests.cpp Main.cpp ]
+		/boost//filesystem
+		/boost//regex			
+	:	<include>./	
+	;
+
+exe macaroni 
+	:	sources
+		Main.cpp
+		Macaroni.rc	
+	:
+		<include>./
+	;

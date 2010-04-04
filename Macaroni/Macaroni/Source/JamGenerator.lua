@@ -15,5 +15,11 @@ alias generated
 	:	<include>./
 		<include>../Source
 	;
+alias pureCppSource
+	:	[ glob-tree *.c	: .svn ]
+		[ glob-tree *.cpp	: .svn *Test.cpp Main.cpp ]
+		[ glob-tree *.h	: .svn ]				
+		[ glob-tree *.hpp	: .svn ]
+	;
     ]]);    
 end

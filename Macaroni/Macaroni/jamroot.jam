@@ -1,10 +1,18 @@
-# Root Boost Build file for Macaroni.
+# Jam file for "pure" C++ source
 
 import boost ;
 boost.use-project 1.42 ;
 
 using testing ;
 		
+alias source
+	:	[ glob-tree *.c	: .svn ]
+		[ glob-tree *.cpp	: .svn *Test.cpp ]
+		/boost//filesystem
+		/boost//regex			
+	:	<include>./		
+		<include>../GeneratedSource	
+	;
 ###############################################################################
 #		We specify all of the sources defined in the two directories,
 #	plus the main unit as it is not included with the normal source.
@@ -78,7 +86,46 @@ install installgenerators
 		<variant>release:<location>release/release/Generators
 		<install-source-root>Source/Generators
 	;
+
+alias pureCppSource
+	:	[ glob-tree *.c	: .svn ]
+		[ glob-tree *.cpp	: .svn ]
+		[ glob-tree *.h	: .svn ]		
+		Source/Messages.txt
+	:	<include>./		
+		<include>../GeneratedSource	
+	;
+install savePureCppSource1
+	:	Source//pureCppSource
+	:	<location>release/pureCppSource	
+		<install-source-root>Source
+	;	
+install savePureCppSource2
+	:	GeneratedSource//pureCppSource
+	:	<location>release/pureCppSource		
+		<install-source-root>GeneratedSource
+	;	
+install savePureCppSource3
+	:	icon1.ico
+		Macaroni.rc
+		Macaroni.rc2
+		resource.h	
+		VersionNo.h	
+	:	<location>release/pureCppSource
+	;
 	
+install savePureCppSource4
+	:	Source/PureCppOnlyFiles/jamroot.jam
+	:	<location>release/pureCppSource
+		<install-source-root>Source/PureCppOnlyFiles
+	;
+		
+alias savePureCppSource
+	:	savePureCppSource1
+		savePureCppSource2
+		savePureCppSource3
+		savePureCppSource4
+	;
 		
 alias final-deps 
 	:	tests #Source//tests #tests #Source//nodeTests
@@ -103,4 +150,3 @@ install final
 		#<dependency>installgenerators
 	;
 
-		

@@ -12,6 +12,13 @@ alias source
 	:	<include>./		
 		<include>../GeneratedSource	
 	;
+	
+alias pureCppSource
+	:	[ glob-tree *.c	: .svn ]
+		[ glob-tree *.cpp	: .svn ]
+		[ glob-tree *.h	: .svn ]				
+		[ glob-tree *.hpp	: .svn ]				
+	;
 
 #unit-test Macaroni_Model_NodeTests 
 #	:	./Macaroni/Model/NodeTest.cpp
