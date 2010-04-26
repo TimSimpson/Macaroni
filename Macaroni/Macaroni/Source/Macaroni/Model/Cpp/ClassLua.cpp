@@ -2,9 +2,11 @@
 #define MACARONI_MODEL_CPP_CLASSLUA_CPP
 
 #include "ClassLua.h"
+#include <Macaroni/Model/LibraryLua.h>
 #include "../NodeLua.h"
 #include "../MemberLua.h"
 #include "../NodeListLua.h"
+#include <Macaroni/Model/ReasonLua.h>
 #include "TypeInfoLua.h"
 #include "VariableLua.h"
 
@@ -37,6 +39,57 @@ int FunctionReturnTypeInfoOpenInLua(lua_State * L);
 END_NAMESPACE
 
 #include "../../LuaGlue.hpp"
+
+	static int Create(lua_State * L)
+	{
+		using Macaroni::Model::Library;
+		using Macaroni::Model::LibraryPtr;
+		using Macaroni::Model::LibraryLuaMetaData;
+		using Macaroni::Model::Member;
+		using Macaroni::Model::MemberLuaMetaData;
+		using Macaroni::Model::Node;
+		using Macaroni::Model::NodeLuaMetaData;
+		using Macaroni::Model::NodePtr;
+		using Macaroni::Model::NodeList;
+		using Macaroni::Model::NodeListLuaMetaData;
+		using Macaroni::Model::NodeListPtr;
+		using Macaroni::Model::Reason;
+		using Macaroni::Model::ReasonLuaMetaData;
+		using Macaroni::Model::ReasonPtr;
+
+		if (!LibraryLuaMetaData::IsType(L, 1)) 
+		{
+			lua_pushstring(L, "Expected Library for argument 1.");
+			lua_error(L);
+		}
+		LibraryPtr library = LibraryLuaMetaData::GetInstance(L, 1);
+
+		if (!NodeLuaMetaData::IsType(L, 2))
+		{
+			lua_pushstring(L, "Expected Node for argument 2.");
+			lua_error(L);
+		}
+		NodePtr node = NodeLuaMetaData::GetInstance(L, 2);
+
+		if (!NodeListLuaMetaData::IsType(L, 3))
+		{
+			lua_pushstring(L, "Expected NodeList for argument 3.");
+			lua_error(L);
+		}
+		NodeListPtr imports = NodeListLuaMetaData::GetInstance(L, 3);
+
+		if (!ReasonLuaMetaData::IsType(L, 4))
+		{
+			lua_pushstring(L, "Expected Reason for argument 4.");
+			lua_error(L);
+		}
+		ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 4);
+		
+		ClassPtr newInstance = Class::Create(library, node, imports, reason); 
+		MemberPtr memberPtr = boost::dynamic_pointer_cast<Member>(newInstance);
+		MemberLuaMetaData::PutInstanceOnStack(L, memberPtr);
+		return 1;
+	}
 
 	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr, 
 									  const std::string & index)
@@ -88,7 +141,7 @@ END_NAMESPACE
 		/*{"__tostring", LUAGLUE_HELPERCLASS::__tostring}, */
 
 	#define LUAGLUE_ADDITIONALTABLEMETHODS \
-		/*{"LuaCreate", LUAGLUE_HELPERCLASS::LuaCreate},*/
+		{"Create", LUAGLUE_HELPERCLASS::Create},		
 
 #include "../../LuaGlue2.hpp"
 

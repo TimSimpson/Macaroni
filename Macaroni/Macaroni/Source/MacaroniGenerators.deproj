@@ -57,4 +57,7 @@
   <file>
     <filename>Generators\LuaGlue.lua</filename>
   </file>
+  <file>
+    <filename>Generators\underscore.lua</filename>
+  </file>
 </project>

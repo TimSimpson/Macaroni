@@ -34,11 +34,13 @@ public:
 	
 	~Type();
 	
+	bool operator== (const Type & other) const;
+
 	void DescribeDifferences(const TypePtr info, std::stringstream & stream) const;
 
 	NodePtr GetNode() const;
 
-	TypeArgumentListPtr GetTypeArguments();
+	TypeArgumentListPtr GetTypeArguments() const;
 	
 	inline bool IsConst() const
 	{
@@ -59,6 +61,10 @@ public:
 	{
 		return isReference;
 	}
+
+	static bool ListContains(TypeListPtr list, TypePtr target);
+
+	static bool ListIsEqual(TypeListPtr list1, TypeListPtr list2);
 
 private:
 	bool isConst;

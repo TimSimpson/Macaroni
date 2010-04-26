@@ -22,7 +22,7 @@ Scrary!  I don't know what it could be.
 --require "Macaroni.Model.Document"
 
 require "Macaroni/Model/AxiomTests";
---require "Macaroni/Model/ClassTests";
+require "Macaroni/Model/Cpp/ClassTests";
 require "Macaroni/Model/ContextTests";
 -- Commenting out Document Tests... FOR NOW...
 --require "Macaroni/Model/DocumentTests";
@@ -119,3 +119,7 @@ print("Reached the end of all tests without dying.  Still alive, I'm still alive
 
 print();
 print("Failures: " .. #Test.failures );
+
+if (#Test.failures > 0) then
+    error("Experienced failures running Lua tests.");
+end

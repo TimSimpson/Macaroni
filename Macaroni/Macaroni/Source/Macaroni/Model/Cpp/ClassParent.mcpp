@@ -1,3 +1,4 @@
+~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Model::Cpp::Access;
 ~import Macaroni::Model::Cpp::Class;
 ~import Macaroni::Model::Cpp::ClassPtr;
@@ -17,6 +18,8 @@ typedef intrusive_ptr<ClassParentList> ClassParentListPtr;
 
 class ClassParent
 { 
+	@LuaClass[]
+
 	friend Class;
 
 	private Access access;

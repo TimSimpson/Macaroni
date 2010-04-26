@@ -1,0 +1,15 @@
+# Root Boost Build file for Macaroni Regression Tests.
+
+# LUA TESTS
+
+import boost ;
+boost.use-project 1.42 ;
+
+import site-config ;
+
+use-project /lua : F:/Tools/Lua/lua-5.1.4 ;
+	
+exe binary
+	:	/pee//sources
+		Source/Main.cpp						
+	;

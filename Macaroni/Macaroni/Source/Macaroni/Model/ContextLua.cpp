@@ -98,6 +98,10 @@ struct ContextLuaFunctions
 		{
 			NodeLuaMetaData::PutInstanceOnStack(L, context->GetRoot());
 		}	
+		else if (index == "RootLibrary")
+		{
+			LibraryLuaMetaData::PutInstanceOnStack(L, context->GetRootLibrary());
+		}
 		else
 		{
 			lua_pushnil(L);

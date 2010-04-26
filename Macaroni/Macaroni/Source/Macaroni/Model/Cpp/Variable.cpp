@@ -52,7 +52,7 @@ VariablePtr Variable::Create(NodePtr host, Access access, bool isStatic, const T
 		return VariablePtr(new Variable(host.get(), reason, access, isStatic, type, initializer));
 	}
 
-	if (existingVar != nullptr && !(existingVar->type == type))
+	if (existingVar != nullptr && !(existingVar->type->operator==(*type.get())))
 	{
 		std::stringstream ss;
 		ss << "Variable was already defined with conflicting type information. ";	
@@ -72,6 +72,7 @@ VariablePtr Variable::Create(NodePtr host, Access access, bool isStatic, const T
 		{
 			ss << "Previous definition was reference.";
 		}
+		existingVar->type->DescribeDifferences(type, ss);
 		throw ModelInconsistencyException(member->GetReasonCreated(),
 											  reason,
 											  ss.str());	

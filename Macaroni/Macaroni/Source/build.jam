@@ -3,6 +3,7 @@ project
 		<include>./		
 		<include>../GeneratedSource
 	;
+
 	
 alias source
 	:	[ glob-tree *.c	: .svn ]
@@ -12,7 +13,7 @@ alias source
 	:	<include>./		
 		<include>../GeneratedSource	
 	;
-	
+
 alias pureCppSource
 	:	[ glob-tree *.c	: .svn ]
 		[ glob-tree *.cpp	: .svn ]

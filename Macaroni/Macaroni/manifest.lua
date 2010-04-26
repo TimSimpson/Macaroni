@@ -2,7 +2,7 @@ id =  -- Not needed.
 {    
     group="Macaroni",
     name="Macaroni",
-    version="0.1.0.4",
+    version="0.1.0.5",
     author="Tim Simpson"
 }
 
@@ -19,13 +19,13 @@ dependency { group="Macaroni", name="Boost", version="1.39.0-0" }
 dependency { group="Macaroni", name="CppStd", version="1.0.0.0" }
     
 function bjam()
-    local rtnCode = os.execute("bjam")
+    --local rtnCode = os.execute("bjam")
     return rtnCode == 0
 end
         
-function generate()
+function generate()    
     runGenerator "Cpp"
-    runGenerator "LuaGlue"
+    --runGenerator "Generators/LuaGlue"
     runGenerator "InterfaceMh"
     runGenerator "JamGenerator"
     runGenerator "VersionInfoGenerator"

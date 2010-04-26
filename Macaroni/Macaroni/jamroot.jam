@@ -45,8 +45,9 @@ lib mlib
 #	:	Source/Macaroni/Model/ContextTest.cpp
 #		mlib		
 #	;
-	
-	
+
+path-constant LUA_UNIT_TEST_ROOT_DIRECTORY : ./Source ;
+
 alias tests
 	#: Macaroni_Model_ContextTests Macaroni_Model_NodeTests 
 	:
@@ -57,14 +58,23 @@ alias tests
 		[ run Source/Macaroni/IO/GeneratedFileWriterTest.cpp mlib ]
 		[ run Source/Macaroni/Model/AttributeValueTest.cpp mlib ]
 		[ run Source/Macaroni/Model/NodeTest.cpp mlib ]
-		[ run Source/Macaroni/Model/ContextTests.cpp mlib ]				
+		[ run Source/Macaroni/Model/ContextTests.cpp mlib ]								
 	;
 
+alias luaUnitTests
+	:	[ run Source/LuaUnitTests.cpp mlib 
+		  : $(LUA_UNIT_TEST_ROOT_DIRECTORY)
+		  : 
+		  ]
+	;
+	
+		
 exe macaroni 
 	:	mlib
 		Source/Main.cpp	
 		Macaroni.rc
 	:	<dependency>tests # <-- Force tests to pass before creating EXE	
+		<dependency>luaUnitTests
 	;
 
 ###############################################################################

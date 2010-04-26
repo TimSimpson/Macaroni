@@ -17,9 +17,15 @@ public:
 	
 	~TypeArgument();
 	
-	TypeListPtr GetArguments();
+	bool operator==(const TypeArgument & other) const;
 
-	NodePtr GetNode();
+	TypeListPtr GetArguments() const;
+
+	NodePtr GetNode() const;
+
+	static bool ListContains(TypeArgumentListPtr list, TypeArgumentPtr target);
+
+	static bool ListIsEqual(TypeArgumentListPtr list1, TypeArgumentListPtr list2);
 
 private:
 	TypeListPtr arguments;

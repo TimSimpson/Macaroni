@@ -1,0 +1,12 @@
+project
+	:	usage-requirements
+		<include>./		
+		<include>../GeneratedSource
+	;
+	
+alias source
+	:	[ glob-tree *.c	: .svn ]
+		[ glob-tree *.cpp	: .svn *Test.cpp Main.cpp ]		
+	:	<include>./		
+		<include>../GeneratedSource	
+	;

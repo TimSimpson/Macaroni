@@ -440,7 +440,7 @@ tests = {
         Test.assert(false, status);
         Test.assert(1, err.Source.Line);                
         Test.assert(12, err.Source.Column);
-        Test.assert(Messages.Get("CppParser.Variable.ConstMaybeBeforeVar"), err.Message);                
+        Test.assert(Messages.Get("CppParser.Variable.ConstSeenTwice"), err.Message);                
     end,
 
     ["Name must follow type and const."] = function(this)

@@ -84,4 +84,7 @@
   <file>
     <filename>Macaroni\Parser\Pippy\Tests\PippyParserTests_Namespace.lua</filename>
   </file>
+  <file>
+    <filename>Macaroni\Model\Cpp\ClassTests.lua</filename>
+  </file>
 </project>
