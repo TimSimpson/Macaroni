@@ -8,7 +8,7 @@ id =
     version="1.0.0.0"
 }
 
-description="An example Test Project to be compiled by Macaroni."
+description='Tests the generator "LuaGlue."'
 
 source "Source"
 output = "GeneratedSource"
@@ -19,8 +19,8 @@ dependency {group="Macaroni", name="CppStd", version="1.0.0.0"}
 
 function generate()
     print "A call was made to GENERATE!!!\n\n"
-    runGenerator "InterfaceMh"
-    runGenerator "Cpp"
+    runGenerator "LuaGlue"    
+    runGenerator "Cpp"    
     runGenerator "JamGenerator"
     local rtnCode = os.execute("bjam")
     print("BJAM return code = " .. rtnCode .. ".")

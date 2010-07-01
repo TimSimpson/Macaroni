@@ -21,6 +21,7 @@ Scrary!  I don't know what it could be.
 --require "Macaroni.Model.Context"
 --require "Macaroni.Model.Document"
 
+require "Macaroni/Model/AttributeTests";
 require "Macaroni/Model/AxiomTests";
 require "Macaroni/Model/Cpp/ClassTests";
 require "Macaroni/Model/ContextTests";

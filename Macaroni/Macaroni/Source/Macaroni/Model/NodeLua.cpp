@@ -14,6 +14,8 @@
 #include "Node.h"
 #include "NodeLua.h"
 #include "NodeListLua.h"
+#include "Reason.h"
+#include "ReasonLua.h"
 #include <sstream>
 
 BEGIN_NAMESPACE2(Macaroni, Model)
@@ -195,6 +197,15 @@ struct NodeLuaFunctions
 		std::string prettyName = ptr->GetPrettyFullName(seperator);
 		lua_pushstring(L, prettyName.c_str());
 		return 1;
+	}
+
+	static int SetHFilePath(lua_State * L)
+	{
+		NodePtr ptr = getInstance(L, 1);
+		ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 2);
+		FileNamePtr fileName = FileNameLuaMetaData::GetInstance(L, 3);
+		ptr->SetHFilePath(reason, fileName);
+		return 0;
 	}
 	
 	static int SplitFirstNameOffComplexName(lua_State * L)
@@ -401,6 +412,10 @@ int NodeLuaMetaData::Index(lua_State * L, NodePtr & ptr, const std::string & ind
 	else if (index == "ParseComplexName")
 	{
 		lua_pushcfunction(L, NodeLuaFunctions::ParseComplexName);
+	}	
+	else if (index == "SetHFilePath")
+	{
+		lua_pushcfunction(L, NodeLuaFunctions::SetHFilePath);
 	}	
 	else
 	{

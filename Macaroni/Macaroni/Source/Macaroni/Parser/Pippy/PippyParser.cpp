@@ -385,8 +385,7 @@ public:
 	}
 
 	bool Attribute(Iterator & itr)
-	{
-		Iterator attrBegin = itr;
+	{		
 		if (!itr.ConsumeChar('@'))
 		{
 			return false;
@@ -405,6 +404,7 @@ public:
 		}
 
 		AttributeValueInternalPtr attributeValue;
+		Iterator attrBegin = itr;
 		if (AttributeValue_(itr, attrBegin, name, attributeValue))
 		{
 			itr.ConsumeWhitespace();

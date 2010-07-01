@@ -22,6 +22,28 @@ static const struct luaL_Reg tableMethods[]=
 };
 
 
+Access AccessLuaMetaData::GetInstance(lua_State * L, int index)
+{
+	std::string access(luaL_checkstring(L, index));
+	if (access == "Access_Private")
+	{
+		return Access_Private;
+	}
+	else if (access == "Access_Protected")
+	{
+		return Access_Protected;
+	}
+	else if (access == "Access_Public")
+	{
+		return Access_Public;
+	}
+	else 
+	{
+		luaL_error(L, "String was not a valid access:%c", access);
+		return Access_Private; // never actually reached
+	}
+}
+
 int AccessLuaMetaData::PutInstanceOnStack(lua_State * L, Access access)
 {
 	if (access == Access_Private)

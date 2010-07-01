@@ -1,5 +1,5 @@
-id =  -- Not needed.
-{    
+id =
+{
     group="Macaroni",
     name="Macaroni",
     version="0.1.0.5",

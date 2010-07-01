@@ -87,4 +87,7 @@
   <file>
     <filename>Macaroni\Model\Cpp\ClassTests.lua</filename>
   </file>
+  <file>
+    <filename>Macaroni\Model\AttributeTests.lua</filename>
+  </file>
 </project>

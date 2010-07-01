@@ -140,6 +140,7 @@
 		lua_pushnil(L);			
 		return 1;
 	}
+	
 
 	static int __tostring(lua_State * L)
 	{

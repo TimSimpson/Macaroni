@@ -1,18 +1,31 @@
 require "Macaroni.Model.AttributeTable"
 require "Macaroni.Model.AttributeValue";
 require "Macaroni.Model.Axiom";
+require "Macaroni.Model.Cpp.Class";
 require "Cpp/Common";
 require "Macaroni.Model.FileName";
+require "Macaroni.Model.Cpp.Function";
 require "LuaGlue/LuaGlueCppFile";
 require "LuaGlue/LuaGlueHFile";
 require "Macaroni.Model.Library";
+require "Macaroni.Model.Member";
 require "Macaroni.Model.Node";
+require "Macaroni.Model.Reason";
+require "Macaroni.Model.Source";
+require "Macaroni.Model.Type";
+require "Macaroni.Model.Cpp.Variable";
 require "Cpp/NodeInfo";
 
 Axiom = Macaroni.Model.Axiom;
+Class = Macaroni.Model.Cpp.Class;
 FileName = Macaroni.Model.FileName;
+Function = Macaroni.Model.Cpp.Function;
+Member = Macaroni.Model.Member;
 NodeList = Macaroni.Model.NodeList;
+Reason = Macaroni.Model.Reason;
 Source = Macaroni.Model.Source;
+Type = Macaroni.Model.Type;
+Variable = Macaroni.Model.Cpp.Variable;
 
 LuaGlueAxioms =
 {
@@ -51,7 +64,7 @@ function findAllAttr(node, attr)
     local nodes = node.Children
     for i = 1, #nodes do
         local n = nodes[i];
-        if (n.Attributes[attr]) then
+        if (n.Attributes[attr] ~= nil) then
             rtn[#rtn + 1] = n
         end
         for k,v in pairs(findAllAttr(n, attr)) do 
@@ -71,7 +84,10 @@ function Generate(library, path)
     local classes = findAllAttr(RootNode, LuaClass);
     
     print "BEGIN LUA GLUE";
-    _.each(classes, wrapClass);
+    for i, class in ipairs(classes) do
+        wrapClass(class)
+    end
+    --_.each(classes, wrapClass);
     print "END LUA GLUE";
     --[[markNodeWithLua(library.Context.Root:Find("Macaroni::Model::Cpp::Access"));
     markNodeWithLua(library.Context.Root:Find("Macaroni::Model::Cpp::Class"));
@@ -83,19 +99,93 @@ function Generate(library, path)
     
 end
 
-function wrapClass(node)
+function wrapClass(originalNode)
+	local metaTableName = originalNode:GetPrettyFullName(".");
+	local lua_StateNode = RootNode:FindOrCreate("lua_State");
+    local metaNode = RootNode:FindOrCreate(originalNode.FullName .. "LuaMetaData");
+    local axiom = LuaGlueAxioms.LuaClassStart;
+    local src = Source.Create(CurrentFileName, 3, 5);
+    local reason = Reason.Create(axiom, src);
     
-    function createClass()
-        local metaNode = RootNode:FindOrCreate(node.FullName .. "LuaMetaData");
-        print("Wrapping " .. tostring(node) .. " as " .. tostring(metaNode) .. ".");
-        local imports = NodeList.New({});
-        local axiom = LuaGlueAxioms.LuaClassStart;
-        local src = Source.Create(CurrentFileName, 3, 5);
-        local reason = Reason.Create(axiom, src);
-        local metaClass = Class.Create(CurrentLibrary, metaNode, imports, reason);
+    function createImport(node, path)
+		local imports = NodeList.New({});   
+		local nodeClass = Class.Create(CurrentLibrary, node, imports, reason);
+		local fileName = FileName.Create(path);
+		node:SetHFilePath(reason, fileName);
+    end
+    
+    function createLuaImports()
+		createImport(lua_StateNode, '"lua/luaCpp.h"');
+    end
+    
+    function createClass()        
+        print("Wrapping " .. tostring(originalNode) .. " as " .. tostring(metaNode) .. ".");
+        local imports = NodeList.New({});        
+        local metaClass = Class.Create(CurrentLibrary, metaNode, imports, reason);        
+        -- static bool IsType(lua_State * L, int index);        
+    end
+    
+    function createIsType()
+		local node = metaNode:FindOrCreate("IsType");
+		-- NodePtr home, bool isInline, const Access access, const bool isStatic, 
+		-- const TypePtr rtnType, bool constMember, Model::ReasonPtr reason);
+		print "Going to create IsType.";
+		local primitives = RootNode:Find("{C++ Primitives}");
+		print ("primitives be " .. tostring(primitives) .. ".");
+		local bool = primitives:Find("bool");
+		print ("bool is a bully " .. tostring(bool) .. " !!")
+		local rtnType = Type.New(bool, { Pointer = true });
+		print "Going to create IsType.";
+		local func = Function.Create(node, false, "Access_Public", true, 
+									   rtnType,
+									   false, reason);
+		func = node.Member;
+		local mt = getmetatable(func);
+		print("The meta table of func is " .. tostring(mt) .. "... !");
+		for i, v in ipairs(mt) do 
+			print("mt... " .. tostring(i) .. "=" .. tostring(v) .. ""); 
+		end
+		local arg1 = node:FindOrCreate("L");		
+		local arg1Type = Type.New(lua_StateNode, { Pointer = true });
+		Variable.Create(arg1, "Access_Public", false, arg1Type, "", reason);
+		local arg2 = node:FindOrCreate("index");	
+		local intPrimitive = primitives:Find("int");	
+		local arg2Type = Type.New(intPrimitive, {});
+		local var = Variable.Create(arg2, "Access_Public", false, arg2Type, "", reason);
+		mt = getmetatable(var);
+		print("The meta table of var is " .. tostring(mt) .. "... !");
+		for i, v in ipairs(mt) do 
+			print("mt... " .. tostring(i) .. "=" .. tostring(v) .. ""); 
+		end
+		
+		print "IsType created.";
+		
+		local blah = func.Node;
+		
+		func:SetCodeBlock(
+[[
+	// Copied this from the luaL_checkudata function
+	void * p = lua_touserdata(L, index);
+	bool returnValue = false;
+	if (p != nullptr) // is user data
+	{
+		// Compares metatable from user data to one in registry.
+		if (lua_getmetatable(L, index))
+		{
+			lua_getfield(L, LUA_REGISTRYINDEX, "]] .. metaTableName .. [[");
+			if (lua_rawequal(L, -1, -2))
+			{
+				returnValue = true;
+			}
+			lua_pop(L, 2); // remove meta tables
+		}
+	}
+	return returnValue;
+]], src);
     end
 
+	createLuaImports();
     createClass();
-    
+	createIsType(); 
     
 end
