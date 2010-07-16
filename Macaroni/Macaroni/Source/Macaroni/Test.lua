@@ -1,7 +1,7 @@
 
 Test = {
     assert = function (expected, actual)
-        if (type(expected) ~= type(actual)) then
+        if (type(expected) ~= type(actual)) then			
             error("ASSERT FAILED: Expected Type:" .. tostring(type(expected))
                   .. ",Actual:" .. tostring(type(actual)), 2);
         end

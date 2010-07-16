@@ -47,7 +47,10 @@ std::string luaTestsPath;
 void run_unit_tests()
 {
 	Macaroni::Environment::LuaEnvironment lua;
-	lua.SetPackageDirectory(luaTestsPath);
+	std::vector<std::string> paths;
+	paths.push_back(luaTestsPath);
+	paths.push_back(luaTestsPath + "/Generators");
+	lua.SetPackageDirectory(paths);
 	std::stringstream ss;
 	ss << luaTestsPath << "/Tests.lua";
 	std::cout << "Beginning Lua Unit Tests at entry file " << luaTestsPath 

@@ -56,6 +56,9 @@ public:
 	void Run();
 
 	void SetPackageDirectory(const std::string & path);
+
+	void SetPackageDirectory(const std::vector<std::string> & paths);
+
 private:
 	static const char * loadFile(lua_State * L, void * data, size_t *size);
 	static const char * loadString(lua_State * L, void * data, size_t *size);

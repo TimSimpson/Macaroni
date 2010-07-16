@@ -6,6 +6,7 @@
 #include <Macaroni/Model/AttributeTableLua.h>
 #include <Macaroni/Model/AttributeValueLua.h>
 #include "../Model/AxiomLua.h"
+#include "../Model/BlockLua.h"
 #include <Macaroni/Model/Cpp/ClassLua.h>
 #include "../Model/ContextLua.h"
 //#include "../Model/Document.h"
@@ -43,6 +44,7 @@ static const struct luaL_Reg libs[] = {
 	{"Macaroni.Model.AttributeTable", Model::AttributeTableLuaMetaData::OpenInLua},
 	{"Macaroni.Model.AttributeValue", Model::AttributeValueLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Axiom", Model::AxiomLuaMetaData::OpenInLua},	
+	{"Macaroni.Model.Block", Model::BlockLuaMetaData::OpenInLua},	
 	{"Macaroni.Model.Cpp.Class", Model::Cpp::ClassLuaMetaData::OpenInLua},	
 	{"Macaroni.Model.Context", Model::ContextLuaMetaData::OpenInLua},	
 	{"Macaroni.Model.FileName", Model::FileNameLuaMetaData::OpenInLua},	

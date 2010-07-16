@@ -6,6 +6,7 @@
 #include "../../Environment/DebugLog.h"
 #include "FunctionLua.h"
 #include "../MemberLua.h"
+#include "../ModelInconsistencyException.h"
 #include "../NodeLua.h"
 #include "../NodeListLua.h"
 #include "../ReasonLua.h"
@@ -43,21 +44,28 @@ namespace
 	{
 		static int Create(lua_State * L) 
 		{
-			//static VariablePtr Create(NodePtr home, Access access, 
-			//	bool isStatic, const TypePtr type, std::string initializer, 
-			//Model::ReasonPtr reason);
-			NodePtr home = NodeLuaMetaData::GetInstance(L, 1);
-			Access access = AccessLuaMetaData::GetInstance(L, 2);
-			bool isStatic = (bool) lua_toboolean(L, 3);
-			TypePtr type = TypeLuaMetaData::GetInstance(L, 4);
-			std::string initializer(luaL_checkstring(L, 5));			
-			ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 6);
-			VariablePtr variable = Variable::Create(home, access,
-													isStatic, type, 
-													initializer, reason);
-			MemberPtr rtnValue = boost::dynamic_pointer_cast<Member>(variable);
-			MemberLuaMetaData::PutInstanceOnStack(L, rtnValue);
-			return 1;
+			try
+			{
+				//static VariablePtr Create(NodePtr home, Access access, 
+				//	bool isStatic, const TypePtr type, std::string initializer, 
+				//Model::ReasonPtr reason);
+				NodePtr home = NodeLuaMetaData::GetInstance(L, 1);
+				Access access = AccessLuaMetaData::GetInstance(L, 2);
+				bool isStatic = lua_toboolean(L, 3) != 0;
+				TypePtr type = TypeLuaMetaData::GetInstance(L, 4);
+				std::string initializer(luaL_checkstring(L, 5));			
+				ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 6);
+				VariablePtr variable = Variable::Create(home, access,
+														isStatic, type, 
+														initializer, reason);
+				MemberPtr rtnValue = boost::dynamic_pointer_cast<Member>(variable);
+				MemberLuaMetaData::PutInstanceOnStack(L, rtnValue);
+				return 1;
+			} 
+			catch(const ModelInconsistencyException & ex) 
+			{
+				luaL_error(L, "ModelInconsistencyException: %c", ex.what()); 
+			}
 		}
 
 	}; // end FunctionLuaFunctions

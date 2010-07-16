@@ -6,6 +6,7 @@
 #include "../../Environment/DebugLog.h"
 #include "FunctionLua.h"
 #include "../MemberLua.h"
+#include "../ModelInconsistencyException.h"
 #include "../NodeLua.h"
 #include "../NodeListLua.h"
 #include "../ReasonLua.h"
@@ -46,22 +47,29 @@ namespace
 	{
 		static int Create(lua_State * L) 
 		{
-			//static FunctionPtr Create(NodePtr home, bool isInline, 
-			//	const Access access, const bool isStatic, const TypePtr rtnType, 
-			//	bool constMember, Model::ReasonPtr reason);
-			NodePtr home = NodeLuaMetaData::GetInstance(L, 1);
-			bool isInline = (bool) lua_toboolean(L, 2);
-			Access access = AccessLuaMetaData::GetInstance(L, 3);
-			bool isStatic = (bool) lua_toboolean(L, 4);
-			TypePtr rtnType = TypeLuaMetaData::GetInstance(L, 5);
-			bool constMember = (bool) lua_toboolean(L, 6);
-			ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 7);
-			FunctionPtr newFunc = Function::Create(home, isInline, access, 
-												   isStatic, rtnType, 
-												   constMember, reason);
-			MemberPtr rtnValue = boost::dynamic_pointer_cast<Member>(newFunc);
-			MemberLuaMetaData::PutInstanceOnStack(L, rtnValue);
-			return 1;
+			try
+			{
+				//static FunctionPtr Create(NodePtr home, bool isInline, 
+				//	const Access access, const bool isStatic, const TypePtr rtnType, 
+				//	bool constMember, Model::ReasonPtr reason);
+				NodePtr home = NodeLuaMetaData::GetInstance(L, 1);
+				bool isInline = lua_toboolean(L, 2) != 0;
+				Access access = AccessLuaMetaData::GetInstance(L, 3);
+				bool isStatic = lua_toboolean(L, 4) != 0;
+				TypePtr rtnType = TypeLuaMetaData::GetInstance(L, 5);
+				bool constMember = lua_toboolean(L, 6) != 0;
+				ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 7);
+				FunctionPtr newFunc = Function::Create(home, isInline, access, 
+													   isStatic, rtnType, 
+													   constMember, reason);
+				MemberPtr rtnValue = boost::dynamic_pointer_cast<Member>(newFunc);
+				MemberLuaMetaData::PutInstanceOnStack(L, rtnValue);
+				return 1;
+			} 
+			catch(const ModelInconsistencyException & ex) 
+			{
+				luaL_error(L, "ModelInconsistencyException: %c", ex.what()); 
+			}
 		}
 
 		static int SetCodeBlock(lua_State * L)
@@ -99,9 +107,10 @@ int FunctionLuaMetaData::OpenInLua(lua_State * L)
 	return 1;
 }
 
-void FunctionLuaMetaData::PutInstanceOnStack(lua_State * L, const MemberPtr & ptr)
+void FunctionLuaMetaData::PutInstanceOnStack(lua_State * L, const FunctionPtr & ptr)
 {
-	MemberLuaMetaData::PutInstanceOnStack(L, ptr);
+	MemberPtr memberPtr = boost::dynamic_pointer_cast<Member>(ptr);
+	MemberLuaMetaData::PutInstanceOnStack(L, memberPtr);
 }
 
 int FunctionLuaMetaData::Index(lua_State * L, const FunctionPtr & ptr, 

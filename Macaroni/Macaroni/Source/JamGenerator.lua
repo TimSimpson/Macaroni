@@ -1,4 +1,4 @@
-erbquire "Macaroni.IO.GeneratedFileWriter";
+require "Macaroni.IO.GeneratedFileWriter";
 require "Macaroni.Model.Library";
 require "Macaroni.IO.Path";
 

@@ -1,0 +1,34 @@
+~import Macaroni::Lua::LuaClass;
+~import std::string;
+~import Macaroni::Tests::Lua::Polo;
+~import Macaroni::Tests::Lua::PoloPtr;
+
+// Plain old Lua Object
+
+namespace Macaroni::Tests::Lua 
+{
+	class Polo {};
+	
+	typedef boost::shared_ptr<Polo> PoloPtr;
+
+	class Polo
+	{
+		@LuaClass 
+		[
+			ReferenceType = PoloPtr,
+		]
+
+		private string name;
+
+		public const string & GetName() const
+		{
+			return name;
+		}
+
+		public void SetName(const string & newName)
+		{
+			this->name = newName;
+		}
+	};
+	
+} //end ns

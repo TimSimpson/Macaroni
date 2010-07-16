@@ -40,6 +40,9 @@ require "Macaroni/Model/TypeListTests";
 --require "Macaroni/Parser/Cpp/Tests/Namespaces";
 require "Macaroni/Parser/Pippy/Tests/Index";
 
+-- Generator tests.
+require "Generators/LuaGlueTest";
+
 local currentTest;
 suiteNames = {};
 output = {

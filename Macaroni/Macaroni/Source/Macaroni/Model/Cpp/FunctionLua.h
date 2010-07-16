@@ -15,7 +15,7 @@ struct FunctionLuaMetaData
 	static MemberPtr & GetInstance(lua_State * L, int index);
 	static int Index(lua_State * L, const FunctionPtr & ptr, const std::string & index);
 	static int NewIndex(lua_State * L, const FunctionPtr & ptr, const std::string & index);
-	static void PutInstanceOnStack(lua_State * L, const MemberPtr & ptr);
+	static void PutInstanceOnStack(lua_State * L, const FunctionPtr & ptr);
 };
 
 

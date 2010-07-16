@@ -123,8 +123,23 @@
 	{
 		TypePtr & ptr = getInstance(L);
 		std::stringstream ss;
-		ss << "(";
-		ss << " [TODO-list arguments here])";			
+		if (ptr->IsConst()) 
+		{
+			ss << "const ";
+		}
+		ss << ptr->GetNode()->GetFullName();
+		if (ptr->IsReference())
+		{
+			ss << " & ";
+		}
+		if (ptr->IsConstPointer()) 
+		{
+			ss << " * const ";
+		}
+		else if (ptr->IsPointer())
+		{
+			ss << " * ";
+		}		
 		lua_pushstring(L, ss.str().c_str());
 		return 1;
 	}	

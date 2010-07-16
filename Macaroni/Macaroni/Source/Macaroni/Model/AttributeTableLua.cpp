@@ -25,7 +25,7 @@
 
 	static int __index(lua_State * L, const AttributeTablePtr & ptr, 
 									  const std::string & index)
-	{		
+	{				
 		AttributeValuePtr value = ptr->GetByName(index);
 		if (!!value)
 		{
