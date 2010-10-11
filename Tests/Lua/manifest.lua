@@ -18,14 +18,22 @@ dependency {group="Macaroni", name="CppStd", version="1.0.0.0"}
 
 
 function generate()
-    print "A call was made to GENERATE!!!\n\n"
-    runGenerator "LuaGlue"    
-    runGenerator "Cpp"    
+    print "Greetings from the manifest of the LUA test.\n\n"
+    runGenerator("LuaGlue", { luaImportCode =[[ 
+extern "C" 
+{	
+	#include <lauxlib.h>
+	#include <lualib.h>
+}
+]] });
+
+    runGenerator("HtmlView");
+    runGenerator("Cpp");
     runGenerator "JamGenerator"
     local rtnCode = os.execute("bjam")
     print("BJAM return code = " .. rtnCode .. ".")
     if (rtnCode ~= 0) then
-        error("Looks like the plan's not going swell.")
+        --error("Looks like the plan's not going swell.")
     end
 end
 

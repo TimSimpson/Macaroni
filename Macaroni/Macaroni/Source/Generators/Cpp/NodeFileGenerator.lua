@@ -18,9 +18,12 @@ NodeFileGenerator = {
     end,
 
     parseClass = function (self, node, path)
-        assert(node.Member.TypeName == TypeNames.Class);    
+        assert(node.Member.TypeName == TypeNames.Class);  
+        log("Time to parse class.");  
         local cg = self:createClassGenerator(node, path);
+        log("PFSF!");
         cg:parse();
+        log("Oh, that was a sweet parse!");
     end,
     
     parseNamespace = function (self, node, path)
@@ -36,9 +39,9 @@ NodeFileGenerator = {
     end,
     
     parseNode = function (self, node, path)
-        print("~~~ " .. node.FullName);
+        log("~~~ " .. node.FullName);
         if (not NodeHelper.worthIteration(node)) then
-            print(" Skipped.\n");
+            log(" Skipped.\n");
             return;
         end
         
@@ -47,7 +50,7 @@ NodeFileGenerator = {
             return;
         end
         local typeName = m.TypeName;
-        print("       " .. typeName);
+        log("       " .. typeName);
         local newPath = path:NewPath("/" .. node.Name);
         --if (newPath.IsDirectory) then
         --    newPath.CreateDirectory();
@@ -62,7 +65,8 @@ NodeFileGenerator = {
         if (handlerFunc ~= nil) then
             handlerFunc(self, node, newPath);
         else
-            print("     ~ Skipping");
+            log("     ~ Skipping");
         end 
+        log(" ^-- Conclude parse.");
     end,
 };

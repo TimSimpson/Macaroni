@@ -27,9 +27,8 @@
 	static int __new(lua_State * L)
 	{		
 		if (!NodeLuaMetaData::IsType(L, 1))
-		{
-			lua_pushstring(L, "Expected a Node for argument #1 in TypeArgument creator.");
-			lua_error(L);
+		{			
+			luaL_error(L, "Expected a Node for argument #1 in TypeArgument creator.");
 		}
 		NodePtr node = NodeLuaMetaData::GetInstance(L, 1);		
 

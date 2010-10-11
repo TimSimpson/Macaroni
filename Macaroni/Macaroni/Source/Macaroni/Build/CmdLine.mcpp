@@ -109,19 +109,21 @@ class CmdLine
 		return endPrompt;
 	}
 
-	public void Execute()
+	public bool Execute()
 	{
 		if (!luaTestsPath.empty())
 		{
 			runLuaTests();
+			return true;
 		}
 		else if (!(inputPath.empty() && outputPath.empty()))
 		{
 			directCompile();
+			return true;
 		}
 		else
 		{
-			runManifest();// TODO: Read manifest from local directory and attempt build.
+			return runManifest();// TODO: Read manifest from local directory and attempt build.
 		}
 	}
 
@@ -198,7 +200,7 @@ class CmdLine
 				outputPath = next;
 			}
 		}
-		else if (arg == "endprompt")
+		else if (arg == "endPrompt")
 		{
 			endPrompt = true;
 		}
@@ -232,7 +234,7 @@ class CmdLine
 		lua.Run();
 	}
 
-	private void runManifest()
+	private bool runManifest()
 	{
 		if (manifestPath.empty())
 		{
@@ -261,7 +263,7 @@ class CmdLine
 		Builder builder(context, manifest, console, install);
 		compile = compile || install;
 		generate = generate || compile;
-		builder.Execute(generate, saveCppSource, compile, install);
+		return builder.Execute(generate, saveCppSource, compile, install);
 	}
 
 	public inline bool StartPrompt()

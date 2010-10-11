@@ -5,9 +5,21 @@
 import boost ;
 boost.use-project 1.42 ;
 
+# Site config (in the home directory) tells Boost where lua-5.1.4 will be.
+# Each user will need to configure site config on their machine.
+# Site config in turn calls user-config (also in the home directory)
+# is set up to load an additional repo, where lua-5.1.4 is specified.
 import site-config ;
+	
+alias sources
+	:	Source//source
+		GeneratedSource//generated
+		/boost//regex # TODO: I'm including this because I don't know how to 
+					  # reference the smart_ptr project... 
+	;
 	
 exe binary
 	:	/lua-5.1.4//sources
-		Source/Main.cpp						
+		Source/Main.cpp	
+		sources					
 	;

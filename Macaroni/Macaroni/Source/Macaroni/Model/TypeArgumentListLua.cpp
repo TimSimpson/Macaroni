@@ -43,8 +43,7 @@
 					ss << "When constructing TypeArgumentList, array argument "
 					   << "at index " << index << " had unexpected type. "
 					   << "All types in array are expected to be TypeArguments.";
-					lua_pushstring(L, ss.str().c_str());
-					lua_error(L);
+					luaL_error(L, ss.str().c_str());
 				}
 				else
 				{

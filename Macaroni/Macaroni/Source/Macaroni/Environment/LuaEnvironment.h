@@ -22,6 +22,10 @@ public:
 	LuaEnvironment();
 	~LuaEnvironment();
 	
+	/** Creates a new table in otherL at the top of the stack and populates
+	 * it with the pairs of strings. */
+	static void CreateNewTableFromStringPairs(lua_State * otherL, std::vector<StringPair> & pairs);
+
 	void GetFromCurrentTableVarOrDefault(std::string & rtnValue, const char * name, const char * dflt);
 
 	void GetFromGlobalVarOrDefault(std::string & rtnValue, const char * name, const char * dflt);
@@ -36,6 +40,8 @@ public:
 	std::vector<StringPair> GetStringPairsFromGlobalTable(const char * tableName);
 
 	std::vector<StringPair> GetStringPairsFromTable();
+
+	static std::vector<StringPair> GetStringPairsFromTable(lua_State * L, bool errorIfNotStrings);
 
 	/** Assumes that a table is at the top of the stack, and finds a table within
 	 * this table to read an array from. */
@@ -54,6 +60,7 @@ public:
 	void ParseString(const char * chunkName, const char * code);
 
 	void Run();
+	
 
 	void SetPackageDirectory(const std::string & path);
 

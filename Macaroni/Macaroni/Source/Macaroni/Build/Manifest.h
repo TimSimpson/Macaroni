@@ -99,7 +99,7 @@ public:
 		return version;
 	}
 
-	void RunTarget(GeneratorContextPtr generatorContext, const std::string & name);
+	bool RunTarget(GeneratorContextPtr generatorContext, const std::string & name);
 
 	void SaveAs(boost::filesystem::path & filePath);
 

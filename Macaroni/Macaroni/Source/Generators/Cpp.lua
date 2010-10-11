@@ -4,11 +4,20 @@ require "Cpp/CppFileGenerator";
 require "Cpp/HFileGenerator";
 require "Macaroni.Model.Library";
 
+log = function(msg)
+	print("[Cpp.lua]:" .. msg);
+end
+
 function Generate(library, path)
-    print "Generating H Files\n";
+	log = function(msg)
+		print("[Cpp.lua]:" .. msg);
+	end
+    log("Generating H Files_.\n");
     local hGen = HFileGenerator.new();
+    log("Adonde esta? " .. tostring(library) .. " !");
     hGen:iterateNodes(library.Context.Root.Children, path); 
-    print "Generating Cpp Files\n";
+    log("Generating Cpp Files\n");
     local cppGen = CppFileGenerator.new();
     cppGen:iterateNodes(library.Context.Root.Children, path); 
+    log("End of Cpp.lua\n");
 end

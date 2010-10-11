@@ -8,12 +8,12 @@ local PippyParser = Macaroni.Parser.Pippy.PippyParser;
 local function mixinContext(self, sourceCode)
     self.context = Context.New("{ROOT}");    
     self.library = self.context:CreateLibrary("TypeTests", "1.5");
-    self.generator = LuaGlueGenerator.new(self.context.Root);		    
-	local cppPrimitives = self.generator.RootNode:FindOrCreate("{C++ Primitives}");
+    self.luaStateNode = self.context.Root:FindOrCreate("lua_State");	
+    self.luaStateNode = self.context.Root:FindOrCreate("luaL_Reg");
+    local cppPrimitives = self.context.Root:FindOrCreate("{C++ Primitives}");
 	self.intNode = cppPrimitives:FindOrCreate("int");
 	self.boolNode = cppPrimitives:FindOrCreate("bool");    
-    
-    
+    self.generator = LuaGlueGenerator.new(self.context.Root);		        
     local parser = PippyParser.Create();         
     local file = FileName.Create("LuaGlueTest Made Up File.mcpp");           
     local root = self.context.Root;
@@ -144,7 +144,7 @@ NEW_LINE .. [[const Example::Polo * const blah = *(blah_AsRef);]]), tm.convertAr
 				local tm = self.generator:TypeManipulators(type)			
 				Test.assert([[const std::string blah(luaL_checkstring(L, 5));]], tm.get("blah", 5));
 				Test.assert([[const std::string blah(luaL_checkstring(L, 5));]], tm.convertArgument("blah", 5));
-				Test.assert(tm.put("blah"), [[luaL_pushstring(L, blah.c_str());]]);
+				Test.assert(tm.put("blah"), [[lua_pushlstring(L, blah.c_str(), blah.length());]]);
 			end,    
 			["undo test context"] = function(self)
 				self.generator.LuaWrapperArguments = self.oldLuaWrapperArguments;
@@ -205,7 +205,7 @@ NEW_LINE .. [[const Example::Polo * const blah = *(blah_AsRef);]]), tm.convertAr
 				local type = Type.New(self.polo, {});
 				local tm = self.generator:TypeManipulators(type)
 				local method = self.generator:wrapMethod(self.poloDoSomething);
-				Test.assert(self.trim("\n\tint DoSomething(lua_State * L)" ..
+				Test.assert(self.trim("\n\tstatic int DoSomething(lua_State * L)" ..
 					"\n\t{" ..
 					"\n\t\tExample::PoloPtr & instance = Example::PoloLuaMetaData::GetInstance(L, 1);" ..
 					"\n\t\tint arg1(luaL_checkint(L, 2));" ..
@@ -213,10 +213,46 @@ NEW_LINE .. [[const Example::Polo * const blah = *(blah_AsRef);]]), tm.convertAr
 					"\n\t\tExample::ActionPtr & arg3_AsRef = Example::ActionLuaMetaData::GetInstance(L, 4);" ..
 					NEW_LINE .. "const Example::Action & arg3 = *(*(arg3_AsRef));" ..
 					"\n\t\tconst std::string &  rtn = instance->DoSomething(arg1, arg2, arg3);" ..
-					"\n\t\tluaL_pushstring(L, rtn.c_str());" ..
+					"\n\t\tlua_pushlstring(L, rtn.c_str(), rtn.length());" ..
 					"\n\t\treturn 1;" ..
 					"\n\t}"),
 				method.text);
+			end, 		
+			
+			["find all functions in Node"] = function(self)
+				local type = Type.New(self.polo, {});
+				local tm = self.generator:TypeManipulators(type)
+				local funcs = self.generator:findAllFunctionsInNode(self.polo);
+				Test.assert(1, #funcs);
+				Test.assert(self.poloDoSomething, funcs[1]);
+			end, 			
+			
+			["wrap methods"] = function(self)
+				local type = Type.New(self.polo, {});
+				local tm = self.generator:TypeManipulators(type)
+				local text = self.generator:wrapMethods({ helperName = "PoloMethodLuaGlue", originalNode = self.polo, referenceType = self.poloPtr });
+				Test.assert(self.trim(
+					"\tstruct PoloMethodLuaGlue" ..
+					"\n\t{" ..
+					"\n\t\tstatic int __index(lua_State * L)" ..
+					"\n\t\t{" ..
+					"\n\t\t\tExample::PoloPtr & ptr = Example::PoloLuaMetaData::GetInstance(L, 1);" ..
+					"\n\t\t\tstd::string index(luaL_checkstring(L, 2));" ..
+					"\n\t\t\treturn Example::PoloLuaMetaData::Index(L, ptr, index);" ..
+					"\n\t\t}" ..
+					"\n\tstatic int DoSomething(lua_State * L)" ..
+					"\n\t{" ..
+					"\n\t\tExample::PoloPtr & instance = Example::PoloLuaMetaData::GetInstance(L, 1);" ..
+					"\n\t\tint arg1(luaL_checkint(L, 2));" ..
+					"\n\t\tconst std::string arg2(luaL_checkstring(L, 3));" ..
+					"\n\t\tExample::ActionPtr & arg3_AsRef = Example::ActionLuaMetaData::GetInstance(L, 4);" ..
+					NEW_LINE .. "const Example::Action & arg3 = *(*(arg3_AsRef));" ..
+					"\n\t\tconst std::string &  rtn = instance->DoSomething(arg1, arg2, arg3);" ..
+					"\n\t\tlua_pushlstring(L, rtn.c_str(), rtn.length());" ..
+					"\n\t\treturn 1;" ..
+					"\n\t}" .. 
+					"\n\t};"),
+				text);
 			end, 			
 		}        
 	}, -- end of wrapMethods test

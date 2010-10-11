@@ -8,6 +8,7 @@
 #include "../Model/MemberVisitor.h"
 #include <fstream>
 #include <boost/filesystem/operations.hpp>
+#include <Macaroni/Environment/StringPair.h>
 
 BEGIN_NAMESPACE2(Macaroni, Generator)
 
@@ -25,6 +26,11 @@ boost::filesystem::path ResolveGeneratorPath(const std::vector<Macaroni::IO::Fil
 void RunDynamicGenerator(Model::LibraryPtr library, 
 						  const boost::filesystem::path & rootPath,
 						  const boost::filesystem::path & generatorFilePath);
+
+void RunDynamicGenerator(Model::LibraryPtr library, 
+						  const boost::filesystem::path & rootPath,
+						  const boost::filesystem::path & generatorFilePath,
+						  const std::vector<Macaroni::Environment::StringPair> & arguments);
 
 void RunDynamicGenerators(Model::LibraryPtr library, const boost::filesystem::path & rootPath);
 

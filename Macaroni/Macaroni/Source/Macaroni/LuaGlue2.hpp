@@ -74,7 +74,11 @@ int LUAGLUE_REGISTRATIONCLASSNAME::OpenInLua(lua_State * L)
 	std::string fullLuaName(LUAGLUE_CLASSFULLLUANAME);
 	if (metaTableName == "Macaroni.Model.Cpp.Typedef" 
 		||
-		fullLuaName == "Macaroni.Model.Cpp.Typedef")
+		fullLuaName == "Macaroni.Model.Cpp.Typedef" 
+		||
+		metaTableName == "Macaroni.Model.NodeList"
+		||
+		fullLuaName == "Macaroni.Model.NodeList")
 	{
 		int five = 5;
 	}

@@ -113,10 +113,18 @@ END_NAMESPACE2
 
 	static int isFileOlderThan(lua_State * L)
 	{
-		PathPtr ptr = getInstance(L);
-		std::string other(luaL_checkstring(L, 2));
-		bool result = ptr->IsFileOlderThan(other);
-		lua_pushboolean(L, result);
+		try 
+		{
+			PathPtr ptr = getInstance(L);
+			std::string other(luaL_checkstring(L, 2));
+			bool result = ptr->IsFileOlderThan(other);
+			lua_pushboolean(L, result);
+		} 
+		catch(...)
+		{
+			lua_pushstring(L, "Error comparing files!");
+			lua_error(L);
+		}
 		return 1;
 	}
 
@@ -181,8 +189,7 @@ END_NAMESPACE2
 		} 
 		catch(const std::exception & ex)
 		{
-			lua_pushstring(L, ex.what());
-			lua_error(L);
+			luaL_error(L, ex.what());
 		}
 		return 0; // line will never be reached
 	}

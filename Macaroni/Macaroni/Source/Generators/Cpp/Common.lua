@@ -30,6 +30,18 @@ Macaroni.Model.TypeNames =
     Variable="Variable"
 };
 
+-- Called to see if node is in that weird underscore header
+function nodeDefinedInNamespaceHeader(node)
+	local m = node.Member;
+	if (m == null) then
+		return false;
+	end
+	local t = m.TypeName;
+	return t == Macaroni.Model.TypeNames.Function or 
+		   t == Macaroni.Model.TypeNames.Typedef or
+		   t == Macaroni.Model.TypeNames.Variable;
+end
+
 -- Identical to "assert" but points the error at the calling method.
 function check(condition, errorMsg) 
     if (not condition) then
@@ -105,7 +117,7 @@ Common = {
 
 IncludeFiles = {
     -- Given any Node, will create and return the correct include statement.
-    createStatementForNode = function(node) 
+    createStatementForNode = function(node) 		    
         if (node.Member ~= nil and node.Member.TypeName == Macaroni.Model.TypeNames.Primitive) then
             return;
         end
@@ -118,11 +130,15 @@ IncludeFiles = {
             end
             if (node.Member ~= nil and node.Member.TypeName == Macaroni.Model.TypeNames.Class) then
                 path = '<' .. node:GetPrettyFullName("/") .. '.h>'; 
-            else
+            elseif (nodeDefinedInNamespaceHeader(node)) then				
                 path = '<' .. node.Node:GetPrettyFullName("/") .. '/_.h>';
+            else
+				path = nil;
             end            
         end        
-        return ('#include ' .. path .. '\n');        
+        if (path ~= nil) then
+			return ('#include ' .. path .. '\n');        
+		end
     end,
         
     createStatementForNodeAndPutInTable = function(node, rtnTable)

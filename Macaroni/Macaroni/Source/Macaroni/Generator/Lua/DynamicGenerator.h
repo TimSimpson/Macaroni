@@ -8,6 +8,7 @@
 #include "../../Model/MemberVisitor.h"
 #include <fstream>
 #include <boost/filesystem/operations.hpp>
+#include "../../Environment/StringPair.h"
 
 BEGIN_NAMESPACE(Macaroni, Generator, Lua)
 
@@ -25,13 +26,16 @@ class DynamicGenerator
 public:
 	DynamicGenerator(Model::LibraryPtr context, 
 					 const boost::filesystem::path & rootPath,
-					 const boost::filesystem::path & luaFile);
+					 const boost::filesystem::path & luaFile,
+					 const std::vector<Macaroni::Environment::StringPair> & arguments);
 	
 	~DynamicGenerator();
 	
 	bool Run();
 
 private:
+	std::vector<Macaroni::Environment::StringPair> arguments;
+
 	boost::filesystem::path luaFilePath;
 
 	Model::LibraryPtr library;

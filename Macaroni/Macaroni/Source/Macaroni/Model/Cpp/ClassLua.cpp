@@ -58,30 +58,26 @@ END_NAMESPACE
 		using Macaroni::Model::ReasonPtr;
 
 		if (!LibraryLuaMetaData::IsType(L, 1)) 
-		{
-			lua_pushstring(L, "Expected Library for argument 1.");
-			lua_error(L);
+		{			
+			luaL_error(L, "Expected Library for argument 1.");
 		}
 		LibraryPtr library = LibraryLuaMetaData::GetInstance(L, 1);
 
 		if (!NodeLuaMetaData::IsType(L, 2))
 		{
-			lua_pushstring(L, "Expected Node for argument 2.");
-			lua_error(L);
+			luaL_error(L, "Expected Node for argument 2.");
 		}
 		NodePtr node = NodeLuaMetaData::GetInstance(L, 2);
 
 		if (!NodeListLuaMetaData::IsType(L, 3))
 		{
-			lua_pushstring(L, "Expected NodeList for argument 3.");
-			lua_error(L);
+			luaL_error(L, "Expected NodeList for argument 3.");
 		}
 		NodeListPtr imports = NodeListLuaMetaData::GetInstance(L, 3);
 
 		if (!ReasonLuaMetaData::IsType(L, 4))
-		{
-			lua_pushstring(L, "Expected Reason for argument 4.");
-			lua_error(L);
+		{			
+			luaL_error(L, "Expected Reason for argument 4.");
 		}
 		ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 4);
 		

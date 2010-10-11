@@ -14,6 +14,7 @@
 #include <Macaroni/IO/PathLua.h>
 #include "../IO/Paths.h"
 #include <sstream>
+#include "../Environment/StringPair.h"
 
 using Macaroni::Model::ContextLuaMetaData;
 using Macaroni::Model::ContextPtr;
@@ -24,6 +25,7 @@ using Macaroni::Environment::LuaEnvironment;
 using Macaroni::IO::PathLuaMetaData;
 using Macaroni::IO::PathPtr;
 using Macaroni::IO::Paths;
+using Macaroni::Environment::StringPair;
 
 #define LATEST_LUA_VALUE "~LATEST~"
 
@@ -190,20 +192,29 @@ int _runGenerator(lua_State * L)
         reinterpret_cast<std::vector<const std::string> *>(ptr);
 	
 	std::string generatorName(std::string(lua_tolstring(L, 1, NULL)));
+	std::vector<StringPair> pairs;
+
+	if (lua_gettop(L) > 1) 
+	{
+		if (!lua_istable(L, 2)) 
+		{
+			luaL_error(L, "An optional table filled only with strings is expected as the second argument of runGenerator.");
+		}		
+		pairs = LuaEnvironment::GetStringPairsFromTable(L, true);		
+	}
 
 	boost::filesystem::path genPath =
 			Generator::ResolveGeneratorPath(*sources, generatorName);
 	if (!genPath.empty())
 	{
 		boost::filesystem::path output(path->GetAbsolutePath());
-		Generator::RunDynamicGenerator(library, output, genPath);
+		Generator::RunDynamicGenerator(library, output, genPath, pairs);
 	}
 	else
 	{
 		std::stringstream ss;
-		ss << "Could not find generator " << generatorName << ".";
-		lua_pushstring(L, ss.str().c_str());
-		lua_error(L);
+		ss << "Could not find generator " << generatorName << ".";		
+		luaL_error(L, ss.str().c_str());
 	}
     return 0;
 }
@@ -402,7 +413,7 @@ const Configuration * Manifest::GetConfiguration(const std::string & configName)
 //	return vec;
 //}
 
-void Manifest::RunTarget(GeneratorContextPtr gContext, const std::string & name)
+bool Manifest::RunTarget(GeneratorContextPtr gContext, const std::string & name)
 {
 	lua_State * L = luaEnv.GetState();
 
@@ -417,7 +428,20 @@ void Manifest::RunTarget(GeneratorContextPtr gContext, const std::string & name)
 	lua_setglobal(L, "runGenerator");
 
 	lua_getfield(L, LUA_GLOBALSINDEX, name.c_str());
-	lua_call(L, 0, 0);
+	lua_call(L, 0, 1);
+	return true;
+	/*int success = lua_pcall(L, 0, 1, 0);
+	if (success != 0) 
+	{
+		return false;
+	}
+	
+	if (lua_isnil(L, -1)) 
+	{
+		return true;
+	}
+	int rtnValue = lua_toboolean(L, -1);
+	return rtnValue;*/
 }
 
 void Manifest::SaveAs(boost::filesystem::path & filePath)

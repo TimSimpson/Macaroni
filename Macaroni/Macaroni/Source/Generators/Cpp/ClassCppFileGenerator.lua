@@ -17,6 +17,7 @@ ClassCppFileGenerator = {
     
     new = function(args)          
         assert(args.node ~= nil);
+        log(tostring(args.node) .. ' . .. . . . . . . .TIME TO ROCK!');
         if (args.path == nil) then
             assert(args.writer ~= nil);
         else
@@ -29,7 +30,7 @@ ClassCppFileGenerator = {
         end
         
         setmetatable(args, ClassCppFileGenerator);
-        
+        log("Created new ClassCppFileGenerator");
         return args;
     end,    
     
@@ -38,6 +39,7 @@ ClassCppFileGenerator = {
     end,
     
     classBody = function(self)
+		log("Class body for " .. tostring(self.node) .. ".") 
         --self:classBegin();
         self:iterateClassMembers(self.node.Children);
     end,
@@ -77,9 +79,9 @@ ClassCppFileGenerator = {
             end
         end
     end,
- 
     
     includeStatements = function(self)
+		log(tostring(self.node) .. ' INCLUDE STATEMENTS! *_*');
         local class = self.node.Member;
         local imports = class.ImportedNodes;                       
         
@@ -88,7 +90,11 @@ ClassCppFileGenerator = {
         self:write(hFile);
         for i = 1, #imports do                      
             local import = imports[i];        
-            self:writeInclude(import);                
+            if (import.Member ~= nil) then
+				self:writeInclude(import);    
+			else
+				self:write('// Skipping hollow imported node "' .. import.FullName .. '"');
+            end            
         end
     end,
     
@@ -98,7 +104,7 @@ ClassCppFileGenerator = {
             node = nodeChildren[i];
             self:parseMember(node);
         end]]--
-    end,       
+    end,             
     
     -- Entry function.
     parse = function(self)      
@@ -311,12 +317,12 @@ ClassCppFileGenerator = {
     end,       
     
     usingStatements = function(self)
-        local class = self.node.Member;
+		local class = self.node.Member;
         local imports = class.ImportedNodes;
         for i = 1, #imports do                      
             local import = imports[i];        
             self:writeUsing(import);                
-        end
+        end        
     end,
     
 };

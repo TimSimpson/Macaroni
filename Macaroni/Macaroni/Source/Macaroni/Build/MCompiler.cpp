@@ -15,6 +15,7 @@
 #include "../Parser/Pippy/PippyParser.h"
 #include "../Generator/DynamicGenerators.h"
 #include "../Model/Source.h"
+#include <Macaroni/Environment/StringPair.h>
 
 using Macaroni::Model::Context;
 using Macaroni::Model::ContextPtr;
@@ -36,6 +37,7 @@ using Macaroni::Parser::Pippy::PippyParser;
 using Macaroni::Model::Source;
 using Macaroni::Model::SourcePtr;
 #include <string>
+using Macaroni::Environment::StringPair;
 #include <sstream>
 #include <vector>
 
@@ -115,7 +117,8 @@ bool MCompiler::generateFiles(LibraryPtr library, path output,
 			Generator::ResolveGeneratorPath(options.GetInput(), options.GetGenerators()[i]);
 		if (!genPath.empty())
 		{
-			Generator::RunDynamicGenerator(library, output, genPath);
+			std::vector<StringPair> pairs;
+			Generator::RunDynamicGenerator(library, output, genPath, pairs);
 		}
 	} 
 	

@@ -40,6 +40,36 @@
 		return 1;
 	}
 
+	static int __newindex(lua_State * L)
+	{		
+		NodeListPtr & ptr = getInstance(L);
+		// 2 must be a numeric index
+		const int newIndex = luaL_checkint(L, 2);
+		// 3 must be a Node
+		NodePtr & node = NodeLuaMetaData::GetInstance(L, 3);
+		
+		int actualIndex = newIndex - 1;
+		if (actualIndex > ptr->size()) 
+		{
+			lua_pushlstring(L, "Index is greater than number of elements + 1.", 45);
+			lua_error(L);
+		} 
+		else if (actualIndex == ptr->size())
+		{
+			ptr->push_back(node);
+		} 
+		else if (actualIndex >= 0) 
+		{
+			ptr->assign(actualIndex, node);
+		}
+		else
+		{
+			lua_pushlstring(L, "Index is less than zero.", 24);
+			lua_error(L);
+		}
+		return 0;
+	}
+
 	static int __len(lua_State * L)
 	{
 		LUAGLUE_CLASSREFNAME & ptr = getInstance(L);
@@ -75,9 +105,8 @@
 					// Reusing variables is evil, but SO MUCH FUN!  YEAA!!
 					ss << "When constructing new NodeList, array argument "
 					   << "had unexpected type at index " << index 
-					   << ". All types in array are expected to be Nodes.";
-					lua_pushstring(L, ss.str().c_str());
-					lua_error(L);
+					   << ". All types in array are expected to be Nodes.";					
+					luaL_error(L, ss.str().c_str());
 				}
 			}
 			else
@@ -101,6 +130,7 @@
 
 	#define LUAGLUE_ADDITIONALMETATABLEMETHODS \
 		{"__len", LUAGLUE_HELPERCLASS::__len}, \
+		{"__newindex", LUAGLUE_HELPERCLASS::__newindex}, \
 		{"__tostring", LUAGLUE_HELPERCLASS::__tostring}, 
 
 	#define LUAGLUE_ADDITIONALTABLEMETHODS \

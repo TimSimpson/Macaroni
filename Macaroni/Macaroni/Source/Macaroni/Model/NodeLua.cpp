@@ -95,7 +95,7 @@ struct NodeLuaFunctions
 	{
 		NodePtr * ptr = (NodePtr *) luaL_checkudata(L, 1, METATABLENAME);
 		ptr->~NodePtr();
-		return 0;
+		return 0; 
 	}	
 
 	static int __eq(lua_State * L)

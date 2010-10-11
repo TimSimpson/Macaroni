@@ -41,6 +41,17 @@ void LuaEnvironment::BLARGOS()
 	//}			
 }
 
+void LuaEnvironment::CreateNewTableFromStringPairs(lua_State * L, std::vector<StringPair> & pairs)
+{
+	lua_newtable(L);
+	BOOST_FOREACH(StringPair & pair, pairs)
+	{
+		lua_pushstring(L, pair.Name.c_str());
+		lua_pushstring(L, pair.Value.c_str());
+		lua_rawset(L, -3);
+	}
+}
+
 void LuaEnvironment::GetFromCurrentTableVarOrDefault(std::string & rtnValue, const char * name, const char * dflt)
 {
 	lua_pushstring(state, name);
@@ -87,23 +98,35 @@ std::vector<StringPair> LuaEnvironment::GetStringPairsFromGlobalTable(const char
 
 std::vector<StringPair> LuaEnvironment::GetStringPairsFromTable()
 {
+	return GetStringPairsFromTable(state, false);
+}
+
+std::vector<StringPair> LuaEnvironment::GetStringPairsFromTable(lua_State * L, bool errorIfNotStrings)
+{
 	std::vector<StringPair> bag;
 	
-	lua_pushnil(state); // first key
+	lua_pushnil(L); // first key
 	const int tableIndex = -2;
-	while(lua_next(state, tableIndex)  != 0)
+	while(lua_next(L, tableIndex)  != 0)
 	{
 		StringPair entry;		
-		if (lua_isstring(state, -2))
+		if (lua_isstring(L, -2))
 		{
-			entry.Name = lua_tolstring(state, -2, NULL);
-			if (lua_isstring(state, -1))
+			entry.Name = lua_tolstring(L, -2, NULL);
+			if (lua_isstring(L, -1))
 			{
-				entry.Value = lua_tolstring(state, -1, NULL);				
+				entry.Value = lua_tolstring(L, -1, NULL);				
 				bag.push_back(entry);
 			}
+			else if (errorIfNotStrings)
+			{
+				std::stringstream ss;
+				ss << "Non-string entry found for table value '"
+					<< entry.Name << "'.";
+				luaL_error(L, ss.str().c_str());
+			}
 		}
-		lua_pop(state, 1); // pops off value, saves key
+		lua_pop(L, 1); // pops off value, saves key
 	}
 	
 	return bag;

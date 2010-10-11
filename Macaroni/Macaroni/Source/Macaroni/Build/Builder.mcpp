@@ -193,10 +193,10 @@ class Builder
 		return true;
 	}
 
-	public void Execute(bool generate, bool saveCppSource, bool compile, bool install)
+	public bool Execute(bool generate, bool saveCppSource, bool compile, bool install)
 	{
 		console.WriteLine("--------------------------------------------------------------------------------");
-		console.Write(" TODO: Change this part.");
+		console.WriteLine(" TODO: Change this part.");
 		console.WriteLine("--------------------------------------------------------------------------------");
 
 		const Path dir(manifest->GetRootDirectory(), manifest->GetRootDirectory());
@@ -210,8 +210,11 @@ class Builder
 		if (generate)
 		{
 			success = CompileMacaroni();
-			GeneratorContextPtr gCon(new GeneratorContext(library, genSrc));
-			manifest->RunTarget(gCon, "generate");
+			if (success)
+			{
+				GeneratorContextPtr gCon(new GeneratorContext(library, genSrc));
+				success = manifest->RunTarget(gCon, "generate");
+			}
 		}
 
 		if (success)
@@ -237,6 +240,7 @@ class Builder
 		{
 			console.WriteLine(" ~ GAME OVER ~ ");
 		}
+		return success;
 	}
 
 	public bool Install()

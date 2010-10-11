@@ -682,6 +682,13 @@ static int panic (lua_State *L) {
   (void)L;  /* to avoid warnings */
   fprintf(stderr, "PANIC: unprotected error in call to Lua API (%s)\n",
                    lua_tostring(L, -1));
+  const int top = lua_gettop(L);
+  for (int i = 1; i <= top; i ++)
+  {
+	  luaL_where(L, i);
+	  lua_tostring(L, -1);
+	  fprintf(stderr, " %s\n", lua_tostring(L, -1));
+  }  
   return 0;
 }
 

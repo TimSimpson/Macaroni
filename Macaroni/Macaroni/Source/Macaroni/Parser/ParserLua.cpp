@@ -73,8 +73,7 @@ using Macaroni::Model::SourceLuaMetaData;
 			Macaroni::Parser::ParserException * copy = new Macaroni::Parser::ParserException(pe.GetSource(), pe.GetMessage());
 
 			ParserExceptionPtr newPtr(copy);
-			ParserExceptionLuaMetaData::PutInstanceOnStack(L, newPtr);
-			lua_error(L); // DOES NOT RETURN
+			ParserExceptionLuaMetaData::Throw(L, newPtr, 1); // DOES NOT RETURN			
 			return 0;
 		}
 	}

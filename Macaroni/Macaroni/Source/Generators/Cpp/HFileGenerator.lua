@@ -31,16 +31,23 @@ HFileGenerator = {
     attemptShortName = false,
     
     createClassGenerator = function (self, node, path)
+		log("HcreateClassGenerator 1");
         local reason = node.Member.ReasonCreated;
         local srcFile = tostring(reason.Source.FileName);        
+        log("HcreateClassGenerator 1.5");
         local filePath = path:NewPath(".h");
-        if (filePath:IsFileOlderThan(srcFile)) then            
+        log("HcreateClassGenerator 2");
+        log("Htype of filePath is " .. type(filePath) .. ".");
+        log("HsrcFile is " .. srcFile .. ".");
+        if (filePath:IsFileOlderThan(srcFile)) then   
+			log("HcreateClassGenerator 2.2");         
             local cg = ClassHFileGenerator.new{node = node, path = filePath};
             return cg;
         else
+			log("HcreateClassGenerator 2.5");
             -- Skip if no new changes detected.
             return { parse = function() end };
-        end        
+        end                
     end,
     
     

@@ -15,6 +15,7 @@ using Macaroni::IO::FileSet;
 using Macaroni::Model::Library;
 using Macaroni::Model::LibraryPtr;
 using boost::filesystem::path;
+using Macaroni::Environment::StringPair;
 
 BEGIN_NAMESPACE2(Macaroni, Generator)
 
@@ -77,7 +78,14 @@ path ResolveGeneratorPath(const std::vector<Macaroni::IO::FileSet> & srcDirs,
 
 void RunDynamicGenerator(LibraryPtr library, const path & rootPath, const path & filePath)
 {
-	Lua::DynamicGenerator file(library, rootPath, filePath);
+	std::vector<StringPair> pairs;
+	RunDynamicGenerator(library, rootPath, filePath, pairs);
+}
+
+void RunDynamicGenerator(LibraryPtr library, const path & rootPath, const path & filePath, 
+						 const std::vector<StringPair> & arguments)
+{
+	Lua::DynamicGenerator file(library, rootPath, filePath, arguments);
 	file.Run();
 }
 

@@ -18,6 +18,7 @@
 #include "MessagesLua.h"
 //#include "../Model/NamespaceLua.h"
 #include "../Model/NodeLua.h"
+#include "../Model/NodeListLua.h"
 #include "../Model/ReasonLua.h"
 #include "../Parser/ParserLua.h"
 #include "../Parser/ParserExceptionLua.h"
@@ -53,6 +54,7 @@ static const struct luaL_Reg libs[] = {
 	{"Macaroni.Model.Library", Model::LibraryLuaMetaData::OpenInLua},	
 	{"Macaroni.Model.Member", Model::MemberLuaMetaData::OpenInLua},	
 	{"Macaroni.Model.Node", Model::NodeLuaMetaData::OpenInLua},
+	{"Macaroni.Model.NodeList", Model::NodeListLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Reason", Model::ReasonLuaMetaData::OpenInLua},	
 	{"Macaroni.Model.Source", Model::SourceLuaMetaData::OpenInLua},
 	{"Macaroni.Parser.Parser", Parser::ParserLuaMetaData::OpenInLua},

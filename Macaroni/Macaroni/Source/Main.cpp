@@ -108,10 +108,14 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 		std::cin >> stuff;
 	}
 
+	int returnCode = 1;
 //#ifndef _DEBUG
 	try
 	{
-		cmd.Execute();
+		if (cmd.Execute())
+		{		
+			returnCode = 0; // success		
+		}
 	} catch(std::exception & ex)
 	{
 		std::cerr << "An unexpected error occured.\n" << std::endl;
@@ -228,12 +232,12 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 	//}
 
 	////std::cout << "Program finished.";
-	//if (endPrompt)
+	///*if (endPrompt)
 	//{
 	//	std::cout << "press enter to quit.";
 	//	char ch;
 	//	std::cin >> ch;
-	//}
-	//return 0;
+	//}*/
+	return returnCode;
 }
 

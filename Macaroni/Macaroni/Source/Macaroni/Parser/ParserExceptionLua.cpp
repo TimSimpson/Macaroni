@@ -47,8 +47,9 @@ using Macaroni::Model::SourceLuaMetaData;
 		int HELPERCLASS = 1134;
 		LUAGLUE_CLASSREFNAME & ptr = getInstance(L);
 		std::stringstream ss;
-		ss << "Source:" << ptr->GetSource()->ToString();
-		ss << " Description:" << ptr->GetMessage();
+		ss << "Description:" << ptr->GetMessage();
+		ss << " ParsedSource:" << ptr->GetSource()->ToString();
+		ss << " Thrown from:" << ptr->GetThrowLocation();		
 		lua_pushstring(L, ss.str().c_str());
 		return 1;
 	}
@@ -58,8 +59,23 @@ using Macaroni::Model::SourceLuaMetaData;
 		{"__tostring", LUAGLUE_HELPERCLASS::__tostring}, 
 
 	#define LUAGLUE_ADDITIONALTABLEMETHODS \
-		/*{"LuaCreate", LUAGLUE_HELPERCLASS::LuaCreate},*/
+		/*{"LuaCreate", LUAGLUE_HELPERCLASS::LuaCreate},*/	
 
 #include "../LuaGlue2.hpp"
+
+	LUAGLUE_STARTNAMESPACE
+
+	void ParserExceptionLuaMetaData::Throw(lua_State *L, const ParserExceptionPtr & ptr, int level) 
+	{		
+		luaL_where(L, level);		
+		ParserExceptionPtr newInstance(
+				new ParserException(ptr->GetSource(), ptr->GetMessage(), lua_tostring(L, -1))
+			);		
+		ParserExceptionLuaMetaData::PutInstanceOnStack(L, newInstance);
+		lua_error(L);
+		// DOES NOT RETURN
+	}
+
+	LUAGLUE_ENDNAMESPACE
 
 #endif

@@ -15,6 +15,7 @@ struct ParserExceptionLuaMetaData
 	static ParserExceptionPtr & GetInstance(lua_State * L, int index);
 	static int Index(lua_State * L, const ParserExceptionPtr & ptr, const std::string & index);
 	static void PutInstanceOnStack(lua_State * L, const ParserExceptionPtr & ptr);
+	static void Throw(lua_State *L, const ParserExceptionPtr & ptr, int level);
 };
  
 END_NAMESPACE2

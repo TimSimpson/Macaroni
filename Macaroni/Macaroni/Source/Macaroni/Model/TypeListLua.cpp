@@ -70,8 +70,7 @@
 					ss << "When constructing new TypeList, array argument "
 					   << "had unexpected type at index " << index 
 					   << ". All types in array are expected to be Types.";
-					lua_pushstring(L, ss.str().c_str());
-					lua_error(L);
+					luaL_error(L, ss.str().c_str());
 				}
 			}
 			else

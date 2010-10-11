@@ -64,8 +64,7 @@
 	{
 		if (!NodeLuaMetaData::IsType(L, 1))
 		{
-			lua_pushstring(L, "Expected a Node for argument #1 in Type creator.");
-			lua_error(L);
+			luaL_error(L, "Expected a Node for argument #1 in Type creator.");
 		}		
 
 		NodePtr node = NodeLuaMetaData::GetInstance(L, 1);				
