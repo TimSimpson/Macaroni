@@ -5,20 +5,30 @@
 #include "Context.h"
 #include "Library.h"
 
+using Macaroni::Build::LibraryId;
+
 BEGIN_NAMESPACE2(Macaroni, Model)
 
 
 Library::Library(Context * context, const std::string & name, const std::string & version)
 :context(context),
- name(name),
- referenceCount(0),
- version(version)
+ id(),
+ referenceCount(0) 
+{
+	id.SetName(name);
+	id.SetVersion(version);
+	id.SetGroup("~..~");
+}
+
+Library::Library(Context * context, const LibraryId & id)
+: context(context),
+  id(id),
+  referenceCount(0)
 {
 }
 
 Library::~Library()
-{
-	int five = 5;
+{	
 }
 
 void intrusive_ptr_add_ref(Library * p)

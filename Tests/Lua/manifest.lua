@@ -30,6 +30,7 @@ extern "C"
     runGenerator("HtmlView");
     runGenerator("Cpp");
     runGenerator "JamGenerator"
+    runGenerator("InterfaceMh");
     local rtnCode = os.execute("bjam")
     print("BJAM return code = " .. rtnCode .. ".")
     if (rtnCode ~= 0) then
@@ -37,4 +38,7 @@ extern "C"
     end
 end
 
+function install()
+	print("Yo yo yo!  I is an installer!");
+end
 

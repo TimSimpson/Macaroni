@@ -7,6 +7,8 @@
 ~import Macaroni::Exception;
 ~import Macaroni::IO::FileSet;
 ~import Macaroni::Build::GeneratorContext;
+~import Macaroni::Build::InstallContext;
+~import Macaroni::Build::InstallContextPtr;
 ~import Macaroni::Model::Library;
 ~import Macaroni::Model::LibraryPtr;
 ~import Macaroni::Build::Manifest;
@@ -58,7 +60,7 @@ class Builder
 		// Include dependencies
 		BOOST_FOREACH(ManifestPtr dependency, manifest->GetDependencies()) 
 		{
-			const ManifestId id = dependency->GetId();
+			const LibraryId id = dependency->GetId();
 			Manifest dManifest(id.FindFinalManifestFile());
 			const std::vector<const std::string> dSrc = dManifest.GetMSource();
 			BOOST_FOREACH(const string & dir, dSrc)
@@ -147,7 +149,7 @@ class Builder
 	{
 		cppFiles = std::vector<CppFile>();
 
-		console.WriteLine("~ Generating listing of C++ source files. ~");
+		//console.WriteLine("~ Generating listing of C++ source files. ~");
 		const Path rootDir(manifest->GetRootDirectory(), manifest->GetRootDirectory());
 		//PathPtr mWork = rootDir.NewPath("./MWork");
 		PathPtr objFilesDirRoot = rootDir.NewPathForceSlash(manifest->GetCppOutput());
@@ -196,7 +198,8 @@ class Builder
 	public bool Execute(bool generate, bool saveCppSource, bool compile, bool install)
 	{
 		console.WriteLine("--------------------------------------------------------------------------------");
-		console.WriteLine(" TODO: Change this part.");
+		console.Write("    ");
+		console.WriteLine(manifest->GetName());		
 		console.WriteLine("--------------------------------------------------------------------------------");
 
 		const Path dir(manifest->GetRootDirectory(), manifest->GetRootDirectory());
@@ -213,7 +216,7 @@ class Builder
 			if (success)
 			{
 				GeneratorContextPtr gCon(new GeneratorContext(library, genSrc));
-				success = manifest->RunTarget(gCon, "generate");
+				success = manifest->RunTarget(console, gCon, "generate");
 			}
 		}
 
@@ -227,8 +230,8 @@ class Builder
 				success = SaveCppSource();
 			}
 			if (install)
-			{
-			    Install();
+			{				
+			    success = Install();
 			}
 		}
 
@@ -267,8 +270,14 @@ class Builder
 		path exportMhInterface = exportMhInterfaceDir/ "Interface.mh";
 		boost::filesystem::copy_file(localMhInterface, exportMhInterface);
 
+		const Path dir(manifest->GetRootDirectory(), manifest->GetRootDirectory());
+		PathPtr genSrc = dir.NewPathForceSlash(manifest->GetMOutput());//"/GeneratedSource");		
+		PathPtr src(new Path(manifest->GetRootDirectory(), manifest->GetRootDirectory()));
+		PathPtr installPathPtr(new Path(installPath, installPath));
+		InstallerContextPtr iCon(new InstallerContext(library, src, genSrc, installPathPtr));
+		return manifest->RunTarget(console, iCon, "install");
 		//Path::CopyDirectoryContents(headersLocal, headersInstall);
-		return true;
+		// return true;
 	}
 
 	public bool SaveCppSource()

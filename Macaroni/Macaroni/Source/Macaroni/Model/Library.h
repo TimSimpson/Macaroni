@@ -4,6 +4,7 @@
 #include "../ME.h"
 #include "Context.h"
 #include "FileNamePtr.h"
+#include <Macaroni/Build/LibraryId.h>
 #include "LibraryPtr.h"
 #include "MemberPtr.h"
 #include "NodePtr.h"
@@ -27,23 +28,29 @@ public:
 		return ContextPtr(context);
 	}
 
+	inline const std::string & GetGroup() const
+	{
+		return id.GetGroup();
+	}
+
 	inline const std::string & GetName() const
 	{
-		return name;
+		return id.GetName();
 	}
 
 	inline const std::string & GetVersion() const
 	{
-		return version;
+		return id.GetVersion();
 	}
 
 private:
 	Library(Context * context, const std::string & name, const std::string & version);
+	
+	Library(Context * context, const Macaroni::Build::LibraryId & id);
 
 	Context * context;
 	int referenceCount;
-	std::string name;
-	std::string version;
+	Macaroni::Build::LibraryId id;
 };
 
 END_NAMESPACE2

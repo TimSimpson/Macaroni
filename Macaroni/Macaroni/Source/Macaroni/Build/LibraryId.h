@@ -1,5 +1,5 @@
-#ifndef MACARONI_BUILD_MANIFESTID_H
-#define MACARONI_BUILD_MANIFESTID_H
+#ifndef MACARONI_BUILD_LIBRARYID_H
+#define MACARONI_BUILD_LIBRARYID_H
 
 #include "../ME.h"
 #include <boost/filesystem/operations.hpp>
@@ -10,10 +10,10 @@ namespace Macaroni { namespace Build {
 
 //TODO: Rename this to LibraryId.
 /** The part of a Manifest which can identify the Module. */
-class ManifestId
+class LibraryId
 {
 public:
-	ManifestId(){}
+	LibraryId(){}
 	
 	boost::filesystem::path FindFinalManifestFile() const;
 
@@ -33,17 +33,17 @@ public:
 	}
 
 	
-	inline void SetGroup(std::string & value)
+	inline void SetGroup(const std::string & value)
 	{
 		group = value;
 	}
 
-	inline void SetName(std::string & value)
+	inline void SetName(const std::string & value)
 	{
 		name = value;
 	}
 
-	inline void SetVersion(std::string & value)
+	inline void SetVersion(const std::string & value)
 	{
 		version = value;
 	}

@@ -30,14 +30,11 @@ DynamicGenerator::DynamicGenerator
 	const std::vector<StringPair> & arguments
 )
 :	arguments(arguments),
-	luaFilePath(luaFile),
+	DynamicScriptRunner(luaFile),
     library(library),
-	env(),
 	rootPath(rootPath)
 {
-	//env.ParseString("FileWriter", LUACODE);
-	env.SetPackageDirectory(luaFile.branch_path().string());
-	env.ParseFile(luaFile.string());
+	
 }	 
 
 DynamicGenerator::~DynamicGenerator()

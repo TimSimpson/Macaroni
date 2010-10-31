@@ -2,10 +2,19 @@
 #define MACARONI_BUILD_MANIFEST_H
 
 #include <boost/filesystem/operations.hpp>
+
+namespace Macaroni { namespace Build {
+	class Manifest;
+	typedef boost::shared_ptr<Manifest> ManifestPtr;
+} }
+
+
 #include <Macaroni/Build/_.h>
 #include "Configuration.h"
+#include <Macaroni/Environment/Console.h>
 #include "../Environment/LuaEnvironment.h"
-#include "ManifestId.h"
+#include <Macaroni/Build/InstallerContext.h>
+#include <Macaroni/Build/LibraryId.h>
 #include "../ME.h"
 #include "../IO/Path.h"
 #include <boost/shared_ptr.hpp>
@@ -43,7 +52,7 @@ public:
 
 	const Configuration * GetConfiguration(const std::string & configName) const;
 
-	inline const ManifestId GetId() const
+	inline const LibraryId GetId() const
 	{
 		return id;
 	}
@@ -99,7 +108,11 @@ public:
 		return version;
 	}
 
-	bool RunTarget(GeneratorContextPtr generatorContext, const std::string & name);
+	bool RunTarget(const Macaroni::Environment::Console & console, 
+				   GeneratorContextPtr generatorContext, const std::string & name);
+
+	bool RunTarget(const Macaroni::Environment::Console & console,
+		           InstallerContextPtr iContext, const std::string & name);
 
 	void SaveAs(boost::filesystem::path & filePath);
 
@@ -122,7 +135,7 @@ private:
 	std::string fOutput;
 	//std::vector<std::string> generators;
 	std::string group;
-	ManifestId id;
+	LibraryId id;
 	std::string cppHeadersOutput;
 	Macaroni::Environment::LuaEnvironment luaEnv;
 	boost::filesystem::path manifestFile;

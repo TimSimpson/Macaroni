@@ -1,6 +1,7 @@
 #ifndef MACARONI_BUILD_MANIFEST_CPP
 #define MACARONI_BUILD_MANIFEST_CPP
 
+#include <boost/foreach.hpp>
 #include "Manifest.h"
 #include <Macaroni/Model/ContextLua.h>
 #include <Macaroni/Generator/DynamicGenerators.h>
@@ -16,6 +17,7 @@
 #include <sstream>
 #include "../Environment/StringPair.h"
 
+using Macaroni::Environment::Console;
 using Macaroni::Model::ContextLuaMetaData;
 using Macaroni::Model::ContextPtr;
 using Macaroni::Model::Library;
@@ -42,7 +44,7 @@ std::vector<const Configuration> createConfigurations(LuaEnvironment & env);
 //std::vector<const std::string> getVectorFromGlobalLuaTable(lua_State * L, const char * name);
 //std::vector<const std::string> getVectorFromLocalLuaTable(lua_State * L, const char * name);
 //std::vector<const std::string> getVectorFromLuaTable(lua_State * L);
-void setManifestId(ManifestId & id, lua_State * L);
+void setLibraryId(LibraryId & id, lua_State * L);
 
 Manifest::Manifest()
 :configurations(),
@@ -90,7 +92,7 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile)
 
 	luaEnv.Run();
 
-	setManifestId(id, L);
+	setLibraryId(id, L);
 
 	boost::filesystem::path manifestDir = manifestFile;
 	manifestDir.remove_filename();
@@ -152,7 +154,7 @@ Manifest::~Manifest()
 
 int _dependency(lua_State * L)
 {
-    ManifestId dId;
+    LibraryId dId;
     lua_getfield(L, 1, "group");
     if (!lua_isnil(L, -1))
     {
@@ -217,6 +219,11 @@ int _runGenerator(lua_State * L)
 		luaL_error(L, ss.str().c_str());
 	}
     return 0;
+}
+
+int _runInstaller(lua_State * L)
+{
+	return 0;
 }
 
 int _source(lua_State * L)
@@ -296,12 +303,12 @@ Configuration createConfiguration(LuaEnvironment & env, const char * name)
 				env.GetFromCurrentTableVarOrDefault(name, "name", "");
 				env.GetFromCurrentTableVarOrDefault(version, "version", "");
 				env.GetFromCurrentTableVarOrDefault(configName, "configuration", "default");
-				ManifestId d;
+				LibraryId d;
 				d.SetGroup(group);
 				d.SetName(name);
 				d.SetVersion(version);
 				ConfigurationId cId;
-				cId.SetManifestId(d);
+				cId.SetLibraryId(d);
 				cId.SetName(configName);
 
 				dependencies.push_back(cId);
@@ -413,7 +420,7 @@ const Configuration * Manifest::GetConfiguration(const std::string & configName)
 //	return vec;
 //}
 
-bool Manifest::RunTarget(GeneratorContextPtr gContext, const std::string & name)
+bool Manifest::RunTarget(const Console & console, GeneratorContextPtr gContext, const std::string & name)
 {
 	lua_State * L = luaEnv.GetState();
 
@@ -428,6 +435,60 @@ bool Manifest::RunTarget(GeneratorContextPtr gContext, const std::string & name)
 	lua_setglobal(L, "runGenerator");
 
 	lua_getfield(L, LUA_GLOBALSINDEX, name.c_str());
+	if (lua_isnil(L, -1))
+	{		
+		console.WriteLine("Could not find function \"generate\".");
+		return false;
+	}
+	lua_call(L, 0, 1);
+	return true;
+	/*int success = lua_pcall(L, 0, 1, 0);
+	if (success != 0) 
+	{
+		return false;
+	}
+	
+	if (lua_isnil(L, -1)) 
+	{
+		return true;
+	}
+	int rtnValue = lua_toboolean(L, -1);
+	return rtnValue;*/
+}
+
+bool Manifest::RunTarget(const Console & console, InstallerContextPtr iContext, const std::string & name)
+{
+	lua_State * L = luaEnv.GetState();
+
+	LibraryLuaMetaData::OpenInLua(L);
+	PathLuaMetaData::OpenInLua(L);
+	
+	// Put the library, a table with all source directories, the output 
+	// directory, and the install directory onto the stack.
+	LibraryLuaMetaData::PutInstanceOnStack(L, iContext->GetLibrary());
+	lua_newtable(L);
+	int index = 0;
+	BOOST_FOREACH(const std::string & srcDirectory, this->GetMSource())
+	{
+		PathPtr src = iContext->GetSourceDir()->NewPathForceSlash(srcDirectory); 
+		// In Lua, : newTable[index + 1] = src
+		std::stringstream ss;		
+		PathLuaMetaData::PutInstanceOnStack(L, src);
+		ss << (index + 1);
+		lua_setfield(L, -2, ss.str().c_str());
+		index ++;
+	}
+	PathLuaMetaData::PutInstanceOnStack(L, iContext->GetOutputDir());
+	PathLuaMetaData::PutInstanceOnStack(L, iContext->GetInstallDir());
+	lua_pushlightuserdata(L, &(this->mSource));
+	lua_pushcclosure(L, &_runGenerator, 4);
+	lua_setglobal(L, "runInstaller");	
+	lua_getfield(L, LUA_GLOBALSINDEX, name.c_str());
+	if (lua_isnil(L, -1))
+	{	
+		console.WriteLine("Could not find function \"install\".");
+		return false;
+	}
 	lua_call(L, 0, 1);
 	return true;
 	/*int success = lua_pcall(L, 0, 1, 0);
@@ -498,9 +559,9 @@ void Manifest::SaveAs(boost::filesystem::path & filePath)
 			{
 				const ConfigurationId & id = config.GetDependencies()[j];
 				file << "\t\t\t{" << endl;
-				file << "\t\t\t\tgroup=[[" << id.GetManifestId().GetGroup() << "]]," << endl;
-				file << "\t\t\t\tname=[[" << id.GetManifestId().GetName() << "]]," << endl;
-				file << "\t\t\t\tversion=[[" << id.GetManifestId().GetVersion() << "]]," << endl;
+				file << "\t\t\t\tgroup=[[" << id.GetLibraryId().GetGroup() << "]]," << endl;
+				file << "\t\t\t\tname=[[" << id.GetLibraryId().GetName() << "]]," << endl;
+				file << "\t\t\t\tversion=[[" << id.GetLibraryId().GetVersion() << "]]," << endl;
 				file << "\t\t\t\tconfiguration=[[" << id.GetName() << "]]," << endl;
 				file << "\t\t\t}" << endl;
 			}
@@ -518,7 +579,7 @@ void Manifest::SaveAs(boost::filesystem::path & filePath)
 	file.close();
 }
 
-void setManifestId(ManifestId & id, lua_State * L)
+void setLibraryId(LibraryId & id, lua_State * L)
 {
 	lua_getglobal(L, "id");
 	if (!lua_istable(L, -1))

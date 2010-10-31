@@ -37,6 +37,13 @@ LibraryPtr Context::CreateLibrary(const std::string & name, const std::string & 
 	return LibraryPtr(newLib);
 }
 
+LibraryPtr Context::CreateLibrary(const Macaroni::Build::LibraryId & id)
+{
+	libraries.push_back(new Library(this, id));
+	Library * newLib = libraries.back();
+	return LibraryPtr(newLib);
+}
+
 int Context::GetReferenceCount() const
 {
 	return referenceCount;

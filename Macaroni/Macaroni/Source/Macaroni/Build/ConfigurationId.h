@@ -2,7 +2,7 @@
 #define MACARONI_BUILD_CONFIGURATIONID_H
 
 #include "../ME.h"
-#include "ManifestId.h"
+#include "LibraryId.h"
 
 namespace Macaroni { namespace Build {
 
@@ -11,9 +11,9 @@ class ConfigurationId
 public: 
 	ConfigurationId(){}
 	
-	inline const ManifestId & GetManifestId() const
+	inline const LibraryId & GetLibraryId() const
 	{
-		return manifestId;
+		return libraryId;
 	}
 
 	inline const std::string & GetName() const
@@ -21,9 +21,9 @@ public:
 		return name;
 	}
 
-	void SetManifestId(const ManifestId & value)
+	void SetLibraryId(const LibraryId & value)
 	{
-		manifestId = value;
+		libraryId = value;
 	}
 
 	void SetName(const std::string & value)
@@ -32,7 +32,7 @@ public:
 	}
 
 private:
-	ManifestId manifestId;
+	LibraryId libraryId;
 	std::string name;	
 };
 

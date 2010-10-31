@@ -5,6 +5,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/intrusive_ptr.hpp>
 #include "ContextPtr.h"
+#include <Macaroni/Build/LibraryId.h>
 #include "LibraryPtr.h"
 #include "NodePtr.h"
 
@@ -23,6 +24,8 @@ public:
 	~Context();
 
 	LibraryPtr CreateLibrary(const std::string & name, const std::string & version);
+
+	LibraryPtr CreateLibrary(const Macaroni::Build::LibraryId & id);
 	
 	int GetReferenceCount() const;
 

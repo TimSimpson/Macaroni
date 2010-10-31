@@ -1,12 +1,12 @@
-#ifndef MACARONI_BUILD_MANIFESTID_CPP
-#define MACARONI_BUILD_MANIFESTID_CPP
+#ifndef MACARONI_BUILD_LIBRARYID_CPP
+#define MACARONI_BUILD_LIBRARYID_CPP
 
-#include "ManifestId.h"
+#include "LibraryId.h"
 #include "../IO/PathResolver.h"
 
 namespace Macaroni { namespace Build {
 
-boost::filesystem::path ManifestId::FindFinalManifestFile() const
+boost::filesystem::path LibraryId::FindFinalManifestFile() const
 {
 	boost::filesystem::path rp("Libraries");
 	rp = rp / GetGroup();
