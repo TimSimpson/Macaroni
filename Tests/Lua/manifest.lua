@@ -31,14 +31,20 @@ extern "C"
     runGenerator("Cpp");
     runGenerator "JamGenerator"
     runGenerator("InterfaceMh");
-    local rtnCode = os.execute("bjam")
-    print("BJAM return code = " .. rtnCode .. ".")
-    if (rtnCode ~= 0) then
-        --error("Looks like the plan's not going swell.")
-    end
+    --local rtnCode = os.execute("bjam")
+    --print("BJAM return code = " .. rtnCode .. ".")
+    --if (rtnCode ~= 0) then
+    --    --error("Looks like the plan's not going swell.")
+    --end
+end
+
+function build()
+	print("I is build method.\n");
+	run("JamGenerator")
 end
 
 function install()
 	print("Yo yo yo!  I is an installer!");
+	--runInstaller("JamGenerator");
 end
 

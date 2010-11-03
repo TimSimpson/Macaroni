@@ -4,8 +4,6 @@ require "Macaroni.IO.Path";
 
 print("HEELLEELELEO!");
 
---function Generate(manifest, library, localPath, installPath)
---end
 
 function Generate(library, path)
     print "Generating build.jam for the Generated source.\n";
@@ -67,3 +65,14 @@ exe binary
         print("The file did not get written.\n");
     end
 end
+
+function Build(library, sources, outputPath)
+	-- Create Jam file 
+	print("I IS IN THE JAMGENERATOR FILE!");
+end
+
+function Install(library, sourcePaths, outputPath, installPath)
+	-- Create a Jam file which simply points to the source files.
+	-- Copy all C++ source to the folder.
+end
+
