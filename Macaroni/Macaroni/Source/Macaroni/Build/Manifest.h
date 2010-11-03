@@ -112,7 +112,9 @@ public:
 				   GeneratorContextPtr generatorContext, const std::string & name);
 
 	bool RunTarget(const Macaroni::Environment::Console & console,
-		           InstallerContextPtr iContext, const std::string & name);
+		           InstallerContextPtr iContext, 
+				   const std::string & manifestMethodName, 
+				   const std::string & generatorMethodName);
 
 	void SaveAs(boost::filesystem::path & filePath);
 

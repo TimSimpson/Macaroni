@@ -5,6 +5,8 @@
 ~import Macaroni::IO::Path;
 ~import Macaroni::IO::PathPtr;
 ~import boost::shared_ptr;
+~import std::string;
+~import std::vector;
 
 namespace Macaroni::Build {
 
@@ -13,14 +15,14 @@ class InstallerContext
 	private PathPtr installDir;
 	private LibraryPtr library;
 	private PathPtr outputDir;	
-	private PathPtr sourceDir;
+	private vector<PathPtr> sourceDirs;
 
-	public InstallerContext(LibraryPtr library, PathPtr sourceDir, 
+	public InstallerContext(LibraryPtr library, vector<PathPtr> sourceDirs, 
 							PathPtr outputDir, PathPtr installDir)
 	: installDir(installDir),
 	  library(library),
 	  outputDir(outputDir),
-	  sourceDir(sourceDir)
+	  sourceDirs(sourceDirs)
 	{
 	}
 
@@ -39,9 +41,9 @@ class InstallerContext
 		return outputDir;
 	}
 
-	public inline PathPtr & GetSourceDir()
+	public inline vector<PathPtr> & GetSourceDirs()
 	{
-		return sourceDir;
+		return sourceDirs;
 	}
 
 	

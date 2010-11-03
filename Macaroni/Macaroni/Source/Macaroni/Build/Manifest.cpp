@@ -221,8 +221,50 @@ int _runGenerator(lua_State * L)
     return 0;
 }
 
-int _runInstaller(lua_State * L)
+int _runScript(lua_State * L)
 {
+	// Collect Up Values
+	void * ptr = lua_touserdata(L, lua_upvalueindex(1));    
+    std::vector<const std::string> * sources =
+        reinterpret_cast<std::vector<const std::string> *>(ptr);	
+	std::string methodName(lua_tostring(L, lua_upvalueindex(2)));
+	void * contextVP = lua_touserdata(L, lua_upvalueindex(3));
+	InstallerContextPtr & iCon = *(reinterpret_cast<InstallerContextPtr *>(contextVP));
+
+	// Collect Arguments
+	if (lua_gettop(L) < 1 || !lua_isstring(L, 1)) 
+	{
+		luaL_error(L, "Expected the name of a Lua script as argument.");
+	}
+	std::string scriptName(std::string(lua_tolstring(L, 1, NULL)));
+	std::vector<StringPair> pairs;
+	if (lua_gettop(L) > 1) 
+	{
+		if (!lua_istable(L, 2)) 
+		{
+			luaL_error(L, "An optional table filled only with strings is expected as the second argument.");
+		}		
+		pairs = LuaEnvironment::GetStringPairsFromTable(L, true);		
+	}
+	
+	// Find path to Lua script
+	boost::filesystem::path scriptPath =
+			Generator::ResolveGeneratorPath(*sources, scriptName);
+	// Run Lua script
+	if (!scriptPath.empty())
+	{
+		//boost::filesystem::path output(iConpath->GetAbsolutePath());
+		Generator::RunDynamicGenerator(iCon->GetLibrary(), 
+									   iCon->GetOutputDir()->GetAbsolutePath(), 
+									   scriptPath, 
+									   pairs);
+	}
+	else
+	{
+		std::stringstream ss;
+		ss << "Could not find generator " << scriptName << ".";		
+		luaL_error(L, ss.str().c_str());
+	}
 	return 0;
 }
 
@@ -456,7 +498,7 @@ bool Manifest::RunTarget(const Console & console, GeneratorContextPtr gContext, 
 	return rtnValue;*/
 }
 
-bool Manifest::RunTarget(const Console & console, InstallerContextPtr iContext, const std::string & name)
+bool Manifest::RunTarget(const Console & console, InstallerContextPtr iContext, const std::string & manifestMethodName, const std::string & generatorMethodName)
 {
 	lua_State * L = luaEnv.GetState();
 
@@ -465,6 +507,13 @@ bool Manifest::RunTarget(const Console & console, InstallerContextPtr iContext, 
 	
 	// Put the library, a table with all source directories, the output 
 	// directory, and the install directory onto the stack.
+	// THIS IS INSANELY DANGEROUS!
+	// ... BUT I GUESS IT'LL WORK?
+	// I DON'T WANT TO WRAP THIS IN LUA GLUE BECAUSE I'M LAZY.
+	lua_pushlightuserdata(L, &(this->mSource));
+	lua_pushstring(L, generatorMethodName.c_str());	
+	lua_pushlightuserdata(L, (void *) &iContext);
+/*
 	LibraryLuaMetaData::PutInstanceOnStack(L, iContext->GetLibrary());
 	lua_newtable(L);
 	int index = 0;
@@ -481,9 +530,10 @@ bool Manifest::RunTarget(const Console & console, InstallerContextPtr iContext, 
 	PathLuaMetaData::PutInstanceOnStack(L, iContext->GetOutputDir());
 	PathLuaMetaData::PutInstanceOnStack(L, iContext->GetInstallDir());
 	lua_pushlightuserdata(L, &(this->mSource));
-	lua_pushcclosure(L, &_runGenerator, 4);
-	lua_setglobal(L, "runInstaller");	
-	lua_getfield(L, LUA_GLOBALSINDEX, name.c_str());
+	*/
+	lua_pushcclosure(L, &_runScript, 3);//4);
+	lua_setglobal(L, "run");	
+	lua_getfield(L, LUA_GLOBALSINDEX, manifestMethodName.c_str());
 	if (lua_isnil(L, -1))
 	{	
 		console.WriteLine("Could not find function \"install\".");

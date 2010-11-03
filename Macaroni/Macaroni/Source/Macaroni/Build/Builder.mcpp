@@ -185,6 +185,31 @@ class Builder
         }
 	}
 
+	//TODO: In Macaroni 0.1.0.4, this does not work.  Causes error:
+	//addDependencyNode was passed Macaroni::Environment::Console, which is a hollow node..
+	~block "h"
+	{
+		private :  InstallerContextPtr createInstallerContext();
+	}
+	~block "cpp"
+	{
+		InstallerContextPtr Builder::createInstallerContext()
+		{
+			const Path dir(manifest->GetRootDirectory(), 
+						   manifest->GetRootDirectory());
+			vector<PathPtr> sources;
+			BOOST_FOREACH(const std::string & srcDirectory, manifest->GetMSource())
+			{				
+				sources.push_back(dir.NewPathForceSlash(srcDirectory));
+			}
+			PathPtr genSrc = dir.NewPathForceSlash(manifest->GetMOutput());
+			path installPath = getInstallPath();
+			PathPtr installPathPtr(new Path(installPath, installPath));
+			InstallerContextPtr iCon(new InstallerContext(library, sources, genSrc, installPathPtr));
+			return iCon;
+		}
+	}
+
 	public bool CreateInterface()
 	{
 		return CreateInterfaceMh();
@@ -195,6 +220,7 @@ class Builder
 		return true;
 	}
 
+	//TO-DO : Change "compile" to "build".
 	public bool Execute(bool generate, bool saveCppSource, bool compile, bool install)
 	{
 		console.WriteLine("--------------------------------------------------------------------------------");
@@ -222,6 +248,17 @@ class Builder
 
 		if (success)
 		{
+			if (compile)
+			{				
+				//const Path dir(manifest->GetRootDirectory(), manifest->GetRootDirectory());
+				//PathPtr genSrc = dir.NewPathForceSlash(manifest->GetMOutput());//"/GeneratedSource");		
+				//PathPtr src(new Path(manifest->GetRootDirectory(), manifest->GetRootDirectory()));
+				//path installPath = getInstallPath();
+				//PathPtr installPathPtr(new Path(installPath, installPath));
+				InstallerContextPtr iCon = createInstallerContext();//new InstallerContext(library, src, genSrc, installPathPtr));
+				success = manifest->RunTarget(console, iCon, "build", "Build");
+			}
+
 			createCppSrcRoots();
 			createCppFileList();
 
@@ -246,11 +283,16 @@ class Builder
 		return success;
 	}
 
-	public bool Install()
+	private path getInstallPath()
 	{
 		path userPath(Paths::GetUserPath());
-		path installPath = userPath / "Libraries" / manifest->GetGroup()
-							/ manifest->GetName() / manifest->GetVersion();
+		return userPath / "Libraries" / manifest->GetGroup()
+						/ manifest->GetName() / manifest->GetVersion();		
+	}
+
+	public bool Install()
+	{
+		path installPath = getInstallPath();
 		if (boost::filesystem::exists(installPath))
 		{
 			boost::filesystem::remove_all(installPath);
@@ -270,12 +312,12 @@ class Builder
 		path exportMhInterface = exportMhInterfaceDir/ "Interface.mh";
 		boost::filesystem::copy_file(localMhInterface, exportMhInterface);
 
-		const Path dir(manifest->GetRootDirectory(), manifest->GetRootDirectory());
-		PathPtr genSrc = dir.NewPathForceSlash(manifest->GetMOutput());//"/GeneratedSource");		
-		PathPtr src(new Path(manifest->GetRootDirectory(), manifest->GetRootDirectory()));
-		PathPtr installPathPtr(new Path(installPath, installPath));
-		InstallerContextPtr iCon(new InstallerContext(library, src, genSrc, installPathPtr));
-		return manifest->RunTarget(console, iCon, "install");
+		//const Path dir(manifest->GetRootDirectory(), manifest->GetRootDirectory());
+		//PathPtr genSrc = dir.NewPathForceSlash(manifest->GetMOutput());//"/GeneratedSource");		
+		//PathPtr src(new Path(manifest->GetRootDirectory(), manifest->GetRootDirectory()));
+		//PathPtr installPathPtr(new Path(installPath, installPath));
+		InstallerContextPtr iCon = createInstallerContext(); //(new InstallerContext(library, src, genSrc, installPathPtr));
+		return manifest->RunTarget(console, iCon, "install", "Install");
 		//Path::CopyDirectoryContents(headersLocal, headersInstall);
 		// return true;
 	}
