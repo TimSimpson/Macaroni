@@ -19,7 +19,7 @@ dependency {group="Macaroni", name="CppStd", version="1.0.0.0"}
 
 function generate()
     print "Greetings from the manifest of the LUA test.\n\n"
-    runGenerator("LuaGlue", { luaImportCode =[[ 
+    run("LuaGlue", { luaImportCode =[[ 
 extern "C" 
 {	
 	#include <lauxlib.h>
@@ -27,10 +27,10 @@ extern "C"
 }
 ]] });
 
-    runGenerator("HtmlView");
-    runGenerator("Cpp");
-    runGenerator "JamGenerator"
-    runGenerator("InterfaceMh");
+    run("HtmlView");
+    run("Cpp");
+    run "JamGenerator"
+    run("InterfaceMh");
     --local rtnCode = os.execute("bjam")
     --print("BJAM return code = " .. rtnCode .. ".")
     --if (rtnCode ~= 0) then
