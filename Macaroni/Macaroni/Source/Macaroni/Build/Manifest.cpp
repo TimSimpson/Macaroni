@@ -184,6 +184,7 @@ int _dependency(lua_State * L)
     return 0;
 }
 
+/*
 int _runGenerator(lua_State * L)
 {
 	//ContextPtr context = ContextLuaMetaData::GetInstance(L, lua_upvalueindex(1));
@@ -219,7 +220,7 @@ int _runGenerator(lua_State * L)
 		luaL_error(L, ss.str().c_str());
 	}
     return 0;
-}
+}*/
 
 int _runScript(lua_State * L)
 {
@@ -229,7 +230,7 @@ int _runScript(lua_State * L)
         reinterpret_cast<std::vector<const std::string> *>(ptr);	
 	std::string methodName(lua_tostring(L, lua_upvalueindex(2)));
 	void * contextVP = lua_touserdata(L, lua_upvalueindex(3));
-	InstallerContextPtr & iCon = *(reinterpret_cast<InstallerContextPtr *>(contextVP));
+	BuildContextPtr & iCon = *(reinterpret_cast<BuildContextPtr *>(contextVP));
 
 	// Collect Arguments
 	if (lua_gettop(L) < 1 || !lua_isstring(L, 1)) 
@@ -254,9 +255,11 @@ int _runScript(lua_State * L)
 	if (!scriptPath.empty())
 	{
 		//boost::filesystem::path output(iConpath->GetAbsolutePath());
-		Generator::RunDynamicGenerator(iCon->GetLibrary(), 
-									   iCon->GetOutputDir()->GetAbsolutePath(), 
-									   scriptPath, 
+		Generator::RunDynamicGenerator(scriptPath,
+			//iCon->GetLibrary(), 
+			//						   iCon->GetOutputDir()->GetAbsolutePath(), 
+									   iCon,
+									   methodName,
 									   pairs);
 	}
 	else
@@ -462,7 +465,7 @@ const Configuration * Manifest::GetConfiguration(const std::string & configName)
 //	return vec;
 //}
 
-bool Manifest::RunTarget(const Console & console, GeneratorContextPtr gContext, const std::string & name)
+/*bool Manifest::RunTarget(const Console & console, GeneratorContextPtr gContext, const std::string & name)
 {
 	lua_State * L = luaEnv.GetState();
 
@@ -484,21 +487,10 @@ bool Manifest::RunTarget(const Console & console, GeneratorContextPtr gContext, 
 	}
 	lua_call(L, 0, 1);
 	return true;
-	/*int success = lua_pcall(L, 0, 1, 0);
-	if (success != 0) 
-	{
-		return false;
-	}
 	
-	if (lua_isnil(L, -1)) 
-	{
-		return true;
-	}
-	int rtnValue = lua_toboolean(L, -1);
-	return rtnValue;*/
-}
+}*/
 
-bool Manifest::RunTarget(const Console & console, InstallerContextPtr iContext, const std::string & manifestMethodName, const std::string & generatorMethodName)
+bool Manifest::RunTarget(const Console & console, BuildContextPtr iContext, const std::string & manifestMethodName, const std::string & generatorMethodName)
 {
 	lua_State * L = luaEnv.GetState();
 

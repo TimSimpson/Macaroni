@@ -15,6 +15,8 @@
 
 BEGIN_NAMESPACE(Macaroni, Generator, Lua)
 
+//TO-DO: Consider removing this ugly piece of crap
+
 /** 
  * Represents a Lua file which gets run in its own environment.
  * Lua files must define the following function:
@@ -36,7 +38,7 @@ public:
 	
 	~DynamicInstaller();
 	
-	bool Run();
+	bool Run(const std::string & methodName);
 
 private:
 	std::vector<Macaroni::Environment::StringPair> arguments;

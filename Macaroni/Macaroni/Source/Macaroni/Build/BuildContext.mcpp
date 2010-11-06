@@ -10,14 +10,15 @@
 
 namespace Macaroni::Build {
 
-class InstallerContext
+//TODO: Rename "BuildContext"
+class BuildContext
 {			
 	private PathPtr installDir;
 	private LibraryPtr library;
 	private PathPtr outputDir;	
 	private vector<PathPtr> sourceDirs;
 
-	public InstallerContext(LibraryPtr library, vector<PathPtr> sourceDirs, 
+	public BuildContext(LibraryPtr library, vector<PathPtr> sourceDirs, 
 							PathPtr outputDir, PathPtr installDir)
 	: installDir(installDir),
 	  library(library),
@@ -49,6 +50,6 @@ class InstallerContext
 	
 };
 
-typedef shared_ptr<InstallerContext> InstallerContextPtr;
+typedef shared_ptr<BuildContext> BuildContextPtr;
 
 }// end namespace

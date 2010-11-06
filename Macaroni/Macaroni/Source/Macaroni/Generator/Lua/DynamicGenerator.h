@@ -4,6 +4,8 @@
 #include "../../ME.h"
 #include "../../Model/Context.h"
 #include "DynamicScriptRunner.h"
+#include <Macaroni/Build/_.h>
+#include <Macaroni/Build/BuildContext.h>
 #include "../../Model/Library.h"
 #include "../../Environment/LuaEnvironment.h"
 #include "../../Model/MemberVisitor.h"
@@ -25,17 +27,20 @@ BEGIN_NAMESPACE(Macaroni, Generator, Lua)
 class DynamicGenerator : public DynamicScriptRunner
 {
 public:
-	DynamicGenerator(Model::LibraryPtr context, 
-					 const boost::filesystem::path & rootPath,
-					 const boost::filesystem::path & luaFile,
+	DynamicGenerator(const boost::filesystem::path & luaFile,
+					 Macaroni::Build::BuildContextPtr buildContext,
+					//Model::LibraryPtr context, 
+					 //const boost::filesystem::path & rootPath,					 
 					 const std::vector<Macaroni::Environment::StringPair> & arguments);
 	
 	~DynamicGenerator();
 	
-	bool Run();
+	bool Run(const std::string & methodName);
 
 private:
 	std::vector<Macaroni::Environment::StringPair> arguments;
+
+	Macaroni::Build::BuildContextPtr buildContext;
 
 	Model::LibraryPtr library;
 

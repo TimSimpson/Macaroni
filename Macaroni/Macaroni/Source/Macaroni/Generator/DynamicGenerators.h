@@ -4,6 +4,7 @@
 #include "../ME.h"
 #include "../Model/Context.h"
 #include "../IO/FileSet.h"
+#include <Macaroni/Build/_.h>
 #include "../Model/Library.h"
 #include "../Model/MemberVisitor.h"
 #include <fstream>
@@ -27,9 +28,9 @@ void RunDynamicGenerator(Model::LibraryPtr library,
 						  const boost::filesystem::path & rootPath,
 						  const boost::filesystem::path & generatorFilePath);
 
-void RunDynamicGenerator(Model::LibraryPtr library, 
-						  const boost::filesystem::path & rootPath,
-						  const boost::filesystem::path & generatorFilePath,
+void RunDynamicGenerator(const boost::filesystem::path & generatorFilePath,
+						 Macaroni::Build::BuildContextPtr buildContext,
+						 const std::string & methodName,
 						  const std::vector<Macaroni::Environment::StringPair> & arguments);
 
 void RunDynamicGenerators(Model::LibraryPtr library, const boost::filesystem::path & rootPath);

@@ -4,6 +4,9 @@
 #include "DynamicGenerator.h"
 #include "../../Model/ContextLua.h"
 #include "../../Exception.h"
+#include <boost/foreach.hpp>
+#include <Macaroni/Build/_.h>
+#include <Macaroni/Build/BuildContext.h>
 #include "../../Model/LibraryLua.h"
 #include "../../IO/Path.h"
 #include "../../IO/PathLua.h"
@@ -11,6 +14,8 @@
 #include <sstream>
 
 using Macaroni::Model::ContextLuaMetaData;
+using Macaroni::Build::BuildContext;
+using Macaroni::Build::BuildContextPtr;
 using Macaroni::Environment::LuaEnvironment;
 using Macaroni::Model::Library;
 using Macaroni::Model::LibraryLuaMetaData;
@@ -24,15 +29,18 @@ BEGIN_NAMESPACE(Macaroni, Generator, Lua)
 
 DynamicGenerator::DynamicGenerator
 (	
-	Model::LibraryPtr				library, 
-	const boost::filesystem::path & rootPath,
 	const boost::filesystem::path & luaFile,
+	BuildContextPtr buildContext,
+	///*Model::LibraryPtr				library, 
+	//const std::vector<boost::filesystem
+	//*/const boost::filesystem::path & rootPath,	
 	const std::vector<StringPair> & arguments
 )
 :	arguments(arguments),
-	DynamicScriptRunner(luaFile),
-    library(library),
-	rootPath(rootPath)
+	buildContext(buildContext),
+	DynamicScriptRunner(luaFile)	
+    //library(library),
+	//rootPath(rootPath)
 {
 	
 }	 
@@ -41,7 +49,7 @@ DynamicGenerator::~DynamicGenerator()
 {
 }
 	
-bool DynamicGenerator::Run()
+bool DynamicGenerator::Run(const std::string & methodName)
 {
 	env.Run();
 
@@ -53,20 +61,39 @@ bool DynamicGenerator::Run()
     lua_gettable(L, -2);
 
 	// call Generate(context, rootPath, output);
-	lua_getglobal(L, "Generate");
-	LibraryLuaMetaData::PutInstanceOnStack(L, library);
-	
-	PathPtr path(new Path(rootPath, rootPath));
-	PathLuaMetaData::PutInstanceOnStack(L, path);
-	
-	bool isType = PathLuaMetaData::IsType(L, -1);
+	lua_getglobal(L, methodName.c_str());//"Generate");
 
+	// Argument 1 - Library
+	LibraryLuaMetaData::PutInstanceOnStack(L, buildContext->GetLibrary());
+	if (methodName != "Generate")
+	{
+		// Argument 2 - sources array
+		lua_newtable(L);
+		int count = 1;
+		BOOST_FOREACH(PathPtr source, buildContext->GetSourceDirs())
+		{
+			lua_pushnumber(L, count);
+			PathLuaMetaData::PutInstanceOnStack(L, source);
+			lua_settable(L, -3);			
+		}		
+	}
+	// Argument 3 - OutputPath (2 for "Generate")
+	//PathPtr path(new Path(rootPath, rootPath));
+	PathLuaMetaData::PutInstanceOnStack(L, buildContext->GetOutputDir());//path);
+
+	// Argument 4 - InstallPath 
+	if (methodName != "Generate")
+	{
+		PathLuaMetaData::PutInstanceOnStack(L, buildContext->GetInstallDir());
+	}
+	// Argument 5 - Extra args (3 for "Generate")
+	bool isType = PathLuaMetaData::IsType(L, -1);
 	LuaEnvironment::CreateNewTableFromStringPairs(L, arguments);
 
 	// TO-DO: pass in next two args
 	
 	//http://lua-users.org/lists/lua-l/2005-04/msg00070.html
-	const int n = 3;
+	const int n = methodName != "Generate" ? 5 : 3;
 	// Cause Lua to give us a stack trace. */
 	
     //lua_insert(L, -n - 2);*/

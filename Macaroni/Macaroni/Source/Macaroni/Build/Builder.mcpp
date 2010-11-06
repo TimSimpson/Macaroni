@@ -189,11 +189,11 @@ class Builder
 	//addDependencyNode was passed Macaroni::Environment::Console, which is a hollow node..
 	~block "h"
 	{
-		private :  InstallerContextPtr createInstallerContext();
+		private :  BuildContextPtr createBuildContext();
 	}
 	~block "cpp"
 	{
-		InstallerContextPtr Builder::createInstallerContext()
+		BuildContextPtr Builder::createBuildContext()
 		{
 			const Path dir(manifest->GetRootDirectory(), 
 						   manifest->GetRootDirectory());
@@ -205,7 +205,7 @@ class Builder
 			PathPtr genSrc = dir.NewPathForceSlash(manifest->GetMOutput());
 			path installPath = getInstallPath();
 			PathPtr installPathPtr(new Path(installPath, installPath));
-			InstallerContextPtr iCon(new InstallerContext(library, sources, genSrc, installPathPtr));
+			BuildContextPtr iCon(new BuildContext(library, sources, genSrc, installPathPtr));
 			return iCon;
 		}
 	}
@@ -241,8 +241,9 @@ class Builder
 			success = CompileMacaroni();
 			if (success)
 			{
-				GeneratorContextPtr gCon(new GeneratorContext(library, genSrc));
-				success = manifest->RunTarget(console, gCon, "generate");
+				BuildContextPtr iCon = createBuildContext();
+				//GeneratorContextPtr gCon(new GeneratorContext(library, genSrc));
+				success = manifest->RunTarget(console, iCon, "generate", "Generate");
 			}
 		}
 
@@ -255,7 +256,7 @@ class Builder
 				//PathPtr src(new Path(manifest->GetRootDirectory(), manifest->GetRootDirectory()));
 				//path installPath = getInstallPath();
 				//PathPtr installPathPtr(new Path(installPath, installPath));
-				InstallerContextPtr iCon = createInstallerContext();//new InstallerContext(library, src, genSrc, installPathPtr));
+				BuildContextPtr iCon = createBuildContext();//new BuildContext(library, src, genSrc, installPathPtr));
 				success = manifest->RunTarget(console, iCon, "build", "Build");
 			}
 
@@ -316,7 +317,7 @@ class Builder
 		//PathPtr genSrc = dir.NewPathForceSlash(manifest->GetMOutput());//"/GeneratedSource");		
 		//PathPtr src(new Path(manifest->GetRootDirectory(), manifest->GetRootDirectory()));
 		//PathPtr installPathPtr(new Path(installPath, installPath));
-		InstallerContextPtr iCon = createInstallerContext(); //(new InstallerContext(library, src, genSrc, installPathPtr));
+		BuildContextPtr iCon = createBuildContext(); //(new BuildContext(library, src, genSrc, installPathPtr));
 		return manifest->RunTarget(console, iCon, "install", "Install");
 		//Path::CopyDirectoryContents(headersLocal, headersInstall);
 		// return true;

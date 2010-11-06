@@ -7,6 +7,7 @@
 #include "../Generator/DebugEnumerator.h"
 #include "../Exception.h"
 #include "../Model/FileName.h"
+#include <Macaroni/Build/BuildContext.h>
 #include "../Model/LibraryPtr.h"
 #include <memory>
 #include "../Model/Node.h"
@@ -14,6 +15,7 @@
 #include "../Parser/ParserException.h"
 #include "../Parser/Pippy/PippyParser.h"
 #include "../Generator/DynamicGenerators.h"
+#include <Macaroni/IO/Path.h>
 #include "../Model/Source.h"
 #include <Macaroni/Environment/StringPair.h>
 
@@ -28,11 +30,15 @@ using Macaroni::Model::FileNamePtr;
 using Macaroni::IO::FileSet;
 #include <fstream>
 #include <iostream>
+using Macaroni::Build::BuildContext;
+using Macaroni::Build::BuildContextPtr;
 using Macaroni::Model::Library;
 using Macaroni::Model::LibraryPtr;
 using Macaroni::Model::MemberVisitor;
 using Macaroni::Parser::ParserException;
 using boost::filesystem::path;
+using Macaroni::IO::Path;
+using Macaroni::IO::PathPtr;
 using Macaroni::Parser::Pippy::PippyParser;
 using Macaroni::Model::Source;
 using Macaroni::Model::SourcePtr;
@@ -118,7 +124,11 @@ bool MCompiler::generateFiles(LibraryPtr library, path output,
 		if (!genPath.empty())
 		{
 			std::vector<StringPair> pairs;
-			Generator::RunDynamicGenerator(library, output, genPath, pairs);
+			PathPtr outputPath(new Path(output, output));
+			std::vector<PathPtr> sources;
+			PathPtr installDir; // nullptr
+			BuildContextPtr buildContext(new BuildContext(library, sources, outputPath, installDir));
+			Generator::RunDynamicGenerator(genPath, buildContext, "Generate", pairs);
 		}
 	} 
 	

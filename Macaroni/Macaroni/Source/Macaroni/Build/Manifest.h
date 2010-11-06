@@ -13,7 +13,7 @@ namespace Macaroni { namespace Build {
 #include "Configuration.h"
 #include <Macaroni/Environment/Console.h>
 #include "../Environment/LuaEnvironment.h"
-#include <Macaroni/Build/InstallerContext.h>
+#include <Macaroni/Build/BuildContext.h>
 #include <Macaroni/Build/LibraryId.h>
 #include "../ME.h"
 #include "../IO/Path.h"
@@ -108,11 +108,11 @@ public:
 		return version;
 	}
 
-	bool RunTarget(const Macaroni::Environment::Console & console, 
-				   GeneratorContextPtr generatorContext, const std::string & name);
+	//bool RunTarget(const Macaroni::Environment::Console & console, 
+	//			   GeneratorContextPtr generatorContext, const std::string & name);
 
 	bool RunTarget(const Macaroni::Environment::Console & console,
-		           InstallerContextPtr iContext, 
+		           BuildContextPtr iContext, 
 				   const std::string & manifestMethodName, 
 				   const std::string & generatorMethodName);
 

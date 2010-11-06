@@ -5,16 +5,22 @@
 #include "DynamicGenerators.h"
 #include "Lua/DynamicGenerator.h"
 #include "../IO/FileSet.h"
+#include <Macaroni/Build/BuildContext.h>
 #include "../Model/Library.h"
 #include <iostream>
+#include "../IO/Path.h"
 #include "../IO/Paths.h"
 #include <sstream>
 
 using Macaroni::Model::ContextPtr;
 using Macaroni::IO::FileSet;
+using Macaroni::Build::BuildContext;
+using Macaroni::Build::BuildContextPtr;
 using Macaroni::Model::Library;
 using Macaroni::Model::LibraryPtr;
 using boost::filesystem::path;
+using Macaroni::IO::Path;
+using Macaroni::IO::PathPtr;
 using Macaroni::Environment::StringPair;
 
 BEGIN_NAMESPACE2(Macaroni, Generator)
@@ -79,14 +85,21 @@ path ResolveGeneratorPath(const std::vector<Macaroni::IO::FileSet> & srcDirs,
 void RunDynamicGenerator(LibraryPtr library, const path & rootPath, const path & filePath)
 {
 	std::vector<StringPair> pairs;
-	RunDynamicGenerator(library, rootPath, filePath, pairs);
+	std::vector<PathPtr> sources; // null
+	PathPtr outputPath(new Path(rootPath, rootPath));
+	PathPtr installPath; // null
+	BuildContextPtr buildContext(new BuildContext(
+			library, sources, outputPath, installPath
+		));
+	RunDynamicGenerator(filePath, buildContext, "Generate", pairs);
 }
 
-void RunDynamicGenerator(LibraryPtr library, const path & rootPath, const path & filePath, 
+void RunDynamicGenerator(const path & filePath, Macaroni::Build::BuildContextPtr buildContext,
+						 const std::string & methodName,
 						 const std::vector<StringPair> & arguments)
 {
-	Lua::DynamicGenerator file(library, rootPath, filePath, arguments);
-	file.Run();
+	Lua::DynamicGenerator file(filePath, buildContext, arguments);
+	file.Run(methodName);
 }
 
 void RunDynamicGenerators(LibraryPtr library, const path & rootPath)

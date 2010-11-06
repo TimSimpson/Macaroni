@@ -44,7 +44,7 @@ DynamicInstaller::~DynamicInstaller()
 {
 }
 	
-bool DynamicInstaller::Run()
+bool DynamicInstaller::Run(const std::string & methodName)
 {
 	return true;
 }
