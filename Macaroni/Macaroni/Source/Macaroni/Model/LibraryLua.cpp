@@ -115,6 +115,12 @@ int LibraryLuaMetaData::Index(lua_State * L, LibraryPtr & ptr, const std::string
 		ContextLuaMetaData::PutInstanceOnStack(L, ptr->GetContext());
 		return 1;
 	}
+	else if (index == "Dependencies")
+	{
+		lua_newtable(L);
+		lua_
+		ptr->GetDependencies();
+	}
 	else if (index == "Name") 
 	{
 		lua_pushstring(L, ptr->GetName().c_str());

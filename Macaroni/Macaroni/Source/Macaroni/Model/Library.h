@@ -8,6 +8,7 @@
 #include "LibraryPtr.h"
 #include "MemberPtr.h"
 #include "NodePtr.h"
+#include <vector>
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
@@ -27,6 +28,10 @@ public:
 	{
 		return ContextPtr(context);
 	}
+	
+	void AddDependency(const LibraryPtr & dependency);
+	
+	std::vector<LibraryPtr> GetDependencies() const;
 
 	inline const std::string & GetGroup() const
 	{
@@ -49,6 +54,7 @@ private:
 	Library(Context * context, const Macaroni::Build::LibraryId & id);
 
 	Context * context;
+	std::vector<Library *> dependencies;
 	int referenceCount;
 	Macaroni::Build::LibraryId id;
 };

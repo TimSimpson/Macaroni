@@ -301,6 +301,7 @@ class Builder
 			{
 				LibraryPtr dLib = library->GetContext()->CreateLibrary(
 					dManifest.GetName(), dManifest.GetVersion());
+				library->AddDependency(dLib.get());
 				std::vector<FileSet> dInput;
 				dInput.push_back(FileSet(boost::filesystem::path(dir), "\\.m(cpp|h)?$"));
 				compiler.BuildModel(dLib, dInput);
