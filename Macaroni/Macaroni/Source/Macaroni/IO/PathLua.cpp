@@ -206,7 +206,12 @@ END_NAMESPACE2
 		{
 			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::newPath);
 			return 1;			
-		}		
+		}
+		else if (index == "NewPathForceSlash")
+		{
+			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::newPathForceSlash);
+			return 1;			
+		}
 		else if (index == "Paths")
 		{
 			PathListPtr paths = ptr->GetPaths();			
@@ -238,6 +243,15 @@ END_NAMESPACE2
 		PathPtr ptr = getInstance(L);
 		std::string name(luaL_checkstring(L, 2));
 		PathPtr newPath = ptr->NewPath(name);
+		LUAGLUE_REGISTRATIONCLASSNAME::PutInstanceOnStack(L, newPath);
+		return 1;
+	}
+
+	static int newPathForceSlash(lua_State * L)
+	{
+		PathPtr ptr = getInstance(L);
+		std::string name(luaL_checkstring(L, 2));
+		PathPtr newPath = ptr->NewPathForceSlash(name);
 		LUAGLUE_REGISTRATIONCLASSNAME::PutInstanceOnStack(L, newPath);
 		return 1;
 	}

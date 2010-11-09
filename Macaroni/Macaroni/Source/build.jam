@@ -42,7 +42,8 @@ alias messages
 	;
 	
 alias luagenerators
-	:	./Generators/Cpp.lua
+	:	./Generators/BoostBuild.lua
+		./Generators/Cpp.lua
 		./Generators/CppFile.lua
 		./Generators/HFile.lua
 		./Generators/InterfaceMh.lua

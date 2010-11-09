@@ -149,14 +149,15 @@ class Builder
 	{
 		BuildContextPtr Builder::createBuildContext()
 		{
-			const Path dir(manifest->GetRootDirectory(), 
-						   manifest->GetRootDirectory());
+			//const Path dir(manifest->GetRootDirectory(), 
+			//			   manifest->GetRootDirectory());
 			vector<PathPtr> sources;
 			BOOST_FOREACH(const std::string & srcDirectory, manifest->GetMSource())
-			{				
-				sources.push_back(dir.NewPathForceSlash(srcDirectory));
+			{							
+				PathPtr newPath(new Path(manifest->GetRootDirectory() / srcDirectory));
+				sources.push_back(newPath);
 			}
-			PathPtr genSrc = dir.NewPathForceSlash(manifest->GetMOutput());
+			PathPtr genSrc(new Path(manifest->GetRootDirectory() / manifest->GetMOutput()));
 			path installPath = getInstallPath();
 			PathPtr installPathPtr(new Path(installPath, installPath));
 			BuildContextPtr iCon(new BuildContext(library, sources, genSrc, installPathPtr));

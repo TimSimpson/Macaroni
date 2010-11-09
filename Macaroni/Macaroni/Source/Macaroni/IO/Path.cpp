@@ -14,6 +14,10 @@ using Macaroni::IO::FileSet;
 
 BEGIN_NAMESPACE2(Macaroni, IO)
 
+Path::Path(boost::filesystem::path rootPath)
+:rootPath(rootPath), path(rootPath)
+{
+}
 
 Path::Path(boost::filesystem::path rootPath, const char * path)
 :rootPath(rootPath), path(path)

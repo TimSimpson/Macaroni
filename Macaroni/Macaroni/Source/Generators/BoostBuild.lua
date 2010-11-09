@@ -5,18 +5,38 @@ require "Macaroni.IO.Path";
 
 
 function Build(library, sources, outputPath, installPath, extraArgs)
-	local buildjam = outputPath:NewPath("/jamroot.jam");
-	print("Creating Boost.Build file at " .. buildjam.AbsolutePath .. ".");
 	local excludePattern;
 	if (extraArgs == nil or extraArgs.ExcludePattern == nil) then
 		excludePattern = ".svn";
 	else
 		excludePattern = extraArgs.ExcludePattern;	
 	end
+	local extraTargets;
+	if (extraArgs == nil or extraArgs.ExtraTargets == nil) then
+		extraTargets = "";
+	else
+		extraTargets = extraArgs.ExtraTargets;	
+	end
+	createJamroot(library, sources, outputPath, excludePattern, extraTargets);
+	local rtnCode = os.execute("bjam " .. outputPath.AbsolutePath)
+    print("BJAM return code = " .. rtnCode .. ".")
+    if (rtnCode ~= 0) then
+        error("Call to Boost.Build failed.")
+        return false;
+    end
+    return true;
+end
+
+function createJamroot(library, sources, outputPath, excludePattern, extraTargets)
+	local buildjam = outputPath:NewPath("/jamroot.jam");
+	print("Creating Boost.Build file at " .. buildjam.AbsolutePath .. ".");
+	
 	local writer = buildjam:CreateFile();		
 	
 	local forAllSourcesWrite = function(text) 
-		writer:Write(text(outputPath.AbsolutePath));
+		-- Because this gets generated to the output path, a relative path will 
+		-- work.
+		writer:Write(text('./')); -- outputPath.AbsolutePath));
 		for i = 1, #sources do
 			local source = sources[i];
 			writer:Write(text(source.AbsolutePath));		
@@ -41,7 +61,7 @@ project
 	writer:Write([[
 	;
 	
-alias localSources
+alias libSources
 	:	]]);
 	forAllSourcesWrite(function(src) return [[
 		[ path.glob-tree ]] .. src .. [[/ : *.c : ]] .. excludePattern .. [[ ]
@@ -52,33 +72,19 @@ alias localSources
 		<include>]] .. src .. [[		
 		]]; end);
 	writer:Write([[
-	;
-	
-alias sources
-	:	localSources
-		#/boost//regex # TODO: I'm including this because I don't know how to 
-		#			  # reference the smart_ptr project... 
-	;
-	
-exe binary
-	:	sources					
-	;
+	;	
     ]]);
+    writer:Write(extraTargets);
     writer:Close();    
-    local rtnCode = os.execute("bjam " .. outputPath.AbsolutePath)
-    print("BJAM return code = " .. rtnCode .. ".")
-    if (rtnCode ~= 0) then
-        error("Call to Boost.Build failed.")
-        return false;
-    end
-    return true;
+    
 end
 
-function Install(library, sourcePaths, outputPath, installPath)
+function Install(library, sourcePaths, outputPath, installPath, extraArgs)
 	-- Create a Jam file which simply points to the source files.
 	-- Copy all C++ source to the folder.
+	local dstPath = installPath:NewPathForceSlash("Cpp");
 	local patterns = {[[\.c(pp)?$]], [[\.h(pp)?$]]}
-	local paths = sourcePaths 
+	local paths = sourcePaths 	
 	for k,pattern in ipairs(patterns) do
 		for i = 0, #sourcePaths do			
 			local path;
@@ -87,9 +93,17 @@ function Install(library, sourcePaths, outputPath, installPath)
 			else
 				path = sourcePaths[i];
 			end
-			copyCppSource(pattern, path, installPath);				
+			copyCppSource(pattern, path, dstPath);				
 		end 
 	end	
+	
+	local excludePattern;
+	if (extraArgs == nil or extraArgs.ExcludePattern == nil) then
+		excludePattern = ".svn";
+	else
+		excludePattern = extraArgs.ExcludePattern;	
+	end
+	createJamroot(library, {}, dstPath, excludePattern, '')
 end
 
 -- Copy all .C, .CPP, .H and .HPP files to dir.=
@@ -100,7 +114,7 @@ function copyCppSource(regEx, src, dst)
 		if (not child.IsDirectory) then
 			print(tostring(child.AbsolutePath) .. " ... " .. tostring(dst.AbsolutePath));
 			--src:CreateDirectory();
-			src:CopyToDifferentRootPath(dst);		
+			child:CopyToDifferentRootPath(dst);		
 		else
 			-- May not be necessary
 			-- iterateDir(regEx, child, dst);

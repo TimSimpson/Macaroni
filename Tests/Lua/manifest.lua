@@ -15,7 +15,7 @@ output = "GeneratedSource"
 
 dependency {group="Macaroni", name="Boost", version="1.39.0-0"}
 dependency {group="Macaroni", name="CppStd", version="1.0.0.0"}
-
+--dependency {group = "Lua", name = "Lua", version = "5.1.4" }
 
 function generate()
     print "Greetings from the manifest of the LUA test.\n\n"
