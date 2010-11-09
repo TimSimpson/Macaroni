@@ -76,9 +76,17 @@ void Path::CopyDirectoryContents(Path & src,
 void Path::CopyToDifferentRootPath(boost::filesystem::path newRootPath)
 {
 	boost::filesystem::path dstPath = newRootPath / GetRelativePath();
+	//std::cio << "Creating directories at " .. dstPath.branch_path() << std::endl;
 	boost::filesystem::create_directories(dstPath.branch_path());
-	boost::filesystem::remove(dstPath);
-	boost::filesystem::copy_file(this->path, dstPath);
+	//boost::filesystem::remove(dstPath);
+	
+	boost::filesystem::copy_file(this->path, dstPath);	
+}
+
+void Path::CopyToDifferentRootPath(const PathPtr & rootPath)
+{
+	boost::filesystem::path rp(rootPath->GetAbsolutePath());
+	this->CopyToDifferentRootPath(rp);	
 }
 
 void Path::CreateDirectory() const
@@ -109,16 +117,21 @@ std::string Path::GetAbsolutePath() const
 
 PathListPtr Path::GetPaths() const
 {
+	return GetPaths("");
+}
+
+PathListPtr Path::GetPaths(const std::string & matchingPattern) const
+{
 	PathListPtr rtnList(new PathList());
 
-	FileSet files(this->path);	
+	FileSet files(this->path, matchingPattern);	
 	for(FileSet::Iterator itr = files.Begin(); itr != files.End(); ++ itr)
 	{
 		PathPtr p(new Path(this->rootPath, *itr));
 		rtnList->push_back(p);	
 	}
 
-	return rtnList;
+	return rtnList;		
 }
 
 bool Path::IsDirectory() const

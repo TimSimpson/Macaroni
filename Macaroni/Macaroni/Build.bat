@@ -1,27 +1,26 @@
 echo off
 REM ***************************************************************************
-REM Establish machine specific paths.
-REM Shouldn't have to set BOOST_BUILD_PATH as it will find the files in my home directory.
+REM Check for the presense of tools.
 REM ***************************************************************************
-set BOOST_ROOT=F:\Tools\boost_1_42_0
-set BJAM_EXE=F:\Tools\boost_1_42_0\bjam.exe
-REM set BOOST_BUILD_PATH=F:\Lp3
+REM IF NOT EXIST "bjam.exe" GOTO BJAM_NOT_FOUND
+REM IF NOT EXIST "macaroni.exe" GOTO MACARONI_NOT_FOUND
 
-REM ***************************************************************************
-REM Print out some sanity checks:
-REM ***************************************************************************
+GOTO BUILD
 
-echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-echo BUILDING MACARONI FROM PURE C++ SOURCES...
-echo   BOOST_ROOT      :%BOOST_ROOT%
-echo   BJAM_EXE        :%BJAM_EXE%
-REM echo   BOOST_BUILD_PATH:%BOOST_BUILD_PATH%
-echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:BJAM_NOT_FOUND
+echo Boot Build not found!  Please add this to your PATH.
+GOTO THE_END
 
-REM ***************************************************************************
-REM Invoke Boost.Build, vicariously through BJam.  The %* contains all the 
-REM arguments passed to this file.
-REM The "-d+2" argument specifies more verbose output to help identify errors.
-REM ***************************************************************************
+:MACARONI_NOT_FOUND
+echo Macaroni not found!  Please add this to the PATH.
+GOTO THE_END
+
+:BUILD
+setlocal enabledelayedexpansion
 echo on
-%BJAM_EXE% -d+2 %*
+macaroni generate
+if "%ERRORLEVEL%"=="0" bjam -d+2
+bjam -d+2
+
+:THE_END
+echo on

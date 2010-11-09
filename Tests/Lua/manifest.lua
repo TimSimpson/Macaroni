@@ -10,7 +10,7 @@ id =
 
 description='Tests the generator "LuaGlue."'
 
-source "Source"
+sources = { "Source" }
 output = "GeneratedSource"
 
 dependency {group="Macaroni", name="Boost", version="1.39.0-0"}
@@ -26,7 +26,6 @@ extern "C"
 	#include <lualib.h>
 }
 ]] });
-
     run("HtmlView");
     run("Cpp");
     run "JamGenerator"
@@ -40,7 +39,7 @@ end
 
 function build()
 	print("I is build method.\n");
-	run("JamGenerator")
+	run("BoostBuild")
 end
 
 function install()

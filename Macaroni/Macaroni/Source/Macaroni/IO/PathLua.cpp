@@ -23,16 +23,20 @@ struct lua_State;
 #define LUAGLUE_CLASSFULLCPPNAME Macaroni::IO::Path
 #define LUAGLUE_REGISTRATIONCLASSNAME PathLuaMetaData
 #define LUAGLUE_HELPERCLASS PathsLuaFunctions
-#define LUAGLUE_OPENOTHERMODULES /*Macaroni::Generator::Output::PathLuaMetaData::OpenInLua(L); \
-		luaL_newmetatable(L, "Macaroni.Generator.Output.Path.PathList"); \
-		luaL_register(L, nullptr, PathsProperty_MetaTableMethods);*/
+#define LUAGLUE_OPENOTHERMODULES  \
+		luaL_newmetatable(L, "Macaroni.IO.Path.PathList"); \
+		luaL_register(L, nullptr, PathsProperty_MetaTableMethods);
+
+//#define LUAGLUE_OPENOTHERMODULES /*Macaroni::Generator::Output::PathLuaMetaData::OpenInLua(L); \
+//		luaL_newmetatable(L, "Macaroni.Generator.Output.Path.PathList"); \
+//		luaL_register(L, nullptr, PathsProperty_MetaTableMethods);*/
 
 #define LUAGLUE_CREATEMETATABLE 
 
 
 BEGIN_NAMESPACE2(Macaroni, IO)
 
-namespace {
+namespace {			
 
 	PathListPtr getPathListPtrFromStack(lua_State * L, int index)
 	{
@@ -104,6 +108,22 @@ END_NAMESPACE2
 
 #include "../LuaGlue.hpp"
 
+	static int copyToDifferentRootPath(lua_State * L) 
+	{
+		PathPtr me = getInstance(L, 1);
+		PathPtr rootPath = getInstance(L, 2);
+		try 
+		{
+			me->CopyToDifferentRootPath(rootPath);
+		} 
+		catch(const std::exception & ex) 
+		{
+			lua_pushstring(L, ex.what());
+			lua_error(L);		
+		}
+		return 0;
+	}	
+	
 	static int createDirectory(lua_State * L)
 	{
 		PathPtr ptr = getInstance(L);
@@ -111,6 +131,15 @@ END_NAMESPACE2
 		return 0;
 	}
 
+	static int getPaths(lua_State * L)
+	{
+		PathPtr path = getInstance(L);
+		std::string matchesPattern(luaL_checkstring(L, 2));		
+		PathListPtr paths = path->GetPaths(matchesPattern);
+		pushPathListPtrOntoStack(L, paths);
+		return 1;		
+	}
+		
 	static int isFileOlderThan(lua_State * L)
 	{
 		try 
@@ -137,6 +166,11 @@ END_NAMESPACE2
 			lua_pushstring(L, absPath.c_str());
 			return 1;
 		}
+		else if (index == "CopyToDifferentRootPath")
+		{
+			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::copyToDifferentRootPath);
+			return 1;
+		}
 		else if (index == "CreateDirectory")
 		{	
 			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::createDirectory);
@@ -151,6 +185,11 @@ END_NAMESPACE2
 		{	bool exists = ptr->Exists();
 			lua_pushboolean(L, exists);
 			return 1;
+		}
+		else if (index == "GetPaths")
+		{
+			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::getPaths);
+			return 1;		
 		}
 		else if (index == "IsDirectory")
 		{

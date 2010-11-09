@@ -34,6 +34,8 @@ public:
 	 * "output/blah/a.txt", where "src" is the original root path and
 	 * "output" is the argument to this function. */
 	void CopyToDifferentRootPath(boost::filesystem::path rootPath);
+	
+	void CopyToDifferentRootPath(const PathPtr & rootPath);
 
 	void CreateDirectory() const;
 
@@ -45,6 +47,8 @@ public:
 	std::string GetAbsolutePath() const;
 
 	PathListPtr GetPaths() const;
+
+	PathListPtr GetPaths(const std::string & matchingPattern) const;
 
 	std::string GetRelativePath() const;
 

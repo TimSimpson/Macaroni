@@ -29,8 +29,17 @@
 
 namespace Macaroni::Build {
 
+/* Governs the main execution routine of Macaroni.
+	 * Options:
+	 * 	generate - Call "generate" function of manifest.  This
+	 *  is where the generation of extra information in the AST or C++ source 
+	 *  code occurs.
+	 *  build - After "generate" phase, call build routines.  These are utility
+	 *  functions for building the project through Macaroni.
+	 *  install - Copy resources  
+*/
 class Builder
-{
+{	
 	private const Console & console;
 	private vector<CppFile> cppFiles;
 	private vector<const string> cppSrcRoots;
@@ -47,62 +56,7 @@ class Builder
 	{
 	}
 
-	public bool CompileMacaroni()
-	{
-		console.WriteLine("~ Compiling Macaroni Source into C++ ~");
-
-		std::string mSrc = manifest->GetMSource()[0];
-		std::string mOut = manifest->GetMOutput();
-		std::vector<FileSet> inputFiles;
-
-		MCompiler compiler;
-
-		// Include dependencies
-		BOOST_FOREACH(ManifestPtr dependency, manifest->GetDependencies()) 
-		{
-			const LibraryId id = dependency->GetId();
-			Manifest dManifest(id.FindFinalManifestFile());
-			const std::vector<const std::string> dSrc = dManifest.GetMSource();
-			BOOST_FOREACH(const string & dir, dSrc)
-			{
-				LibraryPtr dLib = library->GetContext()->CreateLibrary(
-					dManifest.GetName(), dManifest.GetVersion());
-				std::vector<FileSet> dInput;
-				dInput.push_back(FileSet(boost::filesystem::path(dir), "\\.m(cpp|h)?$"));
-				compiler.BuildModel(dLib, dInput);
-				//compiler.BuildModel(library, dInput);
-			}
-		}
-		// end include dependencies
-
-		inputFiles.push_back(FileSet(boost::filesystem::path(mSrc), "\\.mcpp$"));
-
-		std::vector<const std::string> blankGeneratorSelection;
-		MCompilerOptions options(inputFiles,
-								 boost::filesystem::path(mOut),
-								 blankGeneratorSelection);
-
-		try
-		{
-			compiler.Compile(library, options);
-		}
-		catch(Macaroni::Exception & ex)
-		{
-			console.WriteLine("An error occured during Macaroni phase.");
-			console.WriteLine(ex.GetSource());
-			console.WriteLine(ex.GetMessage());
-			return false;
-		}
-		catch(Macaroni::Parser::ParserException & pe)
-		{
-			console.WriteLine("Error parsing Macaroni code: ");
-			console.WriteLine(pe.GetSource()->ToString());
-			console.WriteLine(pe.GetMessage());
-			return false;
-		}
-		return true;
-	}
-
+	
 	public bool CopyCppFiles(path exportCppDir)
 	{
 		std::vector<Path> cppFiles;
@@ -223,6 +177,9 @@ class Builder
 	//TO-DO : Change "compile" to "build".
 	public bool Execute(bool generate, bool saveCppSource, bool compile, bool install)
 	{
+		generate = generate || compile || install;
+		compile = compile || install;
+		
 		console.WriteLine("--------------------------------------------------------------------------------");
 		console.Write("    ");
 		console.WriteLine(manifest->GetName());		
@@ -238,7 +195,7 @@ class Builder
 		bool success = true;
 		if (generate)
 		{
-			success = CompileMacaroni();
+			success = ParseMacaroniSource();
 			if (success)
 			{
 				BuildContextPtr iCon = createBuildContext();
@@ -307,11 +264,11 @@ class Builder
 		path localMhInterface(manifest->GetRootDirectory());
 		localMhInterface = localMhInterface / manifest->GetMOutput();
 		localMhInterface = localMhInterface / "Interface.mh";
-		path exportMhInterfaceDir(installPath);
-		exportMhInterfaceDir = exportMhInterfaceDir;
-		boost::filesystem::create_directories(exportMhInterfaceDir);
-		path exportMhInterface = exportMhInterfaceDir/ "Interface.mh";
-		boost::filesystem::copy_file(localMhInterface, exportMhInterface);
+		//path exportMhInterfaceDir(installPath);
+		//exportMhInterfaceDir = exportMhInterfaceDir;
+		//boost::filesystem::create_directories(exportMhInterfaceDir);
+		//path exportMhInterface = exportMhInterfaceDir/ "Interface.mh";
+		//boost::filesystem::copy_file(localMhInterface, exportMhInterface);
 
 		//const Path dir(manifest->GetRootDirectory(), manifest->GetRootDirectory());
 		//PathPtr genSrc = dir.NewPathForceSlash(manifest->GetMOutput());//"/GeneratedSource");		
@@ -322,6 +279,63 @@ class Builder
 		//Path::CopyDirectoryContents(headersLocal, headersInstall);
 		// return true;
 	}
+	
+	public bool ParseMacaroniSource()
+	{
+		console.WriteLine("~ Creating Macaroni model from source files (.mh, .mcpp). ~");
+
+		std::string mSrc = manifest->GetMSource()[0];
+		std::string mOut = manifest->GetMOutput();
+		std::vector<FileSet> inputFiles;
+
+		MCompiler compiler;
+
+		// Include dependencies
+		BOOST_FOREACH(ManifestPtr dependency, manifest->GetDependencies()) 
+		{
+			const LibraryId id = dependency->GetId();
+			Manifest dManifest(id.FindFinalManifestFile());
+			const std::vector<const std::string> dSrc = dManifest.GetMSource();
+			BOOST_FOREACH(const string & dir, dSrc)
+			{
+				LibraryPtr dLib = library->GetContext()->CreateLibrary(
+					dManifest.GetName(), dManifest.GetVersion());
+				std::vector<FileSet> dInput;
+				dInput.push_back(FileSet(boost::filesystem::path(dir), "\\.m(cpp|h)?$"));
+				compiler.BuildModel(dLib, dInput);
+				//compiler.BuildModel(library, dInput);
+			}
+		}
+		// end include dependencies
+
+		inputFiles.push_back(FileSet(boost::filesystem::path(mSrc), "\\.mcpp$"));
+
+		std::vector<const std::string> blankGeneratorSelection;
+		MCompilerOptions options(inputFiles,
+								 boost::filesystem::path(mOut),
+								 blankGeneratorSelection);
+
+		try
+		{
+			compiler.Compile(library, options);
+		}
+		catch(Macaroni::Exception & ex)
+		{
+			console.WriteLine("An error occured during Macaroni phase.");
+			console.WriteLine(ex.GetSource());
+			console.WriteLine(ex.GetMessage());
+			return false;
+		}
+		catch(Macaroni::Parser::ParserException & pe)
+		{
+			console.WriteLine("Error parsing Macaroni code: ");
+			console.WriteLine(pe.GetSource()->ToString());
+			console.WriteLine(pe.GetMessage());
+			return false;
+		}
+		return true;
+	}
+
 
 	public bool SaveCppSource()
 	{

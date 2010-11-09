@@ -1,3 +1,4 @@
+copy ..\..\Macaroni\Macaroni\Source\Generators\BoostBuild.lua ..\..\Macaroni\Macaroni\release\debug\Generators\BoostBuild.lua
 copy ..\..\Macaroni\Macaroni\Source\Generators\Cpp.lua ..\..\Macaroni\Macaroni\release\debug\Generators\Cpp.lua
 copy ..\..\Macaroni\Macaroni\Source\Generators\LuaGlue.lua ..\..\Macaroni\Macaroni\release\debug\Generators\LuaGlue.lua
 copy ..\..\Macaroni\Macaroni\Source\Generators\Cpp\ClassCppFileGenerator.lua ..\..\Macaroni\Macaroni\release\debug\Generators\Cpp\ClassCppFileGenerator.lua

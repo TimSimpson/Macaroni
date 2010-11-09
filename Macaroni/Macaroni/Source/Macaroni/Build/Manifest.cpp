@@ -99,7 +99,7 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile)
 
 	luaEnv.GetFromGlobalVarOrDefault(description, "description", "");
 
-	mSource = luaEnv.GetVectorFromGlobalTable("mSource");
+	mSource = luaEnv.GetVectorFromGlobalTable("sources");
 	if (mSource.size() == 0)
 	{
 		mSource.push_back("Source");
@@ -566,7 +566,7 @@ void Manifest::SaveAs(boost::filesystem::path & filePath)
 			<< "}" << endl;
 		file << "description=[[" << this->GetDescription() << "]]" << endl;
 
-		file << "mSource=" << endl
+		file << "sources=" << endl
 			<< "{" << endl;
 		for (unsigned int i = 0; i < this->GetMSource().size(); i ++)
 		{
@@ -574,7 +574,7 @@ void Manifest::SaveAs(boost::filesystem::path & filePath)
 		}
 		file << "}" << endl;
 
-		file << "mOutput=[[" << this->GetMOutput() << "]]" << endl;
+		file << "output=[[" << this->GetMOutput() << "]]" << endl;
 
 		////file << "cppInput=" << endl
 		////	<< "{" << endl;

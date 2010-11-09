@@ -4,6 +4,17 @@ require "Macaroni.IO.Path";
 
 print("HEELLEELELEO!");
 
+--[[function iteratePath(self, path) 
+	local children = path.Paths
+	for i = 1, #children do
+		local c = children[i]
+		if (!c.IsDirectory) then
+			
+		else
+			iteratePath(c)
+		end				
+	end	
+end]]--
 
 function Generate(library, path)	
     print "Generating build.jam for the Generated source.\n";
@@ -100,8 +111,8 @@ project
 alias localSources
 	:	]]);
 	forAllSourcesWrite(function(src) return [[
-		[ path.glob-tree ]] .. src .. [[/ : .c : .svn ]
-		[ path.glob-tree ]] .. src .. [[/ : .cpp : .svn ]
+		[ path.glob-tree ]] .. src .. [[/ : *.c : .svn ]
+		[ path.glob-tree ]] .. src .. [[/ : *.cpp : .svn ]
 		]]; end);
 	writer:Write(" : ");
 	forAllSourcesWrite(function(src) return [[
@@ -117,8 +128,7 @@ alias sources
 	;
 	
 exe binary
-	:	/lua-5.1.4//sources
-		../Source/Main.cpp	
+	:	../Source/Main.cpp	
 		sources					
 	;
     ]]);

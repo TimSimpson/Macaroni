@@ -10,7 +10,6 @@
 
 namespace Macaroni::Build {
 
-//TODO: Rename "BuildContext"
 class BuildContext
 {			
 	private PathPtr installDir;

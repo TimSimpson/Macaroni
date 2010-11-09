@@ -18,8 +18,12 @@
 
 namespace Macaroni::Build {
 
+/** Governs the main execution routine of Macaroni.  The command line
+	 * has a few options other than just building the project, which 
+	 * are sorted through here.
+ */
 class CmdLine
-{
+{		
 	private bool compile;
 	private string config;
 	private Console & console;
@@ -113,17 +117,23 @@ class CmdLine
 	{
 		if (!luaTestsPath.empty())
 		{
+			// Runs the unit for Macaroni.
 			runLuaTests();
 			return true;
 		}
 		else if (!(inputPath.empty() && outputPath.empty()))
 		{
+			// Allows someone to not use a manifest.  Not really a great idea for
+			// larger projects, but good if someone thinks a the manifest / project
+			// layout is overkill (you know, if they're gunshy of using Macaroni).
 			directCompile();
 			return true;
 		}
 		else
 		{
-			return runManifest();// TODO: Read manifest from local directory and attempt build.
+			// Reads project information and runs one or more of the sztages
+			// of Macaroni's build cycle.
+			return runManifest();
 		}
 	}
 
