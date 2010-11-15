@@ -4,5 +4,6 @@
 namespace std
 {
   class std::string{  ~hfile=<string> };
+  class std::stringstream { ~hfile=<sstream> };
 }
 

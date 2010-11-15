@@ -110,16 +110,26 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 
 	int returnCode = 1;
 //#ifndef _DEBUG
-	try
+	if (cmd.StartPrompt()) // Not running in a try / catch makes it easier to debug
 	{
 		if (cmd.Execute())
 		{		
 			returnCode = 0; // success		
 		}
-	} catch(std::exception & ex)
+	}
+	else
 	{
-		std::cerr << "An unexpected error occured.\n" << std::endl;
-		std::cerr << ex.what()  << std::endl;
+		try
+		{
+			if (cmd.Execute())
+			{		
+				returnCode = 0; // success		
+			}
+		} catch(std::exception & ex)
+		{
+			std::cerr << "An error occured.\n" << std::endl;
+			std::cerr << ex.what()  << std::endl;
+		}
 	}
 //#else
 //	cmd.Execute();

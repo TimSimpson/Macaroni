@@ -26,12 +26,22 @@ namespace Macaroni { namespace Build {
 class Manifest;
 typedef boost::shared_ptr<Manifest> ManifestPtr;
 
+
 class Manifest
-{
+{	
 public:
+	struct RunResult
+	{
+		bool Success;
+		std::vector<std::string> RunList;
+	};
+
+	typedef boost::shared_ptr<RunResult> RunResultPtr;
+
 	Manifest();
 
-	Manifest(const boost::filesystem::path & manifestFile);
+	Manifest(const boost::filesystem::path & manifestFile, 
+			 const std::string & properties);
 
     ~Manifest();
 
@@ -111,12 +121,12 @@ public:
 	//bool RunTarget(const Macaroni::Environment::Console & console, 
 	//			   GeneratorContextPtr generatorContext, const std::string & name);
 
-	bool RunTarget(const Macaroni::Environment::Console & console,
+	RunResultPtr RunTarget(const Macaroni::Environment::Console & console,
 		           BuildContextPtr iContext, 
 				   const std::string & manifestMethodName, 
 				   const std::string & generatorMethodName);
 
-	void SaveAs(boost::filesystem::path & filePath);
+	void SaveAs(boost::filesystem::path & filePath, std::vector<std::string> & runList);
 
 	inline void SetDescription(std::string & value)
 	{
@@ -144,6 +154,7 @@ private:
 	std::string mOutput;
 	std::vector<const std::string> mSource;
 	std::string name;
+	std::string properties;
 	boost::filesystem::path rootDirectory;
 	std::string version;
 };

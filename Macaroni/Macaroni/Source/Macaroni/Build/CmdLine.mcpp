@@ -257,7 +257,6 @@ class CmdLine
 		}
 
 		boost::filesystem::path manifestFilePath(manifestPath);
-		ManifestPtr manifest(new Manifest(manifestFilePath));
 
 		/*const Configuration * mConfig = manifest.GetConfiguration(config);
 		if (mConfig == nullptr)
@@ -270,7 +269,7 @@ class CmdLine
 		const Configuration & mRefConfig = *mConfig;*/
 
 		ContextPtr context(new Context("%ROOT%"));
-		Builder builder(context, manifest, console, install);
+		Builder builder(context, manifestFilePath, console, install);
 		compile = compile || install;
 		generate = generate || compile;
 		return builder.Execute(generate, saveCppSource, compile, install);

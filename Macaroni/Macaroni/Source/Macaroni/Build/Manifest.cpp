@@ -58,22 +58,35 @@ Manifest::Manifest()
  manifestFile(),
  mOutput(""),
  name(""),
+ properties(),
  rootDirectory(),
  version("")
 {
 }
 
-Manifest::Manifest(const boost::filesystem::path & manifestFile)
+Manifest::Manifest(const boost::filesystem::path & manifestFile, 
+				   const std::string & properties)
 :dependencies(),
  description(""),
  id(),
  luaEnv(),
  manifestFile(manifestFile),
+ properties(properties),
  rootDirectory(manifestFile.branch_path())
 {
 	boost::filesystem::path settingsPath(Paths::GetUserPath());
 	settingsPath = settingsPath / "Settings";
 	luaEnv.SetPackageDirectory(settingsPath.string());
+
+	// Establish the properties variable.
+	std::stringstream code;	
+	code << "properties = " << properties << ";" << std::endl;	
+	//std::cerr << "CHUNK" << std::endl;
+	//std::cerr << code.str() << std::endl;
+	// This may be a frowned-upon practice, but this way the entire
+	// code snippet is shown if something goes wrong.
+	luaEnv.ParseString(properties.c_str(), code.str().c_str());
+	luaEnv.Run();
 
 	luaEnv.ParseFile(manifestFile.string());
 
@@ -87,7 +100,8 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile)
 	lua_setglobal(L, "source");
 
     lua_pushlightuserdata(L, &(this->dependencies));
-    lua_pushcclosure(L, &_dependency, 1);
+	lua_pushlightuserdata(L, &(this->properties));
+    lua_pushcclosure(L, &_dependency, 2);
 	lua_setglobal(L, "dependency");
 
 	luaEnv.Run();
@@ -174,14 +188,57 @@ int _dependency(lua_State * L)
     }
     lua_pop(L, 1);
 
-    boost::filesystem::path manifestFilePath(dId.FindFinalManifestFile());
-
-    void * ptr = lua_touserdata(L, lua_upvalueindex(1));
-    std::vector<ManifestPtr> * dependencies =
-        reinterpret_cast<std::vector<ManifestPtr> *>(ptr);
-
-    dependencies->push_back(ManifestPtr(new Manifest(manifestFilePath)));
-    return 0;
+	boost::filesystem::path manifestFilePath;
+	try
+	{
+		manifestFilePath = dId.FindFinalManifestFile();
+	} 
+	catch (std::exception ex)
+	{
+		std::stringstream msg;
+		msg << "Could not load dependency "
+			<< dId.GetGroup() << " / " << dId.GetName()
+			<< " / " << dId.GetVersion() << "."
+			<< " Exception:" << ex.what();
+		lua_pushstring(L, msg.str().c_str());
+		return lua_error(L);
+	}	
+	
+	if (!boost::filesystem::exists(manifestFilePath))
+	{
+		std::stringstream msg;
+		msg << "No manifest found for the dependency "
+			<< dId.GetGroup() << " / " << dId.GetName()
+			<< " / " << dId.GetVersion()
+			<< " at path " << manifestFilePath.string() << ".";
+		lua_pushstring(L, msg.str().c_str());
+		return lua_error(L);
+	}
+	else 
+	{
+		void * ptr = lua_touserdata(L, lua_upvalueindex(1));
+		std::vector<ManifestPtr> * dependencies =
+			reinterpret_cast<std::vector<ManifestPtr> *>(ptr);
+		void * ptr2 = lua_touserdata(L, lua_upvalueindex(2));
+		const std::string & properties = *(reinterpret_cast<std::string *>(ptr2));
+		try
+		{
+			ManifestPtr newManifest(new Manifest(manifestFilePath, properties));
+			dependencies->push_back(newManifest);
+			return 0;
+		} 
+		catch(std::exception ex)
+		{
+			std::stringstream msg;
+			msg << "Error occured while loading manifest for the dependency "
+				<< dId.GetGroup() << " / " << dId.GetName()
+				<< " / " << dId.GetVersion()
+				<< " at path " << manifestFilePath.string() << ":"
+				<< ex.what() ;
+			lua_pushstring(L, msg.str().c_str());
+			return lua_error(L);
+		}		
+	}
 }
 
 /*
@@ -231,6 +288,9 @@ int _runScript(lua_State * L)
 	std::string methodName(lua_tostring(L, lua_upvalueindex(2)));
 	void * contextVP = lua_touserdata(L, lua_upvalueindex(3));
 	BuildContextPtr & iCon = *(reinterpret_cast<BuildContextPtr *>(contextVP));
+	void * runListVP = lua_touserdata(L, lua_upvalueindex(4));
+	std::vector<std::string> & runList = 
+		*(reinterpret_cast<std::vector<std::string> *>(runListVP));
 
 	// Collect Arguments
 	if (lua_gettop(L) < 1 || !lua_isstring(L, 1)) 
@@ -261,6 +321,7 @@ int _runScript(lua_State * L)
 									   iCon,
 									   methodName,
 									   pairs);
+		runList.push_back(scriptName);
 	}
 	else
 	{
@@ -490,13 +551,15 @@ const Configuration * Manifest::GetConfiguration(const std::string & configName)
 	
 }*/
 
-bool Manifest::RunTarget(const Console & console, BuildContextPtr iContext, const std::string & manifestMethodName, const std::string & generatorMethodName)
+Manifest::RunResultPtr Manifest::RunTarget(const Console & console, BuildContextPtr iContext, const std::string & manifestMethodName, const std::string & generatorMethodName)
 {
 	lua_State * L = luaEnv.GetState();
 
 	LibraryLuaMetaData::OpenInLua(L);
 	PathLuaMetaData::OpenInLua(L);
 	
+	RunResultPtr result(new RunResult());
+
 	// Put the library, a table with all source directories, the output 
 	// directory, and the install directory onto the stack.
 	// THIS IS INSANELY DANGEROUS!
@@ -505,6 +568,7 @@ bool Manifest::RunTarget(const Console & console, BuildContextPtr iContext, cons
 	lua_pushlightuserdata(L, &(this->mSource));
 	lua_pushstring(L, generatorMethodName.c_str());	
 	lua_pushlightuserdata(L, (void *) &iContext);
+	lua_pushlightuserdata(L, (void *) &(result->RunList));
 /*
 	LibraryLuaMetaData::PutInstanceOnStack(L, iContext->GetLibrary());
 	lua_newtable(L);
@@ -523,16 +587,20 @@ bool Manifest::RunTarget(const Console & console, BuildContextPtr iContext, cons
 	PathLuaMetaData::PutInstanceOnStack(L, iContext->GetInstallDir());
 	lua_pushlightuserdata(L, &(this->mSource));
 	*/
-	lua_pushcclosure(L, &_runScript, 3);//4);
+	lua_pushcclosure(L, &_runScript, 4);//4);
 	lua_setglobal(L, "run");	
 	lua_getfield(L, LUA_GLOBALSINDEX, manifestMethodName.c_str());
 	if (lua_isnil(L, -1))
 	{	
-		console.WriteLine("Could not find function \"install\".");
-		return false;
+		std::stringstream ss;
+		ss << "Could not find function \"" << manifestMethodName << "\".";
+		console.WriteLine(ss.str());
+		result->Success = false;
+		return result;
 	}
 	lua_call(L, 0, 1);
-	return true;
+	result->Success = true;
+	return result;
 	/*int success = lua_pcall(L, 0, 1, 0);
 	if (success != 0) 
 	{
@@ -547,7 +615,7 @@ bool Manifest::RunTarget(const Console & console, BuildContextPtr iContext, cons
 	return rtnValue;*/
 }
 
-void Manifest::SaveAs(boost::filesystem::path & filePath)
+void Manifest::SaveAs(boost::filesystem::path & filePath, std::vector<std::string> & runList)
 {
 	using std::endl;
 
@@ -558,60 +626,74 @@ void Manifest::SaveAs(boost::filesystem::path & filePath)
 	file.open(filePath.string().c_str());
 	try
 	{
+		file << "-- Final Manifest generated by Macaroni" << endl;
+		file << endl;
 		file << "id =" << endl
 			<< "{" << endl
-			<< "\tgroup=[[" << this->GetGroup() << "]]," << endl
-			<< "\tname=[[" << this->GetName() << "]]," << endl
-			<< "\tversion=[[" << this->GetVersion() << "]]" << endl
+			<< "    group    = [[" << this->GetGroup() << "]]," << endl
+			<< "    name     = [[" << this->GetName() << "]]," << endl
+			<< "    version  = [[" << this->GetVersion() << "]]" << endl
 			<< "}" << endl;
-		file << "description=[[" << this->GetDescription() << "]]" << endl;
-
+		file << endl;
+		file << "description = [[" << this->GetDescription() << "]]" << endl;
+		file << endl;
 		file << "sources=" << endl
 			<< "{" << endl;
 		for (unsigned int i = 0; i < this->GetMSource().size(); i ++)
 		{
-			file << "\t[[" << this->GetMSource()[i] << "]]," << endl;
+			file << "    [[" << this->GetMSource()[i] << "]]," << endl;
 		}
 		file << "}" << endl;
-
-		file << "output=[[" << this->GetMOutput() << "]]" << endl;
-
-		////file << "cppInput=" << endl
-		////	<< "{" << endl;
-		////for (unsigned int i = 0; i < this->GetCpp
-		////file << "}" << endl;
-
-
-		file << "cppOutput={" << endl;
-		file << "\tobjects=[[" << this->GetCppOutput() << "]]," << endl;
-		file << "}" << endl;
-
-		file << "fOutput=[[" << this->GetFinalOutput() << "]]" << endl;
-
-		file << "configurations = " << endl
-			<< "{" << endl;
-		for (unsigned int i = 0; i < this->configurations.size(); i ++)
+		file << endl;
+		BOOST_FOREACH(ManifestPtr dep, dependencies)
 		{
-			const Configuration & config = this->configurations[i];
-			file << "\t" << config.GetName() << " = " << endl
-				<< "\t{" << endl;
-			file << "\t\tdependencies=" << endl
-				 << "\t\t{" << endl;
-			for (unsigned int j = 0; j < config.GetDependencies().size(); j ++)
-			{
-				const ConfigurationId & id = config.GetDependencies()[j];
-				file << "\t\t\t{" << endl;
-				file << "\t\t\t\tgroup=[[" << id.GetLibraryId().GetGroup() << "]]," << endl;
-				file << "\t\t\t\tname=[[" << id.GetLibraryId().GetName() << "]]," << endl;
-				file << "\t\t\t\tversion=[[" << id.GetLibraryId().GetVersion() << "]]," << endl;
-				file << "\t\t\t\tconfiguration=[[" << id.GetName() << "]]," << endl;
-				file << "\t\t\t}" << endl;
-			}
-			file << "\t\t}," << endl;
-
-			file << "\t}," << endl;
+			file << "dependency { group   = [[" << dep->GetGroup() << "]]," << endl;
+			file << "             name    = [[" << dep->GetName() << "]]," << endl;
+			file << "             version = [[" << dep->GetVersion() << "]] }" << endl;
 		}
-		file << "}" << endl;
+
+		file << endl;
+
+		file << "function prepare()" << endl;
+		BOOST_FOREACH(std::string script, runList)
+		{
+			file << "    run(\"" << script << "\");" << endl;
+		}
+		file << "end" << endl;
+		//file << "output=[[" << this->GetMOutput() << "]]" << endl;
+
+		//
+
+		//file << "cppOutput={" << endl;
+		//file << "\tobjects=[[" << this->GetCppOutput() << "]]," << endl;
+		//file << "}" << endl;
+
+		//file << "fOutput=[[" << this->GetFinalOutput() << "]]" << endl;
+
+		//file << "configurations = " << endl
+		//	<< "{" << endl;
+		//for (unsigned int i = 0; i < this->configurations.size(); i ++)
+		//{
+		//	const Configuration & config = this->configurations[i];
+		//	file << "\t" << config.GetName() << " = " << endl
+		//		<< "\t{" << endl;
+		//	file << "\t\tdependencies=" << endl
+		//		 << "\t\t{" << endl;
+		//	for (unsigned int j = 0; j < config.GetDependencies().size(); j ++)
+		//	{
+		//		const ConfigurationId & id = config.GetDependencies()[j];
+		//		file << "\t\t\t{" << endl;
+		//		file << "\t\t\t\tgroup=[[" << id.GetLibraryId().GetGroup() << "]]," << endl;
+		//		file << "\t\t\t\tname=[[" << id.GetLibraryId().GetName() << "]]," << endl;
+		//		file << "\t\t\t\tversion=[[" << id.GetLibraryId().GetVersion() << "]]," << endl;
+		//		file << "\t\t\t\tconfiguration=[[" << id.GetName() << "]]," << endl;
+		//		file << "\t\t\t}" << endl;
+		//	}
+		//	file << "\t\t}," << endl;
+
+		//	file << "\t}," << endl;
+		//}
+		//file << "}" << endl;
 	}
 	catch(std::exception & ex)
 	{

@@ -29,25 +29,25 @@ path PathResolver::FindFile(path relativePath)// throw (FileNotFoundException)
 		return local;
 	}
 
-	path user(Paths::GetUserPath());
-	user = user / relativePath;
-	if (boost::filesystem::exists(user) && boost::filesystem::is_regular_file(user))
+	path installRepo(Paths::GetUserPath());
+	installRepo = installRepo / relativePath;
+	if (boost::filesystem::exists(installRepo) && boost::filesystem::is_regular_file(installRepo))
 	{
-		return user;
+		return installRepo;
 	}
 
-	path install(Paths::GetUserPath());
-	install = install / relativePath;
-	if (boost::filesystem::exists(install) && boost::filesystem::is_regular_file(install))
+	path exeNeighbor(Paths::GetExeDirectoryPath());
+	exeNeighbor = exeNeighbor / relativePath;
+	if (boost::filesystem::exists(exeNeighbor) && boost::filesystem::is_regular_file(exeNeighbor))
 	{
-		return install;
+		return exeNeighbor;
 	}
 
 	std::stringstream ss;
 	ss << "Could not find the given relative path \"" << relativePath 
 	   << "\"; not found at path \"" << local 
-	   << "\", \"" << user 
-	   << "\", nor at \"" << install << "\".";
+	   << "\", \"" << installRepo 
+	   << "\", nor at \"" << exeNeighbor << "\".";
 	throw FileNotFoundException(ss.str());
 //	return path();
 }

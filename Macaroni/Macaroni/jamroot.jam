@@ -97,6 +97,14 @@ install installgenerators
 		<install-source-root>Source/Generators
 	;
 
+install installBundledLibraries
+	:	Source//bundledLibraries
+	:	<variant>debug:<location>release/debug/Libraries
+		<variant>release:<location>release/release/Libraries
+		<install-source-root>Source/Libraries
+	;	
+	
+
 alias pureCppSource
 	:	[ glob-tree *.c	: .svn ]
 		[ glob-tree *.cpp	: .svn ]
@@ -139,6 +147,7 @@ alias savePureCppSource
 alias final-deps 
 	:	tests #Source//tests #tests #Source//nodeTests
 		installgenerators
+		installBundledLibraries
 		installmsgs
 	#:	<dependency>Source//nodeTests
 	#	<dependency>installexe

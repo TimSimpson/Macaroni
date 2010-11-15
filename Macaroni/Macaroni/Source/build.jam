@@ -66,3 +66,11 @@ alias luagenerators
 		./Generators/Macaroni/MhFileGenerator.lua
 	;
 	
+alias bundledLibraries
+	:	./Libraries/Macaroni/CppStd/2003/manifest-final.lua
+		./Libraries/Macaroni/CppStd/2003/Source/interface.mh		
+		./Libraries/Macaroni/Boost-smart_ptr/1.42.0/manifest-final.lua
+		./Libraries/Macaroni/Boost-smart_ptr/1.42.0/Source/Interface.mh
+		./Libraries/Macaroni/Boost-smart_ptr/1.42.0/Source/PrepareBoostBuild.lua
+	;
+	

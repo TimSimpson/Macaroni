@@ -8,6 +8,7 @@
 #include "LibraryPtr.h"
 #include "MemberPtr.h"
 #include "NodePtr.h"
+#include <Macaroni/IO/Path.h>
 #include <vector>
 
 BEGIN_NAMESPACE2(Macaroni, Model)
@@ -31,12 +32,17 @@ public:
 	
 	void AddDependency(const LibraryPtr & dependency);
 	
+	/** Return the root path where these files are installed to.
+	 * The files might not be there if the library is what is being built!
+	 */
+	Macaroni::IO::PathPtr FindInstallPath() const;
+
 	std::vector<LibraryPtr> GetDependencies() const;
 
 	inline const std::string & GetGroup() const
 	{
 		return id.GetGroup();
-	}
+	}	
 
 	inline const std::string & GetName() const
 	{

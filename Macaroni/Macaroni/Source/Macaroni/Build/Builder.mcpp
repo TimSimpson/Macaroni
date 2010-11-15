@@ -10,7 +10,9 @@
 ~import Macaroni::Build::InstallContext;
 ~import Macaroni::Build::InstallContextPtr;
 ~import Macaroni::Model::Library;
+~import Macaroni::Build::LibraryId;
 ~import Macaroni::Model::LibraryPtr;
+~import Macaroni::Environment::LuaEnvironment;
 ~import Macaroni::Build::Manifest;
 ~import Macaroni::Build::ManifestPtr;
 ~import Macaroni::Build::MCompiler;
@@ -41,18 +43,26 @@ namespace Macaroni::Build {
 class Builder
 {	
 	private const Console & console;
+	private ContextPtr context;
 	private vector<CppFile> cppFiles;
 	private vector<const string> cppSrcRoots;
 	private bool install;
 	private LibraryPtr library;
 	private ManifestPtr manifest;
+	private path manifestPath;
+	private MCompiler compiler;
+	private string properties;
 
-	public Builder(ContextPtr context, ManifestPtr manifest,
+	public Builder(ContextPtr context, path manifestPath,
 		Console & console, bool install)
-	:	console(console),
+	:	compiler(),
+		console(console),
+		context(context),
 		install(install),
-		library(context->CreateLibrary(manifest->GetName(), manifest->GetVersion())),
-		manifest(manifest)
+		library(),//GetName(), manifest->GetVersion())),
+		manifest(),
+		manifestPath(manifestPath),
+		properties()
 	{
 	}
 
@@ -181,10 +191,14 @@ class Builder
 		generate = generate || compile || install;
 		compile = compile || install;
 		
+		Init();
+
 		console.WriteLine("--------------------------------------------------------------------------------");
 		console.Write("    ");
 		console.WriteLine(manifest->GetName());		
 		console.WriteLine("--------------------------------------------------------------------------------");
+
+		
 
 		const Path dir(manifest->GetRootDirectory(), manifest->GetRootDirectory());
 		//PathPtr mWork = dir.NewPathForceSlash("./MWork");
@@ -201,7 +215,7 @@ class Builder
 			{
 				BuildContextPtr iCon = createBuildContext();
 				//GeneratorContextPtr gCon(new GeneratorContext(library, genSrc));
-				success = manifest->RunTarget(console, iCon, "generate", "Generate");
+				success = manifest->RunTarget(console, iCon, "generate", "Generate")->Success;
 			}
 		}
 
@@ -215,7 +229,7 @@ class Builder
 				//path installPath = getInstallPath();
 				//PathPtr installPathPtr(new Path(installPath, installPath));
 				BuildContextPtr iCon = createBuildContext();//new BuildContext(library, src, genSrc, installPathPtr));
-				success = manifest->RunTarget(console, iCon, "build", "Build");
+				success = manifest->RunTarget(console, iCon, "build", "Build")->Success;
 			}
 
 			createCppSrcRoots();
@@ -249,6 +263,19 @@ class Builder
 						/ manifest->GetName() / manifest->GetVersion();		
 	}
 
+	/** Runs init.lua in Macaroni user directory to establish base
+	 * settings, then initializes manifest and prepares all
+	 * found dependencies.
+	 */
+	public void Init()
+	{		
+		properties = RunInitialScript();
+		ManifestPtr newM(new Manifest(manifestPath, properties));
+		manifest = newM;
+		LibraryPtr newL(context->CreateLibrary(manifest->GetId()));
+		library = newL;
+	}
+
 	public bool Install()
 	{
 		path installPath = getInstallPath();
@@ -276,37 +303,119 @@ class Builder
 		//PathPtr src(new Path(manifest->GetRootDirectory(), manifest->GetRootDirectory()));
 		//PathPtr installPathPtr(new Path(installPath, installPath));
 		BuildContextPtr iCon = createBuildContext(); //(new BuildContext(library, src, genSrc, installPathPtr));
-		return manifest->RunTarget(console, iCon, "install", "Install");
+		Manifest::RunResultPtr result = manifest->RunTarget(console, iCon, "install", "Install");
 		//Path::CopyDirectoryContents(headersLocal, headersInstall);
 		// return true;
+		if (result->Success) 
+		{
+			manifest->SaveAs(installPath / "manifest-final.lua", result->RunList);
+		}
+		return result->Success;
 	}
 	
+	/** Parse the dependencies of the given manifest / library. */
+	private void parseDependencies(vector<LibraryId> & dependencyStack,
+								   ManifestPtr sourceManifest,
+								   LibraryPtr sourceLibrary)
+	{
+		BOOST_FOREACH(ManifestPtr dependency, sourceManifest->GetDependencies()) 
+		{
+			const LibraryId id = dependency->GetId(); //TODO: Make less stupid
+			dependencyStack.push_back(id);
+			parseDependency(dependencyStack, sourceManifest, library, id);
+			dependencyStack.pop_back();
+		}
+	}
+
+	private void parseDependency(vector<LibraryId> & dependencyStack,
+								 ManifestPtr sourceManifest,
+								 LibraryPtr sourceLibrary, 
+								 const LibraryId dependencyId)
+	{
+		// Load manifest of dependency, create libraries
+		//const LibraryId id = dependency->GetId(); // OMG, can't believe how stupid this is.		
+		ManifestPtr dManifest(new Manifest(dependencyId.FindFinalManifestFile(), properties));		
+		LibraryPtr dLib = sourceLibrary->GetContext()->CreateLibrary(dManifest->GetId());
+		// Now parse all of the dependency's dependencies before continuing.
+		parseDependencies(dependencyStack, dManifest, dLib);		
+
+		// Parse all of its source.
+		parseManifestSource(dependencyStack, dManifest, dLib);
+		
+		// Run prepare phase of dependency
+		BuildContextPtr iCon = createBuildContext();
+		Manifest::RunResultPtr result = dManifest->RunTarget(console, iCon, "prepare", "Prepare");
+
+		// Now, add it as a dependency of this library.
+		sourceLibrary->AddDependency(dLib.get());
+	}
+
+	/** Given the manifest and library, add its Macaroni source to the Context. 
+	 */
+	private void parseManifestSource(vector<LibraryId> & dependencyStack, 
+									 ManifestPtr sourceManifest, 
+									 LibraryPtr sourceLibrary)
+	{
+		const std::vector<const std::string> src = sourceManifest->GetMSource();
+		BOOST_FOREACH(const string & dir, src)
+		{			
+			std::vector<FileSet> input;
+			input.push_back(FileSet(boost::filesystem::path(dir), "\\.m(cpp|h)?$"));			
+			compiler.BuildModel(sourceLibrary, input);			
+		}
+	}
+
 	public bool ParseMacaroniSource()
 	{
-		console.WriteLine("~ Creating Macaroni model from source files (.mh, .mcpp). ~");
+		vector<LibraryId> dependencyStack;
+		dependencyStack.push_back(manifest->GetId());
+
+		try 
+		{
+			console.WriteLine("~ Parsing dependencies. ~");
+			parseDependencies(dependencyStack, manifest, library);
+			console.WriteLine("~ Creating Macaroni model from source files (.mh, .mcpp). ~");
+			parseManifestSource(dependencyStack, manifest, library);
+		}
+		catch(Macaroni::Exception & ex)
+		{
+			console.Write("An error occured in ");
+			printOutDependencyStack(dependencyStack);
+			console.WriteLine(".");
+			console.WriteLine(ex.GetSource());
+			console.WriteLine(ex.GetMessage());
+			return false;
+		}
+		catch(Macaroni::Parser::ParserException & pe)
+		{
+			console.Write("An error occured parsing Macaroni code while in dependency ");
+			printOutDependencyStack(dependencyStack);
+			console.WriteLine(".");
+			console.WriteLine(pe.GetSource()->ToString());
+			console.WriteLine(pe.GetMessage());
+			return false;
+		}
+		catch(std::exception & ex)
+		{
+			console.Write("An error occured in ");
+			printOutDependencyStack(dependencyStack);
+			console.WriteLine(".");
+			console.WriteLine(ex.what());
+			return false;
+		}
+		return true;
+	/*
+		
+
 
 		std::string mSrc = manifest->GetMSource()[0];
 		std::string mOut = manifest->GetMOutput();
 		std::vector<FileSet> inputFiles;
 
-		MCompiler compiler;
-
 		// Include dependencies
 		BOOST_FOREACH(ManifestPtr dependency, manifest->GetDependencies()) 
 		{
-			const LibraryId id = dependency->GetId();
-			Manifest dManifest(id.FindFinalManifestFile());
-			const std::vector<const std::string> dSrc = dManifest.GetMSource();
-			BOOST_FOREACH(const string & dir, dSrc)
-			{
-				LibraryPtr dLib = library->GetContext()->CreateLibrary(
-					dManifest.GetName(), dManifest.GetVersion());
-				library->AddDependency(dLib.get());
-				std::vector<FileSet> dInput;
-				dInput.push_back(FileSet(boost::filesystem::path(dir), "\\.m(cpp|h)?$"));
-				compiler.BuildModel(dLib, dInput);
-				//compiler.BuildModel(library, dInput);
-			}
+			parseDependency(library, compiler, dependency);
 		}
 		// end include dependencies
 
@@ -335,9 +444,54 @@ class Builder
 			console.WriteLine(pe.GetMessage());
 			return false;
 		}
-		return true;
+		return true;*/		
 	}
 
+	private void printOutDependencyStack(vector<LibraryId> & dependencyStack)
+	{
+		bool seenOne = false;
+		BOOST_FOREACH(LibraryId & id, dependencyStack)
+		{
+			if (!seenOne) 
+			{
+				seenOne = true;
+			}
+			else 
+			{
+				console.Write(" -> ");
+			}
+			console.Write(id.GetGroup());
+			console.Write("|");
+			console.Write(id.GetName());
+			console.Write("|");
+			console.Write(id.GetVersion());
+		}
+	}
+
+	/** The initial script is where system-wide settings are stored. */
+	public string RunInitialScript()
+	{
+		path userPath(Paths::GetUserPath());
+		path initLuaPath = userPath / "init.lua";		
+		if (!boost::filesystem::exists(initLuaPath))
+		{
+			stringstream ss;
+			ss	<< "Could not find init.lua at "
+				<< initLuaPath 
+				<< ".";
+			console.WriteLine(ss.str());
+			return "{}";			
+		} 
+		else 
+		{
+			LuaEnvironment env;
+			env.ParseFile(initLuaPath.string());
+			env.Run();
+			stringstream cereal;
+			env.SerializeTable(cereal, "properties");
+			return cereal.str();
+		}		
+	}
 
 	public bool SaveCppSource()
 	{

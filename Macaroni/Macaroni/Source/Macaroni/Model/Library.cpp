@@ -7,6 +7,8 @@
 #include "Library.h"
 
 using Macaroni::Build::LibraryId;
+using Macaroni::IO::Path;
+using Macaroni::IO::PathPtr;
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
@@ -38,7 +40,13 @@ void Library::AddDependency(const LibraryPtr & dependency)
 {
 	dependencies.push_back(dependency.get());
 }
-	
+
+PathPtr Library::FindInstallPath() const
+{
+	boost::filesystem::path p(id.FindInstallPath());
+	return PathPtr(new Path(p, p));
+}
+
 std::vector<LibraryPtr> Library::GetDependencies() const
 {
 	std::vector<LibraryPtr> rtnList;

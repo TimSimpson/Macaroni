@@ -18,6 +18,12 @@ boost::filesystem::path LibraryId::FindFinalManifestFile() const
 	return resolver.FindFile(rp);
 }
 
+boost::filesystem::path LibraryId::FindInstallPath() const
+{
+	boost::filesystem::path file = FindFinalManifestFile();
+	return file.branch_path();
+}
+
 } }
 
 #endif

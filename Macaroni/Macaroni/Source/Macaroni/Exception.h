@@ -69,7 +69,6 @@ public:
 	
 	~Exception()
 	{
-		// No need to do anything! Thank you, std::string.
 	}
 
 	const char * GetSource() const

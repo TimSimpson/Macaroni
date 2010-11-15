@@ -9,13 +9,19 @@
 #include "ContextLua.h"
 #include "../Exception.h"
 #include "../Environment/DebugLog.h"
+#include <boost/foreach.hpp>
 #include "FileNameLua.h"
 #include "Library.h"
 #include "LibraryLua.h"
 #include "Node.h"
 #include "NodeLua.h"
 #include "NodeListLua.h"
+#include <Macaroni/IO/PathLua.h>
 #include <sstream>
+
+using Macaroni::IO::Path;
+using Macaroni::IO::PathPtr;
+using Macaroni::IO::PathLuaMetaData;
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
@@ -76,6 +82,22 @@ struct LibraryLuaFunctions
 		return 1;
 	}
 
+	static int findInstallPath(lua_State * L)
+	{
+		try
+		{
+			LibraryPtr & ptr = getInstance(L, 1); 
+			PathPtr path = ptr->FindInstallPath();
+			PathLuaMetaData::PutInstanceOnStack(L, path);
+			return 1;
+		} 
+		catch(const std::exception & ex)
+		{
+			lua_pushstring(L, ex.what());
+			return lua_error(L);			
+		}
+	}
+
 	static int __index(lua_State * L)
 	{
 		LibraryPtr & ptr = getInstance(L);
@@ -118,8 +140,20 @@ int LibraryLuaMetaData::Index(lua_State * L, LibraryPtr & ptr, const std::string
 	else if (index == "Dependencies")
 	{
 		lua_newtable(L);
-		lua_
-		ptr->GetDependencies();
+		int index = 1;
+		BOOST_FOREACH(LibraryPtr dep, ptr->GetDependencies())
+		{
+			lua_pushinteger(L, index);
+			putLibraryInstanceOnStack(L, dep);						
+			lua_settable(L, -3);
+			index ++;
+		}
+		return 1;
+	}
+	else if (index == "FindInstallPath")
+	{
+		lua_pushcfunction(L, LibraryLuaFunctions::findInstallPath);
+		return 1;
 	}
 	else if (index == "Name") 
 	{

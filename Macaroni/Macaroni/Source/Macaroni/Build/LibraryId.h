@@ -21,6 +21,8 @@ public:
 	{
 		return group;
 	}
+
+	boost::filesystem::path FindInstallPath() const;
 	
 	inline const std::string & GetName() const
 	{

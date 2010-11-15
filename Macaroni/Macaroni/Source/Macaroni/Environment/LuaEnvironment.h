@@ -60,7 +60,9 @@ public:
 	void ParseString(const char * chunkName, const char * code);
 
 	void Run();
-	
+		
+	/** Transforms a table in Lua to a String that can be executed. */
+	void SerializeTable(std::stringstream & ss, const std::string & tableName);
 
 	void SetPackageDirectory(const std::string & path);
 
@@ -72,6 +74,13 @@ private:
 	std::ifstream * input;
 	void registerInternalLuaModules();
 	lua_State * state;
+
+	void serializeField(std::stringstream & ss, int depth);
+
+	void serializeString(std::stringstream & cereal, std::string str);
+
+	void serializeTable(std::stringstream & cereal, int depth);
+
 };
 
 END_NAMESPACE2

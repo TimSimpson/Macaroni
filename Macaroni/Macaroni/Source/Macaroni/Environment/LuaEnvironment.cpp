@@ -72,13 +72,24 @@ void LuaEnvironment::GetFromGlobalVarOrDefault(std::string & rtnValue, const cha
 	lua_getglobal(state, name);
 	if (!lua_isnil(state, -1))
 	{
-		rtnValue = std::string(lua_tolstring(state, -1, NULL));
+		if (lua_isstring(state, -1))
+		{
+			rtnValue = std::string(lua_tolstring(state, -1, NULL));
+		}
+		else
+		{
+			std::stringstream ss;
+			ss << "The value with name " 
+				<< name << " was expected to be nil or a string, but it was "
+				"something else.";
+			MACARONI_FAIL(ss.str().c_str());
+		}
 	}
 	else
 	{
 		rtnValue = std::string(dflt);
 	}
-	lua_pop(state, 1);
+	lua_pop(state, 1);	
 }
 
 std::vector<StringPair> LuaEnvironment::GetStringPairsFromGlobalTable(const char * tableName)
@@ -243,8 +254,10 @@ void LuaEnvironment::ParseFile(std::string filePath)
 
 void LuaEnvironment::ParseString(const char * chunkName, const char * code)
 {
-	lua_Reader reader = loadString;
-	int eCode = lua_load(this->state, reader, (void *) code, chunkName);
+	//lua_Reader reader = loadString;
+	//int eCode = lua_load(this->state, reader, (void *) code, chunkName);
+	int eCode = luaL_loadbuffer(this->state, code, strnlen(code, 80 * 10000), chunkName);
+		//|| lua_pcall(L, 0, 0, 0);
 	if (eCode != 0)
 	{	
 		std::stringstream ss;
@@ -267,6 +280,124 @@ void LuaEnvironment::Run()
 		throw Macaroni::Exception(ss.str().c_str());
 	}	
 }
+
+void LuaEnvironment::serializeField(std::stringstream & cereal, int depth) 
+{
+	if (lua_isstring(state, -1))
+	{
+		std::string value(lua_tostring(state, -1));
+		cereal << "\"";
+		serializeString(cereal, value);
+		cereal << "\"";
+	}
+	else if (lua_isnumber(state, -1))
+	{
+		double d = lua_tonumber(state, -1);
+		cereal << d;
+	}
+	else if (lua_isboolean(state, -1))
+	{
+		int b = lua_toboolean(state, -1);
+		cereal << ((b == 1) ? "true" : "false");
+	}
+	else if (lua_istable(state, -1))
+	{
+		serializeTable(cereal, depth + 1);
+	}
+	else if (lua_isnil(state, -1))
+	{
+		cereal << "nil";
+	}
+	else 
+	{
+		std::stringstream msg;
+		msg << "Element within table had a value whose type cannot be "
+			<< "handled by the serialize function. " 
+			<< "Current data is as follows: " << cereal;
+		throw Macaroni::Exception(msg.str().c_str());	
+	}
+}
+
+void LuaEnvironment::serializeString(std::stringstream & cereal, std::string str)
+{	
+	BOOST_FOREACH(char ch, str)
+	{
+		if (ch == '\"')
+		{
+			cereal << "\\\"";
+		}
+		else if (ch == '\\')
+		{
+			cereal << "\\\\";
+		}
+		else 
+		{
+			cereal << ch;
+		}
+	}
+}
+
+void LuaEnvironment::SerializeTable(std::stringstream & ss, 
+										   const std::string & tableName)
+{
+	lua_getglobal(state, tableName.c_str());
+	if (!lua_istable(state, -1))
+	{
+		std::stringstream msg;
+		msg << "Can't find table value " << tableName << ".";
+		throw Macaroni::Exception(msg.str().c_str());
+	}
+	serializeTable(ss, 0);
+}
+
+/** Expects table to be at -1 on the stack. */
+void LuaEnvironment::serializeTable(std::stringstream & cereal, int depth) 
+{
+	if (!lua_istable(state, -1))
+	{		
+		throw Macaroni::Exception(
+			"Expected table to be at top of stack for invocation of "
+			"serializeTable function.");
+	}	
+	cereal << "{ " << std::endl;
+	lua_pushnil(state); // first key
+	const int tableIndex = -2;
+	while(lua_next(state, tableIndex)  != 0)
+	{
+		for (int i = 0; i < depth; i ++)
+		{
+			cereal << "\t";
+		}
+		if (!lua_isstring(state, -2))
+		{
+			std::stringstream msg;
+			msg << "Element within table had a key which was not a string. "
+				<< "Serialize function cannot handle this.  The current " 
+				<< "serialized data is as follows: " << cereal;
+			throw Macaroni::Exception(msg.str().c_str());
+		}
+		cereal << "[\"";
+		std::string keyName(lua_tostring(state, -2));
+		serializeString(cereal, keyName);		
+		cereal << "\"]";
+		cereal << " = ";
+		serializeField(cereal, depth);	
+		cereal << ", ";
+		cereal << std::endl;
+		lua_pop(state, 1); // pops off value, saves key		
+	}
+	for (int i = 0; i < depth - 1; i ++)
+	{
+		cereal << "\t";
+	}
+	cereal << "}";	
+}
+
+
+
+
+
+
 
 void LuaEnvironment::SetPackageDirectory(const std::vector<std::string> & paths)
 {
