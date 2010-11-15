@@ -2,6 +2,7 @@
 ~import std::string;
 ~import Macaroni::Tests::Lua::Polo;
 ~import Macaroni::Tests::Lua::PoloPtr;
+~import boost::shared_ptr;
 
 // Plain old Lua Object
 
@@ -9,7 +10,7 @@ namespace Macaroni::Tests::Lua
 {
 	class Polo {};
 	
-	typedef boost::shared_ptr<Polo> PoloPtr;
+	typedef shared_ptr<Polo> PoloPtr;
 
 	class Polo
 	{
