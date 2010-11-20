@@ -3,12 +3,11 @@ require "Macaroni.Model.Library";
 require "Macaroni.IO.Path";
 
 function getIncludePath()
-	local success, path = pcall(function()
-		return properties.boost["1.42.0"].include;
-	end);	
-	if (not success) then
-		error([[Could not find variable properties.boost["1.42.0"].include.]]
-			.. [[  Please set this in init.lua to the path of Boost headers.]]);
+	local path, err = pcall(function()
+		return properties.lua["5.1.4"].include;
+	end);
+	if (err ~= nil) then
+		error([[Could not find variable properties.lua["5.1.4"].include.]]);
 	end
 	return path;
 end
@@ -32,7 +31,6 @@ project
 	
 alias libSources
 	:	
-	: <include>]] .. includePath .. [[
 	;
 	]]);
     writer:Close();    

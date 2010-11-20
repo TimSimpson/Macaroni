@@ -15,13 +15,15 @@ class BuildContext
 	private PathPtr installDir;
 	private LibraryPtr library;
 	private PathPtr outputDir;	
+	private std::string properties;
 	private vector<PathPtr> sourceDirs;
 
 	public BuildContext(LibraryPtr library, vector<PathPtr> sourceDirs, 
-							PathPtr outputDir, PathPtr installDir)
+						PathPtr outputDir, PathPtr installDir, const std::string & properties)
 	: installDir(installDir),
 	  library(library),
 	  outputDir(outputDir),
+	  properties(properties),
 	  sourceDirs(sourceDirs)
 	{
 	}
@@ -39,6 +41,11 @@ class BuildContext
 	public inline PathPtr & GetOutputDir()
 	{
 		return outputDir;
+	}
+
+	public inline const std::string & GetProperties()
+	{
+		return properties;
 	}
 
 	public inline vector<PathPtr> & GetSourceDirs()

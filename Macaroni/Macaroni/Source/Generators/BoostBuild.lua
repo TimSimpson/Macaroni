@@ -23,8 +23,7 @@ function Build(library, sources, outputPath, installPath, extraArgs)
     if (rtnCode ~= 0) then
         error("Call to Boost.Build failed.")
         return false;
-    end
-    return true;
+    end    
 end
 
 function createJamroot(library, sources, outputPath, excludePattern, extraTargets)
@@ -36,7 +35,19 @@ function createJamroot(library, sources, outputPath, excludePattern, extraTarget
 	local forAllSourcesWrite = function(text) 
 		-- Because this gets generated to the output path, a relative path will 
 		-- work.
-		writer:Write(text('./')); -- outputPath.AbsolutePath));
+		 -- writer:Write(text('./')); -- outputPath.AbsolutePath));
+		-- ^- Actually, NO, you can't do this, thanks to yet another undocumented
+		-- "feature" of Boost.Build.  If you use "path.glob-tree" with a 
+		-- relative path being the source directory, will first off the code 
+		-- above is wrong because it generates ".//" which means Boost just
+		-- ignores it.  But when I changed it to "./" suddenly Boost started
+		-- trying to include targets from the calling project (this occured
+		-- when trying to use Lua as a dependency with a generated Jamroot)!
+		-- So instead you have to use the vanilla "glob-tree" to avoid
+		-- this unexplained behavior.  Of course, maybe this means *ANY* use
+		-- of "path.glob-tree" is doomed to failure if its in a project that
+		-- is being referenced by another project! Wonderful!!
+		-- Spend hours figuring this out.
 		for i = 1, #sources do
 			local source = sources[i];
 			writer:Write(text(source.AbsolutePath));		
@@ -60,12 +71,16 @@ import path ;
 project
 	:	usage-requirements
 ]]);
+	writer:Write([[ <include>./ ]]);
 	forAllSourcesWrite(function(src) return " <include>" .. src .. " "; end);
 	writer:Write([[
 	;
 	
 alias libSources
 	:	]]);
+	writer:Write([[ [ glob-tree *.c : ]] .. excludePattern .. [[ ]
+					[ glob-tree *.cpp : ]] .. excludePattern .. [[ ] 
+				]]);				  
 	forAllSourcesWrite(function(src) return [[
 		[ path.glob-tree ]] .. src .. [[/ : *.c : ]] .. excludePattern .. [[ ]
 		[ path.glob-tree ]] .. src .. [[/ : *.cpp : ]] .. excludePattern .. [[ ]
@@ -77,6 +92,7 @@ alias libSources
 		end
 	end
 	writer:Write(" : ");
+	writer:Write([[ <include>./ ]]);
 	forAllSourcesWrite(function(src) return [[
 		<include>]] .. src .. [[		
 		]]; end);
@@ -132,6 +148,7 @@ function Install(library, sourcePaths, outputPath, installPath, extraArgs)
 	--]]);
 	--writer:Close();
 	createJamroot(library, {}, dstPath, excludePattern, '')
+	return nil; --{ mario = "One good game." };
 end
 
 -- Copy all .C, .CPP, .H and .HPP files to dir.=

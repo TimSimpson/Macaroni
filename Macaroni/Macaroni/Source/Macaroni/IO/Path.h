@@ -47,6 +47,8 @@ public:
 
 	std::string GetAbsolutePath() const;
 
+	std::string GetAbsolutePathForceSlash() const;
+
 	PathListPtr GetPaths() const;
 
 	PathListPtr GetPaths(const std::string & matchingPattern) const;

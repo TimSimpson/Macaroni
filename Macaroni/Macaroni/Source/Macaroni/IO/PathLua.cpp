@@ -186,6 +186,12 @@ END_NAMESPACE2
 			lua_pushboolean(L, exists);
 			return 1;
 		}
+		else if (index == "GetAbsolutePathForceSlash")
+		{
+			std::string absPath = ptr->GetAbsolutePathForceSlash();
+			lua_pushstring(L, absPath.c_str());
+			return 1;
+		}
 		else if (index == "GetPaths")
 		{
 			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::getPaths);

@@ -60,7 +60,10 @@ public:
 	void ParseString(const char * chunkName, const char * code);
 
 	void Run();
-		
+
+	/** Serializes the value at the top of the stack to a string. */
+	void SerializeField(std::stringstream & ss, int depth = 0);
+
 	/** Transforms a table in Lua to a String that can be executed. */
 	void SerializeTable(std::stringstream & ss, const std::string & tableName);
 
@@ -73,9 +76,7 @@ private:
 	static const char * loadString(lua_State * L, void * data, size_t *size);
 	std::ifstream * input;
 	void registerInternalLuaModules();
-	lua_State * state;
-
-	void serializeField(std::stringstream & ss, int depth);
+	lua_State * state;	
 
 	void serializeString(std::stringstream & cereal, std::string str);
 

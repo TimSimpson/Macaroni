@@ -21,7 +21,7 @@ public:
 	
 	~DynamicScriptRunner();
 	
-	virtual bool Run(const std::string & methodName) = 0;
+	virtual std::string Run(const std::string & methodName) = 0;
 
 protected:	
 	Macaroni::Environment::LuaEnvironment env;

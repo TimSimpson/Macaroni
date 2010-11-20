@@ -3,7 +3,7 @@
 // to work with the standard libs.
 namespace std
 {
-  class std::string{  ~hfile=<string> };
-  class std::stringstream { ~hfile=<sstream> };
+  class string{  ~hfile=<string> };
+  class stringstream { ~hfile=<sstream> };
 }
 

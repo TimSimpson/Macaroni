@@ -289,8 +289,8 @@ int _runScript(lua_State * L)
 	void * contextVP = lua_touserdata(L, lua_upvalueindex(3));
 	BuildContextPtr & iCon = *(reinterpret_cast<BuildContextPtr *>(contextVP));
 	void * runListVP = lua_touserdata(L, lua_upvalueindex(4));
-	std::vector<std::string> & runList = 
-		*(reinterpret_cast<std::vector<std::string> *>(runListVP));
+	std::vector<Manifest::RunEntry> & runList = 
+		*(reinterpret_cast<std::vector<Manifest::RunEntry> *>(runListVP));
 
 	// Collect Arguments
 	if (lua_gettop(L) < 1 || !lua_isstring(L, 1)) 
@@ -315,13 +315,16 @@ int _runScript(lua_State * L)
 	if (!scriptPath.empty())
 	{
 		//boost::filesystem::path output(iConpath->GetAbsolutePath());
-		Generator::RunDynamicGenerator(scriptPath,
+		std::string returnValue = Generator::RunDynamicGenerator(scriptPath,
 			//iCon->GetLibrary(), 
 			//						   iCon->GetOutputDir()->GetAbsolutePath(), 
 									   iCon,
 									   methodName,
 									   pairs);
-		runList.push_back(scriptName);
+		if (returnValue.size() > 0)  // If 'nil' was returned, do nothing.
+		{
+			runList.push_back(Manifest::RunEntry(scriptName, returnValue));
+		}
 	}
 	else
 	{
@@ -615,7 +618,8 @@ Manifest::RunResultPtr Manifest::RunTarget(const Console & console, BuildContext
 	return rtnValue;*/
 }
 
-void Manifest::SaveAs(boost::filesystem::path & filePath, std::vector<std::string> & runList)
+void Manifest::SaveAs(boost::filesystem::path & filePath, 
+					  std::vector<std::pair<std::string, std::string>> & runList)
 {
 	using std::endl;
 
@@ -655,9 +659,11 @@ void Manifest::SaveAs(boost::filesystem::path & filePath, std::vector<std::strin
 		file << endl;
 
 		file << "function prepare()" << endl;
-		BOOST_FOREACH(std::string script, runList)
+		BOOST_FOREACH(RunEntry & runEntry, runList)
 		{
-			file << "    run(\"" << script << "\");" << endl;
+			std::string & script = runEntry.first;
+			std::string & args = runEntry.second;
+			file << "    run(\"" << script << "\", " << args << ");" << endl;
 		}
 		file << "end" << endl;
 		//file << "output=[[" << this->GetMOutput() << "]]" << endl;

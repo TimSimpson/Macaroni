@@ -38,7 +38,7 @@ public:
 	
 	~DynamicInstaller();
 	
-	bool Run(const std::string & methodName);
+	std::string Run(const std::string & methodName);
 
 private:
 	std::vector<Macaroni::Environment::StringPair> arguments;

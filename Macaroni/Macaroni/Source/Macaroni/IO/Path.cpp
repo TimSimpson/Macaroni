@@ -3,6 +3,7 @@
 
 #include "Path.h"
 #include <boost/filesystem/convenience.hpp>
+#include <boost/foreach.hpp>
 #include "../Platform/Windows/FileTime.h"
 #include "../IO/FileSet.h"
 #include "../Exception.h"
@@ -117,6 +118,32 @@ bool Path::Exists() const
 std::string Path::GetAbsolutePath() const
 {
 	return boost::filesystem::system_complete(path).string();
+}
+
+std::string Path::GetAbsolutePathForceSlash() const
+{
+	const char seperator = boost::filesystem::path_alt_separator<boost::filesystem::path>::value;
+	if (!seperator == '/')
+	{
+		std::string original = GetAbsolutePath();
+		std::stringstream ss;
+		BOOST_FOREACH(char c, original)
+		{
+			if (c == seperator)
+			{
+				ss << "/";
+			}
+			else 
+			{
+				ss << c;
+			}
+		}
+		return ss.str();
+	}
+	else
+	{
+		return GetAbsolutePath();
+	}
 }
 
 PathListPtr Path::GetPaths() const

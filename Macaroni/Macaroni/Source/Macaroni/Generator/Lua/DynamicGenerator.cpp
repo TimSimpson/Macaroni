@@ -42,14 +42,21 @@ DynamicGenerator::DynamicGenerator
     //library(library),
 	//rootPath(rootPath)
 {
-	
+	if (buildContext->GetProperties().size() > 0) 
+	{
+		std::stringstream code;	
+		code << "properties = " << buildContext->GetProperties() << ";" << std::endl;	
+		env.ParseString(buildContext->GetProperties().c_str(), code.str().c_str());
+		env.Run();
+	}
+	env.ParseFile(luaFile.string());
 }	 
 
 DynamicGenerator::~DynamicGenerator()
 {
 }
 	
-bool DynamicGenerator::Run(const std::string & methodName)
+std::string DynamicGenerator::Run(const std::string & methodName)
 {
 	env.Run();
 
@@ -103,7 +110,8 @@ bool DynamicGenerator::Run(const std::string & methodName)
 	//lua_call(L, n, 0);
 	//goto SkipIt;
 	// Arg values: L, 1 arg, 0 return values, ?
-	int eCode = lua_pcall(L, n, 0, -n - 2);	
+	const int resultCount = 1;
+	int eCode = lua_pcall(L, n, resultCount, -n - 2);	
 	if (eCode != 0)
 	{	
 		std::stringstream ss;
@@ -130,8 +138,26 @@ bool DynamicGenerator::Run(const std::string & methodName)
 		//std::cerr << ss.str() << std::endl;
 		throw Macaroni::Exception(ss.str().c_str());
 	}
-SkipIt:
-	return true;
+
+	if (lua_isnil(L, -1))
+	{
+		return "";
+	}
+	else if (lua_istable(L, -1))
+	{
+		std::stringstream ss;
+		env.SerializeField(ss);
+		return ss.str();
+	}
+	else
+	{
+		std::stringstream msg;
+		msg << "Return value of generators must be either a table or nil (" 
+			<< luaFilePath.string() << ", method "
+			<< methodName 
+			<< ").";
+		throw Macaroni::Exception(msg.str().c_str());
+	}
 }
 
 

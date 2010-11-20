@@ -28,7 +28,7 @@ void RunDynamicGenerator(Model::LibraryPtr library,
 						  const boost::filesystem::path & rootPath,
 						  const boost::filesystem::path & generatorFilePath);
 
-void RunDynamicGenerator(const boost::filesystem::path & generatorFilePath,
+std::string RunDynamicGenerator(const boost::filesystem::path & generatorFilePath,
 						 Macaroni::Build::BuildContextPtr buildContext,
 						 const std::string & methodName,
 						  const std::vector<Macaroni::Environment::StringPair> & arguments);

@@ -9,7 +9,7 @@ description = [[Boost smart_ptr library.]]
 
 sources = { [[Source]] }
 
-output = { [[Cpp]] }
+output = [[Cpp]]
 
 function prepare()
 	run("PrepareBoostBuild");	

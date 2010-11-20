@@ -127,7 +127,7 @@ bool MCompiler::generateFiles(LibraryPtr library, path output,
 			PathPtr outputPath(new Path(output, output));
 			std::vector<PathPtr> sources;
 			PathPtr installDir; // nullptr
-			BuildContextPtr buildContext(new BuildContext(library, sources, outputPath, installDir));
+			BuildContextPtr buildContext(new BuildContext(library, sources, outputPath, installDir, "{}"));
 			Generator::RunDynamicGenerator(genPath, buildContext, "Generate", pairs);
 		}
 	} 

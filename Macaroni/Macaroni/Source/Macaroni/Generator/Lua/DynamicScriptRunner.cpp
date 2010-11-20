@@ -30,8 +30,7 @@ DynamicScriptRunner::DynamicScriptRunner
 	env()
 {
 	//env.ParseString("FileWriter", LUACODE);
-	env.SetPackageDirectory(luaFile.branch_path().string());
-	env.ParseFile(luaFile.string());
+	env.SetPackageDirectory(luaFile.branch_path().string());	
 }	 
 
 DynamicScriptRunner::~DynamicScriptRunner()

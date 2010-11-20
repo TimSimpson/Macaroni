@@ -153,24 +153,26 @@ class Builder
 	//addDependencyNode was passed Macaroni::Environment::Console, which is a hollow node..
 	~block "h"
 	{
-		private :  BuildContextPtr createBuildContext();
+		private :  BuildContextPtr createBuildContext(ManifestPtr manifest);
 	}
 	~block "cpp"
 	{
-		BuildContextPtr Builder::createBuildContext()
+		BuildContextPtr Builder::createBuildContext(ManifestPtr manifest)
 		{
 			//const Path dir(manifest->GetRootDirectory(), 
 			//			   manifest->GetRootDirectory());
 			vector<PathPtr> sources;
 			BOOST_FOREACH(const std::string & srcDirectory, manifest->GetMSource())
 			{							
-				PathPtr newPath(new Path(manifest->GetRootDirectory() / srcDirectory));
+				path sd(srcDirectory);
+				PathPtr newPath(new Path(sd)); //manifest->GetRootDirectory() / srcDirectory));
 				sources.push_back(newPath);
 			}
-			PathPtr genSrc(new Path(manifest->GetRootDirectory() / manifest->GetMOutput()));
+			path od(manifest->GetMOutput());
+			PathPtr genSrc(new Path(od)); //manifest->GetRootDirectory() / manifest->GetMOutput()));
 			path installPath = getInstallPath();
 			PathPtr installPathPtr(new Path(installPath, installPath));
-			BuildContextPtr iCon(new BuildContext(library, sources, genSrc, installPathPtr));
+			BuildContextPtr iCon(new BuildContext(library, sources, genSrc, installPathPtr, properties));
 			return iCon;
 		}
 	}
@@ -213,7 +215,7 @@ class Builder
 			success = ParseMacaroniSource();
 			if (success)
 			{
-				BuildContextPtr iCon = createBuildContext();
+				BuildContextPtr iCon = createBuildContext(manifest);
 				//GeneratorContextPtr gCon(new GeneratorContext(library, genSrc));
 				success = manifest->RunTarget(console, iCon, "generate", "Generate")->Success;
 			}
@@ -228,7 +230,7 @@ class Builder
 				//PathPtr src(new Path(manifest->GetRootDirectory(), manifest->GetRootDirectory()));
 				//path installPath = getInstallPath();
 				//PathPtr installPathPtr(new Path(installPath, installPath));
-				BuildContextPtr iCon = createBuildContext();//new BuildContext(library, src, genSrc, installPathPtr));
+				BuildContextPtr iCon = createBuildContext(manifest);//new BuildContext(library, src, genSrc, installPathPtr));
 				success = manifest->RunTarget(console, iCon, "build", "Build")->Success;
 			}
 
@@ -302,7 +304,7 @@ class Builder
 		//PathPtr genSrc = dir.NewPathForceSlash(manifest->GetMOutput());//"/GeneratedSource");		
 		//PathPtr src(new Path(manifest->GetRootDirectory(), manifest->GetRootDirectory()));
 		//PathPtr installPathPtr(new Path(installPath, installPath));
-		BuildContextPtr iCon = createBuildContext(); //(new BuildContext(library, src, genSrc, installPathPtr));
+		BuildContextPtr iCon = createBuildContext(manifest); //(new BuildContext(library, src, genSrc, installPathPtr));
 		Manifest::RunResultPtr result = manifest->RunTarget(console, iCon, "install", "Install");
 		//Path::CopyDirectoryContents(headersLocal, headersInstall);
 		// return true;
@@ -343,7 +345,8 @@ class Builder
 		parseManifestSource(dependencyStack, dManifest, dLib);
 		
 		// Run prepare phase of dependency
-		BuildContextPtr iCon = createBuildContext();
+		BuildContextPtr iCon = createBuildContext(dManifest);
+		iCon->GetOutputDir()->CreateDirectory();
 		Manifest::RunResultPtr result = dManifest->RunTarget(console, iCon, "prepare", "Prepare");
 
 		// Now, add it as a dependency of this library.

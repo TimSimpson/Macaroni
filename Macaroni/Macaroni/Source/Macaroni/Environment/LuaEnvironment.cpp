@@ -281,7 +281,7 @@ void LuaEnvironment::Run()
 	}	
 }
 
-void LuaEnvironment::serializeField(std::stringstream & cereal, int depth) 
+void LuaEnvironment::SerializeField(std::stringstream & cereal, int depth) 
 {
 	if (lua_isstring(state, -1))
 	{
@@ -381,7 +381,7 @@ void LuaEnvironment::serializeTable(std::stringstream & cereal, int depth)
 		serializeString(cereal, keyName);		
 		cereal << "\"]";
 		cereal << " = ";
-		serializeField(cereal, depth);	
+		SerializeField(cereal, depth);	
 		cereal << ", ";
 		cereal << std::endl;
 		lua_pop(state, 1); // pops off value, saves key		

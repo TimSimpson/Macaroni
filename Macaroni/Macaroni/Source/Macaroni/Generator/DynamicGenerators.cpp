@@ -89,17 +89,17 @@ void RunDynamicGenerator(LibraryPtr library, const path & rootPath, const path &
 	PathPtr outputPath(new Path(rootPath, rootPath));
 	PathPtr installPath; // null
 	BuildContextPtr buildContext(new BuildContext(
-			library, sources, outputPath, installPath
+		library, sources, outputPath, installPath, "{}"
 		));
 	RunDynamicGenerator(filePath, buildContext, "Generate", pairs);
 }
 
-void RunDynamicGenerator(const path & filePath, Macaroni::Build::BuildContextPtr buildContext,
+std::string RunDynamicGenerator(const path & filePath, Macaroni::Build::BuildContextPtr buildContext,
 						 const std::string & methodName,
 						 const std::vector<StringPair> & arguments)
 {
 	Lua::DynamicGenerator file(filePath, buildContext, arguments);
-	file.Run(methodName);
+	return file.Run(methodName);
 }
 
 void RunDynamicGenerators(LibraryPtr library, const path & rootPath)

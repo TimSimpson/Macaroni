@@ -30,10 +30,12 @@ typedef boost::shared_ptr<Manifest> ManifestPtr;
 class Manifest
 {	
 public:
+	typedef std::pair<std::string, std::string> RunEntry;
+
 	struct RunResult
 	{
 		bool Success;
-		std::vector<std::string> RunList;
+		 std::vector<RunEntry> RunList;
 	};
 
 	typedef boost::shared_ptr<RunResult> RunResultPtr;
@@ -126,7 +128,8 @@ public:
 				   const std::string & manifestMethodName, 
 				   const std::string & generatorMethodName);
 
-	void SaveAs(boost::filesystem::path & filePath, std::vector<std::string> & runList);
+	void SaveAs(boost::filesystem::path & filePath,  
+				std::vector<std::pair<std::string, std::string>> & runList);
 
 	inline void SetDescription(std::string & value)
 	{
