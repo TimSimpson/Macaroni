@@ -1,16 +1,24 @@
 #include <iostream>
 #include <sstream>
-extern "C" 
-{	
+#include <string>
+#include <boost/shared_ptr.hpp>
+
+//extern "C" 
+//{	
 	#include <lauxlib.h>
 	#include <lualib.h>
-}
-
+//}
+#include <Macaroni/Tests/Lua/_.h>
+#include <Macaroni/Tests/Lua/Polo.h>
 #include <Macaroni/Tests/Lua/PoloLuaMetaData.h>
+
+using Macaroni::Tests::Lua::Polo;
+using Macaroni::Tests::Lua::PoloPtr;
+using Macaroni::Tests::Lua::PoloLuaMetaData;
 
 std::string LUA_CODE = 
 "require 'os';                                                              "
-"requre 'Macaroni.Tests.Lua.Polo';											"
+"require 'Macaroni.Tests.Lua.Polo';											"
 "                                                                           "
 "local Polo = Macaroni.Tests.Lua.Polo;										"
 "																			"
@@ -25,6 +33,10 @@ std::string LUA_CODE =
 "                                                                           "
 "print('This code is being executed from Lua.');                            "
 "print('The time is now ' .. localTime() .. '.');                           "
+"                                                                           "
+"function callMe(polo)                                                      "
+"    print([[Polo's name is ]] .. polo:GetName());                          "
+"end	                                                                    "
 "                                                                           "
 "                                                                           ";
 
@@ -43,6 +55,9 @@ void openOurLibs(lua_State * L)
 
 int main(int argc, const char * argv[])
 {	
+	PoloPtr blah(new Polo());
+	blah->SetName("Arthur Mc. Barthur");
+	
 	lua_State * L = luaL_newstate();
 	luaL_openlibs(L);	
 	openOurLibs(L);
@@ -53,5 +68,12 @@ int main(int argc, const char * argv[])
 		std::cout << "An error occured within Lua:" 
 			<< lua_tostring(L, -1) << std::endl;
 	}
+	
+	// Now, call the function "callMe" which was not run originally, but 
+	// exists in the LuaState.
+	lua_getglobal(L, "callMe");
+	PoloLuaMetaData::PutInstanceOnStack(L, blah);
+	lua_call(L, 1, 0);
+	
 	lua_close(L);
 }
