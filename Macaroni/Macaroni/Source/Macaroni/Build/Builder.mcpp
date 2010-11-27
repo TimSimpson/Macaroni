@@ -274,7 +274,7 @@ class Builder
 		properties = RunInitialScript();
 		ManifestPtr newM(new Manifest(manifestPath, properties));
 		manifest = newM;
-		LibraryPtr newL(context->CreateLibrary(manifest->GetId()));
+		LibraryPtr newL(context->FindOrCreateLibrary(manifest->GetId()));
 		library = newL;
 	}
 
@@ -315,6 +315,19 @@ class Builder
 		return result->Success;
 	}
 	
+	private void parseChildren(vector<LibraryId> & dependencyStack, 
+							   ManifestPtr sourceManifest, 
+							   LibraryPtr sourceLibrary)
+	{
+		const std::vector<const std::string> children = sourceManifest->GetChildren();
+		BOOST_FOREACH(const string & child, children)
+		{			
+			
+			std::vector<FileSet> input;
+			input.push_back(FileSet(boost::filesystem::path(child), "\\.m(cpp|h)?$"));			
+			compiler.BuildModel(sourceLibrary, input);			
+		}
+	}
 	/** Parse the dependencies of the given manifest / library. */
 	private void parseDependencies(vector<LibraryId> & dependencyStack,
 								   ManifestPtr sourceManifest,
@@ -337,7 +350,7 @@ class Builder
 		// Load manifest of dependency, create libraries
 		//const LibraryId id = dependency->GetId(); // OMG, can't believe how stupid this is.		
 		ManifestPtr dManifest(new Manifest(dependencyId.FindFinalManifestFile(), properties));		
-		LibraryPtr dLib = sourceLibrary->GetContext()->CreateLibrary(dManifest->GetId());
+		LibraryPtr dLib = sourceLibrary->GetContext()->FindOrCreateLibrary(dManifest->GetId());
 		// Now parse all of the dependency's dependencies before continuing.
 		parseDependencies(dependencyStack, dManifest, dLib);		
 
@@ -369,6 +382,11 @@ class Builder
 	}
 
 	public bool ParseMacaroniSource()
+	{
+		return parseManifest(manifest, library);
+	}
+	
+	public bool parseManifest(ManifestPtr & manifest, LibraryPtr & library) 
 	{
 		vector<LibraryId> dependencyStack;
 		dependencyStack.push_back(manifest->GetId());

@@ -4,6 +4,9 @@
 #include "Context.h"
 #include "Library.h"
 #include "Node.h"
+#include <boost/foreach.hpp>
+
+using Macaroni::Build::LibraryId;
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
@@ -30,15 +33,23 @@ Context::~Context()
 	hasBeenDeleted = true;
 }
 
-LibraryPtr Context::CreateLibrary(const std::string & name, const std::string & version)
+LibraryPtr Context::FindOrCreateLibrary(const std::string & group, 
+								  		const std::string & name, 
+								  		const std::string & version)
 {
-	libraries.push_back(new Library(this, name, version));
-	Library * newLib = libraries.back();
-	return LibraryPtr(newLib);
+	const LibraryId id(group, name, version);
+	return FindOrCreateLibrary(id);
 }
 
-LibraryPtr Context::CreateLibrary(const Macaroni::Build::LibraryId & id)
+LibraryPtr Context::FindOrCreateLibrary(const Macaroni::Build::LibraryId & id)
 {
+	BOOST_FOREACH(Library * lib, libraries)
+	{
+		if (lib->GetId() == id)
+		{
+			return LibraryPtr(lib);
+		}
+	}
 	libraries.push_back(new Library(this, id));
 	Library * newLib = libraries.back();
 	return LibraryPtr(newLib);

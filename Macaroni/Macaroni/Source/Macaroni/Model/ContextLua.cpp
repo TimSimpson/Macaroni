@@ -55,12 +55,13 @@ namespace {
 
 struct ContextLuaFunctions
 {	
-	static int createLibrary(lua_State * L)
+	static int findOrCreateLibrary(lua_State * L)
 	{
 		ContextPtr context = getInstance(L);
-		std::string name(luaL_checkstring(L, 2));
-		std::string version(luaL_checkstring(L, 3));
-		LibraryPtr library = context->CreateLibrary(name, version);
+		std::string group(luaL_checkstring(L, 2));
+		std::string name(luaL_checkstring(L, 3));
+		std::string version(luaL_checkstring(L, 4));		
+		LibraryPtr library = context->FindOrCreateLibrary(group, name, version);
 		LibraryLuaMetaData::PutInstanceOnStack(L, library);
 		return 1;
 	}
@@ -86,9 +87,9 @@ struct ContextLuaFunctions
 
 		std::string index(luaL_checkstring(L, 2));
 		
-		if (index == "CreateLibrary")
+		if (index == "FindOrCreateLibrary")
 		{
-			lua_pushcfunction(L, createLibrary);
+			lua_pushcfunction(L, findOrCreateLibrary);
 		}
 		else if (index == "GetReferenceCount")
 		{

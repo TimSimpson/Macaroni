@@ -66,7 +66,8 @@ Manifest::Manifest()
 
 Manifest::Manifest(const boost::filesystem::path & manifestFile, 
 				   const std::string & properties)
-:dependencies(),
+:children(),
+ dependencies(),
  description(""),
  id(),
  luaEnv(),
@@ -122,6 +123,8 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile,
 	{
 		mSource[i] = (manifestDir / mSource[i]).string();
 	}
+	
+	children = luaEnv.GetVectorFromGlobalTable("children");
 
 	lua_getglobal(luaEnv.GetState(), "id");
 	if (!lua_isnil(luaEnv.GetState(), -1))

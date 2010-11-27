@@ -1438,7 +1438,7 @@ public:
 	static void FindNodeTest()
 	{
 		ContextPtr c(new Context("{ROOT}"));
-		LibraryPtr l = c->CreateLibrary("FindNodeTest", "");
+		LibraryPtr l = c->FindOrCreateLibrary("", "FindNodeTest", "");
 		CppContext::CreateCppNodes(c);
 		ParserFunctions funcs(c, l);
 
@@ -1465,7 +1465,7 @@ public:
 	{
 		ContextPtr c(new Context("{ROOT}"));
 		CppContext::CreateCppNodes(c);
-		LibraryPtr l = c->CreateLibrary("FindNodeFromImportsTest", "");
+		LibraryPtr l = c->FindOrCreateLibrary("", "FindNodeFromImportsTest", "");
 		ParserFunctions funcs(c, l);
 
 		// It is found.

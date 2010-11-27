@@ -47,6 +47,11 @@ public:
 
     ~Manifest();
 
+	inline const std::vector<const std::string> GetChildren() const
+	{
+		return children;
+	}
+
 	inline std::string GetDescription() const
 	{
 		return description;
@@ -131,6 +136,11 @@ public:
 	void SaveAs(boost::filesystem::path & filePath,  
 				std::vector<std::pair<std::string, std::string>> & runList);
 
+	inline void SetChildren(std::vector<const std::string> & value)
+	{
+		children = value;
+	}
+	
 	inline void SetDescription(std::string & value)
 	{
 		description = value;
@@ -142,6 +152,7 @@ public:
 	}
 
 private:
+	std::vector<const std::string> children;
 	std::vector<const Configuration> configurations;
 	std::string cppOutput;
 	std::string cppSourceOutput;

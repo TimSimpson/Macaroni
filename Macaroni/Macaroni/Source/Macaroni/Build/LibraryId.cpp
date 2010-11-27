@@ -6,6 +6,13 @@
 
 namespace Macaroni { namespace Build {
 
+bool operator==(const LibraryId & a, const LibraryId & b)
+{
+	return a.GetGroup() == b.GetGroup()
+			&& a.GetName() == b.GetGroup()
+			&& a.GetVersion() == b.GetVersion();
+}
+
 boost::filesystem::path LibraryId::FindFinalManifestFile() const
 {
 	boost::filesystem::path rp("Libraries");

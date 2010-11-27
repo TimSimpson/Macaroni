@@ -38,11 +38,16 @@ public:
 	Macaroni::IO::PathPtr FindInstallPath() const;
 
 	std::vector<LibraryPtr> GetDependencies() const;
-
+	
 	inline const std::string & GetGroup() const
 	{
 		return id.GetGroup();
 	}	
+
+	inline const Macaroni::Build::LibraryId & GetId() const
+	{
+		return id;	
+	}
 
 	inline const std::string & GetName() const
 	{

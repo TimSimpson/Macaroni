@@ -96,7 +96,7 @@ class CmdLine
 										 generators);
 				MCompiler compiler;
 				ContextPtr context(new Context(std::string("%ROOT%")));
-				LibraryPtr library = context->CreateLibrary("Command Line", "???");
+				LibraryPtr library = context->FindOrCreateLibrary("", "Command Line", "???");
 				compiler.Compile(library, options);
 			}
 			catch(Macaroni::Exception & ex)

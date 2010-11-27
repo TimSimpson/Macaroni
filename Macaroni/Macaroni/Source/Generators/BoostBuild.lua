@@ -72,7 +72,7 @@ project
 	:	usage-requirements
 ]]);
 	writer:Write([[ <include>./ ]]);
-	forAllSourcesWrite(function(src) return " <include>" .. src .. " "; end);
+	forAllSourcesWrite(function(src) return [[ <include>"]] .. src .. [[" ]]; end);
 	writer:Write([[
 	;
 	
@@ -82,19 +82,19 @@ alias libSources
 					[ glob-tree *.cpp : ]] .. excludePattern .. [[ ] 
 				]]);				  
 	forAllSourcesWrite(function(src) return [[
-		[ path.glob-tree ]] .. src .. [[/ : *.c : ]] .. excludePattern .. [[ ]
-		[ path.glob-tree ]] .. src .. [[/ : *.cpp : ]] .. excludePattern .. [[ ]
+		[ path.glob-tree "]] .. src .. [[/" : *.c : ]] .. excludePattern .. [[ ]
+		[ path.glob-tree "]] .. src .. [[/" : *.cpp : ]] .. excludePattern .. [[ ]
 		]]; end);
 	for k, v in pairs(library.Dependencies) do
 		local jamDir = dependencyJamDir(v);
 		if (jamDir ~= nil) then
-			writer:Write(jamDir.AbsolutePath .. '//libSources ');
+			writer:Write([["]] .. jamDir.AbsolutePath .. [[//libSources" ]]);
 		end
 	end
 	writer:Write(" : ");
 	writer:Write([[ <include>./ ]]);
 	forAllSourcesWrite(function(src) return [[
-		<include>]] .. src .. [[		
+		<include>"]] .. src .. [["		
 		]]; end);
 	writer:Write([[
 	;	

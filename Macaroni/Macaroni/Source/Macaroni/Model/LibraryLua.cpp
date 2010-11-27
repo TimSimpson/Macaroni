@@ -155,6 +155,11 @@ int LibraryLuaMetaData::Index(lua_State * L, LibraryPtr & ptr, const std::string
 		lua_pushcfunction(L, LibraryLuaFunctions::findInstallPath);
 		return 1;
 	}
+	else if (index == "Group") 
+	{
+		lua_pushstring(L, ptr->GetGroup().c_str());
+		return 1;
+	}
 	else if (index == "Name") 
 	{
 		lua_pushstring(L, ptr->GetName().c_str());

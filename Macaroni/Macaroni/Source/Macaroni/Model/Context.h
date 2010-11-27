@@ -23,9 +23,9 @@ public:
 	
 	~Context();
 
-	LibraryPtr CreateLibrary(const std::string & name, const std::string & version);
+	LibraryPtr FindOrCreateLibrary(const std::string & group, const std::string & name, const std::string & version);
 
-	LibraryPtr CreateLibrary(const Macaroni::Build::LibraryId & id);
+	LibraryPtr FindOrCreateLibrary(const Macaroni::Build::LibraryId & id);
 	
 	int GetReferenceCount() const;
 

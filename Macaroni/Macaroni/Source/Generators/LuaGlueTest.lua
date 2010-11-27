@@ -7,7 +7,7 @@ local PippyParser = Macaroni.Parser.Pippy.PippyParser;
 
 local function mixinContext(self, sourceCode)
     self.context = Context.New("{ROOT}");    
-    self.library = self.context:CreateLibrary("TypeTests", "1.5");
+    self.library = self.context:FindOrCreateLibrary("", "TypeTests", "1.5");
     self.luaStateNode = self.context.Root:FindOrCreate("lua_State");	
     self.luaStateNode = self.context.Root:FindOrCreate("luaL_Reg");
     local cppPrimitives = self.context.Root:FindOrCreate("{C++ Primitives}");

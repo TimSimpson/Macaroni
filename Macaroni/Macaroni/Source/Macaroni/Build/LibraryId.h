@@ -15,6 +15,16 @@ class LibraryId
 public:
 	LibraryId(){}
 	
+	LibraryId(const std::string & group, const std::string & name, 
+			  const std::string & version)
+	: group(group),
+	  name(name),
+	  version(version)				
+	{	
+	}
+
+	friend bool operator==(const LibraryId & a, const LibraryId & b);
+		
 	boost::filesystem::path FindFinalManifestFile() const;
 
 	inline const std::string & GetGroup() const
@@ -55,6 +65,7 @@ private:
 	std::string version;
 };
 
+bool operator==(const LibraryId & a, const LibraryId & b);
 
 } }
 
