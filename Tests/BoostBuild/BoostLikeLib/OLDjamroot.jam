@@ -1,0 +1,89 @@
+# Trying to figure out how to create a library the same way the Boost people do it.
+
+import boost ;
+import path ;
+import testing ;
+
+# boost.use-project 1.42 ;
+
+# We'll need some globally unique identifier for the project that will live 
+# both in the Jam files and in Source.
+# Reading this: http://www.cs.brown.edu/~jwicks/boost/more/separate_compilation.html
+# and looking at the Jamfile.v2 for FileSystem.
+# For this, let's call it MACARONI_TURTLE.
+
+use-project /boost : "F:/Tools/boost_1_45_0" ;
+use-project /boost/filesystem : "F:/Tools/boost_1_45_0/libs/filesystem/build" ;
+use-project /boost/system : "F:/Tools/boost_1_45_0/libs/system/build" ;
+use-project /boost/test : "F:/Tools/boost_1_45_0/libs/test/build" ;
+
+project Macaroni_Turtle	
+	:	#  Don't think this is necessary : source-location Source
+	:	usage-requirements
+		<link>shared:<define>BOOST_TURTLE_DYN_LINK=1
+		<link>static:<define>BOOST_TURTLE_STATIC_LINK=1
+	#		<include>Source  
+ 		#<include>"F:/Tools/boost_1_45_0" 	 # <-- Lets pretend this gets included by Macaroni somehow. 	 		
+ 		<dependency>/boost//headers
+ 		<dependency>/boost/filesystem//boost_filesystem
+	;
+ 	
+alias dependency_libraries
+	:	/boost/filesystem//boost_filesystem
+	;
+
+alias test_dependency_libraries
+	:	dependency_libraries
+		# /boost/test//boost_unit_test_framework
+		/boost//unit_test_framework
+	;
+	
+# Prefixing name of Project with "lib" isn't standard, but I'm doing it anyway.
+lib libMacaroni_Turtle
+	:	# Sources
+		[ path.glob-tree Source :  *.c : .svn *Test.c ]
+		[ path.glob-tree Source :  *.cpp : .svn *Test.cpp ]
+		# Also, libraries go here too.  Like you link to the project using a file path then give it a library name.	
+		dependency_libraries
+		#/boost/filesystem//boost_filesystem
+		#/boost/system//boost_system
+		#Oh, and so do includes		
+	:	# Requirements
+		<link>shared:<define>BOOST_ALL_DYN_LINK=1 # This is how we know we're building DLLs.
+		<link>static:<define>BOOST_ALL_STATIC_LINK=1 # This is how we know we're building static libs.
+	: 	# Mystery?
+		#<include>"F:/Tools/boost_1_45_0"
+		#<dependency>/boost//headers
+	:	# ??!!
+	;
+
+#Works but can't find DLL when running
+# unit-test turtleTest
+#	:	Source/TurtleTest.cpp
+#		#/boost/test//boost_unit_test_framework
+#		test_dependency_libraries	
+#		libMacaroni_Turtle	
+#	:	<dependency>/boost//headers
+#		<library-path>F:/Tools/boost_1_45_0/stage/lib
+#		<link>static
+#	;	
+
+# Unlike "unit-test" this runs when just given the unit-test library.
+run
+		Source/TurtleTest.cpp
+		#/boost/test//boost_unit_test_framework
+		test_dependency_libraries	
+		libMacaroni_Turtle	
+	: 	# args are empty
+	:	# input files are empty
+	:	# <dependency>/boost//headers
+		# <library-path>F:/Tools/boost_1_45_0/stage/lib
+		# <link>static
+	;
+	
+#alias tests
+#	:	
+#		[ run Source/TurtleTest.cpp : <dependency>/boost//headers : <dependency>/boost//headers ]
+#	;
+	
+	    

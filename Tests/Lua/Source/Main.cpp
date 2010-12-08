@@ -54,7 +54,7 @@ void openOurLibs(lua_State * L)
 }
 
 int main(int argc, const char * argv[])
-{	
+{		
 	PoloPtr blah(new Polo());
 	blah->SetName("Arthur Mc. Barthur");
 	

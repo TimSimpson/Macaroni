@@ -1,0 +1,82 @@
+# Trying to figure out how to create a library the same way the Boost people do it.
+
+import boost ;
+using doxygen ;
+# import doxygen ;
+#import doxygen-config ;
+import os ;
+import path ;
+using testing ;
+
+# boost.use-project 1.45 ;
+
+# Declare the project we'll be referencing.
+
+local BOOST_ROOT = [ os.environ BOOST_ROOT ] ;
+
+use-project /boost : $(BOOST_ROOT) ; #"F:/Tools/boost_1_45_0" ;
+use-project /boost/filesystem : "F:/Tools/boost_1_45_0/libs/filesystem/build" ; 
+use-project /boost/system : "F:/Tools/boost_1_45_0/libs/system/build" ;
+# use-project /boost/test : "F:/Tools/boost_1_45_0/libs/test/build" ;
+
+# Declare our own project with the naem "Macaroni_Turtle."
+
+project Macaroni_Turtle	
+	:	#  Don't think this is necessary : source-location Source
+	:	usage-requirements
+		<link>shared:<define>BOOST_TURTLE_DYN_LINK=1
+		<link>static:<define>BOOST_TURTLE_STATIC_LINK=1
+	#	<include>Source  
+ 		<dependency>/boost//headers
+ 		<dependency>/boost/filesystem//boost_filesystem
+ 		# <dependency>/boost//filesystem
+	;
+ 	
+# These are all the meta-targets our main library needs to be built
+alias dependency_libraries
+	:	/boost/filesystem//boost_filesystem
+		# /boost//filesystem
+	;
+	
+# Our actual library
+lib libMacaroni_Turtle
+	:	# Sources, and library meta-targets
+		[ path.glob-tree Source :  *.c : .svn *Test.c ]
+		[ path.glob-tree Source :  *.cpp : .svn *Test.cpp ]
+		dependency_libraries		
+	:	# Requirements - this is for other projects which use this meta-target. 
+		# Here we tell them that we want them to define certain flags when consuming our library.
+		<link>shared:<define>BOOST_ALL_DYN_LINK=1 # This is how we know we're building DLLs.
+		<link>static:<define>BOOST_ALL_STATIC_LINK=1 # This is how we know we're building static libs.
+	: 	# I think the includes and stuff go here.
+		#<include>"F:/Tools/boost_1_45_0"
+		#<dependency>/boost//headers
+	:	# ??!!
+	;
+
+# These are the meta-targets our tests need to be built (and run?)
+alias test_dependency_libraries
+	:	dependency_libraries
+		libMacaroni_Turtle
+		# /boost/test//boost_unit_test_framework
+		/boost//unit_test_framework
+	;
+	
+# Additional tests.
+run
+		Source/TurtleTest.cpp
+		test_dependency_libraries			
+	: 	# Arguments to the tests can go here
+	:	# Input files can go here.
+	:	# Extra requirements can go here.
+	;
+	
+#Neat but kind of pointless right now:
+#doxygen autodoc.html
+ #   :
+  #      [ path.glob-tree Source : *.h : .svn ]
+    # :
+    #   <xsl:param>"boost.doxygen.reftitle=Example Reference"
+  #  ;
+	
+	    

@@ -1,0 +1,22 @@
+~import SomeLibB::Bar;
+
+namespace SomeLibA {
+	
+	class Foo
+	{
+		private Bar bar;
+		
+		public Foo(Bar & bar) 
+		: bar(bar)
+		{			
+		}					
+		
+		public int GetNumber() const
+		{
+			return bar.GetNumber();	
+		}
+		
+	};
+	
+}
+	

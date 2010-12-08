@@ -1,0 +1,23 @@
+namespace SomeLibB {
+	
+	class Bar
+	{
+		private int number;
+		
+		public Bar(int n)
+			: number(n)
+		{}	
+		
+		public int GetNumber() const
+		{
+			return number;	
+		}
+		
+		public void SetNumber(int n) 
+		{
+			number = n;
+		}	
+	};
+	
+}
+	

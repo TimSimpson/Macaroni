@@ -45,7 +45,8 @@ jamArgs =
 	ExcludePattern = "Main.cpp .svn",
 	ExtraTargets = [[
 	  	exe LuaTest 
-	  		:	libSources
+	  		:	library_sources
+	  			library_dependencies
 	  			../Source/Main.cpp
 	  		;
 	  ]]
