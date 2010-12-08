@@ -40,7 +40,7 @@ Variable = Macaroni.Model.Cpp.Variable;
 NEW_LINE = "\n";
 
 log = function(msg)
-	print("[LuaGlue.lua]:" .. msg);
+	--print("[LuaGlue.lua]:" .. msg);
 end
 
 local check = function(con, msg)
@@ -716,7 +716,7 @@ namespace
 
 function Generate(library, path, arguments)	
 	log = function(msg)
-		print("[LuaGlue.lua]:" .. msg);
+		--print("[LuaGlue.lua]:" .. msg);
 	end	
 	log("Entered Generate");
 	arguments = arguments or {}		

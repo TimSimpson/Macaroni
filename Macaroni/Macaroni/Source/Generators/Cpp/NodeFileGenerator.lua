@@ -49,6 +49,11 @@ NodeFileGenerator = {
         if (m == nil) then
             return;
         end
+        if (m.Library ~= self.targetLibrary) then
+			log(" Different library, not generating.\n");
+			return;
+        end
+        log(" Same library.  Generation time!");
         local typeName = m.TypeName;
         log("       " .. typeName);
         local newPath = path:NewPath("/" .. node.Name);

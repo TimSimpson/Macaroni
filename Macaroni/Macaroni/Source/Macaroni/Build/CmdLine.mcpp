@@ -1,4 +1,5 @@
 ~import Macaroni::Build::Builder;
+~import Macaroni::Build::BuilderArguments;
 ~import Macaroni::Environment::Console;
 ~import Macaroni::Model::Context;
 ~import Macaroni::Model::ContextPtr;
@@ -269,10 +270,11 @@ class CmdLine
 		const Configuration & mRefConfig = *mConfig;*/
 
 		ContextPtr context(new Context("%ROOT%"));
-		Builder builder(context, manifestFilePath, console, install);
+		Builder builder(context, manifestFilePath, console);
 		compile = compile || install;
 		generate = generate || compile;
-		return builder.Execute(generate, saveCppSource, compile, install);
+		BuilderArguments args(generate, compile, install);
+		return builder.Execute(args);
 	}
 
 	public inline bool StartPrompt()

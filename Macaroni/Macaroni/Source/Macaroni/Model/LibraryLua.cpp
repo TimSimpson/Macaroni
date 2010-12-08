@@ -78,7 +78,18 @@ struct LibraryLuaFunctions
 	{
 		LibraryPtr & a = getInstance(L, 1); 
 		LibraryPtr & b = getInstance(L, 2);
-		lua_pushboolean(L, a.get()==b.get() ? 1 : 0);
+		if (!a && !b) 
+		{
+			lua_pushboolean(L, 1);
+		}
+		else if (!a || !b)
+		{
+			lua_pushboolean(L, 0);
+		}
+		else
+		{
+			lua_pushboolean(L, a->GetId() == b->GetId() ? 1 : 0);
+		}
 		return 1;
 	}
 

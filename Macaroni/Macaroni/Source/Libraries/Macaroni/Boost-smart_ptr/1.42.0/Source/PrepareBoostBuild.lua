@@ -4,10 +4,10 @@ require "Macaroni.IO.Path";
 
 function getIncludePath()
 	local success, path = pcall(function()
-		return properties.boost["1.42.0"].include;
+		return properties.boost["1.45.0"].include;
 	end);	
 	if (not success) then
-		error([[Could not find variable properties.boost["1.42.0"].include.]]
+		error([[Could not find variable properties.boost["1.45.0"].include.]]
 			.. [[  Please set this in init.lua to the path of Boost headers.]]);
 	end
 	return path;
@@ -25,16 +25,26 @@ function Prepare(library, sources, outputPath, installPath, extraArgs)
 import boost ;
 import path ;
 
-project
-	:	usage-requirements
-		<include>]] .. includePath .. [[
+use-project /boost : "]] .. includePath .. [[" ;
+
+alias library
+	: /boost//headers
 	;
 	
-alias libSources
-	:	
-	: <include>]] .. includePath .. [[
-	;
-	]]);
+]]);
     writer:Close();    
 end
+
+--
+--project 
+--	:	usage-requirements
+--		<include>]] .. includePath .. [[
+--	;
+--	
+--alias libSources
+--	:	
+--	: <include>]] .. includePath .. [[
+--	;
+	
+
 

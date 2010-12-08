@@ -30,6 +30,7 @@ public:
 		return ContextPtr(context);
 	}
 	
+	/** Adds the dependency if not already in this library's dependency list. */
 	void AddDependency(const LibraryPtr & dependency);
 	
 	/** Return the root path where these files are installed to.

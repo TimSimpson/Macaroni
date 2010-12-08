@@ -47,7 +47,8 @@ std::vector<const Configuration> createConfigurations(LuaEnvironment & env);
 void setLibraryId(LibraryId & id, lua_State * L);
 
 Manifest::Manifest()
-:configurations(),
+:children(),
+ configurations(),
  cppHeadersOutput(),
  cppOutput(""),
  dependencies(),
@@ -61,6 +62,25 @@ Manifest::Manifest()
  properties(),
  rootDirectory(),
  version("")
+{
+}
+
+Manifest::Manifest(LibraryId id, std::vector<LibraryId> deps)
+:children(),
+ configurations(),
+ cppHeadersOutput(),
+ cppOutput(""),
+ dependencies(deps),
+ description(""),
+ fOutput(""),
+ group(id.GetGroup()),
+ id(id),
+ manifestFile(),
+ mOutput(""),
+ name(id.GetName()),
+ properties(),
+ rootDirectory(),
+ version(id.GetVersion())
 {
 }
 
@@ -191,7 +211,18 @@ int _dependency(lua_State * L)
     }
     lua_pop(L, 1);
 
-	boost::filesystem::path manifestFilePath;
+	// NEW CODE, the code after this that's commented out is where I used
+	// to stupidly load the entire Manifest on the spot.
+
+	void * ptr = lua_touserdata(L, lua_upvalueindex(1));
+	std::vector<LibraryId> * dependencies =
+		reinterpret_cast<std::vector<LibraryId> *>(ptr);
+	//void * ptr2 = lua_touserdata(L, lua_upvalueindex(2));
+	//const std::string & properties = *(reinterpret_cast<std::string *>(ptr2));
+	dependencies->push_back(dId);
+	return 0;
+
+	/*boost::filesystem::path manifestFilePath;
 	try
 	{
 		manifestFilePath = dId.FindFinalManifestFile();
@@ -221,7 +252,7 @@ int _dependency(lua_State * L)
 	{
 		void * ptr = lua_touserdata(L, lua_upvalueindex(1));
 		std::vector<ManifestPtr> * dependencies =
-			reinterpret_cast<std::vector<ManifestPtr> *>(ptr);
+			reinterpret_cast<std::vector<LibraryId> *>(ptr);
 		void * ptr2 = lua_touserdata(L, lua_upvalueindex(2));
 		const std::string & properties = *(reinterpret_cast<std::string *>(ptr2));
 		try
@@ -241,7 +272,7 @@ int _dependency(lua_State * L)
 			lua_pushstring(L, msg.str().c_str());
 			return lua_error(L);
 		}		
-	}
+	}*/
 }
 
 /*
@@ -468,6 +499,13 @@ const Configuration * Manifest::GetConfiguration(const std::string & configName)
 	return nullptr;
 }
 
+std::string Manifest::GetProperties()
+{
+	std::stringstream cereal;
+	luaEnv.SerializeTable(cereal, "properties");
+	return cereal.str();
+}
+
 //
 //void getFromLuaVarOrDefault(std::string & rtnValue, lua_State * L, const char * name, const char * dflt)
 //{
@@ -648,15 +686,16 @@ void Manifest::SaveAs(boost::filesystem::path & filePath,
 			<< "{" << endl;
 		for (unsigned int i = 0; i < this->GetMSource().size(); i ++)
 		{
-			file << "    [[" << this->GetMSource()[i] << "]]," << endl;
+			//file << "    [[" << this->GetMSource()[i] << "]]," << endl;
+			file << "    [[Mh]]," << endl;
 		}
 		file << "}" << endl;
 		file << endl;
-		BOOST_FOREACH(ManifestPtr dep, dependencies)
+		BOOST_FOREACH(const LibraryId & dep, dependencies)
 		{
-			file << "dependency { group   = [[" << dep->GetGroup() << "]]," << endl;
-			file << "             name    = [[" << dep->GetName() << "]]," << endl;
-			file << "             version = [[" << dep->GetVersion() << "]] }" << endl;
+			file << "dependency { group   = [[" << dep.GetGroup() << "]]," << endl;
+			file << "             name    = [[" << dep.GetName() << "]]," << endl;
+			file << "             version = [[" << dep.GetVersion() << "]] }" << endl;
 		}
 
 		file << endl;

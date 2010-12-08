@@ -38,6 +38,13 @@ Library::~Library()
 
 void Library::AddDependency(const LibraryPtr & dependency)
 {
+	BOOST_FOREACH(Library * dep, dependencies)
+	{
+		if (dep->GetId() == dependency->GetId())
+		{
+			return; // Already included, so skip it.
+		}
+	}
 	dependencies.push_back(dependency.get());
 }
 

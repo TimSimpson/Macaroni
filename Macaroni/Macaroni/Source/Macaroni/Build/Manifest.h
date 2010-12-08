@@ -42,6 +42,8 @@ public:
 
 	Manifest();
 
+	Manifest(LibraryId id, std::vector<LibraryId> deps);
+
 	Manifest(const boost::filesystem::path & manifestFile, 
 			 const std::string & properties);
 
@@ -69,7 +71,7 @@ public:
 
 	const Configuration * GetConfiguration(const std::string & configName) const;
 
-	inline const LibraryId GetId() const
+	inline const LibraryId & GetId() const
 	{
 		return id;
 	}
@@ -79,7 +81,7 @@ public:
 		return cppHeadersOutput;
 	}
 
-	inline const std::vector<ManifestPtr> & GetDependencies() 
+	inline const std::vector<LibraryId> & GetDependencies() 
 	{
 		return dependencies;
 	}
@@ -99,6 +101,8 @@ public:
 		return manifestFile;
 	}
 
+	/** The Output directory.  This is stored as an absolute path, which I'm no
+	 * longer sure I agree wtih. */
 	inline const std::string GetMOutput() const
 	{
 		return mOutput;
@@ -109,12 +113,14 @@ public:
 		return name;
 	}
 
+	std::string GetProperties();
 
 	inline const boost::filesystem::path & GetRootDirectory() const
 	{
 		return rootDirectory;
 	}
 
+	/** The list of Source directories.  Each one is an absolute path. */
 	inline const std::vector<const std::string> GetMSource() const
 	{
 		return mSource;
@@ -156,7 +162,7 @@ private:
 	std::vector<const Configuration> configurations;
 	std::string cppOutput;
 	std::string cppSourceOutput;
-	std::vector<ManifestPtr> dependencies;
+	std::vector<LibraryId> dependencies;
 	std::string description;
 	std::string fOutput;
 	//std::vector<std::string> generators;

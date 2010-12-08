@@ -9,7 +9,7 @@ namespace Macaroni { namespace Build {
 bool operator==(const LibraryId & a, const LibraryId & b)
 {
 	return a.GetGroup() == b.GetGroup()
-			&& a.GetName() == b.GetGroup()
+			&& a.GetName() == b.GetName()
 			&& a.GetVersion() == b.GetVersion();
 }
 

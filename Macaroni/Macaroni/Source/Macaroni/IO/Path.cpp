@@ -122,7 +122,10 @@ std::string Path::GetAbsolutePath() const
 
 std::string Path::GetAbsolutePathForceSlash() const
 {
-	const char seperator = boost::filesystem::path_alt_separator<boost::filesystem::path>::value;
+	//const char seperator = boost::filesystem::path_alt_separator<boost::filesystem::path>::value;
+	//TODO: The line above worked in 1.42.0 but doesn't in 1.45.0.  Find
+	// an actual way to do this.
+	const char seperator = '\\'; 
 	if (!seperator == '/')
 	{
 		std::string original = GetAbsolutePath();

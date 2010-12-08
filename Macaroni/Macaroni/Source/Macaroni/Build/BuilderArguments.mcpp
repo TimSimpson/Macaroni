@@ -1,0 +1,39 @@
+~import boost::shared_ptr;
+
+namespace Macaroni::Build {
+
+class BuilderArguments
+{			
+	private bool generate;
+	private bool compile;
+	private bool install;
+
+	public BuilderArguments(const bool generate,
+						    const bool compile,
+							const bool install)
+	: generate(generate),
+	  compile(compile),
+	  install(install)
+	{
+	}
+
+	public inline bool Generate() const
+	{
+		return generate || Compile();
+	}
+
+	public inline bool Compile() const
+	{
+		return compile || Install();
+	}	
+
+	public inline bool Install() const
+	{
+		return install;
+	}
+	
+};
+
+typedef shared_ptr<BuilderArguments> BuilderArgumentsPtr;
+
+}// end namespace

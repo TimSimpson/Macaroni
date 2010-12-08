@@ -93,7 +93,7 @@ ClassCppFileGenerator = {
             if (import.Member ~= nil) then
 				self:writeInclude(import);    
 			else
-				self:write('// Skipping hollow imported node "' .. import.FullName .. '"');
+				self:write('// Skipping hollow imported node "' .. import.FullName .. '"' .. "   \n");
             end            
         end
     end,

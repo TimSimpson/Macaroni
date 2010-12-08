@@ -3,7 +3,17 @@
 // to work with the standard libs.
 namespace std
 {
-  class string{  ~hfile=<string> };
-  class stringstream { ~hfile=<sstream> };
+	class auto_ptr { ~hfile=<memory> }
+	class cout { ~hfile=<iostream> }
+	class cin { ~hfile=<iostream> }
+	class endl { ~hfile=<iostream> }
+	class fstream { ~hfile=<fstream> }
+	class ifstream { ~hfile=<fstream> }	
+	class istream { ~hfile=<iostream> }
+	class ofstream { ~hfile=<iostream> }
+	class ostream { ~hfile=<iostream> }
+	class string{  ~hfile=<string> };
+	class stringstream { ~hfile=<sstream> };  
+	class vector { ~hfile=<vector> };
 }
 

@@ -14,9 +14,13 @@ local TypeNames = Macaroni.Model.TypeNames;
 
 HFileGenerator = {
 
-    new = function()
+    new = function(library)
+		if (library == nil) then
+			error("No library argument given.");
+		end
         args = {}
         setmetatable(args, HFileGenerator);
+        args.targetLibrary = library;
         HFileGenerator.__index = function(t, k)
             local v = HFileGenerator[k];
             if (not v) then 

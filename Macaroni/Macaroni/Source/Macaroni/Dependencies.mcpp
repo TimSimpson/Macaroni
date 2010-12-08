@@ -37,6 +37,7 @@ class Macaroni::Build::MCompilerOptions { ~hfile=<Macaroni/Build/MCompilerOption
 class Macaroni::Environment::Messages { ~hfile=<Macaroni/Environment/Messages.h> }
 class Macaroni::Model::Node { ~hfile=<Macaroni/Model/Node.h> }
 class nullptr { ~hfile=<Macaroni/ME.h> }
+class boost::optional { ~hfile=<boost/optional.hpp> }
 class Macaroni::Parser::ParserException { ~hfile=<Macaroni/Parser/ParserException.h> }
 class Macaroni::IO::Path { ~hfile=<Macaroni/IO/Path.h> }
 class Macaroni::IO::PathPtr { ~hfile=<Macaroni/IO/Path.h> }

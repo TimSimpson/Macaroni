@@ -10,6 +10,7 @@ alias source
 		[ glob-tree *.cpp	: .svn *Test.cpp ]
 		/boost//filesystem
 		/boost//regex			
+#		/boost//system			
 	:	<include>./		
 		<include>../GeneratedSource	
 	;
@@ -48,21 +49,35 @@ lib mlib
 
 path-constant LUA_UNIT_TEST_ROOT_DIRECTORY : ./Source ;
 
+#alias testsDeps
+#	:	/boost//unit_test_framework
+#		/boost//prg_exec_monitor
+		# /boost//test_exec_monitor
+#	;
+
+# Wow, 1.45 is apparently completely different from 1.42.		
 alias tests
 	#: Macaroni_Model_ContextTests Macaroni_Model_NodeTests 
 	:
 		#[ unit-test Macaroni_Model_NodeTests 
 		#	:	Source/Macaroni/Model/NodeTest.cpp 
 		#		mlib	
-		#]
+		#]		
 		[ run Source/Macaroni/IO/GeneratedFileWriterTest.cpp mlib ]
 		[ run Source/Macaroni/Model/AttributeValueTest.cpp mlib ]
-		[ run Source/Macaroni/Model/NodeTest.cpp mlib ]
+		[ run Source/Macaroni/Build/ManifestOrganizerTest.cpp mlib ]
+		[ run Source/Macaroni/Model/NodeTest.cpp mlib  ]
 		[ run Source/Macaroni/Model/ContextTests.cpp mlib ]								
 	;
 
+#test-suite "tests" :
+#       [ run Source/Macaroni/IO/GeneratedFileWriterTest.cpp mlib :  :  :  :  ]                  
+#      
+#       ;
+       
 alias luaUnitTests
-	:	[ run Source/LuaUnitTests.cpp mlib 
+	:	
+	[ run Source/LuaUnitTests.cpp mlib 
 		  : $(LUA_UNIT_TEST_ROOT_DIRECTORY)
 		  : 
 		  ]

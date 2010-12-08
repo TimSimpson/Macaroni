@@ -12,7 +12,7 @@ local TypeNames = Macaroni.Model.TypeNames;
 
 MhFileGenerator = {
 
-    new = function(path)
+    new = function(path, targetLibrary)
         args = {}
         setmetatable(args, MhFileGenerator);
         MhFileGenerator.__index = function(t, k)
@@ -32,7 +32,7 @@ MhFileGenerator = {
         --args.writer = writer;
         args.writer = filePath:CreateFile();
         args.tabs = 0;
-        
+        args.targetLibrary = targetLibrary;
         return args;
     end,
     
@@ -45,7 +45,7 @@ MhFileGenerator = {
     end,
 
     parseClass = function(self, node)
-        if (node.Member.Library == targetLibrary) then
+		if (node.Member.Library == self.targetLibrary) then
             local info = NodeInfoList[node];
             self:writeAfterTabs('class ' .. node.Name .. ' {\n');
             self:addTabs(1);
@@ -58,7 +58,7 @@ MhFileGenerator = {
     end,
     
     parseNamespace = function(self, node)
-        if (node.Member.Library == targetLibrary) then
+		if (node.Member.Library == self.targetLibrary) then
             local info = NodeInfoList[node];
             self:writeAfterTabs("namespace " .. node.Name .. ' {\n');
             self:addTabs(1);        
@@ -71,7 +71,7 @@ MhFileGenerator = {
     
     parseNode = function(self, node) 
         if (node.Member == nil) then
-            self:writeAfterTabs("// Skipping " .. node.Name .. '\n');
+            self:writeAfterTabs("// Skipping hollow node " .. node.Name .. '\n');
         else
             self:parseNodeMember(node);
         end        

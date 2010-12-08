@@ -23,6 +23,8 @@ public:
 	
 	~Context();
 
+	LibraryPtr FindLibrary(const Macaroni::Build::LibraryId & id);
+
 	LibraryPtr FindOrCreateLibrary(const std::string & group, const std::string & name, const std::string & version);
 
 	LibraryPtr FindOrCreateLibrary(const Macaroni::Build::LibraryId & id);

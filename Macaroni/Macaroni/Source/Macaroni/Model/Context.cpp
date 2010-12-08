@@ -33,6 +33,18 @@ Context::~Context()
 	hasBeenDeleted = true;
 }
 
+LibraryPtr Context::FindLibrary(const Macaroni::Build::LibraryId & id)
+{
+	BOOST_FOREACH(Library * lib, libraries)
+	{
+		if (lib->GetId() == id)
+		{
+			return LibraryPtr(lib);
+		}
+	}
+	return LibraryPtr();
+}
+
 LibraryPtr Context::FindOrCreateLibrary(const std::string & group, 
 								  		const std::string & name, 
 								  		const std::string & version)
@@ -43,16 +55,13 @@ LibraryPtr Context::FindOrCreateLibrary(const std::string & group,
 
 LibraryPtr Context::FindOrCreateLibrary(const Macaroni::Build::LibraryId & id)
 {
-	BOOST_FOREACH(Library * lib, libraries)
+	LibraryPtr rtn = FindLibrary(id);
+	if (!rtn)
 	{
-		if (lib->GetId() == id)
-		{
-			return LibraryPtr(lib);
-		}
+		libraries.push_back(new Library(this, id));
+		rtn.reset(libraries.back());
 	}
-	libraries.push_back(new Library(this, id));
-	Library * newLib = libraries.back();
-	return LibraryPtr(newLib);
+	return rtn;
 }
 
 int Context::GetReferenceCount() const

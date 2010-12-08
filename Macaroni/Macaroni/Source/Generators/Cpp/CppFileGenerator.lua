@@ -9,9 +9,13 @@ local TypeNames = Macaroni.Model.TypeNames;
 
 CppFileGenerator = {
 
-    new = function(self)
-        self = self or {}
+    new = function(library)
+		if (library == nil) then
+			error("No library argument given.");
+		end
+        self = {}        
         setmetatable(self, CppFileGenerator);
+        self.targetLibrary = library;
         CppFileGenerator.__index = function(t, k)
             local v = CppFileGenerator[k];
             if (not v) then 
