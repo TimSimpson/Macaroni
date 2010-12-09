@@ -10,7 +10,7 @@ alias source
 		[ glob-tree *.cpp	: .svn *Test.cpp ]
 		/boost//filesystem
 		/boost//regex			
-#		/boost//system			
+		/boost//system			
 	:	<include>./		
 		<include>../GeneratedSource	
 	;

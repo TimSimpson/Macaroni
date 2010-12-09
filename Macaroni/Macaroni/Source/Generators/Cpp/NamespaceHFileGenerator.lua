@@ -75,6 +75,31 @@ NamespaceHFileGenerator = {
         return guardName;
     end,
     
+    nodeEligibleForParsing = function(self, node, targetLibrary)
+		if (node == nil 
+			or node.Member == nil) then 
+			return false;
+		end		
+		if (node.Member.Library ~= targetLibrary) then
+			return false;
+		end
+		return self:memberEligibleForOutput(node.Member);
+	end,
+	
+    hasEntriesInLibrary = function(self, targetLibrary)
+		return true;
+		-- Yes, this is causing Nodes outside of the current library to
+		-- appear in the _.h files.  I can't figure out how to make
+		-- this method work though.
+		-- for i = 1, #self.node.Children do
+		-- 	local n = self.node.Children[i];
+		-- 	if (self:nodeEligibleForParsing(n, targetLibrary)) then
+		-- 		return true;
+		-- 	end
+		-- end
+		-- return false;
+    end,
+    
     includeStatements = function(self) 
         local section = DependencySection.new();
         for i = 1, #self.minors do
@@ -111,6 +136,17 @@ NamespaceHFileGenerator = {
         --    self.writer:write(statements[i]);
         --end ]]--
     end,  
+    
+    memberEligibleForOutput = function(self, member)
+		local typeName = member.TypeName;
+		local handlerFunc = nil;        
+        if (typeName == TypeNames.Typedef) then           
+            handlerFunc = self.parseTypedef;
+        else
+            handlerFunc = self["parse" .. typeName];
+        end
+        return handlerFunc ~= nil;
+    end,
         
     parse = function(self)
         check(self ~= nil, "Instance method called without self.");

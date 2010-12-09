@@ -17,6 +17,13 @@ NodeFileGenerator = {
         return nil;
     end,
 
+	memberIsInTargetLibrary = function(self, member)
+		if (member.Library ~= self.targetLibrary) then			
+			return false;
+        end
+        return true;
+	end,
+	
     parseClass = function (self, node, path)
         assert(node.Member.TypeName == TypeNames.Class);  
         log("Time to parse class.");  
@@ -32,7 +39,7 @@ NodeFileGenerator = {
         end
         path:CreateDirectory();
         local ng = self:createNamespaceFileGenerator(node, path);
-        if (ng ~= nil) then
+        if (ng ~= nil and ng:hasEntriesInLibrary(self.targetLibrary)) then
             ng:parse();
         end
         self:iterateNodes(node.Children, path);
@@ -48,15 +55,20 @@ NodeFileGenerator = {
         local m = node.Member;
         if (m == nil) then
             return;
-        end
-        if (m.Library ~= self.targetLibrary) then
+        end        
+        log(" Same library.  Generation time!");
+        local typeName = m.TypeName;
+        
+        -- Don't generate Nodes from other libraries which are in this Context.
+        if (typeName ~= TypeNames.Namespace 
+			and not self:memberIsInTargetLibrary(m)) then
 			log(" Different library, not generating.\n");
 			return;
         end
-        log(" Same library.  Generation time!");
-        local typeName = m.TypeName;
+        
         log("       " .. typeName);
         local newPath = path:NewPath("/" .. node.Name);
+        
         --if (newPath.IsDirectory) then
         --    newPath.CreateDirectory();
         --end        
