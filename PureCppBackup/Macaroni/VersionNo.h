@@ -1,0 +1,9 @@
+#ifndef MACARONI_VERSION
+
+#define MACARONI_VERSION 0,1,0,5 
+#define MACARONI_VERSION_STRING "0.1.0.5"
+#define MACARONI_FILE_DESCRIPTION "The Macaroni Parser / Generator"
+#define MACARONI_COPYRIGHT "(C) Tim Simpson, 2010"
+#define BUILD_TIMESTAMP_LOCAL "2010-12-8-21:13:40"
+#define BUILD_TIMESTAMP_UTC "2010-12-9-3:13:40"
+#endif

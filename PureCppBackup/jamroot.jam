@@ -1,58 +1,21 @@
-# Bjam file for Macaroni
+# Root jam file for "pure" C++ version of Macaroni
 
-# This apparently works great for those more fortunate than myself! Oh, woe
-# is me:
-#import boost ;
-#boost.use-project 1.39.0 ;
+import boost ;
+boost.use-project 1.42 ;
 
-#import os ; # makes environment variables visible
-#local BOOST_ROOT = [ os.environ BOOST_ROOT ];
-
-
-use-project /boost 
-	: F:/Tools/boost_1_39_0
+alias sources
+	:	[ glob-tree *.c	: .svn ]
+		[ glob-tree *.cpp	: .svn *Test.cpp *Tests.cpp Main.cpp ]
+		/boost//filesystem
+		/boost//regex		
+		/boost//system	
+	:	<include>./	
 	;
-	
-echo "boost project:" : $(/boost) ;
-	
-alias boost_filesystem
-	: /boost/filesystem
-	;
-alias boost_regex
-	: /boost/regex
-	;
-		
-#project 
-#	: #requirements <library>boost_filesystem/<link>static ;
-#	;
-		
 
-obj boostcrap
-	:	
-		boost_filesystem/<link>static
-	:	
-		<define>BOOST_ALL_NO_LIB
-	;
-	
 exe macaroni 
-	:	
-		boostcrap
-		#hello.test
-		[ glob-tree *.c : .svn ]
-		[ glob-tree *.cpp : .svn ]
-		boost_filesystem/<link>static
-		boost_regex/<link>static
-	: 	
-		<include>Source
-		<define>BOOST_ALL_NO_LIB 
+	:	sources
+		Main.cpp
+		Macaroni.rc	
+	:
+		<include>./
 	;
-		
-
-
-
-#	:	<include>Source
-#		F:/Tools/boost_1_39_0/libs/filesystem/build//boost_filesystem 
-#		F:/Tools/boost_1_39_0/libs/regex/build//boost_regex
-#	: <include>Source
-#	: <include>F:/Tools/boost_1_39_0
-#	; 
