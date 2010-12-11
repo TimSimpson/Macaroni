@@ -1,6 +1,0 @@
-All private methods and inlined functions in a Macaroni file do not get put in
-the .H file.  Instead, they are put in a seperate definition which can only be
-seen by the class itself.
-
-Data members though must go in the .H file in order to make the program work 
-correctly.
