@@ -1,1 +1,0 @@
-As in Static functions, static variables. etc.

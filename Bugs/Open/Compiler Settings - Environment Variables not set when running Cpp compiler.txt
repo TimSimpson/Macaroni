@@ -1,1 +1,0 @@
-The environmentVariables setting of the compiler settings are not getting passed to the C++ compiler.  If you add them in a PowerCmd session and then try it works though.  This is for the Windows-VS9.lua compiler.

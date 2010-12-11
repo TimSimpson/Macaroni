@@ -1,1 +1,0 @@
-If you run it, the CL.exe compiler works, but otherwise it no works.
