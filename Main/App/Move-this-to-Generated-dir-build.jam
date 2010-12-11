@@ -1,9 +1,0 @@
-
-alias generated
-	:	[ glob-tree *.c	: .svn ]
-		[ glob-tree *.cpp	: .svn *Test.cpp Main.cpp ]
-		/boost//filesystem
-		/boost//regex			
-	:	<include>./		
-		<include>../Source	
-	;	
