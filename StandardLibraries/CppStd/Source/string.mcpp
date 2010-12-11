@@ -1,4 +1,0 @@
-namespace std
-{
-  class string{ ~hfile=<string> };
-}

@@ -1,4 +1,0 @@
-namespace boost
-{
-  class shared_ptr { ~hfile=<boost/shared_ptr.hpp> }  
-}

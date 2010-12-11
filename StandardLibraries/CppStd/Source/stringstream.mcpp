@@ -1,4 +1,0 @@
-namespace std
-{
-  class stringstream{ ~hfile=<sstream> };
-}

@@ -2,7 +2,7 @@ id =
 {
     group="Macaroni",
     name="Macaroni",
-    version="0.1.0.5",
+    version="0.1.0.6",
     author="Tim Simpson"
 }
 
@@ -12,11 +12,15 @@ description= [[
     redundant information.
 ]]
 
-source "Source"
+-- Bug- the Boost Build builder only looks at the last source path.
+sources = { "Source/main/lua", "Source/main/resources", "Source/main/mcpp" }
 output = "GeneratedSource"
 
-dependency { group="Macaroni", name="Boost", version="1.39.0-0" }
-dependency { group="Macaroni", name="CppStd", version="1.0.0.0" }
+-- Don't trust Macaroni's own dependencies for these, not yet at least.
+--dependency { group="Macaroni", name="Boost", version="1.39.0-0" }
+--dependency { group="Macaroni", name="CppStd", version="1.0.0.0" }
+dependency {group="Macaroni", name="Boost-filesystem", version="1.42.0"}
+dependency {group="Macaroni", name="Boost-regex", version="1.42.0"}
     
 function bjam()
     --local rtnCode = os.execute("bjam")
@@ -24,11 +28,11 @@ function bjam()
 end
         
 function generate()    
-    runGenerator "Cpp"
+    run "Cpp"
     --runGenerator "Generators/LuaGlue"
-    runGenerator "InterfaceMh"
-    runGenerator "JamGenerator"
-    runGenerator "VersionInfoGenerator"
+    run "InterfaceMh"
+    run "JamGenerator"
+    run "VersionInfoGenerator"
     print "Code Generation successful.  Calling Boost Build."
     if (bjam()) then
         print "~ YOU WIN! ~"
@@ -37,3 +41,22 @@ function generate()
     end
 end
    
+jamArgs = 
+{ 	
+	ExcludePattern = "Main.cpp *Test.cpp *Tests.cpp .svn",
+	ExtraTargets = [[
+	  	exe macaroni 
+	  		:	library_sources
+	  			library_dependencies
+	  			../Source/main/mcpp/Main.cpp
+	  			../Source/main/resources/Macaroni.rc
+	  		;
+	  ]]
+	};
+		
+function build()	
+	run("BoostBuild", jamArgs)
+end
+
+function install()	
+end

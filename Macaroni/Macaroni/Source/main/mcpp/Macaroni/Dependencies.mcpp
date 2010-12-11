@@ -7,10 +7,17 @@ class std::fstream { ~hfile=<fstream> }
 class std::istream { ~hfile=<iostream> }
 class std::ofstream { ~hfile=<iostream> }
 class std::ostream { ~hfile=<iostream> }
+class std::stringstream { ~hfile=<sstream> }
+class std::string { ~hfile=<string> }
+class std::vector { ~hfile=<vector> }
 
 // Boost
-class boost::filesystem::create_directories { ~hfile=<boost/filesystem/convenience.hpp> }
-class boost::intrusive_ptr { ~hfile=<boost/shared_ptr.hpp> }
+class BOOST_FOREACH { ~hfile=<boost/foreach.hpp> }
+//class boost::filesystem::create_directories { ~hfile=<boost/filesystem/convenience.hpp> }
+class boost::intrusive_ptr { ~hfile=<boost/intrusive_ptr.hpp> }
+class boost::optional { ~hfile=<boost/optional.hpp> }
+//class boost::filesystem::path { ~hfile=<boost/filesystem.hpp> }
+class boost::shared_ptr { ~hfile=<boost/shared_ptr.hpp> }
 
 class Macaroni::Model::Cpp::Access { ~hfile=<Macaroni/Model/Cpp/Access.h> }
 class Macaroni::Model::Cpp::AccessLuaMetaData { ~hfile=<Macaroni/Model/Cpp/AccessLua.h> }
@@ -37,7 +44,6 @@ class Macaroni::Build::MCompilerOptions { ~hfile=<Macaroni/Build/MCompilerOption
 class Macaroni::Environment::Messages { ~hfile=<Macaroni/Environment/Messages.h> }
 class Macaroni::Model::Node { ~hfile=<Macaroni/Model/Node.h> }
 class nullptr { ~hfile=<Macaroni/ME.h> }
-class boost::optional { ~hfile=<boost/optional.hpp> }
 class Macaroni::Parser::ParserException { ~hfile=<Macaroni/Parser/ParserException.h> }
 class Macaroni::IO::Path { ~hfile=<Macaroni/IO/Path.h> }
 class Macaroni::IO::PathPtr { ~hfile=<Macaroni/IO/Path.h> }
