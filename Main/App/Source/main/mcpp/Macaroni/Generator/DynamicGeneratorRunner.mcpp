@@ -1,0 +1,148 @@
+~import Macaroni::AppPaths;
+~import Macaroni::AppPathsPtr;
+~import BOOST_FOREACH;
+~import Macaroni::Build::BuildContext;
+~import Macaroni::Build::BuildContextPtr;
+~import Macaroni::Model::Context;
+~import Macaroni::IO::FileSet;
+~import Macaroni::Generator::Lua::DynamicGenerator;
+~import Macaroni::Model::Library;
+~import Macaroni::Model::LibraryPtr;
+//~import Macaroni::Model::MemberVisitor;
+~import boost::filesystem::path;
+~import Macaroni::IO::Path;
+~import Macaroni::IO::PathPtr;
+~import Macaroni::IO::Paths;
+~import std::string;
+~import Macaroni::Environment::StringPair;
+~import std::vector;
+
+//#include <Macaroni/Build/_.h>
+//#include <fstream>
+//#include <boost/filesystem/operations.hpp>
+//#include <Macaroni/Environment/StringPair.h>
+
+namespace Macaroni::Generator
+{
+class DynamicGeneratorRunner
+{
+	private AppPathsPtr appPaths;
+
+	public DynamicGeneratorRunner(AppPathsPtr appPaths)
+	:	appPaths(appPaths)
+	{
+		
+	}
+
+	///*public path GetGeneratorsPath()
+	//{
+	//	std::string exePath = Macaroni::IO::Paths::GetExeDirectoryPath();
+	//	std::stringstream finalFilePath;
+	//	finalFilePath << exePath << "Generators/";
+
+	//	path generatorPath(finalFilePath.str());
+	//	return generatorPath;
+	//}*/
+
+	private bool fileFound(const path & filePath, std::string name)
+	{
+		path fullPath = filePath / name;
+		if (boost::filesystem::exists(fullPath) && boost::filesystem::is_regular(fullPath))
+		{
+			return true;
+		}		
+	}
+
+	/** Looks for the Generator file first in the given FileSet of local directories
+	 * (it appends the file name to each one) and then in the Generator path. 
+	 */
+	public path ResolveGeneratorPath(const vector<const string> & srcDirs, 
+							  const std::string & name)
+	{
+		std::stringstream ss;
+		ss << name << ".lua";
+		std::string name2(ss.str());
+
+		std::vector<path> paths;
+		BOOST_FOREACH(const std::string dir, srcDirs)
+		{
+			paths.push_back(dir);
+		}
+		BOOST_FOREACH(const path & p, appPaths->GetGeneratorPaths())
+		{
+			paths.push_back(p);
+		}
+
+		BOOST_FOREACH(const path & p, paths)
+		{
+			if (fileFound(p, name)) 
+			{
+				return p / name;
+			} 
+			else if (fileFound(p, name2)) 
+			{
+				return p / name2;
+			}
+		}
+		return path("");
+	}
+
+	public path ResolveGeneratorPathOLD(const vector<FileSet> & srcDirs,
+							  const string & guess)
+	{
+		std::vector<const std::string> dirs;
+		for (unsigned int i = 0; i < srcDirs.size(); i ++)
+		{
+			const FileSet & localDir = srcDirs[i];
+			dirs.push_back(localDir.GetRoot().string());
+		}
+		return ResolveGeneratorPath(dirs, guess);
+	}
+
+	public void RunDynamicGeneratorOLD(LibraryPtr library, 
+							 const path & rootPath,
+							 const path & generatorFilePath)
+	{
+		std::vector<StringPair> pairs;
+		std::vector<PathPtr> sources; // null
+		PathPtr outputPath(new Path(rootPath, rootPath));
+		PathPtr installPath; // null
+		BuildContextPtr buildContext(new BuildContext(
+			appPaths, library, sources, outputPath, installPath, "{}"
+			));
+		RunDynamicGenerator(rootPath, buildContext, "Generate", pairs);
+	}
+
+	public string RunDynamicGenerator(const path & generatorFilePath,
+									BuildContextPtr buildContext,
+									const string & methodName,
+									const vector<StringPair> & arguments)
+	{
+		DynamicGenerator file(generatorFilePath, buildContext, arguments);
+		return file.Run(methodName);
+	}
+
+	public void RunDynamicGenerators(LibraryPtr library, const path & rootPath)
+	{
+		std::string exePath = Macaroni::IO::Paths::GetExeDirectoryPath();	
+		std::stringstream finalFilePath;
+		finalFilePath << exePath << "Generators/";
+
+		path generatorPath(finalFilePath.str());
+		FileSet generators(generatorPath);
+		
+		FileSet::Iterator end = generators.End();
+		for(FileSet::Iterator itr = generators.Begin(); itr != end; ++ itr)
+		{	
+			path p = *itr;
+			std::cout << p.string() << "\n";
+			RunDynamicGeneratorOLD(library, rootPath, p);
+		}
+	}
+
+
+}; // end class
+
+} // end ns
+
+

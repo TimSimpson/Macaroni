@@ -10,6 +10,7 @@ BEGIN_NAMESPACE2(Macaroni, Model)
 
 class MemberVisitor;
 
+//TODO: Possibly rename this to "Element"?
 class Member
 {
 friend class Node;

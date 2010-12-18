@@ -14,7 +14,7 @@
 #include "../Model/MemberVisitor.h"
 #include "../Parser/ParserException.h"
 #include "../Parser/Pippy/PippyParser.h"
-#include "../Generator/DynamicGenerators.h"
+#include <Macaroni/Generator/DynamicGeneratorRunner.h>
 #include <Macaroni/IO/Path.h>
 #include "../Model/Source.h"
 #include <Macaroni/Environment/StringPair.h>
@@ -24,6 +24,7 @@ using Macaroni::Model::ContextPtr;
 //using Macaroni::Generator::Cpp::CppSourceGenerator;
 using Macaroni::Generator::DebugEnumerator;
 using boost::filesystem::directory_iterator;
+using Macaroni::Generator::DynamicGeneratorRunner;
 using Macaroni::Exception;
 using Macaroni::Model::FileName;
 using Macaroni::Model::FileNamePtr;
@@ -53,12 +54,15 @@ namespace Macaroni { namespace Build {
 class MCompiler
 {
 public:
+	MCompiler(Macaroni::AppPathsPtr & appPaths);
 	/** Iteratres all input files, parsing each one into the given context. */
 	bool BuildModel(LibraryPtr library, const std::vector<FileSet> filePath);
 	void Compile(LibraryPtr library,
 				 const MCompilerOptions & options);
 
 private:	
+	AppPathsPtr appPaths;
+
 	/** Reads from the model to generates output files. */
 	bool generateFiles(LibraryPtr library, path output, const MCompilerOptions & options);
 	/** Parses the file and stores it into the Model context. */
@@ -68,6 +72,11 @@ private:
 	void readFile(std::stringstream & contents, const std::string & filePath);
 };
 
+
+MCompiler::MCompiler(Macaroni::AppPathsPtr & appPaths)
+:appPaths(appPaths)
+{
+}
 
 void MCompiler::readFile(std::stringstream & contents, const std::string & filePath)
 {
@@ -119,16 +128,17 @@ bool MCompiler::generateFiles(LibraryPtr library, path output,
 {
 	for(unsigned int i = 0; i < options.GetGenerators().size(); i ++)
 	{
+		DynamicGeneratorRunner runner(appPaths);
 		boost::filesystem::path genPath =
-			Generator::ResolveGeneratorPath(options.GetInput(), options.GetGenerators()[i]);
+			runner.ResolveGeneratorPathOLD(options.GetInput(), options.GetGenerators()[i]);
 		if (!genPath.empty())
 		{
 			std::vector<StringPair> pairs;
 			PathPtr outputPath(new Path(output, output));
 			std::vector<PathPtr> sources;
 			PathPtr installDir; // nullptr
-			BuildContextPtr buildContext(new BuildContext(library, sources, outputPath, installDir, "{}"));
-			Generator::RunDynamicGenerator(genPath, buildContext, "Generate", pairs);
+			BuildContextPtr buildContext(new BuildContext(appPaths, library, sources, outputPath, installDir, "{}"));
+			runner.RunDynamicGenerator(genPath, buildContext, "Generate", pairs);
 		}
 	} 
 	

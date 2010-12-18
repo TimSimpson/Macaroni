@@ -1,0 +1,113 @@
+~import Macaroni::AppPaths;
+~import Macaroni::AppPathsPtr;
+~import BOOST_FOREACH;
+~import Macaroni::IO::FileNotFoundException;
+~import Macaroni::Build::LibraryId;
+~import boost::filesystem::path;
+~import nullptr;
+~import Macaroni::IO::Paths;
+~import boost::shared_ptr;
+~import std::stringstream;
+~import std::vector;
+
+namespace Macaroni
+{
+
+typedef shared_ptr<AppPaths> AppPathsPtr;
+
+/** Stores files paths to common elements. */
+class AppPaths
+{	
+	private vector<path> generatorPaths;
+	private vector<path> libraryRepoPaths;
+	private path messagesPath;
+
+	public AppPaths(vector<path> generatorPaths, vector<path> libraryRepoPaths, 
+					path messagesPath)
+	:	generatorPaths(generatorPaths),
+		libraryRepoPaths(libraryRepoPaths),
+		messagesPath(messagesPath)
+	{
+	}
+
+	~block "h"
+	{
+		public: AppPaths();
+	}	
+
+	~block "cpp" 
+	{
+		static vector<path> defaultGeneratorPaths()
+		{
+			vector<path> gPaths;
+			path exePath = Paths::GetExeDirectoryPath(); 
+			gPaths.push_back(exePath / "Generators");
+			return gPaths;
+		}
+
+		static vector<path> defaultLibraryPaths()
+		{
+			vector<path> lPaths;
+			path exePath = Paths::GetExeDirectoryPath(); 
+			lPaths.push_back(exePath / "Libraries");
+			path userPath = Paths::GetUserPath(); 
+			lPaths.push_back(userPath / "Libraries");
+			return lPaths;
+		}
+
+		AppPaths::AppPaths()
+		:	generatorPaths(defaultGeneratorPaths()),
+			libraryRepoPaths(defaultLibraryPaths()),
+			messagesPath(Paths::GetExeDirectoryPath())
+		{
+		}
+	}	
+
+	public path FindFinalManifestFile(const LibraryId & id) const
+	{
+		boost::filesystem::path rp(id.GetGroup());
+		rp = rp / id.GetName();
+		rp = rp / id.GetVersion();
+		rp = rp / "manifest-final.lua";
+		
+		std::stringstream ss;
+		ss << "Could not find the given relative path ";
+		ss << rp.string() ;
+
+		BOOST_FOREACH(const boost::filesystem::path & path, 
+					  libraryRepoPaths)
+		{
+			boost::filesystem::path guess = path / rp;
+			ss << "; not found at path " << guess.string() ;
+			if (boost::filesystem::exists(guess) && boost::filesystem::is_regular_file(guess))
+			{
+				return guess;
+			}	
+		}
+
+		throw FileNotFoundException(ss.str());
+	}
+
+	public path FindInstallPath(const LibraryId & id) const
+	{
+		path file = FindFinalManifestFile(id);
+		return file.branch_path();
+	}
+
+	public inline vector<path> GetGeneratorPaths() 
+	{
+		return generatorPaths;
+	}
+	
+	public inline vector<path> GetLibraryRepoPaths() 
+	{
+		return libraryRepoPaths;
+	}
+
+	public inline path GetMessagePaths() 
+	{
+		return messagesPath;
+	}
+};
+
+} // end ns

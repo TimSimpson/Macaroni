@@ -50,15 +50,17 @@ LibraryPtr Context::FindOrCreateLibrary(const std::string & group,
 								  		const std::string & version)
 {
 	const LibraryId id(group, name, version);
-	return FindOrCreateLibrary(id);
+	boost::optional<boost::filesystem::path> none;
+	return FindOrCreateLibrary(none, id);
 }
 
-LibraryPtr Context::FindOrCreateLibrary(const Macaroni::Build::LibraryId & id)
+LibraryPtr Context::FindOrCreateLibrary(const boost::optional<boost::filesystem::path> & installPath,
+										const Macaroni::Build::LibraryId & id)
 {
 	LibraryPtr rtn = FindLibrary(id);
 	if (!rtn)
 	{
-		libraries.push_back(new Library(this, id));
+		libraries.push_back(new Library(this, id, installPath));
 		rtn.reset(libraries.back());
 	}
 	return rtn;

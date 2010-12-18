@@ -8,31 +8,28 @@
 
 namespace Macaroni { namespace Build {
 
-//TODO: Rename this to LibraryId.
+//TODO: Move this to be next to Library class.
 /** The part of a Manifest which can identify the Module. */
 class LibraryId
 {
 public:
 	LibraryId(){}
 	
-	LibraryId(const std::string & group, const std::string & name, 
+	LibraryId(const std::string & group, 
+			  const std::string & name, 
 			  const std::string & version)
 	: group(group),
-	  name(name),
+	  name(name), 
 	  version(version)				
 	{	
 	}
 
 	friend bool operator==(const LibraryId & a, const LibraryId & b);
-		
-	boost::filesystem::path FindFinalManifestFile() const;
-
+			
 	inline const std::string & GetGroup() const
 	{
 		return group;
-	}
-
-	boost::filesystem::path FindInstallPath() const;
+	}	
 	
 	inline const std::string & GetName() const
 	{
@@ -67,6 +64,6 @@ private:
 
 bool operator==(const LibraryId & a, const LibraryId & b);
 
-} }
+} } // end namespaces
 
 #endif

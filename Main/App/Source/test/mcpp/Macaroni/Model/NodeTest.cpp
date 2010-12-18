@@ -2,8 +2,8 @@
 #define BOOST_TEST_MODULE NodeTests
 #include <boost/test/unit_test.hpp>
 
-#include "Context.h"
-#include "Node.h"
+#include <Macaroni/Model/Context.h>
+#include <Macaroni/Model/Node.h>
 
 using Macaroni::Model::Context;
 using Macaroni::Model::ContextPtr;

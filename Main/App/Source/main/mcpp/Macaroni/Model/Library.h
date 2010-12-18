@@ -4,11 +4,13 @@
 #include "../ME.h"
 #include "Context.h"
 #include "FileNamePtr.h"
+#include <boost/optional.hpp>
 #include <Macaroni/Build/LibraryId.h>
 #include "LibraryPtr.h"
 #include "MemberPtr.h"
 #include "NodePtr.h"
 #include <Macaroni/IO/Path.h>
+#include <boost/filesystem/path.hpp>
 #include <vector>
 
 BEGIN_NAMESPACE2(Macaroni, Model)
@@ -61,14 +63,17 @@ public:
 	}
 
 private:
+	//TODO: Get rid of this constructor
 	Library(Context * context, const std::string & name, const std::string & version);
 	
-	Library(Context * context, const Macaroni::Build::LibraryId & id);
+	Library(Context * context, const Macaroni::Build::LibraryId & id, 
+			const boost::optional<boost::filesystem::path> & installPath);
 
 	Context * context;
 	std::vector<Library *> dependencies;
 	int referenceCount;
 	Macaroni::Build::LibraryId id;
+	boost::optional<boost::filesystem::path> installPath;
 };
 
 END_NAMESPACE2

@@ -4,7 +4,7 @@
 #include <boost/foreach.hpp>
 #include "Manifest.h"
 #include <Macaroni/Model/ContextLua.h>
-#include <Macaroni/Generator/DynamicGenerators.h>
+#include <Macaroni/Generator/DynamicGeneratorRunner.h>
 #include "../Exception.h"
 #include <Macaroni/Build/GeneratorContext.h>
 #include <Macaroni/Model/Library.h>
@@ -20,6 +20,7 @@
 using Macaroni::Environment::Console;
 using Macaroni::Model::ContextLuaMetaData;
 using Macaroni::Model::ContextPtr;
+using Macaroni::Generator::DynamicGeneratorRunner;
 using Macaroni::Model::Library;
 using Macaroni::Model::LibraryPtr;
 using Macaroni::Model::LibraryLuaMetaData;
@@ -342,14 +343,15 @@ int _runScript(lua_State * L)
 		pairs = LuaEnvironment::GetStringPairsFromTable(L, true);		
 	}
 	
+	DynamicGeneratorRunner runner(iCon->GetAppPaths());	
 	// Find path to Lua script
 	boost::filesystem::path scriptPath =
-			Generator::ResolveGeneratorPath(*sources, scriptName);
+			runner.ResolveGeneratorPath(*sources, scriptName);
 	// Run Lua script
 	if (!scriptPath.empty())
 	{
 		//boost::filesystem::path output(iConpath->GetAbsolutePath());
-		std::string returnValue = Generator::RunDynamicGenerator(scriptPath,
+		std::string returnValue = runner.RunDynamicGenerator(scriptPath,
 			//iCon->GetLibrary(), 
 			//						   iCon->GetOutputDir()->GetAbsolutePath(), 
 									   iCon,

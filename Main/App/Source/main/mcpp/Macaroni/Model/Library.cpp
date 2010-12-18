@@ -12,11 +12,12 @@ using Macaroni::IO::PathPtr;
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
-
+//TODO: Get rid of this constructor
 Library::Library(Context * context, const std::string & name, const std::string & version)
 :context(context),
  dependencies(),
  id(),
+ installPath(),
  referenceCount(0) 
 {
 	id.SetName(name);
@@ -24,10 +25,12 @@ Library::Library(Context * context, const std::string & name, const std::string 
 	id.SetGroup("~..~");
 }
 
-Library::Library(Context * context, const LibraryId & id)
+Library::Library(Context * context, const LibraryId & id, 
+				 const boost::optional<boost::filesystem::path> & installPath)
 : context(context),
   dependencies(),
   id(id),
+  installPath(installPath),
   referenceCount(0)
 {
 }
@@ -50,8 +53,15 @@ void Library::AddDependency(const LibraryPtr & dependency)
 
 PathPtr Library::FindInstallPath() const
 {
-	boost::filesystem::path p(id.FindInstallPath());
-	return PathPtr(new Path(p, p));
+	if (!installPath)
+	{
+		PathPtr p;
+		return p;
+	}
+	else 
+	{		
+		return PathPtr(new Path(installPath.get()));
+	}
 }
 
 std::vector<LibraryPtr> Library::GetDependencies() const

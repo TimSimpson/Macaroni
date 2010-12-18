@@ -12,20 +12,27 @@ namespace Macaroni::Build {
 
 class BuildContext
 {			
+	private AppPathsPtr appPaths;
 	private PathPtr installDir;
 	private LibraryPtr library;
 	private PathPtr outputDir;	
 	private std::string properties;
 	private vector<PathPtr> sourceDirs;
 
-	public BuildContext(LibraryPtr library, vector<PathPtr> sourceDirs, 
+	public BuildContext(AppPathsPtr appPaths, LibraryPtr library, vector<PathPtr> sourceDirs, 
 						PathPtr outputDir, PathPtr installDir, const std::string & properties)
-	: installDir(installDir),
+	: appPaths(appPaths),
+	  installDir(installDir),
 	  library(library),
 	  outputDir(outputDir),
 	  properties(properties),
 	  sourceDirs(sourceDirs)
 	{
+	}
+
+	public inline AppPathsPtr & GetAppPaths()
+	{
+		return appPaths;
 	}
 
 	public inline PathPtr & GetInstallDir()

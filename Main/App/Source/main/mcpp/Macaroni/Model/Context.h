@@ -5,9 +5,11 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/intrusive_ptr.hpp>
 #include "ContextPtr.h"
+#include <boost/optional.hpp>
 #include <Macaroni/Build/LibraryId.h>
 #include "LibraryPtr.h"
 #include "NodePtr.h"
+#include <boost/filesystem/path.hpp>
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
@@ -21,13 +23,14 @@ friend void intrusive_ptr_release(Context * p);
 public:
 	Context(const std::string & rootName);
 	
-	~Context();
+	~Context();	
 
 	LibraryPtr FindLibrary(const Macaroni::Build::LibraryId & id);
 
 	LibraryPtr FindOrCreateLibrary(const std::string & group, const std::string & name, const std::string & version);
 
-	LibraryPtr FindOrCreateLibrary(const Macaroni::Build::LibraryId & id);
+	LibraryPtr FindOrCreateLibrary(const boost::optional<boost::filesystem::path> & installPath,
+								   const Macaroni::Build::LibraryId & id);
 	
 	int GetReferenceCount() const;
 

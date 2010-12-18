@@ -12,6 +12,8 @@ class std::string { ~hfile=<string> }
 class std::vector { ~hfile=<vector> }
 
 // Boost
+class boost::bad_lexical_cast { ~hfile=<boost/lexical_cast.hpp> }
+class boost::lexical_cast { ~hfile=<boost/lexical_cast.hpp> }
 class BOOST_FOREACH { ~hfile=<boost/foreach.hpp> }
 //class boost::filesystem::create_directories { ~hfile=<boost/filesystem/convenience.hpp> }
 class boost::intrusive_ptr { ~hfile=<boost/intrusive_ptr.hpp> }
@@ -30,7 +32,9 @@ class Macaroni::Build::Configuration { ~hfile=<Macaroni/Build/Configuration.h> }
 class Macaroni::Build::ConfigurationId { ~hfile=<Macaroni/Build/ConfigurationId.h> }
 class Macaroni::Model::Context { ~hfile=<Macaroni/Model/Context.h> }
 class Macaroni::Model::ContextPtr { ~hfile=<Macaroni/Model/ContextPtr.h> }
+class Macaroni::Generator::Lua::DynamicGenerator { ~hfile=<Macaroni/Generator/Lua/DynamicGenerator.h> }
 class Macaroni::Exception { ~hfile=<Macaroni/Exception.h> }
+class Macaroni::IO::FileNotFoundException { ~hfile=<Macaroni/IO/FileNotFoundException.h> }
 class Macaroni::IO::FileSet { ~hfile=<Macaroni/IO/FileSet.h> }
 class Macaroni::Environment::LuaEnvironment { ~hfile=<Macaroni/Environment/LuaEnvironment.h> }
 class Macaroni::Model::Library { ~hfile=<Macaroni/Model/Library.h> }

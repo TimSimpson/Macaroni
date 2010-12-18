@@ -1,9 +1,12 @@
+~import Macaroni::AppPaths;
+~import Macaroni::AppPathsPtr;
 ~import Macaroni::Build::Builder;
 ~import Macaroni::Build::BuilderArguments;
 ~import Macaroni::Environment::Console;
 ~import Macaroni::Model::Context;
 ~import Macaroni::Model::ContextPtr;
 ~import Macaroni::IO::FileSet;
+~import BOOST_FOREACH;
 ~import Macaroni::Exception;
 ~import Macaroni::Model::Library;
 ~import Macaroni::Model::LibraryPtr;
@@ -13,6 +16,9 @@
 ~import Macaroni::Build::MCompiler;
 ~import Macaroni::Build::MCompilerOptions;
 ~import Macaroni::Environment::Messages;
+~import boost::optional;
+~import Macaroni::IO::Paths;
+~import boost::filesystem::path;
 ~import std::string;
 ~import std::stringstream;
 ~import std::vector;
@@ -24,17 +30,20 @@ namespace Macaroni::Build {
 	 * are sorted through here.
  */
 class CmdLine
-{		
+{			
 	private bool compile;
 	private string config;
 	private Console & console;
 	private bool debugMode;
 	private bool endPrompt;
 	private bool generate;
+	private vector<path> generatorPaths;
 	private string inputPath;
 	private bool install;
+	private vector<path> libraryRepoPaths;
 	private string luaTestsPath;
 	private string manifestPath;
+	private optional<path> messagesPath;
 	private string outputPath;
 	private bool saveCppSource;
 	private bool startPrompt;
@@ -46,10 +55,13 @@ class CmdLine
 		debugMode(false),
 		endPrompt(false),
 		generate(false),
+		generatorPaths(),
 		inputPath(""),
 		install(false),
+		libraryRepoPaths(),
 		luaTestsPath(""),
 		manifestPath(""),
+		messagesPath(),
 		outputPath(""),
 		saveCppSource(false),
 		startPrompt(false)
@@ -72,6 +84,45 @@ class CmdLine
 		outputPath = "";
 		config = "";
 		luaTestsPath = "";
+	}	
+
+	private bool pathContains(vector<path> & paths, path & path)
+	{
+		BOOST_FOREACH(const boost::filesystem::path & p, paths)
+		{
+			if (p == path)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private AppPathsPtr createAppPaths()
+	{
+		if (generatorPaths.size() < 1) 
+		{
+			path gPath = Paths::GetExeDirectoryPath();
+			generatorPaths.push_back(gPath / "Generators");
+		}
+		// Only include exe library path if nothing is specified
+		//TODO: Get rid of EXE neighbor library path
+		if (libraryRepoPaths.size() < 1)
+		{
+			path lPath1 = Paths::GetExeDirectoryPath();
+			libraryRepoPaths.push_back(lPath1 / "Libraries");
+		}
+		path lPath2 = Paths::GetUserPath();
+		lPath2 = lPath2 / "Libraries";
+		if (!pathContains(libraryRepoPaths, lPath2))
+		{
+			libraryRepoPaths.push_back(lPath2);
+		}
+		path mPath = !messagesPath 
+						? Paths::GetExeDirectoryPath() 
+						: messagesPath.get();		
+		AppPathsPtr appPaths(new AppPaths(generatorPaths, libraryRepoPaths, mPath));
+		return appPaths;
 	}
 
 	private void directCompile()
@@ -95,7 +146,7 @@ class CmdLine
 				MCompilerOptions options(input,
 										 boost::filesystem::path(outputPath),
 										 generators);
-				MCompiler compiler;
+				MCompiler compiler(createAppPaths());
 				ContextPtr context(new Context(std::string("%ROOT%")));
 				LibraryPtr library = context->FindOrCreateLibrary("", "Command Line", "???");
 				compiler.Compile(library, options);
@@ -163,9 +214,31 @@ class CmdLine
 		{
 			generate = true;
 		}
+		else if (arg == "generatorPath")
+		{
+			if (next.empty())
+			{
+				console.Write("No generator path given following \"generatorPath\" arg.");
+			}
+			else
+			{
+				generatorPaths.push_back(next);
+			}
+		}
 		else if (arg == "install")
 		{
 			install = true;
+		}
+		else if (arg == "libraryRepoPath")
+		{
+			if (next.empty())
+			{
+				console.Write("No library repo path given following \"libraryRepoPath\" arg.");
+			}
+			else
+			{
+				libraryRepoPaths.push_back(next);
+			}
 		}
 		else if (arg == "luaTests")
 		{
@@ -270,7 +343,7 @@ class CmdLine
 		const Configuration & mRefConfig = *mConfig;*/
 
 		ContextPtr context(new Context("%ROOT%"));
-		Builder builder(context, manifestFilePath, console);
+		Builder builder(createAppPaths(), context, manifestFilePath, console);
 		compile = compile || install;
 		generate = generate || compile;
 		BuilderArguments args(generate, compile, install);

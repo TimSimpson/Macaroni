@@ -1,3 +1,5 @@
+~import Macaroni::AppPaths;
+~import Macaroni::AppPathsPtr;
 ~import BOOST_FOREACH;
 ~import Macaroni::Build::BuilderArguments;
 ~import Macaroni::Build::BuilderArgumentsPtr;
@@ -8,9 +10,11 @@
 ~import boost::filesystem::create_directories;
 ~import Macaroni::Exception;
 ~import Macaroni::IO::FileSet;
+~import Macaroni::IO::GeneratedFileWriter;
 ~import Macaroni::Build::GeneratorContext;
 ~import Macaroni::Build::InstallContext;
 ~import Macaroni::Build::InstallContextPtr;
+~import boost::lexical_cast;
 ~import Macaroni::Model::Library;
 ~import Macaroni::Build::LibraryId;
 ~import Macaroni::Model::LibraryPtr;
@@ -20,6 +24,7 @@
 ~import Macaroni::Build::ManifestOrganizer;
 ~import Macaroni::Build::MCompiler;
 ~import Macaroni::Build::MCompilerOptions;
+~import boost::optional;
 ~import Macaroni::Parser::ParserException;
 ~import boost::filesystem::path;
 ~import Macaroni::IO::Path;
@@ -45,6 +50,7 @@ namespace Macaroni::Build {
 */
 class Builder
 {	
+	private AppPathsPtr appPaths;
 	private const Console & console;
 	private ContextPtr context;
 	private vector<CppFile> cppFiles;
@@ -56,8 +62,9 @@ class Builder
 	private MCompiler compiler;
 	private string properties;
 
-	public Builder(ContextPtr context, path manifestPath, Console & console)
-	:	compiler(),
+	public Builder(AppPathsPtr appPaths, ContextPtr context, path manifestPath, Console & console)
+	:	appPaths(appPaths),
+		compiler(appPaths), // WARNING: This is only initialized after appPaths due to order of declaration!
 		console(console),
 		context(context),
 		initialized(false),
@@ -189,15 +196,16 @@ class Builder
 			path od(manifest->GetMOutput());
 			PathPtr genSrc(new Path(od)); //manifest->GetRootDirectory() / manifest->GetMOutput()));
 			path installPath = getInstallPath(manifest);
-			PathPtr installPathPtr(new Path(installPath, installPath));
-			BuildContextPtr iCon(new BuildContext(library, sources, genSrc, installPathPtr, properties));
+			PathPtr installPathPtr(new Path(installPath, installPath));			
+			BuildContextPtr iCon(new BuildContext(appPaths, library, sources, genSrc, installPathPtr, properties));
 			return iCon;
 		}
 	}
 
 	private LibraryPtr createLibraryForManifest(ManifestPtr manifest)
-	{
-		LibraryPtr newL(context->FindOrCreateLibrary(manifest->GetId()));
+	{		
+		optional<path> installPath(manifest->GetManifestFile().branch_path());
+		LibraryPtr newL(context->FindOrCreateLibrary(installPath, manifest->GetId()));
 		return newL;
 	}
 
@@ -419,6 +427,52 @@ class Builder
 	//	}
 	//}*/
 
+	/////** Parse a list of manifests almost like you're parsing Children, 
+	//// * but instead invoke Cavatappi. */
+	////private bool parseCavatappi(GeneratedFileWriter & writer, 
+	////						    const ManifestPtr manifest, 
+	////						    const LibraryPtr library) 
+	////{
+	////	writer.WriteLine("-- Cavatappi Success Report");
+	////	writer.WriteLine("");
+	////	writer.WriteLine("count=" 
+	////		+ lexical_cast<string>(manifest->GetCavatappiManifests().size()) 
+	////		+ ";");
+	////	writer.WriteLine("results = {");
+	////	BOOST_FOREACH(const string & directory, manifest->GetCavatappiManifests())
+	////	{			
+	////		path cavatappiManifest(manifest->GetRootDirectory());
+	////		//TODO: Uninstall each manifest from the repo!
+	////	}	
+
+	////	BOOST_FOREACH(const string & directory, manifest->GetCavatappiManifests())
+	////	{			
+	////		path cavatappiManifest(manifest->GetRootDirectory());
+	////		cavatappiManifest = cavatappiManifest / directory / "manifest.lua";
+	////		bool success = invokeCavatappi(cavatappiManifest);
+	////		if (!success)
+	////		{
+	////			writer.WriteLine("\t{ 
+	////		}
+	////		//writer.WriteLine("\t{");
+	////		//writer.WriteLine("\t\tid={group=" + 
+	////		//writer.WriteLine("\t}");
+
+	////		ManifestPtr childManifest(new Manifest(childPath, properties));
+	////		childManifests.push_back(childManifest);
+	////	}	
+	////	writer.WriteLine("}; -- end of results");
+	////}
+
+	/////** Invokes cavatappi to completely build whatever is here.
+	//// *  We can confirm cavatappi's success by checking to see if the 
+	//// *  artifacts exist in the repo. */
+	////private bool invokeCavatappi(const path & manifestPath)
+	////{
+	////	// TODO: Invoke, and if exit code suggests failure uninstall repo 
+	////	// artifacts just to be safe.
+	////}
+
 	public bool parseChildren(const BuilderArguments & arguments, 
 							  const ManifestPtr manifest, 
 							  const LibraryPtr library)
@@ -479,8 +533,11 @@ class Builder
 		if (!existingLib)
 		{			
 			// Load manifest of dependency, create libraries
-			ManifestPtr dManifest(new Manifest(dependencyId.FindFinalManifestFile(), properties));			
-			LibraryPtr dLib = sourceLibrary->GetContext()->FindOrCreateLibrary(dependencyId);
+			path manifestFilePath = appPaths->FindFinalManifestFile(dependencyId);
+			ManifestPtr dManifest(new Manifest(manifestFilePath, properties));			
+			const boost::optional<boost::filesystem::path> installPath(
+				appPaths->FindInstallPath(dependencyId));
+			LibraryPtr dLib = sourceLibrary->GetContext()->FindOrCreateLibrary(installPath, dependencyId);
 			// Now parse all of the dependency's dependencies before continuing.
 			parseDependencies(dependencyStack, dManifest, dLib);		
 			// Now add all dependencies to library
@@ -508,6 +565,7 @@ class Builder
 		try
 		{
 			parseManifestSource(manifest, library);
+			return true;
 		}
 		catch(Macaroni::Exception & ex)
 		{
