@@ -2,6 +2,7 @@
 #define MACARONI_ENVIRONMENT_PROCESS_H
 
 #include "../ME.h"
+#include <boost/optional.hpp>
 #include "Console.h"
 #include <cstdlib>
 #include "../Platform/Windows/EnvironmentVariables.h"
@@ -17,7 +18,8 @@ namespace Macaroni { namespace Environment {
 class Process
 {
 public:
-	Process(boost::filesystem::path fileName, const std::string & args, 
+	Process(boost::optional<boost::filesystem::path> & fileName, 
+			const std::string & args, 
 			boost::filesystem::path workingDirectory,
 		    const std::vector<const std::string> paths,
 			const std::vector<StringPair> & envVariables);
@@ -27,7 +29,7 @@ private:
 
 	const std::vector<StringPair> envVariables;
 
-	boost::filesystem::path fileName;
+	boost::optional<boost::filesystem::path> fileName;
 
 	/** Appends all of the path variables to the PATH environment variable. */
 	void mixinPathEnvVariables(Macaroni::Platform::Windows::EnvironmentVariables & vars);

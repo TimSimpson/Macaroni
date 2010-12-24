@@ -14,9 +14,16 @@ typedef boost::shared_ptr<Path> PathPtr;
 typedef std::vector<PathPtr> PathList;
 typedef boost::shared_ptr<PathList> PathListPtr;
 
-/** Directory or file relative to another directory or file.
- * This class is surprisingly useful as many Macaroni operations involve 
- * dealing with relative paths with an assumed root directory. */
+/** Directory or file path.
+ * Strangely the path you are manipulating is relative to another directory or
+ * file path- for example, Path("C:\Progs") defines the path C:\Progs relative
+ * to itself, but Path("C:\Progs", "C:\Progs\Main") defines the path "Main"
+ * relative to C:\Progs.  The motive is that many operations involve either
+ * iterating directories or generating files from some well known starting
+ * point.  An example of this is C++ includes with ankle brackets, which specify
+ * relative paths.  Macaroni needs to work with files this way, which is why
+ * I made this class a bit more complicated than might seem needed at first
+ * glance. */
 class Path
 {
 public:
@@ -25,6 +32,11 @@ public:
 	Path(const Path & other); 
 	Path(boost::filesystem::path rootPath, boost::filesystem::path path);
 	
+	/** Deletes all files and directories within this directory. 
+	 *  Throws an exception if this is a file or doesn't exist.
+	 *  Boost throws an error if the path is empty as well. */
+	void ClearDirectoryContents();
+
 	static void CopyDirectoryContents(boost::filesystem::path & src,
 									  boost::filesystem::path & dst);
 
@@ -41,7 +53,7 @@ public:
 	void CreateDirectory() const;
 
 	/** Opens a file in the current directory for writing. */
-	GeneratedFileWriterPtr CreateFile() const;
+	GeneratedFileWriterPtr CreateFile() const;	
 
 	bool Exists() const;
 

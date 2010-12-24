@@ -10,6 +10,7 @@
 #include <Macaroni/Model/Library.h>
 #include <Macaroni/Model/LibraryLua.h>
 #include "../Environment/LuaEnvironment.h"
+#include <boost/optional.hpp>
 #include <iostream>
 #include <fstream>
 #include <Macaroni/IO/PathLua.h>
@@ -17,6 +18,7 @@
 #include <sstream>
 #include "../Environment/StringPair.h"
 
+using boost::optional;
 using Macaroni::Environment::Console;
 using Macaroni::Model::ContextLuaMetaData;
 using Macaroni::Model::ContextPtr;
@@ -25,6 +27,7 @@ using Macaroni::Model::Library;
 using Macaroni::Model::LibraryPtr;
 using Macaroni::Model::LibraryLuaMetaData;
 using Macaroni::Environment::LuaEnvironment;
+using boost::filesystem::path;
 using Macaroni::IO::PathLuaMetaData;
 using Macaroni::IO::PathPtr;
 using Macaroni::IO::Paths;
@@ -34,10 +37,12 @@ using Macaroni::Environment::StringPair;
 
 namespace Macaroni { namespace Build {
 
-static int dependency(lua_State * L);
-
+static int _cavatappi(lua_State * L);
 static int _dependency(lua_State * L);
 static int _source(lua_State * L);
+
+static int dependency(lua_State * L);
+
 
 Configuration createConfiguration(LuaEnvironment & env, const char * name);
 std::vector<const Configuration> createConfigurations(LuaEnvironment & env);
@@ -47,8 +52,10 @@ std::vector<const Configuration> createConfigurations(LuaEnvironment & env);
 //std::vector<const std::string> getVectorFromLuaTable(lua_State * L);
 void setLibraryId(LibraryId & id, lua_State * L);
 
+//TODO: Does this get used?
 Manifest::Manifest()
 :children(),
+ containsCavatappi(false),
  configurations(),
  cppHeadersOutput(),
  cppOutput(""),
@@ -57,6 +64,7 @@ Manifest::Manifest()
  fOutput(""),
  group(""),
  id(),
+ allowCavatappi(false),
  manifestFile(),
  mOutput(""),
  name(""),
@@ -66,9 +74,11 @@ Manifest::Manifest()
 {
 }
 
+//TODO: Does anything use this?
 Manifest::Manifest(LibraryId id, std::vector<LibraryId> deps)
 :children(),
  configurations(),
+ containsCavatappi(false),
  cppHeadersOutput(),
  cppOutput(""),
  dependencies(deps),
@@ -76,6 +86,7 @@ Manifest::Manifest(LibraryId id, std::vector<LibraryId> deps)
  fOutput(""),
  group(id.GetGroup()),
  id(id),
+ allowCavatappi(false),
  manifestFile(),
  mOutput(""),
  name(id.GetName()),
@@ -86,11 +97,14 @@ Manifest::Manifest(LibraryId id, std::vector<LibraryId> deps)
 }
 
 Manifest::Manifest(const boost::filesystem::path & manifestFile, 
-				   const std::string & properties)
+				   const std::string & properties, 
+				   const bool allowCavatappi)
 :children(),
+ containsCavatappi(false),
  dependencies(),
  description(""),
  id(),
+ allowCavatappi(allowCavatappi),
  luaEnv(),
  manifestFile(manifestFile),
  properties(properties),
@@ -117,6 +131,11 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile,
 	lua_pushstring(L, LATEST_LUA_VALUE);	
 	lua_setglobal(L, "LATEST");
 
+	optional<std::string> extraCavatappiInfo;
+	lua_pushlightuserdata(L, &(extraCavatappiInfo));
+	lua_pushcclosure(L, _cavatappi, 1);
+	lua_setglobal(L, "cavatappi");
+
     lua_pushlightuserdata(L, &(this->mSource));
     lua_pushcclosure(L, &_source, 1);
 	lua_setglobal(L, "source");
@@ -127,6 +146,19 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile,
 	lua_setglobal(L, "dependency");
 
 	luaEnv.Run();
+
+	if (!!extraCavatappiInfo)
+	{
+		containsCavatappi = true;
+		if (allowCavatappi) 
+		{
+			path cavatappiFile = manifestFile.branch_path() / extraCavatappiInfo.get();
+			luaEnv.ParseFile(cavatappiFile.string());
+			luaEnv.Run();
+		}
+	}
+	
+
 
 	setLibraryId(id, L);
 
@@ -189,6 +221,19 @@ Manifest::~Manifest()
     lua_gc(luaEnv.GetState(), LUA_GCCOLLECT, NULL);
     //luaEnv.~LuaEnvironment();
 }
+
+int _cavatappi(lua_State * L)
+{
+	// Up values
+	void * uv1 = lua_touserdata(L, lua_upvalueindex(1));
+	optional<std::string> * cavatappiFile = reinterpret_cast<optional<std::string> *>(uv1);
+	// Argument
+	std::string filePath(luaL_checkstring(L, 1));
+
+	(*cavatappiFile) = filePath;
+	return 0;
+}
+
 
 int _dependency(lua_State * L)
 {

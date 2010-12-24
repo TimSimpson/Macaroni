@@ -16,7 +16,8 @@ using Macaroni::Platform::Windows::EnvironmentVariables;
 
 namespace Macaroni { namespace Environment {
 
-Process::Process(boost::filesystem::path fileName, const std::string & a, 
+Process::Process(boost::optional<boost::filesystem::path> & fileName, 
+				 const std::string & a, 
 				 boost::filesystem::path workingDirectory,
 		         const std::vector<const std::string> paths,
 				 const std::vector<StringPair> & envVariables)
@@ -58,8 +59,11 @@ bool Process::Run(const Console & console)
 {	
 	
 	std::stringstream ss;
-	ss << "\"" << fileName.native_file_string() << "\" ";
-	ss << " ";
+	if (!!fileName)
+	{
+		ss << "\"" << fileName.get().native_file_string() << "\" ";
+		ss << " ";
+	}
 	ss << args;
 
 	EnvironmentVariables vars;
@@ -67,7 +71,11 @@ bool Process::Run(const Console & console)
 	
 	console.WriteLine(ss.str());
 	
-	Macaroni::Platform::Windows::WindowsString wideFileName(fileName.native_file_string());
+	Macaroni::Platform::Windows::WindowsString wideFileName("");
+	if (!!fileName)
+	{
+		wideFileName = fileName.get().native_file_string();	
+	}	
 	Macaroni::Platform::Windows::WindowsString wideArgs(args);
 	Macaroni::Platform::Windows::WindowsString wideWorkingDir(workingDirectory.string());
 
@@ -92,7 +100,10 @@ bool Process::Run(const Console & console)
 	creationFlags |= CREATE_UNICODE_ENVIRONMENT;
 #endif
 
-	if (CreateProcess(wideFileName.get(),
+	BOOL result;
+	if (!fileName)
+	{
+		result = CreateProcess(NULL,
 					  wideArgs.get(),
 					  NULL,
 					  NULL,
@@ -101,11 +112,42 @@ bool Process::Run(const Console & console)
 					  (LPVOID) envBlock.get(),
 					  wideWorkingDir.get(),
 					  &startupInfo,
-					  &processInfo) == FALSE) 
+					  &processInfo);
+	}
+	else
 	{
+		result = CreateProcess(wideFileName.get(),
+					  wideArgs.get(),
+					  NULL,
+					  NULL,
+					  FALSE,
+					  creationFlags,
+					  (LPVOID) envBlock.get(),
+					  wideWorkingDir.get(),
+					  &startupInfo,
+					  &processInfo);
+	}
+
+	if (result == FALSE) 
+	{ 
 		DWORD bug = ::GetLastError();
+		LPVOID lpMsgBuf;	    
+		::FormatMessage(
+			FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+			FORMAT_MESSAGE_FROM_SYSTEM |
+			FORMAT_MESSAGE_IGNORE_INSERTS,
+			NULL,
+			bug,
+			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+			(LPTSTR) &lpMsgBuf,
+			0, NULL );		
+		console.WriteLine((LPCTSTR)lpMsgBuf);
+		//MessageBox(NULL, (LPCTSTR)lpDisplayBuf, TEXT("Error"), MB_OK); 
+
+		LocalFree(lpMsgBuf);		
+		
 		// BLAH!!
-		console.WriteLine("An error occured when calling compiler.");
+		console.WriteLine("An error occured when calling program.");
 	}
 	else 
 	{

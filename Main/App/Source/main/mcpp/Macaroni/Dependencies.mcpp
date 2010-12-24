@@ -1,5 +1,8 @@
 // This file contains foward refs to all types within the project.
 
+// C std
+class system { ~hfile=<cstdlib> }
+
 // Std lib stuff
 class std::auto_ptr { ~hfile=<memory> }
 class std::ifstream { ~hfile=<fstream> }

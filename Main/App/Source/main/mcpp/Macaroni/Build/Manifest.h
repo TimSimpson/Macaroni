@@ -19,6 +19,7 @@ namespace Macaroni { namespace Build {
 #include "../IO/Path.h"
 #include <boost/shared_ptr.hpp>
 #include <string>
+#include <boost/variant.hpp>
 #include <vector>
 
 namespace Macaroni { namespace Build {
@@ -45,9 +46,15 @@ public:
 	Manifest(LibraryId id, std::vector<LibraryId> deps);
 
 	Manifest(const boost::filesystem::path & manifestFile, 
-			 const std::string & properties);
+			 const std::string & properties,
+			 const bool isCavatappi);
 
     ~Manifest();
+
+	inline const bool ContainsCavatappi() const
+	{
+		return containsCavatappi;
+	}
 
 	inline const std::vector<const std::string> GetChildren() const
 	{
@@ -158,7 +165,9 @@ public:
 	}
 
 private:
-	std::vector<const std::string> children;
+	const bool allowCavatappi;
+	std::vector<const std::string> children;	
+	bool containsCavatappi;
 	std::vector<const Configuration> configurations;
 	std::string cppOutput;
 	std::string cppSourceOutput;

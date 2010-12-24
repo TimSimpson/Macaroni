@@ -1,6 +1,7 @@
 ~import Macaroni::Build::Cpp::CompilerSettings;
 ~import Macaroni::Environment::Console;
 ~import boost::filesystem::create_directories;
+~import boost::optional;
 ~import boost::filesystem::path;
 ~import Macaroni::IO::Path;
 ~import Macaroni::Environment::Process;
@@ -22,7 +23,7 @@ class CppFile
 	{
 		std::string::size_type dotIndex = src.ToString().rfind('.');
 		std::string objRelativePath = src.ToString().substr(0, dotIndex) + ".obj";
-		boost::filesystem::path objFile = outputDirectory / objRelativePath;
+		boost::filesystem::path objFile = outputDirectory / objRelativePath;		
 		obj = Path(outputDirectory, objFile);
 	}
 
@@ -72,7 +73,8 @@ class CppFile
 			args << " ";
 		}
 
-		Process process(settings.GetCompilerExe(), args.str(), 
+		optional<path> ce(settings.GetCompilerExe());
+		Process process(ce, args.str(), 
 						objPath.branch_path(), settings.GetPaths(), 
 						settings.GetEnvironmentVariables());
 		process.Run(console);	

@@ -26,7 +26,7 @@ public:
 	WindowsString(const std::string & original);
 	
 	~WindowsString() ;
-	
+
 	inline TCHAR  * get()
 	{
 		return windowsString;

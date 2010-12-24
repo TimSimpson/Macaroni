@@ -31,6 +31,7 @@ namespace Macaroni::Build {
  */
 class CmdLine
 {			
+	private bool cavatappiMode;
 	private bool compile;
 	private string config;
 	private Console & console;
@@ -49,7 +50,8 @@ class CmdLine
 	private bool startPrompt;
 
 	public CmdLine(const vector<const string> & args, Console & console)
-	:	compile(false),
+	:	cavatappiMode(false),
+	    compile(false),
 	    config(""),
 		console(console),
 		debugMode(false),
@@ -191,7 +193,11 @@ class CmdLine
 
 	private void parseArg(const string & arg, const string & next)
 	{
-		if (arg == "configuration")
+		if (arg == "cavatappi")
+		{
+			cavatappiMode = true;
+		}
+		else if (arg == "configuration")
 		{
 			if (next.empty())
 			{
@@ -346,7 +352,7 @@ class CmdLine
 		Builder builder(createAppPaths(), context, manifestFilePath, console);
 		compile = compile || install;
 		generate = generate || compile;
-		BuilderArguments args(generate, compile, install);
+		BuilderArguments args(generate, compile, install, cavatappiMode);
 		return builder.Execute(args);
 	}
 

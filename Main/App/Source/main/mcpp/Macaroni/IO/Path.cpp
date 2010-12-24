@@ -53,6 +53,30 @@ void Path::assertPathExistsInRootPath()
 	}
 }
 
+void Path::ClearDirectoryContents()
+{
+	if (!Exists())
+	{
+		std::stringstream ss;
+		ss << "Can't clear directory contents from path \"" << path.string() 
+		   << "\" as it does not exist.";
+		std::string msg(ss.str());
+		throw Macaroni::Exception(msg.c_str());
+	}
+	if (!IsDirectory())
+	{
+		std::stringstream ss;
+		ss << "Cannot clear directory contents from path \"" << path.string()
+		   << " as it is not a directory.";
+		std::string msg(ss.str());
+		throw Macaroni::Exception(msg.c_str());		
+	} 
+	else 
+	{
+		boost::filesystem::remove_all(path);
+	}
+}
+
 void Path::CopyDirectoryContents(boost::filesystem::path & bSrc,
 								 boost::filesystem::path & bDst)
 {

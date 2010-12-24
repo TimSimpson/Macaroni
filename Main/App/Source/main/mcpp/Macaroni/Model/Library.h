@@ -47,6 +47,12 @@ public:
 		return id.GetGroup();
 	}	
 
+	/** True if the artifacts are located in the repo, wherever that may be. */
+	inline bool IsInstalled() const
+	{
+		return !!FindInstallPath();
+	}
+
 	inline const Macaroni::Build::LibraryId & GetId() const
 	{
 		return id;	
