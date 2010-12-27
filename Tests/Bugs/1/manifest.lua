@@ -2,12 +2,13 @@ id =
 {
     group="Macaroni::Regression::Bugs",
     name="1",
-    version="_",
+    version="0.1.0.6",
     author="Tim Simpson"
 }
 
 description= [[  
-    Tests that Cavatappi is invoked.
+	When a build phase method is not found, Macaroni not fail the build.
+	Instead it should act as if the build phase method is empty.
 ]]
 
 cavatappi("cavatappi.lua");

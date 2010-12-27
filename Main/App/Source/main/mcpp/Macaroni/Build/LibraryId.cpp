@@ -4,6 +4,7 @@
 #include "LibraryId.h"
 #include <Macaroni/IO/FileNotFoundException.h>
 #include "../IO/PathResolver.h"
+#include <sstream>
 
 namespace Macaroni { namespace Build {
 
@@ -13,6 +14,17 @@ bool operator==(const LibraryId & a, const LibraryId & b)
 			&& a.GetName() == b.GetName()
 			&& a.GetVersion() == b.GetVersion();
 }
+
+std::string LibraryId::CreateFilePathSafeString(const std::string & str)
+{
+	std::stringstream ss;
+	BOOST_FOREACH(const char c, str)
+	{
+		ss << c;
+	}		
+	return ss.str();
+}
+	
 
 } }
 

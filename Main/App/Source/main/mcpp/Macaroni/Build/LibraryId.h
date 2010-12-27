@@ -3,6 +3,7 @@
 
 #include "../ME.h"
 #include <boost/filesystem/operations.hpp>
+#include <boost/optional.hpp>
 #include <string>
 #include <vector>
 
@@ -25,6 +26,11 @@ public:
 	}
 
 	friend bool operator==(const LibraryId & a, const LibraryId & b);
+	
+	/** Finds strings Turns strings with characters that are allowed in a library name,
+	 * group, or version into characters that can be allowed in most OS
+	 * file paths. */
+	static boost::optional<std::string> FindIllegalCharacters(const std::string & str);
 			
 	inline const std::string & GetGroup() const
 	{

@@ -683,10 +683,11 @@ Manifest::RunResultPtr Manifest::RunTarget(const Console & console, BuildContext
 	lua_getfield(L, LUA_GLOBALSINDEX, manifestMethodName.c_str());
 	if (lua_isnil(L, -1))
 	{	
-		std::stringstream ss;
-		ss << "Could not find function \"" << manifestMethodName << "\".";
-		console.WriteLine(ss.str());
-		result->Success = false;
+		//std::stringstream ss;
+		//ss << "Could not find function \"" << manifestMethodName << "\".";
+		//console.WriteLine(ss.str());
+		// As of 0.1.0.6, just return if the phase method isn't found.
+		result->Success = true; //false;
 		return result;
 	}
 	lua_call(L, 0, 1);
