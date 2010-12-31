@@ -5,6 +5,7 @@ class system { ~hfile=<cstdlib> }
 
 // Std lib stuff
 class std::auto_ptr { ~hfile=<memory> }
+class std::string::const_iterator { ~hfile=<string> } 
 class std::ifstream { ~hfile=<fstream> }
 class std::fstream { ~hfile=<fstream> }
 class std::istream { ~hfile=<iostream> }
@@ -24,8 +25,14 @@ class boost::optional { ~hfile=<boost/optional.hpp> }
 //class boost::filesystem::path { ~hfile=<boost/filesystem.hpp> }
 class boost::shared_ptr { ~hfile=<boost/shared_ptr.hpp> }
 
+// Lua
+class lua_State { ~hfile=<Lua/lua.h> }
+class luaL_Reg	{ ~hfile=<Lua/lauxlib.h> }
+// #include <Lua/lualib.h>
+
 class Macaroni::Model::Cpp::Access { ~hfile=<Macaroni/Model/Cpp/Access.h> }
 class Macaroni::Model::Cpp::AccessLuaMetaData { ~hfile=<Macaroni/Model/Cpp/AccessLua.h> }
+class MACARONI_CHECK { ~hfile=<Macaroni/ME.h> }
 class Macaroni::Model::Cpp::Class { ~hfile=<Macaroni/Model/Cpp/Class.h> }
 class Macaroni::Model::Cpp::ClassPtr { ~hfile=<Macaroni/Model/Cpp/ClassPtr.h> }
 class Macaroni::Environment::Console { ~hfile=<Macaroni/Environment/Console.h> }
@@ -38,7 +45,10 @@ class Macaroni::Model::ContextPtr { ~hfile=<Macaroni/Model/ContextPtr.h> }
 class Macaroni::Generator::Lua::DynamicGenerator { ~hfile=<Macaroni/Generator/Lua/DynamicGenerator.h> }
 class Macaroni::Exception { ~hfile=<Macaroni/Exception.h> }
 class Macaroni::IO::FileNotFoundException { ~hfile=<Macaroni/IO/FileNotFoundException.h> }
+class Macaroni::Model::FileName { ~hfile=<Macaroni/Model/FileName.h> }
+class Macaroni::Model::FileNamePtr { ~hfile=<Macaroni/Model/FileNamePtr.h> }
 class Macaroni::IO::FileSet { ~hfile=<Macaroni/IO/FileSet.h> }
+class Macaroni::IO::GeneratedFileWriterLuaMetaData { ~hfile=<Macaroni/IO/GeneratedFileWriterLuaMetaData.h> }
 class Macaroni::Environment::LuaEnvironment { ~hfile=<Macaroni/Environment/LuaEnvironment.h> }
 class Macaroni::Model::Library { ~hfile=<Macaroni/Model/Library.h> }
 class Macaroni::Build::LibraryId { ~hfile=<Macaroni/Build/LibraryId.h> }
@@ -53,11 +63,14 @@ class Macaroni::Model::Node { ~hfile=<Macaroni/Model/Node.h> }
 class nullptr { ~hfile=<Macaroni/ME.h> }
 class Macaroni::Parser::ParserException { ~hfile=<Macaroni/Parser/ParserException.h> }
 class Macaroni::IO::Path { ~hfile=<Macaroni/IO/Path.h> }
+class Macaroni::IO::PathLuaMetaData { ~hfile=<Macaroni/IO/PathLua.h> }
 class Macaroni::IO::PathPtr { ~hfile=<Macaroni/IO/Path.h> }
 class Macaroni::IO::Paths { ~hfile=<Macaroni/IO/Paths.h> }
 class Macaroni::Environment::Process { ~hfile=<Macaroni/Environment/Process.h> }
 class Macaroni::Model::Source { ~hfile=<Macaroni/Model/Source.h> }
+class Macaroni::Model::SourcePtr { ~hfile=<Macaroni/Model/SourcePtr.h> }
 class Macaroni::Environment::StringPair { ~hfile=<Macaroni/Environment/StringPair.h> }
+class MACARONI_THROW { ~hfile=<Macaroni/ME.h> }
 
 
 

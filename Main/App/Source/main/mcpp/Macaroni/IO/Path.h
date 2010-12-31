@@ -24,6 +24,7 @@ typedef boost::shared_ptr<PathList> PathListPtr;
  * relative paths.  Macaroni needs to work with files this way, which is why
  * I made this class a bit more complicated than might seem needed at first
  * glance. */
+//TODO: Rename "RelativePath"
 class Path
 {
 public:
@@ -46,28 +47,49 @@ public:
 	/** An example would be to copy a file from "src/blah/a.txt" to 
 	 * "output/blah/a.txt", where "src" is the original root path and
 	 * "output" is the argument to this function. */
-	void CopyToDifferentRootPath(boost::filesystem::path rootPath);
+	void CopyToDifferentRootPath(boost::filesystem::path rootPath,
+								 bool overrideIfExist = false);
 	
-	void CopyToDifferentRootPath(const PathPtr & rootPath);
+	void CopyToDifferentRootPath(const PathPtr & rootPath, bool overrideIfExist = false);
 
+	/** Creates the directory defined by this path, if it doesn't exist. */
 	void CreateDirectory() const;
 
 	/** Opens a file in the current directory for writing. */
-	GeneratedFileWriterPtr CreateFile() const;	
+	GeneratedFileWriterPtr CreateFile() const;		
 
+	/** Creates a new instance with the current path as the absolute path. */
+	PathPtr CreateWithCurrentAsRoot() const;
+
+	/** Creates a new instance with the given path as the root path. */
+	PathPtr CreateWithDifferentRootPath(const PathPtr & path);
+	
 	bool Exists() const;
 
 	std::string GetAbsolutePath() const;
 
 	std::string GetAbsolutePathForceSlash() const;
 
+	/** Grabs the filename, i.e. everything after the directory. 
+	 *  Throws if this is not a regular file. */
+	std::string GetFileName() const;	
+	
+	PathPtr GetParentPath() const;
+
 	PathListPtr GetPaths() const;
 
+	/** Returns all paths which adhere to some regex. */
 	PathListPtr GetPaths(const std::string & matchingPattern) const;
 
 	std::string GetRelativePath() const;
 
+	/** Returns a PathPtr whose root and path are pointing to this
+	 *  Paths root. */
+	PathPtr GetRoot() const;
+
 	bool IsDirectory() const;
+
+	bool IsRegularFile() const;
 
 	/** Compares this path's file to another one. */
 	bool IsFileOlderThan(const std::string & filePath) const;
@@ -80,7 +102,7 @@ public:
 
 	/** The path in String form. */
 	std::string ToString() const;
-	
+		
 private:	
 
 	void assertPathExistsInRootPath();

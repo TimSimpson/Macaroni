@@ -19,7 +19,11 @@ BEGIN_NAMESPACE2(Macaroni, Environment)
 class LuaEnvironment
 {
 public:
-	LuaEnvironment();
+	/** Creates a new LuaEnvironment.  If no lua_State is given, then one
+	 *  is created and destroyed when this object is destroyed.
+	 *  If one is given, then its used and left alone when this object is
+	 *  destroyed. */
+	LuaEnvironment(lua_State * L = nullptr);
 	~LuaEnvironment();
 	
 	/** Creates a new table in otherL at the top of the stack and populates
@@ -59,7 +63,7 @@ public:
 
 	void ParseString(const char * chunkName, const char * code);
 
-	void Run();
+	void Run(int results = 0);
 
 	/** Serializes the value at the top of the stack to a string. */
 	void SerializeField(std::stringstream & ss, int depth = 0);
@@ -72,6 +76,7 @@ public:
 	void SetPackageDirectory(const std::vector<std::string> & paths);
 
 private:
+	bool iOwnLuaState;
 	static const char * loadFile(lua_State * L, void * data, size_t *size);
 	static const char * loadString(lua_State * L, void * data, size_t *size);
 	std::ifstream * input;

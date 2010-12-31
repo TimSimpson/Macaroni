@@ -21,6 +21,14 @@ public:
 		#endif
 	}
 
+	//Exception(std::string & mergggg)
+	//	:source("Unspecified source.", message(mergggg.c_str()))
+	//{
+	//	#ifndef _DEBUG
+	//		std::cout << "THROWN EXCEPTION:" << message << std::endl;
+	//	#endif
+	//}
+
 	Exception(const char * source, const char * message)
 		: source(source), message(message)
 	{
@@ -37,7 +45,7 @@ public:
 		#endif
 	}
 
-	Exception(const char * source, std::string const & message)
+	Exception(const char * source, const std::string & message)
 		: source(source), message(message)
 	{
 		#ifndef _DEBUG
@@ -45,7 +53,7 @@ public:
 		#endif
 	}
 
-	Exception(std::string const & source, std::string const & message)
+	Exception(std::string const & source, const std::string & message)
 		: source(source), message(message)
 	{
 		#ifndef _DEBUG

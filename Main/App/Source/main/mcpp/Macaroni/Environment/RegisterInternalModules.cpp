@@ -14,6 +14,7 @@
 #include "../Model/Cpp/FunctionLua.h"
 #include <Macaroni/IO/GeneratedFileWriterLuaMetaData.h>
 #include "../Model/LibraryLua.h"
+#include <Macaroni/Doc/MDocParser.h>
 #include "../Model/MemberLua.h"
 #include "MessagesLua.h"
 //#include "../Model/NamespaceLua.h"
@@ -52,6 +53,7 @@ static const struct luaL_Reg libs[] = {
 	{"Macaroni.Model.Cpp.Function", Model::Cpp::FunctionLuaMetaData::OpenInLua},		
 	{"Macaroni.IO.GeneratedFileWriter", Macaroni::IO::GeneratedFileWriterLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Library", Model::LibraryLuaMetaData::OpenInLua},	
+	{"Macaroni.Doc.MDocParser", Macaroni::Doc::MDocParser::OpenInLua},	
 	{"Macaroni.Model.Member", Model::MemberLuaMetaData::OpenInLua},	
 	{"Macaroni.Model.Node", Model::NodeLuaMetaData::OpenInLua},
 	{"Macaroni.Model.NodeList", Model::NodeListLuaMetaData::OpenInLua},

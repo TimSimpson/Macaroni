@@ -106,60 +106,82 @@ namespace {
 
 END_NAMESPACE2
 
+#define TRY try {
+#define CATCH } catch(const std::exception & ex){ return luaL_error(L, ex.what()); }
+
 #include "../LuaGlue.hpp"
 
 	static int copyToDifferentRootPath(lua_State * L) 
 	{
-		PathPtr me = getInstance(L, 1);
-		PathPtr rootPath = getInstance(L, 2);
-		try 
-		{
-			me->CopyToDifferentRootPath(rootPath);
-		} 
-		catch(const std::exception & ex) 
-		{
-			lua_pushstring(L, ex.what());
-			lua_error(L);		
-		}
-		return 0;
+		TRY
+			PathPtr me = getInstance(L, 1);
+			PathPtr rootPath = getInstance(L, 2);
+			bool ovride = false;
+			if (lua_isboolean(L, 3))
+			{
+				ovride = (bool) lua_toboolean(L, 3);
+			}			
+			me->CopyToDifferentRootPath(rootPath, ovride);			
+			return 0;
+		CATCH
 	}	
 	
 	static int createDirectory(lua_State * L)
 	{
-		PathPtr ptr = getInstance(L);
-		ptr->CreateDirectory();
-		return 0;
+		TRY
+			PathPtr ptr = getInstance(L);
+			ptr->CreateDirectory();
+			return 0;
+		CATCH
+	}
+
+	static int createWithCurrentAsRoot(lua_State * L)
+	{
+		TRY
+			PathPtr ptr = getInstance(L);
+			PathPtr rtn = ptr->CreateWithCurrentAsRoot();
+			PathLuaMetaData::PutInstanceOnStack(L, rtn);
+			return 1;
+		CATCH
+	}
+
+	static int createWithDifferentRootPath(lua_State * L)
+	{
+		TRY
+			PathPtr ptr = getInstance(L);
+			PathPtr other = PathLuaMetaData::GetInstance(L, 2);
+			PathPtr rtn = ptr->CreateWithDifferentRootPath(other);
+			PathLuaMetaData::PutInstanceOnStack(L, rtn);
+			return 1;
+		CATCH
 	}
 
 	static int getPaths(lua_State * L)
 	{
-		PathPtr path = getInstance(L);
-		std::string matchesPattern(luaL_checkstring(L, 2));		
-		PathListPtr paths = path->GetPaths(matchesPattern);
-		pushPathListPtrOntoStack(L, paths);
-		return 1;		
+		TRY
+			PathPtr path = getInstance(L);
+			std::string matchesPattern(luaL_checkstring(L, 2));		
+			PathListPtr paths = path->GetPaths(matchesPattern);
+			pushPathListPtrOntoStack(L, paths);
+			return 1;		
+		CATCH
 	}
 		
 	static int isFileOlderThan(lua_State * L)
 	{
-		try 
-		{
+		TRY
 			PathPtr ptr = getInstance(L);
 			std::string other(luaL_checkstring(L, 2));
 			bool result = ptr->IsFileOlderThan(other);
 			lua_pushboolean(L, result);
-		} 
-		catch(...)
-		{
-			lua_pushstring(L, "Error comparing files!");
-			lua_error(L);
-		}
-		return 1;
+			return 1;
+		CATCH
 	}
 
 	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr, 
 									  const std::string & index)
 	{		
+		TRY
 		if (index == "AbsolutePath")
 		{	
 			std::string absPath = ptr->GetAbsolutePath();
@@ -181,6 +203,16 @@ END_NAMESPACE2
 			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::createFile);
 			return 1;
 		}
+		else if (index == "CreateWithCurrentAsRoot")
+		{
+			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::createWithCurrentAsRoot);
+			return 1;
+		}
+		else if (index == "CreateWithDifferentRootPath")
+		{
+			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::createWithDifferentRootPath);
+			return 1;
+		}
 		else if (index == "Exists")
 		{	bool exists = ptr->Exists();
 			lua_pushboolean(L, exists);
@@ -190,6 +222,12 @@ END_NAMESPACE2
 		{
 			std::string absPath = ptr->GetAbsolutePathForceSlash();
 			lua_pushstring(L, absPath.c_str());
+			return 1;
+		}
+		else if (index == "FileName")
+		{
+			std::string fileName = ptr->GetFileName();
+			lua_pushstring(L, fileName.c_str());
 			return 1;
 		}
 		else if (index == "GetPaths")
@@ -218,55 +256,68 @@ END_NAMESPACE2
 			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::newPathForceSlash);
 			return 1;			
 		}
+		else if (index == "ParentPath")
+		{
+			PathPtr parent = ptr->GetParentPath();
+			PathLuaMetaData::PutInstanceOnStack(L, parent);
+			return 1;
+		}
 		else if (index == "Paths")
 		{
 			PathListPtr paths = ptr->GetPaths();			
 			pushPathListPtrOntoStack(L, paths);
 			return 1;
 		}
+		else if (index == "RelativePath")
+		{
+			std::string relativePath = ptr->GetRelativePath();
+			lua_pushstring(L, relativePath.c_str());
+			return 1;
+		}
 		lua_pushnil(L);			
 		return 1;
+		CATCH
 	}
 
 	static int createFile(lua_State * L)
 	{
-		PathPtr ptr = getInstance(L);
-		try 
-		{
+		TRY
+			PathPtr ptr = getInstance(L);
 			GeneratedFileWriterPtr writer = ptr->CreateFile();
 			GeneratedFileWriterLuaMetaData::PutInstanceOnStack(L, writer);
 			return 1;
-		} 
-		catch(const std::exception & ex)
-		{
-			luaL_error(L, ex.what());
-		}
-		return 0; // line will never be reached
+		CATCH
 	}
 
 	static int newPath(lua_State * L)
 	{
-		PathPtr ptr = getInstance(L);
-		std::string name(luaL_checkstring(L, 2));
-		PathPtr newPath = ptr->NewPath(name);
-		LUAGLUE_REGISTRATIONCLASSNAME::PutInstanceOnStack(L, newPath);
-		return 1;
+		TRY
+			PathPtr ptr = getInstance(L);
+			std::string name(luaL_checkstring(L, 2));
+			PathPtr newPath = ptr->NewPath(name);
+			LUAGLUE_REGISTRATIONCLASSNAME::PutInstanceOnStack(L, newPath);
+			return 1;
+		CATCH
 	}
 
 	static int newPathForceSlash(lua_State * L)
 	{
-		PathPtr ptr = getInstance(L);
-		std::string name(luaL_checkstring(L, 2));
-		PathPtr newPath = ptr->NewPathForceSlash(name);
-		LUAGLUE_REGISTRATIONCLASSNAME::PutInstanceOnStack(L, newPath);
-		return 1;
+		TRY
+			PathPtr ptr = getInstance(L);
+			std::string name(luaL_checkstring(L, 2));
+			PathPtr newPath = ptr->NewPathForceSlash(name);
+			LUAGLUE_REGISTRATIONCLASSNAME::PutInstanceOnStack(L, newPath);
+			return 1;
+		CATCH
 	}
 
 	static int __tostring(lua_State * L)
 	{
-		PathPtr path = getInstance(L);
-		lua_pushstring(L, path->ToString().c_str());
-		return 1;
+		TRY
+			PathPtr path = getInstance(L);
+			lua_pushstring(L, path->ToString().c_str());
+			return 1;
+		CATCH
 	}	
 
 	#define LUAGLUE_ADDITIONALMETATABLEMETHODS \

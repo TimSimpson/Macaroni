@@ -6,17 +6,6 @@
 #define nullptr 0
 #endif
 
-// C99 style typedefs, they're usage is more widespread.
-typedef unsigned char   uint8_t;
-typedef signed char      int8_t;
-typedef unsigned short  uint16_t;
-typedef signed short     int16_t; 
-typedef unsigned int    uint32_t;
-typedef signed int       int32_t;
-typedef unsigned long   uint64_t;
-typedef signed long      int64_t;
-
-
 #define BEGIN_NAMESPACE(a, b, c) namespace a{ namespace b{ namespace c{
 #define END_NAMESPACE } } }
 
@@ -35,7 +24,13 @@ void ThrowMacaroniException(const char * file, int line, const char * message);
  * Crashes hard core.  An alternative to the classic exit command, except this
  * can be caught at the absolute lowest level to give some kind of error screen.
  */
+//TODO: Rename or get rid of this. It makes it seem like its intended to end the 
+//app, but thats not what it'll do.
 #define MACARONI_FAIL(m) { Macaroni::ThrowMacaroniException(__FILE__, __LINE__, (m)); }
+
+#define MACARONI_THROW(m) { Macaroni::ThrowMacaroniException(__FILE__, __LINE__, (m)); }
+
+#define MACARONI_CHECK(a, b) {if (!(a)){ Macaroni::ThrowMacaroniException(__FILE__, __LINE__, (b)); } }
 
 #ifndef DEBUGGING_OFF
 #define MACARONI_ASSERT(a, b) {if (!(a)){ Macaroni::ThrowMacaroniException(__FILE__, __LINE__, (b)); } }

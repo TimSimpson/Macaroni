@@ -102,20 +102,29 @@ void Path::CopyDirectoryContents(Path & src,
 	}
 }
 
-void Path::CopyToDifferentRootPath(boost::filesystem::path newRootPath)
+void Path::CopyToDifferentRootPath(boost::filesystem::path newRootPath,
+								   bool overrideIfExist)
 {
 	boost::filesystem::path dstPath = newRootPath / GetRelativePath();
 	//std::cio << "Creating directories at " .. dstPath.branch_path() << std::endl;
 	boost::filesystem::create_directories(dstPath.branch_path());
 	//boost::filesystem::remove(dstPath);
 	
+	if (boost::filesystem::exists(dstPath))
+	{
+		if (overrideIfExist)
+		{
+			boost::filesystem::remove(dstPath);
+		}
+	}
 	boost::filesystem::copy_file(this->path, dstPath);	
 }
 
-void Path::CopyToDifferentRootPath(const PathPtr & rootPath)
+void Path::CopyToDifferentRootPath(const PathPtr & rootPath, 
+								   bool overrideIfExist)
 {
 	boost::filesystem::path rp(rootPath->GetAbsolutePath());
-	this->CopyToDifferentRootPath(rp);	
+	this->CopyToDifferentRootPath(rp, overrideIfExist);	
 }
 
 void Path::CreateDirectory() const
@@ -132,6 +141,19 @@ GeneratedFileWriterPtr Path::CreateFile() const
 {
 	boost::filesystem::path absolute = boost::filesystem::system_complete(path);
 	return GeneratedFileWriterPtr(new GeneratedFileWriter(absolute));
+}
+
+PathPtr Path::CreateWithCurrentAsRoot() const
+{
+	PathPtr path(new Path(boost::filesystem::system_complete(path)));
+	return path;
+}
+
+PathPtr Path::CreateWithDifferentRootPath(const PathPtr & otherPath)
+{	
+	boost::filesystem::path p = otherPath->rootPath / GetRelativePath();
+	PathPtr path(new Path(otherPath->rootPath, p));
+	return path;
 }
 
 bool Path::Exists() const
@@ -173,6 +195,25 @@ std::string Path::GetAbsolutePathForceSlash() const
 	}
 }
 
+std::string Path::GetFileName() const
+{
+	/*if (!IsRegularFile())
+	{
+		std::stringstream ss;
+		ss << "Cannot change the extension as the given path \""
+			<< GetAbsolutePath() 
+			<< "\" is not a regular file.";
+		throw Macaroni::Exception(ss.str().c_str());
+	}*/
+	return path.filename();
+}
+
+PathPtr Path::GetParentPath() const
+{
+	PathPtr rtn(new Path(rootPath, path.parent_path()));
+	return rtn;
+}
+
 PathListPtr Path::GetPaths() const
 {
 	return GetPaths("");
@@ -192,6 +233,12 @@ PathListPtr Path::GetPaths(const std::string & matchingPattern) const
 	return rtnList;		
 }
 
+PathPtr Path::GetRoot() const
+{
+	PathPtr rtn(new Path(rootPath));
+	return rtn;
+}
+
 bool Path::IsDirectory() const
 {
 	return boost::filesystem::is_directory(path);
@@ -208,6 +255,11 @@ bool Path::IsFileOlderThan(const std::string & filePath) const
 	boost::filesystem::path two(filePath);
 	
 	return FileTime::File1IsOlderThanFile2(one, two);	
+}
+
+bool Path::IsRegularFile() const
+{
+	return boost::filesystem::is_regular_file(path);
 }
 
 PathPtr Path::NewPath(const std::string & name) const
@@ -255,6 +307,7 @@ std::string Path::ToString() const
 {
 	return GetRelativePath();
 }
+
 	
 END_NAMESPACE2
 

@@ -13,17 +13,27 @@
 BEGIN_NAMESPACE2(Macaroni, Environment)
 
 
-LuaEnvironment::LuaEnvironment()
-:input(nullptr)
+LuaEnvironment::LuaEnvironment(lua_State * L)
+:input(nullptr), iOwnLuaState(L == nullptr)
 {
-	state = luaL_newstate();
-	luaL_openlibs(state);
-	registerInternalLuaModules();
+	if (L == nullptr)
+	{
+		state = luaL_newstate();
+		luaL_openlibs(state);
+		registerInternalLuaModules();
+	}
+	else 
+	{
+		state = L;
+	}
 }
 
 LuaEnvironment::~LuaEnvironment()
 {
-	lua_close(state);
+	if (iOwnLuaState)
+	{
+		lua_close(state);		
+	}
 	if (input != nullptr)
 	{
 		input->close();
@@ -268,9 +278,9 @@ void LuaEnvironment::ParseString(const char * chunkName, const char * code)
 	}
 }
 
-void LuaEnvironment::Run()
+void LuaEnvironment::Run(int results)
 {
-	int eCode = lua_pcall(state, 0, 0, 0);
+	int eCode = lua_pcall(state, 0, results, 0);
 	if (eCode != 0)
 	{	
 		std::stringstream ss;

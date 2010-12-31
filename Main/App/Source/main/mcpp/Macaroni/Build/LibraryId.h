@@ -18,19 +18,13 @@ public:
 	
 	LibraryId(const std::string & group, 
 			  const std::string & name, 
-			  const std::string & version)
-	: group(group),
-	  name(name), 
-	  version(version)				
-	{	
-	}
+			  const std::string & version);
 
 	friend bool operator==(const LibraryId & a, const LibraryId & b);
 	
-	/** Finds strings Turns strings with characters that are allowed in a library name,
-	 * group, or version into characters that can be allowed in most OS
-	 * file paths. */
-	static boost::optional<std::string> FindIllegalCharacters(const std::string & str);
+	/** Determines whether or not a string can be used for a group, name,
+	 *  or version string of a library. */
+	static bool IsStringLegal(const std::string & str);
 			
 	inline const std::string & GetGroup() const
 	{

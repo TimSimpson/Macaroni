@@ -9,6 +9,9 @@
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
+//TODO: OH MAN, I can't believe how stupid this class is.  How embarassing.
+//TODO: Replace with boost flyweight.
+
 /** Represents any file name which could be the Source of Model information. */
 class FileName
 {

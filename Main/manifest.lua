@@ -20,15 +20,16 @@ output = "Cavatappi"
 children =
 {
   "App",
-  "Generators",
-  "Libraries"
+  --"Generators",
+  --"Libraries"
+  "Cavatappi"
 };
         
 function generate()    
 end
    	
 function build()	
-  run("CreateCavatappi");
+  
 end
 
 function install()	

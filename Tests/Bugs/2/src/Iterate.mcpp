@@ -1,0 +1,22 @@
+~import std::string::const_iterator;
+~import std::string;
+
+namespace Macaroni::Parser {
+
+typedef std::string::const_iterator StringItr;
+
+class TextIterator 
+{	
+	//TODO: If you use const_iterator directly, it breaks the Parser!
+	private StringItr aItr;
+	private const_iterator anotherItr;
+
+	public TextIterator(StringItr itr, const_iterator anotherItr)
+	:	aItr(anotherItr), //WHOA, I am assigning them the values of the arguments
+		anotherItr(itr)   // with different typedefs, b/c they are the same.
+                          // Did I just blow your MIND?!
+	{		
+	}
+};
+
+} // end Macaroni::Parser} // end Macaroni::Parser
