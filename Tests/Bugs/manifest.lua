@@ -1,11 +1,13 @@
 require "os"
 require "Macaroni.Model.Library"
 
+upper = getUpperLibrary();
+
 id =
 {
-    group="Macaroni",
-    name="Macaroni.Tests.Bugs",
-    version="1.0.0.0"
+    group=upper.Group,
+    name= upper.Name .. ".Bugs",
+    version= upper.Version -- "1.0.0.0"
 }
 
 description="Current and former known bugs experienced in Macaroni."

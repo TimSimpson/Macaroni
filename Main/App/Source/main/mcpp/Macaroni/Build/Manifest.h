@@ -47,6 +47,7 @@ public:
 
 	Manifest(const boost::filesystem::path & manifestFile, 
 			 const std::string & properties,
+			 ManifestPtr upperManifest,
 			 const bool isCavatappi);
 
     ~Manifest();

@@ -1,11 +1,12 @@
 require "os"
 require "Macaroni.Model.Library"
 
+upper = getUpperLibrary();
 id =
 {
-    group="Macaroni",
-    name="Regression Tests- Attribute Example",
-    version="1.0.0.0"
+    group=upper.Group,
+    name=upper.Name .. ".Attributes",
+    version=upper.Version
 }
 
 -- Life cycle:
@@ -16,7 +17,7 @@ id =
 -- call default, which is defined to be "generate"
 
 description=[[
-This example puts Attributes on various nodes.
+Attribute Tests
 ]]
 
 source "Source"

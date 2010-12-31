@@ -1,11 +1,13 @@
 require "os"
 require "Macaroni.Model.Library"
 
+upper = getUpperLibrary();
+
 id =
 {
-    group="Macaroni",
-    name="Macaroni.Tests.Features",
-    version="1.0.0.0"
+    group=upper.Group,
+    name=upper.Name .. ".Features",
+    version=upper.Version
 }
 
 description="Battery of Tests for Macaroni."

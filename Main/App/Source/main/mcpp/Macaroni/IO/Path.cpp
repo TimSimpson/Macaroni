@@ -15,6 +15,17 @@ using Macaroni::IO::FileSet;
 
 BEGIN_NAMESPACE2(Macaroni, IO)
 
+//namespace {
+//	static path createPath(const std::string & absolutePath)
+//	{
+//		path p = absolutePath;
+//	}
+//}
+Path::Path(const std::string & absolutePath)
+:rootPath(absolutePath)
+{
+}
+
 Path::Path(boost::filesystem::path rootPath)
 :rootPath(rootPath), path(rootPath)
 {

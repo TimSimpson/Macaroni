@@ -289,6 +289,17 @@ END_NAMESPACE2
 		CATCH
 	}
 
+	static int newInstance(lua_State * L)
+	{
+		TRY
+			std::string absolutePath(luaL_checkstring(L, 1));
+			PathPtr newPath(new Path(absolutePath));
+			LUAGLUE_REGISTRATIONCLASSNAME::PutInstanceOnStack(L, newPath);			
+			return 1;
+		CATCH
+	}	
+
+
 	static int newPath(lua_State * L)
 	{
 		TRY
@@ -324,7 +335,7 @@ END_NAMESPACE2
 		{"__tostring", LUAGLUE_HELPERCLASS::__tostring},
 
 	#define LUAGLUE_ADDITIONALTABLEMETHODS \
-		/*{"LuaCreate", LUAGLUE_HELPERCLASS::LuaCreate},*/
+		{"New", LUAGLUE_HELPERCLASS::newInstance},
 
 #include "../LuaGlue2.hpp"
 

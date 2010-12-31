@@ -1,11 +1,12 @@
 require "os"
 require "Macaroni.Model.Library"
 
+upper = getUpperLibrary();
 id =
 {
-    group="Macaroni",
-    name="Regression Tests- Lua Glue",
-    version="1.0.0.0"
+    group=upper.Group,
+    name=upper.Name .. "LuaGlue",
+    version=upper.Version,
 }
 
 description='Tests the generator "LuaGlue."'

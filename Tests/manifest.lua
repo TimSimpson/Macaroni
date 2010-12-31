@@ -1,11 +1,12 @@
 require "os"
 require "Macaroni.Model.Library"
 
+upper = getUpperLibrary();
 id =
 {
-    group="Macaroni",
+    group=upper.Group,
     name="Macaroni.Tests",
-    version="1.0.0.0"
+    version=upper.Version
 }
 
 print "Greetings from the Test parent.";

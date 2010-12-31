@@ -1,7 +1,9 @@
+upper = getUpperLibrary();
+
 id =
 {
-    group="Macaroni",
-    name="Macaroni.Tests.Bugs.1",
+    group=upper.Group;,
+    name=upper.Name .. ".1",
     version="0.1.0.6",
     author="Tim Simpson"
 }

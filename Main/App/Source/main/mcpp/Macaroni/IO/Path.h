@@ -28,6 +28,7 @@ typedef boost::shared_ptr<PathList> PathListPtr;
 class Path
 {
 public:
+	Path(const std::string & absolutePath);
 	Path(boost::filesystem::path rootPath);
 	Path(boost::filesystem::path rootPath, const char * path);
 	Path(const Path & other); 

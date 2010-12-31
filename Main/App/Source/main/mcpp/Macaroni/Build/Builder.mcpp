@@ -276,14 +276,16 @@ class Builder
 		properties = RunInitialScript();
 		vector<path> manifests;
 		path topParent = climbToTop(manifests, manifestPath);
+		ManifestPtr upperManifest;
 		for (int i = manifests.size() - 1; i >= 0; i --)
-		{
-			loadManifest(arguments, manifests[i], false, manifest, library);
+		{			
+			loadManifest(arguments, upperManifest, manifests[i], false, manifest, library);
 			properties = manifest->GetProperties();
 			if (!parseManifest(arguments, manifest, library))
 			{
 				return false;
 			}
+			upperManifest = manifest;
 		}
 		return true;
 		// Finally, the manifest and library of whatever we're working on is loaded.
@@ -369,11 +371,12 @@ class Builder
 	 * phases.  Does not load children.  Returns the new properties setting
 	 * based on reading the manifest. */
 	private void loadManifest(const BuilderArguments & arguments,
+							  ManifestPtr upperManifest,
 							  path manifestPath, bool isInstalled,
 							  ManifestPtr & outManifest, 
 							  LibraryPtr & outLibrary)
 	{
-		ManifestPtr newM(new Manifest(manifestPath, properties, arguments.CavatappiMode()));
+		ManifestPtr newM(new Manifest(manifestPath, properties, upperManifest, arguments.CavatappiMode()));
 		outManifest = newM;
 		outLibrary = createLibraryForManifest(outManifest, isInstalled);
 	}	
@@ -455,8 +458,7 @@ class Builder
 				// loading process, they can use the Cavatappi mechanism to 
 				// put the library credentials in the first part and the buggy
 				// part in the second manifest file.
-
-				bugManifest.reset(new Manifest(bugPath, properties, false));
+				bugManifest.reset(new Manifest(bugPath, properties, manifest, false));
 			}
 			catch(...)
 			{				
@@ -482,7 +484,8 @@ class Builder
 		{			
 			path childPath(manifest->GetRootDirectory());
 			childPath = childPath / child / "manifest.lua";
-			ManifestPtr childManifest(new Manifest(childPath, properties, arguments.CavatappiMode()));
+			ManifestPtr childManifest(new Manifest(childPath, properties, 
+												   manifest, arguments.CavatappiMode()));
 			childManifests.push_back(childManifest);
 		}
 		ManifestOrganizer list(childManifests);
@@ -537,7 +540,9 @@ class Builder
 		{			
 			// Load manifest of dependency, create libraries
 			path manifestFilePath = appPaths->FindFinalManifestFile(dependencyId);
+			ManifestPtr none;
 			ManifestPtr dManifest(new Manifest(manifestFilePath, properties, 
+											   none,
 											   arguments.CavatappiMode()));			
 			const boost::optional<boost::filesystem::path> installPath(
 				appPaths->FindInstallPath(dependencyId));

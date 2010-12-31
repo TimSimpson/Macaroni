@@ -1,11 +1,12 @@
 require "os"
 require "Macaroni.Model.Library"
 
+upper = getUpperLibrary();
 id =
 {
-    group="Macaroni",
-    name="Tests - BoostBuild",
-    version="1.0.0.0"
+    group=upper.Group,
+    name=upper.Name .. ".BoostBuild",
+    version=upper.Version
 }
 
 description="A test to see if Boost Build can create and store C++ artifacts in a repo."

@@ -39,6 +39,7 @@ namespace Macaroni { namespace Build {
 
 static int _cavatappi(lua_State * L);
 static int _dependency(lua_State * L);
+static int _getUpperLibrary(lua_State * L);
 static int _source(lua_State * L);
 
 static int dependency(lua_State * L);
@@ -98,6 +99,7 @@ Manifest::Manifest(LibraryId id, std::vector<LibraryId> deps)
 
 Manifest::Manifest(const boost::filesystem::path & manifestFile, 
 				   const std::string & properties, 
+				   ManifestPtr upperManifest,
 				   const bool allowCavatappi)
 :children(),
  containsCavatappi(false),
@@ -130,6 +132,13 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile,
 
 	lua_pushstring(L, LATEST_LUA_VALUE);	
 	lua_setglobal(L, "LATEST");
+
+	lua_pushstring(L, manifestFile.string().c_str());
+	lua_setglobal(L, "manifestDirectory");
+
+	lua_pushlightuserdata(L, &(upperManifest));
+	lua_pushcclosure(L, _getUpperLibrary, 1);
+	lua_setglobal(L, "getUpperLibrary");
 
 	optional<std::string> extraCavatappiInfo;
 	lua_pushlightuserdata(L, &(extraCavatappiInfo));
@@ -330,6 +339,32 @@ int _dependency(lua_State * L)
 			return lua_error(L);
 		}		
 	}*/
+}
+
+int _getUpperLibrary(lua_State * L)
+{
+	// Up values
+	void * uv1 = lua_touserdata(L, lua_upvalueindex(1));
+	ManifestPtr * manifestPtr = reinterpret_cast<ManifestPtr *>(uv1);
+	if (!(*manifestPtr))
+	{
+		lua_pushnil(L);
+	}
+	else
+	{
+		LibraryId id = (*manifestPtr)->GetId();
+		lua_newtable(L);
+		lua_pushstring(L, "Group");
+		lua_pushstring(L, id.GetGroup().c_str());
+		lua_settable(L, -3);
+		lua_pushstring(L, "Name");
+		lua_pushstring(L, id.GetName().c_str());
+		lua_settable(L, -3);
+		lua_pushstring(L, "Version");
+		lua_pushstring(L, id.GetVersion().c_str());
+		lua_settable(L, -3);
+	}	
+	return 1;
 }
 
 /*

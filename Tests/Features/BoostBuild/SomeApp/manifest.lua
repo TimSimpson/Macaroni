@@ -1,11 +1,12 @@
 require "os"
 require "Macaroni.Model.Library"
 
+upper = getUpperLibrary();
 id =
 {
-    group="Macaroni",
-    name="Tests - BoostBuild - SomeApp",
-    version="1.0.0.0"
+    group=upper.Group,
+    name=upper.Name .. ".SomeApp",
+    version=upper.Version
 }
 
 description="A library."
