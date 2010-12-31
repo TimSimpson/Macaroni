@@ -349,11 +349,11 @@ class CmdLine
 		const Configuration & mRefConfig = *mConfig;*/
 
 		ContextPtr context(new Context("%ROOT%"));
-		Builder builder(createAppPaths(), context, manifestFilePath, console);
+		Builder builder(createAppPaths(), context, console);
 		compile = compile || install;
 		generate = generate || compile;
 		BuilderArguments args(generate, compile, install, cavatappiMode);
-		return builder.Execute(args);
+		return builder.Execute(args, manifestFilePath);
 	}
 
 	public inline bool StartPrompt()

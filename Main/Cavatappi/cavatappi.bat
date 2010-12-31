@@ -1,1 +1,1 @@
-%CAVATAPPI%\..\App\GeneratedSource\release\debug\macaroni generatorPath %CAVATAPPI%\..\Generators libraryRepoPath %CAVATAPPI%\target\Libraries cavatappi %*
+%CAVATAPPI%\..\App\GeneratedSource\release\debug\macaroni generatorPath %CAVATAPPI%\..\Generators libraryRepoPath %CAVATAPPI%\LibrariesClone cavatappi %*

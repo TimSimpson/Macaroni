@@ -89,6 +89,11 @@ void intrusive_ptr_release(Library * p)
 	intrusive_ptr_release(p->context);	
 }
 
+void Library::SetInstallPath(boost::optional<boost::filesystem::path> installPath)
+{
+	this->installPath = installPath;
+}
+
 END_NAMESPACE2
 
 #endif

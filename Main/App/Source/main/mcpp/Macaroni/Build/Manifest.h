@@ -51,9 +51,17 @@ public:
 
     ~Manifest();
 
+	//TODO: This may not be a good idea.  Consider removing.
+	bool AllowChildFailure() const;
+
 	inline const bool ContainsCavatappi() const
 	{
 		return containsCavatappi;
+	}
+
+	inline const std::vector<const std::string> GetBugs() const
+	{
+		return bugs;
 	}
 
 	inline const std::vector<const std::string> GetChildren() const
@@ -166,6 +174,8 @@ public:
 
 private:
 	const bool allowCavatappi;
+	bool allowChildFailure;
+	std::vector<const std::string> bugs;	
 	std::vector<const std::string> children;	
 	bool containsCavatappi;
 	std::vector<const Configuration> configurations;

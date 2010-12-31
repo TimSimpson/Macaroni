@@ -190,9 +190,9 @@ function cleanUpName(str)
 	return string.gsub(str, "_", "_u").gsub(str, " ", "_s");	
 end
 
-function dependencyJamDir(d)
+function dependencyJamDir(d)	
 	local success, path = pcall(d.FindInstallPath, d);		
-	if (success) then			
+	if (success and path ~= nil) then			
 		local pathText = path.AbsolutePath;
 		local jamroot = path:NewPathForceSlash('Cpp/jamroot.jam');
 		if (jamroot.Exists) then

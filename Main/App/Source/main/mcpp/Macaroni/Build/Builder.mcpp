@@ -57,22 +57,20 @@ class Builder
 	private ContextPtr context;
 	private vector<CppFile> cppFiles;
 	private vector<const string> cppSrcRoots;
-	private bool initialized;
-	private LibraryPtr library;
-	private ManifestPtr manifest;
-	private path manifestPath;
+	private bool initialized;	
+	//private path manifestPath;
 	private MCompiler compiler;
 	private string properties;
 
-	public Builder(AppPathsPtr appPaths, ContextPtr context, path manifestPath, Console & console)
+	public Builder(AppPathsPtr appPaths, ContextPtr context, Console & console)
 	:	appPaths(appPaths),
 		compiler(appPaths), // WARNING: This is only initialized after appPaths due to order of declaration!
 		console(console),
 		context(context),
 		initialized(false),
-		library(),//GetName(), manifest->GetVersion())),
-		manifest(),
-		manifestPath(manifestPath),
+		//library(),//GetName(), manifest->GetVersion())),
+		//manifest(),
+		//manifestPath(manifestPath),
 		properties()
 	{		
 	}	
@@ -116,7 +114,7 @@ class Builder
 			}
 			path od(manifest->GetMOutput());
 			PathPtr genSrc(new Path(od)); //manifest->GetRootDirectory() / manifest->GetMOutput()));
-			path installPath = getInstallPath(manifest);
+			path installPath = getInstallPath(manifest->GetId());
 			PathPtr installPathPtr(new Path(installPath, installPath));			
 			BuildContextPtr iCon(new BuildContext(appPaths, library, sources, genSrc, installPathPtr, properties));
 			return iCon;
@@ -145,11 +143,13 @@ class Builder
 	//}*/
 
 	//TO-DO : Change "compile" to "build".
-	public bool Execute(const BuilderArguments & arguments)
-	{		
+	public bool Execute(const BuilderArguments & arguments, path manifestPath)
+	{	
+		LibraryPtr library;
+		ManifestPtr manifest;
 		if (!initialized)
 		{
-			if (!Init(arguments))
+			if (!Init(arguments, manifestPath, manifest, library))
 			{
 				console.WriteLine("An unrecoverable error occured in the initialization phase.");
 				return false;
@@ -169,32 +169,38 @@ class Builder
 		
 		if (manifest->ContainsCavatappi() && !arguments.CavatappiMode())
 		{
-			return executeCavatappi(arguments, manifest, library);
+			return executeCavatappi(arguments, manifest, library, false);
 		}
 		else
 		{
 			return executeNormal(arguments, manifest, library);
 		}
-	}
+	}	
 
 	private bool executeCavatappi(const BuilderArguments & arguments, 
 								  const ManifestPtr manifest, 
-								  const LibraryPtr library)
+								  const LibraryPtr library,
+								  const bool forceNewProcess)
 	{		
 		console.WriteLine("~~ Invoking Cavatappi...");
 		//TODO: Uninstall artifacts from repo
 		if (library->IsInstalled())
 		{
-			if (!uninstall(library))
+			if (!Uninstall(library))
 			{
 				console.WriteLine("~ Cannot uninstall library. Will not call Cavatappi.");
 				return false;
 			}
 		}
 
-		system("cavatappi install");
+		std::stringstream cmd;
+		cmd << "cavatappi install manifest " 
+			<< manifest->GetManifestFile().string();
+		system(cmd.str().c_str());
+		
+		UpdateInstallStatus(library);
 
-		return library->IsInstalled();
+		return true;// library->IsInstalled();
 		//vector<const string> paths;
 		//vector<StringPair> envVars;
 		//boost::optional<path> empty;
@@ -214,8 +220,9 @@ class Builder
 		PathPtr genSrc(new Path(manifest->GetMOutput(), manifest->GetMOutput()));
 		genSrc->CreateDirectory();
 
-		bool success = parseChildren(arguments, manifest, library);		
-
+		bool success = parseChildren(arguments, manifest, library) 
+			&& parseBugs(arguments, manifest, library);
+		
 		if (success && arguments.Generate())
 		{
 			success = ParseMacaroniSource(arguments, manifest, library);
@@ -240,27 +247,30 @@ class Builder
 
 		if (success)
 		{
-			console.WriteLine(" ~ YOU WIN! ~ ");
+			console.WriteLine("~ Success!");
 		}
 		else
 		{
-			console.WriteLine(" ~ GAME OVER ~ ");
+			console.WriteLine("~ Failure  ");
 		}
 		return success;
 	}
 
-	private path getInstallPath(ManifestPtr manifest)
+	private path getInstallPath(const LibraryId & id)
 	{
 		path userPath(Paths::GetUserPath());
-		return userPath / "Libraries" / manifest->GetGroup()
-						/ manifest->GetName() / manifest->GetVersion();		
+		return userPath / "Libraries" / id.GetGroup()
+						/ id.GetName() / id.GetVersion();		
 	}	
 
 	/** Runs init.lua in Macaroni user directory to establish base
 	 * settings, then initializes manifest and prepares all
 	 * found dependencies.
 	 */
-	public bool Init(const BuilderArguments & arguments)
+	public bool Init(const BuilderArguments & arguments, 
+					 path manifestPath,
+					 ManifestPtr & manifest,
+					 LibraryPtr  & library)
 	{		
 		initialized = true;
 		properties = RunInitialScript();
@@ -317,7 +327,7 @@ class Builder
 
 	public bool Install(ManifestPtr manifest, LibraryPtr library)
 	{		
-		path installPath = getInstallPath(manifest);
+		path installPath = getInstallPath(manifest->GetId());
 		if (boost::filesystem::exists(installPath))
 		{
 			boost::filesystem::remove_all(installPath);
@@ -348,6 +358,8 @@ class Builder
 		if (result->Success) 
 		{
 			manifest->SaveAs(installPath / "manifest-final.lua", result->RunList);
+			optional<path> ip(installPath);
+			library->SetInstallPath(ip); 
 		}
 		return result->Success;
 	}
@@ -426,6 +438,41 @@ class Builder
 	////	// artifacts just to be safe.
 	////}
 
+	public bool parseBugs(const BuilderArguments & arguments, 
+						  const ManifestPtr manifest, 
+						  const LibraryPtr library)
+	{
+		std::vector<ManifestPtr> bugsManifests;
+		BOOST_FOREACH(const string & bugDir, manifest->GetBugs())
+		{			
+			path bugPath(manifest->GetRootDirectory());
+			bugPath = bugPath / bugDir / "manifest.lua";
+			ManifestPtr bugManifest;
+			try
+			{
+				// Always claim we aren't Cavatappi.
+				// That way, if the bug is to show an issue with the manifest
+				// loading process, they can use the Cavatappi mechanism to 
+				// put the library credentials in the first part and the buggy
+				// part in the second manifest file.
+
+				bugManifest.reset(new Manifest(bugPath, properties, false));
+			}
+			catch(...)
+			{				
+				console.Write("An error occured simply parsing the bug manifest \"");
+				console.Write(bugPath.string());
+				console.WriteLine("\".");
+				continue;
+			}
+			createLibraryForManifest(bugManifest, false);
+			LibraryPtr bugLibrary = context->FindLibrary(bugManifest->GetId());
+			// Don't care about return value.
+			executeCavatappi(arguments, bugManifest, bugLibrary, true);
+		}
+		return true; 
+	}	
+
 	public bool parseChildren(const BuilderArguments & arguments, 
 							  const ManifestPtr manifest, 
 							  const LibraryPtr library)
@@ -445,14 +492,14 @@ class Builder
 			// Create libraries so that the final-manifest will not be searched.
 			createLibraryForManifest(manifest, false);			
 		}
-		BOOST_FOREACH(ManifestPtr manifest, childManifests)
+		BOOST_FOREACH(ManifestPtr childManifest, childManifests)
 		{
-			LibraryPtr library = context->FindLibrary(manifest->GetId());
-			parseManifest(arguments, manifest, library);
-			if (!execute(arguments, manifest, library))
+			LibraryPtr library = context->FindLibrary(childManifest->GetId());
+			parseManifest(arguments, childManifest, library);
+			if (!execute(arguments, childManifest, library))
 			{
 				return false;
-			}
+			}						
 		}				
 		return true; 
 	}	
@@ -718,9 +765,8 @@ class Builder
 	//	CopyCppFiles(cppSourceLocal);
 	//	return true;
 	//}*/
-
 	/** Tries to uninstall artifacts. */
-	private bool uninstall(LibraryPtr library)
+	public bool Uninstall(LibraryPtr library)
 	{		
 		PathPtr installPath = library->FindInstallPath();
 		if (!!installPath)
@@ -737,6 +783,31 @@ class Builder
 			}
 		}
 		return true;
+	}
+
+	public void UpdateInstallStatus(LibraryPtr library)
+	{
+		PathPtr installPath = library->FindInstallPath();
+		if (!installPath)
+		{
+			// look for it
+			path p = getInstallPath(library->GetId());
+			if (boost::filesystem::exists(p / "manifest-final.lua"))
+			{
+				optional<path> op(p);
+				library->SetInstallPath(op);
+			}			
+		}
+		else 
+		{
+			if (installPath->NewPathForceSlash("manifest-final.lua")->Exists())
+			{
+				return;
+			}
+			// Somehow, the final manifest has dissappeared.
+			optional<path> none;
+			library->SetInstallPath(none);
+		}
 	}
 
 };

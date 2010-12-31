@@ -177,8 +177,19 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile,
 		mSource[i] = (manifestDir / mSource[i]).string();
 	}
 	
+	bugs = luaEnv.GetVectorFromGlobalTable("bugs");
 	children = luaEnv.GetVectorFromGlobalTable("children");
 
+	lua_getglobal(luaEnv.GetState(), "allowChildFailure");
+	if (lua_isboolean(luaEnv.GetState(), -1)) 
+	{
+		allowChildFailure = (bool) lua_toboolean(L, -1);
+	}
+	else
+	{
+		allowChildFailure = false;
+	}
+	
 	lua_getglobal(luaEnv.GetState(), "id");
 	if (!lua_isnil(luaEnv.GetState(), -1))
 	{
@@ -424,6 +435,11 @@ int _source(lua_State * L)
         reinterpret_cast<std::vector<const std::string> *>(ptr);
     sources->push_back(std::string(lua_tolstring(L, 1, NULL)));
     return 1;
+}
+
+bool Manifest::AllowChildFailure() const
+{
+	return allowChildFailure;
 }
 
 std::vector<const Configuration> createConfigurations(LuaEnvironment & env)

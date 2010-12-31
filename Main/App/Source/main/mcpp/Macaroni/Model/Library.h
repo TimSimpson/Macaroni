@@ -68,6 +68,9 @@ public:
 		return id.GetVersion();
 	}
 
+	/** Called if Library is installed. */
+	void SetInstallPath(boost::optional<boost::filesystem::path> installPath);
+
 private:
 	//TODO: Get rid of this constructor
 	Library(Context * context, const std::string & name, const std::string & version);
