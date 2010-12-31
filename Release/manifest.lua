@@ -1,13 +1,14 @@
+upper = getUpperLibrary();
 id =
 {
-    group="Macaroni",
-    name="Macaroni-Site",
-    version="0.1.0.6",
+    group=upper.Group,
+    name="Macaroni.Release",
+    version=upper.Version,
     author="Tim Simpson"
 }
 
 description= [[  
-    Creates the Macaroni website.
+    Bundles Macaroni distribution files and the creates the Macaroni website.
 ]]
 
 sources = { "source/scripts", "source/www" }
