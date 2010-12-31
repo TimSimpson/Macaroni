@@ -1,0 +1,438 @@
+~import Macaroni::Exception;
+~import Macaroni::Model::FileName;
+~import Macaroni::Model::FileNamePtr;
+~import Macaroni::IO::GeneratedFileWriter;
+~import Macaroni::IO::GeneratedFileWriterPtr;
+~import Macaroni::IO::GeneratedFileWriterLuaMetaData;
+~import boost::optional;
+~import lua_State;
+~import Macaroni::Environment::LuaEnvironment;
+~import luaL_Reg;
+~import boost::filesystem::path;
+~import Macaroni::IO::Path;
+~import Macaroni::IO::PathPtr;
+~import Macaroni::IO::PathLuaMetaData;
+~import Macaroni::Parser::TextIterator;
+~import Macaroni::Model::Source;
+~import Macaroni::Model::SourcePtr;
+~import std::string;
+~import Macaroni::Parser::TextIterator;
+
+namespace Macaroni::Doc  
+{
+
+/** 
+ * Parses variant HTML files which have embedded special characters.
+ * If it encounters <~#include "filename" ~> it will include the file, given by a
+ * file path relative to the current file.
+ * <~#include <filename> ~> denotes an path relative to some known spot- this makes
+ * it possible to make things relative to a known point, such as commonly
+ * included elements.
+ * <~#path is used to print out a file path.
+ * Second, if it sees <~= expression ~> it will execute whatever is in 
+ * "expression" as a Lua chunk and output the answer (this is why it needs
+ * a Lua state).
+ * Finally, if it sees <~ code ~> it will execute arbitrary Lua code.
+ */
+class MDocParser
+{
+
+	private PathPtr path;
+	private TextIterator & itr;
+	private lua_State * L;
+	private GeneratedFileWriterPtr writer;
+
+	public MDocParser(lua_State * L, TextIterator & itr, 
+				      PathPtr inputPath, GeneratedFileWriterPtr writer)
+	:	L(L),
+	    path(inputPath),
+		itr(itr),
+		writer(writer)
+	{
+		if (!path->IsDirectory())
+		{
+			throw Macaroni::Exception("The given path must be a directory.");
+		}
+	}
+
+	~block "cpp" 
+	{
+		namespace {
+
+			static int luaParse(lua_State * L)
+			{
+				PathPtr in = PathLuaMetaData::GetInstance(L, 1);
+				PathPtr out = PathLuaMetaData::GetInstance(L, 2);
+				try 
+				{
+					bool result = MDocParser::Parse(L, in, out);
+					lua_pushboolean(L, result);
+					return 1;
+				} 
+				catch(const std::exception & ex) 
+				{
+					return luaL_error(L, ex.what());
+				}
+			}
+
+			static const struct luaL_Reg globalMethods[]=
+			{
+				{"Parse", luaParse},
+				{nullptr, nullptr}
+			};
+
+		}
+	}
+
+	private bool directive()
+	{
+		if (itr.ConsumeWord("#"))
+		{
+			if (pathDirective())
+			{
+				return true;
+			}
+			else if (includeFile())
+			{				
+				return true;
+			} 
+			else
+			{
+				std::stringstream msg;
+				msg << "Unknown directive at ";
+				SourcePtr src = itr.GetSource();
+				msg << src->ToString();
+				MACARONI_THROW(msg.str().c_str())
+			}
+		}
+		return false;
+	}	
+
+	private PathPtr findIncludeFilePathLocal(const std::string & file)
+	{
+		PathPtr includeFilePath = path->NewPathForceSlash(file);
+		return includeFilePath;
+	}
+
+	private PathPtr findIncludeFilePathRoot(const std::string & file)
+	{
+		PathPtr includeFilePath = path->GetRoot()->NewPathForceSlash(file);
+		return includeFilePath;
+	}	
+
+	private bool includeFile()
+	{
+		if (itr.ConsumeWord("include"))
+		{
+			itr.ConsumeWhitespace();
+			if (!(includeRelativeLocal() || includeRelativeAbs()))
+			{
+				std::stringstream msg;
+				msg << "Unexpected character at ";
+				SourcePtr src = itr.GetSource();
+				msg << src->ToString();
+				msg << ".  Expected '<' or '\"'.";
+				throw Macaroni::Exception(msg.str().c_str());
+			}
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	private bool includeFileWith(char startsWith, char endsWith, 
+								 string & fileName)
+	{
+		if (itr.Current() == startsWith)
+		{			
+			itr.Advance(1);
+			std::stringstream fileNameS;
+			while(itr.Current() != endsWith)
+			{
+				if (itr.Finished())
+				{
+					std::stringstream msg;
+					msg << "Ran into end of file unexpectedtly while looking for ";
+					msg << endsWith << " at ";
+					SourcePtr src = itr.GetSource();
+					msg << src->ToString();
+					throw Macaroni::Exception(msg.str().c_str());
+				}
+				fileNameS << itr.Current();
+				itr.Advance(1);
+			}
+			itr.Advance(1);
+			fileName = fileNameS.str();			
+			return true;
+		}
+		else 
+		{
+			return false;
+		}
+	}
+
+	private bool includeRelativeAbs()
+	{
+		string file;
+		if (!includeFileWith('<', '>', file))
+		{
+			return false;
+		}
+		PathPtr includeFilePath = findIncludeFilePathRoot(file);
+		MDocParser::Parse(L, includeFilePath, writer);
+		return true;
+	}	
+
+	private bool includeRelativeLocal()
+	{
+		string file;
+		if (!includeFileWith('"', '"', file))
+		{
+			return false;
+		}
+		PathPtr includeFilePath = findIncludeFilePathLocal(file);
+		MDocParser::Parse(L, includeFilePath, writer);		
+		return true;		
+	}
+
+	private bool lua()
+	{
+		/*class _l
+		{
+		private: GeneratedFileWriter 
+		public: static int print(lua_State * L)
+			{
+
+			}
+		};*/
+		if (itr.ConsumeWord("lua"))
+		{
+			std::string chunk = luaChunk(optional<string>());
+			LuaEnvironment env(L);
+			SourcePtr src = itr.GetSource();
+			env.ParseString(src->ToString().c_str(), chunk.c_str()); 
+			GeneratedFileWriterLuaMetaData::PutInstanceOnStack(L, writer);
+			lua_setglobal(L, "writer");
+			env.Run();
+			return true;
+		}
+		return false;
+	}
+
+	private bool luaExpression()
+	{
+		if (itr.Current() == '=')
+		{
+			itr.Advance(1);
+			TextIterator itrOld = itr;			
+			std::string chunk = luaChunk(optional<string>("return "));
+			LuaEnvironment env(L);
+			SourcePtr src = itr.GetSource();
+			env.ParseString(src->ToString().c_str(), chunk.c_str()); 
+			GeneratedFileWriterLuaMetaData::PutInstanceOnStack(L, writer);
+			lua_setglobal(L, "writer");
+			env.Run(1);
+			if (!lua_isstring(L, -1))
+			{
+				std::stringstream ss;
+				ss << "Expected a string to be returned from the lua expression "
+					<< " at " << itrOld.GetSource()->ToString()
+					<< ".";
+				MACARONI_THROW(ss.str().c_str());
+			}
+			std::string value(lua_tostring(L, -1));
+			writer->Write(value);
+			return true;
+		}
+	}
+
+	private std::string luaChunk(optional<string> prefix)
+	{
+		std::stringstream chunk;
+		if (!!prefix)
+		{
+			chunk << prefix.get();
+		}
+		while(!itr.ConsumeWord("~>"))
+		{
+			chunk << itr.Current();
+			itr.Advance(1);
+		}
+		return chunk.str();
+	}
+
+	private bool macaroniTag()
+	{
+		if (itr.ConsumeWord("<~"))
+		{
+			if (directive())
+			{
+				itr.ConsumeWhitespace();
+				if (!itr.ConsumeWord("~>"))
+				{
+					std::stringstream msg;
+					msg << "Was expecting to see ~> at";
+					SourcePtr src = itr.GetSource();
+					msg << src->ToString();
+					msg << ".";
+					throw Macaroni::Exception(msg.str().c_str());
+				}
+			}
+			else if (lua() || luaExpression())
+			{
+				// This space intentionally left blank.
+			}
+			else
+			{
+				std::stringstream msg;
+				msg << "Unexpected character at ";
+				SourcePtr src = itr.GetSource();
+				msg << src->ToString();
+				msg << ".";
+				throw Macaroni::Exception(msg.str().c_str());
+			}			
+			return true;
+		} 
+		else 
+		{
+			return false;
+		}
+	}
+
+	/** Registers this method with Lua. */
+	public static int OpenInLua(lua_State * L)
+	{
+		luaL_register(L, "Macaroni.Doc.MDocParser", globalMethods);
+		return 1;
+	}
+
+	public void Parse()
+	{
+		while(!itr.Finished())
+		{
+			if (!macaroniTag())			
+			{
+				std::string s(1, itr.Current());
+				writer->Write(s);
+				itr.Advance(1);
+			}		
+		}
+	}
+
+	~block "h" 
+	{ 
+		static bool Parse(lua_State * L, Macaroni::IO::PathPtr input, Macaroni::IO::PathPtr output);
+		static bool Parse(lua_State * L, Macaroni::IO::PathPtr input, Macaroni::IO::GeneratedFileWriterPtr writer);
+	}
+	~block "cpp"
+	{		
+		bool MDocParser::Parse(lua_State * L, PathPtr input, PathPtr output)
+		{
+			boost::filesystem::path outputP(output->GetAbsolutePath());
+			GeneratedFileWriterPtr writer(new GeneratedFileWriter(outputP));	
+
+			return Parse(L, input, writer);			
+		}
+		
+		bool MDocParser::Parse(lua_State * L, Macaroni::IO::PathPtr input, Macaroni::IO::GeneratedFileWriterPtr writer)
+		{
+			if (!input->IsRegularFile())
+			{
+				std::stringstream ss;
+				ss << "Input path \"" 
+					<< input->GetAbsolutePath()
+					<< "\" does not refer to a regular file.";
+				throw Macaroni::Exception("Input path ");
+			}
+			std::string fileContents;
+			SourcePtr source;
+			readFileIntoString(input, fileContents, source);
+			
+			TextIterator itr(fileContents.begin(), fileContents.end(), source);	
+			MDocParser p(L, itr, input->GetParentPath(), writer);
+			p.Parse();
+			return true;
+		}
+	}
+
+	private bool pathDirective()
+	{
+		if (itr.ConsumeWord("path"))
+		{
+			itr.ConsumeWhitespace();
+			if (!(pathRelativeLocal() || pathRelativeAbs()))
+			{
+				std::stringstream msg;
+				msg << "Unexpected character at ";
+				SourcePtr src = itr.GetSource();
+				msg << src->ToString();
+				msg << ".  Expected '<' or '\"'.";
+				throw Macaroni::Exception(msg.str().c_str());
+			}
+			return true;
+			return true;
+		}
+		return false;
+	}	
+
+	private bool pathRelativeAbs()
+	{
+		string file;
+		if (!includeFileWith('<', '>', file))
+		{
+			return false;
+		}
+		PathPtr includeFilePath = findIncludeFilePathRoot(file);
+		writeRelativePath(includeFilePath);
+		return true;
+	}	
+
+	private bool pathRelativeLocal()
+	{
+		string file;
+		if (!includeFileWith('"', '"', file))
+		{
+			return false;
+		}
+		PathPtr includeFilePath = findIncludeFilePathLocal(file);
+		writeRelativePath(includeFilePath);
+		return true;		
+	}
+	
+	private static void readFileIntoString(PathPtr input, std::string & output, SourcePtr & sourcePtr)
+	{
+		std::string inputAsStr = input->GetAbsolutePath();
+		sourcePtr = Source::Create(FileName::Create(inputAsStr), 1, 1);
+		std::stringstream contents;
+		std::ifstream file(inputAsStr.c_str());
+		if (!file.is_open())
+		{
+			std::stringstream ss;
+			ss << "Could not open file " << inputAsStr << "!";
+			throw Macaroni::Exception(ss.str().c_str());
+		}	
+		std::string line;
+		while(!file.eof())
+		{
+			std::getline(file, line);
+			contents << line << "\n";
+		}
+		file.close();
+		output = contents.str();
+	}
+
+	private void writeRelativePath(PathPtr rPath)
+	{
+		std::string p = rPath->GetRelativePath();
+		if (p.size() > 0 && p[0] == '/')
+		{
+			p = p.substr(1);
+		}
+		writer->Write(p);
+	}
+
+};
+
+} // end Macaroni::Doc
