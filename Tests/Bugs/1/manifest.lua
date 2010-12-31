@@ -1,7 +1,7 @@
 id =
 {
-    group="Macaroni::Regression::Bugs",
-    name="1",
+    group="Macaroni",
+    name="Macaroni.Tests.Bugs.1",
     version="0.1.0.6",
     author="Tim Simpson"
 }
