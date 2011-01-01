@@ -451,6 +451,9 @@ class Builder
 			path bugPath(manifest->GetRootDirectory());
 			bugPath = bugPath / bugDir / "manifest.lua";
 			ManifestPtr bugManifest;
+			LibraryPtr bugLibrary;
+			boost::optional<std::string> desc;
+			manifest->SetBugResult(bugDir, bugLibrary, desc);
 			try
 			{
 				// Always claim we aren't Cavatappi.
@@ -468,9 +471,11 @@ class Builder
 				continue;
 			}
 			createLibraryForManifest(bugManifest, false);
-			LibraryPtr bugLibrary = context->FindLibrary(bugManifest->GetId());
+			bugLibrary = context->FindLibrary(bugManifest->GetId());
 			// Don't care about return value.
 			executeCavatappi(arguments, bugManifest, bugLibrary, true);
+			desc = bugManifest->GetDescription();
+			manifest->SetBugResult(bugDir, bugLibrary, desc);
 		}
 		return true; 
 	}	

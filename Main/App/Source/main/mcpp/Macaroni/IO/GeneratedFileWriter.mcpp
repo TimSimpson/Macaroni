@@ -30,6 +30,12 @@ class GeneratedFileWriter
 	public GeneratedFileWriter(const path filePath)
 	:	closed(false), filePath(filePath), fileWasWritten(false), writer()
 	{
+		path parent = filePath.parent_path();
+		if (!boost::filesystem::exists(parent))
+		{
+			boost::filesystem::create_directories(parent);
+		}
+
 		if (boost::filesystem::exists(filePath)) 
 		{
 			if (!boost::filesystem::is_regular(filePath))

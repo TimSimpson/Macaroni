@@ -250,6 +250,28 @@ PathPtr Path::GetRoot() const
 	return rtn;
 }
 
+/** Creates a string to get us from the relative path back to root. */
+std::string Path::GetStringBackToRoot() const
+{
+	boost::filesystem::path p = path;
+	std::stringstream ss;
+	bool first = true;
+	while(p != "" && p != rootPath)
+	{
+		p = p.parent_path();
+		if (!first)
+		{
+			ss << "/";			
+		}
+		else
+		{
+			first = false;
+		}
+		ss << "..";
+	}
+	return ss.str();
+}
+
 bool Path::IsDirectory() const
 {
 	return boost::filesystem::is_directory(path);

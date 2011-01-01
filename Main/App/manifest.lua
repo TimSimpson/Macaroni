@@ -51,6 +51,11 @@ jamArgs =
 		#[ run ../Source/test/mcpp/Macaroni/Model/NodeTest.cpp library_sources library_dependencies  ]
 		#;
 
+		install installmsgs
+			:	../Source/main/resources/Messages.txt
+			:	<variant>debug:<location>release/debug
+				<variant>release:<location>release/release
+			;
 
 	  	exe macaroni 
 	  		:	library_sources

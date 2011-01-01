@@ -36,6 +36,8 @@ Source = Macaroni.Model.Source;
 Type = Macaroni.Model.Type;
 Variable = Macaroni.Model.Cpp.Variable;
 
+mdocAssociatedFiles = [[\.(mdoc|html|htm|gif|png|jpg|jpeg)?$]];
+
 local check = function(con, msg)
 	if (not con) then
 		error(msg, 3);
@@ -58,6 +60,19 @@ function Build(library, sources, outputPath, installPath, extraArgs)
 		local s = sources[i];
 		gen:iterateDirectory(s);		
 	end	
+end
+
+function Install(library, sourcePaths, outputPath, installPath, extraArgs)
+	function copyToInstallPath(p)
+		local paths = p:GetPaths(mdocAssociatedFiles)
+		for i = 1, #paths do
+			paths[i]:CopyToDifferentRootPath(installPath, true);
+		end
+	end
+	for i = 1, #sourcePaths do
+		copyToInstallPath(sourcePaths[i]);
+	end
+	copyToInstallPath(outputPath);	
 end
 
 function stringEndsWith(str, endsWith)

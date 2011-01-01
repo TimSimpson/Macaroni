@@ -1,0 +1,68 @@
+<~#include <header.mdoc>~>
+
+<h2>What is Macaroni?</h2>
+
+<p>
+Macaroni is a variant of C++ which allows you to compose C++ code in a different format that may increase its <a href="http://en.wikipedia.org/wiki/Don%27t_repeat_yourself">DRY</a> factor.
+</p>
+<p>
+To give a quick example, below is the definition of a class for Rectangles, shown in C++ on the left and Macaroni on the right:
+</p>
+<table>
+<tr><td>
+Rectangle.h<br/>
+<?php printCpp("Rectangle.h") ?>
+Rectangle.cpp<br/>
+<?php printCpp("Rectangle.cpp") ?>
+</td>
+<td valign="top">
+Rectangle.mcpp<br/>
+<?php printMcpp("Rectangle.mcpp") ?>
+</td>
+</tr>
+</table>
+
+<p>
+Macaroni is a parser / code generator which can take the code on the right and turn it into (roughly equivalent, though currently a bit noisey and messy) code on the left. 
+</p>
+<p>
+This has some major repurcussions on your code:
+</p>
+<ul>
+	<li>Changing a class involves editting one file instead of two. 
+	</li>
+	<li>Macaroni allows you to easily use types from namespaces in the class by their short name, but will generate header files that will spell them out the long way instead of via using statements to avoid polluting the global scope.	
+	</li>
+	<li>Certain annoyances such as include guards are eliminated from your source code.  More importantly, the rules for how to write such 
+		pre-processor focused code can be specified on a project-level basis, instead of duplicated in each file.
+	</li>
+	<li>It is unnecessary to know the location of a header file in Macaroni except when using normal C++ libraries.  In that case, a class can 
+		have its header file specified once and Macaroni will remember it, allowing you to use the Macaroni import statement to simply
+		reference it by name.  For example, to use std::string defined in &lt;string&gt;, you can create a single files called "Dependencies.mcpp" and there write: <?php printMcppLine("StdString.mcpp") ?>
+	</li>
+	<li>Code has to be written differently- if not what would be the point?
+		Macaroni tries to be fairly similar to C++, putting a "~" in front of all new keywords.  
+		However, there are a few places it differs, such as turning "public" and "private" into keywords which can go in front
+		of any member.	
+	</li>
+	<li>Using Macaroni forces you to make compilation a two-step process, as the C++ code has to be generated.
+	</li>
+	<li>Because a "generation" phase is required, though, Macaroni uses the opportunity to let you write your own code generators using 
+		<a href="http://www.lua.org/">Lua</a>
+		which have access to Macaroni's AST.
+		These can be written and specified on a project level basis.  
+		This means you can generate other files too, such as Boost.Build files which can know of
+		every .cpp file that Macaroni will add to your project.
+	</li>
+	<li>If the traditional C++ elements are not enough, its also possible to annotate the model with special syntax.
+		This allows you to attach unit test snippets to classes, or specify how Lua glue methods should be generated.
+	</li> 
+</ul>
+<p>
+Macaroni can do these things fairly well because it only concerns itself with the format of C++ (and parses an altered format at that) 
+and not how to compile C++ itself.  
+It simply grabs the chunks of code and spits them out in the .H and .CPP files,
+allowing the C++ compiler to do all of the hard work.
+</p>
+
+<~#include <footer.mdoc>~>

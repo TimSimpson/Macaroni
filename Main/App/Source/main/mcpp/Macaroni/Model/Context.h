@@ -27,6 +27,8 @@ public:
 
 	LibraryPtr FindLibrary(const Macaroni::Build::LibraryId & id);
 
+	LibraryPtr FindLibrary(const std::string & group, const std::string & name, const std::string & version);
+
 	LibraryPtr FindOrCreateLibrary(const std::string & group, const std::string & name, const std::string & version);
 
 	LibraryPtr FindOrCreateLibrary(const boost::optional<boost::filesystem::path> & installPath,

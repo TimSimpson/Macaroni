@@ -15,6 +15,7 @@ namespace Macaroni { namespace Build {
 #include "../Environment/LuaEnvironment.h"
 #include <Macaroni/Build/BuildContext.h>
 #include <Macaroni/Build/LibraryId.h>
+#include <Macaroni/Model/LibraryPtr.h>
 #include "../ME.h"
 #include "../IO/Path.h"
 #include <boost/shared_ptr.hpp>
@@ -157,6 +158,12 @@ public:
 
 	void SaveAs(boost::filesystem::path & filePath,  
 				std::vector<std::pair<std::string, std::string>> & runList);
+
+	/** Called when a bug in this Manifest's bug list is executed.
+	 *  Argument libraryResult is null if the nothing was installed. */
+	void SetBugResult(const std::string & bugName, 
+					  Macaroni::Model::LibraryPtr libraryResult,
+					  boost::optional<std::string> description);
 
 	inline void SetChildren(std::vector<const std::string> & value)
 	{

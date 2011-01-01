@@ -33,6 +33,14 @@ Context::~Context()
 	hasBeenDeleted = true;
 }
 
+LibraryPtr Context::FindLibrary(const std::string & group, 
+						  		const std::string & name, 
+						  		const std::string & version)
+{
+	Macaroni::Build::LibraryId id(group, name, version);
+	return FindLibrary(id);
+}
+
 LibraryPtr Context::FindLibrary(const Macaroni::Build::LibraryId & id)
 {
 	BOOST_FOREACH(Library * lib, libraries)

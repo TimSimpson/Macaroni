@@ -18,21 +18,8 @@ Macaroni is currently in a pre-alpha state and is undergoing constant changes an
 </p>
 <~lua 
 
-function itrTable(prefix, t)
-	for k, v in pairs(t) do
-		if (type(v) == 'table') then
-			print(prefix .. tostring(k) .. '= {');
-			itrTable(prefix .. '\t', v);
-			print(prefix ..'}');
-		else
-			print(prefix .. tostring(k) .. '=' .. tostring(v));
-		end
-	end	
-end
-print("GOING GOING GONE!");
-itrTable('', properties);
+-- We could totally execute some Lua code here if we wanted to.
 
-print("END");
 ~>
 
 <~#include <footer.mdoc> ~>

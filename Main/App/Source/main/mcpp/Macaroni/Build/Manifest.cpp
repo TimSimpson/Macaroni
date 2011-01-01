@@ -133,7 +133,7 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile,
 	lua_pushstring(L, LATEST_LUA_VALUE);	
 	lua_setglobal(L, "LATEST");
 
-	lua_pushstring(L, manifestFile.string().c_str());
+	lua_pushstring(L, manifestFile.parent_path().string().c_str());
 	lua_setglobal(L, "manifestDirectory");
 
 	lua_pushlightuserdata(L, &(upperManifest));
@@ -848,6 +848,42 @@ void Manifest::SaveAs(boost::filesystem::path & filePath,
 		throw ex;
 	}
 	file.close();
+}
+
+void Manifest::SetBugResult(const std::string & bugName, 
+							LibraryPtr libraryResult,
+							boost::optional<std::string> description)
+{
+	//bugResults
+	lua_State * L = luaEnv.GetState();
+	//t
+	lua_getglobal(L, "bugResults");
+	if (lua_isnil(L, -1))
+	{
+		lua_pop(L, 1); // begone, foul null
+		lua_newtable(L);
+		lua_setglobal(L, "bugResults");
+		lua_getglobal(L, "bugResults");
+	} 
+	//k
+	lua_pushstring(L, bugName.c_str());
+	//v
+	lua_newtable(L);
+	if (!!description)
+	{
+		lua_pushstring(L, "description");
+		lua_pushstring(L, description.get().c_str());
+		lua_settable(L, -3);
+	}
+	lua_pushstring(L, "library");
+	LibraryLuaMetaData::PutInstanceOnStack(L, libraryResult);
+	lua_settable(L, -3);
+	lua_pushstring(L, "success");
+	lua_pushboolean(L, (!!libraryResult && libraryResult->IsInstalled()));
+	lua_settable(L, -3);
+	
+	lua_settable(L, -3); //t[k]=v
+	lua_pop(L, 1); // begone, foul table!
 }
 
 void setLibraryId(LibraryId & id, lua_State * L)

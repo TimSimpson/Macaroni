@@ -84,6 +84,9 @@ public:
 
 	std::string GetRelativePath() const;
 
+	/** Creates a string to get us from the relative path back to root. */
+	std::string GetStringBackToRoot() const;
+
 	/** Returns a PathPtr whose root and path are pointing to this
 	 *  Paths root. */
 	PathPtr GetRoot() const;

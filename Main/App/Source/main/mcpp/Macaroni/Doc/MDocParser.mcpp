@@ -37,14 +37,19 @@ namespace Macaroni::Doc
 class MDocParser
 {
 
+	// Anytime we print a Path out, prefix it with this.
+	private std::string pathPrefix;
+	/** The path of the file we're parsing. */
 	private PathPtr path;
 	private TextIterator & itr;
 	private lua_State * L;
 	private GeneratedFileWriterPtr writer;
 
-	public MDocParser(lua_State * L, TextIterator & itr, 
+	public MDocParser(lua_State * L, TextIterator & itr,
+					  const std::string & pathPrefix,
 				      PathPtr inputPath, GeneratedFileWriterPtr writer)
 	:	L(L),
+	    pathPrefix(pathPrefix),
 	    path(inputPath),
 		itr(itr),
 		writer(writer)
@@ -62,16 +67,37 @@ class MDocParser
 			static int luaParse(lua_State * L)
 			{
 				PathPtr in = PathLuaMetaData::GetInstance(L, 1);
-				PathPtr out = PathLuaMetaData::GetInstance(L, 2);
-				try 
+				if (PathLuaMetaData::IsType(L, 2))
 				{
-					bool result = MDocParser::Parse(L, in, out);
-					lua_pushboolean(L, result);
-					return 1;
-				} 
-				catch(const std::exception & ex) 
+					PathPtr out = PathLuaMetaData::GetInstance(L, 2);
+					try 
+					{
+						bool result = MDocParser::Parse(L, in, out);
+						lua_pushboolean(L, result);
+						return 1;
+					} 
+					catch(const std::exception & ex) 
+					{
+						return luaL_error(L, ex.what());
+					}
+				}
+				else if (GeneratedFileWriterLuaMetaData::IsType(L, 2))
 				{
-					return luaL_error(L, ex.what());
+					GeneratedFileWriterPtr w = GeneratedFileWriterLuaMetaData::GetInstance(L, 2);					
+					try 
+					{
+						bool result = MDocParser::Parse(L, in, w);
+						lua_pushboolean(L, result);
+						return 1;
+					} 
+					catch(const std::exception & ex) 
+					{
+						return luaL_error(L, ex.what());
+					}
+				}
+				else 
+				{
+					luaL_error(L, "Expected either a Path or a GeneratedFileWriter for argument #2.");
 				}
 			}
 
@@ -173,6 +199,25 @@ class MDocParser
 		}
 	}
 
+	private std::string findNewPrefix(PathPtr newPath)
+	{		
+		if (!newPath->IsDirectory())
+		{
+			newPath = newPath->GetParentPath();
+		}
+		std::stringstream ss;
+		ss << pathPrefix;
+		ss << path->GetStringBackToRoot();
+		ss << newPath->GetRelativePath();
+		ss << "/";
+		std::string rtn = ss.str();
+		if (rtn.size() == 1 && rtn[0] == '/')
+		{
+			return "";
+		}
+		return rtn;
+	}
+
 	private bool includeRelativeAbs()
 	{
 		string file;
@@ -181,7 +226,9 @@ class MDocParser
 			return false;
 		}
 		PathPtr includeFilePath = findIncludeFilePathRoot(file);
-		MDocParser::Parse(L, includeFilePath, writer);
+		PathPtr includeDir = includeFilePath->GetParentPath();
+		std::string newPrefix = findNewPrefix(includeDir);
+		MDocParser::Parse(L, newPrefix, includeFilePath, writer);
 		return true;
 	}	
 
@@ -193,7 +240,9 @@ class MDocParser
 			return false;
 		}
 		PathPtr includeFilePath = findIncludeFilePathLocal(file);
-		MDocParser::Parse(L, includeFilePath, writer);		
+		PathPtr includeDir = includeFilePath->GetParentPath();
+		std::string newPrefix = findNewPrefix(includeDir);
+		MDocParser::Parse(L, newPrefix, includeFilePath, writer);		
 		return true;		
 	}
 
@@ -325,6 +374,8 @@ class MDocParser
 	{ 
 		static bool Parse(lua_State * L, Macaroni::IO::PathPtr input, Macaroni::IO::PathPtr output);
 		static bool Parse(lua_State * L, Macaroni::IO::PathPtr input, Macaroni::IO::GeneratedFileWriterPtr writer);
+		static bool Parse(lua_State * L, const std::string & pathPrefix, 
+			              Macaroni::IO::PathPtr input, Macaroni::IO::GeneratedFileWriterPtr writer);
 	}
 	~block "cpp"
 	{		
@@ -337,6 +388,12 @@ class MDocParser
 		}
 		
 		bool MDocParser::Parse(lua_State * L, Macaroni::IO::PathPtr input, Macaroni::IO::GeneratedFileWriterPtr writer)
+		{
+			return Parse(L, "", input, writer);
+		}
+
+		bool MDocParser::Parse(lua_State * L, const std::string & pathPrefix,
+							   Macaroni::IO::PathPtr input, Macaroni::IO::GeneratedFileWriterPtr writer)
 		{
 			if (!input->IsRegularFile())
 			{
@@ -351,7 +408,7 @@ class MDocParser
 			readFileIntoString(input, fileContents, source);
 			
 			TextIterator itr(fileContents.begin(), fileContents.end(), source);	
-			MDocParser p(L, itr, input->GetParentPath(), writer);
+			MDocParser p(L, itr, pathPrefix, input->GetParentPath(), writer);
 			p.Parse();
 			return true;
 		}
@@ -425,7 +482,10 @@ class MDocParser
 
 	private void writeRelativePath(PathPtr rPath)
 	{
-		std::string p = rPath->GetRelativePath();
+		std::stringstream ss;
+		ss << pathPrefix;
+		ss << rPath->GetRelativePath();
+		std::string p = ss.str();
 		if (p.size() > 0 && p[0] == '/')
 		{
 			p = p.substr(1);
