@@ -1,0 +1,273 @@
+~import Macaroni::Exception;
+~import Macaroni::Model::FileName;
+~import Macaroni::Model::FileNamePtr;
+~import MACARONI_ASSERT;
+~import Macaroni::Model::Source;
+~import Macaroni::Model::SourcePtr;
+~import std::string;
+~import Macaroni::Parser::StringItr;
+
+namespace Macaroni::Parser {
+
+typedef std::string::const_iterator StringItr;
+
+class TextIterator 
+{	
+	//TODO: BUG: If you use const_iterator directly, it breaks the Parser!
+	private int column;
+	private FileNamePtr fileName;
+	private StringItr itr;
+	private int line;	
+	private StringItr endItr;
+
+	/** Constructs a new text iterator.  Must have the source so it 
+	 *  can tell you where it is if something goes wrong. */
+	public TextIterator(StringItr start, StringItr end, SourcePtr source)
+	:	column(source->GetColumn()),  
+		endItr(end),
+		fileName(source->GetFileName()),
+	    itr(start), 
+		line(source->GetLine())
+	{		
+	}
+
+	/** Advances this iterator by the number of characters given by argument 
+	 *  "count." */
+	public inline void Advance(int count)
+	{
+		for(int i = 0; i < count; i ++)
+		{
+			if (itr == endItr)
+			{
+				MACARONI_ASSERT(false, "Advanced past end of string.");
+			}
+			if (*itr == '\n')
+			{
+				line ++;
+				column = 0;
+			}
+			itr ++;
+			column ++;
+		}
+	}
+
+	~block "cpp" {
+		static void Assert(bool b)
+		{
+			if (!b)
+			{
+				MACARONI_FAIL("Fail!");
+			}
+		}
+	}
+	
+
+	/** Returns current line. */
+	public inline char Current()
+	{
+		MACARONI_ASSERT(!Finished(), "Cannot get Current() if finished.");
+		return *itr;
+	}
+
+	/** If the current character is argument c, it consumes it and returns
+	 * true.  If not it does nothing and returns false. */
+	public inline bool ConsumeChar(const char c)
+	{
+		if (Is(c))
+		{
+			Advance(1);
+			return true;
+		}
+		return false;
+	}
+
+	/** If the given string lies at the foot of the iterator, it consumes it and
+	 *  returns true.
+	 *  If not, nothing happens and false is returned. */
+	public inline bool ConsumeWord(const char * word)
+	{
+		if (Is(word))
+		{
+			Advance(strlen(word));
+			return true;
+		}
+		return false;
+	}
+
+	//TODO: ARGH! Accursed stupid function overloading...
+	~block "h"
+	{
+	public  :  Macaroni::Model::SourcePtr GetSource();
+	}
+
+	~block "cpp"
+	{
+		SourcePtr TextIterator::GetSource()
+		{
+			return Source::Create(fileName, line, column);
+		}
+	}
+
+	/** Gets a position in the Source file. */
+	public SourcePtr GetSource(int plusLines, int plusColumns)
+	{
+		return Source::Create(fileName, line + plusLines, column + plusColumns);
+	}
+
+	/** Ravenously consumes all white space.  Stops when it gets to anything 
+	 *  else. */
+	public inline void ConsumeWhitespace()
+	{
+		while(!Finished() && *itr <= 32)
+		{
+			Advance(1);
+		}
+	}
+
+	/** Returns true if there is nothing left to iterate. */
+	public inline bool Finished()
+	{
+		return (itr == endItr);
+	}
+
+	~block "h"
+	{
+		public  :  inline bool Is(const char other)
+		{
+			return Finished() ? false : (*itr) == other;
+		}
+	}
+	
+
+	/** Returns true if the given string lies at the foot of this iterator.
+	 *  False otherwise.  Does not consume it either way. */
+	public inline bool Is(const char * string)
+	{
+		StringItr src = itr;
+		
+		while(src != endItr)
+		{
+			if (*string == '\0')
+			{
+				return true;
+			}
+			if (*src != *string)
+			{
+				return false;
+			}
+			src ++;
+			string ++;			
+		}
+
+		return *string == '\0';
+	}
+	
+	public static void IsTests()
+	{
+		std::string ok("12ComplexWord");
+		FileNamePtr file = FileName::Create(std::string("Blah.mcpp"));
+		SourcePtr src = Source::Create(file, 1, 1);
+		TextIterator itr(ok.begin(), ok.end(), src);
+
+		Assert(itr.Is("12ComplexWord"));
+		Assert(!itr.Is("2Complex"));
+		Assert(itr.Is("12"));
+		Assert(itr.Is("12Com"));
+		Assert(itr.Is('1'));
+		Assert(!itr.Is('2'));
+		itr.Advance(1);
+		Assert(itr.Is('2'));
+		itr.Advance(1);
+		Assert(itr.Is("Complex"));
+		Assert(itr.Is("ComplexWord"));
+		itr.Advance(7);
+		Assert(itr.Is("Word"));
+		Assert(!itr.Is("C"));
+		try
+		{
+			itr.Advance(5);
+			// Advances one past Word, going out of bounds.
+			// Thus, an exception must be thrown.
+			Assert(false); 
+		}
+		catch(Macaroni::Exception &)
+		{
+			// Good
+		}
+	}
+
+	/** Returns true if an alpha character lies at the foot of the iterator. */
+	public inline bool IsAlpha()
+	{
+		return Finished() ? false : IsAlpha(*itr);
+	}
+
+
+	~block "h"
+	{
+		public: static inline bool IsAlpha(const char c)
+		{
+			return (65 <= c && c <= 90) ||
+					(97 <= c && c <= 122);
+		}
+	}
+	
+	//TODO: This commented out code below breaks the parser!
+	//public static void IsAlphaTests()
+	//{
+	//	Assert(IsAlpha('a'));
+	//	Assert(IsAlpha('z'));
+	//	Assert(IsAlpha('m'));
+	//	Assert(IsAlpha('A'));
+	//	Assert(IsAlpha('Z'));
+	//	Assert(IsAlpha('M'));
+	//	Assert(!IsAlpha('1'));
+	//	Assert(!IsAlpha('['));
+	//	Assert(!IsAlpha('@'));
+	//	Assert(!IsAlpha('\''));
+	//	Assert(!IsAlpha('{'));
+	//}
+
+	~block "h"
+	{
+		public: inline bool IsDigit()
+		{
+			return Finished() ? false : IsDigit(*itr);
+		}
+	
+	}
+	
+	/** Returns true if the given character is a digit (0-9). */
+	public static inline bool IsDigit(const char c)
+	{
+		return c >=48 && c <= 57;
+	}
+	
+
+	public static void IsDigitTests()
+	{
+		Assert(IsDigit('0'));
+		Assert(IsDigit('1'));
+		Assert(IsDigit('2'));
+		Assert(IsDigit('3'));
+		Assert(IsDigit('4'));
+		Assert(IsDigit('5'));
+		Assert(IsDigit('6'));
+		Assert(IsDigit('7'));
+		Assert(IsDigit('8'));
+		Assert(IsDigit('9'));
+		Assert(!IsDigit('a'));
+		Assert(!IsDigit('!'));
+		Assert(!IsDigit(':'));
+		Assert(!IsDigit('/'));
+	}
+	
+	public static void RunTests()
+	{
+		//IsAlphaTests();
+		IsDigitTests();
+		IsTests();
+	}
+};
+
+} // end Macaroni::Parser
