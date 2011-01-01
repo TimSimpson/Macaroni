@@ -28,9 +28,13 @@ bugs =
 function generate()
 end
 
-function build()
-	local manifestDir = Path.New(manifestDirectory);
+function build()	
+	local manifestDir = Path.New(manifestDirectory);	
+	print("HI " .. manifestDirectory);
+	local mD = manifestDir:NewPathForceSlash("target/mdoc/bugreport.mdoc");
+	print("FFSD");
 	local writer = manifestDir:NewPathForceSlash("target/mdoc/bugreport.mdoc"):CreateFile();	
+	print("BYE");
 	writer:WriteLine([[
 	<table>
 	<tr><td>Name</td><td>Status</td><td>Description</td></tr>
