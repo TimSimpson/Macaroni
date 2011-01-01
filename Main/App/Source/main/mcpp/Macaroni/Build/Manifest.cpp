@@ -133,7 +133,9 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile,
 	lua_pushstring(L, LATEST_LUA_VALUE);	
 	lua_setglobal(L, "LATEST");
 
-	lua_pushstring(L, manifestFile.parent_path().string().c_str());
+	boost::filesystem::path mDirPath = 
+		boost::filesystem::system_complete(manifestFile.parent_path());
+	lua_pushstring(L, mDirPath.string().c_str());
 	lua_setglobal(L, "manifestDirectory");
 
 	lua_pushlightuserdata(L, &(upperManifest));

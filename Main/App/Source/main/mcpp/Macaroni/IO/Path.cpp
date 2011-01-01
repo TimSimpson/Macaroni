@@ -22,7 +22,7 @@ BEGIN_NAMESPACE2(Macaroni, IO)
 //	}
 //}
 Path::Path(const std::string & absolutePath)
-:rootPath(absolutePath)
+:rootPath(absolutePath), path(absolutePath)
 {
 }
 
@@ -312,7 +312,13 @@ PathPtr Path::NewPathForceSlash(const std::string & name) const
 	boost::filesystem::path newPath(this->path / name);////newStr);
 	if (!stringBeginsWith(newPath.string(), this->rootPath.string()))
 	{
-		throw Macaroni::Exception("Illegal directory.");
+		std::stringstream ss;
+		ss << "Illegal directory ("
+			<< newPath.string()
+			<< ".  Must begin with the path "
+			<< this->rootPath.string()
+			<< ".";
+		throw Macaroni::Exception(ss.str().c_str());
 	}
 	return PathPtr(new Path(this->rootPath, newPath));
 }
