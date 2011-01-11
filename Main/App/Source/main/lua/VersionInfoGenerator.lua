@@ -26,8 +26,8 @@ function Generate(library, path)
 
 #define MACARONI_VERSION ]] .. commaVersion .. [[ 
 #define MACARONI_VERSION_STRING "]] .. version .. [["
-#define MACARONI_FILE_DESCRIPTION "The Macaroni Parser / Generator"
-#define MACARONI_COPYRIGHT "(C) Tim Simpson, 2010"
+#define MACARONI_FILE_DESCRIPTION "Macaroni for C++"
+#define MACARONI_COPYRIGHT "(C) Tim Simpson, 2011"
 #define BUILD_TIMESTAMP_LOCAL "]] .. localTime() .. [["
 #define BUILD_TIMESTAMP_UTC "]] .. utc() .. [["
 #endif

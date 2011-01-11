@@ -1,8 +1,4 @@
 # Messages file for Macaroni.
-Macaroni.Version=0.5.0
-
-# Intro
-Macaroni.Intro=Macaroni for C++\n(C) Tim Simpson 2009\n
 
 # C++ Axioms
 CppAxioms.AttributeValueCreation=Character '@' signifies an Attribute value to be attached to the current Node.
