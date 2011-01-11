@@ -26,24 +26,13 @@ output = "GeneratedSource"
 --dependency { group="Macaroni", name="CppStd", version="1.0.0.0" }
 dependency {group="Macaroni", name="Boost-filesystem", version="1.42.0"}
 dependency {group="Macaroni", name="Boost-regex", version="1.42.0"}
-    
-function bjam()
-    --local rtnCode = os.execute("bjam")
-    return rtnCode == 0
-end
         
 function generate()    
     run "Cpp"
     --runGenerator "Generators/LuaGlue"
     run "InterfaceMh"
     run "JamGenerator"
-    run "VersionInfoGenerator"
-    print "Code Generation successful.  Calling Boost Build."
-    if (bjam()) then
-        print "~ YOU WIN! ~"
-    else
-        print "~ YOU LOSE ~"          
-    end
+    run "VersionInfoGenerator"       
 end
    
 jamArgs = 
@@ -84,9 +73,9 @@ end
 
 function test()
 	local currentPath = Path.New(manifestDirectory);
-	local exePath = currentPath:AddPathForceSlash(
+	local exePath = currentPath:NewPathForceSlash(
 		output .. "/bin/release/debug/macaroni.exe");
-	local luaTestsPath = currentPath:AddPathForceSlash(
+	local luaTestsPath = currentPath:NewPathForceSlash(
 		output .. "/Source/test/lua");
 	local cmd = exePath.AbsolutePath .. " luaTests " .. luaTestsPath.AbsolutePath;
 	print("Running Lua tests:");
