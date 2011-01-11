@@ -20,6 +20,7 @@ require "Macaroni.Model.Source";
 require "Macaroni.Model.Type";
 require "Macaroni.Model.Cpp.Variable";
 require "Cpp/NodeInfo";
+require "Log";
 
 Axiom = Macaroni.Model.Axiom;
 Block = Macaroni.Model.Axiom;
@@ -111,7 +112,7 @@ change('%ROOT%');
         if (type(text) ~= "string") then
             error("String was expected in call to write, but got " .. type(text) .. " instead.", 2);
         end
-        --print("DEBUG:" .. debug.traceback());       
+        --log:Write("DEBUG:" .. debug.traceback());       
         self.writer:Write(text);
     end,         
     
@@ -199,6 +200,7 @@ change('%ROOT%');
 
 
 function Generate(library, path, arguments)	
+	log.Init("HtmlView");
 	arguments = arguments or {}	
     CurrentLibrary = library;
     local writer = path:NewPath("/macaroni-model.html"):CreateFile();

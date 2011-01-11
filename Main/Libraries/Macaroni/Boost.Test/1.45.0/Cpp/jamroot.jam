@@ -1,0 +1,28 @@
+# Boost.Test project
+
+import boost ;
+import os ;
+import path ;
+
+local BOOST_ROOT = [ os.environ BOOST_ROOT ] ;
+
+use-project /boost/test : $(BOOST_ROOT)/libs/test/build ;
+# use-project /boost/test : $(BOOST_ROOT)/bin.v2/libs/test/build ;
+
+#project Macaroni____Boost.Test____1.45.0
+#	:	usage-requirements
+#		<include>$(BOOST_ROOT) 
+#		<dependency>/boost/test//boost_prg_exec_monitor 
+#		<dependency>/boost/test//boost_test_exec_monitor
+#		<dependency>/boost/test//boost_unit_test_framework
+#	;
+	
+
+alias library
+	: /boost/test//boost_prg_exec_monitor 
+	  /boost/test//boost_test_exec_monitor
+	#  /boost/test//boost_unit_test_framework	
+#	: <include>$(BOOST_ROOT)
+	: <library-path>$(BOOST_ROOT)\stage\lib
+	;
+	

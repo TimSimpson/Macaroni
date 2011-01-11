@@ -1,8 +1,9 @@
+upper = getUpperLibrary();
 id =
 {
-    group="Macaroni",
-    name="Macaroni-Main",
-    version="0.1.0.6",
+    group=upper.Group;
+    name="Macaroni.Main",
+    version=upper.Version,
     author="Tim Simpson"
 }
 

@@ -1,18 +1,14 @@
 -- Eventually put this next part in C++:
-print("AWESWIF");
 package.path = "F:/Lp3/Projects/Macaroni/Code/trunk/Macaroni/Debug/Generators/?.lua"
-print("I CRAYZ");
 require "Cpp/Common";
+require "Log";
 
 local Context = Macaroni.Model.Context;
 local Node = Macaroni.Model.Node;
 local TypeNames = Macaroni.Model.TypeNames;
 
-
-print "Hello, I am dumb.\n";
-
 function Generate(context, path)
-    print "Generating Cpp Files\n";
+    log.Init("Cpp");
     
     iterateNodes(context.Root.Children, path); 
 end

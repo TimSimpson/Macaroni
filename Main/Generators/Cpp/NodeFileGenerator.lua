@@ -26,11 +26,11 @@ NodeFileGenerator = {
 	
     parseClass = function (self, node, path)
         assert(node.Member.TypeName == TypeNames.Class);  
-        log("Time to parse class.");  
+        log:Write("Time to parse class.");  
         local cg = self:createClassGenerator(node, path);
-        log("PFSF!");
+        log:Write("PFSF!");
         cg:parse();
-        log("Oh, that was a sweet parse!");
+        log:Write("Oh, that was a sweet parse!");
     end,
     
     parseNamespace = function (self, node, path)
@@ -46,9 +46,9 @@ NodeFileGenerator = {
     end,
     
     parseNode = function (self, node, path)
-        log("~~~ " .. node.FullName);
+        log:Write("~~~ " .. node.FullName);
         if (not NodeHelper.worthIteration(node)) then
-            log(" Skipped.\n");
+            log:Write(" Skipped.\n");
             return;
         end
         
@@ -56,17 +56,17 @@ NodeFileGenerator = {
         if (m == nil) then
             return;
         end        
-        log(" Same library.  Generation time!");
+        log:Write(" Same library.  Generation time!");
         local typeName = m.TypeName;
         
         -- Don't generate Nodes from other libraries which are in this Context.
         if (typeName ~= TypeNames.Namespace 
 			and not self:memberIsInTargetLibrary(m)) then
-			log(" Different library, not generating.\n");
+			log:Write(" Different library, not generating.\n");
 			return;
         end
         
-        log("       " .. typeName);
+        log:Write("       " .. typeName);
         local newPath = path:NewPath("/" .. node.Name);
         
         --if (newPath.IsDirectory) then
@@ -82,8 +82,8 @@ NodeFileGenerator = {
         if (handlerFunc ~= nil) then
             handlerFunc(self, node, newPath);
         else
-            log("     ~ Skipping");
+            log:Write("     ~ Skipping");
         end 
-        log(" ^-- Conclude parse.");
+        log:Write(" ^-- Conclude parse.");
     end,
 };

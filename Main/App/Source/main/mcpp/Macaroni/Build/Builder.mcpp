@@ -75,6 +75,15 @@ class Builder
 	{		
 	}	
 
+	public bool Clean(ManifestPtr manifest)
+	{
+		path outputPath = manifest->GetMOutput();
+		console.Write("~ Destroying directory ");
+		console.WriteLine(outputPath.string());
+		boost::filesystem::remove_all(outputPath);
+		return true;
+	}
+	
 	/** From whatever manifest we've opened with, recursively look for a parent.
 	 * End when the parent has been returned. */
 	private path climbToTop(vector<path> & manifests, path manifestPath)
@@ -142,7 +151,7 @@ class Builder
 	//	return true;
 	//}*/
 
-	//TO-DO : Change "compile" to "build".
+	//TO-DO : Change "test" to "build".
 	public bool Execute(const BuilderArguments & arguments, path manifestPath)
 	{	
 		LibraryPtr library;
@@ -211,8 +220,8 @@ class Builder
 		//				envVars);
 		//bool success = process.Run(console);
 		//return success;
-	}
-
+	}	
+	
 	private bool executeNormal(const BuilderArguments & arguments, 
 							   const ManifestPtr manifest, 
 							   const LibraryPtr library)
@@ -223,6 +232,10 @@ class Builder
 		bool success = parseChildren(arguments, manifest, library) 
 			&& parseBugs(arguments, manifest, library);
 		
+		if (success && arguments.Clean())
+		{
+			success = Clean(manifest);	
+		}
 		if (success && arguments.Generate())
 		{
 			success = ParseMacaroniSource(arguments, manifest, library);
@@ -233,11 +246,16 @@ class Builder
 			}
 		}
 
-		if (success && arguments.Compile())
+		if (success && arguments.Build())
 		{
 						
 			BuildContextPtr iCon = createBuildContext(manifest, library);//new BuildContext(library, src, genSrc, installPathPtr));
 			success = manifest->RunTarget(console, iCon, "build", "Build")->Success;
+		}
+		if (success && arguments.Test())
+		{			
+			BuildContextPtr iCon = createBuildContext(manifest, library);//new BuildContext(library, src, genSrc, installPathPtr));
+			success = manifest->RunTarget(console, iCon, "test", "Test")->Success;
 		}
 
 		if (success && arguments.Install())

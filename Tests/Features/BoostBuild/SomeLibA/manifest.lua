@@ -14,7 +14,7 @@ description="A library."
 source "Source"
 output = "GeneratedSource"
 
-dependency {group="Macaroni", name="Tests - BoostBuild - SomeLib B", version="1.0.0.0"}
+dependency {group="Macaroni", name=upper.Name .. "SomeLibB", version=upper.Version}
 
 function generate()
     run("HtmlView");

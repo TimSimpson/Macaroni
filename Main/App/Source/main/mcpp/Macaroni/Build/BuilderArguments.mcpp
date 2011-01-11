@@ -5,40 +5,56 @@ namespace Macaroni::Build {
 class BuilderArguments
 {			
 	private const bool cavatappiMode;
+	private const bool clean;
 	private const bool generate;
-	private const bool compile;
+	private const bool build;
+	private const bool test;
 	private const bool install;
 
-	public BuilderArguments(const bool generate,
-						    const bool compile,
+	public BuilderArguments(const bool clean,
+							const bool generate,
+						    const bool build,
+						    const bool test,
 							const bool install,
 							const bool cavatappiMode)
-	: generate(generate),
-	  compile(compile),
+	: clean(clean),
+	  generate(generate),
+	  build(build),
 	  install(install),
+	  test(test),
 	  cavatappiMode(cavatappiMode)
 	{
 	}
 
+	public inline bool Build() const
+	{
+		return build || Test();
+	}
+	
 	public inline bool CavatappiMode() const
 	{
 		return cavatappiMode;
 	}
+	
+	public inline bool Clean() const
+	{
+		return clean;	
+	}		
 
 	public inline bool Generate() const
 	{
-		return generate || Compile();
-	}
-
-	public inline bool Compile() const
-	{
-		return compile || Install();
+		return generate || Build();
 	}	
 
 	public inline bool Install() const
 	{
 		return install;
 	}
+		
+	public inline bool Test() const
+	{
+		return test || Install();
+	}	
 	
 };
 

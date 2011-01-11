@@ -8,7 +8,7 @@ local Context = Macaroni.Model.Context;
 local Node = Macaroni.Model.Node;
 local TypeNames = Macaroni.Model.TypeNames;
  
---print("I AM LOCALLLLLL!!!");
+--log:Write("I AM LOCALLLLLL!!!");
  
 LuaGlueCppFile = {
     node = nil,

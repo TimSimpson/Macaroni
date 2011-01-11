@@ -1,6 +1,8 @@
 require "Macaroni.IO.GeneratedFileWriter";
 require "Macaroni.Model.Library";
 require "Macaroni.IO.Path";
+require "Log"
+
 --require "Macaroni.IO.PathList";
 
 function boostSystemProperties()
@@ -29,6 +31,7 @@ function createDependencyList(library)
 end
 
 function Build(library, sources, outputPath, installPath, extraArgs)
+	log.Init("BoostBuild");
 	local excludePattern;
 	if (extraArgs == nil or extraArgs.ExcludePattern == nil) then
 		excludePattern = ".svn";
@@ -43,7 +46,7 @@ function Build(library, sources, outputPath, installPath, extraArgs)
 	end
 	createJamroot(library, sources, outputPath, excludePattern, extraTargets);
 	local rtnCode = os.execute("bjam link=static " .. outputPath.AbsolutePath)
-    print("BJAM return code = " .. rtnCode .. ".")
+    log:Write("BJAM return code = " .. rtnCode .. ".")
     if (rtnCode ~= 0) then
         error("Call to Boost.Build failed.")
         return false;
@@ -53,7 +56,7 @@ end
 
 function createJamroot(library, sources, outputPath, excludePattern, extraTargets)
 	local buildjam = outputPath:NewPath("/jamroot.jam");
-	print("Creating Boost.Build file at " .. buildjam.AbsolutePath .. ".");
+	log:Write("Creating Boost.Build file at " .. buildjam.AbsolutePath .. ".");
 	
 	local writer = buildjam:CreateFile();		
 	
@@ -97,7 +100,7 @@ using testing ;
 	for k, v in pairs(pDeps) do
 		writer:Write("use-project /" .. v.name .. [[ : "]] .. v.jamDir .. [[" ; ]] .. "\n");
 	end
-	-- printDependencyProjectIncludes(writer, library);
+	-- log:WriteDependencyProjectIncludes(writer, library);
 	writer:Write([[	
 project ]] .. createProjectName(library) .. "\n" .. [[
 	:	usage-requirements
@@ -203,6 +206,7 @@ function dependencyJamDir(d)
 end
 
 function Install(library, sourcePaths, outputPath, installPath, extraArgs)
+	log.Init("BoostBuild");
 	-- Create a Jam file which simply points to the source files.
 	-- Copy all C++ source to the folder.
 	local dstPath = installPath:NewPathForceSlash("Cpp");
@@ -243,7 +247,7 @@ function copyCppSource(regEx, src, dst)
 	for i = 1, #srcs do
 		local child = srcs[i];
 		if (not child.IsDirectory) then
-			print(tostring(child.AbsolutePath) .. " ... " .. tostring(dst.AbsolutePath));
+			log:Write(tostring(child.AbsolutePath) .. " ... " .. tostring(dst.AbsolutePath));
 			--src:CreateDirectory();
 			child:CopyToDifferentRootPath(dst);		
 		else

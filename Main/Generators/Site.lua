@@ -21,6 +21,7 @@ require "Macaroni.Model.Source";
 require "Macaroni.Model.Type";
 require "Macaroni.Model.Cpp.Variable";
 require "Cpp/NodeInfo";
+require "Log";
 
 Axiom = Macaroni.Model.Axiom;
 Block = Macaroni.Model.Axiom;
@@ -51,11 +52,12 @@ local notNull = function(name, value)
 end
 
 function Build(library, sources, outputPath, installPath, extraArgs)	
+	log.Init("Site");
 	local sitePath = outputPath:NewPath("/www/site"):CreateWithCurrentAsRoot();
-	print("SITEPATH = " .. sitePath.AbsolutePath);
+	log:Write("SITEPATH = " .. sitePath.AbsolutePath);
 	sitePath:CreateDirectory();
 	local gen = SiteGenerator.new(sitePath, library);
-	print("SITEPATH = " .. gen.outputPath.AbsolutePath);
+	log:Write("SITEPATH = " .. gen.outputPath.AbsolutePath);
 	for i = 1, #sources do
 		local s = sources[i];
 		gen:iterateDirectory(s);		
@@ -63,6 +65,7 @@ function Build(library, sources, outputPath, installPath, extraArgs)
 end
 
 function Install(library, sourcePaths, outputPath, installPath, extraArgs)
+	log.Init("Site");
 	function copyToInstallPath(p)
 		local paths = p:GetPaths(mdocAssociatedFiles)
 		for i = 1, #paths do
@@ -121,7 +124,7 @@ SiteGenerator =
 	end,
 	
 	iterateDirectory = function(self, inputPath)
-		print("self.outputPath=" .. self.outputPath.AbsolutePath);
+		log:Write("self.outputPath=" .. self.outputPath.AbsolutePath);
 		if (not inputPath.IsDirectory) then
 			self:iterateFile(inputPath);		
 		else
@@ -137,9 +140,9 @@ SiteGenerator =
 		if (self:pathIsLuaHtml(inputPath)) then
 			local outputPathL = inputPath:CreateWithDifferentRootPath(self.outputPath);
 			local outputPath = self:lHtmlToHtmlPath(outputPathL);
-			print("self.outputPath=" .. self.outputPath.AbsolutePath)
-			print("in =" .. tostring(inputPath.AbsolutePath));
-			print("out=" .. tostring(outputPath.AbsolutePath));
+			log:Write("self.outputPath=" .. self.outputPath.AbsolutePath)
+			log:Write("in =" .. tostring(inputPath.AbsolutePath));
+			log:Write("out=" .. tostring(outputPath.AbsolutePath));
 			-- Store vars where script can't find them.
 			local sg = SiteGenerator;
 			SiteGenerator = nil;

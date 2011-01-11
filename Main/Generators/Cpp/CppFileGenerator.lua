@@ -29,18 +29,18 @@ CppFileGenerator = {
     attemptShortName = true,
     
     createClassGenerator = function (self, node, path)
-		log('CPP File Gen createClassGenerator 1');
+		log:Write('CPP File Gen createClassGenerator 1');
         local reason = node.Member.ReasonCreated;
         local srcFile = tostring(reason.Source.FileName);        
         local filePath = path:NewPath(".cpp");
-        log('CPP File Gen createClassGenerator 2');
+        log:Write('CPP File Gen createClassGenerator 2');
         if (filePath:IsFileOlderThan(srcFile)) then            
             local cg = ClassCppFileGenerator.new{node = node, path = filePath};
-            log('CPP File Gen createClassGenerator 3');
+            log:Write('CPP File Gen createClassGenerator 3');
             return cg;
         else
             -- Skip if no new changes detected.'
-            log('File for ' .. tostring(node) ..' is up to date, skipping.');
+            log:Write('File for ' .. tostring(node) ..' is up to date, skipping.');
             return { parse = function() end };
         end
     end, 

@@ -90,7 +90,7 @@ FileGenerator = {
         if (type(text) ~= "string") then
             error("String was expected in call to write, but got " .. type(text) .. " instead.", 2);
         end
-        --print("DEBUG:" .. debug.traceback());       
+        --log:Write("DEBUG:" .. debug.traceback());       
         self.writer:Write(text);
     end,    
     

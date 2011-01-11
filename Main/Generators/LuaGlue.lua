@@ -22,6 +22,7 @@ require "Macaroni.Model.Source";
 require "Macaroni.Model.Type";
 require "Macaroni.Model.Cpp.Variable";
 require "Cpp/NodeInfo";
+require "Log";
 
 Axiom = Macaroni.Model.Axiom;
 Class = Macaroni.Model.Cpp.Class;
@@ -39,10 +40,6 @@ Variable = Macaroni.Model.Cpp.Variable;
 -- string below
 NEW_LINE = "\n";
 
-log = function(msg)
-	--print("[LuaGlue.lua]:" .. msg);
-end
-
 local check = function(con, msg)
 	if (not con) then
 		error(msg, 3);
@@ -55,8 +52,6 @@ local check2 = function(con, msg)
 	end
 end
 
-
-log("Parsing file.");
 
 LuaGlueGenerator = 
 {
@@ -99,9 +94,9 @@ LuaGlueGenerator =
 		me.charNode = me.primitives:Find("char");
 		me.debugMetaTable = function(obj) 
 			local mt = getmetatable(obj);
-			log("The meta table of obj is " .. tostring(mt) .. "... !");
+			log:Write("The meta table of obj is " .. tostring(mt) .. "... !");
 			for i, v in ipairs(mt) do 
-				log("mt... " .. tostring(i) .. "=" .. tostring(v) .. ""); 
+				log:Write("mt... " .. tostring(i) .. "=" .. tostring(v) .. ""); 
 			end
 		end;
 		return me;
@@ -110,13 +105,13 @@ LuaGlueGenerator =
 	Creators = nil,
 	
 	LuaWrapperArguments = function(self, node)
-		log("Creating wrapper args for " .. tostring(node.FullName) .. ".");
+		log:Write("Creating wrapper args for " .. tostring(node.FullName) .. ".");
 		local luaClass = "Macaroni::Lua::LuaClass";--RootNode:FindOrCreate("Macaroni::Lua::LuaClass");
 		local referenceTypeNode = "Macaroni::Lua::LuaClass";
 		local rtn = {};	
 		rtn.node = node;
 		local attr = node.Attributes[luaClass];
-		log("Hope there ain't no errors.");
+		log:Write("Hope there ain't no errors.");
 		if (attr == nil) then
 			error("The given node " .. tostring(node.Fullname) ..
 				" does not have an attribute " .. luaClass .. 
@@ -128,7 +123,7 @@ LuaGlueGenerator =
 				" but it is not a table.", 2);	
 		end
 		local args = attr.ValueAsTable;
-		log("args looks like dis: " .. tostring(args) .. "");
+		log:Write("args looks like dis: " .. tostring(args) .. "");
 		local refTypeAttrValue = args["ReferenceType"];
 		if (refTypeAttrValue == nil) then
 			error('While wrapping node ' .. tostring(node.FullName) ..
@@ -411,7 +406,7 @@ LuaGlueGenerator =
 		
 		blocks = function(self)
 			local blockHome = self.metaNode:FindOrCreate("functionPtrStructBlock");
-			log "Going to create block for function pointer struct.";
+			log:Write("Going to create block for function pointer struct.");
 			local helperIndex = self.parent:createHelperIndex(self);
 			local wrappedFunctions = self.parent:wrapMethods(self);
 			local memberText = {};
@@ -426,7 +421,7 @@ LuaGlueGenerator =
 					memberText[#memberText + 1] = tableEntry;
 				end
 			end
-			log "Creating me a block.";
+			log:Write("Creating me a block.");
 			local block = Block.Create(blockHome, "cpp",
 [[
 namespace
@@ -473,14 +468,14 @@ namespace
 		end,
 		
 		createClass = function(self)        
-			log("Wrapping " .. tostring(self.originalNode) .. " as " .. tostring(self.metaNode) .. ".");			
+			log:Write("Wrapping " .. tostring(self.originalNode) .. " as " .. tostring(self.metaNode) .. ".");			
 			local imports = NodeList.New({
 				self.lua_StateNode,
 				self.luaL_RegNode,
 				self.parent.RootNode:FindOrCreate("std::string")
 			});        
 			for i = 1, #imports do
-				log("imports[".. i .. "]=".. tostring(imports[i]));
+				log:Write("imports[".. i .. "]=".. tostring(imports[i]));
 			end
 			-- Mix all imports of the wrapped node with this one.
 			local otherImports = self.originalNode.Member.ImportedNodes;
@@ -523,7 +518,7 @@ namespace
 			-- NodePtr home, bool isInline, const Access access, const bool isStatic, 
 			-- const TypePtr rtnType, bool constMember, Model::ReasonPtr reason);		
 			local rtnType = Type.New(self.parent.Creators.intNode, { });
-			log "Going to create Index.";
+			log:Write("Going to create Index.");
 			local func = Function.Create(node, false, "Access_Public", true, 
 									   rtnType,
 									   false, self.reason);
@@ -547,9 +542,9 @@ namespace
 			local node = self.metaNode:FindOrCreate("IsType");
 			-- NodePtr home, bool isInline, const Access access, const bool isStatic, 
 			-- const TypePtr rtnType, bool constMember, Model::ReasonPtr reason);
-			log "Going to create IsType.";
+			log:Write("Going to create IsType.");
 			local rtnType = Type.New(self.parent.Creators.boolNode, { Pointer = false });
-			log "Going to create IsType.";
+			log:Write("Going to create IsType.");
 			local func = Function.Create(node, false, "Access_Public", true, 
 										   rtnType,
 										   false, self.reason);
@@ -588,9 +583,9 @@ namespace
 			local node = self.metaNode:FindOrCreate("OpenInLua");
 			-- NodePtr home, bool isInline, const Access access, const bool isStatic, 
 			-- const TypePtr rtnType, bool constMember, Model::ReasonPtr reason);
-			log "Going to create IsType.";
+			log:Write("Going to create IsType.");
 			local rtnType = Type.New(self.parent.Creators.intNode, { });
-			log "Going to create IsType.";
+			log:Write("Going to create IsType.");
 			local func = Function.Create(node, false, "Access_Public", true, 
 										   rtnType,
 										   false, self.reason);
@@ -616,23 +611,23 @@ namespace
 
 		createGetInstance = function(self)
 			local node = self.metaNode:FindOrCreate("GetInstance");
-			log "Going to create GetInstance.";
+			log:Write("Going to create GetInstance.");
 			local rtnType = Type.New(self.referenceType, { Reference = true });
-			log "Going to create IsType.";		
+			log:Write("Going to create IsType.");		
 			local func = Function.Create(node, false, "Access_Public", true, 
 										   rtnType,
 										   false, self.reason);
 			func = node.Member;		
 			local arg1 = node:FindOrCreate("L");		
 			local arg1Type = Type.New(self.lua_StateNode, { Pointer = true });
-			log "GETINSTANCE 2";
+			log:Write("GETINSTANCE 2");
 			Variable.Create(arg1, "Access_Public", false, arg1Type, "", self.reason);					
 			local arg2 = node:FindOrCreate("index");	
-			log "H+RMMMR?";	
+			log:Write("H+RMMMR?");	
 			local arg2Type = Type.New(self.parent.Creators.intNode, { });
-			log "WHHH!?"
+			log:Write("WHHH!?")
 			Variable.Create(arg2, "Access_Public", false, arg2Type, "", self.reason);					
-			log "WHAT?!!"
+			log:Write("WHAT?!!");
 			local refTypeStr = self.referenceType.FullName;
 			func:SetCodeBlock(
 [[
@@ -644,9 +639,9 @@ namespace
 		
 		createPutInstanceOnStack = function(self)
 			local node = self.metaNode:FindOrCreate("PutInstanceOnStack");
-			log "Going to create PutInstanceOnStack.";
+			log:Write("Going to create PutInstanceOnStack.");
 			local rtnType = Type.New(self.parent.Creators.voidNode, { });
-			log "Going to create putInstanceOnStack.";		
+			log:Write("Going to create putInstanceOnStack.");		
 			local func = Function.Create(node, false, "Access_Public", true, 
 										   rtnType,
 										   false, self.reason);
@@ -695,7 +690,7 @@ namespace
 			self:createPutInstanceOnStack();
 			self:createIndexMethod();
 		    
-			log "End of wrapClassFunction."
+			log:Write("End of wrapClassFunction.");
 		end
 	}, -- End object "ClassWrapper"		
 	
@@ -715,10 +710,8 @@ namespace
 -- such as a boost smartptr.
 
 function Generate(library, path, arguments)	
-	log = function(msg)
-		--print("[LuaGlue.lua]:" .. msg);
-	end	
-	log("Entered Generate");
+	log.Init("LuaGlue");
+	log:Write("Entered Generate");
 	arguments = arguments or {}		
     CurrentLibrary = library;
     local generator = LuaGlueGenerator.new(library.Context.Root);
@@ -726,15 +719,15 @@ function Generate(library, path, arguments)
     
     local classes = generator:findAllAttr(generator.RootNode);
     
-    log("Found " .. #(classes) .. " classes with attributes...");
-    log("BEGIN LUA GLUE");
+    log:Write("Found " .. #(classes) .. " classes with attributes...");
+    log:Write("BEGIN LUA GLUE");
     for i, class in ipairs(classes) do
 		local wrapArgs = generator:LuaWrapperArguments(class);
-		log("MIDDLE ...");
+		log:Write("MIDDLE ...");
         generator:wrapClass(wrapArgs)
     end
     --_.each(classes, wrapClass);
-    log "END LUA GLUE";
+    log:Write("END LUA GLUE");
     --[[markNodeWithLua(library.Context.Root:Find("Macaroni::Model::Cpp::Access"));
     markNodeWithLua(library.Context.Root:Find("Macaroni::Model::Cpp::Class"));
     markNodeWithLua(library.Context.Root:Find("Macaroni::Model::Node"));
@@ -745,8 +738,6 @@ function Generate(library, path, arguments)
     
 end
 
-
-log("End of file parse.");
 
 
 --if Test == nil then 

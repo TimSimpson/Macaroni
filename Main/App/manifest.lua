@@ -1,8 +1,12 @@
+require "Macaroni.IO.Path"
+Path = Macaroni.IO.Path;
+
+upper = getUpperLibrary();
 id =
 {
-    group="Macaroni",
-    name="Macaroni-App",
-    version="0.1.0.6",
+    group=upper.Group,
+    name="Macaroni.App",
+    version=upper.Version,
     author="Tim Simpson"
 }
 
@@ -76,6 +80,18 @@ jamArgs =
 		
 function build()	
 	run("BoostBuild", jamArgs)
+end
+
+function test()
+	local currentPath = Path.New(manifestDirectory);
+	local exePath = currentPath:AddPathForceSlash(
+		output .. "/bin/release/debug/macaroni.exe");
+	local luaTestsPath = currentPath:AddPathForceSlash(
+		output .. "/Source/test/lua");
+	local cmd = exePath.AbsolutePath .. " luaTests " .. luaTestsPath.AbsolutePath;
+	print("Running Lua tests:");
+	print(cmd);
+	os.execute(cmd);
 end
 
 function install()	

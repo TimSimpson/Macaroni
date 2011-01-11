@@ -17,7 +17,7 @@ ClassCppFileGenerator = {
     
     new = function(args)          
         assert(args.node ~= nil);
-        log(tostring(args.node) .. ' . .. . . . . . . .TIME TO ROCK!');
+        log:Write(tostring(args.node) .. ' . .. . . . . . . .TIME TO ROCK!');
         if (args.path == nil) then
             assert(args.writer ~= nil);
         else
@@ -30,7 +30,7 @@ ClassCppFileGenerator = {
         end
         
         setmetatable(args, ClassCppFileGenerator);
-        log("Created new ClassCppFileGenerator");
+        log:Write("Created new ClassCppFileGenerator");
         return args;
     end,    
     
@@ -39,7 +39,7 @@ ClassCppFileGenerator = {
     end,
     
     classBody = function(self)
-		log("Class body for " .. tostring(self.node) .. ".") 
+		log:Write("Class body for " .. tostring(self.node) .. ".") 
         --self:classBegin();
         self:iterateClassMembers(self.node.Children);
     end,
@@ -81,7 +81,7 @@ ClassCppFileGenerator = {
     end,
     
     includeStatements = function(self)
-		log(tostring(self.node) .. ' INCLUDE STATEMENTS! *_*');
+		log:Write(tostring(self.node) .. ' INCLUDE STATEMENTS! *_*');
         local class = self.node.Member;
         local imports = class.ImportedNodes;                       
         

@@ -31,8 +31,9 @@ namespace Macaroni::Build {
  */
 class CmdLine
 {			
-	private bool cavatappiMode;
-	private bool compile;
+	private bool build;
+	private bool cavatappiMode;	
+	private bool clean;
 	private string config;
 	private Console & console;
 	private bool debugMode;
@@ -48,12 +49,14 @@ class CmdLine
 	private string outputPath;
 	private bool saveCppSource;
 	private bool startPrompt;
-
+	private bool test;
+	
 	public CmdLine(const vector<const string> & args, Console & console)
 	:	cavatappiMode(false),
-	    compile(false),
+	    build(false),
 	    config(""),
 		console(console),
+		clean(false),
 		debugMode(false),
 		endPrompt(false),
 		generate(false),
@@ -66,7 +69,8 @@ class CmdLine
 		messagesPath(),
 		outputPath(""),
 		saveCppSource(false),
-		startPrompt(false)
+		startPrompt(false),
+		test(false)
 	{
 		for(unsigned int i = 0; i < args.size(); i ++)
 		{
@@ -208,9 +212,13 @@ class CmdLine
 				config = next;
 			}
 		}
-		else if (arg == "compile")
+		else if (arg == "clean")
 		{
-			compile = true;
+			clean = true;	
+		}
+		else if (arg == "build")
+		{
+			build = true;
 		}
 		else if (arg == "debug")
 		{
@@ -302,6 +310,10 @@ class CmdLine
 		{
 			startPrompt = true;
 		}
+		else if (arg == "test")
+		{
+			test = true;	
+		}
         else if (arg == "wait")
         {
             std::string stuff;
@@ -349,10 +361,8 @@ class CmdLine
 		const Configuration & mRefConfig = *mConfig;*/
 
 		ContextPtr context(new Context("%ROOT%"));
-		Builder builder(createAppPaths(), context, console);
-		compile = compile || install;
-		generate = generate || compile;
-		BuilderArguments args(generate, compile, install, cavatappiMode);
+		Builder builder(createAppPaths(), context, console);		
+		BuilderArguments args(clean, generate, build, test, install, cavatappiMode);
 		return builder.Execute(args, manifestFilePath);
 	}
 

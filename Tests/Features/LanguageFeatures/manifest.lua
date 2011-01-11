@@ -54,6 +54,10 @@ function build()
 	run("BoostBuild", jamArgs)
 end
 
+function test()
+	--run("BoostBuild", jamArgs);
+end
+
 function install()
 end
 

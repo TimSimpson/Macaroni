@@ -349,7 +349,7 @@ TypeUtil = {
 }
 
 --function Generate(context, path)
---    print("I play no part in this cosmic dance. I prance, and prance, and prance...");
+--    log:Write("I play no part in this cosmic dance. I prance, and prance, and prance...");
 --end
 --[[]]--
---print("CppCommon.lua is being loaded now.");
+--log:Write("CppCommon.lua is being loaded now.");
