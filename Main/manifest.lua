@@ -13,7 +13,6 @@ description= [[
 
 -- Bug- the Boost Build builder only looks at the last source path.
 sources = { "CavatappiGenerators" }
-output = "Cavatappi"
 
 --properties.macaroni = nil or {};
 --properties.macaroni.releasepath = "/Release";
