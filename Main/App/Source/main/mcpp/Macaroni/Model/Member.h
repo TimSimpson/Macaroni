@@ -37,6 +37,7 @@ public:
 	/** Finds a parent namespace by iterating backwards, skipping unknown nodes. */
 	Cpp::NamespacePtr FindClosestParentNamespace() const;
 
+	//TODO: Get rid of this.  
 	virtual void Visit(MemberVisitor * visitor) const = 0;
 
 protected:

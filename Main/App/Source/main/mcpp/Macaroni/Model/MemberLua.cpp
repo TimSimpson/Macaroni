@@ -5,7 +5,9 @@
 #include "BlockLua.h"
 #include "Cpp/ClassLua.h"
 #include "Cpp/ConstructorLua.h"
+#include "Cpp/ConstructorOverloadLua.h"
 #include "Cpp/FunctionLua.h"
+#include "Cpp/FunctionOverloadLua.h"
 #include "LibraryLua.h"
 #include "MemberLua.h"
 #include "Member.h"
@@ -25,7 +27,7 @@
 #define LUAGLUE_CLASSFULLCPPNAME Macaroni::Model::Member
 #define LUAGLUE_REGISTRATIONCLASSNAME MemberLuaMetaData
 #define LUAGLUE_OPENOTHERMODULES \
-	Macaroni::Model::Cpp::ConstructorLuaMetaData::AssignmentListOpenInLua(L);
+	Macaroni::Model::Cpp::ConstructorOverloadLuaMetaData::AssignmentListOpenInLua(L);
 	//Macaroni::Model::NodeLuaMetaData::OpenInLua(L); \
 	//Macaroni::Model::Cpp::FunctionLuaMetaData::OpenInLua(L); \
 	//Macaroni::Model::Cpp::ClassLuaMetaData::OpenInLua(L);  \
@@ -115,6 +117,14 @@
 		if (!!boost::dynamic_pointer_cast<Cpp::Function>(ptr))
 		{
 			int rtnCnt = Cpp::FunctionLuaMetaData::Index(L, boost::dynamic_pointer_cast<Cpp::Function>(ptr), index);
+			if (rtnCnt > 0)
+			{
+				return rtnCnt;
+			}
+		}
+		if (!!boost::dynamic_pointer_cast<Cpp::FunctionOverload>(ptr))
+		{
+			int rtnCnt = Cpp::FunctionOverloadLuaMetaData::Index(L, boost::dynamic_pointer_cast<Cpp::FunctionOverload>(ptr), index);
 			if (rtnCnt > 0)
 			{
 				return rtnCnt;

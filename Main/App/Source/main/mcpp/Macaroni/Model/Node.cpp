@@ -54,6 +54,26 @@ Node::~Node()
 //	return newInstance.release();
 //}
 
+NodePtr Node::CreateNextInSequence(const std::string & prefix)
+{
+	MACARONI_ASSERT(IsSimpleName(prefix), "Prefix must be simple at this point.");
+	int newIndex = 0;
+	bool found = false;
+	while(!found)
+	{
+		std::stringstream ss;
+		ss << prefix << newIndex;
+		std::string name = ss.str();
+		Node * n = this->findSimpleName(name);
+		if (n == nullptr)
+		{
+			Node * newNode = this->createNode(name);
+			return NodePtr(newNode);
+		}
+		++ newIndex;
+	}
+}
+
 Node * Node::createNode(const std::string & simpleName)
 {
 	MACARONI_ASSERT(IsSimpleName(simpleName), "Name must be simple at this point.");

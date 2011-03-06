@@ -22,17 +22,17 @@ friend void intrusive_ptr_release(Constructor * p);
 
 public:
 
-	static ConstructorPtr Create(NodePtr home, bool isInline, Access access, Model::ReasonPtr reason);
+	static ConstructorPtr Create(NodePtr home, Model::ReasonPtr reason);
 
 	virtual ~Constructor();
 
-	void AddAssignment(const VariableAssignment & assignment);
+	//void AddAssignment(const VariableAssignment & assignment);
 
 	virtual bool canBeChildOf(const Member * other) const;
 
-	const VariableAssignment & GetAssignment(int index) const;
+	//const VariableAssignment & GetAssignment(int index) const;
 
-	int GetAssignmentCount() const;
+	//int GetAssignmentCount() const;
 
 	virtual const char * GetTypeName() const;
 
@@ -40,9 +40,9 @@ public:
 
 private:
 	
-	Constructor(Node * home, Model::ReasonPtr reason, bool isInline, Access access);
+	Constructor(Node * home, Model::ReasonPtr reason);
 	
-	std::vector<VariableAssignment> assignments;	
+	//std::vector<VariableAssignment> assignments;	
 };
 
 END_NAMESPACE

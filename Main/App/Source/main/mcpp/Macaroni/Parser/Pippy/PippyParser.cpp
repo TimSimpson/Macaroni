@@ -9,6 +9,7 @@
 #include "../../Model/Block.h"
 #include "../../Model/Cpp/Class.h"
 #include "../../Model/Cpp/Constructor.h"
+#include <Macaroni/Model/Cpp/ConstructorOverload.h>
 #include "../../Model/Cpp/ConstructorPtr.h"
 #include "../../Model/Context.h"
 #include "../Cpp/CppAxioms.h"
@@ -18,6 +19,7 @@
 #include "../../Exception.h"
 #include "../../Model/FileName.h"
 #include "../../Model/Cpp/Function.h"
+#include <Macaroni/Model/Cpp/FunctionOverload.h>
 #include "../../Model/Library.h"
 #include "../../Environment/Messages.h"
 #include "../../Model/ModelInconsistencyException.h"
@@ -51,6 +53,8 @@ using Macaroni::Model::Block;
 using Macaroni::Model::Cpp::Class;
 using Macaroni::Model::Cpp::ClassPtr;
 using Macaroni::Model::Cpp::Constructor;
+using Macaroni::Model::Cpp::ConstructorOverload;
+using Macaroni::Model::Cpp::ConstructorOverloadPtr;
 using Macaroni::Model::Cpp::ConstructorPtr;
 using Macaroni::Model::Context;
 using Macaroni::Model::ContextPtr;
@@ -62,6 +66,8 @@ using Macaroni::Model::Cpp::DestructorPtr;
 using Macaroni::Model::FileName;
 using Macaroni::Model::FileNamePtr;
 using Macaroni::Model::Cpp::Function;
+using Macaroni::Model::Cpp::FunctionOverload;
+using Macaroni::Model::Cpp::FunctionOverloadPtr;
 using Macaroni::Model::Cpp::FunctionPtr;
 using Macaroni::Model::Library;
 using Macaroni::Model::LibraryPtr;
@@ -798,22 +804,45 @@ public:
 		}
 
 		std::string nodeName(!tilda ? "$ctor" : "$dtor");
-		NodePtr ctorNode = currentScope->FindOrCreate(nodeName);
+		NodePtr ctorNode = currentScope->FindOrCreate(nodeName);		
+
+		// Create CTOR or DTOR
+		FunctionOverloadPtr fOlPtr;
+
+		if (!tilda)
+		{
+			ReasonPtr ctorReason = Reason::Create(CppAxioms::CtorCreation(), 
+												  itr.GetSource());
+			ConstructorPtr ctor = Constructor::Create(ctorNode, ctorReason);			
+			//isInline, access, 
+			ConstructorOverloadPtr ctorOl =
+				ConstructorOverload::Create(ctor, isInline, access, ctorReason); 
+			fOlPtr = boost::dynamic_pointer_cast<FunctionOverload>(ctorOl);
+		} // end !tilda
+		else
+		{
+			DestructorPtr dtor = Destructor::Create(ctorNode,  isInline, access,
+				Reason::Create(CppAxioms::DtorCreation(), itr.GetSource()));
+			fOlPtr = dtor->GetFunctionOverload();
+		}
+		// End create
 
 		NodePtr oldScope = currentScope;
-		currentScope = ctorNode;
+		currentScope = fOlPtr->GetNode(); //ctorNode;
 		
 			FunctionArgumentList(newItr);
 
 		currentScope = oldScope;
 
-		FunctionPtr fPtr;
-
 		if (!tilda)
 		{
-			ConstructorPtr ctor = Constructor::Create(ctorNode, isInline, access, 
-				Reason::Create(CppAxioms::CtorCreation(), itr.GetSource()));			
-			fPtr = boost::dynamic_pointer_cast<Function>(ctor);
+			//ReasonPtr ctorReason = Reason::Create(CppAxioms::CtorCreation(), 
+			//									  itr.GetSource());
+			//ConstructorPtr ctor = Constructor::Create(ctorNode, ctorReason);			
+			////isInline, access, 
+			//ConstructorOverloadPtr ctorOl =
+			//	ConstructorOverload::Create(ctor, isInline, access, ctorReason); 
+			//fOlPtr = boost::dynamic_pointer_cast<FunctionOverload>(ctorOl);
 
 			ConsumeWhitespace(newItr);
 			if (newItr.ConsumeChar(':'))
@@ -846,18 +875,20 @@ public:
 					VariableAssignment va;
 					va.Expression = exprCode;
 					va.Variable = varNode;
-					ctor->AddAssignment(va);
+					ConstructorOverloadPtr ctorOl =
+						boost::dynamic_pointer_cast<ConstructorOverload>(fOlPtr);
+					ctorOl->AddAssignment(va);
 
 					ConsumeWhitespace(newItr);
 				} while(newItr.ConsumeChar(','));
 			}
 		} // end !tilda
-		else
-		{
-			DestructorPtr dtor = Destructor::Create(ctorNode,  isInline, access,
-				Reason::Create(CppAxioms::DtorCreation(), itr.GetSource()));
-			fPtr = boost::dynamic_pointer_cast<Function>(dtor);
-		}
+		///*else
+		//{
+		//	DestructorPtr dtor = Destructor::Create(ctorNode,  isInline, access,
+		//		Reason::Create(CppAxioms::DtorCreation(), itr.GetSource()));
+		//	fOlPtr = dtor->GetFunctionOverload();
+		//}*/
 
 		std::string codeBlock;
 		bool codeAttached = false;
@@ -875,7 +906,7 @@ public:
 		
 		if (codeAttached)
 		{
-			fPtr->SetCodeBlock(codeBlock, startOfCodeBlock.GetSource());
+			fOlPtr->SetCodeBlock(codeBlock, startOfCodeBlock.GetSource());
 		}
 		itr = newItr;
 		return true;
@@ -1438,7 +1469,7 @@ public:
 	static void FindNodeTest()
 	{
 		ContextPtr c(new Context("{ROOT}"));
-		LibraryPtr l = c->FindOrCreateLibrary("", "FindNodeTest", "");
+		LibraryPtr l = c->FindOrCreateLibrary("Tests", "FindNodeTest", "1");
 		CppContext::CreateCppNodes(c);
 		ParserFunctions funcs(c, l);
 
@@ -1465,7 +1496,7 @@ public:
 	{
 		ContextPtr c(new Context("{ROOT}"));
 		CppContext::CreateCppNodes(c);
-		LibraryPtr l = c->FindOrCreateLibrary("", "FindNodeFromImportsTest", "");
+		LibraryPtr l = c->FindOrCreateLibrary("Tests", "FindNodeFromImportsTest", "1");
 		ParserFunctions funcs(c, l);
 
 		// It is found.
@@ -2112,7 +2143,8 @@ public:
 			//}*/
 
 			NodePtr oldScope = currentScope;
-			currentScope = node;
+			NodePtr foNode = node->CreateNextInSequence("Overload#");
+			currentScope = foNode;
 				FunctionArgumentList(itr);
 			currentScope = oldScope;
 
@@ -2138,11 +2170,16 @@ public:
 						Messages::Get("CppParser.Function.SemicolonExpected")); 
 				}
 			}
-			FunctionPtr function = Function::Create(node, isInline, access, isStatic, type, constMember,
-				Reason::Create(CppAxioms::FunctionCreation(), oldItr.GetSource()));
+			ReasonPtr fReason = Reason::Create(CppAxioms::FunctionCreation(), 
+											   oldItr.GetSource());
+			FunctionPtr function = Function::Create(node, fReason);
+			FunctionOverloadPtr fOl = 
+				FunctionOverload::Create(foNode, isInline, access, isStatic, 
+										 type, constMember, fReason);
+			//isInline, access, isStatic, type, constMember,
 			if (codeAttached)
 			{
-				function->SetCodeBlock(codeBlock, startOfCodeBlock.GetSource());
+				fOl->SetCodeBlock(codeBlock, startOfCodeBlock.GetSource());
 			}
 
 		}

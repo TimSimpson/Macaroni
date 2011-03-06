@@ -21,66 +21,53 @@ using class Macaroni::Model::Node;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-namespace
-{
-	inline TypePtr voidTypeInfo(Node * home)
-	{
-		TypeModifiers modifiers;
-		modifiers.Const = 
-			modifiers.ConstPointer = 
-			modifiers.Pointer = 
-			modifiers.Reference = 
-			false;
-		return TypePtr(new Type(NodePtr(home), modifiers));		
-	}
-};
 
-Constructor::Constructor(Node * home, Model::ReasonPtr reason, bool isInline, Access access)
-:Function(home, "Constructor", reason, isInline, access, true, voidTypeInfo(home), false), assignments()
+Constructor::Constructor(Node * home, Model::ReasonPtr reason)
+:Function(home, "Constructor", reason)
 {
 }
 
 Constructor::~Constructor()
 {
 }
-
-void Constructor::AddAssignment(const VariableAssignment & assignment)
-{
-	assignments.push_back(assignment);
-}
+//
+//void Constructor::AddAssignment(const VariableAssignment & assignment)
+//{
+//	assignments.push_back(assignment);
+//}
 
 bool Constructor::canBeChildOf(const Member * other) const
 {
 	return dynamic_cast<const Class *>(other) != nullptr;
 }
 
-ConstructorPtr Constructor::Create(NodePtr host, bool isInline, Access access, Model::ReasonPtr reason)
+ConstructorPtr Constructor::Create(NodePtr host, Model::ReasonPtr reason)
 {
 	if (!host->GetMember())
 	{
-		return ConstructorPtr(new Constructor(host.get(), reason, isInline, access));
+		return ConstructorPtr(new Constructor(host.get(), reason));
 	}
 	Member * member = host->GetMember().get();
 	Constructor * existingFunc = dynamic_cast<Constructor *>(member);
 	if (existingFunc == nullptr)
 	{
 		// Will throw an error message.
-		return ConstructorPtr(new Constructor(host.get(), reason, isInline, access));
+		return ConstructorPtr(new Constructor(host.get(), reason));
 	}
 
 	// Re-use the previously set variable.
 	return ConstructorPtr(boost::dynamic_pointer_cast<Constructor>(host->GetMember()));
 }
-
-const VariableAssignment & Constructor::GetAssignment(int index) const
-{
-	return assignments[index];
-}
-
-int Constructor::GetAssignmentCount() const
-{
-	return assignments.size();
-}
+//
+//const VariableAssignment & Constructor::GetAssignment(int index) const
+//{
+//	return assignments[index];
+//}
+//
+//int Constructor::GetAssignmentCount() const
+//{
+//	return assignments.size();
+//}
 
 const char * Constructor::GetTypeName() const
 {

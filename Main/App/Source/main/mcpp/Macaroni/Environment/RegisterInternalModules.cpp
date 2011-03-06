@@ -12,6 +12,7 @@
 //#include "../Model/Document.h"
 #include "../Model/FileNameLua.h"
 #include "../Model/Cpp/FunctionLua.h"
+#include "../Model/Cpp/FunctionOverloadLua.h"
 #include <Macaroni/IO/GeneratedFileWriterLuaMetaData.h>
 #include "../Model/LibraryLua.h"
 #include <Macaroni/Doc/MDocParser.h>
@@ -51,6 +52,7 @@ static const struct luaL_Reg libs[] = {
 	{"Macaroni.Model.Context", Model::ContextLuaMetaData::OpenInLua},	
 	{"Macaroni.Model.FileName", Model::FileNameLuaMetaData::OpenInLua},	
 	{"Macaroni.Model.Cpp.Function", Model::Cpp::FunctionLuaMetaData::OpenInLua},		
+	{"Macaroni.Model.Cpp.FunctionOverload", Model::Cpp::FunctionOverloadLuaMetaData::OpenInLua},		
 	{"Macaroni.IO.GeneratedFileWriter", Macaroni::IO::GeneratedFileWriterLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Library", Model::LibraryLuaMetaData::OpenInLua},	
 	{"Macaroni.Doc.MDocParser", Macaroni::Doc::MDocParser::OpenInLua},	

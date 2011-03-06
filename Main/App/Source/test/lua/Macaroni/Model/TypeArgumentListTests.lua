@@ -41,7 +41,7 @@ type information earlier.
 
 local function mixinContext(self)
     self.context = Context.New("{ROOT}");
-    self.library = self.context:FindOrCreateLibrary("", "TypeArgumentListTests", "1.0");
+    self.library = self.context:FindOrCreateLibrary("Tests", "TypeArgumentListTests", "1.0");
     
     local parser = PippyParser.Create();         
     local file = FileName.Create("Blah1.mcpp");           

@@ -51,7 +51,14 @@ using Macaroni::Model::SourceLuaMetaData;
 
 	static int RunTests(lua_State * L)
 	{
-		PippyParser::RunTests();
+		try
+		{
+			PippyParser::RunTests();
+		} 
+		catch(const std::exception & ex)
+		{
+			luaL_error(L, ex.what());
+		}
 		return 0;
 	}
 

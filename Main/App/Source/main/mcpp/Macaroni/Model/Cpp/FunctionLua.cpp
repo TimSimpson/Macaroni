@@ -53,15 +53,8 @@ namespace
 				//	const Access access, const bool isStatic, const TypePtr rtnType, 
 				//	bool constMember, Model::ReasonPtr reason);
 				NodePtr home = NodeLuaMetaData::GetInstance(L, 1);
-				bool isInline = lua_toboolean(L, 2) != 0;
-				Access access = AccessLuaMetaData::GetInstance(L, 3);
-				bool isStatic = lua_toboolean(L, 4) != 0;
-				TypePtr rtnType = TypeLuaMetaData::GetInstance(L, 5);
-				bool constMember = lua_toboolean(L, 6) != 0;
-				ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 7);
-				FunctionPtr newFunc = Function::Create(home, isInline, access, 
-													   isStatic, rtnType, 
-													   constMember, reason);
+				ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 2);
+				FunctionPtr newFunc = Function::Create(home, reason);
 				MemberPtr rtnValue = boost::dynamic_pointer_cast<Member>(newFunc);
 				MemberLuaMetaData::PutInstanceOnStack(L, rtnValue);
 				return 1;
@@ -72,7 +65,7 @@ namespace
 			}
 		}
 
-		static int SetCodeBlock(lua_State * L)
+		/*static int SetCodeBlock(lua_State * L)
 		{
 			MemberPtr memberPtr = MemberLuaMetaData::GetInstance(L, 1);
 			FunctionPtr & ptr = boost::dynamic_pointer_cast<Function>(memberPtr);
@@ -80,7 +73,7 @@ namespace
 			SourcePtr src = SourceLuaMetaData::GetInstance(L, 3);
 			ptr->SetCodeBlock(codeBlock, src);
 			return 0;
-		}
+		}*/
 
 	}; // end FunctionLuaFunctions
 
@@ -116,40 +109,6 @@ void FunctionLuaMetaData::PutInstanceOnStack(lua_State * L, const FunctionPtr & 
 int FunctionLuaMetaData::Index(lua_State * L, const FunctionPtr & ptr, 
 									  const std::string & index)
 {		
-	if (index == "Arguments")
-	{
-		NodeListPtr argList = ptr->GetArguments();
-		Model::NodeListLuaMetaData::PutInstanceOnStack(L, argList);
-		return 1;
-	}
-	else if (index == "CodeBlock")
-	{
-		lua_pushstring(L, ptr->GetCodeBlock().c_str());
-		return 1;
-	}
-	else if (index == "Const")
-	{
-		lua_pushboolean(L, ptr->IsConst());
-		return 1;
-	}
-	else if (index == "Inline")
-	{
-		lua_pushboolean(L, ptr->IsInline());
-		return 1;
-	}
-	else if (index == "ReturnType")
-	{
-		TypeLuaMetaData::PutInstanceOnStack(L, ptr->GetReturnType());
-		///*createLUAGLUE_CLASSREFNAMEUserData(L, ptr);
-		//luaL_getmetatable(L, PROPERTIES_METATABLENAME_RETURNTYPE);
-		//lua_setmetatable(L, -2); */
-		return 1;
-	}		
-	else if (index == "SetCodeBlock")
-	{
-		lua_pushcfunction(L, FunctionLuaFunctions::SetCodeBlock);
-		return 1;
-	}		
 	return 0;
 }
 

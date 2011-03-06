@@ -19,6 +19,9 @@ BEGIN_NAMESPACE2(Macaroni, Model)
 #define METATABLENAME "Macaroni.Model.Context"
 #define GLOBALTABLENAME "Macaroni.Model.Context"
 
+#define L_BEGIN try {
+#define L_END } catch(const std::exception & ex){ return luaL_error(L, ex.what()); }
+
 namespace {
 
 	// Taking a NamespacePtr, creates a Lua user data for a new NamespacePtr 
@@ -57,6 +60,7 @@ struct ContextLuaFunctions
 {	
 	static int findLibrary(lua_State * L)
 	{
+		L_BEGIN
 		ContextPtr context = getInstance(L);
 		std::string group(luaL_checkstring(L, 2));
 		std::string name(luaL_checkstring(L, 3));
@@ -64,10 +68,12 @@ struct ContextLuaFunctions
 		LibraryPtr library = context->FindLibrary(group, name, version);
 		LibraryLuaMetaData::PutInstanceOnStack(L, library);
 		return 1;
+		L_END
 	}
 
 	static int findOrCreateLibrary(lua_State * L)
 	{
+		L_BEGIN
 		ContextPtr context = getInstance(L);
 		std::string group(luaL_checkstring(L, 2));
 		std::string name(luaL_checkstring(L, 3));
@@ -75,25 +81,31 @@ struct ContextLuaFunctions
 		LibraryPtr library = context->FindOrCreateLibrary(group, name, version);
 		LibraryLuaMetaData::PutInstanceOnStack(L, library);
 		return 1;
+		L_END
 	}
 
 	static int luaGc(lua_State * L)
 	{
+		L_BEGIN
 		ContextPtr * nsPtr = (ContextPtr *) luaL_checkudata(L, 1, METATABLENAME);
 		nsPtr->~ContextPtr();
 		return 0;
+		L_END
 	}	
 
 	static int __eq(lua_State * L)
 	{
+		L_BEGIN
 		ContextPtr & a = getInstance(L, 1);
 		ContextPtr & b = getInstance(L, 2);
 		lua_pushboolean(L, a.get()==b.get() ? 1 : 0);
 		return 1;
+		L_END
 	}
 
 	static int __index(lua_State * L)
 	{
+		L_BEGIN
 		ContextPtr & context = getInstance(L);
 
 		std::string index(luaL_checkstring(L, 2));
@@ -123,10 +135,12 @@ struct ContextLuaFunctions
 			lua_pushnil(L);
 		}		
 		return 1;
+		L_END
 	}
 
 	static int __tostring(lua_State * L)
 	{
+		L_BEGIN
 		ContextPtr & context = getInstance(L);
 		std::stringstream ss;
 		ss << "Context[references:" << context->GetReferenceCount()
@@ -137,22 +151,27 @@ struct ContextLuaFunctions
 			<< "]";
 		lua_pushlstring(L, ss.str().c_str(), ss.str().length());
 		return 1;
+		L_END
 	}
 
 	static int New(lua_State * L)
 	{
+		L_BEGIN
 		std::string rootName(luaL_checkstring(L, 1));
 	
 		ContextPtr ptr = new Context(rootName);		
 		putContextInstanceOnStack(L, ptr);
 		return 1;
+		L_END
 	}
 
 	static int GetReferenceCount(lua_State * L)
 	{
+		L_BEGIN
 		ContextPtr & context = getInstance(L);
 		lua_pushinteger(L, context->GetReferenceCount());		
 		return 1;
+		L_END
 	}
 
 };

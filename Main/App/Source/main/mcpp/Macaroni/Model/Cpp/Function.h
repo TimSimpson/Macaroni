@@ -13,7 +13,7 @@
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 /** Represents a function in any possible Scope. */
-class Function : public ScopeMember
+class Function : public Model::Member
 {
 friend void intrusive_ptr_add_ref(Function * p);
 friend void intrusive_ptr_release(Function * p);
@@ -24,9 +24,9 @@ public:
 
 	//int GetArgumentCount() const;
 	/** Clears the given list and fills it with the Argument nodes. */
-	Model::NodeListPtr GetArguments() const;
+	// Model::NodeListPtr GetArguments() const;
 
-	static FunctionPtr Create(NodePtr home, bool isInline, const Access access, const bool isStatic, const TypePtr rtnType, bool constMember, Model::ReasonPtr reason);
+	static FunctionPtr Create(NodePtr home, Model::ReasonPtr reason);
 
 	virtual ~Function();
 
@@ -34,51 +34,51 @@ public:
 
 	virtual bool DoesDefinitionReference(NodePtr node) const;
 
-	const std::string & GetCodeBlock() const;
+	//const std::string & GetCodeBlock() const;
 
 	virtual const char * GetTypeName() const;
 
 	Model::NodePtr GetTypeNode() const;
 
-	inline const TypePtr GetReturnType() const
-	{
-		return returnType;
-	}
+	///*inline const TypePtr GetReturnType() const
+	//{
+	//	return returnType;
+	//}
 
-	inline bool IsConst() const
-	{
-		return constMember;
-	}
+	//inline bool IsConst() const
+	//{
+	//	return constMember;
+	//}
 
-	inline bool IsInline() const
-	{
-		return isInline;
-	}
+	//inline bool IsInline() const
+	//{
+	//	return isInline;
+	//}*/
 
-	/** Attaches code to this function. If code was already attached, throws a
-	 * ModelInconsistencyException. */
-	void SetCodeBlock(std::string & code, SourcePtr startOfCode);
+	///** Attaches code to this function. If code was already attached, throws a
+	// * ModelInconsistencyException. */
+	//void SetCodeBlock(std::string & code, SourcePtr startOfCode);
 
 	virtual void Visit(MemberVisitor * visitor) const;
 
 protected:
-	Function(Node * home, const char * typeName, Model::ReasonPtr reason, bool isInline, Access access, const bool isStatic, const TypePtr rtnType, bool constMember);
+	Function(Node * home, const char * typeName, Model::ReasonPtr reason);
 
 private:
 	
-	Function(Node * home, Model::ReasonPtr reason, bool isInline, Access access, const bool isStatic, const TypePtr rtnTypeInfo, bool constMember);
+	Function(Node * home, Model::ReasonPtr reason);
 
-	bool codeAttached;
+	//bool codeAttached;
 
-	std::string codeBlock;
+	//std::string codeBlock;
 	
-	SourcePtr codeSource;
+	//SourcePtr codeSource;
 
-	bool constMember;
+	//bool constMember;
 
-	const bool isInline;
+	//const bool isInline;
 
-	TypePtr returnType;
+	//TypePtr returnType;
 };
 
 END_NAMESPACE

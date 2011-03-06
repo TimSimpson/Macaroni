@@ -25,7 +25,11 @@ friend void intrusive_ptr_add_ref(Node * p);
 friend void intrusive_ptr_release(Node * p);
 
 public:		
-		
+	
+	/** Creates a node with the given prefix and some number
+	 * attached to it. */
+	NodePtr CreateNextInSequence(const std::string & prefix);
+
 	///** Returns an existing class with the given name, or returns nullptr if
 	// * a clash is discovered. */
 	//ClassPtr FindOrCreateClass(const std::string & name);

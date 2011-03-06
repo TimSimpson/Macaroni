@@ -4,6 +4,7 @@
 #include "../../ME.h"
 #include "DestructorPtr.h"
 #include "Function.h"
+#include "FunctionOverload.h"
 #include "../Member.h"
 #include "../ReasonPtr.h"
 #include "ScopeMember.h"
@@ -26,6 +27,11 @@ public:
 	virtual ~Destructor();
 
 	virtual bool canBeChildOf(const Member * other) const;
+
+	/** Destructors can only have one overload so they are created with it,
+	    unlike Constructors or Functions which need to have them manually 
+		added.  This helper just returns it. */
+	FunctionOverloadPtr GetFunctionOverload();
 
 	virtual const char * GetTypeName() const;
 

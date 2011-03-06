@@ -1,4 +1,5 @@
 require "Macaroni.Model.Context";
+require "Macaroni.Model.Library";
 require "Macaroni.Environment.Messages";
 require "Macaroni.Model.Member";
 require "Macaroni.Model.Node";
@@ -8,6 +9,7 @@ require "Macaroni.Parser.ParserException";
 require "Macaroni.Model.Source";
 
 local Context = Macaroni.Model.Context;
+local Library = Macaroni.Model.Library;
 local Messages = Macaroni.Environment.Messages;
 local PippyParser = Macaroni.Parser.Pippy.PippyParser;
 local FileName = Macaroni.Model.FileName;
@@ -22,7 +24,7 @@ tests = {
         init = function(this)
             this.parser = PippyParser.Create();     
             this.context = Context.New("{ROOT}");
-            this.library = this.context:FindOrCreateLibrary("", "Test", "1.0");
+            this.library = this.context:FindOrCreateLibrary("Tests", "Test", "1.0");
             this.file = FileName.Create("Blah1.mcpp");           
             this.root = this.context.Root;
             this.src = Source.Create(this.file, 1, 1);
@@ -44,7 +46,7 @@ tests = {
         init = function(this)
             this.parser = PippyParser.Create();     
             this.context = Context.New("{ROOT}");
-            this.library = this.context:FindOrCreateLibrary("", "Test", "1.0");
+            this.library = this.context:FindOrCreateLibrary("Tests", "Test", "1.0");
             this.file = FileName.Create("Blah1.mcpp");           
             this.root = this.context.Root;
             this.src = Source.Create(this.file, 1, 1);
@@ -80,7 +82,7 @@ tests = {
         init = function(this)
             this.parser = PippyParser.Create();     
             this.context = Context.New("{ROOT}");
-            this.library = this.context:FindOrCreateLibrary("", "Test", "1.0");
+            this.library = this.context:FindOrCreateLibrary("Tests", "Test", "1.0");
             this.file = FileName.Create("Blah1.mcpp");           
             this.root = this.context.Root;
             this.src = Source.Create(this.file, 1, 1);
@@ -117,7 +119,7 @@ tests = {
         tryParse = function(text)
             local parser = PippyParser.Create();
             local context = Context.New("{ROOT}");
-            local library = context:FindOrCreateLibrary("", "Test", "1.0");
+            local library = context:FindOrCreateLibrary("Tests", "Test", "1.0");
             local file = FileName.Create("Blah1.mcpp");
             local src = Source.Create(file, 1, 1);
             

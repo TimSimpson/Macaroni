@@ -26,7 +26,7 @@ require "Macaroni/Model/AxiomTests";
 require "Macaroni/Model/Cpp/ClassTests";
 require "Macaroni/Model/ContextTests";
 -- Commenting out Document Tests... FOR NOW...
---require "Macaroni/Model/DocumentTests";
+-- require "Macaroni/Model/DocumentTests";
 require "Macaroni/Model/FileNameTests";
 --require "Macaroni/Model/NamespaceTests";
 require "Macaroni/Model/NodeTests";
@@ -35,13 +35,15 @@ require "Macaroni/Model/ReasonTests";
 require "Macaroni/Model/SourceTests"; 
 require "Macaroni/Model/TypeTests"; 
 require "Macaroni/Model/TypeArgumentTests"; 
-require "Macaroni/Model/TypeArgumentListTests"; 
+-- Bug below?
+require "Macaroni/Model/TypeArgumentListTests";  -- suspect
 require "Macaroni/Model/TypeListTests"; 
 --require "Macaroni/Parser/Cpp/Tests/Namespaces";
-require "Macaroni/Parser/Pippy/Tests/Index";
+
+require "Macaroni/Parser/Pippy/Tests/Index"; -- primary suspect
 
 -- Generator tests.
-require "Generators/LuaGlueTest";
+-- require "Generators/LuaGlueTest";
 
 local currentTest;
 suiteNames = {};
@@ -122,6 +124,7 @@ Test.runAll(output);
 print("Reached the end of all tests without dying.  Still alive, I'm still alive...");
 
 print();
+print("Tests   : " .. Test.count);
 print("Failures: " .. #Test.failures );
 
 if (#Test.failures > 0) then

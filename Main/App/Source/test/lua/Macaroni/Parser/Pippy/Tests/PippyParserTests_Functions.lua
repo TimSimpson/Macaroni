@@ -45,7 +45,7 @@ tests = {
         init = function(this)
             this.parser = PippyParser.Create();     
             this.context = Context.New("{ROOT}");
-            this.library = this.context:FindOrCreateLibrary("", "PippyParserTests::Functions", "9.5");
+            this.library = this.context:FindOrCreateLibrary("Tests", "PippyParserTests_Functions", "9.5");
             this.file = FileName.Create("Blah1.mcpp");           
             this.root = this.context.Root;
             this.src = Source.Create(this.file, 1, 1);
@@ -53,7 +53,9 @@ tests = {
             this.parser:Read(this.library, this.src, [[
                 void main(){}
             ]]);         
-            this.func = this.root.Children[2].Member;   
+            this.funcNode = this.root.Children[2];
+            this.func = this.funcNode.Member;               
+            this.fo1 = this.funcNode.Children[1].Member;
         end,
         tests = {
             ["Main is added."] = function(this)
@@ -62,12 +64,18 @@ tests = {
             end,            
             ["Main's type is function."] = function(this)                                
                 Test.assert("Function", this.func.TypeName);                  
+            end,     
+            ["Main has one overload."] = function(this)
+				Test.assert(1, #(this.funcNode.Children));
+            end,       
+            ["Main.Overload#0 type is overload."] = function(this)
+				Test.assert("FunctionOverload", this.fo1.TypeName);
+            end,       
+            ["Main.Overload#0 return type is void."] = function(this)                                
+                Test.assert("void", this.fo1.ReturnType.Node.Name);  --                
             end,            
-            ["Main's return type is void."] = function(this)                                
-                Test.assert("void", this.func.ReturnType.Node.Name);  --                
-            end,            
-            ["Main's argument list is empty."] = function(this)                                
-                Test.assert(0, #this.func.Arguments);    --              
+            ["Main.Overload#0 argument list is empty."] = function(this)                                
+                Test.assert(0, #this.fo1.Arguments);    --              
             end,                        
         }
     },
@@ -76,7 +84,7 @@ tests = {
         init = function(this)
             this.parser = PippyParser.Create();     
             this.context = Context.New("{ROOT}");
-            this.library = this.context:FindOrCreateLibrary("", "ArgList tyeps", "3.x");
+            this.library = this.context:FindOrCreateLibrary("Tests", "ArgList_types", "3.x");
             this.file = FileName.Create("Blah1.mcpp");           
             this.root = this.context.Root;
             this.src = Source.Create(this.file, 1, 1);
@@ -85,7 +93,9 @@ tests = {
                 ~import std::string;
                 void go(string blah){}
             ]]);         
-            this.func = this.root.Children[3].Member;   
+            this.funcNode = this.root.Children[3];
+            this.func = this.funcNode.Member;   
+            this.fo1 = this.funcNode.Children[1].Member;
         end,
         tests = {
             ["Function 'go' is added."] = function(this)
@@ -95,14 +105,20 @@ tests = {
             ["Go's type is function."] = function(this)                                
                 Test.assert("Function", this.func.TypeName);                  
             end,            
-            ["Go's return type is void."] = function(this)                                
-                Test.assert("void", this.func.ReturnType.Node.Name);
+            ["Go has one child."] = function(this)                                
+                Test.assert(1, #(this.funcNode.Children));                  
             end,            
-            ["Main's argument list has one entry."] = function(this)                 
-                Test.assert(1, #this.func.Arguments);    
+            ["Go.Overload#1 is type 'FunctionOverload'"] = function(this)
+				Test.assert("FunctionOverload", this.fo1.TypeName);
+            end,
+            ["Go.Overload#1's return type is void."] = function(this)                                
+                Test.assert("void", this.fo1.ReturnType.Node.Name);
+            end,            
+            ["Go.Overload#1's argument list has one entry."] = function(this)                 
+                Test.assert(1, #this.fo1.Arguments);    
             end,   
-            ["Go's argument #1 is std::string."] = function(this)
-                local args = this.func.Arguments;
+            ["Go.Overload#1's argument #1 is std::string."] = function(this)
+                local args = this.fo1.Arguments;
                 local number = #args;
                 local arg1 = args[1];                   
                 local arg1Type = arg1.Member.Type;

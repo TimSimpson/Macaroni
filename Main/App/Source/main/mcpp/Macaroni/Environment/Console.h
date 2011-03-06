@@ -34,6 +34,11 @@ public:
 		std::cout << msg << std::endl;
 	}
 
+	void WriteLine(const wchar_t * msg) const
+	{
+		std::cout << msg << std::endl;
+	}
+
 	void WriteLine(const std::string & msg) const
 	{
 		std::cout << msg << std::endl;

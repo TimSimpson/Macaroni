@@ -39,6 +39,8 @@ Test = {
         end
     end,
     
+    count = 0,
+    
     failures = {},
     
     -- Expects object to be a valid test suite.
@@ -59,12 +61,13 @@ Test = {
         output.setTest(name);		
         co = coroutine.create(function() func(test) end);
         result, msg = coroutine.resume(co);
+        Test.count = Test.count + 1;
         if result ~= true then
             failure = { name = name, cause = msg }; -- .. debug.traceback(co) };
             Test.failures[#Test.failures + 1] = failure;                     
             output.fail(failure.cause);            
         else
-            output.pass("Success");
+			output.pass("Success");
         end      
     end,
     

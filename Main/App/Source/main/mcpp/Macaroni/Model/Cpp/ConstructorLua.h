@@ -9,7 +9,7 @@ BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 struct ConstructorLuaMetaData
 {	
-	static int AssignmentListOpenInLua(lua_State * L);
+	//static int AssignmentListOpenInLua(lua_State * L);
 	//static bool IsType(lua_State * L, int index);
 	//static int OpenInLua(lua_State * L);
 	//static ConstructorPtr & GetInstance(lua_State * L, int index);

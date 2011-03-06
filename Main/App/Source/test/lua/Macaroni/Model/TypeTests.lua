@@ -38,7 +38,7 @@ type information earlier.
 
 local function mixinContext(self)
     self.context = Context.New("{ROOT}");
-    self.library = self.context:FindOrCreateLibrary("", "TypeTests", "1.5");
+    self.library = self.context:FindOrCreateLibrary("Tests", "TypeTests", "1.5");
     
     local parser = PippyParser.Create();         
     local file = FileName.Create("Blah1.mcpp");           
@@ -69,7 +69,6 @@ local function mixinContext(self)
     self.audioData  = self.context.Root:Find("AudioData");
     self.gfxData  = self.context.Root:Find("GfxData");
     self.stdstring = self.context.Root:Find("std::string");
-    
 end
 
 Test.register(

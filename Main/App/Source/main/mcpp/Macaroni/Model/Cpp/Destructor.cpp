@@ -3,6 +3,7 @@
 
 #include "Class.h"
 #include "Destructor.h"
+#include "FunctionOverload.h"
 #include "Primitive.h"
 #include "../../Exception.h"
 #include "../MemberVisitor.h"
@@ -36,8 +37,9 @@ namespace
 };
 
 Destructor::Destructor(Node * home, Model::ReasonPtr reason, bool isInline, Access access)
-:Function(home, "Destructor", reason, isInline, access, true, voidType(), false)
+:Function(home, "Destructor", reason)
 {
+	FunctionOverload::Create(this, isInline, access, false, voidType(), false, reason);
 }
 
 Destructor::~Destructor()
@@ -65,6 +67,20 @@ DestructorPtr Destructor::Create(NodePtr host, bool isInline, Access access, Mod
 
 	// Re-use the previously set variable.
 	return DestructorPtr(boost::dynamic_pointer_cast<Destructor>(host->GetMember()));
+}
+
+FunctionOverloadPtr Destructor::GetFunctionOverload()
+{
+	Node * node = this->getNode();
+	NodePtr nodePtr = node->Find("Overload#0");
+	MemberPtr member = nodePtr->GetMember();
+	FunctionOverloadPtr fol = boost::dynamic_pointer_cast<FunctionOverload>(member);
+	if (!fol)
+	{
+		throw Macaroni::Exception("Tried to grab the destructors "
+			"FunctionOverload, but somehow it was a different member.");
+	}
+	return fol;
 }
 
 const char * Destructor::GetTypeName() const
