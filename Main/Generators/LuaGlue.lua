@@ -11,6 +11,7 @@ require "Cpp/Common";
 require "Macaroni.Model.Context";
 require "Macaroni.Model.FileName";
 require "Macaroni.Model.Cpp.Function";
+require "Macaroni.Model.Cpp.FunctionOverload";
 require "LuaGlue/LuaGlueCppFile";
 require "LuaGlue/LuaGlueHFile";
 require "Macaroni.Model.Library";
@@ -29,6 +30,7 @@ Class = Macaroni.Model.Cpp.Class;
 Context = Macaroni.Model.Context;
 FileName = Macaroni.Model.FileName;
 Function = Macaroni.Model.Cpp.Function;
+FunctionOverload = Macaroni.Model.Cpp.FunctionOverload;
 Member = Macaroni.Model.Member;
 NodeList = Macaroni.Model.NodeList;
 Reason = Macaroni.Model.Reason;
@@ -247,7 +249,12 @@ LuaGlueGenerator =
 		for i = 1, #node.Children do
 			local child = node.Children[i];
 			if (child.Member.TypeName == "Function") then
-				rtn[#rtn + 1] = child;			
+				for j = 1, #child.Children do
+					local fon = child.Children[j]; -- FunctionOverload node
+					if (fon.Member ~= nil and fon.TypeName == 'FunctionOverload') then
+						rtn[#rtn + 1] = fon;
+					end
+				end	
 			end
 		end
 		return rtn;
@@ -257,8 +264,8 @@ LuaGlueGenerator =
 	wrapMethod = function(self, methodNode) 
 		check(self ~= nil, 'Argument "self" missing!');
 		check(methodNode ~= nil, 'Argument "methodNode" missing!');
-		check(methodNode.Member ~= nil, 'Argument "methodNode" has no Member defined!');
-		check(methodNode.Member.TypeName == "Function", 'Argument "methodNode" must have Member defined as Function.');
+		check(methodNode.Member ~= nil, 'Argument "methodNode" has no Member defined!');		
+		check(methodNode.Member.TypeName == "FunctionOverload", 'Argument "methodNode" must have Member defined as FunctionOverload.');
 		local node = methodNode.Node;
 		check(node ~= nil, "The methodNode had no parent?! How can that be?!");
 		local rtn = {}
@@ -519,22 +526,23 @@ namespace
 			-- const TypePtr rtnType, bool constMember, Model::ReasonPtr reason);		
 			local rtnType = Type.New(self.parent.Creators.intNode, { });
 			log:Write("Going to create Index.");
-			local func = Function.Create(node, false, "Access_Public", true, 
+			local func = Function.Create(node, self.reason);
+			local fo1 = FunctionOverload.Create(func, false, "Access_Public", true, 
 									   rtnType,
 									   false, self.reason);
 			func = node.Member;		
-			local arg1 = node:FindOrCreate("L");		
+			local arg1 = fo1.Node:FindOrCreate("L");		
 			local arg1Type = Type.New(self.lua_StateNode, { Pointer = true });
 			Variable.Create(arg1, "Access_Public", false, arg1Type, "", self.reason);
-			local arg2 = node:FindOrCreate("ptr");
+			local arg2 = fo1.Node:FindOrCreate("ptr");
 			local arg2Type = Type.New(self.referenceType, { Reference = true });
 			Variable.Create(arg2, "Access_Public", false, arg2Type, "", self.reason);		
-			local arg3 = node:FindOrCreate("index");			
+			local arg3 = fo1.Node:FindOrCreate("index");			
 			local arg3Type = Type.New(self.parent.Creators.stringNode, { Const = true, Reference = true });
 			Variable.Create(arg3, "Access_Public", false, arg3Type, "", self.reason);		
 							
 			local methodBody = self:createIndexMethodBody();						
-			func:SetCodeBlock(methodBody, self.src);				
+			fo1:SetCodeBlock(methodBody, self.src);				
 			
 		end,
 	    
@@ -545,19 +553,20 @@ namespace
 			log:Write("Going to create IsType.");
 			local rtnType = Type.New(self.parent.Creators.boolNode, { Pointer = false });
 			log:Write("Going to create IsType.");
-			local func = Function.Create(node, false, "Access_Public", true, 
+			local func = Function.Create(node, self.reason);
+			local fo = FunctionOverload.Create(func, false, "Access_Public", true, 
 										   rtnType,
-										   false, self.reason);
-			func = node.Member;		
-			local arg1 = node:FindOrCreate("L");		
+										   false, self.reason);			
+			func = node.Member;
+			local arg1 = fo.Node:FindOrCreate("L");		
 			local arg1Type = Type.New(self.lua_StateNode, { Pointer = true });
 			Variable.Create(arg1, "Access_Public", false, arg1Type, "", self.reason);
-			local arg2 = node:FindOrCreate("index");			
+			local arg2 = fo.Node:FindOrCreate("index");			
 			local arg2Type = Type.New(self.parent.Creators.intNode, {});
 			local var = Variable.Create(arg2, "Access_Public", false, arg2Type, "", self.reason);		
 							
 			
-			func:SetCodeBlock(
+			fo:SetCodeBlock(
 [[
 	// Copied this from the luaL_checkudata function
 	void * p = lua_touserdata(L, index);
@@ -586,15 +595,16 @@ namespace
 			log:Write("Going to create IsType.");
 			local rtnType = Type.New(self.parent.Creators.intNode, { });
 			log:Write("Going to create IsType.");
-			local func = Function.Create(node, false, "Access_Public", true, 
+			local func = Function.Create(node, self.reason);
+			local fo1 = FunctionOverload.Create(func, false, "Access_Public", true, 
 										   rtnType,
 										   false, self.reason);
 			func = node.Member;		
-			local arg1 = node:FindOrCreate("L");		
+			local arg1 = fo1.Node:FindOrCreate("L");		
 			local arg1Type = Type.New(self.lua_StateNode, { Pointer = true });
 			Variable.Create(arg1, "Access_Public", false, arg1Type, "", self.reason);					
 			
-			func:SetCodeBlock(
+			fo1:SetCodeBlock(
 [[
 	luaL_getmetatable(L, "]] .. self.metaTableName .. [[");
 	if (lua_isnil(L, -1) != 1)
@@ -614,22 +624,23 @@ namespace
 			log:Write("Going to create GetInstance.");
 			local rtnType = Type.New(self.referenceType, { Reference = true });
 			log:Write("Going to create IsType.");		
-			local func = Function.Create(node, false, "Access_Public", true, 
+			local func = Function.Create(node, self.reason);
+			local fo1 = FunctionOverload.Create(func, false, "Access_Public", true, 
 										   rtnType,
 										   false, self.reason);
 			func = node.Member;		
-			local arg1 = node:FindOrCreate("L");		
+			local arg1 = fo1.Node:FindOrCreate("L");		
 			local arg1Type = Type.New(self.lua_StateNode, { Pointer = true });
 			log:Write("GETINSTANCE 2");
 			Variable.Create(arg1, "Access_Public", false, arg1Type, "", self.reason);					
-			local arg2 = node:FindOrCreate("index");	
+			local arg2 = fo1.Node:FindOrCreate("index");	
 			log:Write("H+RMMMR?");	
 			local arg2Type = Type.New(self.parent.Creators.intNode, { });
 			log:Write("WHHH!?")
 			Variable.Create(arg2, "Access_Public", false, arg2Type, "", self.reason);					
 			log:Write("WHAT?!!");
 			local refTypeStr = self.referenceType.FullName;
-			func:SetCodeBlock(
+			fo1:SetCodeBlock(
 [[
 	]] .. refTypeStr .. [[ * ptrToPtr = (]] .. refTypeStr .. [[ *) luaL_checkudata(L, index, "]] .. self.metaTableName .. [[");
 	]] .. refTypeStr .. [[ & ptr = dynamic_cast<]] .. refTypeStr .. [[ &>(*ptrToPtr);
@@ -642,20 +653,21 @@ namespace
 			log:Write("Going to create PutInstanceOnStack.");
 			local rtnType = Type.New(self.parent.Creators.voidNode, { });
 			log:Write("Going to create putInstanceOnStack.");		
-			local func = Function.Create(node, false, "Access_Public", true, 
+			local func = Function.Create(node, self.reason);
+			local fo1 = FunctionOverload.Create(func, false, "Access_Public", true, 
 										   rtnType,
 										   false, self.reason);
 			func = node.Member;		
-			local arg1 = node:FindOrCreate("L");		
+			local arg1 = fo1.Node:FindOrCreate("L");		
 			local arg1Type = Type.New(self.lua_StateNode, { Pointer = true });		
 			Variable.Create(arg1, "Access_Public", false, arg1Type, "", self.reason);					
 			
-			local arg2 = node:FindOrCreate("ptr");	
+			local arg2 = fo1.Node:FindOrCreate("ptr");	
 			local arg2Type = Type.New(self.referenceType, { Const = true, Reference = true });
 			Variable.Create(arg2, "Access_Public", false, arg2Type, "", self.reason);					
 			
 			local refTypeStr = self.referenceType.FullName;
-			func:SetCodeBlock(
+			fo1:SetCodeBlock(
 [[
 	if (!ptr) 
 	{

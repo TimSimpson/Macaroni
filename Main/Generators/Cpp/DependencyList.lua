@@ -80,8 +80,16 @@ DependencyList = {
         check(self ~= nil, "Missing self.");
         check(member ~= nil, "Missing member.");
         check(DependencyTraveller.isType(traveller), "Argument 3 'traveller' cannot be nil.");
-        self:addDependenciesForType(member.ReturnType, traveller); 
-        self:addDependenciesForArgumentList(member.Arguments, traveller);
+        local overloads = member.Node.Children;
+        for i = 1, #overloads do
+        	local olN = overloads[i];
+        	local olM = olN.Member;
+        	if (olM == nil) then
+        		error("Found a nil Member inside of a Function:" .. member.Node.Fullname );
+    		end    		
+    		self:addDependenciesForType(olM.ReturnType, traveller); 
+        	self:addDependenciesForArgumentList(olM.Arguments, traveller);	
+    	end        
     end,
     
     -- Adds dependencies necessary for this node.

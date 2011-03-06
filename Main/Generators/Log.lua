@@ -2,6 +2,7 @@
 EnabledLoggers =
 {
 	"Cpp",
+	"LuaGlue",
 }
 
 log =

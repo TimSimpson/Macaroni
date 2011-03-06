@@ -198,6 +198,13 @@ ClassCppFileGenerator = {
     end,
     
     ["parse" .. TypeNames.Function] = function(self, node)
+    	for i = 1, #(node.Children) do
+    		local overloadNode = node.Children[i];
+    		self:parseFunctionOverload(overloadNode);
+		end
+    end,
+
+	["parse" .. TypeNames.FunctionOverload] = function(self, node)
         if (node.Member.Inline) then
             self:write('//~<(Skipping inline function "' .. node.FullName .. '")\n');
             return;
@@ -206,10 +213,10 @@ ClassCppFileGenerator = {
         local func = node.Member;
         self:writeType(func.ReturnType);
         self:write(" ");
-        if (not self:isNodeGlobal(node)) then
-            self:write(self.node.Name .. "::" .. node.Name);
+        if (not self:isFunctionOverloadNodeGlobal(node)) then
+            self:write(self.node.Name .. "::" .. node.Node.Name);
         else
-            self:write(node.Name);
+            self:write(node.Node.Name);
         end        
         self:write("(");
         self:writeArgumentList(node);
@@ -230,7 +237,7 @@ ClassCppFileGenerator = {
         self:writeTabs();
         self:write("}\n");
     end,
-    
+        
     parseMember = function(self, node)
         local m = node.Member;
         if (m == nil) then

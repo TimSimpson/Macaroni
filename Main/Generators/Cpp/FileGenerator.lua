@@ -28,8 +28,12 @@ FileGenerator = {
     
       
     isNodeGlobal = function(self, node)
-        return (node.Node ~= self.node);
+    	return (node.Node ~= self.node);        
     end,
+    
+    isFunctionOverloadNodeGlobal = function(self, node)
+    	return (node.Node.Node ~= self.node);        
+	end,
     
     -- Iterates members of the list. Use access to filter which ones.
     iterateMembers = function(self, nodeChildren, access)
@@ -144,18 +148,21 @@ FileGenerator = {
     
     --[[ Writes a function definition, not including the Class name before the
          function name. ]]--
-    writeFunctionDefinition = function(self, functionNode)
+    writeFunctionDefinition = function(self, foNode)
+    	check(self ~= nil, "Method called without instance.");
+    	check(foNode.Member ~= nil, "functionNode must have instance");
+    	check(foNode.Member.TypeName == "FunctionOverload", "Node must be FunctionOverload");
         self:writeTabs();
-        local func = functionNode.Member;
-        if (functionNode.Member.Static) then
+        local func = foNode.Member;
+        if (foNode.Member.Static) then
             self:write("static ");
         end
-        if (functionNode.Member.Inline) then
+        if (foNode.Member.Inline) then
             self:write("inline ");
         end
         self:writeType(func.ReturnType);
-        self:write(" " .. functionNode.Name .. "(");
-        self:writeArgumentList(functionNode);
+        self:write(" " .. foNode.Node.Name .. "(");
+        self:writeArgumentList(foNode);
         self:write(")");
         if (func.Const) then
             self:write(" const");

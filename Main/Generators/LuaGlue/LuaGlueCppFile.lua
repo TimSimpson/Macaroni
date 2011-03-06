@@ -106,17 +106,22 @@ LuaGlueCppFile = {
     isFunctionNodeEligibleForWrapping = function(self, fNode)
         local member = fNode.Member;
         return (member ~= nil and
-                member.TypeName == TypeNames.Function and
+                member.TypeName == TypeNames.FunctionOverload and
                 member.Access == Access.Public and
                 member.Static == false);
     end,
     
-    iterateEligibleFunctions = function(self, action)       
+    iterateEligibleFunctions = function(self, action)   
         for i=1, #self.node.Children do
             local child = self.node.Children[i];
-            if (self:isFunctionNodeEligibleForWrapping(child)) then
-                action(child);
-            end
+            if (child.Member ~= nil and child.Member.TypeName == TypeNames.Function) then
+            	for j=1, #child.Children do
+            		local overloadNode = child.Children[j];
+            		if (self:isFunctionNodeEligibleForWrapping(overloadNode)) then
+		                action(overloadNode);
+		            end	
+        		end
+        	end            
         end   
     end,
     
@@ -273,7 +278,7 @@ namespace {
             ptrName .. " & ptr, const std::string & index)\n");
         self:write("{\n");
         -- todo: allow properties
-        local wroteOnce = false;
+        local wroteOnce = false;         
         self:iterateEligibleFunctions(function(fNode)
             self:write('\t');
             if (wroteOne) then 

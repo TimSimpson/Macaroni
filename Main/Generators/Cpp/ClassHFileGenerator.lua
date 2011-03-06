@@ -223,7 +223,14 @@ ClassHFileGenerator = {
     end,
     
     ["parse" .. TypeNames.Function] = function(self, node)
-        if (node.Node == self.node) then
+    	for i = 1, #(node.Children) do
+    		local overloadNode = node.Children[i];
+    		self:parseFunctionOverload(overloadNode);
+		end
+    end,    
+    
+    ["parse".. TypeNames.FunctionOverload] = function(self, node)
+    	if (node.Node.Node == self.node) then
             self:writeAccess(node.Member.Access);
         end        
         self:writeFunctionDefinition(node);
@@ -240,8 +247,8 @@ ClassHFileGenerator = {
             self:addTabs(-1);        
             self:writeTabs();
             self:write("}\n");
-        end
-    end,    
+        end	
+	end,
     
     parseMember = function(self, node)
         local m = node.Member;
