@@ -72,11 +72,12 @@ function build()
 end
 
 function test()
+	-- F:\Work\Lp3\Projects\Macaroni\Code\trunk\Main\App>GeneratedSource\release\debug\macaroni.exe luaTests Source\test\lua generatorPath ..\Generators
 	local currentPath = Path.New(manifestDirectory);
 	local exePath = currentPath:NewPathForceSlash(
-		output .. "/bin/release/debug/macaroni.exe");
+		output .. "/release/debug/macaroni.exe");
 	local luaTestsPath = currentPath:NewPathForceSlash(
-		output .. "/Source/test/lua");
+		"Source/test/lua");
 	local cmd = exePath.AbsolutePath .. " luaTests " .. luaTestsPath.AbsolutePath;
 	print("Running Lua tests:");
 	print(cmd);
