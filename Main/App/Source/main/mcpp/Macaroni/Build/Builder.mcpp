@@ -208,8 +208,9 @@ class Builder
 		system(cmd.str().c_str());
 		
 		UpdateInstallStatus(library);
-
-		return true;// library->IsInstalled();
+		
+		
+		return library->IsInstalled();
 		//vector<const string> paths;
 		//vector<StringPair> envVars;
 		//boost::optional<path> empty;
