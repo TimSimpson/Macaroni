@@ -1,6 +1,6 @@
 GeneratedSource
 LibrariesClone
 target
-VS2008/Macaroni/Macaroni.ncb
-Main/App/App.vcproj.SKYDOG.Tim.user
-VS2008/Macaroni/Macaroni.suo
+*.ncb
+*.suo
+*.vcproj.*.user

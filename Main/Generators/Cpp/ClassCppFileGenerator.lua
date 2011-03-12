@@ -137,7 +137,18 @@ ClassCppFileGenerator = {
     end,
     
     ["parse" .. TypeNames.Constructor] = function(self, node)   
-        if (node.Member.Inline) then
+    	check(node.Member ~= nil and node.Member.TypeName == TypeNames.Constructor,
+    	      "Argument 'node' must be have a Member which is a Constructor.")
+    	for i = 1, #(node.Children) do
+    		local overloadNode = node.Children[i];
+    		self:parseConstructorOverload(overloadNode);
+		end
+    end,
+    
+    ["parse" .. TypeNames.ConstructorOverload] = function(self, node)
+    	check(node.Member ~= nil and node.Member.TypeName == TypeNames.ConstructorOverload,
+    	      "Argument 'node' must be a Member which is a ConstructorOverload.")
+    	if (node.Member.Inline) then
             self:write("//~<(Skipping inline constructor.)\n");
             return;
         end

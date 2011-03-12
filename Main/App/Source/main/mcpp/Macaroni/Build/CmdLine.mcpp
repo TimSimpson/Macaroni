@@ -26,8 +26,8 @@
 namespace Macaroni::Build {
 
 /** Governs the main execution routine of Macaroni.  The command line
-	 * has a few options other than just building the project, which 
-	 * are sorted through here.
+ * has a few options other than just building the project, which 
+ * are sorted through here.
  */
 class CmdLine
 {			

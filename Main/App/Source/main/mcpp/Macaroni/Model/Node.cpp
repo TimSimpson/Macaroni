@@ -4,6 +4,7 @@
 #include "Node.h"
 #include "Context.h"
 #include "../Exception.h"
+#include "FileName.h"
 #include "Member.h"
 #include "ModelInconsistencyException.h"
 #include "Reason.h"
@@ -331,6 +332,10 @@ void Node::SetHFilePath(ReasonPtr why, FileNamePtr file)
 {
 	if (!!this->hFilePath)
 	{
+		if (file->GetName() == this->hFilePath->GetName())
+		{
+			return; // Ignore if identical
+		}
 		throw ModelInconsistencyException(this->hFilePathReason, why, "HFilePath already set.");
 	}
 	this->hFilePath = file;

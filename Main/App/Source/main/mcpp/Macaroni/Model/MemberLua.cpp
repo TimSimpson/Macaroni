@@ -27,6 +27,7 @@
 #define LUAGLUE_CLASSFULLCPPNAME Macaroni::Model::Member
 #define LUAGLUE_REGISTRATIONCLASSNAME MemberLuaMetaData
 #define LUAGLUE_OPENOTHERMODULES \
+	Macaroni::Model::Cpp::ConstructorOverloadLuaMetaData::OpenInLua(L); \
 	Macaroni::Model::Cpp::ConstructorOverloadLuaMetaData::AssignmentListOpenInLua(L);
 	//Macaroni::Model::NodeLuaMetaData::OpenInLua(L); \
 	//Macaroni::Model::Cpp::FunctionLuaMetaData::OpenInLua(L); \
@@ -117,6 +118,14 @@
 		if (!!boost::dynamic_pointer_cast<Cpp::Function>(ptr))
 		{
 			int rtnCnt = Cpp::FunctionLuaMetaData::Index(L, boost::dynamic_pointer_cast<Cpp::Function>(ptr), index);
+			if (rtnCnt > 0)
+			{
+				return rtnCnt;
+			}
+		}
+		if (!!boost::dynamic_pointer_cast<Cpp::ConstructorOverload>(ptr))
+		{
+			int rtnCnt = Cpp::ConstructorOverloadLuaMetaData::Index(L, boost::dynamic_pointer_cast<Cpp::ConstructorOverload>(ptr), index);
 			if (rtnCnt > 0)
 			{
 				return rtnCnt;

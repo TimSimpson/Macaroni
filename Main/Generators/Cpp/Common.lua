@@ -22,6 +22,7 @@ Macaroni.Model.TypeNames =
     Block = "Block",
     Class = "Class", 
     Constructor="Constructor", 
+    ConstructorOverload="ConstructorOverload",
     Destructor="Destructor", 
     Function="Function", 
     FunctionOverload = "FunctionOverload",
@@ -95,6 +96,7 @@ NodeHelper = {
         end
         if (node.HFilePath ~= nil) then
             -- The HFile means Macaroni isn't needed to generate this.
+            log:Write("Node possessing hfile is not worth it:" .. node.FullName)
             return false;
         end 
         if (node.Member ~= nil) then
@@ -103,7 +105,9 @@ NodeHelper = {
             end
         end
         -- If Node is a container, check if any of its kids are interesting.
+        log:Write(node.FullName .. " is a container.  Worth iteration?")
         for i = 1, #(node.Children) do
+        	log:Write("Is " .. node.Children[i].FullName .. " worth it?")
             if (NodeHelper.worthIteration(node.Children[i])) then
                 return true;
             end

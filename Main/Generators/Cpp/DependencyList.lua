@@ -73,7 +73,17 @@ DependencyList = {
         check(self ~= nil, "Missing self.");
         check(member ~= nil, "Missing member.");
         check(DependencyTraveller.isType(traveller), "Argument 3 'traveller' must be either true or false.");        
-        self:addDependenciesForArgumentList(member.Arguments, traveller);
+        local overloads = member.Node.Children;
+        log:Write("addDependenciesForConstructor " .. tostring(member.Node.FullName))
+        for i = 1, #overloads do
+        	local olN = overloads[i];
+        	local olM = olN.Member;
+        	if (olM == nil) then
+        		error("Found a nil Member inside of a Constructor:" .. member.Node.Fullname );
+    		end    		
+    		-- self:addDependenciesForType(olM.ReturnType, traveller); 
+        	self:addDependenciesForArgumentList(olM.Arguments, traveller);	
+        end        
     end,
     
     addDependenciesForFunction = function(self, member, traveller)

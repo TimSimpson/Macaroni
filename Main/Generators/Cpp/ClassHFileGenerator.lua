@@ -170,6 +170,13 @@ ClassHFileGenerator = {
     end,
     
     ["parse" .. TypeNames.Constructor] = function(self, node)
+    	for i = 1, #(node.Children) do
+    		local overloadNode = node.Children[i];
+    		self:parseConstructorOverload(overloadNode);
+		end       
+    end,
+    
+    ["parse" .. TypeNames.ConstructorOverload] = function(self, node)
         self:writeTabs();
         self:writeAccess(node.Member.Access);
         if (node.Member.Inline) then

@@ -100,7 +100,7 @@ int ConstructorOverloadLuaMetaData::Index(lua_State * L,
 		void * memory = lua_newuserdata(L, sizeof(ConstructorOverloadPtr));
 		ConstructorOverloadPtr * instance = new (memory) ConstructorOverloadPtr();
 		(*instance).operator=(ptr);
-		luaL_getmetatable(L, "Macaroni.Model.Cpp.ConstructorOverloadPtr.Assignments");
+		luaL_getmetatable(L, "Macaroni.Model.Cpp.ConstructorOverload.Assignments");
 		lua_setmetatable(L, -2); 
 		return 1;
 	}				

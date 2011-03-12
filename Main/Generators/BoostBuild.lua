@@ -45,7 +45,13 @@ function Build(library, sources, outputPath, installPath, extraArgs)
 		extraTargets = extraArgs.ExtraTargets;	
 	end
 	createJamroot(library, sources, outputPath, excludePattern, extraTargets);
-	local rtnCode = os.execute("bjam link=static " .. outputPath.AbsolutePath)
+	local cmdLine = "bjam link=static "	
+	if (extraArgs.CmdLine ~= nil) then
+		cmdLine = cmdLine .. " " .. extraArgs.CmdLine
+	end
+	cmdLine = cmdLine .. " " ..  outputPath.AbsolutePath
+	print(cmdLine)
+	local rtnCode = os.execute(cmdLine)
     log:Write("BJAM return code = " .. rtnCode .. ".")
     if (rtnCode ~= 0) then
         error("Call to Boost.Build failed.")

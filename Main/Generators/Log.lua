@@ -18,5 +18,6 @@ log =
 			log.Write = function(msg)
 			end;
 		end
+		return log
 	end,
 }

@@ -147,7 +147,7 @@ change('%ROOT%');
 					self:writeDivBegin(id);
 					self:writeNodeList(list, false);
 					self:writeDivEnd();
-				end				
+				end							
 				writeNL(id .. "-imports", "imports", member.ImportedNodes);
 				writeNL(id .. "-friend-nodes", "friends", member.FriendNodes);
 				writeNL(id .. "-globals", "globals", member.GlobalNodes);				
@@ -171,6 +171,11 @@ change('%ROOT%');
 		self:writeEntryStart(id, name);		
 		self:writeDivBegin(id);
 		self:writeMemberDetails(node, node.Member);
+		if node.HFilePath ~= nil then
+			self:write("<br/>~hfile=" .. tostring(node.HFilePath) .. "<br/>");
+		else
+			self:write("<br/>~hfile=null<br/>");
+		end
 		self:write([[ <br/>]]);		
 		self:writeNodeList(node.Children, true);		
 		self:writeDivEnd();

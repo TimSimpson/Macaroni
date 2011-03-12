@@ -66,9 +66,9 @@ bool ConstructorOverload::canBeChildOf(const Member * other) const
 
 ConstructorOverloadPtr ConstructorOverload::Create(ConstructorPtr host, bool isInline, Access access, Model::ReasonPtr reason)
 {
-	Node * node = host->GetNode().get();
-	node->CreateNextInSequence("Overload#");
-	ConstructorOverload * co = new ConstructorOverload(node, reason, isInline, access);
+	NodePtr node = host->GetNode()->CreateNextInSequence("Overload#");
+	ConstructorOverload * co = new ConstructorOverload(node.get(), reason, 
+													   isInline, access);
 	return ConstructorOverloadPtr(co);
 }
 

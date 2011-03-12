@@ -11,6 +11,9 @@ targetLibrary = nil;
 
 function Generate(library, path)
 	log.Init("InterfaceMh");
+	log.Write = function(self, msg) 			
+			print("[InterfaceMh]:" .. msg);
+		end;
     log:Write( "Generating Macaroni Header File\n");
     targetLibrary = library;
     local gen = MhFileGenerator.new(path, library);
