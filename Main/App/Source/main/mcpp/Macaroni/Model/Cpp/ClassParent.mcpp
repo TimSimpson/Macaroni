@@ -57,7 +57,22 @@ class ClassParent
 		return access;
 	}
 
-	
+	public inline Class * GetChild() const
+	{
+		return child;
+	}
+
+	public Node * GetParent() const
+	{
+		return parent;
+	}
+
+	public bool IsVirtual() const
+	{
+		return _virtual;
+	}
+
+
 	/**
 		summary 
 		[{[
