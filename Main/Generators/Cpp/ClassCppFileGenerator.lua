@@ -188,20 +188,23 @@ ClassCppFileGenerator = {
     end,
     
     ["parse" .. TypeNames.Destructor] = function(self, node)
-        if (node.Member.Inline) then
+		check(#node.Children == 1, "Destructor must have one child.");
+		local overload = node.Children[1];
+        if (overload.Member.Inline) then
             self:write("//~<(Skipping inline destructor.)\n");
             return;
         end
         self:writeTabs();
         self:write(self.node.Name .. "::~" .. self.node.Name .. "(");
-        self:writeArgumentList(node);
+        self:writeArgumentList(overload);
         self:write(")\n");        
         self:writeTabs();
         self:write("{\n");
         self:addTabs(1);
         
         self:writeTabs();
-        self:write(node.Member.CodeBlock .. "\n");
+        
+        self:write(overload.Member.CodeBlock .. "\n");
         
         self:addTabs(-1);        
         self:writeTabs();

@@ -34,15 +34,15 @@ CppFileGenerator = {
         local srcFile = tostring(reason.Source.FileName);        
         local filePath = path:NewPath(".cpp");
         log:Write('CPP File Gen createClassGenerator 2');
-        if (filePath:IsFileOlderThan(srcFile)) then            
+        --if (filePath:IsFileOlderThan(srcFile)) then            
             local cg = ClassCppFileGenerator.new{node = node, path = filePath};
             log:Write('CPP File Gen createClassGenerator 3');
             return cg;
-        else
-            -- Skip if no new changes detected.'
-            log:Write('File for ' .. tostring(node) ..' is up to date, skipping.');
-            return { parse = function() end };
-        end
+        --else
+        --    -- Skip if no new changes detected.'
+        --    log:Write('File for ' .. tostring(node) ..' is up to date, skipping.');
+        --    return { parse = function() end };
+        --end
     end, 
     
 }; -- end CppFileGenerator

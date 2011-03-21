@@ -204,15 +204,17 @@ ClassHFileGenerator = {
     end,
     
     ["parse" .. TypeNames.Destructor] = function(self, node)
+		check(#node.Children == 1, "Destructor must have one child.");
+		local overload = node.Children[1];
         self:writeTabs();
-        self:writeAccess(node.Member.Access);
-        if (node.Member.Inline) then
+        self:writeAccess(overload.Member.Access);
+        if (overload.Member.Inline) then
             self:write("inline ");
         end
         self:write('~' .. self.node.Name .. "(");
-        self:writeArgumentList(node);
+        self:writeArgumentList(overload);
         self:write(")");
-        if (not node.Member.Inline) then
+        if (not overload.Member.Inline) then
             self:write(";\n");
         else
             self:write("\n");
@@ -221,7 +223,7 @@ ClassHFileGenerator = {
             self:addTabs(1);
             
             self:writeTabs();
-            self:write(node.Member.CodeBlock .. "\n");
+            self:write(overload.Member.CodeBlock .. "\n");
             
             self:addTabs(-1);        
             self:writeTabs();

@@ -47,6 +47,7 @@ void CppContext::CreateCppNodes(ContextPtr & context)
 		addPrimitive(primitiveRoot, "int");
 		addPrimitive(primitiveRoot, "unsigned int");		
 		addPrimitive(primitiveRoot, "void");
+		addPrimitive(primitiveRoot, "wchar_t");
 	}
 }
 
