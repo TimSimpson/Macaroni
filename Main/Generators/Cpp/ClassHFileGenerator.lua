@@ -242,7 +242,7 @@ ClassHFileGenerator = {
     	if (node.Node.Node == self.node) then
             self:writeAccess(node.Member.Access);
         end        
-        self:writeFunctionDefinition(node);
+        self:writeFunctionOverloadDefinition(node);
         if (not node.Member.Inline) then
             self:write(";\n");
         else

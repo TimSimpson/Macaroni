@@ -155,6 +155,20 @@ FileGenerator = {
     writeFunctionDefinition = function(self, foNode)
     	check(self ~= nil, "Method called without instance.");
     	check(foNode.Member ~= nil, "functionNode must have instance");
+    	check(foNode.Member.TypeName == "Function", "Node must be Function, not " 
+    		  .. tostring(foNode.Member.TypeName));    	
+    	for i = 1, #foNode.Children do    		
+    		self:writeFunctionOverloadDefinition(foNode.Children[i])
+    	end
+    	
+    end,
+    
+    --[[ Writes a function overload definition, not including the Class name 
+         before the function name. ]]--
+    writeFunctionOverloadDefinition = function(self, foNode)
+    	check(self ~= nil, "Method called without instance.");
+    	check(foNode ~= nil, "foNode must be a Node, not nil.");
+    	check(foNode.Member ~= nil, "functionNode must have instance");
     	check(foNode.Member.TypeName == "FunctionOverload", "Node must be FunctionOverload");
         self:writeTabs();
         local func = foNode.Member;
