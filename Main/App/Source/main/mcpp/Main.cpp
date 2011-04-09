@@ -52,7 +52,7 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 		" built at " << BUILD_TIMESTAMP_LOCAL << std::endl;
 	std::cout << std::endl;
 
-	std::vector<const std::string> convertedArgs;
+	std::vector<MACARONI_VE_CONST std::string> convertedArgs;
 	for (int i = 0; i < argc; i ++)
 	{
 		NonWindowsString convertedString(argv[i]);

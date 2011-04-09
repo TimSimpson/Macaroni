@@ -20,7 +20,7 @@ BEGIN_NAMESPACE2(Macaroni, Model)
  * under. */
 class Library
 { 
-friend Context;
+friend class Context;
 friend void intrusive_ptr_add_ref(Library * p);
 friend void intrusive_ptr_release(Library * p);
 

@@ -9,8 +9,12 @@ namespace Macaroni { namespace Build {
 class ConfigurationId
 {
 public: 
-	ConfigurationId(){}
+	ConfigurationId();
+
+	ConfigurationId(const ConfigurationId & other);
 	
+	ConfigurationId & operator=(const ConfigurationId & other);
+
 	inline const LibraryId & GetLibraryId() const
 	{
 		return libraryId;
@@ -21,15 +25,9 @@ public:
 		return name;
 	}
 
-	void SetLibraryId(const LibraryId & value)
-	{
-		libraryId = value;
-	}
+	void SetLibraryId(const LibraryId & value);
 
-	void SetName(const std::string & value)
-	{
-		name = value;
-	}
+	void SetName(const std::string & value);
 
 private:
 	LibraryId libraryId;

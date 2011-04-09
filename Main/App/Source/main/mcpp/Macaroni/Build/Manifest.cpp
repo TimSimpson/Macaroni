@@ -3,6 +3,7 @@
 
 #include <boost/foreach.hpp>
 #include "Manifest.h"
+#include <Macaroni/Containers.h>
 #include <Macaroni/Model/ContextLua.h>
 #include <Macaroni/Generator/DynamicGeneratorRunner.h>
 #include "../Exception.h"
@@ -46,26 +47,26 @@ static int dependency(lua_State * L);
 
 
 Configuration createConfiguration(LuaEnvironment & env, const char * name);
-std::vector<const Configuration> createConfigurations(LuaEnvironment & env);
+std::vector<MACARONI_VE_CONST Configuration> createConfigurations(LuaEnvironment & env);
 //void getFromLuaVarOrDefault(std::string & rtnValue, lua_State * L, const char * name, const char * dflt);
-//std::vector<const std::string> getVectorFromGlobalLuaTable(lua_State * L, const char * name);
-//std::vector<const std::string> getVectorFromLocalLuaTable(lua_State * L, const char * name);
-//std::vector<const std::string> getVectorFromLuaTable(lua_State * L);
+//std::vector<MACARONI_VE_CONST std::string> getVectorFromGlobalLuaTable(lua_State * L, const char * name);
+//std::vector<MACARONI_VE_CONST std::string> getVectorFromLocalLuaTable(lua_State * L, const char * name);
+//std::vector<MACARONI_VE_CONST std::string> getVectorFromLuaTable(lua_State * L);
 void setLibraryId(LibraryId & id, lua_State * L);
 
 //TODO: Does this get used?
 Manifest::Manifest()
-:children(),
+:allowCavatappi(false),
+ children(),
+ configurations(), 
  containsCavatappi(false),
- configurations(),
  cppHeadersOutput(),
  cppOutput(""),
  dependencies(),
  description(""),
  fOutput(""),
  group(""),
- id(),
- allowCavatappi(false),
+ id(), 
  manifestFile(),
  mOutput(""),
  name(""),
@@ -77,7 +78,8 @@ Manifest::Manifest()
 
 //TODO: Does anything use this?
 Manifest::Manifest(LibraryId id, std::vector<LibraryId> deps)
-:children(),
+:allowCavatappi(false),
+ children(),
  configurations(),
  containsCavatappi(false),
  cppHeadersOutput(),
@@ -86,8 +88,7 @@ Manifest::Manifest(LibraryId id, std::vector<LibraryId> deps)
  description(""),
  fOutput(""),
  group(id.GetGroup()),
- id(id),
- allowCavatappi(false),
+ id(id), 
  manifestFile(),
  mOutput(""),
  name(id.GetName()),
@@ -101,12 +102,12 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile,
 				   const std::string & properties, 
 				   ManifestPtr upperManifest,
 				   const bool allowCavatappi)
-:children(),
+:allowCavatappi(allowCavatappi),
+ children(),
  containsCavatappi(false),
  dependencies(),
  description(""),
- id(),
- allowCavatappi(allowCavatappi),
+ id(), 
  luaEnv(),
  manifestFile(manifestFile),
  properties(properties),
@@ -177,8 +178,15 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile,
 	manifestDir.remove_filename();
 
 	luaEnv.GetFromGlobalVarOrDefault(description, "description", "");
-
-	mSource = luaEnv.GetVectorFromGlobalTable("sources");
+	
+	Macaroni::Containers::AssignVectorToConstElementVector(
+		luaEnv.GetVectorFromGlobalTable("sources"), mSource);
+///*
+//	mSource = std::vector<MACARONI_VE_CONST std::string>();
+//	BOOST_FOREACH(const std::string & elem, luaEnv.GetVectorFromGlobalTable("sources"))
+//	{
+//		mSource.push_back(elem);
+//	}	*/
 	if (mSource.size() == 0)
 	{
 		mSource.push_back("Source");
@@ -188,8 +196,11 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile,
 		mSource[i] = (manifestDir / mSource[i]).string();
 	}
 	
-	bugs = luaEnv.GetVectorFromGlobalTable("bugs");
-	children = luaEnv.GetVectorFromGlobalTable("children");
+	Macaroni::Containers::AssignVectorToConstElementVector(
+		luaEnv.GetVectorFromGlobalTable("bugs"), bugs);
+	
+	Macaroni::Containers::AssignVectorToConstElementVector(
+		luaEnv.GetVectorFromGlobalTable("children"), children);	
 
 	lua_getglobal(luaEnv.GetState(), "allowChildFailure");
 	if (lua_isboolean(luaEnv.GetState(), -1)) 
@@ -376,7 +387,7 @@ int _runGenerator(lua_State * L)
 	LibraryPtr library = LibraryLuaMetaData::GetInstance(L, lua_upvalueindex(1));
 	PathPtr path = PathLuaMetaData::GetInstance(L, lua_upvalueindex(2));	
 	void * ptr = lua_touserdata(L, lua_upvalueindex(3));    
-    std::vector<const std::string> * sources =
+    std::vector<MACARONI_VE_CONST std::string> * sources =
         reinterpret_cast<std::vector<const std::string> *>(ptr);
 	
 	std::string generatorName(std::string(lua_tolstring(L, 1, NULL)));
@@ -411,8 +422,8 @@ int _runScript(lua_State * L)
 {
 	// Collect Up Values
 	void * ptr = lua_touserdata(L, lua_upvalueindex(1));    
-    std::vector<const std::string> * sources =
-        reinterpret_cast<std::vector<const std::string> *>(ptr);	
+    const std::vector<std::string> * sources =
+        reinterpret_cast<std::vector<std::string> *>(ptr);	
 	std::string methodName(lua_tostring(L, lua_upvalueindex(2)));
 	void * contextVP = lua_touserdata(L, lua_upvalueindex(3));
 	BuildContextPtr & iCon = *(reinterpret_cast<BuildContextPtr *>(contextVP));
@@ -468,8 +479,8 @@ int _source(lua_State * L)
 {
     void * ptr = lua_touserdata(L, lua_upvalueindex(1));
     //Manifest * me = dynamic_cast<Manifest *>(oldThis);
-    std::vector<const std::string> * sources =
-        reinterpret_cast<std::vector<const std::string> *>(ptr);
+    std::vector<std::string> * sources =
+        reinterpret_cast<std::vector<std::string> *>(ptr);
     sources->push_back(std::string(lua_tolstring(L, 1, NULL)));
     return 1;
 }
@@ -479,9 +490,9 @@ bool Manifest::AllowChildFailure() const
 	return allowChildFailure;
 }
 
-std::vector<const Configuration> createConfigurations(LuaEnvironment & env)
+std::vector<MACARONI_VE_CONST Configuration> createConfigurations(LuaEnvironment & env)
 {
-	std::vector<const Configuration> configs;
+	std::vector<MACARONI_VE_CONST Configuration> configs;
 
 	lua_State * L = env.GetState();
 	lua_getglobal(L, "configurations");
@@ -531,7 +542,7 @@ Configuration createConfiguration(LuaEnvironment & env, const char * name)
 		lua_pop(env.GetState(), 1);
 	config.SetCompiler(compiler);
 	*/
-	std::vector<const ConfigurationId> dependencies;
+	std::vector<ConfigurationId> dependencies;
 	lua_pushstring(env.GetState(), "dependencies");
 	lua_gettable(env.GetState(), -2); // key "dependencies" is popped off.
 	if (!lua_isnil(env.GetState(), -1))
@@ -563,7 +574,7 @@ Configuration createConfiguration(LuaEnvironment & env, const char * name)
 	config.SetDependencies(dependencies);
 	// Stack should be back to normal now.
 
-	std::vector<const std::string> generators = env.GetVectorFromCurrentTable("generators");
+	std::vector<std::string> generators = env.GetVectorFromCurrentTable("generators");
 	config.SetGenerators(generators);
 
 
@@ -574,8 +585,8 @@ int dependency(lua_State * L)
 {
     void * ptr = lua_touserdata(L, lua_upvalueindex(1));
     //Manifest * me = dynamic_cast<Manifest *>(oldThis);
-    std::vector<const std::string> * sources =
-        reinterpret_cast<std::vector<const std::string> *>(ptr);
+    std::vector<std::string> * sources =
+        reinterpret_cast<std::vector<std::string> *>(ptr);
     sources->push_back(std::string(lua_tolstring(L, 1, NULL)));
     return 1;
 }
@@ -760,8 +771,8 @@ Manifest::RunResultPtr Manifest::RunTarget(const Console & console, BuildContext
 	return rtnValue;*/
 }
 
-void Manifest::SaveAs(boost::filesystem::path & filePath, 
-					  std::vector<std::pair<std::string, std::string>> & runList)
+void Manifest::SaveAs(const boost::filesystem::path & filePath, 
+					  std::vector<std::pair<std::string, std::string> > & runList)
 {
 	using std::endl;
 

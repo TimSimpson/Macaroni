@@ -1,3 +1,6 @@
+#include <Macaroni/ME.h>
+#ifdef MACARONI_COMPILE_TARGET_WINDOWS
+
 #ifndef MACARONI_PLATFORM_WINDOWS_STRINGS_CPP
 #define MACARONI_PLATFORM_WINDOWS_STRINGS_CPP
 
@@ -95,3 +98,5 @@ NonWindowsString::NonWindowsString(const char * cStr)
 END_NAMESPACE
 
 #endif
+
+#endif // MACARONI_COMPILE_TARGET_WINDOWS

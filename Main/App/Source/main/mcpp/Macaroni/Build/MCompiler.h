@@ -14,7 +14,7 @@ namespace Macaroni { namespace Build {
 class MCompiler
 {
 public:
-	MCompiler(Macaroni::AppPathsPtr & appPaths);
+	MCompiler(const Macaroni::AppPathsPtr & appPaths);
 
 	bool BuildModel(Macaroni::Model::LibraryPtr library, const std::vector<Macaroni::IO::FileSet> inputFiles);
 

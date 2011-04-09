@@ -15,11 +15,11 @@ public:
 	//TODO: Remove the generators which goto this as an argument.
 	MCompilerOptions(const std::vector<Macaroni::IO::FileSet> & input, 
 					 const boost::filesystem::path & output,
-					 const std::vector<const std::string> generators);
+					 const std::vector<MACARONI_VE_CONST std::string> generators);
 
 	~MCompilerOptions();
 	
-	inline const std::vector<const std::string> GetGenerators() const
+	inline const std::vector<MACARONI_VE_CONST std::string> GetGenerators() const
 	{
 		return generators;
 	}
@@ -36,7 +36,7 @@ public:
 
 
 private:
-	const std::vector<const std::string> generators;
+	const std::vector<MACARONI_VE_CONST std::string> generators;
 	std::vector<Macaroni::IO::FileSet> input;
 	boost::filesystem::path output;	
 };

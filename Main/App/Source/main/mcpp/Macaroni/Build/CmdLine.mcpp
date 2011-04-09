@@ -22,6 +22,7 @@
 ~import std::string;
 ~import std::stringstream;
 ~import std::vector;
+~import Macaroni::Containers::VectorOfConstString;
 
 namespace Macaroni::Build {
 
@@ -51,12 +52,12 @@ class CmdLine
 	private bool startPrompt;
 	private bool test;
 	
-	public CmdLine(const vector<const string> & args, Console & console)
-	:	cavatappiMode(false),
-	    build(false),
-	    config(""),
-		console(console),
+	public CmdLine(const VectorOfConstString & args, Console & console)
+	:	build(false),
+		cavatappiMode(false),	    
 		clean(false),
+	    config(""),
+		console(console),		
 		debugMode(false),
 		endPrompt(false),
 		generate(false),
@@ -146,7 +147,7 @@ class CmdLine
 			console.Write("Executing compiler directly (no manifest).");
 			try
 			{
-				const std::vector<const std::string> generators;
+				const std::vector<MACARONI_VE_CONST std::string> generators;
 				std::vector<FileSet> input;
 				input.push_back(FileSet(boost::filesystem::path(inputPath), "\\.mcpp$"));
 				MCompilerOptions options(input,

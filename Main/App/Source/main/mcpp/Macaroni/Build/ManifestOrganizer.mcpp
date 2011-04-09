@@ -12,6 +12,11 @@
 
 namespace Macaroni::Build {
 
+
+/** TODO:!!!!!!!!!!!!!!!!
+ * I am *POSTIVE* there are bugs in this code and that this should be a 
+ * topographical sort. 
+ */
 class ManifestOrganizer
 {	
 	private vector<ManifestPtr> & list;
@@ -24,7 +29,7 @@ class ManifestOrganizer
 		listHistory.reserve(list.size());
 		for (unsigned int i = 0; i < list.size(); i ++)
 		{
-			const LibraryId & libI = list[i]->GetId();
+			//const LibraryId & libI = list[i]->GetId();
 			listHistory.push_back(vector<LibraryId>());
 			//listHistory[i].push_back(libI);
 		}
@@ -75,13 +80,13 @@ class ManifestOrganizer
 	
 	private void set(int position, ManifestPtr manifest)
 	{
-		if (position >= list.size() || position < 0) 
+		if ((unsigned)position >= list.size())// || position < 0) 
 		{
 			stringstream ss;
 			ss << "Set for position " << position << " is not valid.";
 			throw Exception(ss.str().c_str());
 		}
-		const LibraryId & libId = manifest->GetId();		
+		//const LibraryId & libId = manifest->GetId();		
 		list[position] = manifest;
 		listHistory[position].push_back(manifest->GetId());	
 	}

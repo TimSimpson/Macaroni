@@ -55,6 +55,8 @@ jamArgs =
 	  			library_dependencies
 	  			../Source/main/mcpp/Main.cpp
 	  			../Source/main/resources/Macaroni.rc
+            :
+				
 	  		;
 	  		
 	  	install final 

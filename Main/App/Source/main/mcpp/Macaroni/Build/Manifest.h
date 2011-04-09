@@ -61,12 +61,12 @@ public:
 		return containsCavatappi;
 	}
 
-	inline const std::vector<const std::string> GetBugs() const
+	inline const std::vector<MACARONI_VE_CONST std::string> GetBugs() const
 	{
 		return bugs;
 	}
 
-	inline const std::vector<const std::string> GetChildren() const
+	inline const std::vector<MACARONI_VE_CONST std::string> GetChildren() const
 	{
 		return children;
 	}
@@ -138,7 +138,7 @@ public:
 	}
 
 	/** The list of Source directories.  Each one is an absolute path. */
-	inline const std::vector<const std::string> GetMSource() const
+	inline const std::vector<MACARONI_VE_CONST std::string> GetMSource() const
 	{
 		return mSource;
 	}
@@ -156,8 +156,8 @@ public:
 				   const std::string & manifestMethodName, 
 				   const std::string & generatorMethodName);
 
-	void SaveAs(boost::filesystem::path & filePath,  
-				std::vector<std::pair<std::string, std::string>> & runList);
+	void SaveAs(const boost::filesystem::path & filePath,  
+				std::vector<std::pair<std::string, std::string> > & runList);
 
 	/** Called when a bug in this Manifest's bug list is executed.
 	 *  Argument libraryResult is null if the nothing was installed. */
@@ -165,7 +165,7 @@ public:
 					  Macaroni::Model::LibraryPtr libraryResult,
 					  boost::optional<std::string> description);
 
-	inline void SetChildren(std::vector<const std::string> & value)
+	inline void SetChildren(std::vector<MACARONI_VE_CONST std::string> & value)
 	{
 		children = value;
 	}
@@ -175,7 +175,7 @@ public:
 		description = value;
 	}
 
-	inline void SetMSource(std::vector<const std::string> & value)
+	inline void SetMSource(std::vector<MACARONI_VE_CONST std::string> & value)
 	{
 		mSource = value;
 	}
@@ -183,10 +183,11 @@ public:
 private:
 	const bool allowCavatappi;
 	bool allowChildFailure;
-	std::vector<const std::string> bugs;	
-	std::vector<const std::string> children;	
+	std::vector<MACARONI_VE_CONST std::string> bugs;	
+	std::vector<MACARONI_VE_CONST std::string> children;		
+	std::vector<MACARONI_VE_CONST Configuration> configurations;
 	bool containsCavatappi;
-	std::vector<const Configuration> configurations;
+	std::string cppHeadersOutput;
 	std::string cppOutput;
 	std::string cppSourceOutput;
 	std::vector<LibraryId> dependencies;
@@ -194,12 +195,11 @@ private:
 	std::string fOutput;
 	//std::vector<std::string> generators;
 	std::string group;
-	LibraryId id;
-	std::string cppHeadersOutput;
+	LibraryId id;	
 	Macaroni::Environment::LuaEnvironment luaEnv;
 	boost::filesystem::path manifestFile;
 	std::string mOutput;
-	std::vector<const std::string> mSource;
+	std::vector<MACARONI_VE_CONST std::string> mSource;
 	std::string name;
 	std::string properties;
 	boost::filesystem::path rootDirectory;

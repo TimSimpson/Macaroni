@@ -35,23 +35,22 @@ namespace Macaroni::Doc
  * Finally, if it sees <~ code ~> it will execute arbitrary Lua code.
  */
 class MDocParser
-{
-
-	// Anytime we print a Path out, prefix it with this.
-	private std::string pathPrefix;
-	/** The path of the file we're parsing. */
-	private PathPtr path;
+{		
 	private TextIterator & itr;
 	private lua_State * L;
+	/** The path of the file we're parsing. */
+	private PathPtr path;
+	// Anytime we print a Path out, prefix it with this.
+	private std::string pathPrefix;		
 	private GeneratedFileWriterPtr writer;
 
 	public MDocParser(lua_State * L, TextIterator & itr,
 					  const std::string & pathPrefix,
 				      PathPtr inputPath, GeneratedFileWriterPtr writer)
-	:	L(L),
-	    pathPrefix(pathPrefix),
+	:	itr(itr),
+		L(L),	    
 	    path(inputPath),
-		itr(itr),
+		pathPrefix(pathPrefix),		
 		writer(writer)
 	{
 		if (!path->IsDirectory())
@@ -295,6 +294,7 @@ class MDocParser
 			writer->Write(value);
 			return true;
 		}
+		return false;
 	}
 
 	private std::string luaChunk(optional<string> prefix)

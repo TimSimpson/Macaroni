@@ -17,7 +17,7 @@ function copyFiles(src, dst, regex)
 	for i = 1, #filePaths do
 		local fp = filePaths[i];
 		fp:CopyToDifferentRootPath(dst, true);
-		print(tostring(fp));
+		-- print(tostring(fp));
 	end
 end
 
@@ -44,7 +44,7 @@ function createPureCpp()
 	copyCppFiles(newPath("../Main/App/Source/main/mcpp"), dstDir);
 	copyResourceFiles(newPath("../Main/App/Source/main/resources"), dstDir);
 	copyCppFiles(newPath("../Main/App/GeneratedSource"), dstDir);	
-	copyJamFiles(newPath("../Main/App/Source/main/pureCppExtraFiles"), dstDir);
+	copyFiles(newPath("../Main/App/Source/main/pureCppExtraFiles"), dstDir, [[\.(jam|txt)?$]]);
 end
 
 function build()	

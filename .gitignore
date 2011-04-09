@@ -4,3 +4,4 @@ target
 *.ncb
 *.suo
 *.vcproj.*.user
+.vagrant

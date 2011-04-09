@@ -14,7 +14,7 @@ BEGIN_NAMESPACE2(Macaroni, Environment)
 
 
 LuaEnvironment::LuaEnvironment(lua_State * L)
-:input(nullptr), iOwnLuaState(L == nullptr)
+:input(nullptr), iOwnLuaState(L == nullptr), state(nullptr)
 {
 	if (L == nullptr)
 	{
@@ -153,14 +153,14 @@ std::vector<StringPair> LuaEnvironment::GetStringPairsFromTable(lua_State * L, b
 	return bag;
 }
 
-std::vector<const std::string> LuaEnvironment::GetVectorFromCurrentTable(const char * tableName)
+std::vector<std::string> LuaEnvironment::GetVectorFromCurrentTable(const char * tableName)
 {
 	if (!(lua_istable(state, -1)))
 	{
 		throw Macaroni::Exception("Lua Table expected to be on top of stack before call to get local table.");
 	}
 
-	std::vector<const std::string> vec;
+	std::vector<std::string> vec;
 
 	lua_pushstring(state, tableName); // push key to get table
 	lua_gettable(state, -2); // get table
@@ -173,12 +173,12 @@ std::vector<const std::string> LuaEnvironment::GetVectorFromCurrentTable(const c
 	return vec;
 }
 
-std::vector<const std::string> LuaEnvironment::GetVectorFromGlobalTable(const char * tableName)
+std::vector<std::string> LuaEnvironment::GetVectorFromGlobalTable(const char * tableName)
 {
 	lua_getglobal(state, tableName);
 	if (lua_isnil(state, -1))
 	{
-		std::vector<const std::string> vec;
+		std::vector<std::string> vec;
 		return vec;
 	}
 	else
@@ -188,9 +188,9 @@ std::vector<const std::string> LuaEnvironment::GetVectorFromGlobalTable(const ch
 	lua_pop(state, 1);
 }
 
-std::vector<const std::string> LuaEnvironment::GetVectorFromTable()
+std::vector<std::string> LuaEnvironment::GetVectorFromTable()
 {
-	std::vector<const std::string> vec;	
+	std::vector<std::string> vec;	
 	
 	lua_pushnil(state); // first key
 	const int tableIndex = -2;

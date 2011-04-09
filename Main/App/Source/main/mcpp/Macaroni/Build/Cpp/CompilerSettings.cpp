@@ -1,9 +1,11 @@
 #ifndef MACARONI_BUILD_CPP_COMPILERSETTINGS_CPP
 #define MACARONI_BUILD_CPP_COMPILERSETTINGS_CPP
 
+#include <Macaroni/Containers.h>
 #include "CompilerSettings.h"
 #include "../../Environment/LuaEnvironment.h"
 
+using Macaroni::Containers::AssignVectorToConstElementVector;
 using Macaroni::Environment::LuaEnvironment;
 using Macaroni::Environment::StringPair;
 
@@ -47,12 +49,15 @@ CompilerSettings::CompilerSettings(const boost::filesystem::path & filePath)
 	env.GetFromGlobalVarOrDefault(additionalLinkerArgs, "additionalLinkerArgs", "");
 	env.GetFromGlobalVarOrDefault(compilerExe, "compilerExe", "");
 	env.GetFromGlobalVarOrDefault(firstLinkedObjects, "firstLinkedObjects", "");
-	includePaths = env.GetVectorFromGlobalTable("includePaths");
+	AssignVectorToConstElementVector(
+		env.GetVectorFromGlobalTable("includePaths"), includePaths);
 	env.GetFromGlobalVarOrDefault(linkerExe, "linkerExe", "");
-	linkerLibraryPaths = env.GetVectorFromGlobalTable("linkerLibraryPaths");
+	AssignVectorToConstElementVector(
+		env.GetVectorFromGlobalTable("linkerLibraryPaths"), linkerLibraryPaths);
 	env.GetFromGlobalVarOrDefault(oSwitch, "oSwitch", "");
 	environmentVariables = env.GetStringPairsFromGlobalTable("environmentVariables");
-	paths = env.GetVectorFromGlobalTable("paths");
+	AssignVectorToConstElementVector(
+		env.GetVectorFromGlobalTable("paths"), paths);
 	preprocessorDirectives = env.GetStringPairsFromGlobalTable("preprocessorDirectives");
 }
 

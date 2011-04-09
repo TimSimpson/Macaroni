@@ -16,12 +16,12 @@ class Configuration
 public:
 	Configuration(){}
 
-	inline const std::vector<const ConfigurationId> & GetDependencies() const
+	inline const std::vector<ConfigurationId> & GetDependencies() const
 	{
 		return dependencies;
 	}
 
-	inline const std::vector<const std::string> & GetGenerators() const
+	inline const std::vector<std::string> & GetGenerators() const
 	{
 		return generators;
 	}
@@ -31,12 +31,12 @@ public:
 		return name;
 	}
 
-	inline void SetDependencies(std::vector<const ConfigurationId> & value)
+	inline void SetDependencies(const std::vector<ConfigurationId> & value)
 	{
 		dependencies = value;
 	}
 
-	inline void SetGenerators(std::vector<const std::string> & value)
+	inline void SetGenerators(const std::vector<std::string> & value)
 	{
 		generators = value;
 	}
@@ -48,9 +48,9 @@ public:
 
 private:
 	
-	std::vector<const ConfigurationId> dependencies;
+	std::vector<ConfigurationId> dependencies;
 
-	std::vector<const std::string> generators;
+	std::vector<std::string> generators;
 
 	std::string name;
 };

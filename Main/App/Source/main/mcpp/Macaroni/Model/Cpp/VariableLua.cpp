@@ -64,7 +64,7 @@ namespace
 			} 
 			catch(const ModelInconsistencyException & ex) 
 			{
-				luaL_error(L, "ModelInconsistencyException: %c", ex.what()); 
+				return luaL_error(L, "ModelInconsistencyException: %c", ex.what()); 
 			}
 		}
 

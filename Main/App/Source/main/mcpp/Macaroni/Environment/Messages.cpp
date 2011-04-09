@@ -14,11 +14,11 @@ BEGIN_NAMESPACE2(Macaroni, Environment)
 namespace
 {
 	template<typename ObjectType>
-	void replace(std::string & str, int index, ObjectType obj)
+	void replace(std::string & str, unsigned int index, ObjectType obj)
 	{		
 		std::stringstream marker;
 		marker << "{" << index << "}";
-		int indexOf = str.find_first_of(marker.str());		
+		unsigned int indexOf = str.find_first_of(marker.str());		
 		if (indexOf != std::string::npos)
 		{
 			std::stringstream newValue;

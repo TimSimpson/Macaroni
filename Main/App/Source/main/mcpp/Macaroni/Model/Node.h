@@ -19,8 +19,8 @@ class Namespace;
 
 class Node
 { 
-friend Context;
-friend Member;
+friend class Context;
+friend class Member;
 friend void intrusive_ptr_add_ref(Node * p);
 friend void intrusive_ptr_release(Node * p);
 

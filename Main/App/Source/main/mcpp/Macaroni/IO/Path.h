@@ -102,7 +102,7 @@ public:
 	PathPtr NewPath(const std::string & name) const;
 
 	/** Creates a new path but forces a slash to appear. */
-	PathPtr Path::NewPathForceSlash(const std::string & name) const;
+	PathPtr NewPathForceSlash(const std::string & name) const;
 
 	/** The path in String form. */
 	std::string ToString() const;

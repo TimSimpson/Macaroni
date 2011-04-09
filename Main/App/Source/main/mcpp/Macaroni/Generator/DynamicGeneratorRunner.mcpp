@@ -56,7 +56,7 @@ class DynamicGeneratorRunner
 	/** Looks for the Generator file first in the given FileSet of local directories
 	 * (it appends the file name to each one) and then in the Generator path. 
 	 */
-	public path ResolveGeneratorPath(const vector<const string> & srcDirs, 
+	public path ResolveGeneratorPath(const vector<string> & srcDirs, 
 							  const std::string & name)
 	{
 		std::stringstream ss;
@@ -90,7 +90,7 @@ class DynamicGeneratorRunner
 	public path ResolveGeneratorPathOLD(const vector<FileSet> & srcDirs,
 							  const string & guess)
 	{
-		std::vector<const std::string> dirs;
+		std::vector<std::string> dirs;
 		for (unsigned int i = 0; i < srcDirs.size(); i ++)
 		{
 			const FileSet & localDir = srcDirs[i];

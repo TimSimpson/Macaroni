@@ -262,6 +262,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\main\mcpp\Macaroni\Build\ConfigurationId.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\main\mcpp\Macaroni\Model\Cpp\Constructor.cpp"
 				>
 			</File>
@@ -972,6 +976,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\main\mcpp\Macaroni\Containers.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\main\mcpp\Macaroni\Model\Context.h"
 				>
 			</File>
@@ -1368,19 +1376,19 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Parser\Parser.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\main\mcpp\Macaroni\Parser.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Parser\ParserException.h"
+				RelativePath=".\Source\main\mcpp\Macaroni\Parser\Parser.h"
 				>
 			</File>
 			<File
 				RelativePath=".\Source\main\mcpp\Macaroni\Model\ParserException.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\main\mcpp\Macaroni\Parser\ParserException.h"
 				>
 			</File>
 			<File
@@ -1660,6 +1668,10 @@
 		</File>
 		<File
 			RelativePath=".\Source\main\mcpp\Macaroni\Doc\MDocParser.mcpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\main\pureCppExtraFiles\ReadMe.txt"
 			>
 		</File>
 		<File

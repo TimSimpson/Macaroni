@@ -179,6 +179,22 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Cpp\ClassCppFileGenerator.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Cpp\ClassFileGenerator.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Cpp\ClassHFileGenerator.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Cpp\Common.lua"
+			>
+		</File>
+		<File
 			RelativePath=".\Cpp.lua"
 			>
 		</File>
@@ -187,11 +203,31 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Cpp\CppFileGenerator.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Cpp\DependencyList.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Cpp\DependencySection.lua"
+			>
+		</File>
+		<File
 			RelativePath=".\Dumb.lua"
 			>
 		</File>
 		<File
+			RelativePath=".\Cpp\FileGenerator.lua"
+			>
+		</File>
+		<File
 			RelativePath=".\HFile.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Cpp\HFileGenerator.lua"
 			>
 		</File>
 		<File
@@ -220,6 +256,26 @@
 		</File>
 		<File
 			RelativePath=".\LuaGlueTest.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Macaroni\MhFileGenerator.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Cpp\NamespaceFileGenerator.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Cpp\NamespaceHFileGenerator.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Cpp\NodeFileGenerator.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Cpp\NodeInfo.lua"
 			>
 		</File>
 		<File

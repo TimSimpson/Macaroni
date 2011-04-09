@@ -1,7 +1,7 @@
 # Root jam file for "pure" C++ version of Macaroni
 
 import boost ;
-boost.use-project 1.45 ;
+boost.use-project 1.46.1 ;
 
 alias sources
 	:	[ glob-tree *.c	: .svn ]
@@ -18,4 +18,6 @@ exe macaroni
 		Macaroni.rc	
 	:
 		<include>./
+		<target-os>linux:<define>MACARONI_COMPILE_TARGET_LINUX
+		<target-os>windows:<define>MACARONI_COMPILE_TARGET_WINDOWS
 	;

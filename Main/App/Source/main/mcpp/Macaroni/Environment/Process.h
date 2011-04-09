@@ -21,7 +21,7 @@ public:
 	Process(boost::optional<boost::filesystem::path> & fileName, 
 			const std::string & args, 
 			boost::filesystem::path workingDirectory,
-		    const std::vector<const std::string> paths,
+		    const std::vector<MACARONI_VE_CONST std::string> paths,
 			const std::vector<StringPair> & envVariables);
 	bool Run(const Console & console);
 private:
@@ -34,7 +34,7 @@ private:
 	/** Appends all of the path variables to the PATH environment variable. */
 	void mixinPathEnvVariables(Macaroni::Platform::Windows::EnvironmentVariables & vars);
 
-	std::vector<const std::string> paths;
+	std::vector<MACARONI_VE_CONST std::string> paths;
 
 	boost::filesystem::path workingDirectory;
 };

@@ -32,6 +32,7 @@ class luaL_Reg	{ ~hfile=<Lua/lauxlib.h> }
 
 class Macaroni::Model::Cpp::Access { ~hfile=<Macaroni/Model/Cpp/Access.h> }
 class Macaroni::Model::Cpp::AccessLuaMetaData { ~hfile=<Macaroni/Model/Cpp/AccessLua.h> }
+class Macaroni::Containers::AssignVectorToConstElementVector { ~hfile=<Macaroni/Containers.h.> } //TODO: Make function 
 class MACARONI_CHECK { ~hfile=<Macaroni/ME.h> }
 class Macaroni::Model::Cpp::Class { ~hfile=<Macaroni/Model/Cpp/Class.h> }
 class Macaroni::Model::Cpp::ClassPtr { ~hfile=<Macaroni/Model/Cpp/ClassPtr.h> }
@@ -71,6 +72,7 @@ class Macaroni::Model::Source { ~hfile=<Macaroni/Model/Source.h> }
 class Macaroni::Model::SourcePtr { ~hfile=<Macaroni/Model/SourcePtr.h> }
 class Macaroni::Environment::StringPair { ~hfile=<Macaroni/Environment/StringPair.h> }
 class MACARONI_THROW { ~hfile=<Macaroni/ME.h> }
+class Macaroni::Containers::VectorOfConstString { ~hfile=<Macaroni/Containers.h> }
 
 
 

@@ -1,3 +1,5 @@
+#include <Macaroni/ME.h>
+#ifdef MACARONI_COMPILE_TARGET_WINDOWS
 #ifndef MACARONI_ENVIRONMENT_PROCESS_CPP
 #define MACARONI_ENVIRONMENT_PROCESS_CPP
 
@@ -19,7 +21,7 @@ namespace Macaroni { namespace Environment {
 Process::Process(boost::optional<boost::filesystem::path> & fileName, 
 				 const std::string & a, 
 				 boost::filesystem::path workingDirectory,
-		         const std::vector<const std::string> paths,
+		         const std::vector<MACARONI_VE_CONST std::string> paths,
 				 const std::vector<StringPair> & envVariables)
 : args(a),
   envVariables(envVariables),
@@ -166,4 +168,5 @@ bool Process::Run(const Console & console)
 
 } }
 
-#endif
+#endif // file compilation guard
+#endif // MACARONI_COMPILE_TARGET_WINDOWS

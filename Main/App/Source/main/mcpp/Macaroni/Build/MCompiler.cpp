@@ -54,7 +54,7 @@ namespace Macaroni { namespace Build {
 class MCompiler
 {
 public:
-	MCompiler(Macaroni::AppPathsPtr & appPaths);
+	MCompiler(const Macaroni::AppPathsPtr & appPaths);
 	/** Iteratres all input files, parsing each one into the given context. */
 	bool BuildModel(LibraryPtr library, const std::vector<FileSet> filePath);
 	void Compile(LibraryPtr library,
@@ -73,7 +73,7 @@ private:
 };
 
 
-MCompiler::MCompiler(Macaroni::AppPathsPtr & appPaths)
+MCompiler::MCompiler(const Macaroni::AppPathsPtr & appPaths)
 :appPaths(appPaths)
 {
 }

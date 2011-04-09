@@ -6,6 +6,28 @@
 #define nullptr 0
 #endif
 
+#ifdef _WIN32
+#ifndef MACARONI_COMPILE_TARGET_WINDOWS
+#define MACARONI_COMPILE_TARGET_WINDOWS
+#endif
+#else
+//Use MACARONI_COMPILE_TARGET_LINUX if compiling on Linux
+#endif
+
+// In MSVC and C++0x you can have a vector with const elements.
+// It was a shock to me this isn't really allowed.  I'm not sure if VC++ 
+// actually gets away with this or if it causes hard drives to get formatted but
+// for now I want to keep it in.
+#ifdef MACARONI_COMPILE_TARGET_WINDOWS
+#define MACARONI_VE_CONST_IS_ALLOWED
+#endif
+
+#ifdef MACARONI_VE_CONST_IS_ALLOWED
+#define MACARONI_VE_CONST const
+#else
+#define MACARONI_VE_CONST /**/
+#endif
+
 #define BEGIN_NAMESPACE(a, b, c) namespace a{ namespace b{ namespace c{
 #define END_NAMESPACE } } }
 

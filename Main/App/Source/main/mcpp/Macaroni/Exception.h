@@ -73,11 +73,19 @@ public:
 	{
 		this->source = other.source;
 		this->message = other.message;
+		return *this;
 	}
 	
-	~Exception()
+#ifdef MACARONI_COMPILE_TARGET_WINDOWS
+	virtual ~Exception()
 	{
 	}
+#endif
+#ifdef MACARONI_COMPILE_TARGET_LINUX
+	virtual ~Exception() throw()
+	{
+	}
+#endif
 
 	const char * GetSource() const
 	{

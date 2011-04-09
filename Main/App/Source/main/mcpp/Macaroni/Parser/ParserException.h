@@ -14,8 +14,12 @@ class ParserException : public std::exception
 {
 public:
 	ParserException(Model::SourcePtr source, const std::string & msg, const std::string & throwLocation = "")
-		: source(source), msg(msg), throwLocation(throwLocation)
+		: msg(msg), source(source), throwLocation(throwLocation)
 	{
+	}
+
+	virtual ~ParserException() throw()
+	{	
 	}
 	
 	Model::SourcePtr GetSource() const  

@@ -49,15 +49,15 @@ public:
 
 	/** Assumes that a table is at the top of the stack, and finds a table within
 	 * this table to read an array from. */
-	std::vector<const std::string> GetVectorFromCurrentTable(const char * tableName);
+	std::vector<std::string> GetVectorFromCurrentTable(const char * tableName);
 
 	/** Finds the table of the given name and reads each element into the String
 	 * Vector which is returned. */
-	std::vector<const std::string> GetVectorFromGlobalTable(const char * tableName);	
+	std::vector<std::string> GetVectorFromGlobalTable(const char * tableName);	
 
 	/** Assumes that a table is on top of the stack, and reads its elements into
 	 * Vector of Strings. */
-	std::vector<const std::string> GetVectorFromTable();	
+	std::vector<std::string> GetVectorFromTable();	
 
 	void ParseFile(std::string filePath);
 
@@ -76,17 +76,14 @@ public:
 	void SetPackageDirectory(const std::vector<std::string> & paths);
 
 private:
-	bool iOwnLuaState;
-	static const char * loadFile(lua_State * L, void * data, size_t *size);
-	static const char * loadString(lua_State * L, void * data, size_t *size);
 	std::ifstream * input;
-	void registerInternalLuaModules();
-	lua_State * state;	
-
+	bool iOwnLuaState;	
+	static const char * loadFile(lua_State * L, void * data, size_t *size);
+	static const char * loadString(lua_State * L, void * data, size_t *size);	
+	void registerInternalLuaModules();	
 	void serializeString(std::stringstream & cereal, std::string str);
-
 	void serializeTable(std::stringstream & cereal, int depth);
-
+	lua_State * state;	
 };
 
 END_NAMESPACE2

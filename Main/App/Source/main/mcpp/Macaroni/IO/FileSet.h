@@ -23,7 +23,7 @@ public:
 
 	class Iterator
 	{
-	friend FileSet;
+	friend class FileSet;
 	public:
 		boost::filesystem::path operator*();
 
@@ -41,9 +41,9 @@ public:
 		const FileSet * fileSet;
 				
 		/**
-		 * Interal method to iterate through directories recursively.
+		 * Internal method to iterate through directories recursively.
 		 */
-		void FileSet::Iterator::iterate(bool freshItr);
+		void iterate(bool freshItr);
 		/**
 		 * Special case- needed if this FileSet represents a single file.
 		 */

@@ -24,8 +24,8 @@ class CmdLineOption
 	private string name;
 	
 	public CmdLineOption(const string name, const string description)
-	:	name(name), 
-		description(description)
+	:	description(description),
+		name(name)
 	{
 	}
 	

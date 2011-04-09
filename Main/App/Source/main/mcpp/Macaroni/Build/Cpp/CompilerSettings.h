@@ -36,7 +36,7 @@ public:
 		return environmentVariables;
 	}
 
-	inline const std::vector<const std::string> & GetIncludePaths() const 
+	inline const std::vector<MACARONI_VE_CONST std::string> & GetIncludePaths() const 
 	{
 		return includePaths;
 	}
@@ -46,12 +46,12 @@ public:
 		return linkerExe;
 	}
 
-	inline const std::vector<const std::string> & GetLinkerLibraryPaths() const
+	inline const std::vector<MACARONI_VE_CONST std::string> & GetLinkerLibraryPaths() const
 	{
 		return linkerLibraryPaths;
 	}
 
-	inline const std::vector<const std::string> & GetPaths() const 
+	inline const std::vector<MACARONI_VE_CONST std::string> & GetPaths() const 
 	{
 		return paths;
 	}
@@ -61,13 +61,13 @@ public:
 		return preprocessorDirectives;
 	}
 
-	inline void SetIncludePaths(std::vector<const std::string> & value)
+	inline void SetIncludePaths(std::vector<MACARONI_VE_CONST std::string> & value)
 	{
 		includePaths = value;
 	}
 
 private:	
-	typedef std::vector<const std::string> StrVec;
+	typedef std::vector<MACARONI_VE_CONST std::string> StrVec;
 
 	std::string additionalCompilerArgs;
 	std::string additionalLinkerArgs;

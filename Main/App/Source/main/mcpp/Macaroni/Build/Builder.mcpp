@@ -38,6 +38,9 @@
 ~import std::stringstream;
 ~import system;
 ~import std::vector;
+~import Macaroni::Containers::VectorOfConstString;
+
+~import nullptr; // Including so that <Macaroni/ME.h> is included. :(
 
 namespace Macaroni::Build {
 
@@ -52,14 +55,14 @@ namespace Macaroni::Build {
 */
 class Builder
 {	
-	private AppPathsPtr appPaths;
-	private const Console & console;
-	private ContextPtr context;
+	private AppPathsPtr appPaths;		
 	private vector<CppFile> cppFiles;
-	private vector<const string> cppSrcRoots;
-	private bool initialized;	
+	private VectorOfConstString cppSrcRoots;	
 	//private path manifestPath;
 	private MCompiler compiler;
+	private const Console & console;
+	private ContextPtr context;
+	private bool initialized;	
 	private string properties;
 
 	public Builder(AppPathsPtr appPaths, ContextPtr context, Console & console)
@@ -712,7 +715,7 @@ class Builder
 									 ManifestPtr sourceManifest, 
 									 LibraryPtr sourceLibrary)
 	{
-		const std::vector<const std::string> src = sourceManifest->GetMSource();
+		const std::vector<MACARONI_VE_CONST std::string> src = sourceManifest->GetMSource();
 		BOOST_FOREACH(const string & dir, src)
 		{			
 			std::vector<FileSet> input;
@@ -725,10 +728,10 @@ class Builder
 									  ManifestPtr sourceManifest,
 									  LibraryPtr sourceLibrary)
 	{
-		BOOST_FOREACH(const string & childDir, sourceManifest->GetChildren())
-		{
+		///*BOOST_FOREACH(const string & childDir, sourceManifest->GetChildren())
+		//{
 
-		}
+		//}*/
 	}
 
 	private void printOutDependencyStack(vector<LibraryId> & dependencyStack)

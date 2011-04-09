@@ -9,7 +9,7 @@ namespace Macaroni { namespace Build {
 
 MCompilerOptions::MCompilerOptions(const std::vector<FileSet> & input, 
 				                   const boost::filesystem::path & output,
-								   const std::vector<const std::string> generators)
+								   const std::vector<MACARONI_VE_CONST std::string> generators)
 :input(input),
  output(output),
  generators(generators)
