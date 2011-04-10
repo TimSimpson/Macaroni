@@ -60,7 +60,9 @@ ClassCppFileGenerator = {
     globals = function(self)
         self:write("/* Adopted Global Functions */\n"); 
         self:write("namespace {\n"); 
+        self:write("/* Global Prototypes */\n");
         self:globalPrototypes();
+        self:write("/* Global Definitions */\n");
         self:iterateMembers(self.node.Member.GlobalNodes, "Access_Private");       
         self:write("} // end anonymous namespace\n");
         self:iterateMembers(self.node.Member.GlobalNodes, "Access_Public"); 
@@ -72,10 +74,14 @@ ClassCppFileGenerator = {
         for i=1, #globals do
             local node = globals[i];
             if (node.Member ~= nil and
-                node.Member.TypeName == TypeNames.Function and
-                node.Member.Access == "Access_Private") then
-                    self:writeFunctionDefinition(node);         
-                    self:write(";\n");       
+                node.Member.TypeName == TypeNames.Function) then 
+                for j=1, #node.Children do
+					local nodeJ = node.Children[j]
+					if (nodeJ.Member.Access == "Access_Private") then
+						self:writeFunctionOverloadDefinition(nodeJ);         
+						self:write(";\n");       
+					end
+				end
             end
         end
     end,

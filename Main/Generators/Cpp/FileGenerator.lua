@@ -38,12 +38,18 @@ FileGenerator = {
     -- Iterates members of the list. Use access to filter which ones.
     iterateMembers = function(self, nodeChildren, access)
         for i=1, #nodeChildren do
-            node = nodeChildren[i];
+            local node = nodeChildren[i];            
             if (node.Member ~= nil) then
+				local memberType = node.Member.TypeName
                 if (access == nil or node.Member.Access == access) then
                     self:parseMember(node);
-                elseif (node.Member.Access == nil) then
-                    self:write("/* ~<( Nil access for Node :" .. tostring(node) .. ".) */\n");
+                elseif (node.Member.Access == nil) then					
+					if (memberType == "Function" or memberType == "Constructor" 
+						or memberType == "Destructor") then
+						self:iterateMembers(node.Children, access)
+					else
+						self:write("/* ~<( Nil access for Node :" .. tostring(node) .. ".) */\n");
+					end
                 end
             end
         end
