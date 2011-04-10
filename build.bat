@@ -40,5 +40,6 @@ If Errorlevel 0 Goto Finish
 exit 1
 
 :Finish 
+cd ..
 ECHO All phase successful.
 exit 0
