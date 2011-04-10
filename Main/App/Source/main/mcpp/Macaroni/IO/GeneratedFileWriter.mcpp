@@ -50,7 +50,7 @@ class GeneratedFileWriter
 		}
 		else
 		{
-			writer = ostreamptr(new ofstream(filePath.native_file_string().c_str(), ofstream::trunc));
+			writer = ostreamptr(new ofstream(filePath.string().c_str(), ofstream::trunc));
 			directToFile = true;
 		}
 	}
@@ -91,7 +91,7 @@ class GeneratedFileWriter
 		char buf1[256];
 		char buf2[256];
 		
-		ifstream existing(filePath.native_file_string().c_str());
+		ifstream existing(filePath.string().c_str());
 		current.seekg(std::ios_base::beg);
 
 		bool eof = false;
@@ -122,7 +122,7 @@ class GeneratedFileWriter
 			return false;
 		}
 		current.seekg(std::ios_base::beg);
-		ofstream output(filePath.native_file_string().c_str(), ofstream::trunc);
+		ofstream output(filePath.string().c_str(), ofstream::trunc);
 		output << current.str() ;
 		output.close();
 		return true;

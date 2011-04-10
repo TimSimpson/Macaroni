@@ -61,7 +61,7 @@ std::string Paths::GetExeDirectoryPath()
 	path exePath(GetExePath());
 	exePath.remove_leaf();
 	std::string dirPath;
-	dirPath = exePath.directory_string();
+	dirPath = exePath.stem().string();
 	return dirPath;/*
 	char pathSeperators[2];
 	pathSeperators[0] = '/';

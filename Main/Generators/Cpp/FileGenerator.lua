@@ -57,24 +57,28 @@ FileGenerator = {
     
     namespaceBegin = function(self, namespaceNode)
         check(namespaceNode ~= nil, "namespaceNode cannot be nil.");
-        --self:write(NodeHelper.namespaceBegin(namespaceNode));
-        local fs = namespaceNode.FullName;
-        local names = Node.SplitComplexName(fs);
-        for i = 1, #names do
-            self:write("namespace " .. names[i] .. " { ");
-        end
-        self:write("\n");
+        if not namespaceNode.IsRoot then			
+			--self:write(NodeHelper.namespaceBegin(namespaceNode));
+			local fs = namespaceNode.FullName;
+			local names = Node.SplitComplexName(fs);
+			for i = 1, #names do
+				self:write("namespace " .. names[i] .. " { ");
+			end
+			self:write("\n");
+		end
     end,    
     
     namespaceEnd = function(self, namespaceNode)
         check(namespaceNode ~= nil, "namespaceNode cannot be nil.");
-        --self:write(NodeHelper.namespaceEnd(namespaceNode));
-        local names = Node.SplitComplexName(namespaceNode.FullName);
-        for i = 1, #names do
-            self:write("} ");
-        end
-        self:write("// End namespace ");
-        self:write("\n");
+        if not namespaceNode.IsRoot then
+			--self:write(NodeHelper.namespaceEnd(namespaceNode));
+			local names = Node.SplitComplexName(namespaceNode.FullName);
+			for i = 1, #names do
+				self:write("} ");
+			end
+			self:write("// End namespace ");
+			self:write("\n");
+		end
     end,
     
     parseMember = nil,  

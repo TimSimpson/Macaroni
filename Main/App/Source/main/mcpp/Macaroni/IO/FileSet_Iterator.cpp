@@ -165,7 +165,7 @@ void FileSet::Iterator::iterate(bool freshItr)
 		}
 		else if (true)
 		{			
-			if (fileSet->testPath((*itr).string()))//boost::regex_search((*itr).string(), fileSet->regExp))
+			if (fileSet->testPath((*itr).path().string()))//boost::regex_search((*itr).string(), fileSet->regExp))
 			{
 				return;
 			}

@@ -7,7 +7,7 @@ function getIncludePath()
 		return properties.boost["1.46.1"].include;
 	end);	
 	if (not success) then
-		error([[Could not find variable properties.boost["1.46.1"].include.]]
+		error([[Could not find variable properties.boost["1.45.0"].include.]]
 			.. [[  Please set this in init.lua to the path of Boost headers.]]);
 	end
 	return path;
@@ -25,13 +25,26 @@ function Prepare(library, sources, outputPath, installPath, extraArgs)
 import boost ;
 import path ;
 
-use-project /boost/filesystem : "]] .. includePath .. [[/libs/filesystem/build" ;
+use-project /boost : "]] .. includePath .. [[" ;
 
 alias library
-	: /boost/filesystem//boost_filesystem
+	: /boost//headers
 	;
 	
 ]]);
     writer:Close();    
 end
+
+--
+--project 
+--	:	usage-requirements
+--		<include>]] .. includePath .. [[
+--	;
+--	
+--alias libSources
+--	:	
+--	: <include>]] .. includePath .. [[
+--	;
+	
+
 

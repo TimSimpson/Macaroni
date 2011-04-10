@@ -19,7 +19,7 @@ struct FT
 
 	FT(path p)
 	{
-		WindowsString wStr(p.native_file_string());
+		WindowsString wStr(p.string());
 
 		HANDLE h = ::CreateFile(wStr.get(),
 							 GENERIC_READ,

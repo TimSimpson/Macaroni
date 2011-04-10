@@ -24,8 +24,8 @@ output = "GeneratedSource"
 -- Don't trust Macaroni's own dependencies for these, not yet at least.
 --dependency { group="Macaroni", name="Boost", version="1.39.0-0" }
 --dependency { group="Macaroni", name="CppStd", version="1.0.0.0" }
-dependency {group="Macaroni", name="Boost-filesystem", version="1.42.0"}
-dependency {group="Macaroni", name="Boost-regex", version="1.42.0"}
+dependency {group="Macaroni", name="Boost-filesystem", version="1.46.1"}
+dependency {group="Macaroni", name="Boost-regex", version="1.46.1"}
         
 function generate()    
     run "Cpp"

@@ -22,7 +22,7 @@ function createDependencyList(library)
 		local jamDir = dependencyJamDir(v);
 		if (jamDir ~= nil) then
 			local element = { };
-			element.jamDir = jamDir.AbsolutePath;
+			element.jamDir = jamDir.AbsolutePathForceSlash;
 			element.name = createProjectName(dep);
 			rtn[#rtn + 1] = element; 
 		end		
@@ -49,7 +49,7 @@ function Build(library, sources, outputPath, installPath, extraArgs)
 	if (extraArgs.CmdLine ~= nil) then
 		cmdLine = cmdLine .. " " .. extraArgs.CmdLine
 	end
-	cmdLine = cmdLine .. " " ..  outputPath.AbsolutePath
+	cmdLine = cmdLine .. " " ..  outputPath.AbsolutePathForceSlash
 	print(cmdLine)
 	local rtnCode = os.execute(cmdLine)
     log:Write("BJAM return code = " .. rtnCode .. ".")
@@ -62,14 +62,14 @@ end
 
 function createJamroot(library, sources, outputPath, excludePattern, extraTargets)
 	local buildjam = outputPath:NewPath("/jamroot.jam");
-	log:Write("Creating Boost.Build file at " .. buildjam.AbsolutePath .. ".");
+	log:Write("Creating Boost.Build file at " .. buildjam.AbsolutePathForceSlash .. ".");
 	
 	local writer = buildjam:CreateFile();		
 	
 	local forAllSourcesWrite = function(text) 
 		-- Because this gets generated to the output path, a relative path will 
 		-- work.
-		 -- writer:Write(text('./')); -- outputPath.AbsolutePath));
+		 -- writer:Write(text('./')); -- outputPath.AbsolutePathForceSlash));
 		-- ^- Actually, NO, you can't do this, thanks to yet another undocumented
 		-- "feature" of Boost.Build.  If you use "path.glob-tree" with a 
 		-- relative path being the source directory, will first off the code 
@@ -84,7 +84,7 @@ function createJamroot(library, sources, outputPath, excludePattern, extraTarget
 		-- Spend hours figuring this out.
 		for i = 1, #sources do
 			local source = sources[i];
-			writer:Write(text(source.AbsolutePath));		
+			writer:Write(text(source.AbsolutePathForceSlash));		
 		end	
 	end;
 	
@@ -146,7 +146,7 @@ alias library_sources
 	--for k, v in pairs(library.Dependencies) do
 	--	local jamDir = dependencyJamDir(v);
 	--	if (jamDir ~= nil) then
-	--		writer:Write([["]] .. jamDir.AbsolutePath .. [[//libSources" ]]);
+	--		writer:Write([["]] .. jamDir.AbsolutePathForceSlash .. [[//libSources" ]]);
 	--	end
 	--end
 	-- writer:Write(" : ");
@@ -202,7 +202,7 @@ end
 function dependencyJamDir(d)	
 	local success, path = pcall(d.FindInstallPath, d);		
 	if (success and path ~= nil) then			
-		local pathText = path.AbsolutePath;
+		local pathText = path.AbsolutePathForceSlash;
 		local jamroot = path:NewPathForceSlash('Cpp/jamroot.jam');
 		if (jamroot.Exists) then
 			return path:NewPathForceSlash('Cpp');
@@ -253,7 +253,7 @@ function copyCppSource(regEx, src, dst)
 	for i = 1, #srcs do
 		local child = srcs[i];
 		if (not child.IsDirectory) then
-			log:Write(tostring(child.AbsolutePath) .. " ... " .. tostring(dst.AbsolutePath));
+			log:Write(tostring(child.AbsolutePathForceSlash) .. " ... " .. tostring(dst.AbsolutePathForceSlash));
 			--src:CreateDirectory();
 			child:CopyToDifferentRootPath(dst);		
 		else
@@ -279,7 +279,7 @@ function printDependencyProjectIncludes(writer, library)
 			writer:Write("# nil\n");
 		else
 			writer:Write("use-project /" .. createProjectName(dep)
-				.. " : \"" .. jamDir.AbsolutePath .. "\" ;\n");
+				.. " : \"" .. jamDir.AbsolutePathForceSlash .. "\" ;\n");
 		end
 	end	
 end

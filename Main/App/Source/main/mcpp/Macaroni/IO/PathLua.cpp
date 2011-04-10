@@ -188,6 +188,12 @@ END_NAMESPACE2
 			lua_pushstring(L, absPath.c_str());
 			return 1;
 		}
+		if (index == "AbsolutePathForceSlash")
+		{	
+			std::string absPath = ptr->GetAbsolutePathForceSlash();
+			lua_pushstring(L, absPath.c_str());
+			return 1;
+		}
 		else if (index == "CopyToDifferentRootPath")
 		{
 			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::copyToDifferentRootPath);

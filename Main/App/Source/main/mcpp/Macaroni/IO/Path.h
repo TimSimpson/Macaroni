@@ -69,6 +69,10 @@ public:
 
 	std::string GetAbsolutePath() const;
 
+	/** This name sucks.  What it means is that forward slashes are used even
+	 * on Windows. 
+	 * TODO: Change name as it sucks, as stated above.
+	 */
 	std::string GetAbsolutePathForceSlash() const;
 
 	/** Grabs the filename, i.e. everything after the directory. 

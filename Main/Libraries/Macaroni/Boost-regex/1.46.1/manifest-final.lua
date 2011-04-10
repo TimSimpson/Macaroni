@@ -1,11 +1,11 @@
 id =
 {
 	group	= [[Macaroni]],
-	name	= [[Boost-filesystem]],
+	name	= [[Boost-regex]],
 	version	= [[1.46.1]]
 }
 
-description = [[Boost filesystem library.]]
+description = [[Boost regex library.]]
 
 sources = { [[Source]] }
 

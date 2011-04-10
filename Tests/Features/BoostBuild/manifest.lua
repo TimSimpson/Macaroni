@@ -15,7 +15,7 @@ description="A test to see if Boost Build can create and store C++ artifacts in 
 --output = "GeneratedSource"
 
 dependency {group="Macaroni", name="CppStd", version="2003"}
-dependency {group="Macaroni", name="Boost-smart_ptr", version="1.42.0"}
+dependency {group="Macaroni", name="Boost-smart_ptr", version="1.46.1"}
 
 function generate()   
 end

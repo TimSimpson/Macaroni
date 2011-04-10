@@ -78,7 +78,7 @@ protected:
 	 * Does not check to see that path is inside of root- this is used
 	 * instead by the Iterator. */
 	//bool testPath(boost::filesystem::path & path);
-	bool testPath(std::string & str) const;
+	bool testPath(const std::string & str) const;
 
 private:
 	boost::regex regExp;

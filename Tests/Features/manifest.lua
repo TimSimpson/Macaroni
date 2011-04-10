@@ -22,8 +22,8 @@ children =
 	"Lua"
 };
 
-dependency {group="Macaroni", name="Boost-filesystem", version="1.42.0"}
-dependency {group="Macaroni", name="Boost-smart_ptr", version="1.42.0"}
+dependency {group="Macaroni", name="Boost-filesystem", version="1.46.1"}
+dependency {group="Macaroni", name="Boost-smart_ptr", version="1.46.1"}
 dependency {group="Macaroni", name="CppStd", version="2003"}
 
 function generate()

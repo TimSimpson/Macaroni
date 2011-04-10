@@ -75,25 +75,29 @@ NodeInfo = {
     beginNs =  function(self, namespaceNode)
         check(namespaceNode ~= nil, "namespaceNode cannot be nil.");
         local fs = namespaceNode.FullName;
-        local names = Macaroni.Model.Node.SplitComplexName(fs);
         local rtn = "";
-        for i = 1, #names do
-            rtn = rtn .. "namespace " .. names[i] .. " { ";
-        end
-        rtn = rtn .. "\n";
+        if not namespaceNode.IsRoot then
+			local names = Macaroni.Model.Node.SplitComplexName(fs);        
+			for i = 1, #names do
+				rtn = rtn .. "namespace " .. names[i] .. " { ";
+			end
+			rtn = rtn .. "\n";
+		end
         return rtn;
     end,    
     
     endNs = function(self, namespaceNode)
         check(namespaceNode ~= nil, "namespaceNode cannot be nil.");
-        local names = Macaroni.Model.Node.SplitComplexName(namespaceNode.FullName);
         local rtn = "";
-        for i = 1, #names do
-            rtn = rtn .. "} ";
-        end
-        rtn = rtn .. "// End namespace ";
-        rtn = rtn .. "\n";
-        return rtn;
+        if not namespaceNode.IsRoot then
+			local names = Macaroni.Model.Node.SplitComplexName(namespaceNode.FullName);        
+			for i = 1, #names do
+				rtn = rtn .. "} ";
+			end
+			rtn = rtn .. "// End namespace ";
+			rtn = rtn .. "\n";
+		end
+		return rtn;		
     end,
     
     -- Creates the light definition, in the form of a String. Includes newlines.

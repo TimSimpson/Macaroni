@@ -25,10 +25,10 @@ function Prepare(library, sources, outputPath, installPath, extraArgs)
 import boost ;
 import path ;
 
-use-project /boost/filesystem : "]] .. includePath .. [[/libs/filesystem/build" ;
+use-project /boost/regex : "]] .. includePath .. [[/libs/regex/build" ;
 
 alias library
-	: /boost/filesystem//boost_filesystem
+	: /boost/regex//boost_regex
 	;
 	
 ]]);

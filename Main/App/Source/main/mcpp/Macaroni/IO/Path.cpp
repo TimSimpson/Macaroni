@@ -183,7 +183,7 @@ std::string Path::GetAbsolutePathForceSlash() const
 	//TODO: The line above worked in 1.42.0 but doesn't in 1.45.0.  Find
 	// an actual way to do this.
 	const char seperator = '\\'; 
-	if (!seperator == '/')
+	if (!(seperator == '/'))
 	{
 		std::string original = GetAbsolutePath();
 		std::stringstream ss;
@@ -216,7 +216,7 @@ std::string Path::GetFileName() const
 			<< "\" is not a regular file.";
 		throw Macaroni::Exception(ss.str().c_str());
 	}*/
-	return path.filename();
+	return path.filename().string();
 }
 
 PathPtr Path::GetParentPath() const

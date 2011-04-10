@@ -15,7 +15,7 @@ source "Source"
 output = "GeneratedSource"
 
 dependency {group="Macaroni", name="CppStd", version="2003"}
-dependency {group="Macaroni", name="Boost-smart_ptr", version="1.42.0"}
+dependency {group="Macaroni", name="Boost-smart_ptr", version="1.46.1"}
 dependency {group=upper.Group, name=upper.Name .. "SomeLibA", version=upper.Version}
 -- dependency {group="Macaroni", name="Tests - BoostBuild - SomeLib B", version="1.0.0.0"}
 

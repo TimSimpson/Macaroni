@@ -55,7 +55,7 @@ boost::filesystem::path FileSet::GetRoot() const
 }
 
 
-bool FileSet::testPath(std::string & str) const
+bool FileSet::testPath(const std::string & str) const
 {
 	return boost::regex_search(str, this->regExp);
 }

@@ -63,7 +63,7 @@ bool Process::Run(const Console & console)
 	std::stringstream ss;
 	if (!!fileName)
 	{
-		ss << "\"" << fileName.get().native_file_string() << "\" ";
+		ss << "\"" << fileName.get().string() << "\" ";
 		ss << " ";
 	}
 	ss << args;
@@ -76,7 +76,7 @@ bool Process::Run(const Console & console)
 	Macaroni::Platform::Windows::WindowsString wideFileName("");
 	if (!!fileName)
 	{
-		wideFileName = fileName.get().native_file_string();	
+		wideFileName = fileName.get().string();	
 	}	
 	Macaroni::Platform::Windows::WindowsString wideArgs(args);
 	Macaroni::Platform::Windows::WindowsString wideWorkingDir(workingDirectory.string());

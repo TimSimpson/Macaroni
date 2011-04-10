@@ -1,11 +1,11 @@
 id =
 {
 	group	= [[Macaroni]],
-	name	= [[Boost-filesystem]],
+	name	= [[Boost-smart_ptr]],
 	version	= [[1.46.1]]
 }
 
-description = [[Boost filesystem library.]]
+description = [[Boost smart_ptr library.]]
 
 sources = { [[Source]] }
 

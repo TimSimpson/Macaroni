@@ -1,0 +1,78 @@
+
+/**
+ * Proof of concept to show Macaroni handling the three amigos of C++.
+ *
+ * 1. Copy Constructor
+ * 2. Assignment Constructor
+ * 3. Destructor
+ */
+ 
+//~import Amigo;
+ 
+class Amigo
+{
+	private int x;
+	private int y;
+	
+	
+	/** Default constructor. */
+	public Amigo()
+	: x(1), 
+	  y(2)
+	{
+	}
+	
+	/** Fancy constructor. */
+	public Amigo(const int x, const int y)
+	: x(x), 
+	  y(y)
+	{
+	}
+	
+	/** Copy constructor. */
+	public Amigo(const Amigo & amigo)
+	: x(amigo.GetX()),
+	  y(amigo.GetY())
+	{		
+	}
+	
+	
+	public Amigo & operator=(const Amigo & other) 
+	{
+		if (this != other) 
+		{
+			this->SetX(other.GetX());
+			this->SetY(other.GetY());
+		}
+		return *this;
+	}	
+	
+	public ~Amigo()
+	{
+	}
+	
+	public static Amigo * Create()
+	{
+		return new Amigo();
+	}
+	
+	public inline const int GetX() const
+	{
+		return x;
+	}
+	
+	public inline const int GetY() const
+	{
+		return y;
+	}
+	
+	public void SetX(const int newX)
+	{
+		this->x = newX;
+	}
+	
+	public void SetY(const int newY)
+	{
+		this->y = newY;
+	}
+};

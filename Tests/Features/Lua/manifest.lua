@@ -14,7 +14,7 @@ description='Tests the generator "LuaGlue."'
 sources = { "Source" }
 output = "GeneratedSource"
 
-dependency {group="Macaroni", name="Boost-smart_ptr", version="1.42.0"}
+dependency {group="Macaroni", name="Boost-smart_ptr", version="1.46.1"}
 dependency {group="Macaroni", name="CppStd", version="2003"}
 dependency {group = "Lua", name = "Lua", version = "5.1.4" }
 
