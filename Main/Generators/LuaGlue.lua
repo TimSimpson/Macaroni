@@ -251,7 +251,7 @@ LuaGlueGenerator =
 			if (child.Member.TypeName == "Function") then
 				for j = 1, #child.Children do
 					local fon = child.Children[j]; -- FunctionOverload node
-					if (fon.Member ~= nil and fon.TypeName == 'FunctionOverload') then
+					if (fon.Member ~= nil and fon.Member.TypeName == 'FunctionOverload') then
 						rtn[#rtn + 1] = fon;
 					end
 				end	
@@ -261,32 +261,33 @@ LuaGlueGenerator =
 	end,
 
 	-- Returns a table with info on the method
-	wrapMethod = function(self, methodNode) 
+	wrapMethod = function(self, methodOverloadNode) 
 		check(self ~= nil, 'Argument "self" missing!');
-		check(methodNode ~= nil, 'Argument "methodNode" missing!');
-		check(methodNode.Member ~= nil, 'Argument "methodNode" has no Member defined!');		
-		check(methodNode.Member.TypeName == "FunctionOverload", 'Argument "methodNode" must have Member defined as FunctionOverload.');
-		local node = methodNode.Node;
+		check(methodOverloadNode ~= nil, 'Argument "methodNode" missing!');
+		check(methodOverloadNode.Member ~= nil, 'Argument "methodNode" has no Member defined!');		
+		check(methodOverloadNode.Member.TypeName == "FunctionOverload", 'Argument "methodNode" must have Member defined as FunctionOverload.');
+		local node = methodOverloadNode.Node.Node;
 		check(node ~= nil, "The methodNode had no parent?! How can that be?!");
 		local rtn = {}
-		rtn.name = methodNode.Name;
+		local methodName = methodOverloadNode.Node.Name
+		rtn.name = methodName;
 		local t = { }
-		t[#t + 1]  = "static int " .. methodNode.Name .. "(lua_State * L)";		
+		t[#t + 1]  = "static int " .. methodName .. "(lua_State * L)";		
 		t[#t + 1] = "{";
 		local startIndex;
-		if (not methodNode.Member.Static) then
+		if (not methodOverloadNode.Member.Static) then
 			startIndex = 2;
 		else
 			startIndex = 1;
 		end		
-		if (not methodNode.Member.Static) then
+		if (not methodOverloadNode.Member.Static) then
 			local instanceType = Type.New(node, {});
 			local tm = self:TypeManipulators(instanceType);
 			t[#t + 1] = "\t" .. tm.get("instance", 1);
 		end
 		local argIndex = startIndex;
-		for j = 1, #methodNode.Children do
-			local nodeChild = methodNode.Children[j];
+		for j = 1, #methodOverloadNode.Children do
+			local nodeChild = methodOverloadNode.Children[j];
 			local var = nodeChild.Member;
 			if (var ~= nil and var.TypeName == "Variable") then
 				local varType = var.Type;
@@ -296,7 +297,7 @@ LuaGlueGenerator =
 				argIndex = argIndex + 1;
 			end
 		end
-		local returnType = methodNode.Member.ReturnType;
+		local returnType = methodOverloadNode.Member.ReturnType;
 		local returnTypeTm;
 		if (returnType.Node.FullName ~= self.Creators.voidNode.FullName) then
 			returnTypeTm = self:TypeManipulators(returnType);
@@ -308,21 +309,21 @@ LuaGlueGenerator =
 		if (returnType.Node.FullName ~= self.Creators.voidNode.FullName) then		
 			methodCall = methodCall .. tostring(returnType) .. " rtn = ";
 		end		
-		if (not methodNode.Member.Static) then
+		if (not methodOverloadNode.Member.Static) then
 			methodCall = methodCall .. "instance->";
 		else
 			methodCall = methodCall .. self.node.FullName .. "::";
 		end
-		methodCall = methodCall .. methodNode.Name .. "(";
+		methodCall = methodCall .. methodName .. "(";
 				
 		local argIndexK = 1;
-		for k = 1, #methodNode.Children do
-			local nodeChild = methodNode.Children[k];
+		for k = 1, #methodOverloadNode.Children do
+			local nodeChild = methodOverloadNode.Children[k];
 			local var = nodeChild.Member;
 			if (var ~= nil and var.TypeName == "Variable") then
 				methodCall = methodCall .. "arg" .. tostring(argIndexK);
 				argIndexK = argIndexK + 1;
-				if (k < #methodNode.Children) then
+				if (k < #methodOverloadNode.Children) then
 					methodCall = methodCall .. ", ";
 				end	
 			end		
@@ -421,7 +422,8 @@ LuaGlueGenerator =
 			local funcs = self.parent:findAllFunctionsInNode(self.originalNode);
 			for i = 1, #funcs do
 				local fNode = funcs[i]
-				local tableEntry = '{"' .. fNode.Name .. '", ' .. self.helperName .. "::" .. fNode.Name .. '}'; 
+				local tableEntry = '{"' .. fNode.Node.Name .. '", ' 
+					.. self.helperName .. "::" .. fNode.Node.Name .. '}'; 
 				if (not fNode.Member.Static) then
 					staticText[#staticText + 1] = tableEntry;
 				else
@@ -502,13 +504,13 @@ namespace
 			for i = 1, #funcs do
 				local node = funcs[i];
 				if (first) then
-					t[#t + 1] = 'if (index == "' .. node.Name ..'")';
+					t[#t + 1] = 'if (index == "' .. node.Node.Name ..'")';
 					first = false;
 				else
-					t[#t + 1] = 'else if (index == "' .. node.Name ..'")';
+					t[#t + 1] = 'else if (index == "' .. node.Node.Name ..'")';
 				end
 				t[#t + 1] = '{';
-				t[#t + 1] = '\tlua_pushcfunction(L, ' .. self.helperName .. '::' .. node.Name .. ');';
+				t[#t + 1] = '\tlua_pushcfunction(L, ' .. self.helperName .. '::' .. node.Node.Name .. ');';
 				t[#t + 1] = '}';					
 			end
 			t[#t + 1] = 'else'
@@ -723,6 +725,11 @@ namespace
 
 function Generate(library, path, arguments)	
 	log.Init("LuaGlue");
+	log = {
+		Write = function(self, msg)
+			print("[LUA]:" .. msg);
+		end
+	}
 	log:Write("Entered Generate");
 	arguments = arguments or {}		
     CurrentLibrary = library;

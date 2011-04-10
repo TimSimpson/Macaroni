@@ -105,6 +105,19 @@ LuaGlueCppFile = {
     
     isFunctionNodeEligibleForWrapping = function(self, fNode)
         local member = fNode.Member;
+        if (member ~= nil and member.TypeName == TypeNames.Function) then
+			for i = 1, #fNode.Children do
+				local foNode = fNode.Children[i]
+				if self:isFunctionOverloadNodeEligibleForWrapping(foNode) then
+					return true
+				end
+			end 
+        end
+        return false        
+    end,
+    
+    isFunctionOverloadNodeEligibleForWrapping = function(self, fNode)
+        local member = fNode.Member;
         return (member ~= nil and
                 member.TypeName == TypeNames.FunctionOverload and
                 member.Access == Access.Public and
@@ -117,7 +130,7 @@ LuaGlueCppFile = {
             if (child.Member ~= nil and child.Member.TypeName == TypeNames.Function) then
             	for j=1, #child.Children do
             		local overloadNode = child.Children[j];
-            		if (self:isFunctionNodeEligibleForWrapping(overloadNode)) then
+            		if (self:isFunctionOverloadNodeEligibleForWrapping(overloadNode)) then
 		                action(overloadNode);
 		            end	
         		end
@@ -183,6 +196,7 @@ namespace {
 			lua_setmetatable(L, -2); 
 		}
 	}
+	
 
 } // End Anon namespace
 ]]);    
@@ -232,7 +246,7 @@ namespace {
     end,
     
     writeFunctionWrapperForFunction = function(self, func)
-        check(func ~= nil, self:isFunctionNodeEligibleForWrapping(func.Node), "#2 arg must be an eligible Function!");                
+        check(func ~= nil, self:isFunctionOverloadNodeEligibleForWrapping(func.Node), "#2 arg must be an eligible Function!");                
         self:write("\n\tstatic int " .. func.Node.Name .. "(lua_State * L)\n");
         self:write("\t{\n");
         self:write("\t\t" .. self.ptrNode.Name .. " & ptr = getInstance(L);\n");
