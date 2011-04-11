@@ -58,10 +58,11 @@ std::string Paths::GetExePath()
 
 std::string Paths::GetExeDirectoryPath()
 { 
-	path exePath(GetExePath());
+	path exePath0(GetExePath());
+	path exePath = boost::filesystem::system_complete(exePath0);
 	exePath.remove_leaf();
 	std::string dirPath;
-	dirPath = exePath.stem().string();
+	dirPath = exePath.string();
 	return dirPath;/*
 	char pathSeperators[2];
 	pathSeperators[0] = '/';
