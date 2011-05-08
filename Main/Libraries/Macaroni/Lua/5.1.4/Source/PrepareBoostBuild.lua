@@ -2,11 +2,11 @@ require "Macaroni.IO.GeneratedFileWriter";
 require "Macaroni.Model.Library";
 require "Macaroni.IO.Path";
 
-function getIncludePath()
-	local path, err = pcall(function()
+function getIncludePath()	
+	local success, path = pcall(function()
 		return properties.lua["5.1.4"].include;
 	end);
-	if (err ~= nil) then
+	if (not success) then
 		error([[Could not find variable properties.lua["5.1.4"].include.]]);
 	end
 	return path;

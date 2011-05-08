@@ -30,6 +30,7 @@ function createDependencyList(library)
 	return rtn;
 end
 
+
 function Build(library, sources, outputPath, installPath, extraArgs)
 	log.Init("BoostBuild");
 	local excludePattern;
@@ -45,7 +46,10 @@ function Build(library, sources, outputPath, installPath, extraArgs)
 		extraTargets = extraArgs.ExtraTargets;	
 	end
 	createJamroot(library, sources, outputPath, excludePattern, extraTargets);
-	local cmdLine = "bjam link=static "	
+	local cmdLine = "bjam "
+	if extraArgs.Shared == nil then
+		cmdLine = cmdLine .. "link=static "	
+	end
 	if (extraArgs.CmdLine ~= nil) then
 		cmdLine = cmdLine .. " " .. extraArgs.CmdLine
 	end
@@ -59,6 +63,21 @@ function Build(library, sources, outputPath, installPath, extraArgs)
     end    
 end
 
+function Test(library, sources, outputPath, installPath, extraArgs)
+	log.Init("BoostBuild");	
+	local cmdLine = "bjam link=static "	
+	if (extraArgs.CmdLine ~= nil) then
+		cmdLine = cmdLine .. " " .. extraArgs.CmdLine
+	end
+	cmdLine = cmdLine .. " " ..  outputPath.AbsolutePathForceSlash
+	print(cmdLine)
+	local rtnCode = os.execute(cmdLine)
+    log:Write("BJAM return code = " .. rtnCode .. ".")
+    if (rtnCode ~= 0) then
+        error("Call to Boost.Build failed.")
+        return false;
+    end    
+end
 
 function createJamroot(library, sources, outputPath, excludePattern, extraTargets)
 	local buildjam = outputPath:NewPath("/jamroot.jam");

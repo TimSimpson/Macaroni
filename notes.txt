@@ -1,0 +1,21 @@
+I've had nothing but trouble getting Boost Test to work.  
+Most recently it failed because the DLLs weren't getting built as part of the call to bjam in the boost_1_46_1 source directory, even though I was using
+bjam --build-type=complete --link=shared
+
+I went into the directory boost_1_46_1\libs\test\build and ran bjam there, and the DLLs appeared from outer space.
+Then I added this to the JAM file:
+ 
+ alias test_dependencies
+	    	: #"F:/Tools/boost_1_46_1/stage/lib" 
+	    	  #"F:/Tools/boost_1_46_1/libs/test/build//boost_unit_test_framework" 
+	    	  "]] .. properties.boost.current["path"] 
+	    	      .. [[/libs/test/build//boost_unit_test_framework" 
+	    	  #boost_unit_test_framework
+	    	;	    	
+	    	
+		unit-test test
+		    : test_dependencies
+		      ../Source/Test.cpp		    
+		    ;	  	
+		    
+And it now seems to work.  Have no idea when / if it'll fail again.

@@ -12,5 +12,5 @@ sources = { [[Source]] }
 output = [[Cpp]]
 
 function prepare()	
-	run("PrepareBoostBuild", {properties.lua.["5.1.4"]});	
+	run("PrepareBoostBuild");	
 end

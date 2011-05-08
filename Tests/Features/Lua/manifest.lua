@@ -16,12 +16,13 @@ output = "GeneratedSource"
 
 dependency {group="Macaroni", name="Boost-smart_ptr", version="1.46.1"}
 dependency {group="Macaroni", name="CppStd", version="2003"}
-dependency {group = "Lua", name = "Lua", version = "5.1.4" }
+--dependency {group = "Lua", name = "Lua", version = "5.1.4" }
+dependency {group = "Macaroni", name = "Lua", version = "5.1.4" }
 
 function generate()
     print "Greetings from the manifest of the LUA test.\n\n"
     print("Lua 5.1.4 source path is " .. properties.lua["5.1.4"].source)
-    print("Boost crap is at " .. properties.boost["1.42.0"].include)
+    print("Boost crap is at " .. properties.boost["1.46.1"].include)
     run("LuaGlue", { luaImportCode =[[ 
 extern "C" 
 {	
@@ -43,20 +44,56 @@ end
 
 jamArgs = 
 { 	
-	ExcludePattern = "Main.cpp .svn",
+	ExcludePattern = "Main.cpp Test.cpp .svn",
 	ExtraTargets = [[
-	  	exe LuaTest 
-	  		:	library_sources
-	  			library_dependencies
+	    # Same old problem! Can't load the boost test stuff as a shared library.
+	    
+		#lib boost_unit_test_framework : 
+		#	: <name>boost_unit_test_framework 
+		 # 	<search>"]] .. properties.boost.current["path"] 
+	    	      .. [[/stage/lib"
+	    #	      ;
+		
+		
+	 	alias test_dependencies
+	    	: "]] .. properties.boost.current["path"] 
+	    	      .. [[/libs/test/build//boost_unit_test_framework" 	    	  
+	        :
+	    	;	    	
+	    	
+		#unit-test test
+		#    : # boost_unit_test_framework 
+		#    test_dependencies
+		#    #library
+		#      
+		#      ../Source/Test.cpp	
+		#      : <search>"]] .. properties.boost.current["path"] 
+	   	      .. [[/stage/lib"	    
+		#    ;
+		
+		unit-test test
+		    : library		      
+		      test_dependencies
+		      ../Source/Test.cpp			      
+		    ;
+		
+	  	exe Main 
+	  		:	library #library_sources
+	  			#library_dependencies
 	  			../Source/Main.cpp
 	  		;
-	  ]]
+	  ]],
+	  Shared = True
 	};
 		
 function build()
 	print("I is build method.\n");
 	run("BoostBuild", jamArgs)
 end
+
+--function test()	
+--	run("BoostBuild", { CmdLine="test"} );
+--end
 
 function install()
 	print("Yo yo yo!  I is an installer!");
