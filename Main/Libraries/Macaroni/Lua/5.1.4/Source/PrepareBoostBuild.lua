@@ -29,8 +29,8 @@ project
 		<include>]] .. includePath .. [[
 	;
 	
-alias libSources
-	:	
+alias library
+	: [ path.glob-tree ]] .. includePath .. [[ : *.c : luac.c lua.c ]
 	;
 	]]);
     writer:Close();    
