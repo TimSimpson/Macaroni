@@ -1,5 +1,5 @@
 namespace boost
 {
-	class intrusive_ptr { ~hfile=<boost/shared_ptr.hpp> }
+	class intrusive_ptr { ~hfile=<boost/intrusive_ptr.hpp> }
 	class shared_ptr { ~hfile=<boost/shared_ptr.hpp> }
 }

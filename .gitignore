@@ -5,3 +5,4 @@ target
 *.suo
 *.vcproj.*.user
 .vagrant
+.eprj
