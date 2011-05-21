@@ -52,7 +52,7 @@ public:
 								 bool overrideIfExist = false);
 	
 	void CopyToDifferentRootPath(const PathPtr & rootPath, bool overrideIfExist = false);
-
+		
 	/** Creates the directory defined by this path, if it doesn't exist. */
 	void CreateDirectory() const;
 
@@ -107,6 +107,10 @@ public:
 
 	/** Creates a new path but forces a slash to appear. */
 	PathPtr NewPathForceSlash(const std::string & name) const;
+
+	/** Renames the file using only the relative part of the file path (in 
+	    other words, the root path stays the same). */
+	void RenameRelative(const std::string & relativePath);
 
 	/** The path in String form. */
 	std::string ToString() const;

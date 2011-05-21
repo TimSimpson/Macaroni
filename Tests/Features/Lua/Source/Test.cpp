@@ -7,11 +7,9 @@
 #include <string>
 #include <boost/shared_ptr.hpp>
 
-//extern "C" 
-//{	
-	#include <lauxlib.h>
-	#include <lualib.h>
-//}
+#include <lauxlib.h>
+#include <lualib.h>
+
 #include <Macaroni/Tests/Lua/_.h>
 #include <Macaroni/Tests/Lua/Polo.h>
 #include <Macaroni/Tests/Lua/PoloLuaMetaData.h>
@@ -63,9 +61,11 @@ BOOST_AUTO_TEST_CASE(MyTestCase)
 	PoloPtr blah(new Polo());
 	blah->SetName("Arthur Mc. Barthur");
 	
+	BOOST_CHECK_EQUAL(1, blah->GetReferenceCount());
+	
 	lua_State * L = luaL_newstate();
 	luaL_openlibs(L);	
-	openOurLibs(L);
+	openOurLibs(L);	
 	int error = luaL_loadbuffer(L, LUA_CODE.c_str(), LUA_CODE.size(), "Embedded Code")
 		|| lua_pcall(L, 0, 0, 0);
 	if (error) 
@@ -77,13 +77,17 @@ BOOST_AUTO_TEST_CASE(MyTestCase)
 	
 	// Now, call the function "callMe" which was not run originally, but 
 	// exists in the LuaState.
+	
 	lua_getglobal(L, "callMe");
 	PoloLuaMetaData::PutInstanceOnStack(L, blah);
 	lua_call(L, 1, 0);
 	
-	BOOST_CHECK_EQUAL("Modified in LuA", blah->GetName());
+	BOOST_CHECK_EQUAL(true, blah->GetReferenceCount() >= 1 
+	                        && blah->GetReferenceCount() <= 2);
+	
+	BOOST_CHECK_EQUAL("Modified in Lua", blah->GetName());
 	
 	lua_close(L);
-
-	throw new std::exception();	
+	
+	BOOST_CHECK_EQUAL(1, blah->GetReferenceCount());
 }

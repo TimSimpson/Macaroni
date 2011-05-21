@@ -323,6 +323,13 @@ PathPtr Path::NewPathForceSlash(const std::string & name) const
 	return PathPtr(new Path(this->rootPath, newPath));
 }
 
+void Path::RenameRelative(const std::string & relativePath)
+{
+	boost::filesystem::path newPath = rootPath / relativePath;
+	boost::filesystem::rename(path, newPath);
+	this->path = newPath;
+}
+
 bool Path::stringBeginsWith(const std::string & str, const std::string begins)
 {
 	if (str.length() < begins.length())

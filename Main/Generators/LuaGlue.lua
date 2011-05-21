@@ -191,7 +191,7 @@ LuaGlueGenerator =
 				rtn.get = function(var, index)
 					return "int " .. var .. "(luaL_checkint(L, " .. index .. "));"; 
 				end;
-				rtn.put = function(var) return "lua_pushint(L, " .. var .. ");" end;
+				rtn.put = function(var) return "lua_pushinteger(L, " .. var .. ");" end;
 			else
 				error('The given type "' .. tostring(type) .. '" cannot be manipulated.', 2);
 			end
@@ -356,6 +356,7 @@ LuaGlueGenerator =
 		local funcs = self:findAllFunctionsInNode(args.originalNode);	
 		t[#t + 1] = "struct " .. args.helperName .. "";
 		t[#t + 1] = "{";
+		t[#t + 1] = self:createHelperGc(args);
 		t[#t + 1] = self:createHelperIndex(args);
 		for i = 1, #funcs do
 			local node = funcs[i];
@@ -366,6 +367,20 @@ LuaGlueGenerator =
 		return table.concat(t, "\n\t");	
 	end,
 
+	createHelperGc = function(self, args)
+		self:checkArgumentIsNodeGeneratorType("args", args);
+		
+		local metaNodeName = self:getMetaNode(args.originalNode).FullName;
+		local t = { }
+		t[#t + 1] = "\tstatic int __luaGc(lua_State * L)";
+		t[#t + 1] = "\t{";	
+		t[#t + 1] = "\t\t" .. args.referenceType.FullName .. " & ptr = " .. metaNodeName ..  "::GetInstance(L, 1);";
+		t[#t + 1] = "\t\tptr.~" .. args.referenceType.Name .. "();";
+		t[#t + 1] = "\t\treturn 0;"
+		t[#t + 1] = "\t}";	
+		return table.concat(t, "\n\t");	
+	end,	
+	
 	-- TODO: Move this into the ClassWrapper
 	createHelperIndex = function(self, args)
 		self:checkArgumentIsNodeGeneratorType("args", args);
@@ -379,9 +394,7 @@ LuaGlueGenerator =
 		t[#t + 1] = "\t\treturn " .. metaNodeName .. "::Index(L, ptr, index);"
 		t[#t + 1] = "\t}";	
 		return table.concat(t, "\n\t");	
-	end,
-	
-	
+	end,	
 	
 	getMetaNode = function(self, node)
 		local metaNode = self.RootNode:FindOrCreate(node.FullName .. "LuaMetaData");
@@ -415,6 +428,7 @@ LuaGlueGenerator =
 		blocks = function(self)
 			local blockHome = self.metaNode:FindOrCreate("functionPtrStructBlock");
 			log:Write("Going to create block for function pointer struct.");
+			local helperGc = self.parent:createHelperGc(self);
 			local helperIndex = self.parent:createHelperIndex(self);
 			local wrappedFunctions = self.parent:wrapMethods(self);
 			local memberText = {};
@@ -449,7 +463,7 @@ namespace
 	{
 	]] .. self:luaLRegConcat(memberText, ",\n\t")	.. [[
 		//{"__eq", NodeLuaFunctions::__eq},
-		//{"__gc", NodeLuaFunctions::luaGc},
+		{"__gc", ]] .. self.helperName .. [[::__luaGc},
 		{"__index", ]] .. self.helperName .. [[::__index},
 		//{"__tostring", NodeLuaFunctions::__tostring},
 		{0, 0}

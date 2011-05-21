@@ -2,7 +2,7 @@
 ~import std::string;
 ~import Macaroni::Tests::Lua::Polo;
 ~import Macaroni::Tests::Lua::PoloPtr;
-~import boost::shared_ptr;
+~import boost::intrusive_ptr;
 
 // Plain old Lua Object
 
@@ -10,7 +10,7 @@ namespace Macaroni::Tests::Lua
 {
 	class Polo {};
 	
-	typedef shared_ptr<Polo> PoloPtr;
+	typedef intrusive_ptr<Polo> PoloPtr;
 
 	class Polo
 	{
@@ -20,16 +20,46 @@ namespace Macaroni::Tests::Lua
 		]
 
 		private string name;
+		private int refCount;
+		
+		public Polo()
+		: name(""), 
+		  refCount(0)
+		{		
+		}
 
 		public const string & GetName() const
 		{
 			return name;
+		}			
+		
+		public inline int GetReferenceCount() const
+		{
+			return refCount;
+		}		
+		
+		public ~global void intrusive_ptr_add_ref(Polo * p)
+		{
+			p->refCount ++;
 		}
+		
+		friend intrusive_ptr_add_ref;
 
+		public ~global void intrusive_ptr_release(Polo * p)
+		{
+			p->refCount --;
+			if (p->refCount <= 0)
+			{
+				delete p;	
+			}			
+		}
+	
+		friend intrusive_ptr_release;
+	
 		public void SetName(const string & newName)
 		{
 			this->name = newName;
-		}
+		}	
 	};
 	
 } //end ns

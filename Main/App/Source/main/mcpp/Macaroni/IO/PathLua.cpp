@@ -199,6 +199,11 @@ END_NAMESPACE2
 			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::copyToDifferentRootPath);
 			return 1;
 		}
+		else if (index == "ClearDirectoryContents")
+		{
+			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::clearDirectoryContents);
+			return 1;
+		}
 		else if (index == "CreateDirectory")
 		{	
 			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::createDirectory);
@@ -280,8 +285,22 @@ END_NAMESPACE2
 			lua_pushstring(L, relativePath.c_str());
 			return 1;
 		}
+		else if (index == "RenameRelative")
+		{
+			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::renameRelative);
+			return 1;	
+		}
 		lua_pushnil(L);			
 		return 1;
+		CATCH
+	}
+
+	static int clearDirectoryContents(lua_State * L)
+	{
+		TRY 
+			PathPtr ptr = getInstance(L);
+			ptr->ClearDirectoryContents();
+			return 0;
 		CATCH
 	}
 
@@ -325,6 +344,16 @@ END_NAMESPACE2
 			PathPtr newPath = ptr->NewPathForceSlash(name);
 			LUAGLUE_REGISTRATIONCLASSNAME::PutInstanceOnStack(L, newPath);
 			return 1;
+		CATCH
+	}
+
+	static int renameRelative(lua_State * L)
+	{
+		TRY 
+			PathPtr ptr = getInstance(L);
+			std::string newRelative(luaL_checkstring(L, 2));
+			ptr->RenameRelative(newRelative);
+			return 0;
 		CATCH
 	}
 
