@@ -26,6 +26,7 @@ output = "GeneratedSource"
 --dependency { group="Macaroni", name="CppStd", version="1.0.0.0" }
 dependency {group="Macaroni", name="Boost-filesystem", version="1.46.1"}
 dependency {group="Macaroni", name="Boost-regex", version="1.46.1"}
+dependency {group="Macaroni", name="Lua", version="5.1.4"}
         
 function generate()    
     run "Cpp"

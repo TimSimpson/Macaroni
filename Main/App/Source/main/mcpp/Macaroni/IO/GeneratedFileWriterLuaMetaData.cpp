@@ -4,9 +4,9 @@
 #include "GeneratedFileWriterLuaMetaData.h"
 
 //extern "C" {
-	#include "../../Lua/lua.h"
-	#include "../../Lua/lauxlib.h"
-	#include "../../Lua/lualib.h"
+	#include <lua.h>
+	#include <lauxlib.h>
+	#include <lualib.h>
 //}
 
 

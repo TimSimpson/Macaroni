@@ -2,8 +2,7 @@ require "Macaroni.IO.GeneratedFileWriter";
 require "Macaroni.Model.Library";
 require "Macaroni.IO.Path";
 
-function copyCFilesToCppFiles(src, dst)	
-	dst:ClearDirectoryContents()
+function copyCFilesToCppFiles(src, dst)		
 	local srcFiles = src:GetPaths([[\.(c|h)?$]])
 	for i = 1, #srcFiles do
 		local fp = srcFiles[i];
@@ -39,6 +38,10 @@ lua =
 		]]);
 	end
 	return path;
+end
+
+function Generate(library, path)
+	path:ClearDirectoryContents()
 end
 
 function Build(library, sources, outputPath, installPath, extraArgs)

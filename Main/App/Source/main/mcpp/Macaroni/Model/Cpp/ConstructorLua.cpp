@@ -12,9 +12,9 @@
 #include "VariableAssignmentLua.h"
 
 //MARIO extern "C" {
-	#include "../../../Lua/lua.h"
-	#include "../../../Lua/lauxlib.h"
-	#include "../../../Lua/lualib.h"
+	#include <lua.h>
+	#include <lauxlib.h>
+	#include <lualib.h>
 //MARIO }
 
 

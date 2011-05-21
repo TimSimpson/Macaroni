@@ -24,6 +24,11 @@ jamArgs =
 	Shared = True
 };
 	
+function generate()
+	run("CopySource")
+    run("InterfaceMh")
+end
+
 function build()
 	run("CopySource");
 	run("BoostBuild", jamArgs)
@@ -31,4 +36,5 @@ end
 
 function install()
 	run("BoostBuild", jamArgs);
+	run("InterfaceMh")
 end

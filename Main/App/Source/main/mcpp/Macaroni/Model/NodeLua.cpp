@@ -2,9 +2,9 @@
 #define MACARONI_MODEL_SCOPELUAREGISTER_CPP
 
 //MARIO extern "C" {
-	#include "../../Lua/lua.h"
-	#include "../../Lua/lauxlib.h"
-	#include "../../Lua/lualib.h"
+	#include <lua.h>
+	#include <lauxlib.h>
+	#include <lualib.h>
 //MARIO }
 #include "AttributeTableLua.h"
 #include "../Exception.h"
