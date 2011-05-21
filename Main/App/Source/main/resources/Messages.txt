@@ -46,6 +46,7 @@ CppParser.Function.SemicolonExpected=Semicolon expected following function defin
 CppParser.Global.AllowedForClassesOnly=The global keyword is allowed only within class definitions.
 CppParser.Import.NameNotFound=Identifier expected following keyword "import."
 CppParser.Import.SemicolonExpected=Expected ';' following import identifier.
+CppParser.Operator.InvalidOperator=The text following keyword "operator" does not represent an operator that can be overloaded.
 CppParser.Namespace.NoID1=Identifier expected following namespace keyword.
 CppParser.Namespace.NoEndingBrace=Syntax error while searching for '}' to complete sandwhich started on line {0}.
 CppParser.Namespace.NoOpeningBrace=Syntax error after identifier keyword; expected '{'.

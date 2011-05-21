@@ -36,19 +36,30 @@ class Amigo
 	{		
 	}
 	
-	/*
+		
 	public Amigo & operator=(const Amigo & other) 
 	{
-		if (this != other) 
+		if (this != &other) 
 		{
 			this->SetX(other.GetX());
 			this->SetY(other.GetY());
 		}
 		return *this;
-	}*/	
+	}
 	
 	public ~Amigo()
 	{
+	}
+	
+	public bool operator== (const Amigo & other) const
+	{
+		return this->x == other.x 
+			&& this->y == other.y;
+	}
+	
+	public bool operator != (const Amigo & other) const
+	{
+		return ! this->operator==(other);		
 	}
 	
 	public static Amigo * Create()

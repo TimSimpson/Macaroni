@@ -177,12 +177,16 @@ public:
 		return Source::Create(fileName, line + plusLines, column + plusColumns);
 	}
 
-	inline void ConsumeWhitespace()
+	// Consumes whitespace. Returns amount consumed.
+	inline int ConsumeWhitespace()
 	{
-		while(!Finished() && *itr <= 32)
+		int consumed = 0;
+		while(!Finished() && IsWhiteSpace())
 		{
+			consumed ++;
 			Advance(1);
 		}
+		return consumed;
 	}
 
 	inline bool Finished()
@@ -216,6 +220,11 @@ public:
 		return *string == '\0';
 	}
 	
+	inline bool IsWhiteSpace()
+	{
+		return *itr <= 32;
+	}
+
 	static void IsTests()
 	{
 		std::string ok("12ComplexWord");
@@ -724,11 +733,20 @@ public:
 				itr.Advance(2);
 				consumed += 2;
 			}
+			else if ((simpleNameLength = OperatorName(itr)) > 0)
+			{
+				consumed += simpleNameLength;
+				itr.Advance(simpleNameLength);
+				// We've seen an operator.  A name like
+				// Macaroni::operator +::Parser is not valid, so once we've
+				// seen one of these exit.
+				return consumed; 
+			}
 			else if ((simpleNameLength = SimpleName(itr)) > 0)
 			{
 				consumed += simpleNameLength;
 				itr.Advance(simpleNameLength);
-			}
+			}			
 			else
 			{
 				return consumed;
@@ -981,7 +999,13 @@ public:
 		std::stringstream ss;
 		for(int i = 0; i < length; i ++)
 		{
-			ss << itr.Current();
+			// operator overloads may put spaces here...
+			// For the purposes of Macaroni generators, the canonical version
+			// should be used.
+			if (!itr.IsWhiteSpace()) 
+			{
+				ss << itr.Current();
+			}			
 			itr.Advance(1);
 		}
 		result = ss.str();
@@ -1764,6 +1788,101 @@ public:
 		return true;
 	}
 
+	// Parses "operator blah", where blah is the operator being overloaded.
+	// Its necessary to do it this way because "operatorFunctions" is a valid
+	// name but "operator+" refers to "operator +".  So we have to actually
+	// check the operator and the keyword here.
+	static int OperatorName(Iterator & itr)
+	{		
+		Iterator myItr = itr;
+		if (!myItr.ConsumeWord("operator"))
+		{
+			return 0;			
+		}
+		int consumed = 8;
+		bool committed = myItr.IsWhiteSpace();
+		consumed += myItr.ConsumeWhitespace();
+		if (OverloadableOperator(myItr, consumed))
+		{
+			return consumed;
+		}
+		else if (committed)
+		{
+			throw ParserException(myItr.GetSource(),
+				Messages::Get("CppParser.Operator.InvalidOperator")); 
+		}
+		else
+		{
+			return 0;
+		}
+	}
+
+	// If the itr lies at an overloadable operator, parses through it and
+	// returns the consumed count, then returns true.  Otherwise returns false.
+	static bool OverloadableOperator(Iterator & itr, int & consumed)
+	{
+		int consume = 0;
+		if (itr.ConsumeWord("new[]"))
+		{
+			consume = 5;
+		}
+		else if (itr.ConsumeWord("new"))
+		{
+			consume = 3;
+		}		
+		else if (itr.ConsumeWord("delete[]"))
+		{
+			consume = 8;
+		}
+		else if (itr.ConsumeWord("delete"))
+		{
+			consume = 6;
+		}	
+		else if (itr.ConsumeWord("[]")
+			|| itr.ConsumeWord("->")
+			|| itr.ConsumeWord("==")
+			|| itr.ConsumeWord("!=")
+			|| itr.ConsumeWord(">=")
+			|| itr.ConsumeWord("<=")
+			|| itr.ConsumeWord("&&")
+			|| itr.ConsumeWord("||")
+			|| itr.ConsumeWord("++")
+			|| itr.ConsumeWord("--")
+			|| itr.ConsumeWord("+=")
+			|| itr.ConsumeWord("-=")
+			|| itr.ConsumeWord("*=")
+			|| itr.ConsumeWord("/=")
+			|| itr.ConsumeWord("<<")
+			|| itr.ConsumeWord(">>"))
+		{
+			consume = 2;
+		}
+		else if (itr.ConsumeChar('+')
+			|| itr.ConsumeChar('-')
+			|| itr.ConsumeChar('*')
+			|| itr.ConsumeChar('/')
+			|| itr.ConsumeChar('%')
+			|| itr.ConsumeChar('^')
+			|| itr.ConsumeChar('|')
+			|| itr.ConsumeChar('&')
+			|| itr.ConsumeChar('&')
+			|| itr.ConsumeChar('~')			
+			|| itr.ConsumeChar('<')
+			|| itr.ConsumeChar('>')
+			|| itr.ConsumeChar('!')
+			|| itr.ConsumeChar('=')
+			)
+		{
+			consume = 1;
+		}		
+		else
+		{
+			return false;
+		}
+		consumed += consume;
+		return true;
+	}
+
 	// Looks for a number beginning at the iterator exactly.
 	// If it sees ANYTHING in the form "1" or "." etc it will advance
 	// the iterator.  It returns IMMEDIETELY following the number.
@@ -1997,8 +2116,13 @@ public:
 	/** Attempts to parse a variable. Returns false if it can't.  Will move
 	 * itr.  If it finds variable type info followed by a complex name it
 	 * will return the typeInfo and name.  Otherwise an exception gets thrown.
-	 * Does not parse the semicolon though, just stops after the name. */
-	bool Variable(Iterator & itr, Access & access, bool & _friend, bool & global, bool & isInline, bool & isStatic, TypePtr & type, std::string & varName)
+	 * Does not parse the semicolon though, just stops after the name. 
+	 * [ WARNING: This name is misleading.  It doesn't fully parse the var,
+	 *   just the first part. ]
+	 */
+	bool Variable(Iterator & itr, Access & access, bool & _friend, 
+				  bool & global, bool & isInline, bool & isStatic, 
+				  TypePtr & type, std::string & varName)
 	{
 		using namespace Macaroni::Model::Cpp;
 
@@ -2037,6 +2161,7 @@ public:
 		//	return false;
 		//}
 
+		if (itr.ConsumeWord(""))
 		// Now we need to see a name.
 		if (!ConsumeComplexName(itr, varName))
 		{
