@@ -10,8 +10,8 @@ class Class;
 END_NAMESPACE
 
 #include "Access.h"
-#include <Macaroni/Model/Cpp/_.h>
 #include <Macaroni/Model/Cpp/ClassParent.h>
+#include <Macaroni/Model/Cpp/_.h>
 #include <string>
 #include <vector>
 #include <boost/shared_ptr.hpp>
@@ -21,6 +21,7 @@ END_NAMESPACE
 #include "Scope.h"
  
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
+
 
 class Class : public Scope
 {
@@ -35,12 +36,15 @@ public:
 	
 	void AddGlobal(NodePtr node);
 	
-	void AddParent(NodePtr parent, Access access, bool _virtual);
+	void AddParent(TypePtr parent, Access access, bool _virtual);
 
 	virtual bool canBeChildOf(const Member * other) const;
 
 	virtual bool DoesDefinitionReference(NodePtr node) const;
 	
+	/** Classes which this Class inherits from. */
+	ClassParentListPtr GetParents() const;
+
 	/** A list of Nodes who are "friends" of this class.  Friends with benefits,
 	 * that is.  These nodes have intricate knowledge of this classes inner-
 	 * most secrets. */
@@ -68,13 +72,15 @@ protected:
 	Class(Library * library, Node * home, Model::NodeListPtr importedNodes, ReasonPtr reason);
 private:
 
+	// Awesome, all of these are memory leaks.  No wonder I used to get things
+	// done quicker!
 	NodeListPtr friends;
 
 	NodeListPtr globals;
 
 	NodeListPtr imports;
-
-	ClassParentList parents;
+	
+	Macaroni::Model::Cpp::ClassParentListPtr parents;
 	
 };
 

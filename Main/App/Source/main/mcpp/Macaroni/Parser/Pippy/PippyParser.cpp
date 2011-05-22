@@ -629,12 +629,15 @@ public:
 
 		NodePtr oldScope = currentScope;
 		currentScope = currentScope->FindOrCreate(name, hFilesForNewNodes);
-		Class::Create(library, currentScope, importedNodes,  
-			Reason::Create(CppAxioms::ClassCreation(), newItr.GetSource()));
+		ClassPtr newClass = 
+			Class::Create(library, currentScope, importedNodes,  
+				Reason::Create(CppAxioms::ClassCreation(), newItr.GetSource()));
+
+		ClassParents(newItr, newClass);
 
 		ConsumeWhitespace(newItr);   
 
-		SourcePtr firstBraceSrc = itr.GetSource();
+		SourcePtr firstBraceSrc = newItr.GetSource();
 
 		if (!newItr.ConsumeChar('{'))
 		{
@@ -664,6 +667,39 @@ public:
 		
 		itr = newItr; // Success! :)
 		currentScope = oldScope;
+		return true;
+	}
+
+	bool ClassParents(Iterator & itr, ClassPtr & newClass)
+	{
+		using namespace Macaroni::Model::Cpp;
+
+		itr.ConsumeWhitespace();
+		if (!itr.ConsumeChar(':')) {
+			return false;
+		}		
+		do 
+		{
+			itr.ConsumeWhitespace();
+			Access access = AccessKeyword(itr);
+			if (access == Access_NotSpecified)
+			{
+				access = Access_Private;
+			}			
+			itr.ConsumeWhitespace();
+
+			bool _virtual = itr.ConsumeWord("virtual");
+			itr.ConsumeWhitespace();
+
+			TypePtr type;
+			if (!Type(itr, type))
+			{
+				throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.Class.Inheritance.NoType"));
+			}
+			newClass->AddParent(type, access, _virtual);
+			itr.ConsumeWhitespace();
+		} while (itr.ConsumeChar(','));
 		return true;
 	}
 	

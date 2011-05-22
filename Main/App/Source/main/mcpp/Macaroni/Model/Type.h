@@ -21,6 +21,8 @@ struct TypeModifiers
 	}
 };
 
+//TODO: This HAS to start living in the Context.  It is a memory leak... can't
+// believe I didn't notice it at the time.
 /** Represents a Type.  A type does not exist in the Node system, but does 
  * point to a Node. 
  * This may also store a list of TypeArguments, where each element points to

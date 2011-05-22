@@ -6,3 +6,4 @@ target
 *.vcproj.*.user
 .vagrant
 .eprj
+Main/App/Debug*

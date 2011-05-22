@@ -3,8 +3,12 @@
 
 #include "../ME.h"
 #include <boost/shared_ptr.hpp>
+#include <vector>
 
 BEGIN_NAMESPACE2(Macaroni, Model)
+
+// TODO: This is a horrible memory leak.  This thing needs to be connected to
+// the Context somehow with an intrusive ptr.
 
 class Type;
 typedef boost::shared_ptr<Type> TypePtr;

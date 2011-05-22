@@ -30,6 +30,7 @@ CppParser.Attribute.ValueExpectedFollowingNodeName=No attribute value was found 
 CppParser.Class.NoID1=Identifier expected following class keyword.
 CppParser.Class.NoOpeningBrace=Expected '{' following class signature.
 CppParser.Class.NoEndingBrace=Expected '}' at this point to end class definition.
+CppParser.Class.Inheritance.NoType=Expected a type to be specified as inheritance parent.
 CppParser.CodeBlock.Expected=Expected to see a code block (i.e. "{ blah blah }").
 CppParser.Constructor.ArgumentListExpected=Constructor argument list expected here.
 CppParser.Constructor.ClassNameExpected=Class name expected following destructor symbol '~'.

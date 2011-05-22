@@ -1,6 +1,7 @@
 #ifndef MACARONI_MODEL_CPP_CLASS_CPP
 #define MACARONI_MODEL_CPP_CLASS_CPP
 
+
 #include "Class.h"
 #include "Function.h"
 #include "../../Exception.h"
@@ -28,7 +29,8 @@ Class::Class(Library * library, Node * parent, NodeListPtr importedNodes, Reason
 :Scope(library, parent, "Class", reason), 
  friends(new NodeList()), 
  globals(new NodeList()), 
- imports(importedNodes)
+ imports(importedNodes),
+ parents(new ClassParentList())
 {
 }
 
@@ -37,10 +39,10 @@ Class::~Class()
 	
 }
 
-void Class::AddParent(NodePtr parent, Access access, bool _virtual)
+void Class::AddParent(TypePtr parent, Access access, bool _virtual)
 {
 	Class * const me = this;
-	parents.push_back(ClassParent(me, parent.get(), access, _virtual));
+	parents->push_back(ClassParent(me, parent, access, _virtual));
 }
 
 void Class::AddFriend(NodePtr node)
@@ -83,6 +85,11 @@ ClassPtr Class::Create(LibraryPtr library, NodePtr parent, NodeListPtr importedN
 bool Class::DoesDefinitionReference(NodePtr node) const
 {
 	return this->Member::DoesDefinitionReference(node);
+}
+
+ClassParentListPtr Class::GetParents() const
+{
+	return parents;
 }
 
 NodeListPtr Class::GetFriendNodes() const

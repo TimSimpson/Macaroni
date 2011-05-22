@@ -2,6 +2,7 @@
 #define MACARONI_MODEL_CPP_CLASSLUA_CPP
 
 #include "ClassLua.h"
+#include <Macaroni/Model/Cpp/ClassParentListLuaMetaData.h>
 #include <Macaroni/Model/LibraryLua.h>
 #include "../NodeLua.h"
 #include "../MemberLua.h"
@@ -104,6 +105,11 @@ END_NAMESPACE
 		{
 			NodeListPtr list = ptr->GetImportedNodes();
 			NodeListLuaMetaData::PutInstanceOnStack(L, list);
+		}
+		else if (index == "Parents")
+		{
+			ClassParentListPtr list = ptr->GetParents();
+			ClassParentListLuaMetaData::PutInstanceOnStack(L, list);
 		}
 		else 
 		{

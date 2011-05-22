@@ -107,13 +107,13 @@ LuaGlueGenerator =
 	Creators = nil,
 	
 	LuaWrapperArguments = function(self, node)
+		-- Given a node, returns a table with info on how to wrap it.
 		log:Write("Creating wrapper args for " .. tostring(node.FullName) .. ".");
 		local luaClass = "Macaroni::Lua::LuaClass";--RootNode:FindOrCreate("Macaroni::Lua::LuaClass");
 		local referenceTypeNode = "Macaroni::Lua::LuaClass";
 		local rtn = {};	
 		rtn.node = node;
 		local attr = node.Attributes[luaClass];
-		log:Write("Hope there ain't no errors.");
 		if (attr == nil) then
 			error("The given node " .. tostring(node.Fullname) ..
 				" does not have an attribute " .. luaClass .. 
@@ -136,8 +136,20 @@ LuaGlueGenerator =
 			error('While wrapping node ' .. tostring(node.FullName) ..
 				': "ReferenceType" must refer to a Node.');				
 		end
+		rtn.glueAlreadyExists = false
 		rtn.referenceType = refTypeAttrValue.ValueAsNode;
-		rtn.metaNode = self.RootNode:FindOrCreate(rtn.node.FullName .. "LuaMetaData");
+		existingMetaNode = args["LuaGlueClass"];
+		log:Write("LuaGlueClass = " .. tostring(existingMetaNode));
+		if (existingMetaNode == nil) then
+			rtn.metaNode = self.RootNode:FindOrCreate(rtn.node.FullName .. "LuaMetaData");
+		else
+			if (existingMetaNode.IsNode == false) then
+				error('While wrapping node ' .. tostring(node.FullName) ..
+					  ': "LuaGlueClass" must refer to a Node.');
+			end
+			rtn.glueAlreadyExists = true
+			rtn.metaNode = existingMetaNode.ValueAsNode;
+		end
 		return rtn;	
 	end,
 	
@@ -148,6 +160,17 @@ LuaGlueGenerator =
 		local rtn = {};
 		local success, args = pcall(function() return self:LuaWrapperArguments(node) end);
 		if (success) then	
+			-- imports = self.metaNode.Member.ImportedNodes;
+			-- alreadyImported = false
+			-- for i in #imports do
+			-- 	if imports[i].FullName == args.metaNode.FullName then
+			-- 		alreadyImported = true
+			-- 		i = #imports + 1
+			-- 	end
+			-- end
+			-- if not alreadyImported then
+			-- 	imports[#imports + 1] = args.metaNode 
+			-- end
 			rtn.referenceType = args.referenceType;	
 			rtn.get = function(var, index) 
 				return args.referenceType.FullName .. " & " .. var .. " = "  ..
@@ -192,6 +215,11 @@ LuaGlueGenerator =
 					return "int " .. var .. "(luaL_checkint(L, " .. index .. "));"; 
 				end;
 				rtn.put = function(var) return "lua_pushinteger(L, " .. var .. ");" end;
+			elseif (node.FullName == self.Creators.boolNode.FullName) then
+				rtn.get = function(var, index)
+					return "bool " .. var .. "((bool) luaL_checkboolean(L, " .. index .. "));"; 
+				end;
+				rtn.put = function(var) return "lua_pushboolean(L, (int)" .. var .. ");" end;
 			else
 				error('The given type "' .. tostring(type) .. '" cannot be manipulated.', 2);
 			end
@@ -260,7 +288,7 @@ LuaGlueGenerator =
 		return rtn;
 	end,
 
-	-- Returns a table with info on the method
+	-- Returns a table with info on the method being wrapped.
 	wrapMethod = function(self, methodOverloadNode) 
 		check(self ~= nil, 'Argument "self" missing!');
 		check(methodOverloadNode ~= nil, 'Argument "methodNode" missing!');
@@ -349,6 +377,10 @@ LuaGlueGenerator =
 	end,
 	
 	wrapMethods = function(self, args)
+		-- Given a node returns a helper struct containing methods which
+		-- call the class represented by the node lua style.
+		-- So if the class has "const std::string GetName()" that gets wrapped
+		-- as "int GetName(lua_State * L)" which calls the same method.
 		self:checkArgumentIsNodeGeneratorType("args", args);
 				
 		local t = { }				
@@ -403,6 +435,10 @@ LuaGlueGenerator =
 	
 	ClassWrapper = { -- like a nested class, this has the helper methods called by Lua
 		new = function(parent, node, referenceType)
+			-- "parent" is some magical factory LuaGlue creator object in 
+			--   charge of this one
+			-- "node" is the thing we're actually wrapping
+			-- "referenceType" is what that node uses as its reference type in Lua.			
 			check(parent ~= nil, "Parent instance must be passed to ClassWrapper.");
 			check(node ~= nil, 'Argument "node" may not be nil.');	
 			check(node.Member ~= nil, 'Argument "node.Member" may not be nil.');	
@@ -426,6 +462,8 @@ LuaGlueGenerator =
 		end,				
 		
 		blocks = function(self)
+			-- Adds a bunch of blocks to the Lua Glue class node.
+			-- Its easier to add these as blocks.
 			local blockHome = self.metaNode:FindOrCreate("functionPtrStructBlock");
 			log:Write("Going to create block for function pointer struct.");
 			local helperGc = self.parent:createHelperGc(self);
@@ -505,6 +543,12 @@ namespace
 			for i = 1, #otherImports do
 				local otherImport = otherImports[i];
 				imports[#imports + 1] = otherImport;
+				success, args = pcall(function() 
+					return self.parent:LuaWrapperArguments(otherImport);
+				end)
+				if success then
+					imports[#imports + 1] = args.metaNode;
+				end				
 			end
 			
 			local metaClass = Class.Create(CurrentLibrary, self.metaNode, imports, self.reason);    			    
@@ -724,7 +768,7 @@ namespace
 	
 	wrapClass = function(self, args)		
 		check(args ~= nil, 'Argument "args" may not be nil.');
-		check(args.node ~= nil, 'Argument "args.node" may not be nil.');
+		check(args.node ~= nil, 'Argument "args.node" may not be nil.');		
 		local wrapper = self.ClassWrapper.new(self, args.node, args.referenceType);
 		wrapper:wrapClass();
 	end
@@ -755,9 +799,18 @@ function Generate(library, path, arguments)
     log:Write("Found " .. #(classes) .. " classes with attributes...");
     log:Write("BEGIN LUA GLUE");
     for i, class in ipairs(classes) do
+		log:Write("Wrapping " .. tostring(class) .. ".");
 		local wrapArgs = generator:LuaWrapperArguments(class);
-		log:Write("MIDDLE ...");
-        generator:wrapClass(wrapArgs)
+		log:Write("WTF:" .. tostring(wrapArgs));
+		for k, v in pairs(wrapArgs) do
+			log:Write("wrapArgs   " .. tostring(k) .. "=" .. tostring(v));
+		end
+		if wrapArgs.glueAlreadyExists == false then
+			log:Write("Going to wrap.");
+			generator:wrapClass(wrapArgs)
+		else
+			log:Write("Skipping wrap.");
+		end
     end
     --_.each(classes, wrapClass);
     log:Write("END LUA GLUE");

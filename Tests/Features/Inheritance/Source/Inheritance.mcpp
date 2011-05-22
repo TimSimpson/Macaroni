@@ -1,0 +1,56 @@
+
+~import A;
+~import B;
+
+	
+class A
+{
+	public char MethodA() const
+	{
+		return 'a';
+	}
+}
+
+class B: public A
+{
+	public char MethodB() const
+	{
+		return 'b';
+	}
+}
+
+class VB: public virtual A
+{
+	public char MethodVB() const
+	{
+		return 'x';
+	}
+}
+
+class C: public A
+{
+	public char MethodC() const
+	{
+		return 'c';
+	}
+}
+
+class VC: public virtual A
+{
+	public char MethodVC() const
+	{
+		return 'y';
+	}
+}
+
+class BC
+: public B, public C
+{
+	
+}
+
+
+class VBC
+: public VB, public VC
+{
+}

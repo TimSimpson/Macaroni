@@ -5,29 +5,38 @@
 ~import boost::intrusive_ptr;
 ~import Macaroni::Model::Node;
 ~import Macaroni::Model::NodePtr;
+~import Macaroni::Model::Type;
+~import Macaroni::Model::TypePtr;
 ~import std::vector;
 
 namespace Macaroni::Model::Cpp
 {
     
 class ClassParent {};
-typedef intrusive_ptr<ClassParent> ClassParentPtr;
+typedef boost::intrusive_ptr<ClassParent> ClassParentPtr;
 
 typedef vector<ClassParent> ClassParentList;
-typedef intrusive_ptr<ClassParentList> ClassParentListPtr;
+typedef boost::shared_ptr<ClassParentList> ClassParentListPtr;
 
 class ClassParent
-{ 
-	@LuaClass[]
+{  
+	// Because Macaroni can't generate a light dependency for Class, since it
+	// has an Hfile, that forces me to hand right this class for now.
+	~hfile = <Macaroni/Model/Cpp/ClassParent.h>
+
+	@LuaClass 
+	[
+		ReferenceType = ClassParentPtr,
+	]
 
 	friend Class;
 
 	private Access access;
 	private Class * child;
 	private bool _virtual;
-	private Node * parent;
+	private TypePtr parent; // Memory leak! Change to point eventually.
    
-	private ClassParent(Class * node, Node * parent, Access access, bool _virtual)
+	private ClassParent(Class * node, TypePtr parent, Access access, bool _virtual)
 	:	access(access),
 		child(node),
 		parent(parent),
@@ -57,12 +66,12 @@ class ClassParent
 		return access;
 	}
 
-	public inline Class * GetChild() const
+	public inline ClassPtr GetChild() const
 	{
-		return child;
+		return ClassPtr(child);
 	}
 
-	public Node * GetParent() const
+	public TypePtr GetParent() const
 	{
 		return parent;
 	}

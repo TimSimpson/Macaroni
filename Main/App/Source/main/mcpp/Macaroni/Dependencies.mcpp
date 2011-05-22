@@ -1,4 +1,5 @@
 // This file contains foward refs to all types within the project.
+~import Macaroni::Lua::LuaClass;
 
 // C std
 class system { ~hfile=<cstdlib> }
@@ -30,12 +31,35 @@ class boost::shared_ptr { ~hfile=<boost/shared_ptr.hpp> }
 //class luaL_Reg	{ ~hfile=<Lulauxlib.h> }
 // #include <Lua/lualib.h>
 
-class Macaroni::Model::Cpp::Access { ~hfile=<Macaroni/Model/Cpp/Access.h> }
+class Macaroni::Model::Cpp::Access 
+{ 
+	~hfile=<Macaroni/Model/Cpp/Access.h> 
+	@LuaClass 
+	[
+		ReferenceType = Macaroni::Model::Cpp::Access,
+	]
+}
 class Macaroni::Model::Cpp::AccessLuaMetaData { ~hfile=<Macaroni/Model/Cpp/AccessLua.h> }
 class Macaroni::Containers::AssignVectorToConstElementVector { ~hfile=<Macaroni/Containers.h.> } //TODO: Make function 
 class MACARONI_CHECK { ~hfile=<Macaroni/ME.h> }
-class Macaroni::Model::Cpp::Class { ~hfile=<Macaroni/Model/Cpp/Class.h> }
-class Macaroni::Model::Cpp::ClassPtr { ~hfile=<Macaroni/Model/Cpp/ClassPtr.h> }
+class Macaroni::Model::Cpp::ClassLuaMetaData { ~hfile=<Macaroni/Model/Cpp/ClassLua.h> }
+class Macaroni::Model::Cpp::ClassPtr { 
+	~hfile=<Macaroni/Model/Cpp/ClassPtr.h> 
+	@LuaClass 
+	[
+		LuaGlueClass = Macaroni::Model::Cpp::ClassLuaMetaData,
+		ReferenceType = Macaroni::Model::Cpp::ClassPtr,
+	]
+}
+class Macaroni::Model::Cpp::Class 
+{ 
+	~hfile=<Macaroni/Model/Cpp/Class.h> 
+	@LuaClass 
+	[
+		LuaGlueClass = Macaroni::Model::Cpp::ClassLuaMetaData,
+		ReferenceType = Macaroni::Model::Cpp::ClassPtr,
+	]	
+}
 class Macaroni::Environment::Console { ~hfile=<Macaroni/Environment/Console.h> }
 class Macaroni::Build::Cpp::CompilerSettings { ~hfile=<Macaroni/Build/Cpp/CompilerSettings.h> }
 class Macaroni::Build::Cpp::CompilerSettingsPtr { ~hfile=<Macaroni/Build/Cpp/CompilerSettings.h> }
@@ -60,7 +84,16 @@ class Macaroni::Build::ManifestPtr { ~hfile=<Macaroni/Build/Manifest.h> }
 class Macaroni::Build::MCompiler { ~hfile=<Macaroni/Build/MCompiler.h> }
 class Macaroni::Build::MCompilerOptions { ~hfile=<Macaroni/Build/MCompilerOptions.h> }
 class Macaroni::Environment::Messages { ~hfile=<Macaroni/Environment/Messages.h> }
-class Macaroni::Model::Node { ~hfile=<Macaroni/Model/Node.h> }
+class Macaroni::Model::NodePtr { ~hfile=<Macaroni/Model/NodePtr.h> }
+class Macaroni::Model::Node 
+{ 
+	~hfile=<Macaroni/Model/Node.h> 
+	@LuaClass 
+	[
+		ReferenceType = Macaroni::Model::NodePtr,
+	]	
+}
+class Macaroni::Model::NodeLuaMetaData { ~hfile=<Macaroni/Model/NodeLua.h> }
 class nullptr { ~hfile=<Macaroni/ME.h> }
 class Macaroni::Parser::ParserException { ~hfile=<Macaroni/Parser/ParserException.h> }
 class Macaroni::IO::Path { ~hfile=<Macaroni/IO/Path.h> }
@@ -71,6 +104,24 @@ class Macaroni::Environment::Process { ~hfile=<Macaroni/Environment/Process.h> }
 class Macaroni::Model::Source { ~hfile=<Macaroni/Model/Source.h> }
 class Macaroni::Model::SourcePtr { ~hfile=<Macaroni/Model/SourcePtr.h> }
 class Macaroni::Environment::StringPair { ~hfile=<Macaroni/Environment/StringPair.h> }
+class Macaroni::Model::TypeLuaMetaData { ~hfile=<Macaroni/Model/TypeLua.h> }
+class Macaroni::Model::TypePtr { 
+	~hfile=<Macaroni/Model/TypePtr.h> 
+	@LuaClass 
+	[
+		LuaGlueClass = Macaroni::Model::TypeLuaMetaData,
+		ReferenceType = Macaroni::Model::TypePtr,
+	]
+}
+class Macaroni::Model::Type 
+{ 
+	~hfile=<Macaroni/Model/Type.h> 
+	@LuaClass 
+	[
+		LuaGlueClass = Macaroni::Model::TypeLuaMetaData,
+		ReferenceType = Macaroni::Model::TypePtr,
+	]	
+}
 class MACARONI_THROW { ~hfile=<Macaroni/ME.h> }
 class Macaroni::Containers::VectorOfConstString { ~hfile=<Macaroni/Containers.h> }
 

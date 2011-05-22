@@ -2,6 +2,11 @@ require "Cpp/Common";
 require "Cpp/ClassFileGenerator";
 require "Macaroni.Model.FileName";
 require "Macaroni.Model.Reason";
+FUTURE = true
+if FUTURE then
+	require "Macaroni.Model.Cpp.ClassParent";
+	require "Macaroni.Model.Cpp.ClassParentList";
+end
 require "Macaroni.Model.Source";
 
 
@@ -41,8 +46,39 @@ ClassHFileGenerator = {
     
     classBegin = function(self)
         self:write("class " .. self.node.Name .. "\n");
+        if FUTURE then
+			parents = self.node.Member.Parents
+			if #parents > 0 then
+				self:classParents(parents)
+			end        
+		end
         self:write("{\n");
         self:addTabs(1);
+    end,
+    
+    classParents = function(self, parents)
+		self:write(": ");
+		for i=1, #parents do
+			parent = parents[i]
+			if i > 1 then
+				self:write(",\n  ");
+			end
+			access = parent:GetAccess()
+			if access == "Access_Public" then
+				self:write("public ");
+			elseif access == "Access_Protected" then
+				self:write("protected ");
+			elseif access == "Access_Private" then
+				self:write("private ");
+			else
+				error("Unknown access type " .. access .. " for class.")
+			end
+			if parent:IsVirtual() == true then
+				self:write("virtual ");
+			end
+			self:writeType(parent:GetParent());
+		end
+		self:write("\n");		
     end,
     
     classBody = function(self)
