@@ -486,7 +486,7 @@ class MDocParser
 		ss << pathPrefix;
 		ss << rPath->GetRelativePath();
 		std::string p = ss.str();
-		if (p.size() > 0 && p[0] == '/')
+		if (p.size() > 0 && (p[0] == '/' || p[0] == '\\'))
 		{
 			p = p.substr(1);
 		}

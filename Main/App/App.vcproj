@@ -230,6 +230,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\main\mcpp\Macaroni\Model\Cpp\ClassParentListLuaMetaData.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\main\mcpp\Macaroni\CmdLine\CmdLineOptions.cpp"
 				>
 			</File>
@@ -382,46 +386,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Lua\lapi.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lauxlib.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lbaselib.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lcode.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\ldblib.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\ldebug.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\ldo.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\ldump.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lfunc.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lgc.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\main\mcpp\Macaroni\Model\Library.cpp"
 				>
 			</File>
@@ -434,91 +398,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Lua\linit.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\liolib.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\llex.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lmathlib.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lmem.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\loadlib.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lobject.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lopcodes.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\loslib.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lparser.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lstate.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lstring.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lstrlib.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\ltable.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\ltablib.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\ltm.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lua.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\luac.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\main\mcpp\Macaroni\Environment\LuaEnvironment.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lundump.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lvm.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lzio.cpp"
 				>
 			</File>
 			<File
@@ -619,10 +499,6 @@
 			</File>
 			<File
 				RelativePath=".\Source\main\mcpp\Macaroni\Model\Cpp\Primitive.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\print.cpp"
 				>
 			</File>
 			<File
@@ -808,6 +684,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\main\mcpp\Macaroni\Model\Cpp\ClassParentListLuaMetaData.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\main\mcpp\Macaroni\Model\Cpp\ClassPtr.h"
 				>
 			</File>
@@ -912,11 +792,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Generator\Cpp\CppSourceGenerator2.h"
+				RelativePath=".\Source\main\mcpp\Macaroni\Generator\CppSourceGenerator2.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Generator\CppSourceGenerator2.h"
+				RelativePath=".\Source\main\mcpp\Macaroni\Generator\Cpp\CppSourceGenerator2.h"
 				>
 			</File>
 			<File
@@ -1016,34 +896,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Lua\lapi.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lauxlib.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lcode.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\ldebug.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\ldo.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lfunc.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lgc.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\main\mcpp\Macaroni\Model\Library.h"
 				>
 			</File>
@@ -1064,55 +916,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Lua\llex.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\llimits.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lmem.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lobject.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\main\mcpp\Macaroni\Build\LocalManifestResolver.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lopcodes.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lparser.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lstate.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lstring.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\ltable.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\ltm.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lua.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\luaconf.h"
 				>
 			</File>
 			<File
@@ -1129,22 +933,6 @@
 			</File>
 			<File
 				RelativePath=".\Source\main\mcpp\Macaroni\LuaGlueClear.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lualib.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lundump.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lvm.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Lua\lzio.h"
 				>
 			</File>
 			<File
@@ -1232,11 +1020,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Parser.h"
+				RelativePath=".\Source\main\mcpp\Macaroni\Parser\Parser.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Parser\Parser.h"
+				RelativePath=".\Source\main\mcpp\Macaroni\Parser.h"
 				>
 			</File>
 			<File

@@ -5,8 +5,8 @@
 #include "PathLua.h"
 
 //extern "C" {
-	#include "../../Lua/lua.h"
-	#include "../../Lua/lauxlib.h"
+	#include <lua.h>
+	#include <lauxlib.h>
 	#include <lualib.h>
 //}
 

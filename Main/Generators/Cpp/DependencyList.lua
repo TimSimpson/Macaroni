@@ -5,6 +5,8 @@ local Context = Macaroni.Model.Context;
 local Node = Macaroni.Model.Node;
 local TypeNames = Macaroni.Model.TypeNames;
 
+FUTURE = true
+
 DependencyTraveller = {
     heavy = nil,
     originalNode = nil,
@@ -55,11 +57,13 @@ DependencyList = {
         check(node ~= nil, "Missing node.");
         check(DependencyTraveller.isType(traveller), "Argument 3 'traveller' must be DependencyTraveller.");
         check(node.Member ~= nil and node.Member.TypeName == TypeNames.Class, "Node must be Class.");        
-        for i = 1, #node.Member.Parents do
-			local parent = node.Member.Parents[i];
-			self:addDependenciesForType(parent:GetParent(), traveller); --DependencyTraveller.new(node, false));		
-			-- monkey
-        end
+        if FUTURE then
+			for i = 1, #node.Member.Parents do
+				local parent = node.Member.Parents[i];
+				self:addDependenciesForType(parent:GetParent(), traveller); --DependencyTraveller.new(node, false));		
+				-- monkey
+			end
+		end
         for i = 1, #node.Member.FriendNodes do
             local friend = node.Member.FriendNodes[i];
             if (friend.Member ~= nil and friend.Member.TypeName=="Class" or 
