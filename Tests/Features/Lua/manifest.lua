@@ -24,11 +24,8 @@ function generate()
     print("Lua 5.1.4 source path is " .. properties.lua["5.1.4"].source)
     print("Boost crap is at " .. properties.boost["1.46.1"].include)
     run("LuaGlue", { luaImportCode =[[ 
-extern "C" 
-{	
 	#include <lauxlib.h>
 	#include <lualib.h>
-}
 ]] });
     run("HtmlView");
     run("Cpp");

@@ -17,11 +17,9 @@
 #include "VariableAssignmentLua.h"
 #include "../TypeLua.h"
 
-//MARIO extern "C" {
-	#include "../../../Lua/lua.h"
-	#include "../../../Lua/lauxlib.h"
-	#include "../../../Lua/lualib.h"
-//MARIO }
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
 
 
 #define GLOBALTABLENAME "Macaroni.Model.Cpp.ConstructorOverload"

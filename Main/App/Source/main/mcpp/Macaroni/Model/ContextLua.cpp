@@ -1,11 +1,9 @@
 #ifndef MACARONI_MODEL_CONTEXTLUA_CPP
 #define MACARONI_MODEL_CONTEXTLUA_CPP
 
-//MARIO extern "C" {
-	#include "../../Lua/lua.h"
-	#include "../../Lua/lauxlib.h"
-	#include "../../Lua/lualib.h"
-//MARIO }
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
 #include "Context.h"
 #include "ContextLua.h"
 #include "../Environment/DebugLog.h"

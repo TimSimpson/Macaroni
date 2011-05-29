@@ -41,7 +41,9 @@ lua =
 end
 
 function Generate(library, path)
-	path:ClearDirectoryContents()
+  if path.Exists then
+    path:ClearDirectoryContents()
+  end
 end
 
 function Build(library, sources, outputPath, installPath, extraArgs)

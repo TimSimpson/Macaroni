@@ -19,6 +19,7 @@ sources = { "CavatappiGenerators" }
 
 children =
 {
+  "Dependencies",
   "App",
   --"Generators",
   --"Libraries"

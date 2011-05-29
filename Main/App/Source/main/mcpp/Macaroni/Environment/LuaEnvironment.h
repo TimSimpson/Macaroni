@@ -2,11 +2,9 @@
 #define MACARONI_ENVIRONMENT_LUA_H
 
 #include "../ME.h"
-//extern "C" {
-#include "../../Lua/lua.h"
-#include "../../Lua/lauxlib.h"
-#include "../../Lua/lualib.h"
-//}
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
 
 #include <fstream>
 #include <string>

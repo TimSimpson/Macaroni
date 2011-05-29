@@ -1,11 +1,9 @@
 #ifndef MACARONI_MODEL_LIBRARYLUAREGISTER_CPP
 #define MACARONI_MODEL_LIBRARYLUAREGISTER_CPP
 
-//extern "C" {
-	#include "../../Lua/lua.h"
-	#include "../../Lua/lauxlib.h"
-	#include "../../Lua/lualib.h"
-//}
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
 #include "ContextLua.h"
 #include "../Exception.h"
 #include "../Environment/DebugLog.h"
