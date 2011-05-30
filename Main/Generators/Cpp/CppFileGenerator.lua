@@ -23,6 +23,7 @@ CppFileGenerator = {
             end
             return v;
         end;
+        self.libDecl = nil;
         return self;
     end,
     

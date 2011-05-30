@@ -2,6 +2,7 @@ require "Macaroni.IO.GeneratedFileWriter";
 require "Macaroni.Model.Library";
 require "Macaroni.IO.Path";
 require "Log"
+require "Cpp/LibraryConfigGenerator";
 
 --require "Macaroni.IO.PathList";
 
@@ -129,8 +130,8 @@ using testing ;
 	writer:Write([[	
 project ]] .. createProjectName(library) .. "\n" .. [[
 	:	usage-requirements
-		<link>shared:<define>]] .. createProjectDef(library) .. [[_DYN_LINK=1
-		<link>static:<define>]] .. createProjectDef(library) .. [[_STATIC_LINK=1
+		<link>shared:<define>]] .. LibraryDynLink(library) .. [[=1
+		<link>static:<define>]] .. createProjectDef(library) .. [[_STATIC_LINK=1  # <-- This is stupid and doesn't do anything right now. ^_^
 ]]);
 	writer:Write("\t\t<include>./ \n");
 	forAllSourcesWrite(function(src) return "\t\t" .. [[<include>"]] .. src .. [["]] .. " \n"; end);
@@ -178,8 +179,8 @@ alias library_sources
 lib library
 	:	library_dependencies
 		library_sources 
-	:	<link>shared:<define>]] .. createProjectDef(library) .. [[_DYN_LINK=1
-		<link>static:<define>]] .. createProjectDef(library) .. [[_STATIC_LINK=1
+	:	<link>shared:<define>]] .. LibraryDynLink(library) .. [[=1
+		<link>static:<define>]] .. createProjectDef(library) .. [[_STATIC_LINK=1  # <-- This is stupid and doesn't do anything right now. ^_^
 	;
 	
 # Extra targets specified in Macaroni manifest:]] .. "\n");

@@ -58,7 +58,7 @@ std::string cleanUp(const std::string & original)
 		}
 		else if (ch == '_')
 		{
-			std << "__";
+			str << "__";
 		}
 		else
 		{

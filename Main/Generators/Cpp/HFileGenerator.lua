@@ -1,5 +1,6 @@
 require "Cpp/Common";
 require "Cpp/ClassHFileGenerator";
+require "Cpp/LibraryConfigGenerator";
 require "Cpp/NamespaceHFileGenerator";
 require "Cpp/NodeFileGenerator";
 
@@ -28,7 +29,7 @@ HFileGenerator = {
             end
             return v;
         end;
-
+		args.libDecl = LibraryDecl(args.targetLibrary);
         return args;
     end,
 
@@ -45,7 +46,9 @@ HFileGenerator = {
         log:Write("HsrcFile is " .. srcFile .. ".");
         if (filePath:IsFileOlderThan(srcFile)) then   
 			log:Write("HcreateClassGenerator 2.2");         
-            local cg = ClassHFileGenerator.new{node = node, path = filePath};
+            local cg = ClassHFileGenerator.new{node = node, 
+											   targetLibrary=self.targetLibrary, 
+											   path = filePath};
             return cg;
         else
 			log:Write("HcreateClassGenerator 2.5");
@@ -57,7 +60,11 @@ HFileGenerator = {
     
     createNamespaceFileGenerator = function (self, node, path)
         local filePath = path:NewPath("/_.h");
-        local ng = NamespaceHFileGenerator.new{node = node, path = filePath};
+        local ng = NamespaceHFileGenerator.new{
+			node = node, 
+			path = filePath, 
+			targetLibrary = self.targetLibrary
+			};
         return ng;
     end,
     

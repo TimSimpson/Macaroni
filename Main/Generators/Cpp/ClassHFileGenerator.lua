@@ -24,6 +24,7 @@ ClassHFileGenerator = {
     
     new = function(args)          
         assert(args.node ~= nil);
+        assert(args.targetLibrary ~= nil);
         if (args.path == nil) then
             assert(args.writer ~= nil);
         else
@@ -35,7 +36,8 @@ ClassHFileGenerator = {
             args.writer = args.path:CreateFile();--writer;
         end
         
-        setmetatable(args, ClassHFileGenerator);                
+        setmetatable(args, ClassHFileGenerator);
+        args.libDecl = LibraryDecl(args.targetLibrary);
         return args;
     end,
     
@@ -45,7 +47,11 @@ ClassHFileGenerator = {
     end,
     
     classBegin = function(self)
-        self:write("class " .. self.node.Name .. "\n");
+        self:write("class ")
+        if self.libDecl then
+			self:write(self.libDecl .. " ");
+        end
+        self:write(self.node.Name .. "\n");
         if FUTURE then
 			parents = self.node.Member.Parents
 			if #parents > 0 then
@@ -169,6 +175,13 @@ ClassHFileGenerator = {
         local src = reason.Source;
                 
         self:write("// This class was originally defined in " .. tostring(src.FileName) .. "\n");
+        
+        if BoostConfigIsAvailable(self.targetLibrary) then
+			self:write("\n#include <" 
+			           .. LibraryConfigFile(self.targetLibrary) 
+			           .. ">\n\n");
+        end
+        
         self:write("// Forward declaration necessary if this depends on anything which also depend on this.\n");
         if (not self.isNested) then 
             self:namespaceBegin(self.node.Node);
@@ -278,7 +291,7 @@ ClassHFileGenerator = {
     	if (node.Node.Node == self.node) then
             self:writeAccess(node.Member.Access);
         end        
-        self:writeFunctionOverloadDefinition(node);
+        self:writeFunctionOverloadDefinition(node, true);
         if (not node.Member.Inline) then
             self:write(";\n");
         else
@@ -305,7 +318,9 @@ ClassHFileGenerator = {
         local handlerFunc = nil;        
         if (typeName == TypeNames.Class) then
             -- Pass the new generator the same writer as this class.
-            ClassHFileGenerator.New({isNested = true, node = node, writer = self.writer});
+            ClassHFileGenerator.New({isNested = true, node = node, 
+                                     targetLibrary=self.targetLibrary, 
+                                     writer = self.writer});
             handlerFunc = self.parseClass;
         else
             handlerFunc = self["parse" .. typeName];

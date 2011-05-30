@@ -27,7 +27,7 @@ end
 
 jamArgs = 
 { 	
-	ExcludePattern = ".svn *Test.cpp",	
+	ExcludePattern = "Main.cpp .svn *Test.cpp Start.cpp",	
 	ExtraTargets = [[
 		#alias tests
 		#	:	[ run ../Source/Test.cpp  
@@ -40,7 +40,8 @@ jamArgs =
 		#	:	<dependency>tests
 	  		;
 	  	
-	  ]]
+	  ]],
+	  Shared = "true"
 };
 		
 function build()

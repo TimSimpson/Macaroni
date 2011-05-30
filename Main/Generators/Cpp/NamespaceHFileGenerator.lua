@@ -1,6 +1,7 @@
 require "Cpp/Common";
 require "Cpp/FileGenerator";
 require "Cpp/DependencySection";
+require "Cpp/LibraryConfigGenerator";
 
 local Access = Macaroni.Model.Cpp.Access;
 local Context = Macaroni.Model.Context;
@@ -32,7 +33,9 @@ NamespaceHFileGenerator = {
         setmetatable(args, NamespaceHFileGenerator);   
 
         args.minors = args:createMinorNodeList();
-                 
+           
+        args.libDecl = LibraryDecl(args.targetLibrary);
+                
         return args;
     end,
     
@@ -153,6 +156,11 @@ NamespaceHFileGenerator = {
         check(self.writer ~= nil, "Instance writer missing.");
         self:includeGuardHeader();
         self:debugOutDependencyGraph();
+        if BoostConfigIsAvailable(self.targetLibrary) then
+			self:write("\n#include <" 
+			           .. LibraryConfigFile(self.targetLibrary) 
+			           .. ">\n\n");			
+        end        
         self:write('\n');
         self:includeStatements();            
         self:write('\n');            

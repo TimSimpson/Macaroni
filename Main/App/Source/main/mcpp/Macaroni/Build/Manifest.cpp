@@ -904,7 +904,7 @@ void setLibraryId(LibraryId & id, lua_State * L)
 	lua_getglobal(L, "id");
 	if (!lua_istable(L, -1))
 	{
-		throw Macaroni::Exception("Table not found in Manifest file.");
+		throw Macaroni::Exception("Table \"id\" not found in Manifest file.");
 	}
 
 	lua_pushstring(L, "group");

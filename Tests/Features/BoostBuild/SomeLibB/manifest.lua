@@ -24,7 +24,8 @@ end
 
 jamArgs = 
 { 	
-	ExcludePattern = ".svn *Test.cpp",	
+	ExcludePattern = ".svn *Test.cpp",		
+	Shared = "true"
 };
 		
 function build()

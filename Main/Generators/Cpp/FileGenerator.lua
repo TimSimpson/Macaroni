@@ -96,9 +96,7 @@ FileGenerator = {
         local variable = node.Member;
         self:writeType(variable.Type);
         self:write(node.Name .. ";\n");
-    end,  
-    
-    
+    end,          
     
     write = function(self, text)
         if (type(text) ~= "string") then
@@ -175,12 +173,15 @@ FileGenerator = {
     
     --[[ Writes a function overload definition, not including the Class name 
          before the function name. ]]--
-    writeFunctionOverloadDefinition = function(self, foNode)
+    writeFunctionOverloadDefinition = function(self, foNode, calledFromClassWriter)
     	check(self ~= nil, "Method called without instance.");
     	check(foNode ~= nil, "foNode must be a Node, not nil.");
     	check(foNode.Member ~= nil, "functionNode must have instance");
     	check(foNode.Member.TypeName == "FunctionOverload", "Node must be FunctionOverload");
         self:writeTabs();
+        if self.libDecl and not calledFromClassWriter then
+			self:write(self.libDecl .. " ");
+        end
         local func = foNode.Member;
         if (foNode.Member.Static) then
             self:write("static ");

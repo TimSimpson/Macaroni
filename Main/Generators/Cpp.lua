@@ -2,6 +2,7 @@
 require "Cpp/Common";
 require "Cpp/CppFileGenerator";
 require "Cpp/HFileGenerator";
+require "Cpp/LibraryConfigGenerator";
 require "Macaroni.Model.Library";
 require "Log";
 
@@ -11,6 +12,10 @@ function Generate(library, path)
 	--log.Write = function(self, msg) 			
 			--print("[CPP]:" .. msg);
 		--end;
+	if BoostConfigIsAvailable(library.Context) then
+		lcg = LibraryConfigGenerator.new(library);
+		lcg:writeFile(path);
+	end
     log:Write("Generating H Files_.\n");
     local hGen = HFileGenerator.new(library);
     log:Write("Adonde esta? " .. tostring(library) .. " !");
