@@ -52,6 +52,11 @@ public:
 	{
 		return !!FindInstallPath();
 	}
+	
+	inline std::string GetCId() const
+	{
+		return id.GetCId();
+	}
 
 	inline const Macaroni::Build::LibraryId & GetId() const
 	{

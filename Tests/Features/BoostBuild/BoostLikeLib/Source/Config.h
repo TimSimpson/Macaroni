@@ -1,6 +1,21 @@
 #ifndef TURTLE_CONFIG_HPP
 #define TURTLE_CONFIG_HPP
 
+/*
+ * The name of the library is "Macaroni", "Macaroni_Turtle", "1.0.45"
+ * 
+ * So the magic Macro name prefix then becomes
+ * "MACARONI_LIB_Macaroni__Turtle"
+ * turning this into
+ * MACARONI_LIB_DECL_Macaroni___Macaroni__Turtle
+ 
+ * The config file has to unfortunately be something like this:
+ * /Config_Macaroni___Macaroni__Turtle.h
+ * 
+ * The option is
+ * MACARONI_LIB_DYN_LINK_Macaroni___Macaroni__Turtle
+ 
+ */
 #include <boost/config.hpp>
 
 #ifndef BOOST_WORKS_THE_WAY_THE_DOCUMENTATION_STATES_IT_SHOULD
@@ -28,7 +43,7 @@
 			#endif
 		#endif
 	#endif  // BOOST_HAS_DECLSPEC
-	
+	//
 	#ifndef TURTLE_DECL
 		#define TURTLE_DECL
 	#endif

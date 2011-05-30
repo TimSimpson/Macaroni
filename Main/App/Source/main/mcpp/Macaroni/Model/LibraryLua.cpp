@@ -107,6 +107,22 @@ struct LibraryLuaFunctions
 		}
 	}
 
+	static int getCId(lua_State * L)
+	{
+		try
+		{
+			LibraryPtr & ptr = getInstance(L, 1); 
+			std::string cid = ptr->GetCId();
+			lua_pushstring(L, cid.c_str());
+			return 1;
+		} 
+		catch(const std::exception & ex)
+		{
+			lua_pushstring(L, ex.what());
+			return lua_error(L);			
+		}
+	}
+
 	static int __index(lua_State * L)
 	{
 		LibraryPtr & ptr = getInstance(L);
@@ -162,6 +178,11 @@ int LibraryLuaMetaData::Index(lua_State * L, LibraryPtr & ptr, const std::string
 	else if (index == "FindInstallPath")
 	{
 		lua_pushcfunction(L, LibraryLuaFunctions::findInstallPath);
+		return 1;
+	}
+	else if (index == "GetCId")
+	{
+		lua_pushcfunction(L, LibraryLuaFunctions::getCId);
 		return 1;
 	}
 	else if (index == "Group") 

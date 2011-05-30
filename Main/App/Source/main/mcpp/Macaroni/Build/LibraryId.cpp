@@ -3,6 +3,7 @@
 
 #include <Macaroni/ME.h>
 #include "LibraryId.h"
+#include <boost/foreach.hpp>
 #include <Macaroni/IO/FileNotFoundException.h>
 #include <boost/format.hpp>
 #include "../IO/PathResolver.h"
@@ -33,12 +34,58 @@ bool operator==(const LibraryId & a, const LibraryId & b)
 			&& a.GetVersion() == b.GetVersion();
 }
 
+bool valid1stChar(const char ch)
+{
+	return (ch >= 'a' && ch <= 'z') 
+		|| (ch >= 'A' && ch <= 'Z');
+}
+
+bool validNChar(const char ch)
+{
+	return (ch >= '0' && ch <= '9') || valid1stChar(ch);
+}
+
+std::string cleanUp(const std::string & original)
+{
+	std::stringstream str;
+	int i = 0;
+	BOOST_FOREACH(char ch, original)
+	{
+		bool isValid = (i == 0 ? valid1stChar(ch) : validNChar(ch));
+		if (isValid)
+		{
+			str << ch;
+		}
+		else if (ch == '_')
+		{
+			std << "__";
+		}
+		else
+		{
+			int ord = (int) ch;
+			str << "_" << ord << "_";
+		}
+		i ++;
+	}
+	return str.str();
+}
+
+std::string LibraryId::GetCId() const
+{
+	std::stringstream ss;
+	ss <<  cleanUp(group) << "___"
+		<< cleanUp(name);// << "___"
+		//<< cleanUp(version);
+	return ss.str();
+}
+
 bool LibraryId::IsStringLegal(const std::string & str)
 {
 	static const boost::regex legalCharacters("[A-Za-z0-9_\\-.]+");
 	return boost::regex_match(str, legalCharacters);
 }
-	
+
+
 
 } }
 

@@ -22,6 +22,11 @@ public:
 
 	friend bool operator==(const LibraryId & a, const LibraryId & b);
 	
+	/** Returns a version of this ID which can be used as a C identifier. 
+	 * The point isn't to make a pretty name but just one that maps uniquely. 
+	 */
+	std::string GetCId() const;
+
 	/** Determines whether or not a string can be used for a group, name,
 	 *  or version string of a library. */
 	static bool IsStringLegal(const std::string & str);

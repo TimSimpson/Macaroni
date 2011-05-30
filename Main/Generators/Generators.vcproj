@@ -239,6 +239,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Cpp\LibraryConfigGenerator.lua"
+			>
+		</File>
+		<File
 			RelativePath=".\Log.lua"
 			>
 		</File>
