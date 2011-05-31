@@ -27,19 +27,22 @@ end
 
 jamArgs = 
 { 	
-	ExcludePattern = "Main.cpp .svn *Test.cpp Start.cpp",	
+	ExcludePattern = ".svn *Test.cpp Start.cpp",	
 	ExtraTargets = [[
 		#alias tests
 		#	:	[ run ../Source/Test.cpp  
 		#			libSources ]
 		#	;			
 	  	exe App 
-	  		:	library_sources
-	  			library_dependencies
+	  		:	library
 	  			../Source/Start.cpp	  			
 		#	:	<dependency>tests
 	  		;
 	  	
+	  	install release : App
+	  					: <install-dependencies>on <install-type>EXE
+             			  <install-type>LIB
+           				;
 	  ]],
 	  Shared = "true"
 };

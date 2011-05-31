@@ -23,7 +23,7 @@ CppFileGenerator = {
             end
             return v;
         end;
-        self.libDecl = nil;
+        self.libDecl = LibraryDecl(self.targetLibrary);
         return self;
     end,
     
@@ -36,7 +36,8 @@ CppFileGenerator = {
         local filePath = path:NewPath(".cpp");
         log:Write('CPP File Gen createClassGenerator 2');
         --if (filePath:IsFileOlderThan(srcFile)) then            
-            local cg = ClassCppFileGenerator.new{node = node, path = filePath};
+            local cg = ClassCppFileGenerator.new{node = node, 
+				targetLibrary = self.targetLibrary, path = filePath};
             log:Write('CPP File Gen createClassGenerator 3');
             return cg;
         --else

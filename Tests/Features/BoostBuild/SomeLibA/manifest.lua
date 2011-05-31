@@ -34,7 +34,7 @@ end
 
 function install()
 	run("BoostBuild", jamArgs);
-	
+	run("InterfaceMh");	
 end
 
 

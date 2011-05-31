@@ -2,6 +2,7 @@ require "Cpp/Common";
 require "Cpp/ClassFileGenerator";
 require "Cpp/NodeInfo"
 require "Cpp/DependencySection";
+require "Cpp/LibraryConfigGenerator";
 
 local Access = Macaroni.Model.Cpp.Access;
 local Context = Macaroni.Model.Context;
@@ -30,6 +31,7 @@ ClassCppFileGenerator = {
         end
         
         setmetatable(args, ClassCppFileGenerator);
+        args.libDecl = LibraryDecl(args.targetLibrary);
         log:Write("Created new ClassCppFileGenerator");
         return args;
     end,    
@@ -89,8 +91,7 @@ ClassCppFileGenerator = {
     includeStatements = function(self)
 		log:Write(tostring(self.node) .. ' INCLUDE STATEMENTS! *_*');
         local class = self.node.Member;
-        local imports = class.ImportedNodes;                       
-        
+        local imports = class.ImportedNodes;                               
         -- Put the include to this classes H file.
         local hFile = '#include "' .. self.node.Name .. '.h"\n';
         self:write(hFile);
@@ -116,7 +117,10 @@ ClassCppFileGenerator = {
     parse = function(self)      
         if (not self.isNested) then  
             self:includeGuardHeader();
-            self:write('\n');
+            self:write('\n');            
+			self:write("// The following configures symbols for export if needed.\n");
+			self:write("#define " .. LibraryCreate(self.targetLibrary) .. "\n");
+			self:write("\n");
             self:includeStatements();
             self:write('\n');
             self:usingStatements();
@@ -158,6 +162,10 @@ ClassCppFileGenerator = {
             self:write("//~<(Skipping inline constructor.)\n");
             return;
         end
+        if self.libDecl then
+			self:writeTabs();
+			self:write(self.libDecl .. "\n");
+		end
         self:writeTabs();
         self:write(self.node.Name .. "::" .. self.node.Name .. "(");
         self:writeArgumentList(node);
@@ -200,6 +208,10 @@ ClassCppFileGenerator = {
             self:write("//~<(Skipping inline destructor.)\n");
             return;
         end
+        if self.libDecl then
+			self:writeTabs();
+			self:write(self.libDecl .. "\n");
+		end
         self:writeTabs();
         self:write(self.node.Name .. "::~" .. self.node.Name .. "(");
         self:writeArgumentList(overload);
@@ -229,6 +241,10 @@ ClassCppFileGenerator = {
             self:write('//~<(Skipping inline function "' .. node.FullName .. '")\n');
             return;
         end        
+        if self.libDecl then
+			self:writeTabs();
+			self:write(self.libDecl .. "\n");
+		end
         self:writeTabs();
         local func = node.Member;
         self:writeType(func.ReturnType);

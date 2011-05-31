@@ -1,0 +1,27 @@
+~import SomeLibB::Bar;
+~import std::cout;
+~import std::endl;
+~import SomeLibA::Foo;
+~import App::MyMain;
+
+namespace App
+{
+	class MyApp
+	{
+		/*public ~global int Main(int argc, const char * argv)
+		{
+			Main m;
+			m.Run();	
+			return 0;
+		}*/
+
+		public void Run() 
+		{
+			cout << "This is a test to see if this App will import Foo, and automatically import Bar." << endl;
+			Bar bar(25);
+			Foo foo(bar);
+			cout << "The following number should be 25:" << endl;
+			cout << foo.GetNumber() << endl;
+		}
+	};
+}

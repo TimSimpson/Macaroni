@@ -176,13 +176,27 @@ alias library_sources
 	--	]]; end);
 	writer:Write(";\n" .. [[
 	
-lib library
+lib ]] .. LibraryMetaTarget(library) .. [[  
 	:	library_dependencies
 		library_sources 
 	:	<link>shared:<define>]] .. LibraryDynLink(library) .. [[=1
 		<link>static:<define>]] .. createProjectDef(library) .. [[_STATIC_LINK=1  # <-- This is stupid and doesn't do anything right now. ^_^
+	:   # '_' ?! 
+	:	]]);
+	first = true
+	for k, v in pairs(pDeps) do
+		if first then
+			first = false
+		else
+			writer:Write("	 	");
+		end
+		writer:Write("<link>shared:<library>" .. v.jamDir .. "//library \n");
+	end
+	writer:Write([[
 	;
-	
+
+alias library : ]] .. LibraryMetaTarget(library) .. [[  ;
+
 # Extra targets specified in Macaroni manifest:]] .. "\n");
 	-- I don't think I should put this junk in there anymore...
 	--for k, v in pairs(library.Dependencies) do

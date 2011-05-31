@@ -17,12 +17,22 @@ LibraryConfigFile = function(library)
 	return "Config_" .. library:GetCId() .. ".h"
 end
 
+LibraryCreate = function(library)
+	local libId = library:GetCId();
+	local libCreate = "MACARONI_LIB_CREATE_" .. libId;
+	return libCreate;
+end
+
 LibraryDecl = function(library)
 	-- A helper method which returns the Macro to affix to header declarations.
 	if BoostConfigIsAvailable(library.Context) then
 		return "MACARONI_LIB_DECL_" .. library:GetCId();
 	end 
 	return "";
+end
+
+LibraryMetaTarget = function(library)
+	return "MACARONI_LIB_TARGET_" .. library:GetCId();
 end
 
 LibraryDynLink = function(library)
@@ -47,7 +57,7 @@ LibraryConfigGenerator =
 		
 		local libDecl = LibraryDecl(self.library);
 		local libDynLink = LibraryDynLink(self.library);
-		local libCreate = "MACARONI_LIB_CREATE_" .. libId;
+		local libCreate = LibraryCreate(self.library);
 		
 		self.writer:Write(
 [[#ifndef MACARONI_COMPILE_GUARD_Config_]] .. libId .. [[_H
@@ -73,7 +83,7 @@ LibraryConfigGenerator =
 //
 
 #if defined(BOOST_ALL_DYN_LINK) || defined(]] .. libDynLink .. [[)
-# if defined(]] .. libDecl .. [[)
+# if defined(]] .. libCreate .. [[)
 #  define ]] .. libDecl .. [[ BOOST_SYMBOL_EXPORT
 # else
 #  define ]] .. libDecl .. [[ BOOST_SYMBOL_IMPORT
