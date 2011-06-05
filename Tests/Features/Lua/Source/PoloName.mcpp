@@ -1,0 +1,81 @@
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaProperty;
+~import std::string;
+~import Macaroni::Tests::Lua::PoloName;
+~import Macaroni::Tests::Lua::PoloNamePtr;
+~import boost::intrusive_ptr;
+
+// Plain old Lua Object
+
+namespace Macaroni::Tests::Lua 
+{
+	class PoloName {};
+	
+	typedef intrusive_ptr<PoloName> PoloNamePtr
+		@LuaClass [ SameAsNode = PoloName ]
+	;
+
+	class PoloName
+	  @LuaClass 
+	  [
+	    ReferenceType = PoloNamePtr,
+	  ]
+	{		
+		private string name;
+		private int refCount;
+		
+		private PoloName(string name)
+		: name(name), 
+		  refCount(0)
+		{		
+		}
+		
+		public const string & GetName() const
+		@LuaProperty ={Name}
+		{
+			return name;
+		}			
+		
+		public inline int GetReferenceCount() const
+		@LuaProperty "ReferenceCount"
+		{
+			return refCount;
+		}
+		
+		public ~friend ~global void intrusive_ptr_add_ref(PoloName * p)
+		{
+			p->refCount ++;
+		}
+		
+		public ~friend ~global void intrusive_ptr_release(PoloName * p)
+		{
+			p->refCount --;
+			if (p->refCount <= 0)
+			{
+				delete p;	
+			}			
+		}
+	
+		public static PoloNamePtr Jon()
+		@LuaProperty "Jon"
+		{
+			return PoloNamePtr(new PoloName("Jon"));	
+		}
+		
+		public static PoloNamePtr Rolly()
+		@LuaProperty "Rolly"
+		{
+			return PoloNamePtr(new PoloName("Rolly"));	
+		}
+		
+		public static int GetNameCount() 
+		@LuaFunction
+		{
+			return 5;	
+		}
+				
+		
+	};
+	
+} //end ns

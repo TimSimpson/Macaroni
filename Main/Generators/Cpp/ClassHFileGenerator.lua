@@ -123,11 +123,24 @@ ClassHFileGenerator = {
         local friends = self.node.Member.FriendNodes;
         for i=1, #friends do
             friend = friends[i];
-            if (friend.Member ~= nil and friend.Member.TypeName == TypeNames.Function) then
+            if (friend.Member ~= nil 
+                and friend.Member.TypeName == TypeNames.FunctionOverload) then
                 self:write("friend ");
-                self:writeFunctionDefinition(friend);
+                self:writeFunctionOverloadDefinition(friend, false); -- ); --, true);
                 self:write(";\n");
-            else
+            elseif (friend.Member ~= nil 
+				     and friend.Member.TypeName == TypeNames.Function) then
+				self:write([[
+/* Putting friend on a free standing node which resolves to a function means
+Macaroni will apply the 'friend' status to all function overloads.  To only 
+apply it to specific overloads, use the "~friend" keyword on the definitions
+of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n');
+				for i = 1, #friend.Children do   
+					self:write("friend "); 	
+					self:writeFunctionOverloadDefinition(friend.Children[i], false);	
+    				self:write(";\n");
+    			end
+			else
                 self:write("friend " .. friend.FullName .. ";\n");
             end
         end 
@@ -288,10 +301,16 @@ ClassHFileGenerator = {
     end,    
     
     ["parse".. TypeNames.FunctionOverload] = function(self, node)
-    	if (node.Node.Node == self.node) then
+		local ownedByClass = (node.Node.Node == self.node)		
+    	if (ownedByClass) then
+    		if not self.internalDef then
+    			if (Access.IsHidden(node.Member.Access)) then
+    				return
+    			end
+    		end
             self:writeAccess(node.Member.Access);
-        end        
-        self:writeFunctionOverloadDefinition(node, true);
+        end                
+        self:writeFunctionOverloadDefinition(node, ownedByClass);
         if (not node.Member.Inline) then
             self:write(";\n");
         else

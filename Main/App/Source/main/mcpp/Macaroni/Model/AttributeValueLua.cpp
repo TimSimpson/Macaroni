@@ -28,63 +28,69 @@
 
 #include "../LuaGlue.hpp"
 
+#define TRY try {
+#define CATCH } catch(const std::exception & ex){ return luaL_error(L, ex.what()); }
+
+
 	static int __index(lua_State * L, const AttributeValuePtr & ptr, 
 									  const std::string & index)
 	{		
-		if (index == "ValueAsBool")
-		{
-			lua_pushboolean(L, ptr->GetValueAsBool());
-		}
-		else if (index == "ValueAsNode")
-		{
-			NodeLuaMetaData::PutInstanceOnStack(L, ptr->GetValueAsNode());
-		}
-		else if (index == "ValueAsNumber")
-		{
-			lua_pushnumber(L, ptr->GetValueAsNumber());
-		}
-		else if (index == "ValueAsString")
-		{
-			lua_pushstring(L, ptr->GetValueAsString().c_str());
-		}
-		else if (index == "ValueAsTable")
-		{
-			AttributeTableLuaMetaData::PutInstanceOnStack(L, ptr->GetValueAsTable());
-		}
-		else if (index == "IsBool")
-		{
-			lua_pushboolean(L, ptr->IsBool());
-		}
-		else if (index == "IsNode")
-		{
-			lua_pushboolean(L, ptr->IsNode());
-		}
-		else if (index == "IsNumber")
-		{
-			lua_pushboolean(L, ptr->IsNumber());
-		}
-		else if (index == "IsString")
-		{
-			lua_pushboolean(L, ptr->IsString());
-		}
-		else if (index == "IsTable")
-		{
-			lua_pushboolean(L, ptr->IsTable());
-		}
-		else if (index == "Name")
-		{
-			NodeLuaMetaData::PutInstanceOnStack(L, ptr->GetName());	
-		}		
-		else if (index == "TypeString")
-		{
-			lua_pushstring(L, ptr->GetTypeString().c_str());
-		}
-		else
-		{
-			lua_pushnil(L);			
-		}
-		
-		return 1;
+		TRY
+			if (index == "ValueAsBool")
+			{
+				lua_pushboolean(L, ptr->GetValueAsBool());
+			}
+			else if (index == "ValueAsNode")
+			{
+				NodeLuaMetaData::PutInstanceOnStack(L, ptr->GetValueAsNode());
+			}
+			else if (index == "ValueAsNumber")
+			{
+				lua_pushnumber(L, ptr->GetValueAsNumber());
+			}
+			else if (index == "ValueAsString")
+			{
+				lua_pushstring(L, ptr->GetValueAsString().c_str());
+			}
+			else if (index == "ValueAsTable")
+			{
+				AttributeTableLuaMetaData::PutInstanceOnStack(L, ptr->GetValueAsTable());
+			}
+			else if (index == "IsBool")
+			{
+				lua_pushboolean(L, ptr->IsBool());
+			}
+			else if (index == "IsNode")
+			{
+				lua_pushboolean(L, ptr->IsNode());
+			}
+			else if (index == "IsNumber")
+			{
+				lua_pushboolean(L, ptr->IsNumber());
+			}
+			else if (index == "IsString")
+			{
+				lua_pushboolean(L, ptr->IsString());
+			}
+			else if (index == "IsTable")
+			{
+				lua_pushboolean(L, ptr->IsTable());
+			}
+			else if (index == "Name")
+			{
+				NodeLuaMetaData::PutInstanceOnStack(L, ptr->GetName());	
+			}		
+			else if (index == "TypeString")
+			{
+				lua_pushstring(L, ptr->GetTypeString().c_str());
+			}
+			else
+			{
+				lua_pushnil(L);			
+			}
+			
+			return 1;
+		CATCH
 	}
 
 	static int __tostring(lua_State * L)

@@ -46,17 +46,24 @@ function Build(library, sources, outputPath, installPath, extraArgs)
 	else
 		extraTargets = extraArgs.ExtraTargets;	
 	end
-	createJamroot(library, sources, outputPath, excludePattern, extraTargets);
+	local libraryRequirements;
+	if (extraArgs == nil or extraArgs.LibraryRequirements == nil) then
+		libraryRequirements = "";
+	else
+		libraryRequirements = extraArgs.LibraryRequirements;	
+	end
+	createJamroot(library, sources, outputPath, excludePattern, extraTargets,
+				  libraryRequirements);
 	local cmdLine = "bjam "
-	if extraArgs.Shared == nil then
-		cmdLine = cmdLine .. "link=static "	
+	if extraArgs.Link ~= nil then
+		cmdLine = cmdLine .. "link=" .. extraArgs.Link;
 	end
 	if (extraArgs.CmdLine ~= nil) then
 		cmdLine = cmdLine .. " " .. extraArgs.CmdLine
 	end
 	cmdLine = cmdLine .. " " ..  outputPath.AbsolutePathForceSlash
-	print(cmdLine)
-	local rtnCode = os.execute(cmdLine)
+	print(cmdLine)	
+	local rtnCode = os.execute(cmdLine)	
     log:Write("BJAM return code = " .. rtnCode .. ".")
     if (rtnCode ~= 0) then
         error("Call to Boost.Build failed.")
@@ -80,7 +87,8 @@ function Test(library, sources, outputPath, installPath, extraArgs)
     end    
 end
 
-function createJamroot(library, sources, outputPath, excludePattern, extraTargets)
+function createJamroot(library, sources, outputPath, excludePattern, 
+					   extraTargets, libraryRequirements)
 	local buildjam = outputPath:NewPath("/jamroot.jam");
 	log:Write("Creating Boost.Build file at " .. buildjam.AbsolutePathForceSlash .. ".");
 	
@@ -180,7 +188,7 @@ lib ]] .. LibraryMetaTarget(library) .. [[
 	:	library_dependencies
 		library_sources 
 	:	<link>shared:<define>]] .. LibraryDynLink(library) .. [[=1
-		<link>static:<define>]] .. createProjectDef(library) .. [[_STATIC_LINK=1  # <-- This is stupid and doesn't do anything right now. ^_^
+		]] .. libraryRequirements .. [[		
 	:   # '_' ?! 
 	:	]]);
 	first = true
@@ -270,6 +278,12 @@ function Install(library, sourcePaths, outputPath, installPath, extraArgs)
 	else
 		excludePattern = extraArgs.ExcludePattern;	
 	end
+	local libraryRequirements;
+	if (extraArgs == nil or extraArgs.LibraryRequirements == nil) then
+		libraryRequirements = "";
+	else
+		libraryRequirements = extraArgs.LibraryRequirements;	
+	end
 	--local iJam = dstPath:NewPathForceSlash('jamroot.jam');
 	--local writer = iJam:CreateFile();
 	--writer:Write([[
@@ -277,7 +291,7 @@ function Install(library, sourcePaths, outputPath, installPath, extraArgs)
 	--
 	--]]);
 	--writer:Close();
-	createJamroot(library, {}, dstPath, excludePattern, '')
+	createJamroot(library, {}, dstPath, excludePattern, '', libraryRequirements)
 	return nil; --{ mario = "One good game." };
 end
 

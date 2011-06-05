@@ -596,10 +596,6 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Model\Cpp\Access.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\main\mcpp\Macaroni\Model\Cpp\AccessLua.h"
 				>
 			</File>
@@ -1246,6 +1242,10 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\Source\main\mcpp\Macaroni\Model\Cpp\Access.mcpp"
+			>
+		</File>
 		<File
 			RelativePath=".\Source\main\mcpp\Macaroni\Build\BuildContext.mcpp"
 			>

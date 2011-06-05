@@ -43,12 +43,20 @@ jamArgs =
 	  					: <install-dependencies>on <install-type>EXE
              			  <install-type>LIB
            				;
-	  ]],
-	  Shared = "true"
+           				
+        exe StaticApp 
+	  		:	library	  		    
+	  			../Source/Start.cpp	  			
+		#	:	<dependency>tests
+	  		;
+	  ]]
 };
 		
 function build()
+	startTime = os.clock()
 	run("BoostBuild", jamArgs)
+	endTime = os.clock()
+	print("Build time = " .. tostring(endTime - startTime))
 end
 
 function install()

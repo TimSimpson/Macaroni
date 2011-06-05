@@ -23,32 +23,40 @@
 
 #include "../LuaGlue.hpp"
 
+#define TRY try {
+#define CATCH } catch(const std::exception & ex){ return luaL_error(L, ex.what()); }
+
+
 	static int __index(lua_State * L, const AttributeTablePtr & ptr, 
 									  const std::string & index)
-	{				
-		AttributeValuePtr value = ptr->GetByName(index);
-		if (!!value)
-		{
-			AttributeValueLuaMetaData::PutInstanceOnStack(L, value);
-			return 1;
-		}		
-		
-		// Currently only Strings allowed here due to how I this Macro
-		// madness works. I'll change that later...
+	{	
+		TRY
+			AttributeValuePtr value = ptr->GetByName(index);
+			if (!!value)
+			{
+				AttributeValueLuaMetaData::PutInstanceOnStack(L, value);
+				return 1;
+			}		
+			
+			// Currently only Strings allowed here due to how I this Macro
+			// madness works. I'll change that later...
 
-		lua_pushnil(L);			
-		return 1;
+			lua_pushnil(L);			
+			return 1;
+		CATCH
 	}
 
 	static int __tostring(lua_State * L)
 	{
-		AttributeTablePtr & ptr = getInstance(L);
-		std::stringstream ss;
-		ss << "[AttributeTable, Home Node=";
-		ss << ptr->GetHomeNode()->GetFullName();
-		ss << "]";
-		lua_pushstring(L, ss.str().c_str());
-		return 1;
+		TRY
+			AttributeTablePtr & ptr = getInstance(L);
+			std::stringstream ss;
+			ss << "[AttributeTable, Home Node=";
+			ss << ptr->GetHomeNode()->GetFullName();
+			ss << "]";
+			lua_pushstring(L, ss.str().c_str());
+			return 1;
+		CATCH
 	}	
 
 	#define LUAGLUE_ADDITIONALMETATABLEMETHODS \

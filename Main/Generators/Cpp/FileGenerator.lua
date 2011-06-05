@@ -160,13 +160,13 @@ FileGenerator = {
     
     --[[ Writes a function definition, not including the Class name before the
          function name. ]]--
-    writeFunctionDefinition = function(self, foNode)
+    writeFunctionDefinition = function(self, foNode, calledFromClassWriter)
     	check(self ~= nil, "Method called without instance.");
     	check(foNode.Member ~= nil, "functionNode must have instance");
     	check(foNode.Member.TypeName == "Function", "Node must be Function, not " 
-    		  .. tostring(foNode.Member.TypeName));    	
+    		  .. tostring(foNode.Member.TypeName));      	 	
     	for i = 1, #foNode.Children do    		
-    		self:writeFunctionOverloadDefinition(foNode.Children[i])
+    		self:writeFunctionOverloadDefinition(foNode.Children[i], calledFromClassWriter)
     	end
     	
     end,
@@ -179,7 +179,8 @@ FileGenerator = {
     	check(foNode.Member ~= nil, "functionNode must have instance");
     	check(foNode.Member.TypeName == "FunctionOverload", "Node must be FunctionOverload");
         self:writeTabs();
-        if self.libDecl and not calledFromClassWriter then
+        if foNode.Member.Access ~= "Access_Private" 
+           and self.libDecl and not calledFromClassWriter then
 			self:write(self.libDecl .. " ");
         end
         local func = foNode.Member;

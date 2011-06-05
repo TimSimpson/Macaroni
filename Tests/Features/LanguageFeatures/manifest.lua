@@ -50,8 +50,10 @@ jamArgs =
 	};
 		
 function build()
-	print("I is build method.\n");
+	startTime = os.clock()
 	run("BoostBuild", jamArgs)
+	endTime = os.clock()
+	print("Build time = " .. tostring(endTime - startTime))
 end
 
 function test()

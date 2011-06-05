@@ -9,7 +9,7 @@ class Class;
 
 END_NAMESPACE
 
-#include "Access.h"
+#include <Macaroni/Model/Cpp/Access.h>
 #include <Macaroni/Model/Cpp/ClassParent.h>
 #include <Macaroni/Model/Cpp/_.h>
 #include <string>

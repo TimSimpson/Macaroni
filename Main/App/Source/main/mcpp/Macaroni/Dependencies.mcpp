@@ -31,14 +31,7 @@ class boost::shared_ptr { ~hfile=<boost/shared_ptr.hpp> }
 //class luaL_Reg	{ ~hfile=<Lulauxlib.h> }
 // #include <Lua/lualib.h>
 
-class Macaroni::Model::Cpp::Access 
-{ 
-	~hfile=<Macaroni/Model/Cpp/Access.h> 
-	@LuaClass 
-	[
-		ReferenceType = Macaroni::Model::Cpp::Access,
-	]
-}
+class Macaroni::Model::Cpp::AccessLuaMetaData{ ~hfile=<Macaroni/Model/Cpp/AccessLua.h> }
 class Macaroni::Model::Cpp::AccessLuaMetaData { ~hfile=<Macaroni/Model/Cpp/AccessLua.h> }
 class Macaroni::Containers::AssignVectorToConstElementVector { ~hfile=<Macaroni/Containers.h.> } //TODO: Make function 
 class MACARONI_CHECK { ~hfile=<Macaroni/ME.h> }

@@ -27,7 +27,7 @@ dependency {group="Macaroni", name="Boost", version="1.39.0-0"}
 dependency {group="Macaroni", name="CppStd", version="1.0.0.0"}
 
 function generate()
-    run "AttributeReader"   
+    run "AttributeReaderTest"   
 end
 
 function build()

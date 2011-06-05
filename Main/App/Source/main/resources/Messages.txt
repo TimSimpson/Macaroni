@@ -22,6 +22,7 @@ CppAxioms.VariableScopeCreation=Variable definition encountered.
 # C++ Parser Exception Messages
 CppParser.Attribute.AttributeFoundOutsideOfAnyScope=An attribute (or '@' symbol) was found outside of any Node scope.  An attribute must be attached to a Node.
 CppParser.Attribute.EndBracketOrSimpleNameExpectedInsideAttributeTable=Either an ']' or a simple name for a table entry (no "::") was expected inside the attribute table.
+CppParser.Attribute.CodeBlockExpectedAfterEquals=A code block was expected right after the equals sign.
 CppParser.Attribute.NodeNameExpectedAfterAt=Expected attribute name following '@' symbol.
 CppParser.Attribute.TableEntryEqualsExpected=Expected to see '=' following the table entry name ("::" not allowed as a name).
 CppParser.Attribute.TableEntryValueExpected=Expected to see a value for the Attribute table entry following the name and '='.

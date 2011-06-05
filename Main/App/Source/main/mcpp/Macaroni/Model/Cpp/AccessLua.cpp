@@ -4,7 +4,7 @@
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
-#include "Access.h"
+#include <Macaroni/Model/Cpp/Access.h>
 #include "AccessLua.h"
 #include "../../Exception.h"
 #include <sstream>
@@ -25,34 +25,34 @@ Access AccessLuaMetaData::GetInstance(lua_State * L, int index)
 	std::string access(luaL_checkstring(L, index));
 	if (access == "Access_Private")
 	{
-		return Access_Private;
+		return Access::Private();
 	}
 	else if (access == "Access_Protected")
 	{
-		return Access_Protected;
+		return Access::Protected();
 	}
 	else if (access == "Access_Public")
 	{
-		return Access_Public;
+		return Access::Public();
 	}
 	else 
 	{
 		luaL_error(L, "String was not a valid access:%c", access);
-		return Access_Private; // never actually reached
+		return Access::Private(); // never actually reached
 	}
 }
 
 int AccessLuaMetaData::PutInstanceOnStack(lua_State * L, Access access)
 {
-	if (access == Access_Private)
+	if (access == Access::Private())
 	{
 		lua_pushstring(L, "Access_Private");
 	}
-	else if (access == Access_Protected)
+	else if (access == Access::Protected())
 	{
 		lua_pushstring(L, "Access_Protected");
 	}
-	else if (access == Access_Public)
+	else if (access == Access::Public())
 	{
 		lua_pushstring(L, "Access_Public");
 	}
@@ -60,6 +60,15 @@ int AccessLuaMetaData::PutInstanceOnStack(lua_State * L, Access access)
 	{
 		lua_pushnil(L);
 	}
+	return 1;
+}
+
+
+
+int isHidden(lua_State * L)
+{
+	Access access = AccessLuaMetaData::GetInstance(L, 1);
+	lua_pushboolean(L, access.IsHidden());
 	return 1;
 }
 
@@ -78,6 +87,10 @@ int AccessLuaMetaData::OpenInLua(lua_State * L)
 
 	lua_pushlstring(L, "Public", 6);
 	lua_pushstring(L, "Access_Public");
+	lua_settable(L, -3);
+
+	lua_pushlstring(L, "IsHidden", 8);
+	lua_pushcfunction(L, isHidden);
 	lua_settable(L, -3);
 
 	return 1;

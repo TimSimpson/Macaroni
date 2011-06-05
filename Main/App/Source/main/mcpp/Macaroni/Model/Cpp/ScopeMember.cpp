@@ -8,7 +8,7 @@
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 ScopeMember::ScopeMember(Node * node, const char * typeName, ReasonPtr reason)
-:Member(node, typeName, reason), access(Access_Private), isStatic(false)
+:Member(node, typeName, reason), access(Access::Private()), isStatic(false)
 {
 }
 

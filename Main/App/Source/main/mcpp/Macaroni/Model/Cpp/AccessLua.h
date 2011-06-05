@@ -1,7 +1,8 @@
 #ifndef MACARONI_MODEL_CPP_ACCESSLUA_H
 #define MACARONI_MODEL_CPP_ACCESSLUA_H
 
-#include "Access.h"
+#include <Macaroni/ME.h>
+#include <Macaroni/Model/Cpp/Access.h>
 
 struct lua_State;
 

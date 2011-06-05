@@ -5,7 +5,7 @@
 #include <Macaroni/Model/AttributeTable.h>
 #include <Macaroni/Model/AttributeValue.h>
 #include <Macaroni/Model/AttributeValuePtr.h>
-#include "../../Model/Cpp/Access.h"
+#include <Macaroni/Model/Cpp/Access.h>
 #include "../../Model/Block.h"
 #include "../../Model/Cpp/Class.h"
 #include "../../Model/Cpp/Constructor.h"
@@ -371,25 +371,50 @@ public:
 	 * "Access_NotSpecified" if it finds nothing. */
 	Access AccessKeyword(Iterator & itr)
 	{
-		using namespace Macaroni::Model::Cpp;
+		using Macaroni::Model::Cpp::Access;
 
 		ConsumeWhitespace(itr);
-		Access access;
-		if (itr.ConsumeWord("private"))
+		Access access = Access::NotSpecified();
+		if (itr.ConsumeWord("~hidden"))
 		{
-			access = Access_Private;
+			access = Access::Hidden();
+		}
+		/*else if (itr.ConsumeWord("~inner"))
+		{
+			itr.ConsumeWhitespace();
+			if (itr.ConsumeWord("protected"))
+			{
+				access = Access_Inner_Protected;
+			}
+			else
+			{
+				access = Access_Inner;
+			}			
+		}	*/	
+		else if (itr.ConsumeWord("private"))
+		{
+			access = Access::Private();
 		}
 		else if (itr.ConsumeWord("protected"))
 		{
-			access = Access_Protected;
+			/*itr.ConsumeWhitespace();
+			if (itr.ConsumeWord("~inner"))
+			{
+				access = Access_Inner_Protected;
+			}
+			else
+			{
+				access = Access_Protected;
+			}*/
+			access == Access::Protected();
 		}
 		else if (itr.ConsumeWord("public"))
 		{
-			access = Access_Public;
+			access = Access::Public();
 		}
 		else
 		{
-			access = Access_NotSpecified;
+			access = Access::NotSpecified();
 		}
 		return access;
 	}
@@ -423,7 +448,9 @@ public:
 		if (AttributeValue_(itr, attrBegin, name, attributeValue))
 		{
 			itr.ConsumeWhitespace();
-			itr.ConsumeChar(';'); // Consume this (its optional)
+			// Changing this, because if its in a typedef or Variable its 
+			// ambiguous.
+			// itr.ConsumeChar(';'); // Consume this (its optional)
 			currentScope->GetAttributes().Add(attributeValue);
 			return true;
 		}
@@ -477,6 +504,15 @@ public:
 					Reason::Create(CppAxioms::AttributeValueCreation(), attrBegin.GetSource())
 				));			
 			attributeTableContents(itr, attributeValue->GetValueAsTable());
+		}
+		else
+		{
+			// Short hand syntax allows for an empty attribute.
+			// For now this is a table but it'd be cool if it could be nothing
+			// to avoid the waste.
+			attributeValue = AttributeValueInternalPtr(new AttributeValue(name, 
+				Reason::Create(CppAxioms::AttributeValueCreation(), attrBegin.GetSource())
+				));						
 		}
 		return !!attributeValue;
 	}
@@ -563,10 +599,18 @@ public:
 		{
 			return true;
 		}
-		if (CodeBlock(itr, value))
+		if (itr.ConsumeChar('='))
 		{
-			return true;
-		}
+			if (CodeBlock(itr, value))
+			{
+				return true;
+			}
+			else
+			{
+				throw ParserException(itr.GetSource(), Messages::Get(
+					"CppParser.Attribute.CodeBlockExpectedAfterEquals"));
+			}			
+		}		
 		return false;
 	}	
 
@@ -637,6 +681,10 @@ public:
 
 		ConsumeWhitespace(newItr);   
 
+		while(Attribute(newItr));
+
+		ConsumeWhitespace(newItr);   
+
 		SourcePtr firstBraceSrc = newItr.GetSource();
 
 		if (!newItr.ConsumeChar('{'))
@@ -682,9 +730,9 @@ public:
 		{
 			itr.ConsumeWhitespace();
 			Access access = AccessKeyword(itr);
-			if (access == Access_NotSpecified)
+			if (access == Access::NotSpecified())
 			{
-				access = Access_Private;
+				access = Access::Private();
 			}			
 			itr.ConsumeWhitespace();
 
@@ -812,9 +860,9 @@ public:
 		
 		Access access = AccessKeyword(newItr);
 		
-		if (access == Access_NotSpecified)
+		if (access == Access::NotSpecified())
 		{
-			access = Access_Private;
+			access = Access::Private();
 		}
 
 		bool isInline = InlineKeyword(newItr);
@@ -1629,7 +1677,7 @@ public:
 		while(!itr.ConsumeChar(')'))
 		{	
 			Iterator oldItr = itr;
-			Access access;
+			Access access = Access::NotSpecified();
 			bool _friend;
 			bool global;
 			bool isInline;
@@ -2139,6 +2187,14 @@ public:
 			type);
 
 		ConsumeWhitespace(newItr);
+		
+		NodePtr oldScope = currentScope;
+		currentScope = typedefNode;
+		while(Attribute(newItr)) {
+			ConsumeWhitespace(newItr);
+		}
+		currentScope = oldScope;		
+
 		if (!newItr.ConsumeChar(';'))
 		{
 			throw ParserException(newItr.GetSource(),
@@ -2162,14 +2218,14 @@ public:
 	{
 		using namespace Macaroni::Model::Cpp;
 
-		access = Access_NotSpecified;
+		access = Access::NotSpecified();
 		_friend = false;
 		global = false;
 		isInline = false;		
 		isStatic = false;
 		while(
-				(access == Access_NotSpecified 
-					&& (access = AccessKeyword(itr)) != Access_NotSpecified)
+				(access == Access::NotSpecified()
+					&& (access = AccessKeyword(itr)) != Access::NotSpecified())
 				|| (!_friend && (_friend = FriendModifierKeyword(itr)))
 				|| (!global && (global = GlobalKeyword(itr)))
 				|| (!isInline && (isInline = InlineKeyword(itr)))
@@ -2182,7 +2238,7 @@ public:
 		}
 		
 
-		if (access == Access_Public && global && isStatic) 
+		if (access == Access::Public() && global && isStatic) 
 		{
 			throw ParserException(itr.GetSource(),
 					Messages::Get("CppParser.Variable.PublicGlobalStaticMakesNoSense")); 			
@@ -2219,7 +2275,7 @@ public:
 		using namespace Macaroni::Model::Cpp;
 
 
-		Access access;
+		Access access = Access::NotSpecified();
 		bool _friend;
 		bool global;
 		bool isInline;
@@ -2244,33 +2300,17 @@ public:
 					Messages::Get("CppParser.Variable.MustFollowGlobalKeyword")); 
 		}
 
-		if (access == Access_NotSpecified)
+		if (access == Access::NotSpecified())
 		{
-			access = Access_Private;
+			access = Access::Private();
 		}
 
 		NodePtr node;
 
 		if (global)
 		{
-			ClassPtr classPtr;
-			if (!!currentScope->GetMember())
-			{
-				classPtr = boost::dynamic_pointer_cast<Macaroni::Model::Cpp::Class>(currentScope->GetMember());
-			}
-			if (!classPtr)
-			{
-				throw ParserException(itr.GetSource(),
-					Messages::Get("CppParser.Global.AllowedForClassesOnly"));
-			}
 			node = currentScope->GetNode()->FindOrCreate(varName);
-			node->SetAdoptedHome(currentScope);
-			classPtr->AddGlobal(node);
-
-			if (_friend)
-			{
-				classPtr->AddFriend(node);
-			}
+			node->SetAdoptedHome(currentScope);			
 		} 
 		else
 		{
@@ -2291,7 +2331,24 @@ public:
 		{			
 			Variable::Create(node, access, isStatic, type, initializer,
 				Reason::Create(CppAxioms::VariableScopeCreation(), oldItr.GetSource()));
-		
+			if (global)
+			{
+				ClassPtr classPtr;
+				if (!!currentScope->GetMember())
+				{
+					classPtr = boost::dynamic_pointer_cast<Macaroni::Model::Cpp::Class>(currentScope->GetMember());
+				}
+				if (!classPtr)
+				{
+					throw ParserException(itr.GetSource(),
+						Messages::Get("CppParser.Global.AllowedForClassesOnly"));
+				}
+				classPtr->AddGlobal(node);
+				if (_friend)
+				{
+					classPtr->AddFriend(node);
+				}
+			}	
 		} 
 		else if (itr.ConsumeChar('('))
 		{
@@ -2306,8 +2363,7 @@ public:
 			NodePtr oldScope = currentScope;
 			NodePtr foNode = node->CreateNextInSequence("Overload#");
 			currentScope = foNode;
-				FunctionArgumentList(itr);
-			currentScope = oldScope;
+				FunctionArgumentList(itr);			
 
 			bool constMember = false;
 			ConsumeWhitespace(itr);
@@ -2316,7 +2372,10 @@ public:
 				constMember = true;
 				ConsumeWhitespace(itr);
 			}
+			
+			while(Attribute(itr));
 
+			currentScope = oldScope;
 
 			std::string codeBlock;
 			bool codeAttached = false;
@@ -2342,6 +2401,24 @@ public:
 			{
 				fOl->SetCodeBlock(codeBlock, startOfCodeBlock.GetSource());
 			}
+			if (global)
+			{
+				ClassPtr classPtr;
+				if (!!currentScope->GetMember())
+				{
+					classPtr = boost::dynamic_pointer_cast<Macaroni::Model::Cpp::Class>(currentScope->GetMember());
+				}
+				if (!classPtr)
+				{
+					throw ParserException(itr.GetSource(),
+						Messages::Get("CppParser.Global.AllowedForClassesOnly"));
+				}
+				classPtr->AddGlobal(foNode);
+				if (_friend)
+				{
+					classPtr->AddFriend(foNode);
+				}
+			}	
 
 		}
 		else

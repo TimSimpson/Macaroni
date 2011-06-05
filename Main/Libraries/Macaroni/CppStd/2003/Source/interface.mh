@@ -7,6 +7,7 @@ namespace std
 	class cout { ~hfile=<iostream> }
 	class cin { ~hfile=<iostream> }
 	class endl { ~hfile=<iostream> }
+	class exception { ~hfile=<exception> }
 	class fstream { ~hfile=<fstream> }
 	class ifstream { ~hfile=<fstream> }	
 	class istream { ~hfile=<iostream> }

@@ -1,0 +1,116 @@
+~import Macaroni::Lua::LuaClass;
+~import MACARONI_THROW;
+~import std::string;
+
+namespace Macaroni::Model::Cpp 
+{
+
+class Access
+{		
+	@LuaClass 
+	[
+		LuaGlueClass = Macaroni::Model::Cpp::AccessLuaMetaData,
+		ReferenceType = Macaroni::Model::Cpp::Access,
+	]
+
+	~block "h"
+	{
+		enum AccessData
+		{
+			Access_Hidden,
+			Access_Private,
+			Access_Protected,	
+			Access_Public,
+			Access_NotSpecified
+		};
+
+		private: AccessData data;
+
+	    private: Access(AccessData data);
+	}
+
+	~block "cpp"
+	{
+		Access::Access(AccessData data)
+		: data(data)
+		{
+		}
+	}
+
+	public bool operator== (const Access & other) const
+	{
+		return this->data == other.data;
+	}
+
+	public bool operator != (const Access & other) const
+	{
+		return this->data != other.data;
+	}
+
+	public const char * CppName() const
+	{
+		switch(data)
+		{
+		case Access_Hidden:
+		case Access_Private:
+			return "private";
+		case Access_Protected:
+			return "protected";
+		case Access_Public:
+			return "public";
+		case Access_NotSpecified:
+			return "";
+		default:
+			MACARONI_THROW("Invalid enum value!");
+			break;
+		}		
+	}
+
+	/** True if this does not appear in the header file. */
+	public bool IsHidden() const
+	{
+		switch(data)
+		{
+		case Access_Private:
+		case Access_Protected:
+		case Access_Public:
+		case Access_NotSpecified:
+			return false;
+		case Access_Hidden:
+			return true;
+		default:
+			MACARONI_THROW("Invalid enum value!");
+			break;
+		}		
+	}
+
+	/** Extra private. Macaroni generators will not even put this in the header
+	 * file.  */
+	public static Access Hidden()
+	{
+		return Access(Access_Hidden);
+	}
+
+	public static Access Private()
+	{
+		return Access(Access_Private);
+	}
+
+	public static Access Protected()
+	{
+		return Access(Access_Protected);
+	}
+
+	public static Access Public()
+	{
+		return Access(Access_Public);
+	}
+
+	public static Access NotSpecified()
+	{
+		return Access(Access_NotSpecified);
+	}
+
+}; 
+
+} // End Macaroni::Model::Cpp 

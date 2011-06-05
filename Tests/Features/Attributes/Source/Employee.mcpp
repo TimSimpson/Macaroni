@@ -6,6 +6,8 @@
 ~import FakeORM::PersonalizedGreeting;
 ~import FakeORM::Sleep;
 
+~import FakeTestLib::Test;
+
 ~import Reosui::Database::Dog;
 
 namespace Reosui::Database 
@@ -16,19 +18,24 @@ class Dog
 };
 
 class Employee
-{
-	@IsSimple false;
+	@IsSimple false
 	
-	@MaxInstances 20;
+	@MaxInstances 20
 
-	@Partner Reosui::Database::Dog;
+	@Partner Reosui::Database::Dog
 
-	@Partner2 Dog; 
+	@Partner2 Dog
 
-	@CodeBlock { Look, arbitrary! }
+	@CodeBlock ={ Look, arbitrary! }
 
-	@PersonalizedGreeting "blah blah blah";
+	@PersonalizedGreeting "blah blah blah"
 
 	@Sleep[often="yes", awayMessage="Please... let me sleep... a little more... please..."]
+{		
+	public void SomeMethod() 
+	  @Test[enabled=true, priority=25]
+	{
+		
+	}
 };
 }

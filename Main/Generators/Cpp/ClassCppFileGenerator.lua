@@ -1,5 +1,6 @@
 require "Cpp/Common";
 require "Cpp/ClassFileGenerator";
+require "Cpp/ClassHFileGenerator";
 require "Cpp/NodeInfo"
 require "Cpp/DependencySection";
 require "Cpp/LibraryConfigGenerator";
@@ -75,15 +76,21 @@ ClassCppFileGenerator = {
         local globals = self.node.Member.GlobalNodes;        
         for i=1, #globals do
             local node = globals[i];
-            if (node.Member ~= nil and
-                node.Member.TypeName == TypeNames.Function) then 
-                for j=1, #node.Children do
-					local nodeJ = node.Children[j]
-					if (nodeJ.Member.Access == "Access_Private") then
-						self:writeFunctionOverloadDefinition(nodeJ);         
+            if (node.Member ~= nil) then
+                if (node.Member.TypeName == TypeNames.Function) then 
+					for j=1, #node.Children do
+						local nodeJ = node.Children[j]
+						if (nodeJ.Member.Access == "Access_Private") then
+							self:writeFunctionOverloadDefinition(nodeJ);         
+							self:write(";\n");       
+						end
+					end					
+				elseif (node.Member.TypeName == TypeNames.FunctionOverload) then 
+					if (node.Member.Access == "Access_Private") then
+						self:writeFunctionOverloadDefinition(node);  
 						self:write(";\n");       
 					end
-				end
+				end				
             end
         end
     end,
@@ -93,8 +100,11 @@ ClassCppFileGenerator = {
         local class = self.node.Member;
         local imports = class.ImportedNodes;                               
         -- Put the include to this classes H file.
-        local hFile = '#include "' .. self.node.Name .. '.h"\n';
-        self:write(hFile);
+        
+        -- local hFile = '#include "' .. self.node.Name .. '.h"\n';
+        -- self:write(hFile);
+        self:writePrivateHeader();
+        
         for i = 1, #imports do                      
             local import = imports[i];        
             if (import.Member ~= nil) then
@@ -162,7 +172,8 @@ ClassCppFileGenerator = {
             self:write("//~<(Skipping inline constructor.)\n");
             return;
         end
-        if self.libDecl then
+        if node.Member.Access ~= "Access_Private" 
+           and self.libDecl then
 			self:writeTabs();
 			self:write(self.libDecl .. "\n");
 		end
@@ -241,7 +252,8 @@ ClassCppFileGenerator = {
             self:write('//~<(Skipping inline function "' .. node.FullName .. '")\n');
             return;
         end        
-        if self.libDecl then
+        if node.Member.Access ~= "Access_Private" 
+           and self.libDecl then
 			self:writeTabs();
 			self:write(self.libDecl .. "\n");
 		end
@@ -330,6 +342,22 @@ ClassCppFileGenerator = {
         local typeUtil = TypeUtil.new();
         local str = typeUtil:createTypeDefinition(type, true);
         self:write(str);        
+    end,
+    
+    writePrivateHeader = function(self)
+		log:Write("Creating private header.");
+		self:write("/*--------------------------------------------------------------------------*\n");
+		self:write(" * Internal header.                                                         *\n");
+		self:write(" *--------------------------------------------------------------------------*/\n");
+        local cg = ClassHFileGenerator.new{node = self.node, 
+                                           internalDef=true,
+		  						           targetLibrary=self.targetLibrary, 
+										   writer = self.writer};
+		cg:parse();
+		self:write("\n\n");
+		self:write("/*--------------------------------------------------------------------------*\n");
+		self:write(" * Definition.                                                              *\n");
+		self:write(" *--------------------------------------------------------------------------*/\n");										           
     end,
     
     writeUsing = function(self, import) 

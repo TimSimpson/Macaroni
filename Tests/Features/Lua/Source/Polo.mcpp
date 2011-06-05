@@ -1,4 +1,7 @@
+~import std::exception;
 ~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaProperty;
 ~import std::string;
 ~import Macaroni::Tests::Lua::Polo;
 ~import Macaroni::Tests::Lua::PoloPtr;
@@ -10,14 +13,17 @@ namespace Macaroni::Tests::Lua
 {
 	class Polo {};
 	
-	typedef intrusive_ptr<Polo> PoloPtr;
+	typedef intrusive_ptr<Polo> PoloPtr
+		@LuaClass [ SameAsNode = Polo ]
+	;
 
 	class Polo
+	  @LuaClass 
+	  [
+	    ReferenceType = PoloPtr,
+	  ]
 	{
-		@LuaClass 
-		[
-			ReferenceType = PoloPtr,
-		]
+		
 
 		private string name;
 		private int refCount;
@@ -27,25 +33,35 @@ namespace Macaroni::Tests::Lua
 		  refCount(0)
 		{		
 		}
-
+		
 		public const string & GetName() const
+		@LuaFunction
+		@LuaProperty ={Name}
 		{
+			if (name == "Suzy")
+			{
+				throw exception("Wait, I didn't notice when you set it "
+					"originally, but now I realize that Suzy is a variant of "
+					"Sue.  Get ready for one freakin' mother of an exception, "
+					"bubb.");
+			}
 			return name;
 		}			
 		
 		public inline int GetReferenceCount() const
+		@LuaFunction
 		{
 			return refCount;
 		}		
 		
-		public ~global void intrusive_ptr_add_ref(Polo * p)
+		public ~friend ~global void intrusive_ptr_add_ref(Polo * p)
 		{
 			p->refCount ++;
 		}
 		
-		friend intrusive_ptr_add_ref;
+		//friend intrusive_ptr_add_ref;
 
-		public ~global void intrusive_ptr_release(Polo * p)
+		public ~friend ~global void intrusive_ptr_release(Polo * p)
 		{
 			p->refCount --;
 			if (p->refCount <= 0)
@@ -54,11 +70,35 @@ namespace Macaroni::Tests::Lua
 			}			
 		}
 	
-		friend intrusive_ptr_release;
-	
-		public void SetName(const string & newName)
+		// friend intrusive_ptr_release;
+			
+		public void NonLuaFunction(string & something)
 		{
+			something = "This should not be called from Lua...";
+		}
+		
+		public void SetName(const string & newName)
+		@LuaFunction
+		@LuaProperty "Name"
+		{
+			if (newName == "Sue")
+			{
+				throw exception("No! Not Sue, I hate that name.");
+			}
 			this->name = newName;
+		}
+		
+		public static string PointlessStaticFunctionGet(const PoloPtr & ptr)
+		@LuaFunction
+		{
+			return ptr->GetName();	
+		}	
+		
+		public static void PointlessStaticFunctionSet(const PoloPtr & ptr, 
+		                                              string name)
+		@LuaFunction
+		{
+			ptr->SetName(name);	
 		}	
 	};
 	

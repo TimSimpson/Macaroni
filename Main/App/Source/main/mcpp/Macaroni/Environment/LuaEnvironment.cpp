@@ -253,7 +253,8 @@ void LuaEnvironment::ParseFile(std::string filePath)
 		if (eCode != 0)
 		{	
 			std::stringstream ss;
-			ss << "Error while loading Lua file:";
+			ss << "Error while loading Lua file \"";
+			ss << filePath << "\" : ";
 			ss << luaL_checkstring(this->state, -1);
 			//std::cerr << ss.str() <<  std::endl;
 			Macaroni::ThrowMacaroniException(filePath.c_str(), 0, ss.str().c_str());

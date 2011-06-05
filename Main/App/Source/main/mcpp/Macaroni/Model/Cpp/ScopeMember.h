@@ -2,7 +2,7 @@
 #define MACARONI_MODEL_CPP_SCOPEMEMBER_H
 
 #include "../../ME.h"
-#include "Access.h"
+#include <Macaroni/Model/Cpp/Access.h>
 #include "../Member.h"
 #include "ScopeMemberPtr.h"
 #include <string>

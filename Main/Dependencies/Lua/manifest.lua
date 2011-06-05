@@ -17,9 +17,13 @@ jamArgs =
 	ExtraTargets = 
 	[[	    
 	  	exe lua 
-	  		:	library 
+	  		:	library
 	  			lua.cpp
 	  		;
+	]],
+	LibraryRequirements =
+	[[
+		<link>shared:<define>LUA_BUILD_AS_DLL
 	]],
 	Shared = True
 };
