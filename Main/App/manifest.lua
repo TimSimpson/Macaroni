@@ -59,8 +59,8 @@ jamArgs =
 			;
 
 	  	exe macaroni 
-	  		:	library_sources
-	  			library_dependencies
+	  		:	library #library_sources
+	  			#library_dependencies
 	  			../Source/main/mcpp/Main.cpp
 	  			../Source/main/resources/Macaroni.rc
             :
@@ -74,7 +74,8 @@ jamArgs =
           <variant>debug:<location>release/debug
           <variant>release:<location>release/release          		
         ;
-	  ]]
+	  ]],
+	  Link="static"
 	};
 		
 function build()	
