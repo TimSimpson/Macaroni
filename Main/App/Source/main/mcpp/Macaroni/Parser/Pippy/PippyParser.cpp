@@ -2192,7 +2192,8 @@ public:
 		
 		NodePtr oldScope = currentScope;
 		currentScope = typedefNode;
-		while(Attribute(newItr)) {
+		
+		while(Directives(newItr) || Attribute(newItr)) {
 			ConsumeWhitespace(newItr);
 		}
 		currentScope = oldScope;		

@@ -47,19 +47,19 @@ namespace
 
 Node::Node(Context & context, const std::string & name)
 : adoptedHome(), 
-  attributes(context),
-  context(&context), 
-  hFilePath(), hFilePathReason(),
-  member(nullptr), name(name), scope(nullptr)
+attributes(context),
+context(&context), 
+hFilePath(), hFilePathReason(),
+member(nullptr), name(name), scope(nullptr)
 {	
 }
 
 Node::Node(Node * scope, const std::string & name)
 : adoptedHome(), 
-  attributes(*(scope->context)),
-  context(scope->context), 
-  hFilePath(), hFilePathReason(),
-  member(nullptr), name(name), scope(scope)
+attributes(*(scope->context)),
+context(scope->context), 
+hFilePath(), hFilePathReason(),
+member(nullptr), name(name), scope(scope)
 {	
 
 }
@@ -355,11 +355,11 @@ bool Node::IsRoot() const
 }
 
 void Node::ParseComplexName(NodePtr searchRoot, const std::string & complexName,
-							 NodePtr & resultNode,
-							 std::string & resultSimpleName)
+							NodePtr & resultNode,
+							std::string & resultSimpleName)
 {
 	MACARONI_ASSERT(searchRoot != false, "Root Node of search can not be null.");
-	
+
 	int index = complexName.find_last_of("::");
 	if (index == std::string::npos) // Not found
 	{
@@ -399,19 +399,19 @@ void Node::setMember(Member * value, const char * typeName, const ReasonPtr reas
 	{
 		std::stringstream ss;
 		ss << "Member for node " << GetFullName() 
-		   << " is already a(n) " << member->GetTypeName() << " and cannot "
-		   "morph into a(n) " << typeName << ".";
+			<< " is already a(n) " << member->GetTypeName() << " and cannot "
+			"morph into a(n) " << typeName << ".";
 		throw ModelInconsistencyException(member->GetReasonCreated(),
-											  reasonCreated,
-											  ss.str());	
+			reasonCreated,
+			ss.str());	
 	}
 	this->member = value;
 	this->member->node = this;
 }
 
 void Node::SplitFirstNameOffComplexName(const std::string & complexName,
-									     std::string & firstPart,
-										 std::string & lastPart)
+										std::string & firstPart,
+										std::string & lastPart)
 {
 	int index = complexName.find_first_of("::");
 	if (index == std::string::npos) // Not found
@@ -425,9 +425,9 @@ void Node::SplitFirstNameOffComplexName(const std::string & complexName,
 		lastPart = complexName.substr(index + 2);
 	}
 }
- 
+
 void Node::SplitNodeAndMemberName(const std::string & complexName,
-			  				 std::string & scopeName, std::string & memberName)
+								  std::string & scopeName, std::string & memberName)
 {
 	int index = complexName.find_last_of("::");
 	if (index == std::string::npos) // Not found
@@ -443,7 +443,7 @@ void Node::SplitNodeAndMemberName(const std::string & complexName,
 }
 
 void Node::SplitComplexName(const std::string & complexName,
-			  				 std::vector<std::string> & subNames)
+							std::vector<std::string> & subNames)
 {
 	MACARONI_ASSERT(complexName.length() < 16384, ":p < yeah right");
 	unsigned int currentPos = 0;
