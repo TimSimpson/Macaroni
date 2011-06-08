@@ -13,21 +13,53 @@
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
+namespace
+{
+
+	static const char OPERATORS[][35] = {
+		"new[]", "new", "delete[]", "delete",
+		"[]", "->", "==", "!=", ">=", "<=", "&&", "||", 
+		"++", "--", "+=", "-=", "*=", "/=", "<<", ">>",
+		"+", "-", "*", "/", "%", "^", 
+		"|", "&", "&", "~", "<", ">", "!", "=",
+		nullptr
+	};
+
+	const char * findOperatorName(const std::string & name)
+	{
+		if (name.find("operator", 0) != 0)
+		{
+			return nullptr;
+		}
+		std::string suffix = name.substr(8, name.length() - 8);
+		for (int i = 0; OPERATORS[i] != nullptr; i ++)
+		{
+			const char * operatorName = OPERATORS[i];
+			if (suffix == operatorName) 
+			{
+				return operatorName;
+			}
+		}
+		return nullptr;
+	}
+
+} // End anon namespace
+
 Node::Node(Context & context, const std::string & name)
 : adoptedHome(), 
-  attributes(context),
-  context(&context), 
-  hFilePath(), hFilePathReason(),
-  member(nullptr), name(name), scope(nullptr)
+attributes(context),
+context(&context), 
+hFilePath(), hFilePathReason(),
+member(nullptr), name(name), scope(nullptr)
 {	
 }
 
 Node::Node(Node * scope, const std::string & name)
 : adoptedHome(), 
-  attributes(*(scope->context)),
-  context(scope->context), 
-  hFilePath(), hFilePathReason(),
-  member(nullptr), name(name), scope(scope)
+attributes(*(scope->context)),
+context(scope->context), 
+hFilePath(), hFilePathReason(),
+member(nullptr), name(name), scope(scope)
 {	
 
 }
@@ -274,6 +306,18 @@ Node * Node::getNode() const
 	return scope;
 }
 
+std::string Node::GetOperatorName() const
+{
+	const char * operatorName = findOperatorName(name);
+	if (operatorName == nullptr) 
+	{
+		std::stringstream ss;
+		ss << "\"" << name << "\" is not an operator.";
+		MACARONI_THROW(ss.str().c_str())
+	}
+	return operatorName;
+}
+
 void intrusive_ptr_add_ref(Node * p)
 {
 	intrusive_ptr_add_ref(p->context);
@@ -287,6 +331,12 @@ void intrusive_ptr_release(Node * p)
 bool Node::IsComplexName(const std::string & name)
 {
 	return (name.find("::", 0) != std::string::npos);
+}
+
+bool Node::IsOperator() const
+{
+	const char * operatorName = findOperatorName(name);
+	return operatorName != nullptr;
 }
 
 bool Node::IsSimpleName(const std::string & name)
@@ -305,11 +355,11 @@ bool Node::IsRoot() const
 }
 
 void Node::ParseComplexName(NodePtr searchRoot, const std::string & complexName,
-							 NodePtr & resultNode,
-							 std::string & resultSimpleName)
+							NodePtr & resultNode,
+							std::string & resultSimpleName)
 {
 	MACARONI_ASSERT(searchRoot != false, "Root Node of search can not be null.");
-	
+
 	int index = complexName.find_last_of("::");
 	if (index == std::string::npos) // Not found
 	{
@@ -349,19 +399,19 @@ void Node::setMember(Member * value, const char * typeName, const ReasonPtr reas
 	{
 		std::stringstream ss;
 		ss << "Member for node " << GetFullName() 
-		   << " is already a(n) " << member->GetTypeName() << " and cannot "
-		   "morph into a(n) " << typeName << ".";
+			<< " is already a(n) " << member->GetTypeName() << " and cannot "
+			"morph into a(n) " << typeName << ".";
 		throw ModelInconsistencyException(member->GetReasonCreated(),
-											  reasonCreated,
-											  ss.str());	
+			reasonCreated,
+			ss.str());	
 	}
 	this->member = value;
 	this->member->node = this;
 }
 
 void Node::SplitFirstNameOffComplexName(const std::string & complexName,
-									     std::string & firstPart,
-										 std::string & lastPart)
+										std::string & firstPart,
+										std::string & lastPart)
 {
 	int index = complexName.find_first_of("::");
 	if (index == std::string::npos) // Not found
@@ -375,9 +425,9 @@ void Node::SplitFirstNameOffComplexName(const std::string & complexName,
 		lastPart = complexName.substr(index + 2);
 	}
 }
- 
+
 void Node::SplitNodeAndMemberName(const std::string & complexName,
-			  				 std::string & scopeName, std::string & memberName)
+								  std::string & scopeName, std::string & memberName)
 {
 	int index = complexName.find_last_of("::");
 	if (index == std::string::npos) // Not found
@@ -393,7 +443,7 @@ void Node::SplitNodeAndMemberName(const std::string & complexName,
 }
 
 void Node::SplitComplexName(const std::string & complexName,
-			  				 std::vector<std::string> & subNames)
+							std::vector<std::string> & subNames)
 {
 	MACARONI_ASSERT(complexName.length() < 16384, ":p < yeah right");
 	unsigned int currentPos = 0;

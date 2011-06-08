@@ -78,12 +78,18 @@ public:
 	/** If false, this node does not appear as the part of it's children's names. */
 	bool IsNameVisible() const;
 
+	/** Returns true if this Node represents an operator overload. */
+	bool IsOperator() const;
+
 	bool IsRoot() const;
 
 	inline NodePtr GetChild(int index) const
 	{
 		return NodePtr(children[index]);
 	}
+
+	/** Returns the operator string.  Throws if this Node is not an operator. */
+	std::string GetOperatorName() const;
 
 	MemberPtr GetMember()
 	{
@@ -95,7 +101,7 @@ public:
 
 	static bool IsComplexName(const std::string & name);
 
-	static bool IsSimpleName(const std::string & name);
+	static bool IsSimpleName(const std::string & name);	
 
 	void ParseComplexName(const std::string & complexName,
 				          NodePtr & resultNode,

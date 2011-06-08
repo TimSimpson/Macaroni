@@ -40,6 +40,7 @@
 #include "../Model/Cpp/VariableLua.h"
 #include "../Model/Cpp/VariableAssignmentLua.h"
 #include <windows.h>
+#include <Macaroni/VersionNo.h>
 
 BEGIN_NAMESPACE2(Macaroni, Environment)
 
@@ -112,6 +113,9 @@ void LuaEnvironment::registerInternalLuaModules()
 	//							  directory, 256, NULL, NULL);
 	//MACARONI_ASSERT(ret != 0, "Couldn't convert the dumb directory string.");*/
 
+	lua_pushstring(state, MACARONI_VERSION_STRING);
+	lua_setglobal(state, "MACARONI_VERSION");
+	
 	lua_pushstring(state, directory.c_str());
 	lua_setglobal(state, "LUA_PATH");
 
