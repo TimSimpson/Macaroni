@@ -44,7 +44,7 @@ FunctionOverload::~FunctionOverload()
 }
 
 FunctionOverloadPtr FunctionOverload::Create(FunctionPtr home, 
-											 bool isInline, const Access access, 
+											 bool isInline, const AccessPtr access, 
 											 const bool isStatic, 
 											 const TypePtr rtnType, 
 											 bool constMember, 
@@ -55,7 +55,7 @@ FunctionOverloadPtr FunctionOverload::Create(FunctionPtr home,
 }
 
 FunctionOverloadPtr FunctionOverload::Create(Function * fn, 
-											 bool isInline, const Access access, 
+											 bool isInline, const AccessPtr access, 
 											 const bool isStatic, 
 											 const TypePtr rtnType, 
 											 bool constMember, 
@@ -67,14 +67,14 @@ FunctionOverloadPtr FunctionOverload::Create(Function * fn,
 }
 
 FunctionOverloadPtr FunctionOverload::Create(NodePtr foNode, 
-											 bool isInline, const Access access, 
+											 bool isInline, const AccessPtr access, 
 											 const bool isStatic, 
 											 const TypePtr rtnType, 
 											 bool constMember, 
 											 Model::ReasonPtr reason)
 {		
 	FunctionOverload * fo = new FunctionOverload(foNode.get(), reason, 
-		isInline, access,
+		isInline, *access,
 		isStatic, rtnType, constMember);
 	return FunctionOverloadPtr(fo);
 }

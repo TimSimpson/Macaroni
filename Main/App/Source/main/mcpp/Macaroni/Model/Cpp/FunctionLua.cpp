@@ -1,7 +1,7 @@
 #ifndef MACARONI_MODEL_CPP_FUNCTIONLUA_CPP
 #define MACARONI_MODEL_CPP_FUNCTIONLUA_CPP
 
-#include "AccessLua.h"
+#include <Macaroni/Model/Cpp/AccessLuaMetaData.h>
 #include "../NodeLua.h"
 #include "../../Environment/DebugLog.h"
 #include "FunctionLua.h"

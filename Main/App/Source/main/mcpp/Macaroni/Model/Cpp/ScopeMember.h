@@ -3,6 +3,7 @@
 
 #include "../../ME.h"
 #include <Macaroni/Model/Cpp/Access.h>
+#include <Macaroni/Model/Cpp/_.h>
 #include "../Member.h"
 #include "ScopeMemberPtr.h"
 #include <string>
@@ -22,7 +23,7 @@ public:
  
 	const std::string & GetName() const;
 
-	Access GetAccess() const;
+	AccessPtr GetAccess() const;
 
 	std::string GetFullName() const;	
 

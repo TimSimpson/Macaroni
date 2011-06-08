@@ -179,8 +179,13 @@ FileGenerator = {
     	check(foNode.Member ~= nil, "functionNode must have instance");
     	check(foNode.Member.TypeName == "FunctionOverload", "Node must be FunctionOverload");
         self:writeTabs();
-        if foNode.Member.Access ~= "Access_Private" 
-           and self.libDecl and not calledFromClassWriter then
+        local access_export_lib = false
+        if MACARONI_VERSION=="0.1.0.14" then
+			access_export_lib = foNode.Member.Access ~= "Access_Private" 
+		else
+			access_export_lib = foNode.Member.Access.VisibleInLibrary
+		end
+        if access_export_lib and self.libDecl and not calledFromClassWriter then
 			self:write(self.libDecl .. " ");
         end
         local func = foNode.Member;

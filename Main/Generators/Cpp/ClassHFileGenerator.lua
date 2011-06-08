@@ -1,3 +1,4 @@
+require "Macaroni.Model.Cpp.Access";
 require "Cpp/Common";
 require "Cpp/ClassFileGenerator";
 require "Macaroni.Model.FileName";
@@ -69,20 +70,12 @@ ClassHFileGenerator = {
 			if i > 1 then
 				self:write(",\n  ");
 			end
-			access = parent:GetAccess()
-			if access == "Access_Public" then
-				self:write("public ");
-			elseif access == "Access_Protected" then
-				self:write("protected ");
-			elseif access == "Access_Private" then
-				self:write("private ");
-			else
-				error("Unknown access type " .. access .. " for class.")
-			end
-			if parent:IsVirtual() == true then
+			access = parent.Access
+			self:write(access.CppName .. " ");
+			if parent.IsVirtual == true then
 				self:write("virtual ");
 			end
-			self:writeType(parent:GetParent());
+			self:writeType(parent.Parent);
 		end
 		self:write("\n");		
     end,
@@ -113,7 +106,11 @@ ClassHFileGenerator = {
                self.node.Member.TypeName == TypeNames.Class);
         local globals = self.node.Member.GlobalNodes;    
         self:write("/* Public Global Methods */\n");  
-        self:iterateMembers(globals, "Access_Public");       
+        if MACARONI_VERSION=="0.1.0.14" then
+			self:iterateMembers(globals, "Access_Public");       
+		else
+			self:iterateMembers(globals, Access.Public); 
+		end
     end,
     
     classFriends = function(self)
@@ -160,7 +157,7 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         section:add(self.node);
         section:eraseDuplicates();
         for i = 1, #section.list do
-            local s = section.list[i];
+            local s = section.list[i];            
             if (s.heavy == false) then
                 self:write(NodeInfoList[s.node].lightDef);
             else
@@ -304,7 +301,7 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
 		local ownedByClass = (node.Node.Node == self.node)		
     	if (ownedByClass) then
     		if not self.internalDef then
-    			if (Access.IsHidden(node.Member.Access)) then
+    			if (node.Member.Access.VisibleInHeader) then
     				return
     			end
     		end
@@ -369,18 +366,22 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         self:write(node.Name .. ";\n");]]--
     end,
     
-    writeAccess = function(self, access)
-        local text = nil;
-        if (access == "Access_Public") then
-            text = "public: ";
-        elseif (access == "Access_Protected") then
-            text = "protected: ";
-        elseif (access == "Access_Private") then
-            text = "private: ";
-        else
-            text = "/* ~ <(nil access?) */";
-        end
-        self:write(text);            
+    writeAccess = function(self, access)		
+		if MACARONI_VERSION ~= "0.1.0.14" then
+			self:write(access.CppKeyword .. ": ");
+		else		
+			local text = nil;
+			if (access == "Access_Public") then
+				text = "public: ";
+			elseif (access == "Access_Protected") then
+				text = "protected: ";
+			elseif (access == "Access_Private") then
+				text = "private: ";
+			else
+				text = "/* ~ <(nil access?) */";
+			end
+			self:write(text);            
+		end
     end,
 };
 

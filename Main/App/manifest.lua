@@ -29,6 +29,7 @@ dependency {group="Macaroni", name="Boost-regex", version="1.46.1"}
 dependency {group="Macaroni", name="Lua", version="5.1.4"}
         
 function generate()    
+	run("CheckModel");
 	run("LuaGlue", { luaImportCode =[[ 
 	extern "C" 
 	{	

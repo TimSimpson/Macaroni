@@ -39,10 +39,10 @@ Class::~Class()
 	
 }
 
-void Class::AddParent(TypePtr parent, Access access, bool _virtual)
+void Class::AddParent(TypePtr parent, AccessPtr access, bool _virtual)
 {
 	Class * const me = this;
-	parents->push_back(ClassParent(me, parent, access, _virtual));
+	parents->push_back(ClassParent(me, parent, *access, _virtual));
 }
 
 void Class::AddFriend(NodePtr node)

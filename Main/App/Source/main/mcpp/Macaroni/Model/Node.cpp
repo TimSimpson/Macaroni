@@ -13,6 +13,38 @@
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
+namespace
+{
+
+	static const char OPERATORS[][35] = {
+		"new[]", "new", "delete[]", "delete",
+		"[]", "->", "==", "!=", ">=", "<=", "&&", "||", 
+		"++", "--", "+=", "-=", "*=", "/=", "<<", ">>",
+		"+", "-", "*", "/", "%", "^", 
+		"|", "&", "&", "~", "<", ">", "!", "=",
+		nullptr
+	};
+
+	const char * findOperatorName(const std::string & name)
+	{
+		if (name.find("operator", 0) != 0)
+		{
+			return nullptr;
+		}
+		std::string suffix = name.substr(8, name.length() - 8);
+		for (int i = 0; OPERATORS[i] != nullptr; i ++)
+		{
+			const char * operatorName = OPERATORS[i];
+			if (suffix == operatorName) 
+			{
+				return operatorName;
+			}
+		}
+		return nullptr;
+	}
+
+} // End anon namespace
+
 Node::Node(Context & context, const std::string & name)
 : adoptedHome(), 
   attributes(context),
@@ -274,6 +306,18 @@ Node * Node::getNode() const
 	return scope;
 }
 
+std::string Node::GetOperatorName() const
+{
+	const char * operatorName = findOperatorName(name);
+	if (operatorName == nullptr) 
+	{
+		std::stringstream ss;
+		ss << "\"" << name << "\" is not an operator.";
+		MACARONI_THROW(ss.str().c_str())
+	}
+	return operatorName;
+}
+
 void intrusive_ptr_add_ref(Node * p)
 {
 	intrusive_ptr_add_ref(p->context);
@@ -287,6 +331,12 @@ void intrusive_ptr_release(Node * p)
 bool Node::IsComplexName(const std::string & name)
 {
 	return (name.find("::", 0) != std::string::npos);
+}
+
+bool Node::IsOperator() const
+{
+	const char * operatorName = findOperatorName(name);
+	return operatorName != nullptr;
 }
 
 bool Node::IsSimpleName(const std::string & name)

@@ -2,7 +2,7 @@
 #define MACARONI_MODEL_CPP_CLASSPARENTLISTLUAMETADATA_H
 
 #include <Macaroni/ME.h>
-#include <Macaroni/Model/Cpp/_.h>
+#include <Macaroni/Model/Cpp/ClassParentPtr.h>
 
 struct lua_State;
 

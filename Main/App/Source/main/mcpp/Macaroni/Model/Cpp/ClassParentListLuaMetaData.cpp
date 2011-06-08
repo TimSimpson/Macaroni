@@ -3,7 +3,7 @@
 
 #include "ClassParentListLuaMetaData.h"
 #include <Macaroni/Model/Cpp/ClassLua.h>
-#include <Macaroni/Model/Cpp/_.h>
+#include <Macaroni/Model/Cpp/ClassParent.h>
 #include <Macaroni/Model/Cpp/ClassParentLuaMetaData.h>
 #include <Macaroni/Model/Node.h>
 #include <Macaroni/Model/NodeLua.h>

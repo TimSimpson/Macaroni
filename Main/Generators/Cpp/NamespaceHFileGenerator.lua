@@ -55,7 +55,7 @@ NamespaceHFileGenerator = {
         for i = 1, #self.minors do
             local m = self.minors[i];            
             self:write("/* " .. m.FullName .. '\n');
-            local info = NodeInfoList[m];            
+            local info = NodeInfoList[m];                      
             self:write('     ld    : ' .. info.lightDef .. ' \n');
             self:write('     hd    : ' .. info.heavyDef .. ' \n');
             self:write('     using : ' .. info.using .. ' \n');
@@ -103,17 +103,22 @@ NamespaceHFileGenerator = {
 		-- return false;
     end,
     
-    includeStatements = function(self) 
+    includeStatements = function(self) 		
         local section = DependencySection.new();
         for i = 1, #self.minors do
+			self:write("/* Adding minor " .. self.minors[i].FullName .. "*/\n");
             section:add(self.minors[i]);
         end
         for i = 1, #section.list do
-            local s = section.list[i];
+            local s = section.list[i];            
             if (s.heavy == false) then
+				self:write("/* Light: " .. s.node.FullName .. "*/\n");
                 self:write(NodeInfoList[s.node].lightDef);
+                self:write("/* END Light: " .. s.node.FullName .. "*/\n");
             else
+				self:write("/* Heavy: " .. s.node.FullName .. "*/\n");
                 self:write(NodeInfoList[s.node].heavyDef);
+                self:write("/* END Heavy: " .. s.node.FullName .. "*/\n");
             end
         end        
         --[[
@@ -166,7 +171,7 @@ NamespaceHFileGenerator = {
         self:write('\n');            
         self:namespaceBegin(self.node);
         self:write('\n');
-        
+                
         self:iterateMembers(self.minors);
         --for i = 1, #self.minors do
         --    self:write("// " .. self.minors[i].FullName .. "\n");
@@ -207,9 +212,18 @@ NamespaceHFileGenerator = {
     end,
     
     shouldIncludeNode = function(self, node)
-        return (node.Member ~= nil 
+        if (node.Member ~= nil 
                 and node.Member.TypeName ~= TypeNames.Class
-                and node.AdoptedHome == nil);
+                and node.AdoptedHome == nil) then
+            if (node.HFilePath == nil) then
+				return true;
+			end
+			attr = node.Attributes["Macaroni::Cpp::UseLightDef"]
+			if attr ~= nil and not attr.ValueAsBool then
+				return true;
+			end
+        end
+        return false;
     end,
     
 };

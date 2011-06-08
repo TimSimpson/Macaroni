@@ -1,3 +1,4 @@
+require "Macaroni.Model.Cpp.Access";
 require "Cpp/Common";
 require "Cpp/ClassFileGenerator";
 require "Cpp/ClassHFileGenerator";
@@ -66,9 +67,17 @@ ClassCppFileGenerator = {
         self:write("/* Global Prototypes */\n");
         self:globalPrototypes();
         self:write("/* Global Definitions */\n");
-        self:iterateMembers(self.node.Member.GlobalNodes, "Access_Private");       
+        if MACARONI_VERSION=="0.1.0.14" then
+			self:iterateMembers(self.node.Member.GlobalNodes, "Access_Private");       
+		else
+			self:iterateMembers(self.node.Member.GlobalNodes, Access.Private);       
+		end
         self:write("} // end anonymous namespace\n");
-        self:iterateMembers(self.node.Member.GlobalNodes, "Access_Public"); 
+        if MACARONI_VERSION=="0.1.0.14" then
+			self:iterateMembers(self.node.Member.GlobalNodes, "Access_Public"); 
+		else
+			self:iterateMembers(self.node.Member.GlobalNodes, Access.Public); 
+		end
         self:write("/* End globals. */\n");
     end,   
     
@@ -80,13 +89,25 @@ ClassCppFileGenerator = {
                 if (node.Member.TypeName == TypeNames.Function) then 
 					for j=1, #node.Children do
 						local nodeJ = node.Children[j]
-						if (nodeJ.Member.Access == "Access_Private") then
+						local nodeJPrivate = false
+						if MACARONI_VERSION=="0.1.0.14" then
+							nodeJPrivate = nodeJ.Member.Access == "Access_Private";
+						else
+							nodeJPrivate = nodeJ.Member.Access == Access.Private;
+						end
+						if (nodeJPrivate) then
 							self:writeFunctionOverloadDefinition(nodeJ);         
 							self:write(";\n");       
 						end
 					end					
 				elseif (node.Member.TypeName == TypeNames.FunctionOverload) then 
-					if (node.Member.Access == "Access_Private") then
+					local nodePrivate = false;
+					if MACARONI_VERSION=="0.1.0.14" then
+						nodePrivate = node.Member.Access == "Access_Private"
+					else
+						nodePrivate =  node.Member.Access == Access.Private
+					end
+					if (nodePrivate) then
 						self:writeFunctionOverloadDefinition(node);  
 						self:write(";\n");       
 					end
@@ -172,8 +193,13 @@ ClassCppFileGenerator = {
             self:write("//~<(Skipping inline constructor.)\n");
             return;
         end
-        if node.Member.Access ~= "Access_Private" 
-           and self.libDecl then
+        local access_export_lib = false;
+        if MACARONI_VERSION=="0.1.0.14" then
+			access_export_lib = node.Member.Access ~= "Access_Private" 
+		else
+			access_export_lib = node.Member.Access.VisibleInLibrary
+		end
+        if access_export_lib and self.libDecl then
 			self:writeTabs();
 			self:write(self.libDecl .. "\n");
 		end
@@ -219,7 +245,13 @@ ClassCppFileGenerator = {
             self:write("//~<(Skipping inline destructor.)\n");
             return;
         end
-        if self.libDecl then
+        local access_export_lib = false;
+        if MACARONI_VERSION=="0.1.0.14" then
+			access_export_lib = overload.Member.Access ~= "Access_Private" 
+		else
+			access_export_lib = overload.Member.Access.VisibleInLibrary
+		end
+        if access_export_lib and self.libDecl then
 			self:writeTabs();
 			self:write(self.libDecl .. "\n");
 		end
@@ -252,8 +284,13 @@ ClassCppFileGenerator = {
             self:write('//~<(Skipping inline function "' .. node.FullName .. '")\n');
             return;
         end        
-        if node.Member.Access ~= "Access_Private" 
-           and self.libDecl then
+        local access_export_lib = false;
+        if MACARONI_VERSION=="0.1.0.14" then
+			access_export_lib = node.Member.Access ~= "Access_Private" 
+		else
+			access_export_lib = node.Member.Access.VisibleInLibrary			
+		end
+        if access_export_lib and self.libDecl then
 			self:writeTabs();
 			self:write(self.libDecl .. "\n");
 		end

@@ -36,7 +36,7 @@ namespace
 	}
 };
 
-Destructor::Destructor(Node * home, Model::ReasonPtr reason, bool isInline, Access access)
+Destructor::Destructor(Node * home, Model::ReasonPtr reason, bool isInline, AccessPtr access)
 :Function(home, "Destructor", reason)
 {
 	FunctionOverload::Create(this, isInline, access, false, voidType(), false, reason);
@@ -51,7 +51,7 @@ bool Destructor::canBeChildOf(const Member * other) const
 	return dynamic_cast<const Class *>(other) != nullptr;
 }
 
-DestructorPtr Destructor::Create(NodePtr host, bool isInline, Access access, Model::ReasonPtr reason)
+DestructorPtr Destructor::Create(NodePtr host, bool isInline, AccessPtr access, Model::ReasonPtr reason)
 {
 	if (!host->GetMember())
 	{

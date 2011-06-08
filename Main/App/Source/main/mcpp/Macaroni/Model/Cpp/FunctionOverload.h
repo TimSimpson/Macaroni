@@ -21,17 +21,17 @@ friend void intrusive_ptr_release(FunctionOverload * p);
 
 public:
 	static FunctionOverloadPtr Create(NodePtr home, bool isInline, 
-									  const Access access, 
+									  const AccessPtr access, 
 									  const bool isStatic, const TypePtr rtnType, 
 									  bool constMember, Model::ReasonPtr reason);
 
 	static FunctionOverloadPtr Create(FunctionPtr home, bool isInline, 
-									  const Access access, 
+									  const AccessPtr access, 
 									  const bool isStatic, const TypePtr rtnType, 
 									  bool constMember, Model::ReasonPtr reason);
 
 	static FunctionOverloadPtr Create(Function * home, bool isInline, 
-									  const Access access, 
+									  const AccessPtr access, 
 									  const bool isStatic, const TypePtr rtnType, 
 									  bool constMember, Model::ReasonPtr reason);
 

@@ -1,7 +1,7 @@
 #ifndef MACARONI_MODEL_CPP_VARIABLELUA_CPP
 #define MACARONI_MODEL_CPP_VARIABLELUA_CPP
 
-#include "AccessLua.h"
+#include <Macaroni/Model/Cpp/AccessLuaMetaData.h>
 #include "../NodeLua.h"
 #include "../../Environment/DebugLog.h"
 #include "FunctionLua.h"
@@ -48,7 +48,7 @@ namespace
 				//	bool isStatic, const TypePtr type, std::string initializer, 
 				//Model::ReasonPtr reason);
 				NodePtr home = NodeLuaMetaData::GetInstance(L, 1);
-				Access access = AccessLuaMetaData::GetInstance(L, 2);
+				AccessPtr access = AccessLuaMetaData::GetInstance(L, 2);
 				bool isStatic = lua_toboolean(L, 3) != 0;
 				TypePtr type = TypeLuaMetaData::GetInstance(L, 4);
 				std::string initializer(luaL_checkstring(L, 5));			

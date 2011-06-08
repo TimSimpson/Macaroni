@@ -1,3 +1,5 @@
+require "Macaroni.Model.AttributeTable"
+require "Macaroni.Model.AttributeValue";
 require "Cpp/Common";
 require "Cpp/DependencyList";
 
@@ -18,7 +20,7 @@ NodeInfo = {
         check(node ~= nil, "Node cannot be nil!");      
         local self = {}
         setmetatable(self, {["__index"]=NodeInfo});       
-        self.node = node;
+        self.node = node;         
         self.dependencies = self:createDependencyList(self.node);
         self.headerFile = self:createHeaderFile(self.node);
         self.heavyDef = self:createHeavyDef(self.node);
@@ -39,7 +41,7 @@ NodeInfo = {
     
     createHeaderFile = function(self, node)
         check(self ~= nil, "Member function called without self.");
-        check(node ~= nil, "Argument 2, 'node', cannot be nil.");
+        check(node ~= nil, "Argument 2, 'node', cannot be nil.");               
         if (node.Member ~= nil and 
             node.Member.TypeName == Macaroni.Model.TypeNames.Primitive) then
             return "";
@@ -98,14 +100,27 @@ NodeInfo = {
 			rtn = rtn .. "\n";
 		end
 		return rtn;		
-    end,
+    end,   
     
     -- Creates the light definition, in the form of a String. Includes newlines.
-    createLightDef = function(self, node)
+    createLightDef = function(self, node)    
         check(self ~= nil, "Member method called without self.");
-        check(node ~= nil, "Argument one must be node.");
+        check(node ~= nil, "Argument one must be node.");        
         if (node.IsRoot or node.HFilePath ~= nil) then
-            return ""; -- Ignore
+			ignore = true
+			local attr = node.Attributes["Macaroni::Cpp::UseLightDef"];			
+			if (attr ~= nil) then
+				if not attr.IsBool then
+					error("The node " .. node.FullName .. " attribute value "
+					      .. "UseLightDef must be a boolean.");
+				end
+				if (attr.ValueAsBool) then
+					ignore = false;
+				end
+			end	
+			if ignore then
+				return ""; -- Ignore
+			end
         end
         local generateWarning = true;
         if (node.Member ~= nil) then            
@@ -132,7 +147,7 @@ NodeInfo = {
     -- Creates using statement.
     createUsingStatement = function(self, node)
         check(self ~= nil, "Member method called without self.");
-        check(node ~= nil, "Argument one must be node.");
+        check(node ~= nil, "Argument one must be node.");        
         if (node.IsRoot or node.Node.IsRoot) then
             return ""; -- Ignore
         end
@@ -147,6 +162,26 @@ NodeInfo = {
             end            
         end
         return "// ~ <(I don't know how to generate a using statement for " .. node.FullName .. ".) \n";        
+    end,
+    
+    useLightDef = function(self, node)
+		-- Gives an answer as to whether the light def can be used for this 
+		-- node. If there's no header file, we have no choice- we HAVE to use 
+		-- it, becuase we're generating it anyway and there's no reason not to.
+		-- If we have a header file but "UseLightDef" is defined, we should
+		-- use the light def anyway.
+		if node.HFilePath == nil then
+			return true;
+		end
+		local attr = node.Attributes["Macaroni::Cpp::UseLightDef"];			
+		if (attr ~= nil) then
+			if not attr.IsBool then
+				error("The node " .. node.FullName .. " attribute value "
+					  .. "UseLightDef must be a boolean.");
+			end
+			return attr.ValueAsBool;
+		end	
+		return false;
     end,
     
 };

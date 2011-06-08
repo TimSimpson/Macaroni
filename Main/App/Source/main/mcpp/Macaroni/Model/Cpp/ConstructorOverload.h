@@ -25,11 +25,11 @@ friend void intrusive_ptr_release(ConstructorOverload * p);
 public:
 
 	ConstructorPtr ConstructorOverload::Create(NodePtr host, bool isInline, 
-											   Access access, 
+											   AccessPtr access, 
 											   Model::ReasonPtr reason);
 
 	static ConstructorOverloadPtr Create(ConstructorPtr home, 
-		bool isInline, Access access, Model::ReasonPtr reason);
+		bool isInline, AccessPtr access, Model::ReasonPtr reason);
 
 	virtual ~ConstructorOverload();
 

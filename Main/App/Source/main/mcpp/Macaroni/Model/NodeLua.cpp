@@ -163,6 +163,14 @@ struct NodeLuaFunctions
 		NodeLuaMetaData::PutInstanceOnStack(L, nodePtr);
 		return 1;
 	}
+	
+	static int GetOperatorName(lua_State * L)
+	{
+		NodePtr & node = getInstance(L, 1);
+		std::string operatorName = node->GetOperatorName();
+		lua_pushlstring(L, operatorName.c_str(), operatorName.size());
+		return 1;
+	}
 
 	static int IsComplexName(lua_State * L)
 	{
@@ -366,6 +374,10 @@ int NodeLuaMetaData::Index(lua_State * L, NodePtr & ptr, const std::string & ind
 	{
 		lua_pushlstring(L, ptr->GetFullName().c_str(), ptr->GetFullName().size());	
 	}
+	else if (index == "GetOperatorName")
+	{
+		lua_pushcfunction(L, NodeLuaFunctions::GetOperatorName);
+	}
 	else if (index == "GetPrettyFullName")
 	{
 		lua_pushcfunction(L, NodeLuaFunctions::PrettyFullName);
@@ -382,6 +394,10 @@ int NodeLuaMetaData::Index(lua_State * L, NodePtr & ptr, const std::string & ind
 			FileNameLuaMetaData::PutInstanceOnStack(L, ptr->GetHFilePath());
 		}		
 	}		
+	else if (index == "IsOperator")
+	{
+		lua_pushboolean(L, ptr->IsOperator());		
+	}
 	else if (index == "IsRoot")
 	{
 		lua_pushboolean(L, ptr->IsRoot());

@@ -6,6 +6,7 @@
 #include <Macaroni/Model/AttributeValue.h>
 #include <Macaroni/Model/AttributeValuePtr.h>
 #include <Macaroni/Model/Cpp/Access.h>
+#include <Macaroni/Model/Cpp/AccessPtr.h>
 #include "../../Model/Block.h"
 #include "../../Model/Cpp/Class.h"
 #include "../../Model/Cpp/Constructor.h"
@@ -43,6 +44,7 @@
 #include <string>
 
 using Macaroni::Model::Cpp::Access;
+using Macaroni::Model::Cpp::AccessPtr;
 using Macaroni::Model::AttributeTable;
 using Macaroni::Model::AttributeTableInternalPtr;
 using Macaroni::Model::AttributeTablePtr;
@@ -369,12 +371,12 @@ public:
 
 	/** Attempts to consume whatever access it can, returning 
 	 * "Access_NotSpecified" if it finds nothing. */
-	Access AccessKeyword(Iterator & itr)
+	AccessPtr AccessKeyword(Iterator & itr)
 	{
 		using Macaroni::Model::Cpp::Access;
 
 		ConsumeWhitespace(itr);
-		Access access = Access::NotSpecified();
+		AccessPtr access = Access::NotSpecified();
 		if (itr.ConsumeWord("~hidden"))
 		{
 			access = Access::Hidden();
@@ -406,7 +408,7 @@ public:
 			{
 				access = Access_Protected;
 			}*/
-			access == Access::Protected();
+			access = Access::Protected();
 		}
 		else if (itr.ConsumeWord("public"))
 		{
@@ -729,8 +731,8 @@ public:
 		do 
 		{
 			itr.ConsumeWhitespace();
-			Access access = AccessKeyword(itr);
-			if (access == Access::NotSpecified())
+			AccessPtr access = AccessKeyword(itr);
+			if ((*access) == (*(Access::NotSpecified())))
 			{
 				access = Access::Private();
 			}			
@@ -858,9 +860,9 @@ public:
 
 		Iterator newItr = itr;
 		
-		Access access = AccessKeyword(newItr);
+		AccessPtr access = AccessKeyword(newItr);
 		
-		if (access == Access::NotSpecified())
+		if ((*access) == (*(Access::NotSpecified())))
 		{
 			access = Access::Private();
 		}
@@ -1677,7 +1679,7 @@ public:
 		while(!itr.ConsumeChar(')'))
 		{	
 			Iterator oldItr = itr;
-			Access access = Access::NotSpecified();
+			AccessPtr access = Access::NotSpecified();
 			bool _friend;
 			bool global;
 			bool isInline;
@@ -2212,7 +2214,7 @@ public:
 	 * [ WARNING: This name is misleading.  It doesn't fully parse the var,
 	 *   just the first part. ]
 	 */
-	bool Variable(Iterator & itr, Access & access, bool & _friend, 
+	bool Variable(Iterator & itr, AccessPtr & access, bool & _friend, 
 				  bool & global, bool & isInline, bool & isStatic, 
 				  TypePtr & type, std::string & varName)
 	{
@@ -2224,8 +2226,8 @@ public:
 		isInline = false;		
 		isStatic = false;
 		while(
-				(access == Access::NotSpecified()
-					&& (access = AccessKeyword(itr)) != Access::NotSpecified())
+				(*access == *Access::NotSpecified()
+					&& *(access = AccessKeyword(itr)) != *Access::NotSpecified())
 				|| (!_friend && (_friend = FriendModifierKeyword(itr)))
 				|| (!global && (global = GlobalKeyword(itr)))
 				|| (!isInline && (isInline = InlineKeyword(itr)))
@@ -2238,7 +2240,7 @@ public:
 		}
 		
 
-		if (access == Access::Public() && global && isStatic) 
+		if (*access == *Access::Public() && global && isStatic) 
 		{
 			throw ParserException(itr.GetSource(),
 					Messages::Get("CppParser.Variable.PublicGlobalStaticMakesNoSense")); 			
@@ -2275,7 +2277,7 @@ public:
 		using namespace Macaroni::Model::Cpp;
 
 
-		Access access = Access::NotSpecified();
+		AccessPtr access = Access::NotSpecified();
 		bool _friend;
 		bool global;
 		bool isInline;
@@ -2300,7 +2302,7 @@ public:
 					Messages::Get("CppParser.Variable.MustFollowGlobalKeyword")); 
 		}
 
-		if (access == Access::NotSpecified())
+		if (*access == *Access::NotSpecified())
 		{
 			access = Access::Private();
 		}

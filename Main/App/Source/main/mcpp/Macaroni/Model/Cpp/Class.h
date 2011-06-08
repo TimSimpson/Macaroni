@@ -10,8 +10,9 @@ class Class;
 END_NAMESPACE
 
 #include <Macaroni/Model/Cpp/Access.h>
+#include <Macaroni/Model/Cpp/AccessPtr.h>
 #include <Macaroni/Model/Cpp/ClassParent.h>
-#include <Macaroni/Model/Cpp/_.h>
+#include <Macaroni/Model/Cpp/ClassParentPtr.h>
 #include <string>
 #include <vector>
 #include <boost/shared_ptr.hpp>
@@ -36,7 +37,7 @@ public:
 	
 	void AddGlobal(NodePtr node);
 	
-	void AddParent(TypePtr parent, Access access, bool _virtual);
+	void AddParent(TypePtr parent, AccessPtr access, bool _virtual);
 
 	virtual bool canBeChildOf(const Member * other) const;
 

@@ -1,17 +1,27 @@
+~import boost::shared_ptr;
 ~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Lua::LuaProperty;
 ~import MACARONI_THROW;
 ~import std::string;
+~import std::stringstream;
 
 namespace Macaroni::Model::Cpp 
 {
 
+class Access {}
+
+typedef shared_ptr<Access> AccessPtr	
+	@LuaClass [ SameAsNode = Access ]	
+	~hfile=<Macaroni/Model/Cpp/AccessPtr.h>	
+;
+
 class Access
-{		
 	@LuaClass 
 	[
-		LuaGlueClass = Macaroni::Model::Cpp::AccessLuaMetaData,
-		ReferenceType = Macaroni::Model::Cpp::Access,
+		ReferenceType = Macaroni::Model::Cpp::AccessPtr,
 	]
+{			
 
 	~block "h"
 	{
@@ -27,6 +37,7 @@ class Access
 		private: AccessData data;
 
 	    private: Access(AccessData data);
+
 	}
 
 	~block "cpp"
@@ -35,9 +46,12 @@ class Access
 		: data(data)
 		{
 		}
+		
 	}
+	
 
 	public bool operator== (const Access & other) const
+		@LuaOperator ""
 	{
 		return this->data == other.data;
 	}
@@ -47,7 +61,8 @@ class Access
 		return this->data != other.data;
 	}
 
-	public const char * CppName() const
+	public const char * CppKeyword() const
+		@LuaProperty "CppKeyword"
 	{
 		switch(data)
 		{
@@ -59,7 +74,28 @@ class Access
 		case Access_Public:
 			return "public";
 		case Access_NotSpecified:
-			return "";
+			return "private /* Not Specified */";
+		default:
+			stringstream ss;
+			ss << "Invalid enum value:" << data;
+			MACARONI_THROW(ss.str().c_str());
+			break;
+		}		
+	}
+
+	/** True if this will be visible to consumers of a DLL. */
+	public bool VisibleInLibrary() const
+		@LuaProperty "VisibleInLibrary"
+	{
+		switch(data)
+		{
+		case Access_Hidden:
+		case Access_Private:
+		case Access_NotSpecified:
+			return false;
+		case Access_Protected:
+		case Access_Public:				
+			return true;
 		default:
 			MACARONI_THROW("Invalid enum value!");
 			break;
@@ -67,7 +103,8 @@ class Access
 	}
 
 	/** True if this does not appear in the header file. */
-	public bool IsHidden() const
+	public bool VisibleInHeader() const
+		@LuaProperty "VisibleInHeader"
 	{
 		switch(data)
 		{
@@ -86,31 +123,62 @@ class Access
 
 	/** Extra private. Macaroni generators will not even put this in the header
 	 * file.  */
-	public static Access Hidden()
+	public static AccessPtr Hidden()
+		@LuaProperty "Hidden"
 	{
-		return Access(Access_Hidden);
+		AccessPtr ptr(new Access(Access_Hidden));
+		return ptr;
 	}
 
-	public static Access Private()
+	public static AccessPtr Private()
+		@LuaProperty "Private"
 	{
-		return Access(Access_Private);
+		AccessPtr ptr(new Access(Access_Private));
+		return ptr;
 	}
 
-	public static Access Protected()
+	public static AccessPtr Protected()
+		@LuaProperty "Protected"
 	{
-		return Access(Access_Protected);
+		AccessPtr ptr(new Access(Access_Protected));
+		return ptr;
 	}
 
-	public static Access Public()
+	public static AccessPtr Public()
+		@LuaProperty "Public"
 	{
-		return Access(Access_Public);
+		AccessPtr ptr(new Access(Access_Public));
+		return ptr;
 	}
 
-	public static Access NotSpecified()
+	public static AccessPtr NotSpecified()
 	{
-		return Access(Access_NotSpecified);
+		AccessPtr ptr(new Access(Access_NotSpecified));
+		return ptr;
 	}
 
+	public const char * ToString() const
+		@LuaOperator "__tostring"
+	{
+		switch(data)
+		{
+		case Access_Hidden:
+			return "~hidden";
+		case Access_Private:
+			return "private";
+		case Access_Protected:
+			return "protected";
+		case Access_Public:
+			return "public";
+		case Access_NotSpecified:
+			return "not specified";
+		default:
+			stringstream ss;
+			ss << "Invalid enum value:" << data;
+			MACARONI_THROW(ss.str().c_str());
+			break;
+		}		
+	}
 }; 
 
 } // End Macaroni::Model::Cpp 

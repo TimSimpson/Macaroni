@@ -1,7 +1,7 @@
 #ifndef MACARONI_MODEL_MEMBERLUA_CPP
 #define MACARONI_MODEL_MEMBERLUA_CPP
 
-#include "Cpp/AccessLua.h"
+#include <Macaroni/Model/Cpp/AccessLuaMetaData.h>
 #include "BlockLua.h"
 #include "Cpp/ClassLua.h"
 #include "Cpp/ConstructorLua.h"
@@ -45,7 +45,7 @@
 			Cpp::ScopeMemberPtr smPtr = boost::dynamic_pointer_cast<Cpp::ScopeMember>(ptr);
 			if (!!smPtr)
 			{
-				Cpp::Access access = smPtr->GetAccess();
+				Cpp::AccessPtr access = smPtr->GetAccess();
 				Cpp::AccessLuaMetaData::PutInstanceOnStack(L, access);
 				return 1;
 			}

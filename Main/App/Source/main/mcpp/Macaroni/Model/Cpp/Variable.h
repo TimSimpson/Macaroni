@@ -19,7 +19,7 @@ friend void intrusive_ptr_release(Variable * p);
 
 public:
 
-	static VariablePtr Create(NodePtr home, Access access, bool isStatic, const TypePtr type, std::string initializer, Model::ReasonPtr reason);
+	static VariablePtr Create(NodePtr home, AccessPtr access, bool isStatic, const TypePtr type, std::string initializer, Model::ReasonPtr reason);
 
 	virtual ~Variable();
 

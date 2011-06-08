@@ -1,4 +1,6 @@
 ~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaProperty;
 ~import Macaroni::Model::Cpp::Access;
 ~import Macaroni::Model::Cpp::Class;
 ~import Macaroni::Model::Cpp::ClassPtr;
@@ -8,27 +10,32 @@
 ~import Macaroni::Model::Type;
 ~import Macaroni::Model::TypePtr;
 ~import std::vector;
+~import Macaroni::Cpp::UseLightDef;
 
 namespace Macaroni::Model::Cpp
 {
     
 class ClassParent {};
-typedef boost::intrusive_ptr<ClassParent> ClassParentPtr;
 
-typedef vector<ClassParent> ClassParentList;
-typedef boost::shared_ptr<ClassParentList> ClassParentListPtr;
+typedef boost::intrusive_ptr<ClassParent> ClassParentPtr
+	~hfile=<Macaroni/Model/Cpp/ClassParentPtr.h>
+;
+
+typedef vector<ClassParent> ClassParentList
+	~hfile=<Macaroni/Model/Cpp/ClassParentPtr.h>
+;
+
+typedef boost::shared_ptr<ClassParentList> ClassParentListPtr
+	~hfile=<Macaroni/Model/Cpp/ClassParentPtr.h>
+;
 
 class ClassParent
-{  
-	// Because Macaroni can't generate a light dependency for Class, since it
-	// has an Hfile, that forces me to hand right this class for now.
-	~hfile = <Macaroni/Model/Cpp/ClassParent.h>
-
+	@UseLightDef true
 	@LuaClass 
 	[
 		ReferenceType = ClassParentPtr,
 	]
-
+{  	
 	friend Class;
 
 	private Access access;
@@ -61,22 +68,27 @@ class ClassParent
 	// TODO: In the future, it would be cool to have an attribute / annotation
 	// type thing to mark functions as property accessors.
 	// Or heck, just have properties.
-	public inline Access GetAccess() const 
+	public inline AccessPtr GetAccess() const
+		@LuaProperty "Access"
 	{
-		return access;
+		AccessPtr rtn(new Access(access));
+		return rtn;
 	}
 
 	public inline ClassPtr GetChild() const
+		@LuaProperty "Child"
 	{
 		return ClassPtr(child);
 	}
 
 	public TypePtr GetParent() const
+		@LuaProperty "Parent"
 	{
 		return parent;
 	}
 
 	public bool IsVirtual() const
+		@LuaProperty "IsVirtual"
 	{
 		return _virtual;
 	}

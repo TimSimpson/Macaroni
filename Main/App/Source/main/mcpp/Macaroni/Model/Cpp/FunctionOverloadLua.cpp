@@ -1,7 +1,7 @@
 #ifndef MACARONI_MODEL_CPP_FUNCTIONOVERLOADLUA_CPP
 #define MACARONI_MODEL_CPP_FUNCTIONOVERLOADLUA_CPP
 
-#include "AccessLua.h"
+#include <Macaroni/Model/Cpp/AccessLuaMetaData.h>
 #include "../NodeLua.h"
 #include "../../Environment/DebugLog.h"
 #include "FunctionLua.h"
@@ -65,7 +65,7 @@ namespace
 					luaL_error(L, "Expected first argument to be a Function.");
 				}
 				bool isInline = lua_toboolean(L, 2) != 0;
-				Access access = AccessLuaMetaData::GetInstance(L, 3);
+				AccessPtr access = AccessLuaMetaData::GetInstance(L, 3);
 				bool isStatic = lua_toboolean(L, 4) != 0;
 				TypePtr rtnType = TypeLuaMetaData::GetInstance(L, 5);
 				bool constMember = lua_toboolean(L, 6) != 0;

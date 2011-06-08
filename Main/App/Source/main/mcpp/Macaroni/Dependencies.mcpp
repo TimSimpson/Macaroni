@@ -1,5 +1,6 @@
 // This file contains foward refs to all types within the project.
 ~import Macaroni::Lua::LuaClass;
+~import Macaroni::Cpp::UseLightDef;
 
 // C std
 class system { ~hfile=<cstdlib> }
@@ -31,8 +32,6 @@ class boost::shared_ptr { ~hfile=<boost/shared_ptr.hpp> }
 //class luaL_Reg	{ ~hfile=<Lulauxlib.h> }
 // #include <Lua/lualib.h>
 
-class Macaroni::Model::Cpp::AccessLuaMetaData{ ~hfile=<Macaroni/Model/Cpp/AccessLua.h> }
-class Macaroni::Model::Cpp::AccessLuaMetaData { ~hfile=<Macaroni/Model/Cpp/AccessLua.h> }
 class Macaroni::Containers::AssignVectorToConstElementVector { ~hfile=<Macaroni/Containers.h.> } //TODO: Make function 
 class MACARONI_CHECK { ~hfile=<Macaroni/ME.h> }
 class Macaroni::Model::Cpp::ClassLuaMetaData { ~hfile=<Macaroni/Model/Cpp/ClassLua.h> }
@@ -45,6 +44,7 @@ class Macaroni::Model::Cpp::ClassPtr {
 	]
 }
 class Macaroni::Model::Cpp::Class 
+	@UseLightDef true
 { 
 	~hfile=<Macaroni/Model/Cpp/Class.h> 
 	@LuaClass 

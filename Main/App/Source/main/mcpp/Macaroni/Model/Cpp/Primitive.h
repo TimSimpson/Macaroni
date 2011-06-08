@@ -1,5 +1,5 @@
 #ifndef MACARONI_MODEL_CPP_PRIMITIVE_H
-#define MACARONI_MODEL_CPP_NAMESPACE_H
+#define MACARONI_MODEL_CPP_PRIMITIVE_H
 
 #include "../../ME.h"
 #include <string>

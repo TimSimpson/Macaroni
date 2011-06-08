@@ -1,0 +1,43 @@
+~import boost::shared_ptr;
+~import std::string::const_iterator;
+~import std::string;
+~import std::vector;
+
+namespace Circular {
+
+class Access {}
+
+typedef shared_ptr<Access> AccessPtr;
+
+class Scope {}
+
+class Class {}
+
+typedef shared_ptr<Class> ClassPtr;
+
+class ClassParent {}
+
+typedef vector<ClassParent> ClassParentList;
+
+class Access
+{
+	int five;
+}
+
+class Scope
+{
+	AccessPtr access;	
+}
+
+class Class : public Scope
+{
+	private ClassParentList parentList;
+};
+
+class ClassParent
+{
+	private AccessPtr access;
+	private ClassPtr classRef;	
+};
+
+} // end Macaroni::Parser} // end Macaroni::Parser

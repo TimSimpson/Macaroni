@@ -60,7 +60,7 @@ DependencyList = {
         if FUTURE then
 			for i = 1, #node.Member.Parents do
 				local parent = node.Member.Parents[i];
-				self:addDependenciesForType(parent:GetParent(), traveller); --DependencyTraveller.new(node, false));		
+				self:addDependenciesForType(parent.Parent, traveller); --DependencyTraveller.new(node, false));		
 				-- monkey
 			end
 		end
