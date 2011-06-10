@@ -105,12 +105,8 @@ ClassHFileGenerator = {
                and 
                self.node.Member.TypeName == TypeNames.Class);
         local globals = self.node.Member.GlobalNodes;    
-        self:write("/* Public Global Methods */\n");  
-        if MACARONI_VERSION=="0.1.0.14" then
-			self:iterateMembers(globals, "Access_Public");       
-		else
-			self:iterateMembers(globals, Access.Public); 
-		end
+        self:write("/* Public Global Methods */\n");          
+		self:iterateMembers(globals, Access.Public); 		
     end,
     
     classFriends = function(self)
@@ -366,22 +362,8 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         self:write(node.Name .. ";\n");]]--
     end,
     
-    writeAccess = function(self, access)		
-		if MACARONI_VERSION ~= "0.1.0.14" then
-			self:write(access.CppKeyword .. ": ");
-		else		
-			local text = nil;
-			if (access == "Access_Public") then
-				text = "public: ";
-			elseif (access == "Access_Protected") then
-				text = "protected: ";
-			elseif (access == "Access_Private") then
-				text = "private: ";
-			else
-				text = "/* ~ <(nil access?) */";
-			end
-			self:write(text);            
-		end
+    writeAccess = function(self, access)				
+		self:write(access.CppKeyword .. ": ");		
     end,
 };
 
