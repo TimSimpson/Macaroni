@@ -5,7 +5,7 @@ upper = getUpperLibrary();
 id =
 {
     group=upper.Group,
-    name=upper.Name .. ".Attributes",
+    name=upper.Name .. ".Annotations",
     version=upper.Version
 }
 
@@ -17,7 +17,7 @@ id =
 -- call default, which is defined to be "generate"
 
 description=[[
-Attribute Tests
+Annotation Tests
 ]]
 
 source "Source"
@@ -27,7 +27,7 @@ dependency {group="Macaroni", name="Boost", version="1.39.0-0"}
 dependency {group="Macaroni", name="CppStd", version="1.0.0.0"}
 
 function generate()
-    run "AttributeReaderTest"   
+    run "AnnotationReaderTest"   
 end
 
 function build()

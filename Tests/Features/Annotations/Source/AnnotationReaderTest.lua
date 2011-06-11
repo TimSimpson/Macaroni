@@ -1,12 +1,12 @@
-require "Macaroni.Model.AttributeTable";
-require "Macaroni.Model.AttributeValue";
+require "Macaroni.Model.AnnotationTable";
+require "Macaroni.Model.AnnotationValue";
 require "Macaroni.Model.Context";
 require "Macaroni.IO.GeneratedFileWriter";
 require "Macaroni.Model.Library";
 require "Macaroni.Model.Node";
 require "Macaroni.IO.Path";
 
-print("This reads Attributes!");
+print("This reads Annotations!");
 
 function AssertEqual(msg, a, b)
 	print(msg .. tostring(a))
@@ -19,7 +19,7 @@ function Generate(library, path)
     local context = library.Context;
     local root = context.Root;
     local employee = root:Find("Reosui::Database::Employee");    
-    local attr = employee.Attributes;
+    local attr = employee.Annotations;
     print(root.FullName);    
     local simple = attr["FakeORM::IsSimple"];
     print("Simple=" .. tostring(simple));
@@ -61,7 +61,7 @@ function Generate(library, path)
     	"Please... let me sleep... a little more... please..."); 
     	    
     local someMethod = employee:Find("SomeMethod").Children[1]
-    local testAttr = someMethod.Attributes["FakeTestLib::Test"];
+    local testAttr = someMethod.Annotations["FakeTestLib::Test"];
     AssertEqual("Method attr test .enabled = ",
     			testAttr.ValueAsTable.enabled.ValueAsBool, true)
     AssertEqual("Method attr test .  = ",

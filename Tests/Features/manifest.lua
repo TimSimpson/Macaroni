@@ -16,7 +16,7 @@ output = "report"
 
 children = 
 {
-	"Attributes",
+	"Annotations",
 	"BoostBuild",	
 	"LanguageFeatures",
 	"Lua"
