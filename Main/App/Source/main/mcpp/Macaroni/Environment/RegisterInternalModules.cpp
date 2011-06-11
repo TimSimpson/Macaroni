@@ -3,8 +3,8 @@
 
 #include "LuaEnvironment.h"
 #include <Macaroni/Model/Cpp/AccessLuaMetaData.h>
-#include <Macaroni/Model/AttributeTableLua.h>
-#include <Macaroni/Model/AttributeValueLua.h>
+#include <Macaroni/Model/AnnotationTableLua.h>
+#include <Macaroni/Model/AnnotationValueLua.h>
 #include "../Model/AxiomLua.h"
 #include "../Model/BlockLua.h"
 #include <Macaroni/Model/Cpp/ClassLua.h>
@@ -47,8 +47,8 @@ BEGIN_NAMESPACE2(Macaroni, Environment)
 static const struct luaL_Reg libs[] = {
 	{"Macaroni.Environment.Messages", Environment::MessagesLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Cpp.Access", Model::Cpp::AccessLuaMetaData::OpenInLua},
-	{"Macaroni.Model.AttributeTable", Model::AttributeTableLuaMetaData::OpenInLua},
-	{"Macaroni.Model.AttributeValue", Model::AttributeValueLuaMetaData::OpenInLua},
+	{"Macaroni.Model.AnnotationTable", Model::AnnotationTableLuaMetaData::OpenInLua},
+	{"Macaroni.Model.AnnotationValue", Model::AnnotationValueLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Axiom", Model::AxiomLuaMetaData::OpenInLua},	
 	{"Macaroni.Model.Block", Model::BlockLuaMetaData::OpenInLua},	
 	{"Macaroni.Model.Cpp.Class", Model::Cpp::ClassLuaMetaData::OpenInLua},	

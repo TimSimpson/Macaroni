@@ -35,7 +35,7 @@ tests =
 		name = "Type Manipulators Test",
 		init = function(self)
 			mixinContext(self, [[
-				~import Macaroni::Lua::LuaClass; //<-- The Attribute to use
+				~import Macaroni::Lua::LuaClass; //<-- The Annotation to use
 				~import Example::Polo;
 				~import Example::PoloPtr;
 				
@@ -156,7 +156,7 @@ NEW_LINE .. [[const Example::Polo * const blah = *(blah_AsRef);]]), tm.convertAr
 		name = "Wrap Methods Test",
 		init = function(self)
 			mixinContext(self, [[
-				~import Macaroni::Lua::LuaClass; //<-- The Attribute to use
+				~import Macaroni::Lua::LuaClass; //<-- The Annotation to use
 				~import Example::Action;
 				~import Example::ActionPtr;
 				~import Example::Polo;

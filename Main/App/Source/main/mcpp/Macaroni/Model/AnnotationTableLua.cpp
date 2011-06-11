@@ -1,10 +1,10 @@
 #ifndef MACARONI_MODEL_ATTRIBUTETABLELUA_CPP
 #define MACARONI_MODEL_ATTRIBUTETABLELUA_CPP
 
-#include "AttributeTable.h"
-#include "AttributeValue.h"
-#include "AttributeTableLua.h"
-#include "AttributeValueLua.h"
+#include "AnnotationTable.h"
+#include "AnnotationValue.h"
+#include "AnnotationTableLua.h"
+#include "AnnotationValueLua.h"
 #include "Node.h"
 #include "NodeLua.h"
 #include "ReasonLua.h"
@@ -12,14 +12,14 @@
 
 #define LUAGLUE_STARTNAMESPACE BEGIN_NAMESPACE2(Macaroni, Model)
 #define LUAGLUE_ENDNAMESPACE	END_NAMESPACE2
-#define LUAGLUE_CLASSNAME AttributeTable
-#define LUAGLUE_CLASSREFNAME AttributeTablePtr
-#define LUAGLUE_CLASSFULLLUANAME "Macaroni.Model.AttributeTable"
-#define LUAGLUE_CLASSFULLCPPNAME Macaroni::Model::AttributeTable
-#define LUAGLUE_REGISTRATIONCLASSNAME AttributeTableLuaMetaData
+#define LUAGLUE_CLASSNAME AnnotationTable
+#define LUAGLUE_CLASSREFNAME AnnotationTablePtr
+#define LUAGLUE_CLASSFULLLUANAME "Macaroni.Model.AnnotationTable"
+#define LUAGLUE_CLASSFULLCPPNAME Macaroni::Model::AnnotationTable
+#define LUAGLUE_REGISTRATIONCLASSNAME AnnotationTableLuaMetaData
 #define LUAGLUE_OPENOTHERMODULES /** F'no */
 #define LUAGLUE_CREATEMETATABLE YESPLEASE
-#define LUAGLUE_HELPERCLASS				AttributeTableLuaGlueHelperClass
+#define LUAGLUE_HELPERCLASS				AnnotationTableLuaGlueHelperClass
 
 #include "../LuaGlue.hpp"
 
@@ -27,14 +27,14 @@
 #define CATCH } catch(const std::exception & ex){ return luaL_error(L, ex.what()); }
 
 
-	static int __index(lua_State * L, const AttributeTablePtr & ptr, 
+	static int __index(lua_State * L, const AnnotationTablePtr & ptr, 
 									  const std::string & index)
 	{	
 		TRY
-			AttributeValuePtr value = ptr->GetByName(index);
+			AnnotationValuePtr value = ptr->GetByName(index);
 			if (!!value)
 			{
-				AttributeValueLuaMetaData::PutInstanceOnStack(L, value);
+				AnnotationValueLuaMetaData::PutInstanceOnStack(L, value);
 				return 1;
 			}		
 			
@@ -49,9 +49,9 @@
 	static int __tostring(lua_State * L)
 	{
 		TRY
-			AttributeTablePtr & ptr = getInstance(L);
+			AnnotationTablePtr & ptr = getInstance(L);
 			std::stringstream ss;
-			ss << "[AttributeTable, Home Node=";
+			ss << "[AnnotationTable, Home Node=";
 			ss << ptr->GetHomeNode()->GetFullName();
 			ss << "]";
 			lua_pushstring(L, ss.str().c_str());

@@ -1,10 +1,10 @@
 #ifndef MACARONI_MODEL_ATTRIBUTEVALUE_CPP
 #define MACARONI_MODEL_ATTRIBUTEVALUE_CPP
 
-#include "AttributeDefinition.h"
-#include "AttributeTable.h"
-#include "AttributeValue.h"
-#include "AttributeValueTypeException.h"
+#include "AnnotationDefinition.h"
+#include "AnnotationTable.h"
+#include "AnnotationValue.h"
+#include "AnnotationValueTypeException.h"
 #include "Node.h"
 #include <sstream>
 
@@ -16,7 +16,7 @@ namespace
 	{
 		if (!node)
 		{
-			throw Macaroni::Exception("Attempted to assign AttributeValue a name which was a null node.");
+			throw Macaroni::Exception("Attempted to assign AnnotationValue a name which was a null node.");
 		}
 		return *(node.get());
 	}
@@ -25,78 +25,78 @@ namespace
 	{
 		if (!node)
 		{
-			throw Macaroni::Exception("Attempted to assign AttributeValue a node value which was null.");
+			throw Macaroni::Exception("Attempted to assign AnnotationValue a node value which was null.");
 		}
 		return *(node.get());
 	}
 }; // end anonymous namespace
 
 
-AttributeValue::AttributeValue(NodePtr name, const bool value, const ReasonPtr & reason)
+AnnotationValue::AnnotationValue(NodePtr name, const bool value, const ReasonPtr & reason)
 :name(nodePtrToRef(name)), value(value)
 {
-	AttributeDefinition::Define(name, AttributeDefinition::Type_Bool, reason);
+	AnnotationDefinition::Define(name, AnnotationDefinition::Type_Bool, reason);
 }
 	
-AttributeValue::AttributeValue(NodePtr name, const double value, const ReasonPtr & reason)
+AnnotationValue::AnnotationValue(NodePtr name, const double value, const ReasonPtr & reason)
 :name(nodePtrToRef(name)), value(value)
 {
-	AttributeDefinition::Define(name, AttributeDefinition::Type_Number, reason);
+	AnnotationDefinition::Define(name, AnnotationDefinition::Type_Number, reason);
 }
 
-AttributeValue::AttributeValue(NodePtr name, NodePtr value, const ReasonPtr & reason)
+AnnotationValue::AnnotationValue(NodePtr name, NodePtr value, const ReasonPtr & reason)
 :name(nodePtrToRef(name)), value(nodePtrToRefValue(value))
 {
-	AttributeDefinition::Define(name, AttributeDefinition::Type_Node, reason);
+	AnnotationDefinition::Define(name, AnnotationDefinition::Type_Node, reason);
 }
 
-AttributeValue::AttributeValue(NodePtr name, const std::string & value, const ReasonPtr & reason)
+AnnotationValue::AnnotationValue(NodePtr name, const std::string & value, const ReasonPtr & reason)
 :name(nodePtrToRef(name)), value(value)
 {
-	AttributeDefinition::Define(name, AttributeDefinition::Type_String, reason);
+	AnnotationDefinition::Define(name, AnnotationDefinition::Type_String, reason);
 }
 
-AttributeValue::AttributeValue(NodePtr name, const ReasonPtr & reason)
-:name(nodePtrToRef(name)), value(AttributeTableInternalPtr(new AttributeTable(*(name.get()))))
+AnnotationValue::AnnotationValue(NodePtr name, const ReasonPtr & reason)
+:name(nodePtrToRef(name)), value(AnnotationTableInternalPtr(new AnnotationTable(*(name.get()))))
 {
-	AttributeDefinition::Define(name, AttributeDefinition::Type_Table, reason);
+	AnnotationDefinition::Define(name, AnnotationDefinition::Type_Table, reason);
 }
 
-AttributeValue::~AttributeValue()
+AnnotationValue::~AnnotationValue()
 {
 }
 
-AttributeValue::TypeCode AttributeValue::getTypeCode() const
+AnnotationValue::TypeCode AnnotationValue::getTypeCode() const
 {
-	class typeCodeVisitor : public boost::static_visitor<AttributeValue::TypeCode>
+	class typeCodeVisitor : public boost::static_visitor<AnnotationValue::TypeCode>
 	{
 	public:
-		AttributeValue::TypeCode operator()(bool b) const
+		AnnotationValue::TypeCode operator()(bool b) const
 		{
-			return AttributeValue::Type_Bool;
+			return AnnotationValue::Type_Bool;
 		}
-		AttributeValue::TypeCode operator()(double d) const
+		AnnotationValue::TypeCode operator()(double d) const
 		{
-			return AttributeValue::Type_Number;
+			return AnnotationValue::Type_Number;
 		}
-		AttributeValue::TypeCode operator()(const Node & node) const
+		AnnotationValue::TypeCode operator()(const Node & node) const
 		{
-			return AttributeValue::Type_Node;
+			return AnnotationValue::Type_Node;
 		}
-		AttributeValue::TypeCode operator()(const std::string & str) const
+		AnnotationValue::TypeCode operator()(const std::string & str) const
 		{
-			return AttributeValue::Type_String;
+			return AnnotationValue::Type_String;
 		}
-		AttributeValue::TypeCode operator()(const AttributeTableInternalPtr & table) const
+		AnnotationValue::TypeCode operator()(const AnnotationTableInternalPtr & table) const
 		{
-			return AttributeValue::Type_Table;
+			return AnnotationValue::Type_Table;
 		}
 	};
 
 	return boost::apply_visitor(typeCodeVisitor(), value);	
 }
 
-std::string AttributeValue::GetTypeString() const
+std::string AnnotationValue::GetTypeString() const
 {
 	class typeCodeVisitor : public boost::static_visitor<std::string>
 	{
@@ -117,7 +117,7 @@ std::string AttributeValue::GetTypeString() const
 		{
 			return std::string("string");
 		}
-		std::string operator()(const AttributeTableInternalPtr & table) const
+		std::string operator()(const AnnotationTableInternalPtr & table) const
 		{
 			return std::string("table");
 		}
@@ -126,74 +126,74 @@ std::string AttributeValue::GetTypeString() const
 	return boost::apply_visitor(typeCodeVisitor(), value);	
 }
 
-bool AttributeValue::GetValueAsBool() const
+bool AnnotationValue::GetValueAsBool() const
 {
 	if (!IsBool())
 	{
 		std::stringstream ss;
 		ss << "Attempted to access " << GetTypeString() 
 			<< " attribute as a bool.";
-		throw AttributeValueTypeException(ss.str());
+		throw AnnotationValueTypeException(ss.str());
 	}
 	return boost::get<bool>(value);
 }
 
-NodePtr AttributeValue::GetValueAsNode() const
+NodePtr AnnotationValue::GetValueAsNode() const
 {
 	if (!IsNode())
 	{
 		std::stringstream ss;
 		ss << "Attempted to access " << GetTypeString() 
 			<< " attribute as a node.";
-		throw AttributeValueTypeException(ss.str());
+		throw AnnotationValueTypeException(ss.str());
 	}
 	Node & node = boost::get<Node &>(value);
 	return NodePtr(&node);
 }
 
-double AttributeValue::GetValueAsNumber() const
+double AnnotationValue::GetValueAsNumber() const
 {
 	if (!IsNumber())
 	{
 		std::stringstream ss;
 		ss << "Attempted to access " << GetTypeString() 
 			<< " attribute as a number.";
-		throw AttributeValueTypeException(ss.str());
+		throw AnnotationValueTypeException(ss.str());
 	}
 	return boost::get<double>(value);
 }
 
-std::string AttributeValue::GetValueAsString() const
+std::string AnnotationValue::GetValueAsString() const
 {
 	if (!IsString())
 	{
 		std::stringstream ss;
 		ss << "Attempted to access " << GetTypeString() 
 			<< " attribute as a string.";
-		throw AttributeValueTypeException(ss.str());
+		throw AnnotationValueTypeException(ss.str());
 	}
 	return boost::get<std::string>(value);
 }
 
-AttributeTablePtr AttributeValue::GetValueAsTable() const
+AnnotationTablePtr AnnotationValue::GetValueAsTable() const
 {
 	if (!IsTable())
 	{
 		std::stringstream ss;
 		ss << "Attempted to access " << GetTypeString() 
 			<< " attribute as a table.";
-		throw AttributeValueTypeException(ss.str());
+		throw AnnotationValueTypeException(ss.str());
 	}
-	AttributeTableInternalPtr table = boost::get<AttributeTableInternalPtr>(value);
-	return AttributeTablePtr(table.get());
+	AnnotationTableInternalPtr table = boost::get<AnnotationTableInternalPtr>(value);
+	return AnnotationTablePtr(table.get());
 }
 
-void intrusive_ptr_add_ref(AttributeValue * p)
+void intrusive_ptr_add_ref(AnnotationValue * p)
 {
 	intrusive_ptr_add_ref(&(p->name));
 }
 
-void intrusive_ptr_release(AttributeValue * p)
+void intrusive_ptr_release(AnnotationValue * p)
 {
 	intrusive_ptr_release(&(p->name));
 }

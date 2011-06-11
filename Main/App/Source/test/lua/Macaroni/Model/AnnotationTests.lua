@@ -1,26 +1,26 @@
 require "Macaroni.Model.Cpp.Access";
-require "Macaroni.Model.AttributeTable";
-require "Macaroni.Model.AttributeValue";
+require "Macaroni.Model.AnnotationTable";
+require "Macaroni.Model.AnnotationValue";
 require "Macaroni.Model.Context";
 require "Macaroni.Model.Node";
 
 local Access = Macaroni.Model.Cpp.Access;
-local AttributeTable = Macaroni.Model.AttributeTable;
-local AttributeValue = Macaroni.Model.AttributeValue;
+local AnnotationTable = Macaroni.Model.AnnotationTable;
+local AnnotationValue = Macaroni.Model.AnnotationValue;
 local Context = Macaroni.Model.Context;
 local Node = Macaroni.Model.Node;
 
 
 Test.register(
 {	
-name = "Attribute Tests",    
+name = "Annotation Tests",    
 tests = {    
     {   name = "Creating a node with some attributes.",
         init = function(this)
             this.context = Context.New("{r}");
             this.root = this.context.Root;
             this.newNode = this.root:FindOrCreate("Dog");
-            this.attr = this.newNode.Attributes;
+            this.attr = this.newNode.Annotations;
         end,
         tests = {
             ["Find returns the same Node that was created."] = function(this)

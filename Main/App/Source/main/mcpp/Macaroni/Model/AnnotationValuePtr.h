@@ -2,19 +2,19 @@
 #define MACARONI_MODEL_ATTRIBUTEVALUEPTR_H
 
 #include "../ME.h"
-#include "AttributeValue.h"
+#include "AnnotationValue.h"
 #include <boost/intrusive_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
-class AttributeValue;
+class AnnotationValue;
 
-typedef boost::shared_ptr<AttributeValue> AttributeValueInternalPtr;
-typedef boost::intrusive_ptr<AttributeValue> AttributeValuePtr;
-void intrusive_ptr_add_ref(AttributeValue * p);
-void intrusive_ptr_release(AttributeValue * p);
+typedef boost::shared_ptr<AnnotationValue> AnnotationValueInternalPtr;
+typedef boost::intrusive_ptr<AnnotationValue> AnnotationValuePtr;
+void intrusive_ptr_add_ref(AnnotationValue * p);
+void intrusive_ptr_release(AnnotationValue * p);
 
 END_NAMESPACE2
 

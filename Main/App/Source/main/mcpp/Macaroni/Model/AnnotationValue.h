@@ -2,8 +2,8 @@
 #define MACARONI_MODEL_ATTRIBUTEVALUE_H
 
 #include "../ME.h"
-#include "AttributeTablePtr.h"
-#include "AttributeValuePtr.h"
+#include "AnnotationTablePtr.h"
+#include "AnnotationValuePtr.h"
 #include "NodePtr.h"
 #include <boost/shared_ptr.hpp>
 #include "Reason.h"
@@ -12,10 +12,10 @@
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
-class AttributeValue
+class AnnotationValue
 {
-friend void intrusive_ptr_add_ref(AttributeValue * p);
-friend void intrusive_ptr_release(AttributeValue * p);
+friend void intrusive_ptr_add_ref(AnnotationValue * p);
+friend void intrusive_ptr_release(AnnotationValue * p);
 public:
 
 	enum TypeCode
@@ -27,18 +27,18 @@ public:
 		Type_Table
 	};
 
-	AttributeValue(NodePtr name, const bool value, const ReasonPtr & reason);
+	AnnotationValue(NodePtr name, const bool value, const ReasonPtr & reason);
 	
-	AttributeValue(NodePtr name, const double value, const ReasonPtr & reason);
+	AnnotationValue(NodePtr name, const double value, const ReasonPtr & reason);
 
-	AttributeValue(NodePtr name, NodePtr node, const ReasonPtr & reason);
+	AnnotationValue(NodePtr name, NodePtr node, const ReasonPtr & reason);
 
-	AttributeValue(NodePtr name, const std::string & value, const ReasonPtr & reason);
+	AnnotationValue(NodePtr name, const std::string & value, const ReasonPtr & reason);
 
 	//TODO: Review later if its unclear that this constructs a table.
-	AttributeValue(NodePtr name, const ReasonPtr & reason);
+	AnnotationValue(NodePtr name, const ReasonPtr & reason);
 
-	~AttributeValue();
+	~AnnotationValue();
 
 	inline NodePtr GetName() const
 	{
@@ -55,7 +55,7 @@ public:
 
 	std::string GetValueAsString() const;
 
-	AttributeTablePtr GetValueAsTable() const;
+	AnnotationTablePtr GetValueAsTable() const;
 
 	inline bool IsBool() const
 	{
@@ -84,7 +84,7 @@ public:
 
 private: 
 	
-	typedef boost::variant<bool, Node &, double, const std::string, AttributeTableInternalPtr> Type;
+	typedef boost::variant<bool, Node &, double, const std::string, AnnotationTableInternalPtr> Type;
 			
 	Node & name;
 	Type value;

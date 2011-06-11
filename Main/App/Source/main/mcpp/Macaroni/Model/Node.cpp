@@ -47,7 +47,7 @@ namespace
 
 Node::Node(Context & context, const std::string & name)
 : adoptedHome(), 
-attributes(context),
+annotations(context),
 context(&context), 
 hFilePath(), hFilePathReason(),
 member(nullptr), name(name), scope(nullptr)
@@ -56,7 +56,7 @@ member(nullptr), name(name), scope(nullptr)
 
 Node::Node(Node * scope, const std::string & name)
 : adoptedHome(), 
-attributes(*(scope->context)),
+annotations(*(scope->context)),
 context(scope->context), 
 hFilePath(), hFilePathReason(),
 member(nullptr), name(name), scope(scope)

@@ -2,8 +2,8 @@
 #define MACARONI_MODEL_NODE_H
 
 #include "../ME.h"
-#include "AttributeValuePtr.h"
-#include "AttributeTable.h"
+#include "AnnotationValuePtr.h"
+#include "AnnotationTable.h"
 #include "ContextPtr.h"
 #include "FileNamePtr.h"
 #include "Library.h"
@@ -51,9 +51,9 @@ public:
 	//NamespacePtr Find(std::string & name);	
 	NodePtr GetAdoptedHome();
 		
-	inline AttributeTable & GetAttributes()
+	inline AnnotationTable & GetAnnotations()
 	{
-		return attributes;
+		return annotations;
 	}
 
 	ContextPtr GetContext();
@@ -177,7 +177,7 @@ private:
 	 * as the class even though that's not really it's scope.  Can be null. */
 	NodePtr adoptedHome;
 
-	AttributeTable attributes;
+	AnnotationTable annotations;
 
 	std::vector<Node *> children;
 

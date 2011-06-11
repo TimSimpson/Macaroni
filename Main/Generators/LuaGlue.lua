@@ -1,7 +1,7 @@
 require "Macaroni.Model.Cpp.Access";
 require "Macaroni.Model.NodeList";
-require "Macaroni.Model.AttributeTable"
-require "Macaroni.Model.AttributeValue";
+require "Macaroni.Model.AnnotationTable"
+require "Macaroni.Model.AnnotationValue";
 require "Macaroni.Model.Axiom";
 Block = require "Macaroni.Model.Block";
 require "Macaroni.Model.Cpp.Class";
@@ -131,7 +131,7 @@ LuaGlueGenerator =
 		-- For example, this includes the node containing the LuaGlue class,
 		-- the node with the reference type used for this node (assuming this
 		-- node points to a type), etc.
-		-- Throws errors if the Attributes on a Node don't match something this
+		-- Throws errors if the Annotations on a Node don't match something this
 		-- generator can use.
 		if lastCaller == nil then
 			lastCaller = {}
@@ -158,15 +158,15 @@ LuaGlueGenerator =
 		local referenceTypeNode = "Macaroni::Lua::LuaClass";
 		local rtn = {};	
 		rtn.node = node;
-		local attr = node.Attributes[luaClass];
+		local attr = node.Annotations[luaClass];
 		if (attr == nil) then
 			error("The given node " .. tostring(node.Fullname) ..
-				" does not have an attribute " .. luaClass .. 
+				" does not have an annotation " .. luaClass .. 
 				" necessary to be wrapped in LuaGlue.", 2);
 		end	
 		if (not attr.IsTable) then
 			error("The given node " .. tostring(node.Fullname) ..
-				" has an attribute " .. luaClass .. 
+				" has an annotation " .. luaClass .. 
 				" but it is not a table.", 2);	
 		end
 		local args = attr.ValueAsTable;
@@ -235,7 +235,7 @@ LuaGlueGenerator =
 		--     put("something") =
 		--     'SomeClassLuaMetaData::PutInstanceOnStack(L, something);'
 		-- 
-		-- An important node is that if the type lacks special attributes, its
+		-- An important node is that if the type lacks special annotations, its
 		-- ok as long as its some primitive type the code can guess.  So if its
  		-- a std::string, integer, boolean or something the code will be work.
 		-- 
@@ -360,7 +360,7 @@ LuaGlueGenerator =
 		local nodes = node.Children
 		for i = 1, #nodes do
 			local n = nodes[i];
-			if (n.Attributes[self.LuaClass] ~= nil) then
+			if (n.Annotations[self.LuaClass] ~= nil) then
 				rtn[#rtn + 1] = n
 			end
 			for k,v in pairs(self:findAllAttr(n)) do 
@@ -370,9 +370,9 @@ LuaGlueGenerator =
 		return rtn;
 	end,
 	
-	findAllFunctionsWithAttribute = function(self, node, attributeName, criteria)
+	findAllFunctionsWithAnnotation = function(self, node, annotationName, criteria)
 		-- Iterates node (not recursively) and returns list of all function 
-		-- overloads matching attributeName.
+		-- overloads matching annotationName.
 		
 		if (node == nil) then
 			error("Node cannot be nil.", 2);
@@ -384,7 +384,7 @@ LuaGlueGenerator =
 				for j = 1, #child.Children do
 					local fon = child.Children[j]; -- FunctionOverload node
 					if (fon.Member ~= nil and fon.Member.TypeName == 'FunctionOverload'
-						and fon.Attributes[attributeName] ~= nil
+						and fon.Annotations[annotationName] ~= nil
 						and criteria(fon)) then
 						rtn[#rtn + 1] = fon;
 					end
@@ -397,7 +397,7 @@ LuaGlueGenerator =
 	findAllFunctionsInNode = function(self, node, findStatic)
 		-- Iterates node (not recursively) and returns list of all function 
 		-- overloads.
-		return self:findAllFunctionsWithAttribute(node, self.LuaFunction,
+		return self:findAllFunctionsWithAnnotation(node, self.LuaFunction,
 		           (function(node) 						
 						if findStatic == nil then
 							return true;
@@ -407,7 +407,7 @@ LuaGlueGenerator =
 	end,			
 	
 	findAllGettersInNode = function(self, node, static)
-		return self:findAllFunctionsWithAttribute(node, self.LuaProperty,
+		return self:findAllFunctionsWithAnnotation(node, self.LuaProperty,
 		   (function(node)
 				varCount, returnType = self:getFunctionArgCountAndReturnType(node);
 				if (varCount > 1) then
@@ -430,10 +430,10 @@ LuaGlueGenerator =
 	findAllOperatorsInNode = function(self, node, findStatic)
 		-- Iterates node (not recursively) and returns list of all function 
 		-- overloads.
-		local nodeList = self:findAllFunctionsWithAttribute(node, self.LuaOperator,
+		local nodeList = self:findAllFunctionsWithAnnotation(node, self.LuaOperator,
 		           (function(node)			
 						if node.Member.Static then
-							error("Cannot put LuaOperator attribute on static member " 
+							error("Cannot put LuaOperator annotation on static member " 
 								.. node.FullName .. ".");
 						end			
 						return true;					
@@ -443,7 +443,7 @@ LuaGlueGenerator =
 			local n = nodeList[i];
 			local item = {}
 			item.Node = n;			
-			local attr = n.Attributes[self.LuaOperator]			
+			local attr = n.Annotations[self.LuaOperator]			
 			if attr.IsString and attr.ValueAsString ~= '' then
 				item.Operator = attr.ValueAsString;				
 			else
@@ -453,7 +453,7 @@ LuaGlueGenerator =
 					error([[
 Could not determine which Lua operator mapped to C++ operator ]] .. cppOp .. [[
 in Node "]] .. n.Node.FullName .. [[". You can specify the Lua metatable entry for
-this operator manually by putting a string in the LuaOperator attribute.]]);
+this operator manually by putting a string in the LuaOperator annotation.]]);
 				end				
 			end			
 			item.MethodName = "op" .. item.Operator; 
@@ -463,7 +463,7 @@ this operator manually by putting a string in the LuaOperator attribute.]]);
 	end,	
 	
 	findAllSettersInNode = function(self, node)
-		return self:findAllFunctionsWithAttribute(node, self.LuaProperty,
+		return self:findAllFunctionsWithAnnotation(node, self.LuaProperty,
 		   (function(node)
 				varCount, returnType = self:getFunctionArgCountAndReturnType(node);
 				if (varCount > 1) then
@@ -1021,7 +1021,7 @@ namespace
 			local getters = self.parent:findAllGettersInNode(self.originalNode, not isInstance);
 			for i = 1, #getters do
 				local node = getters[i];
-				local propName = node.Attributes[self.parent.LuaProperty]
+				local propName = node.Annotations[self.parent.LuaProperty]
 				                                                 .ValueAsString;
 				if (first) then					
 					t[#t + 1] = 'if (index == "' .. propName .. '")';
@@ -1055,7 +1055,7 @@ namespace
 			local setters = self.parent:findAllSettersInNode(self.originalNode);
 			for i = 1, #setters do
 				local node = setters[i];
-				local propName = node.Attributes[self.parent.LuaProperty]
+				local propName = node.Annotations[self.parent.LuaProperty]
 				                                                 .ValueAsString;
 				if (first) then					
 					t[#t + 1] = 'if (index == "' .. propName .. '")';
@@ -1355,7 +1355,7 @@ function Generate(library, path, arguments)
     
     local classes = generator:findAllAttr(generator.RootNode);
     
-    log:Write("Found " .. #(classes) .. " classes with attributes...");
+    log:Write("Found " .. #(classes) .. " classes with annotations...");
     log:Write("BEGIN LUA GLUE");
     for i, class in ipairs(classes) do
 		log:Write("Wrapping " .. tostring(class) .. ".");

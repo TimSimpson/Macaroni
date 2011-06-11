@@ -65,7 +65,7 @@ class ClassParent
 
 	friend intrusive_ptr_release;
 	
-	// TODO: In the future, it would be cool to have an attribute / annotation
+	// TODO: In the future, it would be cool to have an annotation / annotation
 	// type thing to mark functions as property accessors.
 	// Or heck, just have properties.
 	public inline AccessPtr GetAccess() const

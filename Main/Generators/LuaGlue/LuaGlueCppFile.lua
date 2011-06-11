@@ -52,8 +52,8 @@ LuaGlueCppFile = {
     end,
     
     getLuaReferenceType = function(self, typeNode)
-        -- In the future, use attributes to get the props like this:
-        --    typeNode.Attributes.LuaReferenceType -- points to a Node
+        -- In the future, use annotations to get the props like this:
+        --    typeNode.Annotations.LuaReferenceType -- points to a Node
         -- until then, hack! :)
         local name = nil;
         if (typeNode.FullName == "Macaroni::Model::Cpp::Access") then
@@ -66,8 +66,8 @@ LuaGlueCppFile = {
     end,
     
     getLuaReferencedType = function(self, typePtrNode)     
-        -- In the future, use attributes to get the props like this:
-        --    typeNode.Attributes.LuaType -- points to a Node
+        -- In the future, use annotations to get the props like this:
+        --    typeNode.Annotations.LuaType -- points to a Node
         -- until then, hack! :)
         local name = nil;
         if (typePtrNode.FullName == "Macaroni::Model::Cpp::Access") then
@@ -260,7 +260,7 @@ namespace {
         if (rtnType == nil) then
             rtnType = func.ReturnType;
         end
-        -- TODO: Whenever attributes are finished, the ptr type needs to be an actual
+        -- TODO: Whenever annotations are finished, the ptr type needs to be an actual
         -- Type, not the Node!
         self:write(rtnType.FullName);
         --self:writeType(rtnType);

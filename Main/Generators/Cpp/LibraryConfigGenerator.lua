@@ -78,7 +78,7 @@ LibraryConfigGenerator =
 //
 // ]] .. libDecl .. [[]] .. "\n" .. [[
 //     This is defined by this header file by looking at the above values.
-//     This may or may not become a compiler attribute affixed to all symbol
+//     This may or may not become a compiler annotation affixed to all symbol
 //     definitions.  This is necessary for certain compilers (specifically MSVC++).
 //
 

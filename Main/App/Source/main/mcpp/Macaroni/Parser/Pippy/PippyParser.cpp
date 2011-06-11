@@ -2,9 +2,9 @@
 #define MACARONI_PARSER_PIPPY_PIPPYPARSER_CPP
 
 #include "../../ME.h"
-#include <Macaroni/Model/AttributeTable.h>
-#include <Macaroni/Model/AttributeValue.h>
-#include <Macaroni/Model/AttributeValuePtr.h>
+#include <Macaroni/Model/AnnotationTable.h>
+#include <Macaroni/Model/AnnotationValue.h>
+#include <Macaroni/Model/AnnotationValuePtr.h>
 #include <Macaroni/Model/Cpp/Access.h>
 #include <Macaroni/Model/Cpp/AccessPtr.h>
 #include "../../Model/Block.h"
@@ -45,12 +45,12 @@
 
 using Macaroni::Model::Cpp::Access;
 using Macaroni::Model::Cpp::AccessPtr;
-using Macaroni::Model::AttributeTable;
-using Macaroni::Model::AttributeTableInternalPtr;
-using Macaroni::Model::AttributeTablePtr;
-using Macaroni::Model::AttributeValue;
-using Macaroni::Model::AttributeValueInternalPtr;
-using Macaroni::Model::AttributeValuePtr;
+using Macaroni::Model::AnnotationTable;
+using Macaroni::Model::AnnotationTableInternalPtr;
+using Macaroni::Model::AnnotationTablePtr;
+using Macaroni::Model::AnnotationValue;
+using Macaroni::Model::AnnotationValueInternalPtr;
+using Macaroni::Model::AnnotationValuePtr;
 using Macaroni::Model::Block;
 using Macaroni::Model::Cpp::Class;
 using Macaroni::Model::Cpp::ClassPtr;
@@ -426,7 +426,7 @@ public:
 		importedNodes->push_back(node);
 	}
 
-	bool Attribute(Iterator & itr)
+	bool Annotation(Iterator & itr)
 	{		
 		if (!itr.ConsumeChar('@'))
 		{
@@ -436,33 +436,33 @@ public:
 		if (!this->currentScope)
 		{
 			throw ParserException(itr.GetSource(),
-				Messages::Get("CppParser.Attribute.AttributeFoundOutsideOfAnyScope"));
+				Messages::Get("CppParser.Annotation.AnnotationFoundOutsideOfAnyScope"));
 		}
 		NodePtr name;
 		if (!ConsumeNodeName(itr, name))
 		{
 			throw ParserException(itr.GetSource(),
-				Messages::Get("CppParser.Attribute.NodeNameExpectedAfterAt"));
+				Messages::Get("CppParser.Annotation.NodeNameExpectedAfterAt"));
 		}
 
-		AttributeValueInternalPtr attributeValue;
+		AnnotationValueInternalPtr annotationValue;
 		Iterator attrBegin = itr;
-		if (AttributeValue_(itr, attrBegin, name, attributeValue))
+		if (AnnotationValue_(itr, attrBegin, name, annotationValue))
 		{
 			itr.ConsumeWhitespace();
 			// Changing this, because if its in a typedef or Variable its 
 			// ambiguous.
 			// itr.ConsumeChar(';'); // Consume this (its optional)
-			currentScope->GetAttributes().Add(attributeValue);
+			currentScope->GetAnnotations().Add(annotationValue);
 			return true;
 		}
 		throw ParserException(itr.GetSource(),
-				Messages::Get("CppParser.Attribute.ValueExpectedFollowingNodeName"));
+				Messages::Get("CppParser.Annotation.ValueExpectedFollowingNodeName"));
 	}	
 
-	bool AttributeValue_(Iterator & itr, Iterator & attrBegin, 
+	bool AnnotationValue_(Iterator & itr, Iterator & attrBegin, 
 						 const NodePtr & name, 
-						 AttributeValueInternalPtr & attributeValue)
+						 AnnotationValueInternalPtr & annotationValue)
 	{
 		itr.ConsumeWhitespace();
 		// At this point, can see the following:
@@ -476,51 +476,51 @@ public:
 		double valueNumber;
 		NodePtr valueNode;
 		std::string valueString;
-		if (AttributeValueBool(itr, valueBool))
+		if (AnnotationValueBool(itr, valueBool))
 		{	
-			attributeValue = AttributeValueInternalPtr(new AttributeValue(name, valueBool, 
-					Reason::Create(CppAxioms::AttributeValueCreation(), attrBegin.GetSource())
+			annotationValue = AnnotationValueInternalPtr(new AnnotationValue(name, valueBool, 
+					Reason::Create(CppAxioms::AnnotationValueCreation(), attrBegin.GetSource())
 				));
 		}
-		else if (AttributeValueNumber(itr, valueNumber))
+		else if (AnnotationValueNumber(itr, valueNumber))
 		{
-			attributeValue = AttributeValueInternalPtr(new AttributeValue(name, valueNumber, 
-					Reason::Create(CppAxioms::AttributeValueCreation(), attrBegin.GetSource())
+			annotationValue = AnnotationValueInternalPtr(new AnnotationValue(name, valueNumber, 
+					Reason::Create(CppAxioms::AnnotationValueCreation(), attrBegin.GetSource())
 				));
 		}
-		else if (AttributeValueNode(itr, valueNode))
+		else if (AnnotationValueNode(itr, valueNode))
 		{
-			attributeValue = AttributeValueInternalPtr(new AttributeValue(name, valueNode, 
-					Reason::Create(CppAxioms::AttributeValueCreation(), attrBegin.GetSource())
+			annotationValue = AnnotationValueInternalPtr(new AnnotationValue(name, valueNode, 
+					Reason::Create(CppAxioms::AnnotationValueCreation(), attrBegin.GetSource())
 				));
 		}
-		else if (AttributeValueString(itr, valueString))
+		else if (AnnotationValueString(itr, valueString))
 		{
-			attributeValue = AttributeValueInternalPtr(new AttributeValue(name, valueString, 
-					Reason::Create(CppAxioms::AttributeValueCreation(), attrBegin.GetSource())
+			annotationValue = AnnotationValueInternalPtr(new AnnotationValue(name, valueString, 
+					Reason::Create(CppAxioms::AnnotationValueCreation(), attrBegin.GetSource())
 				));
 		}
 		else if (itr.ConsumeChar('['))
 		{
-			attributeValue = AttributeValueInternalPtr(new AttributeValue(name, 
-					Reason::Create(CppAxioms::AttributeValueCreation(), attrBegin.GetSource())
+			annotationValue = AnnotationValueInternalPtr(new AnnotationValue(name, 
+					Reason::Create(CppAxioms::AnnotationValueCreation(), attrBegin.GetSource())
 				));			
-			attributeTableContents(itr, attributeValue->GetValueAsTable());
+			annotationTableContents(itr, annotationValue->GetValueAsTable());
 		}
 		else
 		{
-			// Short hand syntax allows for an empty attribute.
+			// Short hand syntax allows for an empty annotation.
 			// For now this is a table but it'd be cool if it could be nothing
 			// to avoid the waste.
-			attributeValue = AttributeValueInternalPtr(new AttributeValue(name, 
-				Reason::Create(CppAxioms::AttributeValueCreation(), attrBegin.GetSource())
+			annotationValue = AnnotationValueInternalPtr(new AnnotationValue(name, 
+				Reason::Create(CppAxioms::AnnotationValueCreation(), attrBegin.GetSource())
 				));						
 		}
-		return !!attributeValue;
+		return !!annotationValue;
 	}
 
 
-	void attributeTableContents(Iterator & itr, const AttributeTablePtr & table)
+	void annotationTableContents(Iterator & itr, const AnnotationTablePtr & table)
 	{
 		itr.ConsumeWhitespace();
 		while(!itr.Is(']'))
@@ -530,26 +530,26 @@ public:
 			if (!ConsumeSimpleName(itr, name))
 			{
 				throw ParserException(itr.GetSource(),
-					Messages::Get("CppParser.Attribute.EndBracketOrSimpleNameExpectedInsideAttributeTable"));
+					Messages::Get("CppParser.Annotation.EndBracketOrSimpleNameExpectedInsideAnnotationTable"));
 			}			
 			itr.ConsumeWhitespace();
 			if (!itr.ConsumeChar('='))
 			{
 				throw ParserException(itr.GetSource(),
-					Messages::Get("CppParser.Attribute.TableEntryEqualsExpected"));
+					Messages::Get("CppParser.Annotation.TableEntryEqualsExpected"));
 			}
 			itr.ConsumeWhitespace();
 
 			NodePtr home = table->GetHomeNode();
 			NodePtr entryName = home->FindOrCreate(name);
 
-			AttributeValueInternalPtr attributeValue;
-			if (!AttributeValue_(itr, attrBegin, entryName, attributeValue))
+			AnnotationValueInternalPtr annotationValue;
+			if (!AnnotationValue_(itr, attrBegin, entryName, annotationValue))
 			{
 				throw ParserException(itr.GetSource(),
-					Messages::Get("CppParser.Attribute.TableEntryValueExpected"));
+					Messages::Get("CppParser.Annotation.TableEntryValueExpected"));
 			}
-			table->Add(attributeValue);
+			table->Add(annotationValue);
 			itr.ConsumeWhitespace();
 			if (itr.ConsumeChar(',')) // optional
 			{
@@ -559,7 +559,7 @@ public:
 		itr.Advance(1);
 	}
 
-	bool AttributeValueBool(Iterator & itr, bool & value)
+	bool AnnotationValueBool(Iterator & itr, bool & value)
 	{
 		if (itr.ConsumeWord("true"))
 		{
@@ -574,7 +574,7 @@ public:
 		return false;
 	}
 
-	bool AttributeValueNode(Iterator & itr, NodePtr & value)
+	bool AnnotationValueNode(Iterator & itr, NodePtr & value)
 	{
 		if (this->ConsumeNodeName(itr, value))
 		{
@@ -583,19 +583,19 @@ public:
 				// Means it looked like a Node, but no Node with that
 				// name was found.
 				throw ParserException(itr.GetSource(),
-					Messages::Get("CppParser.Attribute.ValueNoNodeByTheGivenNameFound"));
+					Messages::Get("CppParser.Annotation.ValueNoNodeByTheGivenNameFound"));
 			}
 			return true;
 		}
 		return false;
 	}
 
-	bool AttributeValueNumber(Iterator & itr, double & value)
+	bool AnnotationValueNumber(Iterator & itr, double & value)
 	{
 		return RealNumber(itr, value);		
 	}
 
-	bool AttributeValueString(Iterator & itr, std::string & value)
+	bool AnnotationValueString(Iterator & itr, std::string & value)
 	{
 		if (ConsumeStringLiteral(itr, value))
 		{
@@ -610,7 +610,7 @@ public:
 			else
 			{
 				throw ParserException(itr.GetSource(), Messages::Get(
-					"CppParser.Attribute.CodeBlockExpectedAfterEquals"));
+					"CppParser.Annotation.CodeBlockExpectedAfterEquals"));
 			}			
 		}		
 		return false;
@@ -683,7 +683,7 @@ public:
 
 		ConsumeWhitespace(newItr);   
 
-		while(Attribute(newItr));
+		while(Annotation(newItr));
 
 		ConsumeWhitespace(newItr);   
 
@@ -2024,7 +2024,7 @@ public:
 				|| Class(itr)
 				|| Typedef(itr)
 				|| VariableOrFunction(itr)
-				|| Attribute(itr)
+				|| Annotation(itr)
 				)
 		{
 		}
@@ -2193,7 +2193,7 @@ public:
 		NodePtr oldScope = currentScope;
 		currentScope = typedefNode;
 		
-		while(Directives(newItr) || Attribute(newItr)) {
+		while(Directives(newItr) || Annotation(newItr)) {
 			ConsumeWhitespace(newItr);
 		}
 		currentScope = oldScope;		
@@ -2376,7 +2376,7 @@ public:
 				ConsumeWhitespace(itr);
 			}
 			
-			while(Attribute(itr));
+			while(Annotation(itr));
 
 			currentScope = oldScope;
 

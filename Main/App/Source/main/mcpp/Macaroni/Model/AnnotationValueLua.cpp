@@ -1,10 +1,10 @@
 #ifndef MACARONI_MODEL_ATTRIBUTEVALUELUA_CPP
 #define MACARONI_MODEL_ATTRIBUTEVALUELUA_CPP
 
-#include "AttributeTable.h"
-#include "AttributeTableLua.h"
-#include "AttributeValue.h"
-#include "AttributeValueLua.h"
+#include "AnnotationTable.h"
+#include "AnnotationTableLua.h"
+#include "AnnotationValue.h"
+#include "AnnotationValueLua.h"
 #include "Node.h"
 #include "NodeLua.h"
 #include "ReasonLua.h"
@@ -12,11 +12,11 @@
 
 #define LUAGLUE_STARTNAMESPACE BEGIN_NAMESPACE2(Macaroni, Model)
 #define LUAGLUE_ENDNAMESPACE	END_NAMESPACE2
-#define LUAGLUE_CLASSNAME AttributeValue
-#define LUAGLUE_CLASSREFNAME AttributeValuePtr
-#define LUAGLUE_CLASSFULLLUANAME "Macaroni.Model.AttributeValue"
-#define LUAGLUE_CLASSFULLCPPNAME Macaroni::Model::AttributeValue
-#define LUAGLUE_REGISTRATIONCLASSNAME AttributeValueLuaMetaData
+#define LUAGLUE_CLASSNAME AnnotationValue
+#define LUAGLUE_CLASSREFNAME AnnotationValuePtr
+#define LUAGLUE_CLASSFULLLUANAME "Macaroni.Model.AnnotationValue"
+#define LUAGLUE_CLASSFULLCPPNAME Macaroni::Model::AnnotationValue
+#define LUAGLUE_REGISTRATIONCLASSNAME AnnotationValueLuaMetaData
 #define LUAGLUE_OPENOTHERMODULES \
 	//Macaroni::Model::Cpp::ConstructorLuaMetaData::AssignmentListOpenInLua(L);
 	//Macaroni::Model::NodeLuaMetaData::OpenInLua(L); \
@@ -24,7 +24,7 @@
 	//Macaroni::Model::Cpp::ClassLuaMetaData::OpenInLua(L);  \
 	//Macaroni::Model::Cpp::TypedefLuaMetaData::OpenInLua(L);
 #define LUAGLUE_CREATEMETATABLE YESPLEASE
-#define LUAGLUE_HELPERCLASS				AttributeValueLuaGlueHelperClass
+#define LUAGLUE_HELPERCLASS				AnnotationValueLuaGlueHelperClass
 
 #include "../LuaGlue.hpp"
 
@@ -32,7 +32,7 @@
 #define CATCH } catch(const std::exception & ex){ return luaL_error(L, ex.what()); }
 
 
-	static int __index(lua_State * L, const AttributeValuePtr & ptr, 
+	static int __index(lua_State * L, const AnnotationValuePtr & ptr, 
 									  const std::string & index)
 	{		
 		TRY
@@ -54,7 +54,7 @@
 			}
 			else if (index == "ValueAsTable")
 			{
-				AttributeTableLuaMetaData::PutInstanceOnStack(L, ptr->GetValueAsTable());
+				AnnotationTableLuaMetaData::PutInstanceOnStack(L, ptr->GetValueAsTable());
 			}
 			else if (index == "IsBool")
 			{
@@ -95,9 +95,9 @@
 
 	static int __tostring(lua_State * L)
 	{
-		AttributeValuePtr & ptr = getInstance(L);
+		AnnotationValuePtr & ptr = getInstance(L);
 		std::stringstream ss;
-		ss << "[AttributeValue Name=";
+		ss << "[AnnotationValue Name=";
 		ss << ptr->GetName()->GetFullName();
 		ss << ", Type=";
 		ss << ptr->GetTypeString();

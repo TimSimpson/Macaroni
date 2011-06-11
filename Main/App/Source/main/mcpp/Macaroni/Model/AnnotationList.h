@@ -2,8 +2,8 @@
 #define MACARONI_MODEL_ATTRIBUTELIST_H
 
 #include "../ME.h"
-#include "AttributeTablePtr.h"
-#include "AttributeValuePtr.h"
+#include "AnnotationTablePtr.h"
+#include "AnnotationValuePtr.h"
 #include "NodePtr.h"
 #include <boost/shared_ptr.hpp>
 #include "Reason.h"
@@ -13,17 +13,17 @@
 BEGIN_NAMESPACE2(Macaroni, Model)
 
 ///** Attached to a Node or Library, these map a NodePtr to one or more 
-// * AttributeValues.
+// * AnnotationValues.
 // */
-//class AttributeList
+//class AnnotationList
 //{
 //public:
-//	AttributeList();
-//	~AttributeList();
+//	AnnotationList();
+//	~AnnotationList();
 //
 //	std::vector<
 //private:
-//	std::vector<std::pair<Node & node, AttributeValue>> attributes;
+//	std::vector<std::pair<Node & node, AnnotationValue>> attributes;
 //};
 
 END_NAMESPACE2

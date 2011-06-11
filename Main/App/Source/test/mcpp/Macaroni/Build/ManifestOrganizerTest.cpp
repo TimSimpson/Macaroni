@@ -12,7 +12,7 @@ using Macaroni::Build::ManifestPtr;
 using Macaroni::Build::ManifestOrganizer;
 using std::vector;
 
-BOOST_AUTO_TEST_SUITE(AttributeValueSuite)
+BOOST_AUTO_TEST_SUITE(AnnotationValueSuite)
 
 BOOST_AUTO_TEST_CASE(A)
 {	

@@ -1,5 +1,5 @@
-require "Macaroni.Model.AttributeTable"
-require "Macaroni.Model.AttributeValue";
+require "Macaroni.Model.AnnotationTable"
+require "Macaroni.Model.AnnotationValue";
 require "Macaroni.Model.Axiom";
 require "Macaroni.Model.Block";
 require "Macaroni.Model.Cpp.Class";

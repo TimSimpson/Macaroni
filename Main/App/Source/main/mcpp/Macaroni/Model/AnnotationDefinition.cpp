@@ -1,7 +1,7 @@
 #ifndef MACARONI_MODEL_ATTRIBUTEDEFINITION_CPP
 #define MACARONI_MODEL_ATTRIBUTEDEFINITION_CPP
 
-#include "AttributeDefinition.h"
+#include "AnnotationDefinition.h"
 #include <Macaroni/Exception.h>
 #include "Node.h"
 #include "Member.h"
@@ -9,51 +9,51 @@
 #include "ModelInconsistencyException.h"
 #include <sstream>
 
-#define TYPE_NAME "AttributeDefinition"
+#define TYPE_NAME "AnnotationDefinition"
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
-void intrusive_ptr_add_ref(AttributeDefinition * p)
+void intrusive_ptr_add_ref(AnnotationDefinition * p)
 {
 	intrusive_ptr_add_ref((Member *)p);
 }
 
-void intrusive_ptr_release(AttributeDefinition * p)
+void intrusive_ptr_release(AnnotationDefinition * p)
 {
 	intrusive_ptr_release((Member *)p);
 }
 
-AttributeDefinition::AttributeDefinition(Node * node, TypeCode type, const ReasonPtr & reasonCreated)
+AnnotationDefinition::AnnotationDefinition(Node * node, TypeCode type, const ReasonPtr & reasonCreated)
 :Member(node, TYPE_NAME, reasonCreated), type(type)
 {
 }
 	
-AttributeDefinition::~AttributeDefinition()
+AnnotationDefinition::~AnnotationDefinition()
 {
 }
 
-AttributeDefinitionPtr AttributeDefinition::Create(NodePtr home, TypeCode type, const ReasonPtr &  reason)
+AnnotationDefinitionPtr AnnotationDefinition::Create(NodePtr home, TypeCode type, const ReasonPtr &  reason)
 {
-	return AttributeDefinitionPtr(new AttributeDefinition(home.get(), type, reason));
+	return AnnotationDefinitionPtr(new AnnotationDefinition(home.get(), type, reason));
 }
 
-bool AttributeDefinition::canBeChildOf(const Member * other) const
+bool AnnotationDefinition::canBeChildOf(const Member * other) const
 {
 	return true;
 }
 
-void AttributeDefinition::Define(NodePtr node, TypeCode type, const ReasonPtr & reason)
+void AnnotationDefinition::Define(NodePtr node, TypeCode type, const ReasonPtr & reason)
 {
 	MemberPtr member = node->GetMember();
 	if (!!member)
 	{
-		AttributeDefinitionPtr existingDef = boost::dynamic_pointer_cast<AttributeDefinition>(member); 
+		AnnotationDefinitionPtr existingDef = boost::dynamic_pointer_cast<AnnotationDefinition>(member); 
 		if (!existingDef)
 		{
 			std::stringstream ss;
 			ss << "Attempt to define previously defined Node "
 				<< node->GetFullName() 
-				<< " as an Attribute.";
+				<< " as an Annotation.";
 			throw ModelInconsistencyException(existingDef->GetReasonCreated(),
 				reason,
 				ss.str());
@@ -66,12 +66,12 @@ void AttributeDefinition::Define(NodePtr node, TypeCode type, const ReasonPtr & 
 				return;
 			}
 			std::stringstream ss;
-			ss << "Attempt to redefine Attribute "
+			ss << "Attempt to redefine Annotation "
 				<< node->GetFullName() 
 				<< " with value type of " 
-				<< existingDef->GetAttributeTypeName()
+				<< existingDef->GetAnnotationTypeName()
 				<< " as value type " 
-				<< getAttributeTypeName(type);
+				<< getAnnotationTypeName(type);
 			throw ModelInconsistencyException(existingDef->GetReasonCreated(),
 				reason,
 				ss.str());
@@ -81,12 +81,12 @@ void AttributeDefinition::Define(NodePtr node, TypeCode type, const ReasonPtr & 
 
 }
 
-const char * AttributeDefinition::GetAttributeTypeName() const
+const char * AnnotationDefinition::GetAnnotationTypeName() const
 {
-	return getAttributeTypeName(type);
+	return getAnnotationTypeName(type);
 }
 
-const char * AttributeDefinition::getAttributeTypeName(TypeCode type)
+const char * AnnotationDefinition::getAnnotationTypeName(TypeCode type)
 {
 	switch(type)
 	{
@@ -105,12 +105,12 @@ const char * AttributeDefinition::getAttributeTypeName(TypeCode type)
 	};
 }
 
-const char * AttributeDefinition::GetTypeName() const
+const char * AnnotationDefinition::GetTypeName() const
 {
 	return TYPE_NAME;
 }
 
-void AttributeDefinition::Visit(MemberVisitor * visitor) const
+void AnnotationDefinition::Visit(MemberVisitor * visitor) const
 {
 	//TODO: Visit should no longer be here! Arg, I say.
 	return;

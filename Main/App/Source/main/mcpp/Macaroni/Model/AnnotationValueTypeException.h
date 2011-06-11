@@ -6,10 +6,10 @@
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
-class AttributeValueTypeException : public Macaroni::Exception 
+class AnnotationValueTypeException : public Macaroni::Exception 
 {
 public:
-	AttributeValueTypeException(std::string message)
+	AnnotationValueTypeException(std::string message)
 		: Macaroni::Exception(message.c_str()) {}
 };
 

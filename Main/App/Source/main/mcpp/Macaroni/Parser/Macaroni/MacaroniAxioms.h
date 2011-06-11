@@ -11,7 +11,7 @@ BEGIN_NAMESPACE(Macaroni, Parser, Macaroni)
 
 namespace MacaroniAxioms
 {
-	AxiomPtr AttributeImplicitDefinition();	
+	AxiomPtr AnnotationImplicitDefinition();	
 };
 
 END_NAMESPACE

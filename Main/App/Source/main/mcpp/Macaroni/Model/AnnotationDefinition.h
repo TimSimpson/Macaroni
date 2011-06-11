@@ -2,7 +2,7 @@
 #define MACARONI_MODEL_ATTRIBUTEDEFINITION_H
 
 #include "../ME.h"
-#include "AttributeDefinitionPtr.h"
+#include "AnnotationDefinitionPtr.h"
 #include "Member.h"
 #include "NodePtr.h"
 #include <boost/shared_ptr.hpp>
@@ -12,13 +12,13 @@
 BEGIN_NAMESPACE2(Macaroni, Model)
 
 /**
- * Defines an Attribute.  This is used to mark that the Node is used to refer
- * to an Attribute.
+ * Defines an Annotation.  This is used to mark that the Node is used to refer
+ * to an Annotation.
  */
-class AttributeDefinition :  public Member
+class AnnotationDefinition :  public Member
 {
-friend void intrusive_ptr_add_ref(AttributeDefinition * p);
-friend void intrusive_ptr_release(AttributeDefinition * p);
+friend void intrusive_ptr_add_ref(AnnotationDefinition * p);
+friend void intrusive_ptr_release(AnnotationDefinition * p);
 
 public:
 
@@ -31,20 +31,20 @@ public:
 		Type_Table
 	};
 
-	AttributeDefinition(Node * node, TypeCode type, const ReasonPtr & reasonCreated);
+	AnnotationDefinition(Node * node, TypeCode type, const ReasonPtr & reasonCreated);
 	
-	~AttributeDefinition();
+	~AnnotationDefinition();
 
 	virtual bool canBeChildOf(const Member * other) const;
 
-	static AttributeDefinitionPtr Create(NodePtr home, TypeCode type, const ReasonPtr & reason);
+	static AnnotationDefinitionPtr Create(NodePtr home, TypeCode type, const ReasonPtr & reason);
 
-	/** Defines the given Node to be an Attribute of the given type.
+	/** Defines the given Node to be an Annotation of the given type.
 	 * Throws "ModelInconsistencyException" on failure. 
 	 */
 	static void Define(NodePtr node, TypeCode type, const ReasonPtr & reasonCreated);	
 
-	const char * GetAttributeTypeName() const;
+	const char * GetAnnotationTypeName() const;
 
 	inline TypeCode GetTypeCode() const
 	{
@@ -55,7 +55,7 @@ public:
 
 	virtual void Visit(MemberVisitor * visitor) const;
 private:
-	static const char * getAttributeTypeName(TypeCode type);
+	static const char * getAnnotationTypeName(TypeCode type);
 
 	TypeCode type;
 };

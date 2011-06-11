@@ -1,5 +1,5 @@
-require "Macaroni.Model.AttributeTable"
-require "Macaroni.Model.AttributeValue";
+require "Macaroni.Model.AnnotationTable"
+require "Macaroni.Model.AnnotationValue";
 require "Macaroni.Model.Axiom";
 require "Macaroni.Model.Block";
 require "Macaroni.Model.Cpp.Class";
@@ -91,14 +91,14 @@ div.hide { display:none; }
 function change(id) 
 {
 	var e = document.getElementById(id);
-	var c = e.getAttribute("class");
+	var c = e.getAnnotation("class");
 	if (c == "hide") 
 	{
-		e.setAttribute("class", "show");
+		e.setAnnotation("class", "show");
 	}
 	else
 	{
-	e.setAttribute("class", "hide");
+	e.setAnnotation("class", "hide");
 	}
 }
 change('%ROOT%');

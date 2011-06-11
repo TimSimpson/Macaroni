@@ -218,7 +218,7 @@ NamespaceHFileGenerator = {
             if (node.HFilePath == nil) then
 				return true;
 			end
-			attr = node.Attributes["Macaroni::Cpp::UseLightDef"]
+			attr = node.Annotations["Macaroni::Cpp::UseLightDef"]
 			if attr ~= nil and not attr.ValueAsBool then
 				return true;
 			end

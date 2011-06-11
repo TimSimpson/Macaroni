@@ -5,11 +5,11 @@
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
-class AttributeDefinition;
-typedef boost::intrusive_ptr<AttributeDefinition> AttributeDefinitionPtr;
+class AnnotationDefinition;
+typedef boost::intrusive_ptr<AnnotationDefinition> AnnotationDefinitionPtr;
 
-void intrusive_ptr_add_ref(AttributeDefinition * p);
-void intrusive_ptr_release(AttributeDefinition * p);
+void intrusive_ptr_add_ref(AnnotationDefinition * p);
+void intrusive_ptr_release(AnnotationDefinition * p);
 
 END_NAMESPACE2
 

@@ -11,9 +11,9 @@ BEGIN_NAMESPACE(Macaroni, Parser, Macaroni)
 namespace MacaroniAxioms
 {
 
-AxiomPtr AttributeImplicitDefinition()
+AxiomPtr AnnotationImplicitDefinition()
 {
-	return AxiomPtr(new MacaroniAxiom("MacaroniAxioms.Attribute.Definition.Implicit"));
+	return AxiomPtr(new MacaroniAxiom("MacaroniAxioms.Annotation.Definition.Implicit"));
 }
 
 }

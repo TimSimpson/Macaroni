@@ -11,9 +11,9 @@ BEGIN_NAMESPACE(Macaroni, Parser, Cpp)
 namespace CppAxioms
 {
 
-AxiomPtr AttributeValueCreation()
+AxiomPtr AnnotationValueCreation()
 {
-	return AxiomPtr(new CppAxiom("CppAxioms.AttributeValueCreation"));
+	return AxiomPtr(new CppAxiom("CppAxioms.AnnotationValueCreation"));
 }
 
 AxiomPtr BlockCreation()

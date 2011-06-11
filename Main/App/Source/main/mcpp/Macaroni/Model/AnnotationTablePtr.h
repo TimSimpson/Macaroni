@@ -6,13 +6,13 @@
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
-class AttributeTable;
+class AnnotationTable;
 
-typedef boost::shared_ptr<AttributeTable> AttributeTableInternalPtr;
-typedef boost::intrusive_ptr<AttributeTable> AttributeTablePtr;
+typedef boost::shared_ptr<AnnotationTable> AnnotationTableInternalPtr;
+typedef boost::intrusive_ptr<AnnotationTable> AnnotationTablePtr;
 
-void intrusive_ptr_add_ref(AttributeTable * p);
-void intrusive_ptr_release(AttributeTable * p);
+void intrusive_ptr_add_ref(AnnotationTable * p);
+void intrusive_ptr_release(AnnotationTable * p);
 
 END_NAMESPACE2
 

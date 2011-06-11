@@ -1,5 +1,5 @@
-require "Macaroni.Model.AttributeTable"
-require "Macaroni.Model.AttributeValue";
+require "Macaroni.Model.AnnotationTable"
+require "Macaroni.Model.AnnotationValue";
 require "Cpp/Common";
 require "Cpp/DependencyList";
 
@@ -108,10 +108,10 @@ NodeInfo = {
         check(node ~= nil, "Argument one must be node.");        
         if (node.IsRoot or node.HFilePath ~= nil) then
 			ignore = true
-			local attr = node.Attributes["Macaroni::Cpp::UseLightDef"];			
+			local attr = node.Annotations["Macaroni::Cpp::UseLightDef"];			
 			if (attr ~= nil) then
 				if not attr.IsBool then
-					error("The node " .. node.FullName .. " attribute value "
+					error("The node " .. node.FullName .. " annotation value "
 					      .. "UseLightDef must be a boolean.");
 				end
 				if (attr.ValueAsBool) then
@@ -173,10 +173,10 @@ NodeInfo = {
 		if node.HFilePath == nil then
 			return true;
 		end
-		local attr = node.Attributes["Macaroni::Cpp::UseLightDef"];			
+		local attr = node.Annotations["Macaroni::Cpp::UseLightDef"];			
 		if (attr ~= nil) then
 			if not attr.IsBool then
-				error("The node " .. node.FullName .. " attribute value "
+				error("The node " .. node.FullName .. " annotation value "
 					  .. "UseLightDef must be a boolean.");
 			end
 			return attr.ValueAsBool;
