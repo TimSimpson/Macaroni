@@ -44,6 +44,7 @@ void CppContext::CreateCppNodes(ContextPtr & context)
 		addPrimitive(primitiveRoot, "double");
 		addPrimitive(primitiveRoot, "float");
 		addPrimitive(primitiveRoot, "signed int");
+		addPrimitive(primitiveRoot, "size_t");
 		addPrimitive(primitiveRoot, "int");
 		addPrimitive(primitiveRoot, "unsigned int");		
 		addPrimitive(primitiveRoot, "void");

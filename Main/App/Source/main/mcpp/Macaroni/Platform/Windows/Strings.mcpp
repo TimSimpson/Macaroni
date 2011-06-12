@@ -1,0 +1,7 @@
+// Macaroni declaration (too much preprocessor magic for Macaroni).
+
+namespace Macaroni::Platform::Windows
+{
+	class NonWindowsString { ~hfile=<Macaroni/Platform/Windows/Strings.h> }
+	class WindowsString { ~hfile=<Macaroni/Platform/Windows/Strings.h> }
+}

@@ -4,7 +4,7 @@
 #define MACARONI_ENVIRONMENT_PROCESS_CPP
 
 #include "Process.h"
-#include "../Platform/Windows/EnvironmentVariables.h"
+#include <Macaroni/Platform/Windows/EnvironmentVariables.h>
 #include "../Exception.h"
 #include <memory>
 #include <windows.h>

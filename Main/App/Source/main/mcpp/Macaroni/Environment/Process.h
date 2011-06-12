@@ -5,7 +5,7 @@
 #include <boost/optional.hpp>
 #include "Console.h"
 #include <cstdlib>
-#include "../Platform/Windows/EnvironmentVariables.h"
+#include <Macaroni/Platform/Windows/EnvironmentVariables.h>
 #include "Messages.h"
 #include <iostream>
 #include <boost/filesystem/operations.hpp>

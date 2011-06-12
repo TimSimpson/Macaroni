@@ -1,7 +1,7 @@
 #ifndef MACARONI_IO_PATHLUA_CPP
 #define MACARONI_IO_PATHLUA_CPP
 
-#include "GeneratedFileWriterLuaMetaData.h"
+#include <Macaroni/IO/GeneratedFileWriterLuaMetaData.h>
 #include "PathLua.h"
 
 //extern "C" {

@@ -1,6 +1,9 @@
 ~import boost::filesystem::create_directories;
 ~import Macaroni::Exception;
 ~import Macaroni::IO::GeneratedFileWriter;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaOperator;
 ~import std::ofstream;
 ~import std::ifstream;
 ~import std::ostream;
@@ -13,9 +16,12 @@ namespace Macaroni::IO
 {
 
 typedef shared_ptr<ostream> ostreamptr;
-typedef shared_ptr<GeneratedFileWriter> GeneratedFileWriterPtr;
+typedef shared_ptr<GeneratedFileWriter> GeneratedFileWriterPtr
+	@LuaClass [ SameAsNode = GeneratedFileWriter ]
+;
 
 class GeneratedFileWriter
+	@LuaClass [ ReferenceType = GeneratedFileWriterPtr ]
 {
 	//TODO: Move to outside of class def. due to bug in Macaroni.
 	//Fix bug and move back!
@@ -61,6 +67,7 @@ class GeneratedFileWriter
 	}
 
 	public bool Close()
+		@LuaFunction "Close"
 	{
 		if (!closed) 
 		{
@@ -81,7 +88,7 @@ class GeneratedFileWriter
 		return fileWasWritten;
 	}
 
-	public const path & GetFilePath() const
+	public inline const path & GetFilePath() const
 	{
 		return filePath;
 	}
@@ -128,12 +135,22 @@ class GeneratedFileWriter
 		return true;
 	}
 
+	public std::string ToString() const
+		@LuaOperator "__tostring"
+	{
+		std::stringstream ss;
+		ss << "GeneratedFileWriter [" << GetFilePath().string() << "]";
+		return ss.str();
+	}
+
 	public void Write(const std::string & text)
+		@LuaFunction "Write"
 	{
 		(*writer) << text;
 	}
 
 	public void WriteLine(const std::string & text)
+		@LuaFunction "WriteLine"
 	{
 		(*writer) << text << std::endl;
 	}

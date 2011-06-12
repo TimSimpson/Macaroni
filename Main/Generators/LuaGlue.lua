@@ -209,8 +209,10 @@ LuaGlueGenerator =
 					error('While wrapping node ' .. tostring(node.FullName) ..
 						  ': "LuaGlueClass" must refer to a Node.');
 				end
-				rtn.glueAlreadyExists = true
-				rtn.metaNode = existingMetaNode.ValueAsNode;
+				if (existingMetaNode.ValueAsNode.Member ~= nil) then
+					rtn.glueAlreadyExists = true
+					rtn.metaNode = existingMetaNode.ValueAsNode;
+				end
 			end
 		end
 		return rtn;	
@@ -348,7 +350,7 @@ LuaGlueGenerator =
 		cppGen:parse();
 	end,
 
-	findAllAttr = function(self, node)
+	findAllAttr = function(self, node)		
 		-- Given a node, iterates recursively through NodeSpace and returns a
 		-- a list of all Nodes which are marked with the "LuaClass" annotation.
 		
@@ -360,13 +362,13 @@ LuaGlueGenerator =
 		local nodes = node.Children
 		for i = 1, #nodes do
 			local n = nodes[i];
-			if (n.Annotations[self.LuaClass] ~= nil) then
+			if (n.Annotations[self.LuaClass] ~= nil) then				
 				rtn[#rtn + 1] = n
 			end
-			for k,v in pairs(self:findAllAttr(n)) do 
-				rtn[k] = v 
+			for k,v in pairs(self:findAllAttr(n)) do 			
+				rtn[#rtn + 1] = v 
 			end
-		end
+		end		
 		return rtn;
 	end,
 	
@@ -1354,10 +1356,10 @@ function Generate(library, path, arguments)
     --RootNode:FindOrCreate("Macaroni::Lua::LuaClass");
     
     local classes = generator:findAllAttr(generator.RootNode);
-    
+   
     log:Write("Found " .. #(classes) .. " classes with annotations...");
     log:Write("BEGIN LUA GLUE");
-    for i, class in ipairs(classes) do
+    for i, class in ipairs(classes) do		
 		log:Write("Wrapping " .. tostring(class) .. ".");
 		local wrapArgs = generator:LuaWrapperArguments(class);
 		log:Write("WTF:" .. tostring(wrapArgs));

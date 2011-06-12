@@ -2,6 +2,10 @@
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Cpp::UseLightDef;
 
+
+// Primitives (I just fixed this so this line will need to go soon)
+class size_t { ~hfile=<Macaroni/ME.h> }
+
 // C std
 class system { ~hfile=<cstdlib> }
 
@@ -26,6 +30,7 @@ class boost::intrusive_ptr { ~hfile=<boost/intrusive_ptr.hpp> }
 class boost::optional { ~hfile=<boost/optional.hpp> }
 //class boost::filesystem::path { ~hfile=<boost/filesystem.hpp> }
 class boost::shared_ptr { ~hfile=<boost/shared_ptr.hpp> }
+class boost::to_lower { ~hfile=<boost/algorithm/string.hpp> }
 
 // Lua
 //class lua_State { ~hfile=<Lua/lua.h> }
@@ -66,7 +71,6 @@ class Macaroni::IO::FileNotFoundException { ~hfile=<Macaroni/IO/FileNotFoundExce
 class Macaroni::Model::FileName { ~hfile=<Macaroni/Model/FileName.h> }
 class Macaroni::Model::FileNamePtr { ~hfile=<Macaroni/Model/FileNamePtr.h> }
 class Macaroni::IO::FileSet { ~hfile=<Macaroni/IO/FileSet.h> }
-class Macaroni::IO::GeneratedFileWriterLuaMetaData { ~hfile=<Macaroni/IO/GeneratedFileWriterLuaMetaData.h> }
 class Macaroni::Environment::LuaEnvironment { ~hfile=<Macaroni/Environment/LuaEnvironment.h> }
 class Macaroni::Model::Library { ~hfile=<Macaroni/Model/Library.h> }
 class Macaroni::Build::LibraryId { ~hfile=<Macaroni/Build/LibraryId.h> }

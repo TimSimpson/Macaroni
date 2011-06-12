@@ -1,0 +1,73 @@
+~import boost::to_lower;
+~import std::string;
+
+namespace Macaroni::Platform::Windows {
+
+class EnvironmentVariable
+{
+	private string name;
+	private string value;
+
+	public EnvironmentVariable(const string & definitionString)
+	:	name(LowerCaseString(GetNameFromDefinition(definitionString))),
+		value(GetValueFromDefinition(definitionString))
+	{
+	}
+
+	public EnvironmentVariable(const string & name, const string & value)
+	:	name(LowerCaseString(name)), 
+		value(value)
+	{
+	}
+
+	public inline const string & GetName() const 
+	{
+		return name;
+	}
+
+	public static string GetNameFromDefinition(const string & def)
+	{
+		size_t index = def.find_first_of('=');
+		if (index == 0)
+		{
+			index = def.find_first_of('=', 1);
+		} else if (index < 0) 
+		{
+			index = def.size();
+		}
+		return def.substr(0, index);
+	}
+
+	public inline const string & GetValue() const
+	{
+		return value;
+	}
+
+	public static string GetValueFromDefinition(const string & def)
+	{
+		size_t index = def.find_first_of('=');
+		if (index == 0)
+		{
+			index = def.find_first_of('=', 1);
+		} else if (index < 0)
+		{
+			return "";
+		}
+		index ++;
+		return def.substr(index, def.size() - index);
+	}
+
+	public static const string LowerCaseString(string target)
+	{
+		boost::to_lower(target);
+		return target;
+	}
+
+	public inline void SetValue(const string & v) 
+	{
+		value = v;
+	}
+	
+}; // end EnvironmentVariable
+
+} // end namespace
