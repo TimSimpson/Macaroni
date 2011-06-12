@@ -381,7 +381,10 @@ public:
 		{
 			access = Access::Hidden();
 		}
-		else if (itr.ConsumeWord("~internal"))
+		// TODO: The "~internal" keyword idea is going to be a lot harder than
+		// I first thought.  In MSVC++ a class's members must all be exported
+		// if it is exported. So this would make sense for classes... later.
+		/*else if (itr.ConsumeWord("~internal"))
 		{
 			itr.ConsumeWhitespace();
 			if (itr.ConsumeWord("protected"))
@@ -392,14 +395,14 @@ public:
 			{
 				access = Access::Internal();
 			}			
-		}
+		}*/
 		else if (itr.ConsumeWord("private"))
 		{
 			access = Access::Private();
 		}
 		else if (itr.ConsumeWord("protected"))
 		{
-			itr.ConsumeWhitespace();
+			/*itr.ConsumeWhitespace();
 			if (itr.ConsumeWord("~internal"))
 			{
 				access = Access::InternalProtected();
@@ -407,7 +410,7 @@ public:
 			else
 			{
 				access = Access::Internal();
-			}
+			}*/
 			access = Access::Protected();
 		}
 		else if (itr.ConsumeWord("public"))

@@ -5,7 +5,7 @@ upper = getUpperLibrary();
 id =
 {
     group=upper.Group,
-    name=upper.Name .. ".Lib",
+    name=upper.Name .. ".App",
     version=upper.Version
 }
 
@@ -16,9 +16,12 @@ other symbols if this idea turns out not be terrible) and make the publicly
 exposed headers simpler.
 ]]
 
-dependency {group="Macaroni", name="Boost-filesystem", version="1.46.1"}
-dependency {group="Macaroni", name="Boost-smart_ptr", version="1.46.1"}
 dependency {group="Macaroni", name="CppStd", version="2003"}
+dependency {
+    group=upper.Group,
+    name=upper.Name .. ".Lib",
+    version=upper.Version
+}
 
 function generate()
     run("HtmlView");
