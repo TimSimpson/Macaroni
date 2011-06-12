@@ -96,7 +96,8 @@ class MDocParser
 				}
 				else 
 				{
-					luaL_error(L, "Expected either a Path or a GeneratedFileWriter for argument #2.");
+					return luaL_error(L, "Expected either a Path or a "
+						                 "GeneratedFileWriter for argument #2.");
 				}
 			}
 

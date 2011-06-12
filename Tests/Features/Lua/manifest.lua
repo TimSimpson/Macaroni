@@ -52,11 +52,11 @@ jamArgs =
 	    #	      ;
 		
 		
-	 	alias test_dependencies
-	    	: "]] .. properties.boost.current["path"] 
-	    	      .. [[/libs/test/build//boost_unit_test_framework" 	    	  
-	        :
-	    	;	    	
+	 	#alias test_dependencies
+	#    	: "]] .. properties.boost.current["path"] 
+	   	      .. [[/libs/test/build//boost_unit_test_framework" 	    	  
+	  #      :
+	   # 	;	    	
 	    	
 		#unit-test test
 		#    : # boost_unit_test_framework 
@@ -68,11 +68,11 @@ jamArgs =
 	   	      .. [[/stage/lib"	    
 		#    ;
 		
-		unit-test test
-		    : library		      
-		      test_dependencies
-		      ../Source/Test.cpp			      
-		    ;
+		#unit-test test
+		#    : library		      
+		#      test_dependencies
+		#      ../Source/Test.cpp			      
+		#    ;
 		
 	  	exe Main 
 	  		:	library #library_sources
@@ -80,7 +80,8 @@ jamArgs =
 	  			../Source/Main.cpp
 	  		;
 	  ]],
-	  Shared = True
+	  Shared = True,
+	  Tests = {"Test.cpp"}
 	};
 		
 function build()

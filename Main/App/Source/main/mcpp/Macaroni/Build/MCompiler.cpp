@@ -133,12 +133,11 @@ bool MCompiler::generateFiles(LibraryPtr library, path output,
 			runner.ResolveGeneratorPathOLD(options.GetInput(), options.GetGenerators()[i]);
 		if (!genPath.empty())
 		{
-			std::vector<StringPair> pairs;
 			PathPtr outputPath(new Path(output, output));
 			std::vector<PathPtr> sources;
 			PathPtr installDir; // nullptr
 			BuildContextPtr buildContext(new BuildContext(appPaths, library, sources, outputPath, installDir, "{}"));
-			runner.RunDynamicGenerator(genPath, buildContext, "Generate", pairs);
+			runner.RunDynamicGenerator(genPath, buildContext, "Generate", "{}");
 		}
 	} 
 	

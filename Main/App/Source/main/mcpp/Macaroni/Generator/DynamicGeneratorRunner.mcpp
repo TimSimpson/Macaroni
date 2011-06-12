@@ -47,10 +47,8 @@ class DynamicGeneratorRunner
 	private bool fileFound(const path & filePath, std::string name)
 	{
 		path fullPath = filePath / name;
-		if (boost::filesystem::exists(fullPath) && boost::filesystem::is_regular(fullPath))
-		{
-			return true;
-		}		
+		return (boost::filesystem::exists(fullPath) 
+			    && boost::filesystem::is_regular(fullPath));		
 	}
 
 	/** Looks for the Generator file first in the given FileSet of local directories
@@ -103,20 +101,20 @@ class DynamicGeneratorRunner
 							 const path & rootPath,
 							 const path & generatorFilePath)
 	{
-		std::vector<StringPair> pairs;
+		//std::vector<StringPair> pairs;
 		std::vector<PathPtr> sources; // null
 		PathPtr outputPath(new Path(rootPath, rootPath));
 		PathPtr installPath; // null
 		BuildContextPtr buildContext(new BuildContext(
 			appPaths, library, sources, outputPath, installPath, "{}"
 			));
-		RunDynamicGenerator(rootPath, buildContext, "Generate", pairs);
+		RunDynamicGenerator(rootPath, buildContext, "Generate", "{}");
 	}
 
 	public string RunDynamicGenerator(const path & generatorFilePath,
 									BuildContextPtr buildContext,
 									const string & methodName,
-									const vector<StringPair> & arguments)
+									const string & arguments)
 	{
 		DynamicGenerator file(generatorFilePath, buildContext, arguments);
 		return file.Run(methodName);

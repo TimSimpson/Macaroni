@@ -272,7 +272,10 @@ void LuaEnvironment::ParseString(const char * chunkName, const char * code)
 	if (eCode != 0)
 	{	
 		std::stringstream ss;
-		ss << "Error while loading Lua string:";
+		ss << "Error while loading Lua string with chunkName \""
+			<< chunkName << "\" containing the following code: "
+			<< code
+			<< ".... Error message:";
 		ss << luaL_checkstring(this->state, -1);
 		//std::cerr << ss.str() <<  std::endl;
 		throw Macaroni::Exception(ss.str().c_str());
@@ -281,43 +284,81 @@ void LuaEnvironment::ParseString(const char * chunkName, const char * code)
 
 void LuaEnvironment::Run(int results)
 {
-	int eCode = lua_pcall(state, 0, results, 0);
+	LuaEnvironment::Run(__FILE__, __LINE__, this->state, 0, results);
+}
+
+void LuaEnvironment::Run(const char * file, int lineNumber, 
+				                lua_State * L, int args, int results)
+{
+	int eCode = lua_pcall(L, 0, results, 0);
 	if (eCode != 0)
 	{	
 		std::stringstream ss;
-		ss << "Error running Lua:";
-		ss << luaL_checkstring(this->state, -1);
-		//std::cerr << ss.str() << std::endl;
-		throw Macaroni::Exception(ss.str().c_str());
+		ss << "Error running Lua (invoked at file " 
+			<< file << ", line " << lineNumber << ")"; 
+		if (lua_isstring(L, -1)) 
+		{
+			ss << ":";
+			ss << luaL_checkstring(L, -1);
+		}
+		else
+		{
+			lua_getglobal(L, "tostring");
+			lua_pushvalue(L, -2);
+			if (lua_pcall(L, 1, 1, 0) != 0)
+			{
+				ss << ". Unfortunately no string was attached to this error "
+					  "and an attempt to convert the error value to a string "
+					  "failed.";
+			} else {
+				ss << ":" << luaL_checkstring(L, -1);
+			}
+			
+		}
+		Macaroni::ThrowMacaroniException(file, lineNumber, ss.str().c_str());
 	}	
 }
 
-void LuaEnvironment::SerializeField(std::stringstream & cereal, int depth) 
+void LuaEnvironment::SerializeField(std::stringstream & cereal, int depth, 
+									int fieldIndex) 
 {
-	if (lua_isstring(state, -1))
+	LuaEnvironment::SerializeField(this->state, cereal, depth, fieldIndex);
+}
+
+void LuaEnvironment::SerializeField(lua_State * state, 
+									std::stringstream & cereal, int depth, 
+									int fieldIndex) 
+{	
+	if (lua_isnumber(state, fieldIndex))
 	{
-		std::string value(lua_tostring(state, -1));
-		cereal << "\"";
-		serializeString(cereal, value);
-		cereal << "\"";
-	}
-	else if (lua_isnumber(state, -1))
-	{
-		double d = lua_tonumber(state, -1);
+		double d = lua_tonumber(state, fieldIndex);
 		cereal << d;
 	}
-	else if (lua_isboolean(state, -1))
+	else if (lua_isboolean(state, fieldIndex))
 	{
-		int b = lua_toboolean(state, -1);
+		int b = lua_toboolean(state, fieldIndex);
 		cereal << ((b == 1) ? "true" : "false");
 	}
-	else if (lua_istable(state, -1))
+	else if (lua_istable(state, fieldIndex))
 	{
-		serializeTable(cereal, depth + 1);
+		serializeTable(state, cereal, depth + 1);
 	}
-	else if (lua_isnil(state, -1))
+	else if (lua_isnil(state, fieldIndex))
 	{
 		cereal << "nil";
+	}
+	else if (lua_isstring(state, fieldIndex)) // MUST BE LAST IN LIST!
+	{
+		// lua_isstring returns true if its a string or a number. This causes 
+		// what in many cases might be a key value to be changed into a string
+		// and messed up the table iteration code (lua_next warns explicitly
+		// not to change the type of the key, but I had no idea until now that
+		// lua_isstring would not guard against numbers).
+		std::string value(lua_tostring(state, fieldIndex));
+		cereal << "[====[";
+		//LuaEnvironment::serializeString(state, cereal, value);
+		cereal << value;
+		cereal << "]====]";
 	}
 	else 
 	{
@@ -329,7 +370,9 @@ void LuaEnvironment::SerializeField(std::stringstream & cereal, int depth)
 	}
 }
 
-void LuaEnvironment::serializeString(std::stringstream & cereal, std::string str)
+void LuaEnvironment::serializeString(lua_State * state, 
+									 std::stringstream & cereal, 
+									 std::string str)
 {	
 	BOOST_FOREACH(char ch, str)
 	{
@@ -348,8 +391,13 @@ void LuaEnvironment::serializeString(std::stringstream & cereal, std::string str
 	}
 }
 
+void LuaEnvironment::SerializeTable(lua_State * L, std::stringstream & ss)
+{
+	LuaEnvironment::serializeTable(L, ss, 0);
+}
+
 void LuaEnvironment::SerializeTable(std::stringstream & ss, 
-										   const std::string & tableName)
+									const std::string & tableName)
 {
 	lua_getglobal(state, tableName.c_str());
 	if (!lua_istable(state, -1))
@@ -358,11 +406,13 @@ void LuaEnvironment::SerializeTable(std::stringstream & ss,
 		msg << "Can't find table value " << tableName << ".";
 		throw Macaroni::Exception(msg.str().c_str());
 	}
-	serializeTable(ss, 0);
+	serializeTable(state, ss, 0);
 }
 
+
 /** Expects table to be at -1 on the stack. */
-void LuaEnvironment::serializeTable(std::stringstream & cereal, int depth) 
+void LuaEnvironment::serializeTable(lua_State * state, 
+									std::stringstream & cereal, int depth) 
 {
 	if (!lua_istable(state, -1))
 	{		
@@ -379,20 +429,29 @@ void LuaEnvironment::serializeTable(std::stringstream & cereal, int depth)
 		{
 			cereal << "\t";
 		}
-		if (!lua_isstring(state, -2))
+		//if (!lua_isstring(state, -2))
+		//{
+		//	std::stringstream msg;
+		//	msg << "Element within table had a key which was not a string. "
+		//		<< "Serialize function cannot handle this.  The current " 
+		//		<< "serialized data is as follows: " << cereal;
+		//	throw Macaroni::Exception(msg.str().c_str());
+		//}
+		cereal << "[ ";
+		if (lua_istable(state, -2))
 		{
 			std::stringstream msg;
-			msg << "Element within table had a key which was not a string. "
-				<< "Serialize function cannot handle this.  The current " 
-				<< "serialized data is as follows: " << cereal;
-			throw Macaroni::Exception(msg.str().c_str());
+			msg << "Table key was itself a table, which cannot be serialized. "
+				<< "Serialization was this far before offending field: "
+				<< cereal.str();
+			MACARONI_THROW(msg.str().c_str())
 		}
-		cereal << "[\"";
-		std::string keyName(lua_tostring(state, -2));
-		serializeString(cereal, keyName);		
-		cereal << "\"]";
+		SerializeField(state, cereal, depth, -2);
+		// std::string keyName(lua_tostring(state, -2));
+		//serializeString(state, cereal, keyName);		
+		cereal << " ]";
 		cereal << " = ";
-		SerializeField(cereal, depth);	
+		SerializeField(state, cereal, depth, -1);	
 		cereal << ", ";
 		cereal << std::endl;
 		lua_pop(state, 1); // pops off value, saves key		

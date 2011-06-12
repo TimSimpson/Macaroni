@@ -19,12 +19,12 @@ class Something
 		return s;
 	}
 	
-	~internal int GetX() const
+	public int GetX() const
 	{
 		return this->x;	
 	}
 	
-	~internal int GetY() const
+	public int GetY() const
 	{
 		return this->y;	
 	}

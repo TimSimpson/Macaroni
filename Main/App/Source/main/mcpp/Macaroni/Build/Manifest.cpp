@@ -205,7 +205,7 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile,
 	lua_getglobal(luaEnv.GetState(), "allowChildFailure");
 	if (lua_isboolean(luaEnv.GetState(), -1)) 
 	{
-		allowChildFailure = (bool) lua_toboolean(L, -1);
+		allowChildFailure = lua_toboolean(L, -1) == 1;
 	}
 	else
 	{
@@ -437,14 +437,18 @@ int _runScript(lua_State * L)
 		luaL_error(L, "Expected the name of a Lua script as argument.");
 	}
 	std::string scriptName(std::string(lua_tolstring(L, 1, NULL)));
-	std::vector<StringPair> pairs;
+	std::string argumentTableString;
 	if (lua_gettop(L) > 1) 
 	{
 		if (!lua_istable(L, 2)) 
 		{
 			luaL_error(L, "An optional table filled only with strings is expected as the second argument.");
 		}		
-		pairs = LuaEnvironment::GetStringPairsFromTable(L, true);		
+		std::stringstream ss;
+		LuaEnvironment::SerializeTable(L, ss);
+		argumentTableString = ss.str();		
+	} else {
+		argumentTableString = "{}";
 	}
 	
 	DynamicGeneratorRunner runner(iCon->GetAppPaths());	
@@ -454,17 +458,32 @@ int _runScript(lua_State * L)
 	// Run Lua script
 	if (!scriptPath.empty())
 	{
-		//boost::filesystem::path output(iConpath->GetAbsolutePath());
-		std::string returnValue = runner.RunDynamicGenerator(scriptPath,
-			//iCon->GetLibrary(), 
-			//						   iCon->GetOutputDir()->GetAbsolutePath(), 
-									   iCon,
-									   methodName,
-									   pairs);
-		if (returnValue.size() > 0)  // If 'nil' was returned, do nothing.
+		try
 		{
-			runList.push_back(Manifest::RunEntry(scriptName, returnValue));
+			//boost::filesystem::path output(iConpath->GetAbsolutePath());
+			std::string returnValue = runner.RunDynamicGenerator(scriptPath,
+				//iCon->GetLibrary(), 
+				//						   iCon->GetOutputDir()->GetAbsolutePath(), 
+				iCon,
+				methodName,
+				argumentTableString);
+			if (returnValue.size() > 0)  // If 'nil' was returned, do nothing.
+			{
+				runList.push_back(Manifest::RunEntry(scriptName, returnValue));
+			}
 		}
+		catch (const Macaroni::Exception & ex)
+		{
+			std::stringstream ss;
+			ss << "An error occured running the generator at " 
+				<< scriptPath << ". C exception thrown from " << ex.GetSource()
+				<< ". Message: " << ex.GetMessage();
+			luaL_error(L, ss.str().c_str());	
+		}		
+		catch (const std::exception & ex)
+		{
+			luaL_error(L, ex.what());	
+		}		
 	}
 	else
 	{
@@ -754,7 +773,7 @@ Manifest::RunResultPtr Manifest::RunTarget(const Console & console, BuildContext
 		result->Success = true; //false;
 		return result;
 	}
-	lua_call(L, 0, 1);
+	LuaEnvironment::Run(__FILE__, __LINE__, L, 0, 1);
 	result->Success = true;
 	return result;
 	/*int success = lua_pcall(L, 0, 1, 0);

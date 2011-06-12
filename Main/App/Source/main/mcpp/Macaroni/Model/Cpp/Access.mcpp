@@ -104,7 +104,7 @@ class Access
 			return true;
 		default:
 			MACARONI_THROW("Invalid enum value!");
-			break;
+			return false;
 		}		
 	}
 
@@ -125,7 +125,7 @@ class Access
 			return false;
 		default:
 			MACARONI_THROW("Invalid enum value!");
-			break;
+			return false;
 		}		
 	}
 
@@ -204,7 +204,7 @@ class Access
 			stringstream ss;
 			ss << "Invalid enum value:" << data;
 			MACARONI_THROW(ss.str().c_str());
-			break;
+			return false;
 		}		
 	}
 }; 

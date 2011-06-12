@@ -14,7 +14,6 @@ function boostSystemProperties()
 	return nil;
 end
 
-
 function createDependencyList(library)
 	local rtn = {};
 	local deps = library.Dependencies;
@@ -31,29 +30,22 @@ function createDependencyList(library)
 	return rtn;
 end
 
+function initializeExtraArgs(args)
+	args = args or {}
+	args.excludePattern = args.ExcludePattern or ".svn";	
+	args.extraTargets = args.ExtraTargets or "";
+	args.libraryRequirements = args.LibraryRequirements or "";
+	args.tests = args.Tests or {};
+	return args;
+end
 
 function Build(library, sources, outputPath, installPath, extraArgs)
 	log.Init("BoostBuild");
 	local excludePattern;
-	if (extraArgs == nil or extraArgs.ExcludePattern == nil) then
-		excludePattern = ".svn";
-	else
-		excludePattern = extraArgs.ExcludePattern;	
-	end
-	local extraTargets;
-	if (extraArgs == nil or extraArgs.ExtraTargets == nil) then
-		extraTargets = "";
-	else
-		extraTargets = extraArgs.ExtraTargets;	
-	end
-	local libraryRequirements;
-	if (extraArgs == nil or extraArgs.LibraryRequirements == nil) then
-		libraryRequirements = "";
-	else
-		libraryRequirements = extraArgs.LibraryRequirements;	
-	end
-	createJamroot(library, sources, outputPath, excludePattern, extraTargets,
-				  libraryRequirements);
+	local args = initializeExtraArgs(extraArgs);
+	createJamroot(library, sources, outputPath, args.excludePattern, 
+	              args.extraTargets, args.libraryRequirements, args.tests);
+	              	              
 	local cmdLine = "bjam "
 	if extraArgs.Link ~= nil then
 		cmdLine = cmdLine .. "link=" .. extraArgs.Link;
@@ -87,8 +79,19 @@ function Test(library, sources, outputPath, installPath, extraArgs)
     end    
 end
 
+function findFilePath(sources, file) 
+	-- Given a series of directories, finds the file... if such a file exists!
+	for i, v in ipairs(sources) do
+		local fullPath = v:NewPathForceSlash(file)		
+		if fullPath.Exists then
+			return fullPath.GetAbsolutePathForceSlash;
+		end
+	end
+	return nil;
+end
+
 function createJamroot(library, sources, outputPath, excludePattern, 
-					   extraTargets, libraryRequirements)
+					   extraTargets, libraryRequirements, tests)					   
 	local buildjam = outputPath:NewPath("/jamroot.jam");
 	log:Write("Creating Boost.Build file at " .. buildjam.AbsolutePathForceSlash .. ".");
 	
@@ -205,6 +208,32 @@ lib ]] .. LibraryMetaTarget(library) .. [[
 
 alias library : ]] .. LibraryMetaTarget(library) .. [[  ;
 
+alias test_dependencies
+	    	: "]] .. properties.boost.current["path"] 
+	    	      .. [[/libs/test/build//boost_unit_test_framework"  
+	        :
+	        ;
+	        
+# Tests]] .. '\n');
+
+	--Have to hack this because right now tests cannot be passed as an array. :(	
+	for i, v in ipairs(tests) do		
+		local testFilePath = findFilePath(sources, v);
+		if testFilePath == nil then
+			error([[The test file ]] .. v 
+				  .. [[ could not be found in any of the sources.]]);
+		end
+		writer:Write([[
+		unit-test __test]] .. tostring(i) .. '\n' .. [[
+			: library
+			  test_dependencies
+			  "]] .. testFilePath .. [[" 
+			;			
+		]]);
+	end
+	
+	writer:Write([[
+
 # Extra targets specified in Macaroni manifest:]] .. "\n");
 	-- I don't think I should put this junk in there anymore...
 	--for k, v in pairs(library.Dependencies) do
@@ -272,18 +301,7 @@ function Install(library, sourcePaths, outputPath, installPath, extraArgs)
 		end 
 	end	
 	
-	local excludePattern;
-	if (extraArgs == nil or extraArgs.ExcludePattern == nil) then
-		excludePattern = ".svn";
-	else
-		excludePattern = extraArgs.ExcludePattern;	
-	end
-	local libraryRequirements;
-	if (extraArgs == nil or extraArgs.LibraryRequirements == nil) then
-		libraryRequirements = "";
-	else
-		libraryRequirements = extraArgs.LibraryRequirements;	
-	end
+	
 	--local iJam = dstPath:NewPathForceSlash('jamroot.jam');
 	--local writer = iJam:CreateFile();
 	--writer:Write([[
@@ -291,7 +309,10 @@ function Install(library, sourcePaths, outputPath, installPath, extraArgs)
 	--
 	--]]);
 	--writer:Close();
-	createJamroot(library, {}, dstPath, excludePattern, '', libraryRequirements)
+	local args = initializeExtraArgs(extraArgs);
+	createJamroot(library, {}, dstPath, args.excludePattern, args.extraTargets, 
+	              args.libraryRequirements, {});
+	              
 	return nil; --{ mario = "One good game." };
 end
 

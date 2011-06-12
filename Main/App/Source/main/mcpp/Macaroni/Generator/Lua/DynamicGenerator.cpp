@@ -34,7 +34,7 @@ DynamicGenerator::DynamicGenerator
 	///*Model::LibraryPtr				library, 
 	//const std::vector<boost::filesystem
 	//*/const boost::filesystem::path & rootPath,	
-	const std::vector<StringPair> & arguments
+	const std::string & arguments
 )
 :	arguments(arguments),
 	buildContext(buildContext),
@@ -42,6 +42,10 @@ DynamicGenerator::DynamicGenerator
     //library(library),
 	//rootPath(rootPath)
 {
+	if (arguments.length() < 1)
+	{
+		MACARONI_THROW("Arguments were an empty string!");
+	}
 	if (buildContext->GetProperties().size() > 0) 
 	{
 		std::stringstream code;	
@@ -50,6 +54,24 @@ DynamicGenerator::DynamicGenerator
 		env.Run();
 	}
 	env.ParseFile(luaFile.string());
+	std::stringstream ss;
+	ss << "____manifest_arguments = "
+	   << arguments << ";";	
+	try
+	{
+		env.ParseString("Extra Args Setter", ss.str().c_str());
+		env.Run();
+	}
+	catch (const std::exception & ex)
+	{
+		std::stringstream msg;
+		msg << "An exception was thrown while parsing the following chunk of "
+			"Lua Code, which was being generated to pass arguments from one "
+			"Lua environment to another which belonged to the generator "
+			<< luaFile.string() << ":"
+			<< ss.str();
+		MACARONI_THROW(msg.str().c_str());
+	}	
 }	 
 
 DynamicGenerator::~DynamicGenerator()
@@ -95,7 +117,8 @@ std::string DynamicGenerator::Run(const std::string & methodName)
 	}
 	// Argument 5 - Extra args (3 for "Generate")
 	bool isType = PathLuaMetaData::IsType(L, -1);
-	LuaEnvironment::CreateNewTableFromStringPairs(L, arguments);
+	//LuaEnvironment::CreateNewTableFromStringPairs(L, arguments);
+	lua_getglobal(L, "____manifest_arguments");
 
 	// TO-DO: pass in next two args
 	
@@ -130,7 +153,7 @@ std::string DynamicGenerator::Run(const std::string & methodName)
 		{
 			lua_getglobal(L, "tostring");
 			lua_pushvalue(L, -2);
-			lua_call(L, 1, 1);
+			LuaEnvironment::Run(__FILE__, __LINE__, L, 1, 1);
 			ss << luaL_checkstring(L, -1);
 			ss << "?!!?!?x!!!";
 		}

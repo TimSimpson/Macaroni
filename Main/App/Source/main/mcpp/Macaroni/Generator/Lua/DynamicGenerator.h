@@ -31,14 +31,14 @@ public:
 					 Macaroni::Build::BuildContextPtr buildContext,
 					//Model::LibraryPtr context, 
 					 //const boost::filesystem::path & rootPath,					 
-					 const std::vector<Macaroni::Environment::StringPair> & arguments);
+					 const std::string & arguments /* Represents a table. */);
 	
 	~DynamicGenerator();
 	
 	std::string Run(const std::string & methodName);
 
 private:
-	std::vector<Macaroni::Environment::StringPair> arguments;
+	std::string arguments;
 
 	Macaroni::Build::BuildContextPtr buildContext;
 

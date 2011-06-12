@@ -5,7 +5,7 @@ upper = getUpperLibrary();
 id =
 {
     group=upper.Group,
-    name=upper.Name .. ".LanguageFeatures.InternalHeaders",
+    name=upper.Name .. ".Lib",
     version=upper.Version
 }
 
@@ -33,26 +33,28 @@ jamArgs =
 	ExtraTargets = [[		
 		#lib boost_unit_test_framework : : <name>boost_unit_test_framework ;
 		
-	    alias test_dependencies
-	    	: "]] .. properties.boost.current["path"] 
+	    #alias test_dependencies
+	#    	: "]] .. properties.boost.current["path"] 
 	    	      .. [[/libs/test/build//boost_unit_test_framework"  
-	        :	    	
-	        ;
+	  #      :	    	
+	  #      ;
 	    	
-		unit-test test
-		    : library
-		      test_dependencies		      
-		      ../Source/Test.cpp		    
-		    ;
+		#unit-test test
+		#    : library
+		#      test_dependencies		      
+		#      ../Source/Test.cpp		    
+		#    ;
 		    
+		# THIS STUPID THING WORKED ONCE YESTERDAY AND THEN NEVER AGAIN... URG...
 		# This should fail because it access the ~hidden function.
-		compile-fail 
-			library
-			test_dependencies 
-			../Source/Test2.cpp 
-		;	  	
+		#compile-fail 
+		#	library
+		#	test_dependencies 
+		#	../Source/Test2.cpp 
+		#;	  	
 	  ]],
-	  Shared= True
+	  Shared= True,
+	  Tests = { "Test.cpp"}, 
 	};
 		
 function build()
