@@ -34,7 +34,7 @@ Messages::Messages(const char * filePath)
 	std::string exePath = Paths::GetExeDirectoryPath();
 	std::ifstream file;
 	std::stringstream finalFilePath;
-	finalFilePath << exePath << "Messages.txt";
+	finalFilePath << exePath << "\\Messages.txt";
 	file.open(finalFilePath.str().c_str());
 	if (!!file) 
 	{
@@ -52,6 +52,12 @@ Messages::Messages(const char * filePath)
 			}		
 		}while(!file.eof());
 		file.close();
+	}
+	else
+	{
+		std::stringstream ss;
+		ss << "\"Messages.txt\" not found at \"" << finalFilePath.str() << "\".";
+		MACARONI_THROW(ss.str().c_str())
 	}
 }
 

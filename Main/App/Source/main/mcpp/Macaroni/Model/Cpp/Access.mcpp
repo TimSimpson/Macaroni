@@ -27,6 +27,8 @@ class Access
 	{
 		enum AccessData
 		{
+			Access_Internal,
+			Access_InternalProtected,
 			Access_Hidden,
 			Access_Private,
 			Access_Protected,	
@@ -69,8 +71,10 @@ class Access
 		case Access_Hidden:
 		case Access_Private:
 			return "private";
+		case Access_InternalProtected:
 		case Access_Protected:
 			return "protected";
+		case Access_Internal:
 		case Access_Public:
 			return "public";
 		case Access_NotSpecified:
@@ -79,7 +83,7 @@ class Access
 			stringstream ss;
 			ss << "Invalid enum value:" << data;
 			MACARONI_THROW(ss.str().c_str());
-			break;
+			return nullptr;
 		}		
 	}
 
@@ -89,6 +93,8 @@ class Access
 	{
 		switch(data)
 		{
+		case Access_Internal:
+		case Access_InternalProtected:
 		case Access_Hidden:
 		case Access_Private:
 		case Access_NotSpecified:
@@ -102,23 +108,41 @@ class Access
 		}		
 	}
 
-	/** True if this does not appear in the header file. */
+	/** True if this does appear in the header file. */
 	public bool VisibleInHeader() const
 		@LuaProperty "VisibleInHeader"
 	{
 		switch(data)
 		{
+		case Access_Internal:
+		case Access_InternalProtected:
 		case Access_Private:
 		case Access_Protected:
 		case Access_Public:
 		case Access_NotSpecified:
-			return false;
-		case Access_Hidden:
 			return true;
+		case Access_Hidden:
+			return false;
 		default:
 			MACARONI_THROW("Invalid enum value!");
 			break;
 		}		
+	}
+
+	/** Like public, but not exported when used as a library. */
+	public static AccessPtr Internal()
+		@LuaProperty "Internal"
+	{
+		AccessPtr ptr(new Access(Access_Internal));
+		return ptr;
+	}
+
+	/** Like protected, but not exported when used as a library. */
+	public static AccessPtr InternalProtected()
+		@LuaProperty "InternalProtected"
+	{
+		AccessPtr ptr(new Access(Access_InternalProtected));
+		return ptr;
 	}
 
 	/** Extra private. Macaroni generators will not even put this in the header
@@ -162,6 +186,10 @@ class Access
 	{
 		switch(data)
 		{
+		case Access_Internal:
+			return "~inner";
+		case Access_InternalProtected:
+			return "~inner protected";
 		case Access_Hidden:
 			return "~hidden";
 		case Access_Private:

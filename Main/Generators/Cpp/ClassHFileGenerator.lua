@@ -297,7 +297,7 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
 		local ownedByClass = (node.Node.Node == self.node)		
     	if (ownedByClass) then
     		if not self.internalDef then
-    			if (node.Member.Access.VisibleInHeader) then
+    			if (not node.Member.Access.VisibleInHeader) then
     				return
     			end
     		end

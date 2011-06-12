@@ -381,33 +381,33 @@ public:
 		{
 			access = Access::Hidden();
 		}
-		/*else if (itr.ConsumeWord("~inner"))
+		else if (itr.ConsumeWord("~internal"))
 		{
 			itr.ConsumeWhitespace();
 			if (itr.ConsumeWord("protected"))
 			{
-				access = Access_Inner_Protected;
+				access = Access::InternalProtected();
 			}
 			else
 			{
-				access = Access_Inner;
+				access = Access::Internal();
 			}			
-		}	*/	
+		}
 		else if (itr.ConsumeWord("private"))
 		{
 			access = Access::Private();
 		}
 		else if (itr.ConsumeWord("protected"))
 		{
-			/*itr.ConsumeWhitespace();
-			if (itr.ConsumeWord("~inner"))
+			itr.ConsumeWhitespace();
+			if (itr.ConsumeWord("~internal"))
 			{
-				access = Access_Inner_Protected;
+				access = Access::InternalProtected();
 			}
 			else
 			{
-				access = Access_Protected;
-			}*/
+				access = Access::Internal();
+			}
 			access = Access::Protected();
 		}
 		else if (itr.ConsumeWord("public"))

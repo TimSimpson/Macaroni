@@ -1,0 +1,42 @@
+
+class Something
+{
+	private int x;
+	private int y;
+	
+	// Private constructors mean something, so they should be kept in the 
+	// header.
+	private Something()
+	{
+		
+	}	
+		
+	public static Something Create(int x, int y)
+	{
+		Something s;
+		s.SetX(x);
+		s.SetY(y);
+		return s;
+	}
+	
+	~internal int GetX() const
+	{
+		return this->x;	
+	}
+	
+	~internal int GetY() const
+	{
+		return this->y;	
+	}
+	
+	~hidden void SetX(int value)
+	{
+		this->x = value;
+	}
+	
+	~hidden void SetY(int value)
+	{
+		this->y = value;
+	}
+
+}
