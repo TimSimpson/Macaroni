@@ -48,7 +48,7 @@ ClassHFileGenerator = {
     end,
     
     classBegin = function(self)
-        self:write("class ")
+        self:writeAfterTabs("class ")
         if self.libDecl then
 			self:write(self.libDecl .. " ");
         end
@@ -59,7 +59,7 @@ ClassHFileGenerator = {
 				self:classParents(parents)
 			end        
 		end
-        self:write("{\n");
+        self:writeAfterTabs("{\n");
         self:addTabs(1);
     end,
     
@@ -71,7 +71,7 @@ ClassHFileGenerator = {
 				self:write(",\n  ");
 			end
 			access = parent.Access
-			self:write(access.CppName .. " ");
+			self:write(access.CppKeyword .. " ");
 			if parent.IsVirtual == true then
 				self:write("virtual ");
 			end
@@ -96,8 +96,9 @@ ClassHFileGenerator = {
     end,
     
     classEnd = function(self)        
-        self:write("}; // End of class " .. self.node.Name .. "\n");
-        self:addTabs(-1);
+		self:write('\n');
+		self:addTabs(-1);
+        self:writeAfterTabs("}; // End of class " .. self.node.Name .. "\n");        
     end,
     
     classPublicGlobals = function(self)  
@@ -105,7 +106,7 @@ ClassHFileGenerator = {
                and 
                self.node.Member.TypeName == TypeNames.Class);
         local globals = self.node.Member.GlobalNodes;    
-        self:write("/* Public Global Methods */\n");          
+        self:writeAfterTabs("/* Public Global Members */\n");          
 		self:iterateMembers(globals, Access.Public); 		
     end,
     
@@ -118,7 +119,7 @@ ClassHFileGenerator = {
             friend = friends[i];
             if (friend.Member ~= nil 
                 and friend.Member.TypeName == TypeNames.FunctionOverload) then
-                self:write("friend ");
+                self:writeAfterTabs("friend ");
                 self:writeFunctionOverloadDefinition(friend, false); -- ); --, true);
                 self:write(";\n");
             elseif (friend.Member ~= nil 
@@ -129,12 +130,12 @@ Macaroni will apply the 'friend' status to all function overloads.  To only
 apply it to specific overloads, use the "~friend" keyword on the definitions
 of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n');
 				for i = 1, #friend.Children do   
-					self:write("friend "); 	
+					self:writeAfterTabs("friend "); 	
 					self:writeFunctionOverloadDefinition(friend.Children[i], false);	
     				self:write(";\n");
     			end
 			else
-                self:write("friend " .. friend.FullName .. ";\n");
+                self:writeAfterTabs("friend " .. friend.FullName .. ";\n");
             end
         end 
     end,
@@ -180,23 +181,25 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         local reason = self.node.Member.ReasonCreated;
         local src = reason.Source;
                 
-        self:write("// This class was originally defined in " .. tostring(src.FileName) .. "\n");
+        self:writeAfterTabs("// This class was originally defined in " .. tostring(src.FileName) .. "\n");
         
-        if BoostConfigIsAvailable(self.targetLibrary) then
-			self:write("\n#include <" 
+        if not self.isNested 
+           and BoostConfigIsAvailable(self.targetLibrary) then
+            self:write('\n');
+			self:writeAfterTabs("#include <" 
 			           .. LibraryConfigFile(self.targetLibrary) 
 			           .. ">\n\n");
         end
         
-        self:write("// Forward declaration necessary if this depends on anything which also depend on this.\n");
+        self:writeAfterTabs("// Forward declaration necessary if this depends on anything which also depend on this.\n");
         if (not self.isNested) then 
             self:namespaceBegin(self.node.Node);
         end
-        self:write("class " .. self.node.Name .. ";\n");
+        self:writeAfterTabs("class " .. self.node.Name .. ";\n");
         if (not self.isNested) then
             self:namespaceEnd(self.node.Node);
         end
-        self:write("\n");
+        self:writeAfterTabs("\n");
         
         if (not self.isNested) then  
             self:includeStatements();            
@@ -222,7 +225,7 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         if (block.Id == "h") then
             self:write(block.Code);
         end
-    end,
+    end,      
     
     ["parse" .. TypeNames.Constructor] = function(self, node)
     	for i = 1, #(node.Children) do
@@ -249,12 +252,10 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
             self:write("{\n");
             self:addTabs(1);
             
-            self:writeTabs();
-            self:write(node.Member.CodeBlock .. "\n");
+            self:writeAfterTabs(node.Member.CodeBlock .. "\n");
             
             self:addTabs(-1);        
-            self:writeTabs();
-            self:write("}\n");
+            self:writeAfterTabs("}\n");
         end       
     end,
     
@@ -301,7 +302,10 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
     				return
     			end
     		end
+    		self:writeTabs();
             self:writeAccess(node.Member.Access);
+        else
+			self:writeTabs();
         end                
         self:writeFunctionOverloadDefinition(node, ownedByClass);
         if (not node.Member.Inline) then
@@ -329,20 +333,23 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         local typeName = m.TypeName;
         local handlerFunc = nil;        
         if (typeName == TypeNames.Class) then
-            -- Pass the new generator the same writer as this class.
-            ClassHFileGenerator.new({isNested = true, node = node, 
-                                     targetLibrary=self.targetLibrary, 
-                                     writer = self.writer});
-            handlerFunc = self.parseClass;
-        else
+			-- Pass the new generator the same writer as this class.
+            gen = ClassHFileGenerator.new({isNested = true, node = node, 
+                                           targetLibrary=self.targetLibrary, 
+                                           writer = self.writer});
+            gen:addTabs(self.tabs);            
+            handlerFunc = function(self)
+				self:writeAfterTabs("public: \n");
+				gen:parse()
+            end;
+        else			
             handlerFunc = self["parse" .. typeName];
         end
         
         if (handlerFunc ~= nil) then                       
             handlerFunc(self, node);
-        else
-            self:writeTabs();
-            self:write("//     ~ Have no way to handle node " .. node.Name .. " with Member type " .. typeName .. ".\n");
+        else            
+            self:writeAfterTabs("//     ~ Have no way to handle node " .. node.Name .. " with Member type " .. typeName .. ".\n");
         end 
     end,
     
@@ -352,6 +359,7 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
     end,
     
     ["parse" .. TypeNames.Variable] = function(self, node)
+		self:writeTabs();
         if (node.Node == self.node) then
             self:writeAccess(node.Member.Access);
         end
@@ -362,8 +370,13 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         self:write(node.Name .. ";\n");]]--
     end,
     
-    writeAccess = function(self, access)				
-		self:write(access.CppKeyword .. ": ");		
+    writeAccess = function(self, access)
+		local text = access.CppKeyword
+		while #text < 10 do
+			text = text .. ' ';
+		end
+		text = text .. ': ';
+		self:write(text);		
     end,
 };
 

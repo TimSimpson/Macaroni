@@ -18,6 +18,28 @@ description= [[
 	In this example, there are several classes with dependencies on each other.
 	While there is a way to write this code correctly, Macaroni currently 
 	does not.
+	
+	UPDATE: While tracing code I realized what the problem is... and its a 
+	big deal!
+	
+	With:
+	class Access;
+		
+	boost::shared_ptr<Access> AccessPtr;
+	is different than
+	std::vector<Access> AccessList;
+	
+	In the later case, you *need* the heavy dependency to Access to define
+	AccessList.
+	But for AccessPtr, you don't, probably because Boost turns it into the
+	type argument into a pointer and makes it possible to use a forward 
+	reference since they're smart like that.
+	
+	The issue is I have no idea how to tell Macaroni that in some cases
+	Node used by a Type can be a light dependency.
+	
+	Hmm...
+	
 ]]
 
 cavatappi("cavatappi.lua");

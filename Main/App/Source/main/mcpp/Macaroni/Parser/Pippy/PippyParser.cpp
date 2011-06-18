@@ -18,7 +18,7 @@
 #include "../../Model/Cpp/Destructor.h"
 #include "../../Model/Cpp/DestructorPtr.h"
 #include "../../Exception.h"
-#include "../../Model/FileName.h"
+#include <Macaroni/Model/FileName.h>
 #include "../../Model/Cpp/Function.h"
 #include <Macaroni/Model/Cpp/FunctionOverload.h>
 #include "../../Model/Library.h"
@@ -34,6 +34,7 @@
 #include "../../Model/Source.h"
 #include "../../Model/Type.h"
 #include "../../Model/TypeArgument.h"
+#include <Macaroni/Model/TypeModifiers.h>
 #include "../../Model/Cpp/TypeDef.h"
 #include "../../Model/Cpp/Variable.h"
 #include "../../Model/Cpp/VariableAssignment.h"
@@ -659,6 +660,10 @@ public:
 	{
 		Iterator newItr = itr; 
 		ConsumeWhitespace(newItr);
+
+		AccessPtr access = AccessKeyword(newItr);				
+		newItr.ConsumeWhitespace();
+
 		if (!newItr.ConsumeWord("class"))
 		{
 			return false;
@@ -679,7 +684,7 @@ public:
 		NodePtr oldScope = currentScope;
 		currentScope = currentScope->FindOrCreate(name, hFilesForNewNodes);
 		ClassPtr newClass = 
-			Class::Create(library, currentScope, importedNodes,  
+			Class::Create(library, currentScope, access, importedNodes,  
 				Reason::Create(CppAxioms::ClassCreation(), newItr.GetSource()));
 
 		ClassParents(newItr, newClass);
@@ -1811,7 +1816,18 @@ public:
 	{
 		Iterator newItr = itr; 
 		ConsumeWhitespace(newItr);
-		if (!newItr.ConsumeWord("namespace"))
+
+		bool withBraces = true;
+
+		if (newItr.ConsumeWord("namespace"))
+		{
+			withBraces = true;			
+		}
+		else if (newItr.ConsumeWord("~namespace"))
+		{
+			withBraces = false;			
+		}
+		else
 		{
 			return false;
 		}
@@ -1849,14 +1865,27 @@ public:
 
 		SourcePtr firstBraceSrc = itr.GetSource();
 
-		if (!newItr.ConsumeChar('{'))
+		if (withBraces)
 		{
-			throw ParserException(newItr.GetSource(),
-				Messages::Get("CppParser.Namespace.NoOpeningBrace"));
-			//EXCEPTION MSG: Expectedd { after namespace identifier.")
-			return false;
+			if (!newItr.ConsumeChar('{'))
+			{
+				throw ParserException(newItr.GetSource(),
+					Messages::Get("CppParser.Namespace.NoOpeningBrace"));
+				//EXCEPTION MSG: Expectedd { after namespace identifier.")
+				return false;
+			}			
 		}		
-
+		else
+		{
+			if (!newItr.ConsumeChar(';'))
+			{
+				throw ParserException(newItr.GetSource(),
+					Messages::Get("CppParser.Namespace.NoOpeningBrace"));
+				//EXCEPTION MSG: Expectedd { after namespace identifier.")
+				return false;
+			}	
+		}
+	
 		ScopeFiller(newItr);
 
 		ConsumeWhitespace(newItr);
@@ -1865,15 +1894,25 @@ public:
 		//	
 	///		);
 		
-		ConsumeWhitespace(newItr);
-		if (!newItr.ConsumeChar('}'))
+		if (withBraces) 
+		{			
+			if (!newItr.ConsumeChar('}'))
+			{
+				throw ParserException(newItr.GetSource(),
+					Messages::Get("CppParser.Namespace.NoEndingBrace", firstBraceSrc->GetLine()));			
+			}						
+		}		
+		else
 		{
-			throw ParserException(newItr.GetSource(),
-				Messages::Get("CppParser.Namespace.NoEndingBrace", firstBraceSrc->GetLine()));			
+			if (!newItr.Finished())
+			{
+				throw ParserException(newItr.GetSource(),
+					Messages::Get("CppParser.Namespace.StatementEof", 
+					newItr.GetSource()->GetLine()));			
+			}
 		}
-		
-		itr = newItr; // Success! :)
 		currentScope = oldScope;
+		itr = newItr; // Success! :)
 		return true;
 	}
 
@@ -2090,14 +2129,14 @@ public:
 		ConsumeWhitespace(newItr);		
 		if (newItr.ConsumeWord("const"))
 		{
-			modifiers.Const = true;
+			modifiers.SetConst(true);
 			ConsumeWhitespace(newItr);
 		}
 
 		Iterator beforeTypeInfoItr = newItr;
 		if (!ConsumeTypeMainNodeAndArguments(newItr, mainNode, typeArgumentList))
 		{
-			if (modifiers.Const)
+			if (modifiers.Const())
 			{
 				// If we saw const, they're committed.
 				throw ParserException(newItr.GetSource(),
@@ -2124,24 +2163,24 @@ public:
 		ConsumeWhitespace(itr);
 		if (itr.ConsumeWord("const"))
 		{
-			if (modifiers.Const)
+			if (modifiers.Const())
 			{
 				// Appeared twice!? How dare it!
 				throw ParserException(itr.GetSource(0, -5),
 					Messages::Get("CppParser.Variable.ConstSeenTwice")); 
 			}
-			modifiers.Const = true;
+			modifiers.SetConst(true);
 			ConsumeWhitespace(itr);
 		}
 
 		// Now, we check for reference.
 		if (itr.ConsumeChar('*'))
 		{
-			modifiers.Pointer = true;
+			modifiers.SetPointer(true);
 			ConsumeWhitespace(itr);
 			if (itr.ConsumeWord("const"))
 			{
-				modifiers.ConstPointer = true;				
+				modifiers.SetConstPointer(true);		
 				ConsumeWhitespace(itr);
 			}
 		}
@@ -2149,7 +2188,7 @@ public:
 		// Now, we check for reference.
 		if (itr.ConsumeChar('&'))
 		{
-			modifiers.Reference = true;
+			modifiers.SetReference(true);
 			ConsumeWhitespace(itr);
 		}
 

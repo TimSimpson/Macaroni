@@ -17,9 +17,12 @@ output = "report"
 children = 
 {
 	"Annotations",
-	"BoostBuild",	
+	"BoostBuild",
+	"ConstructorOverloading",	
+	"Inheritance",
 	"LanguageFeatures",
-	"Lua"
+	"Lua",
+	"NamespaceStatement",
 };
 
 dependency {group="Macaroni", name="Boost-filesystem", version="1.46.1"}

@@ -5,8 +5,9 @@
 #include "NodeLua.h"
 #include "NodeListLua.h"
 #include "Type.h"
-#include "TypeLua.h"
 #include "TypeArgumentListLua.h"
+#include "TypeLua.h"
+#include <Macaroni/Model/TypeModifiers.h>
 #include <sstream>
 
 #define LUAGLUE_STARTNAMESPACE BEGIN_NAMESPACE2(Macaroni, Model)
@@ -82,22 +83,22 @@
 			while(lua_next(L, tableIndex) != 0)
 			{
 				std::string key(lua_tostring(L, -2)); // key
-				bool value = lua_toboolean(L, -1); // value
+				bool value = (lua_toboolean(L, -1) == 1); // value
 				if (key == "Const")
 				{
-					modifiers.Const = value;
+					modifiers.SetConst(value);
 				}
 				else if (key == "ConstPointer")
 				{
-					modifiers.ConstPointer = value;
+					modifiers.SetConstPointer(value);
 				}
 				else if (key == "Pointer")
 				{
-					modifiers.Pointer = value;
+					modifiers.SetPointer(value);
 				}
 				else if (key == "Reference")
 				{
-					modifiers.Reference = value;
+					modifiers.SetReference(value);
 				}
 				lua_pop(L, 1);
 			}

@@ -5,7 +5,7 @@
 #include "AnnotationValuePtr.h"
 #include "AnnotationTable.h"
 #include "ContextPtr.h"
-#include "FileNamePtr.h"
+#include <Macaroni/Model/FileNamePtr.h>
 #include "Library.h"
 #include "MemberPtr.h"
 #include "NodePtr.h"
@@ -98,6 +98,11 @@ public:
 
 	//TO-DO: Rename to "getParent" or something.
 	NodePtr GetNode() const;
+
+	/** Allows you to check the type name of a Node's Member without having to 
+	 * first check if the Node has a member. If there is no Member, "" is 
+	 * returned. Useful for Lua methods. */
+	const char * GetTypeName() const;
 
 	static bool IsComplexName(const std::string & name);
 

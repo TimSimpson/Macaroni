@@ -4,7 +4,7 @@
 #include "Node.h"
 #include "Context.h"
 #include "../Exception.h"
-#include "FileName.h"
+#include <Macaroni/Model/FileName.h>
 #include "Member.h"
 #include "ModelInconsistencyException.h"
 #include "Reason.h"
@@ -316,6 +316,15 @@ std::string Node::GetOperatorName() const
 		MACARONI_THROW(ss.str().c_str())
 	}
 	return operatorName;
+}
+
+const char * Node::GetTypeName() const
+{
+	if (this->member == nullptr)
+	{
+		return "";
+	}
+	return this->member->GetTypeName();
 }
 
 void intrusive_ptr_add_ref(Node * p)

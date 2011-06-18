@@ -27,11 +27,6 @@ namespace
 	inline TypePtr voidType()
 	{
 		TypeModifiers modifiers;
-		modifiers.Const = 
-			modifiers.ConstPointer = 
-			modifiers.Pointer = 
-			modifiers.Reference = 
-			false;
 		return TypePtr(new Type(NodePtr(), modifiers));		
 	}
 };

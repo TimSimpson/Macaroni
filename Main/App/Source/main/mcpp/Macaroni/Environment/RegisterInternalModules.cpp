@@ -12,7 +12,7 @@
 #include <Macaroni/Model/Cpp/ClassParentListLuaMetaData.h>
 #include "../Model/ContextLua.h"
 //#include "../Model/Document.h"
-#include "../Model/FileNameLua.h"
+#include <Macaroni/Model/FileNameLuaMetaData.h>
 #include "../Model/Cpp/FunctionLua.h"
 #include "../Model/Cpp/FunctionOverloadLua.h"
 #include <Macaroni/IO/GeneratedFileWriterLuaMetaData.h>

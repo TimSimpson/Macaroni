@@ -6,7 +6,7 @@
 //#include "../Generator/Cpp/CppSourceGenerator.h"
 #include "../Generator/DebugEnumerator.h"
 #include "../Exception.h"
-#include "../Model/FileName.h"
+#include <Macaroni/Model/FileName.h>
 #include <Macaroni/Build/BuildContext.h>
 #include "../Model/LibraryPtr.h"
 #include <memory>

@@ -7,8 +7,8 @@
 #include "SourceLua.h"
 #include "Source.h"
 #include "../Environment/DebugLog.h"
-#include "FileName.h"
-#include "FileNameLua.h"
+#include <Macaroni/Model/FileName.h>
+#include <Macaroni/Model/FileNameLuaMetaData.h>
 #include <sstream>
 
 BEGIN_NAMESPACE2(Macaroni, Model)

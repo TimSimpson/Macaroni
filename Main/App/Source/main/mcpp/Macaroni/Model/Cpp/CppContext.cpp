@@ -2,7 +2,7 @@
 #define MACARONI_MODEL_CPP_CPPCONTEXT_CPP
 
 #include "CppContext.h"
-#include "../FileName.h"
+#include <Macaroni/Model/FileName.h>
 #include "../MessageAxiom.h"
 #include "../Cpp/Namespace.h"
 #include "../Node.h"

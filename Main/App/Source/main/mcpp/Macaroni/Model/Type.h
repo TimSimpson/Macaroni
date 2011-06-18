@@ -4,22 +4,11 @@
 #include "../ME.h"
 #include "Node.h"
 #include "TypePtr.h"
+#include <Macaroni/Model/TypeModifiers.h>
 #include "TypeArgumentPtr.h"
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
-struct TypeModifiers
-{
-	bool Const;
-	bool ConstPointer;
-	bool Pointer;
-	bool Reference;
-
-	TypeModifiers()
-		: Const(false), ConstPointer(false), Pointer(false), Reference(false)
-	{
-	}
-};
 
 //TODO: This HAS to start living in the Context.  It is a memory leak... can't
 // believe I didn't notice it at the time.
@@ -54,6 +43,15 @@ public:
 		return isConstPointer;
 	}
 
+	/** Light means that the type is a "light dependency", which means it can
+	 * be satisfied with a forward reference. The '~light' keyword is used
+	 * for this. It useful with complex template types Macaroni isn't smart 
+	 * enough to understand which end up just needing forward references. */
+	bool IsLight() const
+	{
+		return isLight;
+	}
+
 	bool IsPointer() const
 	{
 		return isPointer;
@@ -71,6 +69,7 @@ public:
 private:
 	bool isConst;
 	bool isConstPointer;
+	bool isLight;
 	bool isPointer;
 	bool isReference;
 

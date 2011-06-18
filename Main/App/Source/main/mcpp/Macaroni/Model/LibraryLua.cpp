@@ -8,7 +8,7 @@
 #include "../Exception.h"
 #include "../Environment/DebugLog.h"
 #include <boost/foreach.hpp>
-#include "FileNameLua.h"
+#include <Macaroni/Model/FileNameLuaMetaData.h>
 #include "Library.h"
 #include "LibraryLua.h"
 #include "Node.h"

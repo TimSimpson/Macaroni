@@ -2,7 +2,8 @@
 sources = { "src" }
 output = "target"
 
-function generate()    
+function generate()   
+	run("HtmlView") 
     run "Cpp"    
 end
 

@@ -1,0 +1,12 @@
+
+~namespace Macaroni::Tests::NamespaceStatement;
+
+class ForThoseDaysWhenYouDontWantBraces
+{
+	public int five;
+	
+	public ForThoseDaysWhenYouDontWantBraces()
+	:	five(5)
+	{		
+	}
+};

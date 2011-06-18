@@ -25,8 +25,11 @@ using Macaroni::Model::Cpp::VariablePtr;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-Class::Class(Library * library, Node * parent, NodeListPtr importedNodes, ReasonPtr reason)
+Class::Class(Library * library, Node * parent, 
+			 Access access,
+			 NodeListPtr importedNodes, ReasonPtr reason)
 :Scope(library, parent, "Class", reason), 
+ access(access),
  friends(new NodeList()), 
  globals(new NodeList()), 
  imports(importedNodes),
@@ -37,6 +40,12 @@ Class::Class(Library * library, Node * parent, NodeListPtr importedNodes, Reason
 Class::~Class()
 {
 	
+}
+
+AccessPtr Class::GetAccess() const
+{
+	AccessPtr aPtr(new Access(this->access));
+	return aPtr;
 }
 
 void Class::AddParent(TypePtr parent, AccessPtr access, bool _virtual)
@@ -61,7 +70,8 @@ bool Class::canBeChildOf(const Member * other) const
 	return dynamic_cast<const Scope *>(other) != nullptr;
 }
 
-ClassPtr Class::Create(LibraryPtr library, NodePtr parent, NodeListPtr importedNodes, ReasonPtr reason)
+ClassPtr Class::Create(LibraryPtr library, NodePtr parent, AccessPtr access, 
+					   NodeListPtr importedNodes, ReasonPtr reason)
 {
 	MemberPtr existingMember = parent->GetMember();
 	if (!!existingMember)
@@ -79,7 +89,7 @@ ClassPtr Class::Create(LibraryPtr library, NodePtr parent, NodeListPtr importedN
 		return existingClass;
 	}
 	ClassPtr other = boost::dynamic_pointer_cast<Class>(existingMember);
-	return ClassPtr(new Class(library.get(), parent.get(), importedNodes, reason));
+	return ClassPtr(new Class(library.get(), parent.get(), *access, importedNodes, reason));
 }
 
 bool Class::DoesDefinitionReference(NodePtr node) const

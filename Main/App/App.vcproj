@@ -362,14 +362,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Model\FileName.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Model\FileNameLua.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\main\mcpp\Macaroni\IO\FileSet.cpp"
 				>
 			</File>
@@ -844,11 +836,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Generator\CppSourceGenerator2.h"
+				RelativePath=".\Source\main\mcpp\Macaroni\Generator\Cpp\CppSourceGenerator2.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Generator\Cpp\CppSourceGenerator2.h"
+				RelativePath=".\Source\main\mcpp\Macaroni\Generator\CppSourceGenerator2.h"
 				>
 			</File>
 			<File
@@ -885,14 +877,6 @@
 			</File>
 			<File
 				RelativePath=".\Source\main\mcpp\Macaroni\Exception.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Model\FileName.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Model\FileNameLua.h"
 				>
 			</File>
 			<File
@@ -1064,11 +1048,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Parser\Parser.h"
+				RelativePath=".\Source\main\mcpp\Macaroni\Parser.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Parser.h"
+				RelativePath=".\Source\main\mcpp\Macaroni\Parser\Parser.h"
 				>
 			</File>
 			<File
@@ -1347,6 +1331,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Source\main\mcpp\Macaroni\Model\FileName.mcpp"
+			>
+		</File>
+		<File
 			RelativePath=".\Source\main\mcpp\Macaroni\IO\FileSet.mcpp"
 			>
 		</File>
@@ -1372,6 +1360,10 @@
 		</File>
 		<File
 			RelativePath=".\Source\main\mcpp\Macaroni\Doc\MDocParser.mcpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\main\resources\Messages.txt"
 			>
 		</File>
 		<File

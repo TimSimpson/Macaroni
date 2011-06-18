@@ -22,39 +22,14 @@ function generate()
     print "A call was made to GENERATE!!!\n\n"
     run("HtmlView");
     run "InterfaceMh"
-    run "Cpp"
-    
+    run "Cpp"    
 end
 
 jamArgs = 
 { 	
 	ExcludePattern = "Main.cpp .svn *Test.cpp",
-	ExtraTargets = [[		
-		#lib boost_unit_test_framework : : <name>boost_unit_test_framework ;
-		
-	    alias test_dependencies
-	    	: #"F:/Tools/boost_1_46_1/stage/lib" 
-	    	  #"F:/Tools/boost_1_46_1/libs/test/build//boost_unit_test_framework" 
-	    	  "]] .. properties.boost.current["path"] 
-	    	      .. [[/libs/test/build//boost_unit_test_framework" 
-	    	  #boost_unit_test_framework
-	    	;	    	
-	    	
-		unit-test test
-		    : library
-		      test_dependencies
-		      ../Source/Test.cpp		    
-		    ;
-		#run library
-		#      ../Source/Test.cpp		    
-		#    ;
-
-	  	exe LuaTest 
-	  		:	library
-	  			../Source/Main.cpp	  			
-	  		;
-	  ]]
-	};
+	Tests = {"Test.cpp"}
+};
 		
 function build()
 	run("BoostBuild", jamArgs)

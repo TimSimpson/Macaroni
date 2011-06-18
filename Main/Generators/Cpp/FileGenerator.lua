@@ -178,7 +178,7 @@ FileGenerator = {
     	check(foNode ~= nil, "foNode must be a Node, not nil.");
     	check(foNode.Member ~= nil, "functionNode must have instance");
     	check(foNode.Member.TypeName == "FunctionOverload", "Node must be FunctionOverload");
-        self:writeTabs();        
+        -- self:writeTabs();        
         if foNode.Member.Access.VisibleInLibrary and self.libDecl 
             and not calledFromClassWriter then
 			self:write(self.libDecl .. " ");
@@ -208,7 +208,7 @@ FileGenerator = {
     end,
     
     writeVariableDefinition = function(self, node, includeInitializer, prefixWithClassName)
-        self:writeTabs();
+        -- self:writeTabs();
         local variable = node.Member; 
         if (variable.Static) then
             self:write("static ");

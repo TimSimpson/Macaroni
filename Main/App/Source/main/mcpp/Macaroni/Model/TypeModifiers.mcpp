@@ -1,0 +1,96 @@
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Lua::LuaProperty;
+~import MACARONI_THROW;
+~import std::string;
+~import std::stringstream;
+
+namespace Macaroni::Model {
+	
+	class TypeModifiers
+		@LuaClass [ ReferenceType = TypeModifiers ]
+	{
+		private bool _const;
+		private bool _constPointer;		
+		private bool _pointer;
+		private bool _reference;	
+
+		public TypeModifiers()
+			: _const(false), _constPointer(false),
+			  _pointer(false), _reference(false)
+		{			
+			if (ConstPointer() && !Pointer())
+			{
+				MACARONI_THROW("Cannot use 'ConstPointer' type modifier if the "
+				               "'Pointer' modifier is not also set.");
+			}
+		}
+
+		public bool operator== (const TypeModifiers & other) const
+			@LuaOperator "__eq"
+		{
+			return this->Const() == other.Const()
+				&& this->ConstPointer() == other.ConstPointer()
+				&& this->Pointer() == other.Pointer()
+				&& this->Reference() == other.Reference();
+		}
+
+		public inline bool Const() const
+			@LuaProperty "Const"
+		{
+			return _const;
+		}
+
+		public inline void SetConst(bool value)			
+		{
+			_const = value;
+		}
+
+		public inline bool ConstPointer() const
+			@LuaProperty "ConstPointer"
+		{
+			return _constPointer;
+		}
+
+		public inline void SetConstPointer(bool value)
+		{
+			_constPointer = value;
+		}
+
+		public inline bool Pointer() const
+			@LuaProperty "Pointer"
+		{
+			return _pointer;
+		}
+
+		public inline void SetPointer(bool value)
+		{
+			_pointer = value;
+		}
+
+		public inline bool Reference() const
+			@LuaProperty "Reference"
+		{
+			return _reference;
+		}
+
+		public inline void SetReference(bool value)
+		{
+			_reference = value;
+		}
+
+		public string ToString()
+			@LuaOperator "__tostring"
+		{
+			stringstream ss;			
+			ss << (Const() ? "const " : "") 
+			   << "T"
+			   << (Pointer() ? " *" : (Reference() ? " &" : ""))
+			   << (ConstPointer() ? " const" : "")
+				;
+			return ss.str();
+		}
+	};
+
+}

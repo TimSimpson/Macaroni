@@ -33,11 +33,6 @@ namespace
 	inline TypePtr voidTypeInfo(Node * home)
 	{
 		TypeModifiers modifiers;
-		modifiers.Const = 
-			modifiers.ConstPointer = 
-			modifiers.Pointer = 
-			modifiers.Reference = 
-			false;
 		NodePtr node(home);
 		return TypePtr(new Type(node, modifiers));		
 	}

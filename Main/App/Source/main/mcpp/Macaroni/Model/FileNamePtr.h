@@ -9,8 +9,8 @@ BEGIN_NAMESPACE2(Macaroni, Model)
 class FileName;
 typedef boost::intrusive_ptr<FileName> FileNamePtr;
 
-void intrusive_ptr_add_ref(FileName * p);
-void intrusive_ptr_release(FileName * p);
+//void intrusive_ptr_add_ref(FileName * p);
+//void intrusive_ptr_release(FileName * p);
 
 END_NAMESPACE2
 

@@ -228,6 +228,10 @@ LuaGlueGenerator =
 		--     [[SomeClassPtr & inst_AsRef = SomeClassLuaMetaData::GetInstance(L, 5);
 		--       const SomeClass & inst = *(inst_AsRef); ]]
 		--
+		-- "dotGet" - If the referenceType == the WrappedType, then '.'. Else
+		--    it returns ->. Its how to access members from the thing
+		--    the "get" method returns.
+		--
 		-- "get" - code which, given a var and index, writes code to make a
 		--   a variable named "var" as the reference type.  Example:
 		--     get("ptr", 3) = 
@@ -243,6 +247,7 @@ LuaGlueGenerator =
 		-- 
 		local node = type.Node;
 		local rtn = {};
+		rtn.dotGet = '->';
 		local success, args = pcall(function() return self:LuaWrapperArguments(node) end);
 		if (success) then	
 			-- imports = self.metaNode.Member.ImportedNodes;
@@ -255,14 +260,16 @@ LuaGlueGenerator =
 			-- end
 			-- if not alreadyImported then
 			-- 	imports[#imports + 1] = args.metaNode 
-			-- end
+			-- end			
 			rtn.referenceType = args.referenceType;	
+			
 			rtn.get = function(var, index) 
 				return args.referenceType.FullName .. " & " .. var .. " = "  ..
 					args.metaNode.FullName .. "::GetInstance(L, " .. index .. ");"; 
 			end;
 			if args.node == args.referenceType then
 				rtn.convertArgument = rtn.get;
+				rtn.dotGet = '.';
 			else
 				rtn.convertArgument = function(var, index)
 					local str = rtn.get(var .. "_AsRef", index);
@@ -382,7 +389,8 @@ LuaGlueGenerator =
 		local rtn = {};
 		for i = 1, #node.Children do
 			local child = node.Children[i];
-			if (child.Member.TypeName == "Function") then
+			if (child.Member ~= nil and 
+			    child.Member.TypeName == "Function") then
 				for j = 1, #child.Children do
 					local fon = child.Children[j]; -- FunctionOverload node
 					if (fon.Member ~= nil and fon.Member.TypeName == 'FunctionOverload'
@@ -551,9 +559,11 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 		else
 			startIndex = 1;
 		end		
+		local instanceDotGet = '->';
 		if (not methodOverloadNode.Member.Static) then
 			local instanceType = Type.New(node, {});
-			local tm = self:TypeManipulators(instanceType);
+			local tm = self:TypeManipulators(instanceType);					
+			instanceDotGet = tm.dotGet;
 			t[#t + 1] = "\t" .. tm.get("instance", 1);
 		end
 		-- Write code to grab each argument from the Lua stack and save it as a
@@ -573,9 +583,9 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 		-- Write line which actually calls the target method in C code and
 		-- saves the return value, if any.
 		local returnType = methodOverloadNode.Member.ReturnType;
-		local returnTypeTm;
+		local returnTypeTm;		
 		if (returnType.Node.FullName ~= self.Creators.voidNode.FullName) then
-			returnTypeTm = self:TypeManipulators(returnType);
+			returnTypeTm = self:TypeManipulators(returnType);						
 		else
 			returnTypeTm = null;
 		end
@@ -585,7 +595,7 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 			methodCall = methodCall .. tostring(returnType) .. " rtn = ";
 		end		
 		if (not methodOverloadNode.Member.Static) then
-			methodCall = methodCall .. "instance->";
+			methodCall = methodCall .. "instance" .. instanceDotGet;
 		else
 			methodCall = methodCall .. node.FullName .. "::";
 		end
@@ -619,17 +629,19 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 		return rtn;
 	end,
 	
-	wrapGetterCall = function(self, methodOverloadNode) 
+	wrapGetterCall = function(self, methodOverloadNode, dotGet) 
 		-- Returns code which calls a C++ function, stores the return value,
 		-- put that onto the Lua stack.
 		-- So if it's "std::string SomeClass::GetName();" it's something like:
 		--    std::string str = instance->GetName();
 		--    lua_pushstring(L, str.c_str());
-		
+		-- "dotGet" is usually "->" but if accessing a wrapped type which is 
+		-- its own reference type then it should be ".".
 		check(self ~= nil, 'Argument "self" missing!');
 		check(methodOverloadNode ~= nil, 'Argument "methodNode" missing!');
 		check(methodOverloadNode.Member ~= nil, 'Argument "methodNode" has no Member defined!');		
 		check(methodOverloadNode.Member.TypeName == "FunctionOverload", 'Argument "methodNode" must have Member defined as FunctionOverload.');
+		check(dotGet ~= nil, "DotGet can't be nil!")
 		
 		local node = methodOverloadNode.Node.Node;
 		check(node ~= nil, "The methodNode had no parent?! How can that be?!");
@@ -649,7 +661,7 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 		methodCall = methodCall .. tostring(returnType) .. " rtn = ";
 		
 		if (not methodOverloadNode.Member.Static) then
-			methodCall = methodCall .. "instance->";
+			methodCall = methodCall .. "instance" .. dotGet;
 			--error("Node marked as getter (" .. methodOverloadNode.Node.FullName
 			--	  .. " but is static.");
 		else
@@ -662,19 +674,22 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 		return t;
 	end,	
 	
-	wrapSetterCall = function(self, methodOverloadNode, nextStackIndex) 
+	wrapSetterCall = function(self, methodOverloadNode, nextStackIndex, dotGet) 
 		-- Returns code which calls a C++ function to set some value from the
 		-- Lua stack.
 		-- So if it's "void SomeClass::SetName(const std::string & value);" 
 		-- it's something like:
 		--    std::string value(lua_checkstring(L, 1));
 		--    instance->SetName(value);
+		-- dotGet - '->' for most things, but '.' if the type 'instance' is its
+		--     own reference type.
 		
 		check(self ~= nil, 'Argument "self" missing!');
 		check(methodOverloadNode ~= nil, 'Argument "methodNode" missing!');
 		check(methodOverloadNode.Member ~= nil, 'Argument "methodNode" has no Member defined!');		
 		check(methodOverloadNode.Member.TypeName == "FunctionOverload", 'Argument "methodNode" must have Member defined as FunctionOverload.');
 		check(nextStackIndex ~= nil, "nextStackIndex must be a number.");
+		check(dotGet ~= nil, "DotGet can't be nil.");
 		
 		local node = methodOverloadNode.Node.Node;
 		check(node ~= nil, "The methodNode had no parent?! How can that be?!");
@@ -697,7 +712,7 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 			error("Node marked as setter (" .. methodOverloadNode.Node.FullName
 				  .. ") but is static.");
 		end
-		t[#t + 1] = "\tinstance->" .. methodName .. "(newValue);";
+		t[#t + 1] = "\tinstance" .. dotGet .. methodName .. "(newValue);";
 		return t;
 	end,
 	 
@@ -1000,11 +1015,22 @@ namespace
 				end
 			end
 			
-			local metaClass = Class.Create(CurrentLibrary, self.metaNode, imports, self.reason);    			    
+			if MACARONI_VERSION=="0.1.0.18" then				
+				local metaClass = Class.Create(CurrentLibrary, self.metaNode, 
+											  imports, self.reason);    			    
+			else
+				local metaClass = Class.Create(CurrentLibrary, self.metaNode, 
+											  Access.Public, imports, self.reason);
+			end
 			-- static bool IsType(lua_State * L, int index);        
 		end,
 		
-		createIndexMethodBody = function(self, isInstance)			
+		createIndexMethodBody = function(self, isInstance, dotGet)
+			-- isInstance - True if its the index for instance (i.e. no static
+			--     methods or props will be exposed).
+			-- dotGet - If the instance is its own ref type, should be "."
+			--     For everything else, -> is fine.			
+			check(dotGet ~= nil, "DotGet is nil!");
 			local first = true;				
 			local t = {}			
 			local funcs = self.parent:findAllFunctionsInNode(self.originalNode, false);
@@ -1032,7 +1058,7 @@ namespace
 					t[#t + 1] = 'else if (index == "' .. propName ..'")';
 				end
 				t[#t + 1] = '{';
-				local getCode = self.parent:wrapGetterCall(node);
+				local getCode = self.parent:wrapGetterCall(node, dotGet);
 				for j = 1, #getCode do
 					t[#t + 1] = getCode[j];
 				end				
@@ -1051,7 +1077,10 @@ namespace
 			return table.concat(t, "\n\t");		
 		end,
 		
-		createNewIndexMethodBody = function(self)			
+		createNewIndexMethodBody = function(self, dotGet)
+			-- dotGet - For instance index method body's, dotGet is how to
+			--     retrieve members of the "instance" variable.	
+			check(dotGet ~= nil, "DotGet can't be nil.");		
 			local first = true;				
 			local t = {}						
 			local setters = self.parent:findAllSettersInNode(self.originalNode);
@@ -1066,7 +1095,7 @@ namespace
 					t[#t + 1] = 'else if (index == "' .. propName ..'")';
 				end
 				t[#t + 1] = '{';
-				local getCode = self.parent:wrapSetterCall(node, 'nextStackIndex');
+				local getCode = self.parent:wrapSetterCall(node, 'nextStackIndex', dotGet);
 				for j = 1, #getCode do
 					t[#t + 1] = getCode[j];
 				end				
@@ -1095,6 +1124,7 @@ namespace
 			local fo1 = FunctionOverload.Create(func, false, Access.Public, true, 
 									   rtnType,
 									   false, self.reason);
+			local dotGet = '->';
 			func = node.Member;		
 			local arg1 = fo1.Node:FindOrCreate("L");		
 			local arg1Type = Type.New(self.lua_StateNode, { Pointer = true });
@@ -1103,12 +1133,15 @@ namespace
 				local arg2 = fo1.Node:FindOrCreate("instance");
 				local arg2Type = Type.New(self.referenceType, { Reference = true });
 				Variable.Create(arg2, Access.Public, false, arg2Type, "", self.reason);		
+				if self.referenceType == self.originalNode then
+					dotGet = '.';
+				end
 			end
 			local arg3 = fo1.Node:FindOrCreate("index");			
 			local arg3Type = Type.New(self.parent.Creators.stringNode, { Const = true, Reference = true });
 			Variable.Create(arg3, Access.Public, false, arg3Type, "", self.reason);		
 							
-			local methodBody = self:createIndexMethodBody(isInstance);						
+			local methodBody = self:createIndexMethodBody(isInstance, dotGet);						
 			fo1:SetCodeBlock(methodBody, self.src);				
 			
 		end,
@@ -1244,7 +1277,7 @@ namespace
 			func = node.Member;		
 			local arg1 = fo1.Node:FindOrCreate("L");		
 			local arg1Type = Type.New(self.lua_StateNode, { Pointer = true });
-			Variable.Create(arg1, Access.Public, false, arg1Type, "", self.reason);
+			Variable.Create(arg1, Access.Public, false, arg1Type, "", self.reason);			
 			local arg2 = fo1.Node:FindOrCreate("instance");
 			local arg2Type = Type.New(self.referenceType, { Reference = true });
 			Variable.Create(arg2, Access.Public, false, arg2Type, "", self.reason);		
@@ -1255,7 +1288,11 @@ namespace
 			local arg4Type = Type.New(self.parent.Creators.intNode, { Const = true });
 			Variable.Create(arg4, Access.Public, false, arg4Type, "", self.reason);		
 							
-			local methodBody = self:createNewIndexMethodBody();						
+			local dotGet = '->';
+			if self.referenceType == self.originalNode then
+				dotGet = '.';
+			end
+			local methodBody = self:createNewIndexMethodBody(dotGet);	
 			fo1:SetCodeBlock(methodBody, self.src);				
 			
 		end,
@@ -1346,7 +1383,7 @@ function Generate(library, path, arguments)
 	log.Init("LuaGlue");
 	log = {
 		Write = function(self, msg)
-			print("[LUA]:" .. msg);
+			-- print("[LUA]:" .. msg);
 		end
 	}
 	log:Write("Entered Generate");

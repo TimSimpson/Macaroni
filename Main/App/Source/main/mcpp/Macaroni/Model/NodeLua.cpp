@@ -9,7 +9,7 @@
 #include "AnnotationTableLua.h"
 #include "../Exception.h"
 #include "../Environment/DebugLog.h"
-#include "FileNameLua.h"
+#include <Macaroni/Model/FileNameLuaMetaData.h>
 #include "MemberLua.h"
 #include "Node.h"
 #include "NodeLua.h"

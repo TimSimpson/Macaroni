@@ -29,10 +29,14 @@ class Class : public Scope
 friend void intrusive_ptr_add_ref(Class * p);
 friend void intrusive_ptr_release(Class * p);
 public:	
-	static ClassPtr Create(LibraryPtr library, NodePtr home, Model::NodeListPtr importedNodes, ReasonPtr reason);
+	static ClassPtr Create(LibraryPtr library, NodePtr home, 
+		AccessPtr access,
+		Model::NodeListPtr importedNodes, ReasonPtr reason);
 
 	virtual ~Class();
 	
+	AccessPtr GetAccess() const;
+
 	void AddFriend(NodePtr node);
 	
 	void AddGlobal(NodePtr node);
@@ -70,8 +74,12 @@ public:
 	virtual void Visit(MemberVisitor * visitor) const;
 
 protected:	
-	Class(Library * library, Node * home, Model::NodeListPtr importedNodes, ReasonPtr reason);
+	Class(Library * library, Node * home, Access access, 
+		  Model::NodeListPtr importedNodes, ReasonPtr reason);
+
 private:
+
+	Access access;
 
 	// Awesome, all of these are memory leaks.  No wonder I used to get things
 	// done quicker!

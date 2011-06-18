@@ -5,25 +5,22 @@ upper = getUpperLibrary();
 id =
 {
     group=upper.Group,
-    name=upper.Name .. "Inheritance",
+    name=upper.Name .. "NamespaceStatement",
     version=upper.Version,
 }
 
-description=[[
-Tests the Inheritance functionality of the parser, model, and C++ code 
-generator.
-]]
+description=[[Tests Macaroni's namespace statement.]]
 
-sources = { "Source" }
-output = "Target"
+sources = { "src" }
+output = "target"
 
 dependency {group="Macaroni", name="Boost-smart_ptr", version="1.46.1"}
 dependency {group="Macaroni", name="CppStd", version="2003"}
+dependency {group = "Macaroni", name = "Lua", version = "5.1.4" }
 
 function generate()
     run("HtmlView");
-    run("Cpp");
-    run("InterfaceMh");    
+    run("Cpp");    
 end
 
 jamArgs = 
@@ -36,3 +33,8 @@ jamArgs =
 function build()
 	run("BoostBuild", jamArgs)
 end
+
+function install()
+	run("BoostBuild", jamArgs)	
+end
+

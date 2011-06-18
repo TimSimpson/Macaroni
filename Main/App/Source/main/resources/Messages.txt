@@ -52,6 +52,7 @@ CppParser.Operator.InvalidOperator=The text following keyword "operator" does no
 CppParser.Namespace.NoID1=Identifier expected following namespace keyword.
 CppParser.Namespace.NoEndingBrace=Syntax error while searching for '}' to complete sandwhich started on line {0}.
 CppParser.Namespace.NoOpeningBrace=Syntax error after identifier keyword; expected '{'.
+CppParser.Namespace.StatementEof=Expected EOF at this point, after seeing ~namespace and then scope filler.
 CppParser.Document.SyntaxError=Syntax error.
 CppParser.Function.ExpectedEndingParenthesis=Expected to see ')'.
 CppParser.StringLiteralStartExpected=Expected to see the a String literal here.

@@ -2,6 +2,7 @@
 #define MACARONI_MODEL_CPP_CLASSLUA_CPP
 
 #include "ClassLua.h"
+#include <Macaroni/Model/Cpp/AccessLuaMetaData.h>
 #include <Macaroni/Model/Cpp/ClassParentListLuaMetaData.h>
 #include <Macaroni/Model/LibraryLua.h>
 #include "../NodeLua.h"
@@ -70,19 +71,26 @@ END_NAMESPACE
 		}
 		NodePtr node = NodeLuaMetaData::GetInstance(L, 2);
 
-		if (!NodeListLuaMetaData::IsType(L, 3))
+		if (!AccessLuaMetaData::IsType(L, 3))
 		{
-			luaL_error(L, "Expected NodeList for argument 3.");
+			luaL_error(L, "Expected Access for argument 3.");
 		}
-		NodeListPtr imports = NodeListLuaMetaData::GetInstance(L, 3);
+		AccessPtr access = AccessLuaMetaData::GetInstance(L, 3);
 
-		if (!ReasonLuaMetaData::IsType(L, 4))
-		{			
-			luaL_error(L, "Expected Reason for argument 4.");
+		if (!NodeListLuaMetaData::IsType(L, 4))
+		{
+			luaL_error(L, "Expected NodeList for argument 4.");
 		}
-		ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 4);
+		NodeListPtr imports = NodeListLuaMetaData::GetInstance(L, 4);
+
+		if (!ReasonLuaMetaData::IsType(L, 5))
+		{			
+			luaL_error(L, "Expected Reason for argument 5.");
+		}
+		ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 5);
 		
-		ClassPtr newInstance = Class::Create(library, node, imports, reason); 
+		ClassPtr newInstance = Class::Create(library, node, access, 
+			                                 imports, reason); 
 		MemberPtr memberPtr = boost::dynamic_pointer_cast<Member>(newInstance);
 		MemberLuaMetaData::PutInstanceOnStack(L, memberPtr);
 		return 1;

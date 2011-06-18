@@ -39,7 +39,9 @@ tests = {
             this.fileName = FileName.Create("MadeUpFile");
             this.src = Source.Create(this.fileName, 3, 5);
             this.reason = Reason.Create(this.axiom, this.src);
-            this.newClass = Class.Create(this.library, this.newNode, this.imports, this.reason);
+            this.newClass = Class.Create(this.library, this.newNode, 
+                                         Access.Public, this.imports, 
+                                         this.reason);
         end,
         tests = {
             ["Find returns the same Node that was created."] = function(this)

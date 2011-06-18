@@ -9,6 +9,11 @@
 BEGIN_NAMESPACE2(Macaroni, Model)
 
 /** Connects a type to a NodeList of arguments for that type. */
+
+// TODO: Why did I make this *and* the type class? Couldn't type have just
+// had an argumentList of itself? I am completely dumbfounded by the realization 
+// they are the same.
+
 class TypeArgument 
 {
 public:

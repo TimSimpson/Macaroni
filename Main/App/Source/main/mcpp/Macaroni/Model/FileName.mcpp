@@ -1,51 +1,76 @@
-////#import Macaroni::Model::FileNamePtr;
-////#import std::string;
-////#import Macaroni::Model::FileName; // Have to include this line due to a bug in Macaroni.
-////
-////namespace Macaroni::Model{
-////
-/////** Represents any file name which could be the Source of Model information. */
-////class FileName
-////{
-////	FileName(const string & name)
-////		:name(name), 
-////		 referenceCount(0)
-////	{
-////	}
-////
-////	~FileName()
-////	{
-////	}
-////
-////	FileNamePtr Create(const string & name)
-////	{
-////		return FileNamePtr(new FileName(name));
-////	}
-////
-////	const string & GetName() const
-////	{
-////		return name;
-////	}
-////
-////	int GetReferenceCount() const
-////	{
-////		return referenceCount;
-////	}
-////
-////	global void intrusive_ptr_add_ref(FileName * p)
-////	{
-////		p->referenceCount ++;
-////	}
-////
-////	global void intrusive_ptr_release(FileName * p)
-////	{
-////		p->referenceCount --;
-////		if (p->referenceCount < 1)
-////		{
-////			delete p;
-////		}
-////	}
-////
-////}
-////
-////}
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Lua::LuaProperty;
+~import std::string;
+~import Macaroni::Cpp::UseLightDef;
+
+namespace Macaroni::Model {
+
+class FileName {} 
+typedef boost::intrusive_ptr<FileName> FileNamePtr
+	~hfile=<Macaroni/Model/FileNamePtr.h>	
+	@LuaClass [ SameAsNode = FileName ]
+	@UseLightDef true
+;
+
+/** Represents any file name which could be the Source of Model information. */
+class FileName
+	@LuaClass [ ReferenceType = FileNamePtr ]
+{
+
+	private string name;
+	private int referenceCount;
+
+	protected FileName(const string & name)
+	:	name(name), 
+		referenceCount(0)
+	{
+	}
+
+	protected ~FileName()
+	{
+	}
+
+	public bool operator==(const FileName & other) const
+		@LuaOperator "__eq"
+	{
+		return this->name == other.name;
+	}
+
+	public static FileNamePtr Create(const string & name)
+		@LuaFunction "Create"
+	{
+		return FileNamePtr(new FileName(name));
+	}
+
+	public const string & GetName() const
+		@LuaProperty "Name"
+		@LuaOperator "__tostring"
+	{
+		return name;
+	}
+
+	public int GetReferenceCount() const
+		@LuaProperty "ReferenceCount"
+	{
+		return referenceCount;
+	}
+	
+	public ~global ~friend void intrusive_ptr_add_ref(FileName * p)
+	{
+		p->referenceCount ++;
+	}
+
+	public ~global ~friend void intrusive_ptr_release(FileName * p)
+	{
+		p->referenceCount --;
+		if (p->referenceCount < 1)
+		{
+			delete p;
+		}
+	}
+
+};
+
+}

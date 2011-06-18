@@ -35,6 +35,20 @@ NodeInfo = {
         return self;
     end,    
     
+    beginNs =  function(self, namespaceNode)
+        check(namespaceNode ~= nil, "namespaceNode cannot be nil.");
+        local fs = namespaceNode.FullName;
+        local rtn = "";
+        if not namespaceNode.IsRoot then
+			local names = Macaroni.Model.Node.SplitComplexName(fs);        
+			for i = 1, #names do
+				rtn = rtn .. "namespace " .. names[i] .. " { ";
+			end
+			rtn = rtn .. "\n";
+		end
+        return rtn;
+    end,    
+    
     createDependencyList = function(self, node)
         -- Functions and variables don't currently get these because their 
         -- info is too dependent on context.
@@ -43,7 +57,7 @@ NodeInfo = {
         local list = DependencyList.new();
         list:addDependenciesForNode(node);
         return list;
-    end,
+    end,       
     
     createHeaderFile = function(self, node)
         check(self ~= nil, "Member function called without self.");
@@ -58,12 +72,14 @@ NodeInfo = {
         else
             if (node.AdoptedHome ~= nil) then
                 return self:createHeaderFile(node.AdoptedHome);
-            end
-            if (node.Member ~= nil and node.Member.TypeName == Macaroni.Model.TypeNames.Class) then
-                return '<' .. node:GetPrettyFullName("/") .. '.h>'; 
-            else
-                return '<' .. node.Node:GetPrettyFullName("/") .. '/_.h>';
-            end            
+            elseif self:isUnderClass(node) then
+				return self:createHeaderFile(node.Node);
+            elseif (node.Member ~= nil) then            
+				if (node.Member.TypeName == Macaroni.Model.TypeNames.Class) then
+					return '<' .. node:GetPrettyFullName("/") .. '.h>';             
+				end
+			end
+            return '<' .. node.Node:GetPrettyFullName("/") .. '/_.h>';            
         end
         return "";        
     end,
@@ -78,21 +94,7 @@ NodeInfo = {
         else
             return ('#include ' .. headerFilePath .. '\n');      
         end       
-    end,
-    
-    beginNs =  function(self, namespaceNode)
-        check(namespaceNode ~= nil, "namespaceNode cannot be nil.");
-        local fs = namespaceNode.FullName;
-        local rtn = "";
-        if not namespaceNode.IsRoot then
-			local names = Macaroni.Model.Node.SplitComplexName(fs);        
-			for i = 1, #names do
-				rtn = rtn .. "namespace " .. names[i] .. " { ";
-			end
-			rtn = rtn .. "\n";
-		end
-        return rtn;
-    end,    
+    end,       
     
     endNs = function(self, namespaceNode)
         check(namespaceNode ~= nil, "namespaceNode cannot be nil.");
@@ -131,9 +133,15 @@ NodeInfo = {
         local generateWarning = true;
         if (node.Member ~= nil) then            
             if (node.Member.TypeName == TypeNames.Class) then
-                local rtn = self:beginNs(node.Node);
-                rtn = rtn ..  'class ' .. node.Name .. ';\n';   
-                rtn = rtn .. self:endNs(node.Node);
+				local rtn = '';
+				if not self:isUnderClass(node) then
+					rtn = self:beginNs(node.Node);
+					rtn = rtn ..  'class ' .. node.Name .. ';\n';   
+					rtn = rtn .. self:endNs(node.Node);
+				else
+					rtn = "/* ~< I don't know how to make a light definition "
+						.. "for nested class " .. node.FullName .. "!) */";
+				end
                 return rtn;
             elseif (node.Member.TypeName == TypeNames.Primitive) then
                 return ""; -- Ignore
@@ -168,6 +176,15 @@ NodeInfo = {
             end            
         end
         return "// ~ <(I don't know how to generate a using statement for " .. node.FullName .. ".) \n";        
+    end,
+    
+    isUnderClass = function(self, node)
+		local parent = node.Node;
+		if (parent ~= nil and parent.Member ~= nil) then
+			if parent.Member.TypeName == Macaroni.Model.TypeNames.Class then
+				return true;
+			end
+        end
     end,
     
     useLightDef = function(self, node)

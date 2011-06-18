@@ -23,11 +23,13 @@ DependencyTraveller = {
 	
     heavy = nil,
     originalNode = nil,
-    type = "DependencyTraveller",
+    type = "DependencyTraveller",   
     
     new = function(originalNode, heavy)    
         local self = {};
-        setmetatable(self, {["__index"]=DependencyTraveller});              
+        setmetatable(self, {
+			["__index"]=DependencyTraveller,			
+			});
         self.originalNode = node; -- who wants this dependency.
         self.heavy = heavy;
         self.type = "DependencyTraveller";
@@ -43,6 +45,7 @@ DependencyTraveller = {
     isType = function(obj)
         return type(obj) == "table" and obj.type == "DependencyTraveller";
     end,
+    
 };
 
 DependencyList = {
@@ -185,11 +188,12 @@ DependencyList = {
         if (type.Pointer or type.ConstPointer or type.Reference) then
             newTraveller.heavy = false;  
         end
-        if (type.Node.HFilePath ~= nil) then
+        if (not self:canUseLightDef(type.Node)) then
             -- HFiles refer to something defined elsewhere we're including.
             -- A light definition is fundamentally impossible, so force heavy def.
             newTraveller.heavy = true;
         end
+                
         check(type.Node ~= nil, "Given a type with a nil node!");
         self:addDependencyNode(type.Node, newTraveller);                               
         if (type.TypeArguments ~= nil) then
@@ -202,7 +206,7 @@ DependencyList = {
             end
         end
     end,
-    
+        
     -- Adds the node itself to the light dependencies list.
     addDependencyNode = function(self, node, traveller)
         check(self ~= nil, "Missing self.");
@@ -245,6 +249,25 @@ DependencyList = {
         check(node ~= nil, "Node cannot be nil.");
         self.light[node.FullName] = node;
     end,   
+    
+    canUseLightDef = function(self, node)
+		-- Light definitions are preferable but sometimes Macaroni can't use 
+		-- them. For example, if the definition comes from an external file.
+		if node.HFilePath == nil then
+			return true;
+		end
+		local attr = node.Annotations["Macaroni::Cpp::UseLightDef"];			
+		if (attr ~= nil) then
+			if not attr.IsBool then
+				error("The node " .. node.FullName .. " annotation value "
+				      .. "UseLightDef must be a boolean.");
+			end
+			if (attr.ValueAsBool) then
+				return true;
+			end
+		end
+		return false;
+    end,    
     
     iterateDependencies = function(self, t)
 		local nodes = {}
