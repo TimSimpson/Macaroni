@@ -295,7 +295,8 @@ ClassCppFileGenerator = {
         local handlerFunc = nil;        
         if (typeName == TypeNames.Class) then
             -- Pass the new generator the same writer as this class.
-            ClassCppFileGenerator.New({isNested = true, node = node, writer = self.writer});
+            ClassCppFileGenerator.new({isNested = true, node = node, writer = self.writer,
+                                       targetLibrary = self.targetLibrary});
             handlerFunc = self.parseClass;
         else
             handlerFunc = self["parse" .. typeName];

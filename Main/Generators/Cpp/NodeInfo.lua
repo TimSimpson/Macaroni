@@ -10,6 +10,12 @@ local TypeNames = Macaroni.Model.TypeNames;
 
 -- Stores quick lookup info about Nodes.
 NodeInfo = {
+	-- This information is difficult enough that it should live inside Macaroni 
+	-- native code.  It defines things about the node needed for C++ 
+	-- generation, such as where the header file lives, what the "light"
+	-- definition (a forward reference) looks like, what the heavy one 
+	-- (an #include statement) looks like, etc.	
+	
     dependencies = nil,
     headerFile = nil,
     heavyDef = nil,

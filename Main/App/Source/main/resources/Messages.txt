@@ -74,3 +74,5 @@ CppParser.Variable.StaticNotAllowedForArg=Keyword "static" is not allowed for fu
 CppParser.Variable.UnknownTypeName=Unknown type name for variable.  Are you missing an import statement or forward declaration?
 
 MacaroniAxioms.Annotation.Definition.Implicit=Annotations may be implicitly defined during use.
+
+LuaGlue.LuaClassWraps=The annotation "Macaroni::Lua::LuaClass" when applied to a class causes that class to be wrapped with another class as Lua glue.

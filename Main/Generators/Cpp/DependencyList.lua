@@ -1,4 +1,7 @@
 require "Cpp/Common";
+require "Macaroni.Model.Cpp.ClassParent"
+require "Macaroni.Model.Cpp.ClassParentList"
+require "table"
 
 local Access = Macaroni.Model.Cpp.Access;
 local Context = Macaroni.Model.Context;
@@ -8,6 +11,16 @@ local TypeNames = Macaroni.Model.TypeNames;
 FUTURE = true
 
 DependencyTraveller = {
+	-- Used in conjunction with a DependencyList. If "heavy" is specified,
+	-- it means the dependency is so great the entire C++ definition is
+	-- required (in other words, bring out the #include statement).
+	-- If not, it means a forward reference will suffice.
+	-- However in some contexts even if heavy is false here the Node in question
+	-- may require that the "heavy" reference be added. An example would be
+	-- something which only uses a pointer to a class which has is defined 
+	-- in an external header file unknown to Macaroni. In that case the
+	-- #include statement is required no matter what.
+	
     heavy = nil,
     originalNode = nil,
     type = "DependencyTraveller",
@@ -33,6 +46,7 @@ DependencyTraveller = {
 };
 
 DependencyList = {
+	-- Stores a list of dependencies for something like a Node.
     
     new = function(owner)    
         local self = {}
@@ -129,16 +143,20 @@ DependencyList = {
         check(member ~= nil, "Missing member.");
         --check(traveller ~= nil, "Argument 3 'traveller' must be either true or false.");
         if (member.TypeName == TypeNames.Variable) then              
-            self:addDependenciesForType(member.Type, DependencyTraveller.new(node, true));            
+            self:addDependenciesForType(member.Type, 
+                                        DependencyTraveller.new(node, true));            
         end
         if (member.TypeName == TypeNames.Class) then
-            self:addDependenciesForClass(node, DependencyTraveller.new(node, false));
+            self:addDependenciesForClass(node, 
+                                         DependencyTraveller.new(node, false));
         end
         if (member.TypeName == Macaroni.Model.TypeNames.Function) then      
-            self:addDependenciesForFunction(member, DependencyTraveller.new(node, true));             
+            self:addDependenciesForFunction(member, 
+                                            DependencyTraveller.new(node, true));             
         end
         if (member.TypeName == Macaroni.Model.TypeNames.Constructor) then     
-            self:addDependenciesForConstructor(member, DependencyTraveller.new(node, true));
+            self:addDependenciesForConstructor(member, 
+                                               DependencyTraveller.new(node, true));
         end
         if (member.TypeName == Macaroni.Model.TypeNames.Typedef) then
             -- Typedefs always attempt light dependencies
@@ -218,15 +236,41 @@ DependencyList = {
     addHeavyDependencyNode = function(self, node)
         check(self ~= nil, "Missing self.");
         check(node ~= nil, "Node cannot be nil.");
-        self.heavy[node] = true;
+        self.heavy[node.FullName] = node;
     end,       
     
      -- Adds the node itself to the heavy dependencies list.
     addLightDependencyNode = function(self, node)
         check(self ~= nil, "Missing self.");
         check(node ~= nil, "Node cannot be nil.");
-        self.light[node] = true;
+        self.light[node.FullName] = node;
     end,   
     
+    iterateDependencies = function(self, t)
+		local nodes = {}
+		for k, v in pairs(t) do
+			nodes[#nodes + 1] = v
+		end
+		table.sort(nodes, function (a, b)
+			if a.Name == b.Name then		  
+				return string.lower(a.FullName) < string.lower(b.FullName)
+			else
+				return string.lower(a.Name) < string.lower(b.Name)
+			end
+		end)
+		local i = 0
+		return function()
+			i = i + 1
+			if i <= #nodes then return nodes[i] end
+		end
+    end,
     
+    iterateHeavyDependencies = function(self)
+		return self:iterateDependencies(self.heavy);
+    end,
+    
+    iterateLightDependencies = function(self)
+		return self:iterateDependencies(self.light);		
+    end,
+        
 };

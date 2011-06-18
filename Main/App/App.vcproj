@@ -178,6 +178,30 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\main\mcpp\Macaroni\Model\AnnotationDefinition.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\main\mcpp\Macaroni\Model\AnnotationTable.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\main\mcpp\Macaroni\Model\AnnotationTableLua.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\main\mcpp\Macaroni\Model\AnnotationValue.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\main\mcpp\Macaroni\Model\AnnotationValueLua.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\main\mcpp\Macaroni\Model\AnnotationValueTest.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\GeneratedSource\Macaroni\AppPaths.cpp"
 				>
 			</File>
@@ -334,14 +358,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Platform\Windows\EnvironmentVariable.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Platform\Windows\EnvironmentVariables.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\main\mcpp\Macaroni\Exception.cpp"
 				>
 			</File>
@@ -379,10 +395,6 @@
 			</File>
 			<File
 				RelativePath=".\Source\main\mcpp\Macaroni\Model\Cpp\FunctionOverloadLua.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\IO\GeneratedFileWriterLuaMetaData.cpp"
 				>
 			</File>
 			<File
@@ -601,6 +613,46 @@
 			</File>
 			<File
 				RelativePath=".\Source\main\mcpp\Macaroni\Model\Cpp\AccessPtr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\main\mcpp\Macaroni\Model\AnnotationDefinition.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\main\mcpp\Macaroni\Model\AnnotationDefinitionPtr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\main\mcpp\Macaroni\Model\AnnotationList.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\main\mcpp\Macaroni\Model\AnnotationTable.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\main\mcpp\Macaroni\Model\AnnotationTableLua.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\main\mcpp\Macaroni\Model\AnnotationTablePtr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\main\mcpp\Macaroni\Model\AnnotationValue.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\main\mcpp\Macaroni\Model\AnnotationValueLua.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\main\mcpp\Macaroni\Model\AnnotationValuePtr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\main\mcpp\Macaroni\Model\AnnotationValueTypeException.h"
 				>
 			</File>
 			<File
@@ -832,14 +884,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Platform\Windows\EnvironmentVariable.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Platform\Windows\EnvironmentVariables.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\main\mcpp\Macaroni\Exception.h"
 				>
 			</File>
@@ -889,10 +933,6 @@
 			</File>
 			<File
 				RelativePath=".\Source\main\mcpp\Macaroni\Model\Cpp\FunctionPtr.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\IO\GeneratedFileWriterLuaMetaData.h"
 				>
 			</File>
 			<File
@@ -1024,19 +1064,19 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Parser.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\main\mcpp\Macaroni\Parser\Parser.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Parser\ParserException.h"
+				RelativePath=".\Source\main\mcpp\Macaroni\Parser.h"
 				>
 			</File>
 			<File
 				RelativePath=".\Source\main\mcpp\Macaroni\Model\ParserException.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\main\mcpp\Macaroni\Parser\ParserException.h"
 				>
 			</File>
 			<File
@@ -1255,6 +1295,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Source\main\mcpp\Macaroni\Model\Annotation.mcpp"
+			>
+		</File>
+		<File
 			RelativePath=".\Source\main\mcpp\Macaroni\Build\BuildContext.mcpp"
 			>
 		</File>
@@ -1295,6 +1339,18 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Source\main\mcpp\Macaroni\Platform\Windows\EnvironmentVariable.mcpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\main\mcpp\Macaroni\Platform\Windows\EnvironmentVariables.mcpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\main\mcpp\Macaroni\IO\FileSet.mcpp"
+			>
+		</File>
+		<File
 			RelativePath=".\Source\main\mcpp\Macaroni\IO\GeneratedFileWriter.mcpp"
 			>
 		</File>
@@ -1320,6 +1376,10 @@
 		</File>
 		<File
 			RelativePath=".\Source\main\pureCppExtraFiles\ReadMe.txt"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\main\mcpp\Macaroni\Platform\Windows\Strings.mcpp"
 			>
 		</File>
 		<File

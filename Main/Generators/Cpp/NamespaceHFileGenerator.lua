@@ -61,13 +61,13 @@ NamespaceHFileGenerator = {
             self:write('     using : ' .. info.using .. ' \n');
             local d = info.dependencies;
             self:write("     light dependencies : \n");
-            for k,v in pairs(d.light) do
-                self:write('                   ' .. k.FullName .. '\n');
+            for node in d:iterateLightDependencies() do
+                self:write('                   ' .. node.FullName .. '\n');
             end
             self:write("\n");
             self:write("     HEAVY dependencies : \n");
-            for k,v in pairs(d.heavy) do
-                self:write('                   ' .. k.FullName .. '\n');
+            for node in d:iterateHeavyDependencies() do
+                self:write('                   ' .. node.FullName .. '\n');
             end
             self:write("*/\n");           
         end           

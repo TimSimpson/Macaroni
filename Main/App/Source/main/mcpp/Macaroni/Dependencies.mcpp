@@ -23,12 +23,14 @@ class std::vector { ~hfile=<vector> }
 
 // Boost
 class boost::bad_lexical_cast { ~hfile=<boost/lexical_cast.hpp> }
+class boost::filesystem::directory_iterator { ~hfile=<boost/filesystem/operations.hpp> }
 class boost::lexical_cast { ~hfile=<boost/lexical_cast.hpp> }
 class BOOST_FOREACH { ~hfile=<boost/foreach.hpp> }
 //class boost::filesystem::create_directories { ~hfile=<boost/filesystem/convenience.hpp> }
 class boost::intrusive_ptr { ~hfile=<boost/intrusive_ptr.hpp> }
 class boost::optional { ~hfile=<boost/optional.hpp> }
 //class boost::filesystem::path { ~hfile=<boost/filesystem.hpp> }
+class boost::regex { ~hfile=<boost/regex.hpp> }
 class boost::shared_ptr { ~hfile=<boost/shared_ptr.hpp> }
 class boost::to_lower { ~hfile=<boost/algorithm/string.hpp> }
 

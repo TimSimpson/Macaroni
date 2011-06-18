@@ -20,11 +20,11 @@ DependencySection = {
     add = function(self, node)       
         local info = NodeInfoList[node];
         local d = info.dependencies;
-        for k,v in pairs(d.light) do
-            self:addToList(k);
+        for node in d:iterateLightDependencies() do
+            self:addToList(node);
         end
-        for k,v in pairs(d.heavy) do
-            self:addToList(k);
+        for node in d:iterateHeavyDependencies() do
+            self:addToList(node);
         end
     end,   
     
@@ -53,7 +53,7 @@ DependencySection = {
         for i = #self.list, 1, -1 do -- todo: confirm iteration is as expected
             local listElement = self.list[i];
             for k, v in pairs(dependencyList) do
-                if (k == listElement.node) then
+                if (v == listElement.node) then
                     return i + 1;      
                 end
             end     

@@ -37,6 +37,7 @@ function generate()
 		#include <lualib.h>
 	}
 	]] });
+	run("HtmlView");
     run "Cpp"
     --runGenerator "Generators/LuaGlue"
     run "InterfaceMh"

@@ -330,7 +330,7 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         local handlerFunc = nil;        
         if (typeName == TypeNames.Class) then
             -- Pass the new generator the same writer as this class.
-            ClassHFileGenerator.New({isNested = true, node = node, 
+            ClassHFileGenerator.new({isNested = true, node = node, 
                                      targetLibrary=self.targetLibrary, 
                                      writer = self.writer});
             handlerFunc = self.parseClass;
