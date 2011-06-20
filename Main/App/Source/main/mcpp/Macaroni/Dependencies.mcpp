@@ -111,19 +111,7 @@ class Macaroni::IO::Path { ~hfile=<Macaroni/IO/Path.h> }
 class Macaroni::IO::PathLuaMetaData { ~hfile=<Macaroni/IO/PathLua.h> }
 class Macaroni::IO::PathPtr { ~hfile=<Macaroni/IO/Path.h> }
 class Macaroni::IO::Paths { ~hfile=<Macaroni/IO/Paths.h> }
-class Macaroni::Environment::Process { ~hfile=<Macaroni/Environment/Process.h> }
-
-class Macaroni::Model::SourceLuaMetaData { ~hfile=<Macaroni/Model/SourceLua.h> }
-class Macaroni::Model::SourcePtr { ~hfile=<Macaroni/Model/SourcePtr.h> }
-class Macaroni::Model::Source 
-	@LuaClass 
-	[
-		LuaGlueClass = Macaroni::Model::SourceLuaMetaData,
-		ReferenceType = Macaroni::Model::SourcePtr,
-	]
-	{ ~hfile=<Macaroni/Model/Source.h> }
-class Macaroni::Model::SourcePtr @LuaClass [ SameAsNode=Source ] {}
-	
+class Macaroni::Environment::Process { ~hfile=<Macaroni/Environment/Process.h> }	
 class Macaroni::Environment::StringPair { ~hfile=<Macaroni/Environment/StringPair.h> }
 class Macaroni::Model::TypeLuaMetaData { ~hfile=<Macaroni/Model/TypeLua.h> }
 class Macaroni::Model::TypePtr { 

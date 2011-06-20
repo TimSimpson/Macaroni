@@ -2,7 +2,7 @@
 #define MACARONI_MODELINCONSISTENCYEXCEPTION_CPP
 
 #include "ModelInconsistencyException.h"
-#include "Reason.h"
+#include <Macaroni/Model/Reason.h>
 #include <sstream>
 
 BEGIN_NAMESPACE2(Macaroni, Model)

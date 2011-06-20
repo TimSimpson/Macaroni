@@ -8,7 +8,7 @@
 #include "../Node.h"
 #include "Primitive.h"
 #include <Macaroni/Model/Reason.h>
-#include "../Source.h"
+#include <Macaroni/Model/Source.h>
 #include <sstream>
 
 using Macaroni::Model::Context;

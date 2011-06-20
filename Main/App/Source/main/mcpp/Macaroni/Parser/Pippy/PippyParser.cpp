@@ -31,7 +31,7 @@
 #include "../ParserException.h"
 #include "../../Model/Cpp/Primitive.h"
 #include <Macaroni/Model/Reason.h>
-#include "../../Model/Source.h"
+#include <Macaroni/Model/Source.h>
 #include "../../Model/Type.h"
 #include "../../Model/TypeArgument.h"
 #include <Macaroni/Model/TypeModifiers.h>

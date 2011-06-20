@@ -12,7 +12,7 @@
 #include "../NodeLua.h"
 #include "../NodeListLua.h"
 #include <Macaroni/Model/ReasonLuaMetaData.h>
-#include "../SourceLua.h"
+#include <Macaroni/Model/SourceLuaMetaData.h>
 #include "VariableLua.h"
 #include "VariableAssignmentLua.h"
 #include "../TypeLua.h"

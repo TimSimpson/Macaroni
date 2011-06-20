@@ -16,7 +16,7 @@
 #include "../Parser/Pippy/PippyParser.h"
 #include <Macaroni/Generator/DynamicGeneratorRunner.h>
 #include <Macaroni/IO/Path.h>
-#include "../Model/Source.h"
+#include <Macaroni/Model/Source.h>
 #include <Macaroni/Environment/StringPair.h>
 
 using Macaroni::Model::Context;

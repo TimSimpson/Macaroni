@@ -69,7 +69,8 @@ DynamicGenerator::DynamicGenerator
 			"Lua Code, which was being generated to pass arguments from one "
 			"Lua environment to another which belonged to the generator "
 			<< luaFile.string() << ":"
-			<< ss.str();
+			<< ss.str()
+			<< " EXCEPTION MESSAGE:" << ex.what();
 		MACARONI_THROW(msg.str().c_str());
 	}	
 }	 

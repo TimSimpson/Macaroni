@@ -9,8 +9,8 @@
 #include "../Model/LibraryLua.h"
 #include "ParserException.h"
 #include "ParserExceptionLua.h"
-#include "../Model/Source.h"
-#include "../Model/SourceLua.h"
+#include <Macaroni/Model/Source.h>
+#include <Macaroni/Model/SourceLuaMetaData.h>
 #include <sstream>
 
 using Macaroni::Model::ContextPtr;

@@ -30,7 +30,7 @@
 #include "../Parser/Cpp/CppParserLua.h"
 #include "../IO/Paths.h"
 #include "../Parser/Pippy/PippyParserLua.h"
-#include "../Model/SourceLua.h"
+#include <Macaroni/Model/SourceLuaMetaData.h>
 #include <sstream>
 #include "../Model/TypeLua.h"
 #include "../Model/TypeArgumentListLua.h"

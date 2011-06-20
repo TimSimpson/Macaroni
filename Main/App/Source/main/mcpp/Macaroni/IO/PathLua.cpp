@@ -119,7 +119,7 @@ END_NAMESPACE2
 			bool ovride = false;
 			if (lua_isboolean(L, 3))
 			{
-				ovride = (bool) lua_toboolean(L, 3);
+				ovride = (lua_toboolean(L, 3) == 1);
 			}			
 			me->CopyToDifferentRootPath(rootPath, ovride);			
 			return 0;

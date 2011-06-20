@@ -2,7 +2,7 @@
 #define MACARONI_PARSER_CPP_CPPPARSERSTATE_CPP
 
 #include "CppParserState.h"
-#include "../../Model/Source.h"
+#include <Macaroni/Model/Source.h>
 
 BEGIN_NAMESPACE(Macaroni, Parser, Cpp)
 

@@ -7,8 +7,8 @@
 #include "../../Model/ContextLua.h"
 #include "../Parser.h"
 #include "../ParserLua.h"
-#include "../../Model/Source.h"
-#include "../../Model/SourceLua.h"
+#include <Macaroni/Model/Source.h>
+#include <Macaroni/Model/SourceLuaMetaData.h>
 #include <sstream>
 
 using Macaroni::Model::ContextPtr;

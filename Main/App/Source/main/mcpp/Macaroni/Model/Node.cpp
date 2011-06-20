@@ -106,6 +106,8 @@ NodePtr Node::CreateNextInSequence(const std::string & prefix)
 		++ newIndex;
 	}
 	MACARONI_THROW("") // For compiler warning.
+	NodePtr rtn;
+	return rtn;
 }
 
 Node * Node::createNode(const std::string & simpleName)

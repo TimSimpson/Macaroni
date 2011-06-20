@@ -1,0 +1,109 @@
+~import Macaroni::Model::FileName;
+~import Macaroni::Model::FileNamePtr;
+~import boost::intrusive_ptr;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Lua::LuaProperty;
+~import std::string;
+~import std::stringstream;
+~import Macaroni::Cpp::UseLightDef;
+
+namespace Macaroni::Model {
+	
+class Source {};
+
+typedef boost::intrusive_ptr<Source> SourcePtr
+	~hfile=<Macaroni/Model/SourcePtr.h>
+	@LuaClass [ SameAsNode=Source ]
+	@UseLightDef true
+;
+
+/** A location in a file which relates to the Model in some way. */
+class Source
+	@LuaClass [ ReferenceType = SourcePtr ]
+{
+	private int column;
+	private FileNamePtr fileName;
+	private int lineNumber;
+	private int referenceCount;
+
+	private Source(const FileNamePtr fileName, int line, int column)
+	:column(column), fileName(fileName), lineNumber(line), referenceCount(0)
+	{
+	}
+	
+	private ~Source()
+	{
+	}
+	
+	public bool operator== (const Source & other) const
+		@LuaProperty "__eq"		
+	{
+		return ((*(this->fileName)) == (*(other.fileName))
+				&& this->lineNumber == other.lineNumber
+				&& this->column == other.column);
+	}
+	
+	public static SourcePtr Create(const FileNamePtr fileName, int line, 
+	                               int column)							 
+	    @LuaFunction "Create"
+	{
+		return SourcePtr(new Source(fileName, line, column));
+	}
+
+	public int GetColumn() const
+		@LuaProperty "Column"
+	{
+		return column;
+	}
+
+	public int GetLine() const
+		@LuaProperty "Line"
+	{
+		return lineNumber;
+	}
+
+	public FileNamePtr GetFileName() const
+		@LuaProperty "FileName"
+	{
+		return fileName;
+	}
+
+	public int GetReferenceCount() const
+		@LuaProperty "ReferenceCount"
+	{
+		return referenceCount;
+	}
+
+
+	public ~global ~friend void intrusive_ptr_add_ref(Source * p)
+	{
+		p->referenceCount ++;
+	}
+
+	public ~global ~friend void intrusive_ptr_release(Source * p)
+	{
+		p->referenceCount --;
+	}
+
+
+	/** Creates a new Source object at the given line number. */
+	public SourcePtr JumpToLine(int newLineNumber) const
+		@LuaFunction "JumpToLine"
+	{
+		return Create(fileName, newLineNumber, 1);
+	}
+
+	public std::string ToString() const
+		@LuaOperator "__tostring"
+	{
+		std::stringstream ss;
+		ss << this->GetFileName()->GetName() << ", line " << this->GetLine()
+			<< ", column " << this->GetColumn();
+		return ss.str();	
+	}
+
+};
+
+}
