@@ -1,4 +1,5 @@
 require "Macaroni.Model.Reason";
+require "Macaroni.Model.Source";
 
 local Axiom = Macaroni.Model.Axiom;
 local FileName = Macaroni.Model.FileName;

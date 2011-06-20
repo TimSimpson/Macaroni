@@ -38,7 +38,7 @@ class Source
 	}
 	
 	public bool operator== (const Source & other) const
-		@LuaProperty "__eq"		
+		@LuaOperator "__eq"		
 	{
 		return ((*(this->fileName)) == (*(other.fileName))
 				&& this->lineNumber == other.lineNumber
