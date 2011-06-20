@@ -3,6 +3,8 @@
 
 #include "FunctionOverload.h"
 #include <Macaroni/Model/ModelInconsistencyException.h>
+#include <Macaroni/Model/Reason.h>
+#include <Macaroni/Model/Source.h>
 #include <Macaroni/Model/Cpp/Variable.h>
 
 using Macaroni::Model::ModelInconsistencyException;

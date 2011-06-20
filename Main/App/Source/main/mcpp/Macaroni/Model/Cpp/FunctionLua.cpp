@@ -9,7 +9,7 @@
 #include "../ModelInconsistencyException.h"
 #include "../NodeLua.h"
 #include "../NodeListLua.h"
-#include "../ReasonLua.h"
+#include <Macaroni/Model/ReasonLuaMetaData.h>
 #include "../SourceLua.h"
 #include "VariableLua.h"
 #include "../TypeLua.h"

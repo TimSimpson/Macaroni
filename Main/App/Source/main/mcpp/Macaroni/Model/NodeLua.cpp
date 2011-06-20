@@ -14,8 +14,8 @@
 #include "Node.h"
 #include "NodeLua.h"
 #include "NodeListLua.h"
-#include "Reason.h"
-#include "ReasonLua.h"
+#include <Macaroni/Model/Reason.h>
+#include <Macaroni/Model/ReasonLuaMetaData.h>
 #include <sstream>
 
 BEGIN_NAMESPACE2(Macaroni, Model)

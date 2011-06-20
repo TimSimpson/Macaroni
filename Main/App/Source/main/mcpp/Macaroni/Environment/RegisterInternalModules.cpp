@@ -23,7 +23,7 @@
 //#include "../Model/NamespaceLua.h"
 #include "../Model/NodeLua.h"
 #include "../Model/NodeListLua.h"
-#include "../Model/ReasonLua.h"
+#include <Macaroni/Model/ReasonLuaMetaData.h>
 #include "../Parser/ParserLua.h"
 #include "../Parser/ParserExceptionLua.h"
 #include "../IO/PathLua.h"

@@ -13,7 +13,7 @@
 #include "Member.h"
 #include "Node.h"
 #include "NodeLua.h"
-#include "ReasonLua.h"
+#include <Macaroni/Model/ReasonLuaMetaData.h>
 #include <sstream>
 #include "Cpp/Typedef.h"
 #include "Cpp/TypedefLua.h"

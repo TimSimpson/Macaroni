@@ -8,7 +8,7 @@
 #include "../NodeLua.h"
 #include "../MemberLua.h"
 #include "../NodeListLua.h"
-#include <Macaroni/Model/ReasonLua.h>
+#include <Macaroni/Model/ReasonLuaMetaData.h>
 #include "TypeInfoLua.h"
 #include "VariableLua.h"
 

@@ -201,7 +201,7 @@ lib ]] .. LibraryMetaTarget(library) .. [[
 		else
 			writer:Write("	 	");
 		end
-		writer:Write("<link>shared:<library>" .. v.jamDir .. "//library \n");
+		writer:Write("<link>shared:<library>\"" .. v.jamDir .. "\"//library \n");
 	end
 	writer:Write([[
 	;

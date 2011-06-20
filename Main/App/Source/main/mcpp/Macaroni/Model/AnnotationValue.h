@@ -6,7 +6,8 @@
 #include "AnnotationValuePtr.h"
 #include "NodePtr.h"
 #include <boost/shared_ptr.hpp>
-#include "Reason.h"
+#include <Macaroni/Model/Reason.h>
+#include <Macaroni/Model/ReasonPtr.h>
 #include <boost/variant.hpp>
 #include <string>
 

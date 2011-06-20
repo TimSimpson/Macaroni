@@ -5,6 +5,11 @@
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
+bool Axiom::operator== (const Axiom & other) const
+{
+	return (this->ToString() == other.ToString());
+}
+
 void intrusive_ptr_add_ref(Axiom * p)
 {
 	p->onReference();

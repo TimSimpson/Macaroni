@@ -1,0 +1,118 @@
+~import Macaroni::Model::Axiom;
+~import Macaroni::Model::AxiomPtr;
+~import boost::intrusive_ptr;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Lua::LuaProperty;
+~import Macaroni::Model::Source;
+~import Macaroni::Model::SourcePtr;
+~import std::string;
+~import std::stringstream;
+~import Macaroni::Cpp::UseLightDef;
+
+namespace Macaroni::Model {
+	
+class Reason {}
+
+typedef boost::intrusive_ptr<Reason> ReasonPtr 
+	~hfile=<Macaroni/Model/ReasonPtr.h>
+	@UseLightDef true
+	@LuaClass [ SameAsNode = Reason ]
+;
+
+/** The reason why a Model object is constructed a certain way.  Client code
+ * creates these objects and attaches them to Models which then manage them. */
+class Reason
+	@LuaClass [ ReferenceType = ReasonPtr ]
+{
+	private AxiomPtr axiom;
+	private SourcePtr source;
+	private int referenceCount;
+	
+	protected Reason(AxiomPtr axiom, SourcePtr source)
+	:	axiom(axiom), 
+		referenceCount(0), 
+		source(source)
+	{
+	}
+
+	protected ~Reason()
+	{		
+	}
+	
+	public bool operator== (const Reason & other) const
+		@LuaOperator "__eq"
+	{
+		return *(this->axiom) == *(other.axiom)
+			&& *(this->source) == *(other.source);
+	}
+	
+	public static ReasonPtr Create(AxiomPtr axiom, SourcePtr source)
+		@LuaFunction "Create"
+	{
+		return ReasonPtr(new Reason(axiom, source));
+	}
+
+	public AxiomPtr GetAxiom()
+		@LuaProperty "Axiom"
+	{
+		return axiom;
+	}
+
+	
+	public inline int GetReferenceCount()
+		@LuaProperty "ReferenceCount"
+	{
+		return referenceCount;
+	}
+
+	public SourcePtr GetSource()
+		@LuaProperty "Source"
+	{
+		return source;
+	}
+
+	public ~global ~friend void intrusive_ptr_add_ref(Reason * p)
+	{
+		p->referenceCount ++;
+	}
+
+
+	public ~global ~friend void intrusive_ptr_release(Reason * p)
+	{
+		if ((-- (p->referenceCount)) < 1)
+		{
+			delete p;
+		}
+	}
+
+	
+	public const std::string ToString() const
+		@LuaOperator "__tostring"
+	{
+		std::stringstream ss;
+		if (!!source)
+		{
+			ss << source->ToString();
+		}
+		else
+		{
+			ss << "[Source was null!]";
+		}
+		ss << ": ";
+		if (!!axiom)
+		{
+			ss << axiom->ToString();
+		}
+		else
+		{
+			ss << "[Axiom was null!]";
+		}	
+		return ss.str();
+	}
+
+	
+}; // end class
+
+} // end ns

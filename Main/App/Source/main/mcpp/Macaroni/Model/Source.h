@@ -2,7 +2,7 @@
 #define MACARONI_SOURCE_H
 
 #include "../ME.h"
-#include "FileNamePtr.h"
+#include <Macaroni/Model/FileNamePtr.h>
 #include "SourcePtr.h"
 
 BEGIN_NAMESPACE2(Macaroni, Model)
@@ -13,6 +13,7 @@ class Source
 friend void intrusive_ptr_add_ref(Source * p);
 friend void intrusive_ptr_release(Source * p);
 public:
+	bool operator== (const Source & other) const;
 	static SourcePtr Create(const FileNamePtr fileName, int line, int column);
 	int GetColumn() const;
 	int GetLine() const;

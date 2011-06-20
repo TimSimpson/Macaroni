@@ -30,7 +30,7 @@
 #include "../Parser.h"
 #include "../ParserException.h"
 #include "../../Model/Cpp/Primitive.h"
-#include "../../Model/Reason.h"
+#include <Macaroni/Model/Reason.h>
 #include "../../Model/Source.h"
 #include "../../Model/Type.h"
 #include "../../Model/TypeArgument.h"

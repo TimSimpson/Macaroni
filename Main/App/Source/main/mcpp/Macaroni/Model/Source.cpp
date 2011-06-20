@@ -17,6 +17,13 @@ Source::~Source()
 {
 }
 
+bool Source::operator== (const Source & other) const
+{
+	return (this->fileName == other.fileName 
+			&& this->lineNumber == other.lineNumber
+			&& this->column == other.column);
+}
+
 SourcePtr Source::Create(const FileNamePtr fileName, int line, int column)
 {
 	return SourcePtr(new Source(fileName, line, column));

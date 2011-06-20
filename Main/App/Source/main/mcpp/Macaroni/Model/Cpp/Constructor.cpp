@@ -9,7 +9,7 @@
 #include "../ModelInconsistencyException.h"
 #include "Namespace.h"
 #include "../Node.h"
-#include "../Reason.h"
+#include <Macaroni/Model/Reason.h>
 #include "Scope.h"
 #include "ScopeMember.h"
 #include "Variable.h"

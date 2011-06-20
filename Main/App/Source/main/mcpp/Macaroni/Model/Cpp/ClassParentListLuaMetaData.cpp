@@ -8,7 +8,7 @@
 #include <Macaroni/Model/Node.h>
 #include <Macaroni/Model/NodeLua.h>
 #include <Macaroni/Model/NodeListLua.h>
-#include <Macaroni/Model/ReasonLua.h>
+#include <Macaroni/Model/ReasonLuaMetaData.h>
 #include <sstream>
 
 #define LUAGLUE_STARTNAMESPACE			BEGIN_NAMESPACE(Macaroni, Model, Cpp)

@@ -7,7 +7,7 @@
 #include "../Cpp/Namespace.h"
 #include "../Node.h"
 #include "Primitive.h"
-#include "../Reason.h"
+#include <Macaroni/Model/Reason.h>
 #include "../Source.h"
 #include <sstream>
 

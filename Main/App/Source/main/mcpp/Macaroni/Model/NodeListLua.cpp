@@ -8,7 +8,7 @@
 #include "Node.h"
 #include "NodeLua.h"
 #include "NodeListLua.h"
-#include "ReasonLua.h"
+#include <Macaroni/Model/ReasonLuaMetaData.h>
 #include <sstream>
 #include "Cpp/VariableLua.h"
 

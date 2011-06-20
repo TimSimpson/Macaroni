@@ -7,7 +7,7 @@
 #include "AnnotationValueLua.h"
 #include "Node.h"
 #include "NodeLua.h"
-#include "ReasonLua.h"
+#include <Macaroni/Model/ReasonLuaMetaData.h>
 #include <sstream>
 
 #define LUAGLUE_STARTNAMESPACE BEGIN_NAMESPACE2(Macaroni, Model)
