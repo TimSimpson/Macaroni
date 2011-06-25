@@ -43,10 +43,11 @@ namespace Macaroni::Build {
 
 /** Governs the main execution routine of Macaroni.  The command line
  * has a few options other than just building the project, which 
- * are sorted through here.
+ * are sorted through here. 
  */
 class CmdLine
 {			
+	private bool about;
 	private bool build;
 	private bool cavatappiMode;	
 	private bool clean;
@@ -65,10 +66,11 @@ class CmdLine
 	private string outputPath;
 	private bool saveCppSource;
 	private bool startPrompt;
-	private bool test;
-	
+	private bool test;	
+
 	public CmdLine(const VectorOfConstString & args, Console & console)
-	:	build(false),
+	:	about(false),
+	    build(false),
 		cavatappiMode(false),	    
 		clean(false),
 	    config(""),
@@ -107,6 +109,7 @@ class CmdLine
 		config = "";
 		luaTestsPath = "";
 	}	
+	
 
 	private bool pathContains(vector<path> & paths, path & path)
 	{
@@ -189,7 +192,12 @@ class CmdLine
 
 	public bool Execute()
 	{
-		if (!luaTestsPath.empty())
+		if (about)
+		{
+			printAboutText();
+			return true;
+		}
+		else if (!luaTestsPath.empty())
 		{
 			// Runs the unit for Macaroni.
 			runLuaTests();
@@ -205,15 +213,19 @@ class CmdLine
 		}
 		else
 		{
-			// Reads project information and runs one or more of the sztages
+			// Reads project information and runs one or more of the stages
 			// of Macaroni's build cycle.
 			return runManifest();
 		}
-	}
+	}	
 
 	private void parseArg(const string & arg, const string & next)
 	{
-		if (arg == "cavatappi")
+		if (arg == "about")
+		{			
+			about = true;
+		}
+		else if (arg == "cavatappi")
 		{
 			cavatappiMode = true;
 		}
@@ -235,7 +247,7 @@ class CmdLine
 		else if (arg == "build")
 		{
 			build = true;
-		}
+		}		
 		else if (arg == "debug")
 		{
 			debugMode = true;
@@ -335,6 +347,13 @@ class CmdLine
             std::string stuff;
             std::cin >> stuff;
         }
+	}
+
+	private void printAboutText()
+	{		
+		console.WriteLine(
+		#include <Macaroni/AboutText>
+			);
 	}
 
 	private void runLuaTests()

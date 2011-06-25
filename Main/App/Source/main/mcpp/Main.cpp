@@ -61,10 +61,9 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 #ifdef COMPILE_TARGET_TESTS
 	//return init_unit_tests();//main(argc, nullptr);
 #endif
-	std::cout << MACARONI_FILE_DESCRIPTION << std::endl;
-	std::cout << MACARONI_COPYRIGHT << std::endl;
+	std::cout << MACARONI_FILE_DESCRIPTION << std::endl;	
 	std::cout << "Version " << MACARONI_VERSION_STRING << 
-		" built at " << BUILD_TIMESTAMP_LOCAL << std::endl;
+		" built at " << BUILD_TIMESTAMP_LOCAL << std::endl;	
 	std::cout << std::endl;
 
 	std::vector<MACARONI_VE_CONST std::string> convertedArgs;
