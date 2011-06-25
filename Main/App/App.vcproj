@@ -796,10 +796,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Cpp.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\main\mcpp\Macaroni\Parser\Cpp\CppAxiom.h"
 				>
 			</File>
@@ -1052,10 +1048,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Parser.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Source\main\mcpp\Macaroni\Model\ParserException.h"
 				>
 			</File>
@@ -1283,6 +1275,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Source\test\lua\Macaroni\Model\AnnotationTests.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\test\lua\Macaroni\Model\AxiomTests.lua"
+			>
+		</File>
+		<File
 			RelativePath=".\Source\main\mcpp\Macaroni\Build\BuildContext.mcpp"
 			>
 		</File>
@@ -1303,11 +1303,19 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Source\test\lua\Macaroni\Model\Cpp\ClassTests.lua"
+			>
+		</File>
+		<File
 			RelativePath=".\Source\main\mcpp\Macaroni\Build\CmdLine.mcpp"
 			>
 		</File>
 		<File
 			RelativePath=".\Source\main\mcpp\Macaroni\CmdLine\CmdLineOption.mcpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\test\lua\Macaroni\Model\ContextTests.lua"
 			>
 		</File>
 		<File
@@ -1332,6 +1340,10 @@
 		</File>
 		<File
 			RelativePath=".\Source\main\mcpp\Macaroni\Model\FileName.mcpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\test\lua\Macaroni\Model\FileNameTests.lua"
 			>
 		</File>
 		<File
@@ -1363,11 +1375,43 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Source\test\lua\Macaroni\Model\MemberTests.lua"
+			>
+		</File>
+		<File
 			RelativePath=".\Source\main\resources\Messages.txt"
 			>
 		</File>
 		<File
+			RelativePath=".\Source\test\lua\Macaroni\Model\NodeListTests.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\test\lua\Macaroni\Model\NodeTests.lua"
+			>
+		</File>
+		<File
 			RelativePath=".\Source\main\pureCppExtraFiles\ReadMe.txt"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\main\mcpp\Macaroni\Model\Reason.mcpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\test\lua\Macaroni\Model\ReasonTests.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\test\lua\Macaroni\Model\Cpp\ScopeTests.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\main\mcpp\Macaroni\Model\Source.mcpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\test\lua\Macaroni\Model\SourceTests.lua"
 			>
 		</File>
 		<File
@@ -1383,7 +1427,27 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Source\test\lua\Macaroni\Model\TypeArgumentListTests.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\test\lua\Macaroni\Model\TypeArgumentTests.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\test\lua\Macaroni\Model\TypeListTests.lua"
+			>
+		</File>
+		<File
 			RelativePath=".\Source\main\mcpp\Macaroni\Model\TypeModifiers.mcpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\main\mcpp\Macaroni\Model\TypeParameters.mcpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\test\lua\Macaroni\Model\TypeTests.lua"
 			>
 		</File>
 	</Files>
