@@ -1,3 +1,18 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #ifndef MACARONI_PARSER_PIPPY_PIPPYPARSER_CPP
 #define MACARONI_PARSER_PIPPY_PIPPYPARSER_CPP
 
@@ -2441,7 +2456,6 @@ public:
 			FunctionOverloadPtr fOl = 
 				FunctionOverload::Create(foNode, isInline, access, isStatic, 
 										 type, constMember, fReason);
-			//isInline, access, isStatic, type, constMember,
 			if (codeAttached)
 			{
 				fOl->SetCodeBlock(codeBlock, startOfCodeBlock.GetSource());
@@ -2474,82 +2488,6 @@ public:
 		
 		return true;
 	}
-
-	/////** Attempts to parse a variable's type information.
-	//// * expects: [const] [typeComplexName] [const] [*] [const] [&]
- ////    */
-	////bool VariableType(Iterator & itr, TypeInfo & info)
-	////{
-	////	info = TypeInfo();
-
-	////	ConsumeWhitespace(itr);		
-	////	if (itr.ConsumeWord("const"))
-	////	{
-	////		info.IsConst = true;
-	////		ConsumeWhitespace(itr);
-	////	}
-
-	////	if (!ConsumeNodeName(itr, info.Node))
-	////	{
-	////		if (info.IsConst)
-	////		{
-	////			// If we saw const, they're committed.
-	////			throw ParserException(itr.GetSource(),
-	////			Messages::Get("CppParser.Variable.ConstMaybeBeforeVar")); 
-	////		}
-	////		else
-	////		{
-	////			// Didn't see false and that didn't look like a typename, so
-	////			// we're fine.
-	////			return false;
-	////		}
-	////	}
-	////	
-	////	// At this point, we're committed.
-
-	////	if (!info.Node)
-	////	{
-	////		throw ParserException(itr.GetSource(),
-	////			Messages::Get("CppParser.Variable.UnknownTypeName")); 
-	////	}
-
-	////	ConsumeWhitespace(itr);
-	////	if (itr.ConsumeWord("const"))
-	////	{
-	////		if (info.IsConst)
-	////		{
-	////			// Appeared twice!? How dare it!
-	////			throw ParserException(itr.GetSource(0, -5),
-	////				Messages::Get("CppParser.Variable.ConstSeenTwice")); 
-	////		}
-	////		info.IsConst = true;
-	////		ConsumeWhitespace(itr);
-	////	}
-
-	////	// Now, we check for reference.
-	////	if (itr.ConsumeChar('*'))
-	////	{
-	////		info.IsPointer = true;
-	////		ConsumeWhitespace(itr);
-	////		if (itr.ConsumeWord("const"))
-	////		{
-	////			info.IsConstPointer = true;				
-	////			ConsumeWhitespace(itr);
-	////		}
-	////	}
-
-	////	// Now, we check for reference.
-	////	if (itr.ConsumeChar('&'))
-	////	{
-	////		info.IsReference = true;
-	////		ConsumeWhitespace(itr);
-	////	}
-
-	////	// At this point, we've seen all we can of the type info.
-	////	return true;
-
-	////}
-
 
 	static void RunTests()
 	{
@@ -2588,45 +2526,7 @@ int PippyParser::Read(Model::LibraryPtr l, Model::SourcePtr source, const std::s
 	{
 		throw ParserException(mie.GetSource(), mie.GetMessage());
 	}
-
-	/*typedef std::string::const_iterator iteratorType;
-    typedef complexDecls<iteratorType> complexDecls;
-	complexDecls grammar;
-
-	std::string::const_iterator iter = text.begin();
-    std::string::const_iterator end = text.end();
-    bool r = phrase_parse(iter, end, grammar, space);
-
-	if (r && iter == end)
-    {
-        std::cout << "-------------------------\n";
-        std::cout << "Parsing succeeded\n";
-        std::cout << "-------------------------\n";
-    }
-    else
-    {
-        std::string rest(iter, end);
-        std::cout << "-------------------------\n";
-        std::cout << "Parsing failed\n";
-        std::cout << "stopped at: \": " << rest << "\"\n";
-        std::cout << "-------------------------\n";
-    }*/
-	/*
-	DocumentGrammar cppGrammar;
-
-	const char * c_str = text.c_str();
-	typedef position_iterator<char const*> iterator_t;
-	iterator_t begin(c_str, 
-					 c_str + text.length(), 
-					 source->GetFileName()->GetName().c_str());
-	iterator_t end;
-
-	parse_info<iterator_t> info = parse(
-		//text.c_str(),
-		begin, end,
-		cppGrammar,
-		space_p);
-	*/
+	
 	return 1;
 }
 

@@ -1,3 +1,18 @@
+--------------------------------------------------------------------------------
+-- Copyright 2011 Tim Simpson
+--
+-- Licensed under the Apache License, Version 2.0 (the "License");
+-- you may not use this file except in compliance with the License.
+-- You may obtain a copy of the License at
+--
+--    http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing, software
+-- distributed under the License is distributed on an "AS IS" BASIS,
+-- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-- See the License for the specific language governing permissions and
+-- limitations under the License.
+--------------------------------------------------------------------------------
 require "Macaroni.Model.Cpp.Access";
 require "Cpp/Common";
 require "Cpp/ClassFileGenerator";
@@ -361,30 +376,7 @@ ClassCppFileGenerator = {
     end,
     
     writeUsing = function(self, import) 
-        self:write(NodeInfoList[import].using);
-    --[[
-        if (import.Node.IsRoot) then
-            -- Avoid writing using statements for Nodes belonging to ROOT.
-            return;
-        end
-        local statement = nil;
-        local generateWarning = true;
-        if (import.Member ~= nil) then
-            if (import.Member.TypeName == TypeNames.Class 
-                or import.Member.TypeName == TypeNames.Typedef) then
-                statement = "using " .. import:GetPrettyFullName("::") .. ";\n";
-            elseif (import.Member.TypeName == TypeNames.Primitive) then
-                generateWarning = false;
-            end            
-        end
-        if (statement == nil) then
-            if (generateWarning) then 
-                statement = "/* ~ <(I don't know how to generate a using statement for " .. tostring(import) .. ".) */\n";
-            else
-                statement = "";
-            end
-        end
-        self:write(statement);]]--
+        self:write(NodeInfoList[import].using);    
     end,       
     
     usingStatements = function(self)
