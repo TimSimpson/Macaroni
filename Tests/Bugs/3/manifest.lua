@@ -38,7 +38,8 @@ description= [[
 	The issue is I have no idea how to tell Macaroni that in some cases
 	Node used by a Type can be a light dependency.
 	
-	Hmm...
+	If I could somehow tell it that "boost::smart_ptr" can have nothing
+	but light deps that's be cool.'
 	
 ]]
 
