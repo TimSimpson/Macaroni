@@ -20,6 +20,7 @@ CppAxioms.TypedefCreation=Typedef is created by typedef keyword.
 CppAxioms.VariableScopeCreation=Variable definition encountered.
 
 # C++ Parser Exception Messages
+CppParser.Access.KeyWordSeenTwice=An access keyword was seen twice.
 CppParser.Annotation.AnnotationFoundOutsideOfAnyScope=An attribute (or '@' symbol) was found outside of any Node scope.  An attribute must be attached to a Node.
 CppParser.Annotation.EndBracketOrSimpleNameExpectedInsideAnnotationTable=Either an ']' or a simple name for a table entry (no "::") was expected inside the attribute table.
 CppParser.Annotation.CodeBlockExpectedAfterEquals=A code block was expected right after the equals sign.
@@ -73,6 +74,7 @@ CppParser.Variable.PublicGlobalStaticMakesNoSense=A public global static does no
 CppParser.Variable.SemicolonExpected=Expected ';' following variable identifier.
 CppParser.Variable.StaticNotAllowedForArg=Keyword "static" is not allowed for function arguments.
 CppParser.Variable.UnknownTypeName=Unknown type name for variable.  Are you missing an import statement or forward declaration?
+CppParser.Variable.VirtualNotAllowedForArg=Keyword "virtual" not allowed for function arguments.
 
 MacaroniAxioms.Annotation.Definition.Implicit=Annotations may be implicitly defined during use.
 

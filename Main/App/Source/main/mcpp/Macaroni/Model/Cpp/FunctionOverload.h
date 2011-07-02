@@ -22,17 +22,22 @@ friend void intrusive_ptr_release(FunctionOverload * p);
 public:
 	static FunctionOverloadPtr Create(NodePtr home, bool isInline, 
 									  const AccessPtr access, 
-									  const bool isStatic, const TypePtr rtnType, 
-									  bool constMember, Model::ReasonPtr reason);
+									  const bool isStatic, bool isVirtual,
+									  const TypePtr rtnType, 
+									  bool constMember, 
+									  Model::ReasonPtr reason);
 
 	static FunctionOverloadPtr Create(FunctionPtr home, bool isInline, 
 									  const AccessPtr access, 
-									  const bool isStatic, const TypePtr rtnType, 
+									  const bool isStatic, bool isVirtual,
+									  const TypePtr rtnType, 									  
 									  bool constMember, Model::ReasonPtr reason);
 
 	static FunctionOverloadPtr Create(Function * home, bool isInline, 
 									  const AccessPtr access, 
-									  const bool isStatic, const TypePtr rtnType, 
+									  const bool isStatic, 
+									  bool isVirtual,
+									  const TypePtr rtnType,
 									  bool constMember, Model::ReasonPtr reason);
 
 	virtual ~FunctionOverload();
@@ -62,6 +67,11 @@ public:
 		return isInline;
 	}
 
+	inline bool IsVirtual() const
+	{
+		return isVirtual;
+	}
+
 	/** Attaches code to this function. If code was already attached, throws a
 	 * ModelInconsistencyException. */
 	void SetCodeBlock(std::string & code, SourcePtr startOfCode);
@@ -71,9 +81,9 @@ public:
 protected:
 	//FunctionOverload(Node home, bool isInline, const Access access, const bool isStatic, const TypePtr rtnType, bool constMember, Model::ReasonPtr reason);
 	
-	FunctionOverload(Node * home, Model::ReasonPtr reason, bool isInline, Access access, const bool isStatic, const TypePtr rtnTypeInfo, bool constMember);
+	FunctionOverload(Node * home, Model::ReasonPtr reason, bool isInline, Access access, const bool isStatic, bool isVirtual, const TypePtr rtnTypeInfo, bool constMember);
 
-	FunctionOverload(Node * home, const char * typeName, Model::ReasonPtr reason, bool isInline, Access access, const bool isStatic, const TypePtr rtnTypeInfo, bool constMember);
+	FunctionOverload(Node * home, const char * typeName, Model::ReasonPtr reason, bool isInline, Access access, const bool isStatic, bool isVirtual, const TypePtr rtnTypeInfo, bool constMember);
 
 	virtual bool canBeChildOf(const Member * other) const;
 
@@ -88,6 +98,8 @@ private:
 	bool constMember;
 
 	const bool isInline;
+
+	const bool isVirtual;
 
 	Macaroni::Model::ReasonPtr reasonCreated;
 

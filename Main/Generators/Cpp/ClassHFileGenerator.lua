@@ -302,8 +302,11 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
     				return
     			end
     		end
-    		self:writeTabs();
+    		self:writeTabs();    		
             self:writeAccess(node.Member.Access);
+            if (node.Member.Virtual) then
+    			self:write("virtual ");
+    		end
         else
 			self:writeTabs();
         end                

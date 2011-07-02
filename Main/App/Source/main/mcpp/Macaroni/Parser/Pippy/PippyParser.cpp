@@ -759,9 +759,9 @@ public:
 			{
 				access = Access::Private();
 			}			
-			itr.ConsumeWhitespace();
 
-			bool _virtual = itr.ConsumeWord("virtual");
+			bool _virtual = VirtualKeyword(itr);
+
 			itr.ConsumeWhitespace();
 
 			TypePtr type;
@@ -883,14 +883,20 @@ public:
 
 		Iterator newItr = itr;
 		
-		AccessPtr access = AccessKeyword(newItr);
-		
-		if ((*access) == (*(Access::NotSpecified())))
+		AccessPtr access = Access::NotSpecified();		
+		bool isInline = false;		
+		bool isVirtual = false;
+		while(
+			(*access == *Access::NotSpecified()
+			&& *(access = AccessKeyword(newItr)) != *Access::NotSpecified())
+			|| (!isInline && (isInline = InlineKeyword(newItr)))
+			|| (!isVirtual && (isVirtual = VirtualKeyword(newItr)))
+			)
 		{
-			access = Access::Private();
+			//       ~Dog
+			// ^._.^
+			//  _[[_)(_
 		}
-
-		bool isInline = InlineKeyword(newItr);
 
 		ConsumeWhitespace(newItr);
 		bool tilda = false;
@@ -949,6 +955,7 @@ public:
 		else
 		{
 			DestructorPtr dtor = Destructor::Create(ctorNode,  isInline, access,
+				isVirtual, 
 				Reason::Create(CppAxioms::DtorCreation(), itr.GetSource()));
 			fOlPtr = dtor->GetFunctionOverload();
 		}
@@ -1708,11 +1715,12 @@ public:
 			bool isInline;
 			std::string initializer;
 			bool isStatic;
+			bool isVirtual;
 			TypePtr type;
 			std::string argName;
 			if ((seenArg && !itr.ConsumeChar(','))
 				||
-				!Variable(itr, access, _friend, global, isInline, isStatic, type, argName))
+				!Variable(itr, access, _friend, global, isInline, isStatic, isVirtual, type, argName))
 			{
 				throw ParserException(itr.GetSource(),
 				Messages::Get("CppParser.Function.ExpectedEndingParenthesis"));
@@ -1741,6 +1749,11 @@ public:
 			{
 				throw ParserException(oldItr.GetSource(),
 					"CppParser.Variable.StaticNotAllowedForArg");
+			}
+			if (isVirtual)
+			{
+				throw ParserException(oldItr.GetSource(),
+					"CppParser.Variable.VirtualNotAllowedForArg");
 			}
 
 			NodePtr node = currentScope->FindOrCreate(argName);
@@ -2274,6 +2287,7 @@ public:
 	 */
 	bool Variable(Iterator & itr, AccessPtr & access, bool & _friend, 
 				  bool & global, bool & isInline, bool & isStatic, 
+				  bool & isVirtual,
 				  TypePtr & type, std::string & varName)
 	{
 		using namespace Macaroni::Model::Cpp;
@@ -2283,6 +2297,7 @@ public:
 		global = false;
 		isInline = false;		
 		isStatic = false;
+		isVirtual = false;
 		while(
 				(*access == *Access::NotSpecified()
 					&& *(access = AccessKeyword(itr)) != *Access::NotSpecified())
@@ -2290,6 +2305,7 @@ public:
 				|| (!global && (global = GlobalKeyword(itr)))
 				|| (!isInline && (isInline = InlineKeyword(itr)))
 				|| (!isStatic && (isStatic = StaticKeyword(itr)))
+				|| (!isVirtual && (isVirtual = VirtualKeyword(itr)))
 			  )
 		{
 			//       ~Monkey
@@ -2340,11 +2356,13 @@ public:
 		bool global;
 		bool isInline;
 		bool isStatic;
+		bool isVirtual;
 		TypePtr type;
 		std::string varName;
 		Iterator oldItr = itr; // Save it in case we need to define where the
 							   // var definition began.
-		if (!Variable(itr, access, _friend, global, isInline, isStatic, type, varName))
+		if (!Variable(itr, access, _friend, global, isInline, isStatic, 
+			          isVirtual, type, varName))
 		{
 			if (global)
 			{
@@ -2455,7 +2473,7 @@ public:
 			FunctionPtr function = Function::Create(node, fReason);
 			FunctionOverloadPtr fOl = 
 				FunctionOverload::Create(foNode, isInline, access, isStatic, 
-										 type, constMember, fReason);
+				                         isVirtual, type, constMember, fReason);
 			if (codeAttached)
 			{
 				fOl->SetCodeBlock(codeBlock, startOfCodeBlock.GetSource());
@@ -2487,6 +2505,12 @@ public:
 		}
 		
 		return true;
+	}
+
+	bool VirtualKeyword(Iterator & itr)
+	{
+		itr.ConsumeWhitespace();
+		return itr.ConsumeWord("virtual");
 	}
 
 	static void RunTests()

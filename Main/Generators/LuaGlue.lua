@@ -805,7 +805,16 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 		t[#t + 1] = "\t{";	
 		t[#t + 1] = "\t\t// Assume Lua will pass in table as first argument.";	
 		t[#t + 1] = "\t\tstd::string index(luaL_checkstring(L, 2));";
-		t[#t + 1] = "\t\treturn " .. metaNodeName .. "::GlobalIndex(L, index);"
+		t[#t + 1] = "\t\tint rtnCount = " .. metaNodeName .. "::GlobalIndex(L, index);"
+		t[#t + 1] = "\t\tif (rtnCount > 0)";
+		t[#t + 1] = "\t\t{";
+		t[#t + 1] = "\t\t\treturn rtnCount;";
+		t[#t + 1] = "\t\t}";
+		t[#t + 1] = "\t\telse";
+		t[#t + 1] = "\t\t{";
+		t[#t + 1] = "\t\t\tlua_pushnil(L);";
+		t[#t + 1] = "\t\t\treturn 1;";
+		t[#t + 1] = "\t\t}";
 		t[#t + 1] = "\t}";	
 		return table.concat(t, "\n\t");	
 	end,
@@ -844,7 +853,17 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 		t[#t + 1] = "\t\tLUA_GLUE_TRY";	
 		t[#t + 1] = "\t\t" .. args.referenceType.FullName .. " & ptr = " .. metaNodeName ..  "::GetInstance(L, 1);";
 		t[#t + 1] = "\t\tstd::string index(luaL_checkstring(L, 2));";
-		t[#t + 1] = "\t\treturn " .. metaNodeName .. "::Index(L, ptr, index);"
+		t[#t + 1] = "\t\tint rtnCount = " .. metaNodeName .. "::Index(L, ptr, index);"
+		t[#t + 1] = "\t\tif (rtnCount > 0)";
+		t[#t + 1] = "\t\t{";
+		t[#t + 1] = "\t\t\treturn rtnCount;";
+		t[#t + 1] = "\t\t}";
+		t[#t + 1] = "\t\telse";
+		t[#t + 1] = "\t\t{";
+		t[#t + 1] = "\t\t\tlua_pushnil(L);";
+		t[#t + 1] = "\t\t\treturn 1;";
+		t[#t + 1] = "\t\t}";
+		
 		t[#t + 1] = "\t\tLUA_GLUE_CATCH";
 		t[#t + 1] = "\t}";	
 		return table.concat(t, "\n\t");	
@@ -1059,6 +1078,7 @@ namespace
 				end
 				t[#t + 1] = '{';
 				t[#t + 1] = '\tlua_pushcfunction(L, ' .. self.helperName .. '::' .. node.Node.Name .. ');';
+				t[#t + 1] = '\treturn 1;';
 				t[#t + 1] = '}';					
 			end
 			local getters = self.parent:findAllGettersInNode(self.originalNode, not isInstance);
@@ -1077,17 +1097,17 @@ namespace
 				for j = 1, #getCode do
 					t[#t + 1] = getCode[j];
 				end				
+				t[#t + 1] = '\treturn 1;';
 				t[#t + 1] = '}';					
 			end
 			if not first then
 				t[#t + 1] = 'else'
 				t[#t + 1] = '{'
 			end
-			t[#t + 1] = "\tlua_pushnil(L);"
+			t[#t + 1] = "\treturn 0;"
 			if not first then
 				t[#t + 1] = '}'	
-			end
-			t[#t + 1] = 'return 1;'	
+			end			
 			
 			return table.concat(t, "\n\t");		
 		end,
@@ -1136,9 +1156,9 @@ namespace
 			local rtnType = Type.New(self.parent.Creators.intNode, { });
 			log:Write("Going to create Index " .. methodName);
 			local func = Function.Create(node, self.reason);			
-			local fo1 = FunctionOverload.Create(func, false, Access.Public, true, 
-									   rtnType,
-									   false, self.reason);
+			local fo1 = FunctionOverload.Create(func, false, Access.Public, 
+			                                    true, false, rtnType,
+									            false, self.reason);
 			local dotGet = '->';
 			func = node.Member;		
 			local arg1 = fo1.Node:FindOrCreate("L");		
@@ -1178,7 +1198,7 @@ namespace
 			log:Write("Going to create IsType.");
 			local func = Function.Create(node, self.reason);			
 			fo = FunctionOverload.Create(func, false, Access.Public, true, 
-										 rtnType,
+										 false, rtnType,
 										 false, self.reason);			
 			func = node.Member;
 			local arg1 = fo.Node:FindOrCreate("L");		
@@ -1219,9 +1239,9 @@ namespace
 			local rtnType = Type.New(self.parent.Creators.intNode, { });
 			log:Write("Going to create IsType.");
 			local func = Function.Create(node, self.reason);			
-			local fo1 = FunctionOverload.Create(func, false, Access.Public, true, 
-										   rtnType,
-										   false, self.reason);
+			local fo1 = FunctionOverload.Create(func, false, Access.Public, 
+			                                    true, false, rtnType,
+										        false, self.reason);
 			func = node.Member;		
 			local arg1 = fo1.Node:FindOrCreate("L");		
 			local arg1Type = Type.New(self.lua_StateNode, { Pointer = true });
@@ -1256,9 +1276,9 @@ namespace
 			local rtnType = Type.New(self.referenceType, { Reference = true });
 			log:Write("Going to create IsType.");		
 			local func = Function.Create(node, self.reason);			
-			local fo1 = FunctionOverload.Create(func, false, Access.Public, true, 
-										   rtnType,
-										   false, self.reason);
+			local fo1 = FunctionOverload.Create(func, false, Access.Public, 
+			                                    true, false, rtnType,
+										        false, self.reason);
 			func = node.Member;		
 			local arg1 = fo1.Node:FindOrCreate("L");		
 			local arg1Type = Type.New(self.lua_StateNode, { Pointer = true });
@@ -1286,9 +1306,9 @@ namespace
 			local rtnType = Type.New(self.parent.Creators.boolNode, { });
 			log:Write("Going to create NewIndex.");
 			local func = Function.Create(node, self.reason);			
-			local fo1 = FunctionOverload.Create(func, false, Access.Public, true, 
-									   rtnType,
-									   false, self.reason);
+			local fo1 = FunctionOverload.Create(func, false, Access.Public, 
+			                                    true, false, rtnType,
+									            false, self.reason);
 			func = node.Member;		
 			local arg1 = fo1.Node:FindOrCreate("L");		
 			local arg1Type = Type.New(self.lua_StateNode, { Pointer = true });
@@ -1318,9 +1338,9 @@ namespace
 			local rtnType = Type.New(self.parent.Creators.voidNode, { });
 			log:Write("Going to create putInstanceOnStack.");		
 			local func = Function.Create(node, self.reason);			
-			local fo1 = FunctionOverload.Create(func, false, Access.Public, true, 
-										   rtnType,
-										   false, self.reason);
+			local fo1 = FunctionOverload.Create(func, false, Access.Public, 
+			                                    true, false, rtnType,
+										        false, self.reason);
 			func = node.Member;		
 			local arg1 = fo1.Node:FindOrCreate("L");		
 			local arg1Type = Type.New(self.lua_StateNode, { Pointer = true });		

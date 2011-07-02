@@ -39,7 +39,8 @@ namespace
 };
 
 ConstructorOverload::ConstructorOverload(Node * home, Model::ReasonPtr reason, bool isInline, Access access)
-:FunctionOverload(home, "ConstructorOverload", reason, isInline, access, true, voidTypeInfo(home), false), 
+:FunctionOverload(home, "ConstructorOverload", reason, isInline, access, true, 
+				  false, voidTypeInfo(home), false), 
  assignments()
 {
 }

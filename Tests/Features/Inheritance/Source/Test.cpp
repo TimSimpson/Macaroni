@@ -13,15 +13,22 @@ BOOST_AUTO_TEST_CASE(MyTestCase)
 {			
 	A a;	
 	BOOST_CHECK_EQUAL(a.MethodA(), 'a');
+	BOOST_CHECK_EQUAL(a.MethodVA(), "va");
 	
 	B b;
 	BOOST_CHECK_EQUAL(b.MethodB(), 'b');
 	BOOST_CHECK_EQUAL(b.MethodA(), 'a');
+	BOOST_CHECK_EQUAL(b.MethodVA(), "va");
+	BOOST_CHECK_EQUAL(b.MethodVB(), "vb");
 	
 	C c;
 	BOOST_CHECK_EQUAL(c.MethodC(), 'c');
 	BOOST_CHECK_EQUAL(c.MethodA(), 'a');
 	
+	VB vb;
+	BOOST_CHECK_EQUAL(vb.MethodVB(), 'x');
+	BOOST_CHECK_EQUAL(vb.MethodVA(), "override-a");
+		
 	BC bc;
 	//BOOST_CHECK_EQUAL(bc.MethodA(), 'a'); -- is ambigious
 	BOOST_CHECK_EQUAL(bc.B::MethodA(), 'a');

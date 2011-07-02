@@ -1,13 +1,23 @@
+~import std::string;
 
 ~import A;
 ~import B;
-
 	
 class A
 {
 	public char MethodA() const
 	{
 		return 'a';
+	}
+	
+	public virtual string MethodVA() const
+	{
+		return "va";
+	}
+	
+	public virtual ~A()
+	{
+		
 	}
 }
 
@@ -17,6 +27,11 @@ class B: public A
 	{
 		return 'b';
 	}
+	
+	public virtual string MethodVB() const
+	{
+		return "vb";
+	}
 }
 
 class VB: public virtual A
@@ -24,6 +39,11 @@ class VB: public virtual A
 	public char MethodVB() const
 	{
 		return 'x';
+	}
+	
+	public virtual string MethodVA() const
+	{
+		return "override-a";
 	}
 }
 

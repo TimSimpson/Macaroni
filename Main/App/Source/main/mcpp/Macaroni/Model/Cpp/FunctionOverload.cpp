@@ -14,7 +14,8 @@ BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 FunctionOverload::FunctionOverload
 (
  Node * home, Model::ReasonPtr reason, bool isInline, 
- Access access, const bool isStatic, const TypePtr rtnTypeInfo, bool constMember
+ Access access, const bool isStatic, bool isVirtual, 
+ const TypePtr rtnTypeInfo, bool constMember
 )
 :ScopeMember(home, "FunctionOverload", 
 			 reason, access, isStatic),
@@ -22,6 +23,7 @@ FunctionOverload::FunctionOverload
  codeBlock(),
  constMember(constMember),
  isInline(isInline),
+ isVirtual(isVirtual),
  returnType(rtnTypeInfo)
 {	
 }
@@ -29,7 +31,8 @@ FunctionOverload::FunctionOverload
 FunctionOverload::FunctionOverload
 (
  Node * home, const char * typeName, Model::ReasonPtr reason, bool isInline, 
- Access access, const bool isStatic, const TypePtr rtnTypeInfo, bool constMember
+ Access access, const bool isStatic, bool isVirtual, 
+ const TypePtr rtnTypeInfo, bool constMember
 )
 :ScopeMember(home, typeName, 
 			 reason, access, isStatic),
@@ -37,6 +40,7 @@ FunctionOverload::FunctionOverload
  codeBlock(),
  constMember(constMember),
  isInline(isInline),
+ isVirtual(isVirtual),
  returnType(rtnTypeInfo)
 {	
 }
@@ -48,36 +52,39 @@ FunctionOverload::~FunctionOverload()
 FunctionOverloadPtr FunctionOverload::Create(FunctionPtr home, 
 											 bool isInline, const AccessPtr access, 
 											 const bool isStatic, 
+											 bool isVirtual,
 											 const TypePtr rtnType, 
 											 bool constMember, 
 											 Model::ReasonPtr reason)
 {
 	Function * fn = home.get();
-	return Create(fn, isInline, access, isStatic, rtnType, constMember, reason);
+	return Create(fn, isInline, access, isStatic, isVirtual, rtnType, constMember, reason);
 }
 
 FunctionOverloadPtr FunctionOverload::Create(Function * fn, 
 											 bool isInline, const AccessPtr access, 
 											 const bool isStatic, 
+											 bool isVirtual,
 											 const TypePtr rtnType, 
 											 bool constMember, 
 											 Model::ReasonPtr reason)
 {	
 	Node * node = fn->GetNode().get();
 	NodePtr foNode = node->CreateNextInSequence("Overload#");	
-	return Create(foNode, isInline, access, isStatic, rtnType, constMember, reason);	
+	return Create(foNode, isInline, access, isStatic, isVirtual, rtnType, constMember, reason);	
 }
 
 FunctionOverloadPtr FunctionOverload::Create(NodePtr foNode, 
 											 bool isInline, const AccessPtr access, 
 											 const bool isStatic, 
+											 bool isVirtual,
 											 const TypePtr rtnType, 
 											 bool constMember, 
 											 Model::ReasonPtr reason)
 {		
 	FunctionOverload * fo = new FunctionOverload(foNode.get(), reason, 
 		isInline, *access,
-		isStatic, rtnType, constMember);
+		isStatic, isVirtual, rtnType, constMember);
 	return FunctionOverloadPtr(fo);
 }
 

@@ -7,3 +7,6 @@ target
 .vagrant
 .eprj
 Main/App/Debug*
+Main/Generators/Debug*
+Main/Libraries/Debug*
+Main/App/Ubuntu_GS*
