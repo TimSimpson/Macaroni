@@ -286,6 +286,10 @@
 			RelativePath=".\Site.lua"
 			>
 		</File>
+		<File
+			RelativePath=".\VCpp\VCpp.lua"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

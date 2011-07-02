@@ -85,7 +85,18 @@ jamArgs =
 	};
 		
 function build()
-	print("I is build method.\n");
+	require "Macaroni.IO.Path"
+	Path = Macaroni.IO.Path;
+	filePath = Path.New(manifestDirectory):NewPathForceSlash("LuaTest.vcproj")
+	
+	print("__FILE__ == " .. tostring(filePath))
+	run("Vcpp/Vcpp", {
+		    ProjectFile=filePath.AbsolutePath,
+			ProjectGUID="FD133633-4AB0-4068-BDD9-A2A343751345",
+			RootNamespace="Macaroni::Tests::Lua",
+			PlatformNames={"Win32"}
+		})
+	
 	run("BoostBuild", jamArgs)
 end
 
