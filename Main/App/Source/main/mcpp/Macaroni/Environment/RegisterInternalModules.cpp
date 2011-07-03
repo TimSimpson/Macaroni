@@ -42,7 +42,6 @@
 #include "../Parser/ParserLua.h"
 #include "../Parser/ParserExceptionLua.h"
 #include "../IO/PathLua.h"
-#include "../Parser/Cpp/CppParserLua.h"
 #include "../IO/Paths.h"
 #include "../Parser/Pippy/PippyParserLua.h"
 #include <Macaroni/Model/SourceLuaMetaData.h>

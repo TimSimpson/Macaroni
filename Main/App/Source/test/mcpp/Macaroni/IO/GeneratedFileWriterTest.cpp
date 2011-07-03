@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_SUITE(GeneratedFileWriterSuite)
 
 static void createFile(path filePath, bool happiness)
 {
-	ofstream file(filePath.native_file_string().c_str());
+	ofstream file(filePath.string().c_str());
 	file << "Hello" << std::endl <<
 		(happiness ? ":)" : ":(") << std::endl <<
 		"Do not delete or modify this file; it is used to as part of a unit test.";
@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE(when_using_a_GeneratedFileWriter_to_write_over_an_empty_fil
 {	
 	const boost::filesystem::path filePath("TestFile.txt");
 
-	ofstream file(filePath.native_file_string().c_str());
+	ofstream file(filePath.string().c_str());
 	file.close();
 
 	// This is to catch a case where the GeneratedFileWriter isn't overwritting 
