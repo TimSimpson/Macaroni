@@ -16,7 +16,7 @@
 ~import boost::to_lower;
 ~import std::string;
 
-namespace Macaroni::Platform::Windows {
+namespace Macaroni::Platform {
 
 class EnvironmentVariable
 {

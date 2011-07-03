@@ -138,7 +138,9 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 #ifdef MACARONI_COMPILE_TARGET_LINUX
 
 // This hack facilitates Macaroni::IO::Paths::GetExePath.
+namespace Macaroni { namespace IO { 
 std::string CURRENT_EXE_PATH; 
+} };
 
 int main(int argc, const char * argv[])
 {	
@@ -148,7 +150,7 @@ int main(int argc, const char * argv[])
 		return -500; // Negative 500 is super bad.
 	}
 	
-	CURRENT_EXE_PATH = argv[0];
+	Macaroni::IO::CURRENT_EXE_PATH = argv[0];
 
 	std::vector<MACARONI_VE_CONST std::string> convertedArgs;
 	for (int i = 0; i < argc; i ++)

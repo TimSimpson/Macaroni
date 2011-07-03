@@ -138,7 +138,8 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
 			         and friend.Member.TypeName == TypeNames.Class) then
 			    self:writeAfterTabs("friend class " .. friend.FullName .. ";\n");
 			else
-                self:writeAfterTabs("friend " .. friend.FullName .. ";\n");
+                self:writeAfterTabs("friend /*~<(What is this?!)*/" 
+                                    .. friend.FullName .. ";\n");
             end
         end 
     end,

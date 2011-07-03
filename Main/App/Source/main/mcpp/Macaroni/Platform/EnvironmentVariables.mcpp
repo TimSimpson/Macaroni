@@ -25,8 +25,13 @@
 
 // Original file require #include <memory>... I wonder what for.
 
-namespace Macaroni::Platform::Windows {
+namespace Macaroni::Platform {
 
+/** 
+ *  This class handles copying environment variables around. This is used
+ *  in Windows to copy the variables from the calling process to the child.
+ *  I don't think it is needed in Lunix.
+ */
 class EnvironmentVariables
 {
 	private std::vector<EnvironmentVariable> vars;
