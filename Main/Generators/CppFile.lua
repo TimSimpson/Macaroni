@@ -34,9 +34,7 @@ function parseNamespace(node, path)
 end
 
 function parseNode(node, path)
-    print("~~~ " .. node.FullName);
     if (not NodeHelper.worthIteration(node)) then
-        print(" Skipped.\n");
         return;
     end
     
@@ -45,7 +43,6 @@ function parseNode(node, path)
         return;
     end
     local typeName = m.TypeName;
-    print("       " .. typeName);
     local newPath = path:NewPath("/" .. node.Name);
     --if (newPath.IsDirectory) then
     --    newPath.CreateDirectory();
@@ -61,7 +58,7 @@ function parseNode(node, path)
     if (handlerFunc ~= nil) then
         handlerFunc(node, newPath);
     else
-        print("     ~ Skipping");
+        -- print("     ~ Skipping");
     end 
 end
 

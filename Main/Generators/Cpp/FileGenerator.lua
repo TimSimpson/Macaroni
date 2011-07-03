@@ -155,7 +155,6 @@ FileGenerator = {
     	check(assignments ~= nil, "Argument #2 (assignments) must be list.")
         local seenOne = false;
         mt = getmetatable(assignments)
-        print(mt)
         for i = 1, #assignments do
             local assignment = assignments[i];
             if (not seenOne) then

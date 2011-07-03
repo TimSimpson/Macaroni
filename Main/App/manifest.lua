@@ -34,7 +34,8 @@ description= [[
 
 -- Bug- the Boost Build builder only looks at the last source path.
 sources = { "Source/main/lua", "Source/main/resources", "Source/main/mcpp",
-            "Source/test/mcpp" }
+            --TODO: Put back in when using 0.1.0.20: "Source/test/mcpp" 
+          }
 output = "GeneratedSource"
 --releasePath = "../" .. properties.macaroni.releasepath .. "/App";
 

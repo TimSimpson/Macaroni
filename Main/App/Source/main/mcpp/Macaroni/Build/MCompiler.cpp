@@ -123,8 +123,7 @@ void MCompiler::parseFile(LibraryPtr library, path filePath)
 }
 
 bool MCompiler::BuildModel(LibraryPtr library, const std::vector<FileSet> inputFiles)
-{	
-	std::cout << "Builing Macaroni::Model...\n";
+{		
 	for (unsigned int i = 0; i < inputFiles.size(); i ++)
 	{
 		const FileSet & files = inputFiles[i];
@@ -184,7 +183,6 @@ bool MCompiler::parseFileSet(LibraryPtr library, const FileSet inputFiles)
 	for(; itr != end; ++ itr)
 	{	
 		path p = *itr;
-		std::cout << p.string() << "\n";
 		/*try
 		{*/
 			parseFile(library, p);
