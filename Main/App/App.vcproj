@@ -176,7 +176,7 @@
 			<File
 				RelativePath=".\GeneratedSource\Macaroni\Model\Cpp\Access.cpp"
 				>
-			</File>			
+			</File>
 			<File
 				RelativePath=".\GeneratedSource\Macaroni\Model\Cpp\AccessLuaMetaData.cpp"
 				>
@@ -426,7 +426,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Platform\Windows\FileTime.cpp"
+				RelativePath=".\Source\main\mcpp\Macaroni\Platform\FileTime.cpp"
 				>
 			</File>
 			<File
@@ -586,11 +586,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Model\Reason.cpp"
+				RelativePath=".\GeneratedSource\Macaroni\Model\Reason.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\GeneratedSource\Macaroni\Model\Reason.cpp"
+				RelativePath=".\Source\main\mcpp\Macaroni\Model\Reason.cpp"
 				>
 			</File>
 			<File
@@ -614,11 +614,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\GeneratedSource\Macaroni\Model\Source.cpp"
+				RelativePath=".\Source\main\mcpp\Macaroni\Model\Source.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Model\Source.cpp"
+				RelativePath=".\GeneratedSource\Macaroni\Model\Source.cpp"
 				>
 			</File>
 			<File
@@ -1032,11 +1032,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Generator\Cpp\CppSourceGenerator2.h"
+				RelativePath=".\Source\main\mcpp\Macaroni\Generator\CppSourceGenerator2.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Generator\CppSourceGenerator2.h"
+				RelativePath=".\Source\main\mcpp\Macaroni\Generator\Cpp\CppSourceGenerator2.h"
 				>
 			</File>
 			<File
@@ -1108,7 +1108,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Platform\Windows\FileTime.h"
+				RelativePath=".\Source\main\mcpp\Macaroni\Platform\FileTime.h"
 				>
 			</File>
 			<File
@@ -1288,11 +1288,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Model\ParserException.h"
+				RelativePath=".\Source\main\mcpp\Macaroni\Parser\ParserException.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Parser\ParserException.h"
+				RelativePath=".\Source\main\mcpp\Macaroni\Model\ParserException.h"
 				>
 			</File>
 			<File
@@ -1360,11 +1360,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Model\Reason.h"
+				RelativePath=".\GeneratedSource\Macaroni\Model\Reason.h"
 				>
 			</File>
 			<File
-				RelativePath=".\GeneratedSource\Macaroni\Model\Reason.h"
+				RelativePath=".\Source\main\mcpp\Macaroni\Model\Reason.h"
 				>
 			</File>
 			<File
@@ -1603,11 +1603,11 @@
 			>
 		</File>
 		<File
-			RelativePath=".\Source\main\mcpp\Macaroni\Platform\Windows\EnvironmentVariable.mcpp"
+			RelativePath=".\Source\main\mcpp\Macaroni\Platform\EnvironmentVariable.mcpp"
 			>
 		</File>
 		<File
-			RelativePath=".\Source\main\mcpp\Macaroni\Platform\Windows\EnvironmentVariables.mcpp"
+			RelativePath=".\Source\main\mcpp\Macaroni\Platform\EnvironmentVariables.mcpp"
 			>
 		</File>
 		<File
