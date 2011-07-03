@@ -199,8 +199,8 @@ Node * Node::findOrCreate(const std::string & name, const std::string & hFilePat
 {
 	std::string firstPart;
 	std::string lastPart;
-	int index;
-	if ((index = name.find("::", 0)) == std::string::npos)
+	const unsigned int index = name.find("::", 0);
+	if (index == std::string::npos)
 	{
 		firstPart = name;
 		lastPart = "";
@@ -386,7 +386,7 @@ void Node::ParseComplexName(NodePtr searchRoot, const std::string & complexName,
 {
 	MACARONI_ASSERT(searchRoot != false, "Root Node of search can not be null.");
 
-	int index = complexName.find_last_of("::");
+	const unsigned int index = complexName.find_last_of("::");
 	if (index == std::string::npos) // Not found
 	{
 		resultNode = searchRoot;		
@@ -439,7 +439,7 @@ void Node::SplitFirstNameOffComplexName(const std::string & complexName,
 										std::string & firstPart,
 										std::string & lastPart)
 {
-	int index = complexName.find_first_of("::");
+	const unsigned int index = complexName.find_first_of("::");
 	if (index == std::string::npos) // Not found
 	{
 		lastPart = "";
@@ -455,7 +455,7 @@ void Node::SplitFirstNameOffComplexName(const std::string & complexName,
 void Node::SplitNodeAndMemberName(const std::string & complexName,
 								  std::string & scopeName, std::string & memberName)
 {
-	int index = complexName.find_last_of("::");
+	const unsigned int index = complexName.find_last_of("::");
 	if (index == std::string::npos) // Not found
 	{
 		scopeName = "";
@@ -475,7 +475,7 @@ void Node::SplitComplexName(const std::string & complexName,
 	unsigned int currentPos = 0;
 	while(currentPos < complexName.length())
 	{
-		int index = complexName.find_first_of("::", currentPos);
+		const unsigned int index = complexName.find_first_of("::", currentPos);
 		if (index == std::string::npos) // Not found
 		{
 			subNames.push_back(complexName.substr(currentPos));

@@ -8,6 +8,7 @@ class size_t { ~hfile=<Macaroni/ME.h> }
 
 // C std
 class system { ~hfile=<cstdlib> }
+class strlen { ~hfile=<string.h> }
 
 // Std lib stuff
 class std::auto_ptr { ~hfile=<memory> }

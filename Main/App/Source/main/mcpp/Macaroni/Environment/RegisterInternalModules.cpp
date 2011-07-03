@@ -53,7 +53,6 @@
 #include "../Model/TypeListLua.h"
 #include "../Model/Cpp/VariableLua.h"
 #include "../Model/Cpp/VariableAssignmentLua.h"
-#include <windows.h>
 #include <Macaroni/VersionNo.h>
 
 BEGIN_NAMESPACE2(Macaroni, Environment)
@@ -115,17 +114,9 @@ void LuaEnvironment::registerInternalLuaModules()
 
 	// Override how the default "require" functionality works.
 	// Try to keep true to the spirit of require, just fudge it a little so we
-	// can *actually use it*.
-	// First, force require to use the current working path.
-	#define SZDIRECTORYSIZE 256
-	TCHAR szDirectory[SZDIRECTORYSIZE];
-	MACARONI_ASSERT(GetCurrentDirectory(SZDIRECTORYSIZE - 1, szDirectory) != 0,
-					"Failure getting working directory!");
-	std::string directory = Macaroni::IO::Paths::GetExeDirectoryPath();
-	///*char directory[SZDIRECTORYSIZE];
-	//int ret = WideCharToMultiByte(CP_ACP, 0, szDirectory, -1, 
-	//							  directory, 256, NULL, NULL);
-	//MACARONI_ASSERT(ret != 0, "Couldn't convert the dumb directory string.");*/
+	// can use it.
+	// First, force require to use the current working path.	
+	std::string directory = Macaroni::IO::Paths::GetExeDirectoryPath();	
 
 	lua_pushstring(state, MACARONI_VERSION_STRING);
 	lua_setglobal(state, "MACARONI_VERSION");

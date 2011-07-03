@@ -81,64 +81,67 @@ AnnotationValue::~AnnotationValue()
 {
 }
 
-AnnotationValue::TypeCode AnnotationValue::getTypeCode() const
+// These visitor classes should be able to live inside the methods, but when
+// I put them there they don't compile on Linux with GCC.
+class typeCodeVisitor1 : public boost::static_visitor<AnnotationValue::TypeCode>
 {
-	class typeCodeVisitor : public boost::static_visitor<AnnotationValue::TypeCode>
+public:
+	AnnotationValue::TypeCode operator()(const bool & b) const
 	{
-	public:
-		AnnotationValue::TypeCode operator()(bool b) const
-		{
-			return AnnotationValue::Type_Bool;
-		}
-		AnnotationValue::TypeCode operator()(double d) const
-		{
-			return AnnotationValue::Type_Number;
-		}
-		AnnotationValue::TypeCode operator()(const Node & node) const
-		{
-			return AnnotationValue::Type_Node;
-		}
-		AnnotationValue::TypeCode operator()(const std::string & str) const
-		{
-			return AnnotationValue::Type_String;
-		}
-		AnnotationValue::TypeCode operator()(const AnnotationTableInternalPtr & table) const
-		{
-			return AnnotationValue::Type_Table;
-		}
-	};
+		return AnnotationValue::Type_Bool;
+	}
+	AnnotationValue::TypeCode operator()(const double & d) const
+	{
+		return AnnotationValue::Type_Number;
+	}
+	AnnotationValue::TypeCode operator()(Macaroni::Model::Node & node) const
+	{
+		return AnnotationValue::Type_Node;
+	}
+	AnnotationValue::TypeCode operator()(const std::string & str) const
+	{
+		return AnnotationValue::Type_String;
+	}
+	AnnotationValue::TypeCode operator()(boost::shared_ptr<Macaroni::Model::AnnotationTable> table) const
+	{
+		return AnnotationValue::Type_Table;
+	}	
+};
 
-	return boost::apply_visitor(typeCodeVisitor(), value);	
+AnnotationValue::TypeCode AnnotationValue::getTypeCode() const
+{	
+
+	return boost::apply_visitor(typeCodeVisitor1(), this->value);		
 }
 
-std::string AnnotationValue::GetTypeString() const
+class typeCodeVisitor2 : public boost::static_visitor<std::string>
 {
-	class typeCodeVisitor : public boost::static_visitor<std::string>
+public:
+	std::string operator()(const bool & b) const
 	{
-	public:
-		std::string operator()(bool b) const
-		{
-			return std::string("bool");
-		}
-		std::string operator()(double d) const
-		{
-			return std::string("number");
-		}
-		std::string operator()(const Node & node) const
-		{
-			return std::string("node");
-		}
-		std::string operator()(const std::string & str) const
-		{
-			return std::string("string");
-		}
-		std::string operator()(const AnnotationTableInternalPtr & table) const
-		{
-			return std::string("table");
-		}
-	};
+		return std::string("bool");
+	}
+	std::string operator()(const double & d) const
+	{
+		return std::string("number");
+	}
+	std::string operator()(Macaroni::Model::Node & node) const
+	{
+		return std::string("node");
+	}
+	std::string operator()(const std::string & str) const
+	{
+		return std::string("string");
+	}
+	std::string operator()(boost::shared_ptr<Macaroni::Model::AnnotationTable> table) const
+	{
+		return std::string("table");
+	}
+};
 
-	return boost::apply_visitor(typeCodeVisitor(), value);	
+std::string AnnotationValue::GetTypeString() const
+{	
+	return boost::apply_visitor(typeCodeVisitor2(), value);		
 }
 
 bool AnnotationValue::GetValueAsBool() const

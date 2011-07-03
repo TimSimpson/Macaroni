@@ -21,14 +21,19 @@ boost.use-project 1.46.1 ;
 
 alias sources
 	:	[ glob-tree *.c	: .svn ]
-		[ glob-tree *.cpp	: .svn *Test.cpp *Tests.cpp Main.cpp ]
+		[ glob-tree *.cpp	
+		 : 
+		  .svn *Test.cpp *Tests.cpp Main.cpp 
+		  lua.cpp lu.cpp.cpp  # <-- Don't know where this comes from.
+		  ]
 		/boost//filesystem
 		/boost//regex			
 		/boost//system
 	:	<include>./	
 	;
 
-exe macaroni 
+exe macaroni_p  # In linux it can't create the file because the name is the 
+                # same as a directory.
 	:	sources
 		Main.cpp
 		Macaroni.rc	

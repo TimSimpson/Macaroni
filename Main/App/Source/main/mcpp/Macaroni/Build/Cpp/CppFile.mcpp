@@ -43,7 +43,7 @@ class CppFile
 	}
 
 	public bool Compile(CompilerSettings & settings, 
-						const vector<const string> & configIncludePaths,
+						vector<string> & configIncludePaths,
 						const Console & console)
 	{
 		if (!IsObjectFileOutOfDate())

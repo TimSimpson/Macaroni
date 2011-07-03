@@ -120,7 +120,7 @@ end
 
 function createAbout(path, library)
 	local version = library.Version;    
-	local file = path:NewPath("/Macaroni/AboutText");
+	local file = path:NewPath("/Macaroni/AboutText.h");
     local writer = file:CreateFile();
 	writer:Write(aboutText(version));
 end

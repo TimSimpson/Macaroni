@@ -59,11 +59,11 @@
 	{		
 		NodeListPtr & ptr = getInstance(L);
 		// 2 must be a numeric index
-		const int newIndex = luaL_checkint(L, 2);
+		const unsigned int newIndex = luaL_checkint(L, 2);
 		// 3 must be a Node
 		NodePtr & node = NodeLuaMetaData::GetInstance(L, 3);
 		
-		int actualIndex = newIndex - 1;
+		const unsigned int actualIndex = newIndex - 1;
 		if (actualIndex > ptr->size()) 
 		{
 			lua_pushlstring(L, "Index is greater than number of elements + 1.", 45);
@@ -138,7 +138,7 @@
 	{
 		LUAGLUE_CLASSREFNAME & ptr = getInstance(L);
 		std::stringstream ss;
-		ss << "NodeList";
+		ss << "NodeList, size " << ptr->size();
 		lua_pushstring(L, ss.str().c_str());
 		return 1;
 	}	

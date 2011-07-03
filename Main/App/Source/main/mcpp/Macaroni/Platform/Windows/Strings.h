@@ -15,10 +15,11 @@
  */
 #include <Macaroni/ME.h>
 
-#ifdef MACARONI_COMPILE_TARGET_WINDOWS
 
 #ifndef MACARONI_PLATFORM_WINDOWS_STRINGS_H
 #define MACARONI_PLATFORM_WINDOWS_STRINGS_H
+
+#ifdef MACARONI_COMPILE_TARGET_WINDOWS
 
 #include "../../ME.h"
 #include <string>
@@ -98,6 +99,15 @@ private:
 
 END_NAMESPACE
 
-#endif
+#else // End Windows
+
+// Define these types so the using statements Macaroni generates won't break.
+
+BEGIN_NAMESPACE(Macaroni, Platform, Windows)
+typedef char WindowsString;
+typedef char NonWindowsString;
+END_NAMESPACE
+
+#endif 
 
 #endif // MACARONI_COMPILE_TARGET_WINDOWS

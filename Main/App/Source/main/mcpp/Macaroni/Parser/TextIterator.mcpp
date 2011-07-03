@@ -21,6 +21,7 @@
 ~import Macaroni::Model::SourcePtr;
 ~import std::string;
 ~import Macaroni::Parser::StringItr;
+~import strlen;
 
 namespace Macaroni::Parser {
 
@@ -30,10 +31,10 @@ class TextIterator
 {	
 	//TODO: BUG: If you use const_iterator directly, it breaks the Parser!
 	private int column;
+	private StringItr endItr;
 	private FileNamePtr fileName;
 	private StringItr itr;
-	private int line;	
-	private StringItr endItr;
+	private int line;		
 
 	/** Constructs a new text iterator.  Must have the source so it 
 	 *  can tell you where it is if something goes wrong. */
@@ -99,7 +100,9 @@ class TextIterator
 	/** If the given string lies at the foot of the iterator, it consumes it and
 	 *  returns true.
 	 *  If not, nothing happens and false is returned. */
-	public inline bool ConsumeWord(const char * word)
+	//TODO: Make inline once there's a way to get Macaroni to include a header
+	// for something even when it detects its not used to define a class.
+	public bool ConsumeWord(const char * word)
 	{
 		if (Is(word))
 		{

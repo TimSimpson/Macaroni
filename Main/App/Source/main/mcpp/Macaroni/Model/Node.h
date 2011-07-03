@@ -179,10 +179,6 @@ protected:
 
 	Node * getNode() const;
 
-	FileNamePtr hFilePath;
-
-	ReasonPtr hFilePathReason;
-
 	void setMember(Member * member, const char * typeName, const ReasonPtr reasonCreated);
 
 private:
@@ -202,6 +198,10 @@ private:
 	std::vector<Node *> children;
 
 	Context * context;
+
+	FileNamePtr hFilePath;
+
+	ReasonPtr hFilePathReason;
 
 	Member * member;
 

@@ -58,8 +58,7 @@ CompilerSettings::CompilerSettings(const boost::filesystem::path & filePath)
 	env.SetPackageDirectory(filePath.branch_path().string());
 	env.ParseFile(filePath.string());
 	env.Run();
-	lua_State * L = env.GetState();
-
+	
 	env.GetFromGlobalVarOrDefault(additionalCompilerArgs, "additionalCompilerArgs", "");
 	env.GetFromGlobalVarOrDefault(additionalLinkerArgs, "additionalLinkerArgs", "");
 	env.GetFromGlobalVarOrDefault(compilerExe, "compilerExe", "");

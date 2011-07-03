@@ -25,7 +25,7 @@
 #include <memory>
 #include <sstream>
 
-using class Macaroni::Model::Node;
+using Macaroni::Model::Node;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 

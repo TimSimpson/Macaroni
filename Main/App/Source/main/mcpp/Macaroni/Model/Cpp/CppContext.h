@@ -28,10 +28,10 @@ class CppContext
 {
 public:	
 	/** Adds the C++ goodness to an existing context. */
-	static void CreateCppNodes(ContextPtr & context);
+	static void CreateCppNodes(ContextPtr context);
 
 	/** Returns a secret node which stores primitives. */
-	static NodePtr GetPrimitives(ContextPtr & context);
+	static NodePtr GetPrimitives(ContextPtr context);
 
 private:
 	static void addPrimitive(NodePtr & primitiveNode, const char * name);

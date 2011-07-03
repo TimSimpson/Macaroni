@@ -63,7 +63,8 @@ static int __len(lua_State * L)
 
 static int __tostring(lua_State * L)
 {
-	LUAGLUE_CLASSREFNAME & ptr = getInstance(L);
+	//TODO: Use -> LUAGLUE_CLASSREFNAME & ptr = getInstance(L);
+	getInstance(L);
 	std::stringstream ss;
 	ss << "ClassParentList";
 	lua_pushstring(L, ss.str().c_str());

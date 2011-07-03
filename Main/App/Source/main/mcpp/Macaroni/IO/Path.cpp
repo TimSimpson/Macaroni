@@ -19,13 +19,13 @@
 #include "Path.h"
 #include <boost/filesystem/convenience.hpp>
 #include <boost/foreach.hpp>
-#include "../Platform/Windows/FileTime.h"
+#include <Macaroni/Platform/FileTime.h>
 #include "../IO/FileSet.h"
 #include "../Exception.h"
 #include <iostream>
 #include <sstream>
 
-using Macaroni::Platform::Windows::FileTime;
+using Macaroni::Platform::FileTime;
 using Macaroni::IO::FileSet;
 
 BEGIN_NAMESPACE2(Macaroni, IO)
@@ -37,29 +37,29 @@ BEGIN_NAMESPACE2(Macaroni, IO)
 //	}
 //}
 Path::Path(const std::string & absolutePath)
-:rootPath(absolutePath), path(absolutePath)
+:path(absolutePath), rootPath(absolutePath)
 {
 }
 
 Path::Path(boost::filesystem::path rootPath)
-:rootPath(rootPath), path(rootPath)
+:path(rootPath), rootPath(rootPath)
 {
 }
 
 Path::Path(boost::filesystem::path rootPath, const char * path)
-:rootPath(rootPath), path(path)
+:path(path), rootPath(rootPath)
 {
 	assertPathExistsInRootPath();
 }
 
 Path::Path(const Path & other)
-:rootPath(other.rootPath), path(other.path)
+:path(other.path), rootPath(other.rootPath)
 {
 	assertPathExistsInRootPath();
 }
 
 Path::Path(boost::filesystem::path rootPath, boost::filesystem::path path)
-:rootPath(rootPath), path(path)
+:path(path), rootPath(rootPath)
 {		
 	assertPathExistsInRootPath();
 }
@@ -171,8 +171,8 @@ GeneratedFileWriterPtr Path::CreateFile() const
 
 PathPtr Path::CreateWithCurrentAsRoot() const
 {
-	PathPtr path(new Path(boost::filesystem::system_complete(path)));
-	return path;
+	PathPtr newPath(new Path(boost::filesystem::system_complete(path)));
+	return newPath;
 }
 
 PathPtr Path::CreateWithDifferentRootPath(const PathPtr & otherPath)

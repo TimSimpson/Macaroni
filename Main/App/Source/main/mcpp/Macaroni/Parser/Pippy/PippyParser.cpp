@@ -339,10 +339,10 @@ public:
 	}
 private:
 	int column;
+	StringItr endItr;
 	FileNamePtr fileName;
 	StringItr itr;
-	int line;	
-	StringItr endItr;
+	int line;		
 };
 
 static std::string unsafeStaticNightmareString;
@@ -1135,7 +1135,8 @@ public:
 	 *  }, or else the parser will simply think the { is new and increase
 	 *  its depth.
 	 **/
-	void ConsumeExpression(Iterator & itr, char * stopAtChars, std::string & code)
+	void ConsumeExpression(Iterator & itr, const char * stopAtChars, 
+		                   std::string & code)
 	{
 		Iterator exceptionItr = itr;
 
@@ -1232,10 +1233,6 @@ public:
 		if (!ConsumeComplexName(newItr, name))
 		{
 			return false;
-		}
-		if (name == "std::string")
-		{
-			int five = 5;
 		}
 		node = FindNode(name);
 		if (!!node)
@@ -1480,7 +1477,7 @@ public:
 	}
 
 	/** Takes a complex name and finds its node. */
-	NodePtr FindNode(std::string & complexName)
+	NodePtr FindNode(const std::string & complexName)
 	{
 		/*
 		// The Node class really needs a routine to discover a name given the
@@ -1507,7 +1504,7 @@ public:
 		return FindNodeFromScope(complexName);
 	}
 
-	NodePtr FindNodeFromImports(std::string & complexName)
+	NodePtr FindNodeFromImports(const std::string & complexName)
 	{
 		std::string firstPart, lastPart;
 		Node::SplitFirstNameOffComplexName(complexName, firstPart, lastPart);
@@ -1526,7 +1523,7 @@ public:
 		return NodePtr();
 	}
 
-	NodePtr FindNodeFromImportsOrScope(std::string & complexName)
+	NodePtr FindNodeFromImportsOrScope(const std::string & complexName)
 	{
 		NodePtr rtnValue = FindNodeFromImports(complexName);
 		NodePtr scopeItr = currentScope;
@@ -1546,7 +1543,7 @@ public:
 	/** Finds a node using visibility rules.
 	 * First checks the Class, then the namespace, and finally imports.
 	 */
-	NodePtr FindNodeFromScope(std::string & complexName)
+	NodePtr FindNodeFromScope(const std::string & complexName)
 	{
 		NodePtr scope = currentScope;
 		NodePtr classNode = FindClassAncestorOfNode(scope);
@@ -1575,7 +1572,7 @@ public:
 	}	
 
 	/** Searchs a node for the given complex name. */
-	NodePtr FindNodeFromNode(NodePtr scope, std::string & complexName)
+	NodePtr FindNodeFromNode(NodePtr scope, const std::string & complexName)
 	{				
 		if (!scope)
 		{
@@ -1614,11 +1611,11 @@ public:
 		ParserFunctions funcs(c, l);
 
 		// It is found.
-		NodePtr nodeInt = funcs.FindNode(std::string("signed int"));
+		NodePtr nodeInt = funcs.FindNode("signed int");
 		Assert(nodeInt->GetFullName() == CppContext::GetPrimitives(c)->Find("signed int")->GetFullName());
 		
 		// int is found, but nothing is found beyond that.
-		NodePtr nodeInt2 = funcs.FindNode(std::string("signed int::something"));
+		NodePtr nodeInt2 = funcs.FindNode("signed int::something");
 		Assert(nodeInt2 == NodePtr());
 
 		NodePtr seed = c->GetRoot()->FindOrCreate(std::string("Fruit::Orange::Seed"));

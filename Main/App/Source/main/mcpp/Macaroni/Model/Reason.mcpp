@@ -42,8 +42,8 @@ class Reason
 	@LuaClass [ ReferenceType = ReasonPtr ]
 {
 	private AxiomPtr axiom;
-	private SourcePtr source;
 	private int referenceCount;
+	private SourcePtr source;	
 	
 	protected Reason(AxiomPtr axiom, SourcePtr source)
 	:	axiom(axiom), 

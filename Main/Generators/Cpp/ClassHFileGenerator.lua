@@ -134,6 +134,9 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
 					self:writeFunctionOverloadDefinition(friend.Children[i], false);	
     				self:write(";\n");
     			end
+			elseif (friend.Member ~= nil
+			         and friend.Member.TypeName == TypeNames.Class) then
+			    self:writeAfterTabs("friend class " .. friend.FullName .. ";\n");
 			else
                 self:writeAfterTabs("friend " .. friend.FullName .. ";\n");
             end

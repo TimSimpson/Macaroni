@@ -39,7 +39,7 @@ using Macaroni::Model::SourcePtr;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-void CppContext::CreateCppNodes(ContextPtr & context)
+void CppContext::CreateCppNodes(ContextPtr context)
 {
 	if (context->GetRoot()->GetMember() == nullptr)
 	{
@@ -79,7 +79,7 @@ void CppContext::addPrimitive(NodePtr & node, const char * name)
 		MessageAxiom::Create(ss.str().c_str()), src));
 }
 
-NodePtr CppContext::GetPrimitives(ContextPtr & context)
+NodePtr CppContext::GetPrimitives(ContextPtr context)
 {
 	return context->GetRoot()->Find("{C++ Primitives}");
 }

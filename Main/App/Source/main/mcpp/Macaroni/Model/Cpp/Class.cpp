@@ -31,7 +31,7 @@
 using Macaroni::Model::Cpp::Function;
 using Macaroni::Model::Cpp::FunctionPtr;
 using Macaroni::Model::NodeList;
-using class Macaroni::Model::Node;
+using Macaroni::Model::Node;
 using Macaroni::Model::NodePtr;
 using Macaroni::Model::NodeList;
 using Macaroni::Model::Cpp::Variable;

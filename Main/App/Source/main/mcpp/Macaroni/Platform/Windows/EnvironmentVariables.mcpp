@@ -34,6 +34,7 @@ class EnvironmentVariables
 	public EnvironmentVariables()
 	:	vars()
 	{
+#ifdef MACARONI_COMPILE_TARGET_WINDOWS
 		LPTCH orig = ::GetEnvironmentStrings();
 		try
 		{
@@ -64,18 +65,7 @@ class EnvironmentVariables
 			throw ex;
 		}	
 
-		//TCHAR * blockItr = (TCHAR *) orig;
-		//while(blockItr !='\0') // This memory we get back from Windows ends with \0\0
-		//{
-		//	TCHAR * varItr;
-		//	for (varItr = blockItr; varItr != '\0'; varItr ++)
-		//	{			
-		//	}
-		//	NonWindowsString fullWindowsStr(blockItr);
-		//	std::string fullStr = fullWindowsStr.get();
-		//	vars.push_back(EnvironmentVariable(fullStr, ""));
-		//	blockItr ++;
-		//}
+#endif
 	}
 
 	public ~EnvironmentVariables()
@@ -84,6 +74,7 @@ class EnvironmentVariables
 
 	public void CopyToMemoryBlock(void * vBlock)
 	{
+#ifdef MACARONI_COMPILE_TARGET_WINDOWS
 		TCHAR * block = (TCHAR *) vBlock;
 		for (unsigned int i = 0; i < vars.size(); i ++)
 		{
@@ -132,10 +123,12 @@ class EnvironmentVariables
 				int five = 5;
 			}
 		}
+#endif
 	}
 
 	public EnvironmentVariable * Get(const string & name)
 	{
+#ifdef MACARONI_COMPILE_TARGET_WINDOWS
 		string low = name;
 		boost::to_lower(low);
 		for (unsigned int i = 0; i < vars.size(); i ++)
@@ -145,23 +138,27 @@ class EnvironmentVariables
 				return &(vars[i]);
 			}
 		}
+#endif
 		return nullptr;
 	}
 
 	public size_t GetNeededMemoryBlockSize()
 	{
 		size_t total = 0;
+#ifdef MACARONI_COMPILE_TARGET_WINDOWS
 		for (unsigned int i = 0; i < vars.size(); i ++)
 		{
 			EnvironmentVariable & v = vars[i];
 			total += (v.GetName().size() + 1 + v.GetValue().size() + 1);
 		}
 		total ++;
+#endif
 		return total;
 	}
 	
 	public void Set(StringPair & pair)
 	{
+#ifdef MACARONI_COMPILE_TARGET_WINDOWS
 		std::string low = pair.Name;
 		boost::to_lower(low);
 		for (unsigned int i = 0; i < vars.size(); i ++)
@@ -174,6 +171,7 @@ class EnvironmentVariables
 			}
 		}
 		vars.push_back(EnvironmentVariable(pair.Name, pair.Value));
+#endif
 	}
 };
 

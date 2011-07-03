@@ -100,7 +100,8 @@
 
 	static int __tostring(lua_State * L)
 	{
-		LUAGLUE_CLASSREFNAME & ptr = getInstance(L);
+		//TODO: This-> LUAGLUE_CLASSREFNAME & ptr = getInstance(L);
+		getInstance(L);
 		std::stringstream ss;
 		ss << "TypeList";
 		lua_pushstring(L, ss.str().c_str());

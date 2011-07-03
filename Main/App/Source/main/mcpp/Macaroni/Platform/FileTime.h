@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MACARONI_PLATFORM_WINDOWS_FILETIME_H
-#define MACARONI_PLATFORM_WINDOWS_FILETIME_H
+#ifndef MACARONI_PLATFORM_FILETIME_H
+#define MACARONI_PLATFORM_FILETIME_H
 
-#include "../../ME.h"
+#include <Macaroni/ME.h>
 #include <boost/filesystem/operations.hpp>
 
-BEGIN_NAMESPACE(Macaroni, Platform, Windows)
+BEGIN_NAMESPACE2(Macaroni, Platform)
 
 class FileTime
 {
@@ -28,6 +28,6 @@ public:
 									  boost::filesystem::path & two);
 };
 
-END_NAMESPACE
+END_NAMESPACE2
 
 #endif

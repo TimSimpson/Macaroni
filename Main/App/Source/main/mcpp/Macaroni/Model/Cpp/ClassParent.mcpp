@@ -54,9 +54,9 @@ class ClassParent
 	friend Class;
 
 	private Access access;
-	private Class * child;
-	private bool _virtual;
+	private Class * child;	
 	private TypePtr parent; // Memory leak! Change to point eventually.
+	private bool _virtual;
    
 	private ClassParent(Class * node, TypePtr parent, Access access, bool _virtual)
 	:	access(access),

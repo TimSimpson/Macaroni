@@ -21,16 +21,24 @@
 #include "Macaroni/Exception.h"
 #include "Macaroni/Environment/LuaEnvironment.h"
 #include "Macaroni/Environment/Messages.h"
-#include "Macaroni/Platform/Windows/Strings.h"
 #include "Macaroni/IO/FileSet.h"
 #include <iostream>
 #include <sstream>
-#include <tchar.h>
 #include <Macaroni/VersionNo.h>
 
-#ifdef COMPILE_TARGET_TESTS
-	//#include <boost/test/unit_test.hpp>
+#ifdef MACARONI_COMPILE_TARGET_WINDOWS
+	#include <tchar.h>
+	#include "Macaroni/Platform/Windows/Strings.h"
+	using Macaroni::Platform::Windows::NonWindowsString;
+	using Macaroni::Platform::Windows::WindowsString;
 #endif
+#ifdef MACARONI_COMPILE_TARGET_LINUX
+#endif
+
+
+///////////////////////////////////////////////////////////////////////////////
+//  Common
+///////////////////////////////////////////////////////////////////////////////
 
 using namespace Macaroni;
 using namespace Macaroni;
@@ -40,42 +48,17 @@ using Macaroni::Build::MCompiler;
 using Macaroni::Build::MCompilerOptions;
 using Macaroni::IO::FileSet;
 using Macaroni::Environment::Messages;
-using Macaroni::Platform::Windows::NonWindowsString;
-using Macaroni::Platform::Windows::WindowsString;
 
-void convert(std::wstring & original, std::string & rtnString)
+int generic_main(std::vector<MACARONI_VE_CONST std::string> & args)
 {
-	std::stringstream ss;
-	for(unsigned int i = 0; i < original.size(); i ++)
-	{
-		ss << ((char)original[i]);
-	}
-	rtnString = ss.str();
-}
-
-/** Wondering why this isn't in a seperate class, future ME?
- * Its because of the non-standard way Windows handles strings.
- * Not sure what to do with this code, but its def. not platform-independent. */
-int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
-{
-#ifdef COMPILE_TARGET_TESTS
-	//return init_unit_tests();//main(argc, nullptr);
-#endif
 	std::cout << MACARONI_FILE_DESCRIPTION << std::endl;	
 	std::cout << "Version " << MACARONI_VERSION_STRING << 
 		" built at " << BUILD_TIMESTAMP_LOCAL << std::endl;	
 	std::cout << std::endl;
 
-	std::vector<MACARONI_VE_CONST std::string> convertedArgs;
-	for (int i = 0; i < argc; i ++)
-	{
-		NonWindowsString convertedString(argv[i]);
-		convertedArgs.push_back(convertedString.get());
-	}
-
 	Console output;
 
-	CmdLine cmd(convertedArgs, output);
+	CmdLine cmd(args, output);
 
 	if (cmd.StartPrompt())
 	{
@@ -108,7 +91,6 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 			std::cerr << ex.what()  << std::endl;
 		}
 	}
-
 	std::cout << std::endl << "Program finished." << std::endl;
 	if (cmd.EndPrompt())
 	{
@@ -116,7 +98,65 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 		char ch;
 		std::cin >> ch;
 	}
-	
 	return returnCode;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+//  Windows
+///////////////////////////////////////////////////////////////////////////////
+#ifdef MACARONI_COMPILE_TARGET_WINDOWS
+
+void convert(std::wstring & original, std::string & rtnString)
+{
+	std::stringstream ss;
+	for(unsigned int i = 0; i < original.size(); i ++)
+	{
+		ss << ((char)original[i]);
+	}
+	rtnString = ss.str();
+}
+
+/** I'm not sure if using the _TCHAR version of main is necessary. Maybe
+ *  there's an easier way to achieve platform independence here. */
+int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
+{	
+	std::vector<MACARONI_VE_CONST std::string> convertedArgs;
+	for (int i = 0; i < argc; i ++)
+	{
+		NonWindowsString convertedString(argv[i]);
+		convertedArgs.push_back(convertedString.get());
+	}
+	
+	return generic_main(convertedArgs);
+}
+
+#endif // COMPILE_TARGET_WINDOWS
+
+///////////////////////////////////////////////////////////////////////////////
+//  Linux
+///////////////////////////////////////////////////////////////////////////////
+#ifdef MACARONI_COMPILE_TARGET_LINUX
+
+// This hack facilitates Macaroni::IO::Paths::GetExePath.
+std::string CURRENT_EXE_PATH; 
+
+int main(int argc, const char * argv[])
+{	
+	if (argc < 1)
+	{
+		std::cerr << "Less than one argument?! But how could that be?!!";
+		return -500; // Negative 500 is super bad.
+	}
+	
+	CURRENT_EXE_PATH = argv[0];
+
+	std::vector<MACARONI_VE_CONST std::string> convertedArgs;
+	for (int i = 0; i < argc; i ++)
+	{
+		convertedArgs.push_back(argv[i]);
+	}
+
+	return generic_main(convertedArgs);
+}
+#endif // COMPILE_TARGET_LINUX
 

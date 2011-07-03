@@ -101,7 +101,8 @@
 
 	static int __tostring(lua_State * L)
 	{
-		TypeArgumentListPtr & ptr = getInstance(L);
+		//TODO: This- >TypeArgumentListPtr & ptr = getInstance(L);
+		getInstance(L);
 		std::stringstream ss;
 	
 		ss << " [TODO-stuff])";			

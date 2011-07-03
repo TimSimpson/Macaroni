@@ -27,7 +27,11 @@ class SourceException : public std::exception
 {
 public:
 	SourceException(SourcePtr source, const std::string & msg)
-		: source(source), msg(msg)
+		: msg(msg), source(source)
+	{
+	}	
+
+	~SourceException() throw()
 	{
 	}
 

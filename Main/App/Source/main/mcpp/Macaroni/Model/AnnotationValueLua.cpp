@@ -32,7 +32,7 @@
 #define LUAGLUE_CLASSFULLLUANAME "Macaroni.Model.AnnotationValue"
 #define LUAGLUE_CLASSFULLCPPNAME Macaroni::Model::AnnotationValue
 #define LUAGLUE_REGISTRATIONCLASSNAME AnnotationValueLuaMetaData
-#define LUAGLUE_OPENOTHERMODULES \
+#define LUAGLUE_OPENOTHERMODULES 
 	//Macaroni::Model::Cpp::ConstructorLuaMetaData::AssignmentListOpenInLua(L);
 	//Macaroni::Model::NodeLuaMetaData::OpenInLua(L); \
 	//Macaroni::Model::Cpp::FunctionLuaMetaData::OpenInLua(L); \

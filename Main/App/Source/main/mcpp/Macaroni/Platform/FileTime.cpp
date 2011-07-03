@@ -13,18 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MACARONI_PLATFORM_WINDOWS_FILETIME_CPP
-#define MACARONI_PLATFORM_WINDOWS_FILETIME_CPP
+#ifndef MACARONI_PLATFORM_FILETIME_CPP
+#define MACARONI_PLATFORM_FILETIME_CPP
 
-#include "../../Exception.h"
+#include <Macaroni/Exception.h>
 #include "FileTime.h"
-#include <windows.h>
-#include "Strings.h"
 #include <sstream>
+
+#ifdef MACARONI_COMPILE_TARGET_WINDOWS
+#include <windows.h>
+#include <Macaroni/Platform/Windows/Strings.h>
+#endif
+
+#ifdef MACARONI_COMPILE_TARGET_LINUX
+#include <sys/types.h>
+#include <sys/stat.h>
+#endif
 
 using boost::filesystem::path ;
 
-BEGIN_NAMESPACE(Macaroni, Platform, Windows)
+BEGIN_NAMESPACE2(Macaroni, Platform)
+
+#ifdef MACARONI_COMPILE_TARGET_WINDOWS
+
+using Macaroni::Platform::Windows::NonWindowsString;
+using Macaroni::Platform::Windows::WindowsString;
 
 struct FT
 {
@@ -110,7 +123,32 @@ bool FileTime::File1IsOlderThanFile2(boost::filesystem::path & one,
 	}
 	return false;
 }
+#endif // End Windows
 
-END_NAMESPACE
+#ifdef MACARONI_COMPILE_TARGET_LINUX
+
+time_t modifiedTime(const char * filePath)
+{
+	struct stat fileInfo;
+	if (stat(filePath, &fileInfo) == -1) {
+		std::stringstream ss;
+		ss << "Error getting modified time (via stat) of file \"" 
+		   << filePath << "\".";
+		throw Macaroni::Exception(ss.str().c_str());
+	}
+	return fileInfo.st_mtime;
+}
+
+bool FileTime::File1IsOlderThanFile2(boost::filesystem::path & one,
+									 boost::filesystem::path & two)
+{ 
+	time_t f1 = modifiedTime(one.string().c_str());
+	time_t f2 = modifiedTime(two.string().c_str());
+	return f1 > f2;
+}
+
+#endif
+
+END_NAMESPACE2
 
 #endif

@@ -37,9 +37,9 @@ void intrusive_ptr_release(Block * p)
 
 
 Block::Block(Node * host, const std::string & id, const std::string & code, const ReasonPtr reasonCreated)
-:	code(code),	
-	id(id),
-	Member(host, "Block", reasonCreated)
+:	Member(host, "Block", reasonCreated),
+	code(code),	
+	id(id)
 {
 }
 

@@ -58,8 +58,6 @@ static int _dependency(lua_State * L);
 static int _getUpperLibrary(lua_State * L);
 static int _source(lua_State * L);
 
-static int dependency(lua_State * L);
-
 
 Configuration createConfiguration(LuaEnvironment & env, const char * name);
 std::vector<MACARONI_VE_CONST Configuration> createConfigurations(LuaEnvironment & env);
@@ -613,16 +611,6 @@ Configuration createConfiguration(LuaEnvironment & env, const char * name)
 
 
 	return config;
-}
-
-int dependency(lua_State * L)
-{
-    void * ptr = lua_touserdata(L, lua_upvalueindex(1));
-    //Manifest * me = dynamic_cast<Manifest *>(oldThis);
-    std::vector<std::string> * sources =
-        reinterpret_cast<std::vector<std::string> *>(ptr);
-    sources->push_back(std::string(lua_tolstring(L, 1, NULL)));
-    return 1;
 }
 
 const Configuration * Manifest::GetConfiguration(const std::string & configName) const

@@ -104,7 +104,7 @@ namespace
 		static int SetCodeBlock(lua_State * L)
 		{
 			MemberPtr memberPtr = MemberLuaMetaData::GetInstance(L, 1);
-			FunctionOverloadPtr & ptr = boost::dynamic_pointer_cast<FunctionOverload>(memberPtr);
+			FunctionOverloadPtr ptr = boost::dynamic_pointer_cast<FunctionOverload>(memberPtr);
 			std::string codeBlock(luaL_checkstring(L, 2));
 			SourcePtr src = SourceLuaMetaData::GetInstance(L, 3);
 			ptr->SetCodeBlock(codeBlock, src);

@@ -39,9 +39,8 @@ friend void intrusive_ptr_release(ConstructorOverload * p);
 
 public:
 
-	ConstructorPtr ConstructorOverload::Create(NodePtr host, bool isInline, 
-											   AccessPtr access, 
-											   Model::ReasonPtr reason);
+	ConstructorPtr Create(NodePtr host, bool isInline, AccessPtr access, 
+						  Model::ReasonPtr reason);
 
 	static ConstructorOverloadPtr Create(ConstructorPtr home, 
 		bool isInline, AccessPtr access, Model::ReasonPtr reason);

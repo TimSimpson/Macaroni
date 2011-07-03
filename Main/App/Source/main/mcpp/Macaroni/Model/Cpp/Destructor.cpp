@@ -32,8 +32,8 @@
 #include <memory>
 #include <sstream>
 
-using class Macaroni::Model::ModelInconsistencyException;
-using class Macaroni::Model::Node;
+using Macaroni::Model::ModelInconsistencyException;
+using Macaroni::Model::Node;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 

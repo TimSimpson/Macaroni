@@ -352,7 +352,7 @@ class CmdLine
 	private void printAboutText()
 	{		
 		console.WriteLine(
-		#include <Macaroni/AboutText>
+		#include <Macaroni/AboutText.h>
 			);
 	}
 
