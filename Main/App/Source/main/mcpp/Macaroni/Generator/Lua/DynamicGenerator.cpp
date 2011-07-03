@@ -114,12 +114,13 @@ std::string DynamicGenerator::Run(const std::string & methodName)
 	{
 		// Argument 2 - sources array
 		lua_newtable(L);
-		int count = 1;
+		int count = 0;
 		BOOST_FOREACH(PathPtr source, buildContext->GetSourceDirs())
 		{
+			count ++;
 			lua_pushnumber(L, count);
 			PathLuaMetaData::PutInstanceOnStack(L, source);
-			lua_settable(L, -3);			
+			lua_settable(L, -3);	
 		}		
 	}
 	// Argument 3 - OutputPath (2 for "Generate")

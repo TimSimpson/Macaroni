@@ -1,0 +1,13 @@
+~import std::string;
+
+class MagicalPaintBrush
+{
+
+	// The secret was that it was a face.
+	public std::string revealSecrets()
+	{
+		return "\n~   ~\n"
+		         " --- \n";
+	}
+
+};
