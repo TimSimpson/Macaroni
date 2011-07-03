@@ -33,7 +33,8 @@ description= [[
 ]]
 
 -- Bug- the Boost Build builder only looks at the last source path.
-sources = { "Source/main/lua", "Source/main/resources", "Source/main/mcpp" }
+sources = { "Source/main/lua", "Source/main/resources", "Source/main/mcpp",
+            "Source/test/mcpp" }
 output = "GeneratedSource"
 --releasePath = "../" .. properties.macaroni.releasepath .. "/App";
 
@@ -88,7 +89,16 @@ jamArgs =
           <variant>release:<location>release/release          		
         ;
 	  ]],
-	  Link="static"
+	  Link="static",
+	  -- Alas, not yet... 
+	  -- Tests = 
+	  -- {
+	  --   "Macaroni/Build/ManifestOrganizerTest.cpp",
+	  --   "Macaroni/IO/GeneratedFileWriterTest.cpp",
+	  --   "Macaroni/Model/ContextTests.cpp",
+	  --   "Macaroni/Model/NodeTest.cpp",
+	  --   "BoostTestTest.cpp",	    
+	  -- }
 	};
 		
 function build()	
