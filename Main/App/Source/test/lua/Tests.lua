@@ -84,7 +84,7 @@ output = {
                 msg = tostring(msgArg);
             end);
             if (not status) then
-                msg = "An error occured while calling tostring on the error object to report what the error was!";
+                msg = "An error occurred while calling tostring on the error object to report what the error was!";
             end
             if (msg == nil) then
                 msg = "{Error message was nil.}";

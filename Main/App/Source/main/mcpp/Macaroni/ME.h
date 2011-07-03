@@ -35,6 +35,11 @@
 // for now I want to keep it in.
 #ifdef MACARONI_COMPILE_TARGET_WINDOWS
 #define MACARONI_VE_CONST_IS_ALLOWED
+//TODO: This may be overkill. I think boost::filesystem defines this somewhere.
+#define MACARONI_DIRECTORY_SEPERATOR "\\"
+#endif
+#ifdef MACARONI_COMPILE_TARGET_LINUX
+#define MACARONI_DIRECTORY_SEPERATOR "/"
 #endif
 
 #ifdef MACARONI_VE_CONST_IS_ALLOWED

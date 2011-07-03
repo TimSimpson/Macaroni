@@ -87,7 +87,7 @@ int generic_main(std::vector<MACARONI_VE_CONST std::string> & args)
 			}
 		} catch(std::exception & ex)
 		{
-			std::cerr << "An error occured.\n" << std::endl;
+			std::cerr << "An error occurred.\n" << std::endl;
 			std::cerr << ex.what()  << std::endl;
 		}
 	}

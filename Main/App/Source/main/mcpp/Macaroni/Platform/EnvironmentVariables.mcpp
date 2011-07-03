@@ -30,7 +30,7 @@ namespace Macaroni::Platform {
 /** 
  *  This class handles copying environment variables around. This is used
  *  in Windows to copy the variables from the calling process to the child.
- *  I don't think it is needed in Lunix.
+ *  I don't think it is needed in Linux.
  */
 class EnvironmentVariables
 {

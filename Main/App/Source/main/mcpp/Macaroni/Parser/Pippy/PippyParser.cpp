@@ -349,6 +349,10 @@ static std::string unsafeStaticNightmareString;
 
 static Iterator createTestItr(const char * msgChars)
 {
+	if (msgChars == nullptr)
+	{
+		MACARONI_THROW("Cannot pass nullptr to createTestItr.")
+	}
 	unsafeStaticNightmareString = std::string(msgChars);
 	FileNamePtr file = FileName::Create(std::string("Blah.mcpp"));
 	SourcePtr src = Source::Create(file, 1, 1);

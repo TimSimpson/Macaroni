@@ -29,5 +29,4 @@ function Generate(library, path)
 	if cpp.HFilePath == nil then
 		error("NO!GG");
 	end
-	-- error("" .. tostring(cpp.HFilePath));
 end

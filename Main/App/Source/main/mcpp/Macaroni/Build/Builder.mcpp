@@ -502,7 +502,7 @@ class Builder
 			}
 			catch(...)
 			{				
-				console.Write("An error occured simply parsing the bug manifest \"");
+				console.Write("An error occurred simply parsing the bug manifest \"");
 				console.Write(bugPath.string());
 				console.WriteLine("\".");
 				continue;
@@ -621,14 +621,14 @@ class Builder
 		}
 		catch(Macaroni::Exception & ex)
 		{
-			console.Write("An error occured parsing Macaroni source files.");
+			console.Write("An error occurred parsing Macaroni source files.");
 			console.WriteLine(ex.GetSource());
 			console.WriteLine(ex.GetMessage());
 			return false;
 		}
 		catch(Macaroni::Parser::ParserException & pe)
 		{
-			console.Write("An error occured parsing Macaroni source files.");
+			console.Write("An error occurred parsing Macaroni source files.");
 			console.WriteLine(pe.GetSource()->ToString());
 			console.WriteLine(pe.GetMessage());
 			return false;
@@ -656,7 +656,7 @@ class Builder
 		}
 		catch(Macaroni::Exception & ex)
 		{
-			console.Write("An error occured in ");
+			console.Write("An error occurred in ");
 			printOutDependencyStack(dependencyStack);
 			console.WriteLine(".");
 			console.WriteLine(ex.GetSource());
@@ -665,7 +665,7 @@ class Builder
 		}
 		catch(Macaroni::Parser::ParserException & pe)
 		{
-			console.Write("An error occured parsing Macaroni code while in dependency ");
+			console.Write("An error occurred parsing Macaroni code while in dependency ");
 			printOutDependencyStack(dependencyStack);
 			console.WriteLine(".");
 			console.WriteLine(pe.GetSource()->ToString());
@@ -674,7 +674,7 @@ class Builder
 		}
 		catch(std::exception & ex)
 		{
-			console.Write("An error occured in ");
+			console.Write("An error occurred in ");
 			printOutDependencyStack(dependencyStack);
 			console.WriteLine(".");
 			console.WriteLine(ex.what());
@@ -709,7 +709,7 @@ class Builder
 		}
 		catch(Macaroni::Exception & ex)
 		{
-			console.WriteLine("An error occured during Macaroni phase.");
+			console.WriteLine("An error occurred during Macaroni phase.");
 			console.WriteLine(ex.GetSource());
 			console.WriteLine(ex.GetMessage());
 			return false;

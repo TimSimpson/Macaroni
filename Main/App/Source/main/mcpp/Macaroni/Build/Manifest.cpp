@@ -286,20 +286,20 @@ int _dependency(lua_State * L)
     LibraryId dId;
     lua_getfield(L, 1, "group");
     if (!lua_isnil(L, -1))
-    {
-        dId.SetGroup(std::string(lua_tostring(L, -1)));
+    {		
+        dId.SetGroup(std::string(luaL_checkstring(L, -1)));
     }
     lua_pop(L, 1);
     lua_getfield(L, 1, "name");
     if (!lua_isnil(L, -1))
-    {
-        dId.SetName(std::string(lua_tostring(L, -1)));
+    {		
+        dId.SetName(std::string(luaL_checkstring(L, -1)));
     }
     lua_pop(L, 1);
     lua_getfield(L, 1, "version");
     if (!lua_isnil(L, -1))
     {
-        dId.SetVersion(std::string(lua_tostring(L, -1)));
+        dId.SetVersion(std::string(luaL_checkstring(L, -1)));
     }
     lua_pop(L, 1);
 
@@ -312,59 +312,7 @@ int _dependency(lua_State * L)
 	//void * ptr2 = lua_touserdata(L, lua_upvalueindex(2));
 	//const std::string & properties = *(reinterpret_cast<std::string *>(ptr2));
 	dependencies->push_back(dId);
-	return 0;
-
-	/*boost::filesystem::path manifestFilePath;
-	try
-	{
-		manifestFilePath = dId.FindFinalManifestFile();
-	} 
-	catch (std::exception ex)
-	{
-		std::stringstream msg;
-		msg << "Could not load dependency "
-			<< dId.GetGroup() << " / " << dId.GetName()
-			<< " / " << dId.GetVersion() << "."
-			<< " Exception:" << ex.what();
-		lua_pushstring(L, msg.str().c_str());
-		return lua_error(L);
-	}	
-	
-	if (!boost::filesystem::exists(manifestFilePath))
-	{
-		std::stringstream msg;
-		msg << "No manifest found for the dependency "
-			<< dId.GetGroup() << " / " << dId.GetName()
-			<< " / " << dId.GetVersion()
-			<< " at path " << manifestFilePath.string() << ".";
-		lua_pushstring(L, msg.str().c_str());
-		return lua_error(L);
-	}
-	else 
-	{
-		void * ptr = lua_touserdata(L, lua_upvalueindex(1));
-		std::vector<ManifestPtr> * dependencies =
-			reinterpret_cast<std::vector<LibraryId> *>(ptr);
-		void * ptr2 = lua_touserdata(L, lua_upvalueindex(2));
-		const std::string & properties = *(reinterpret_cast<std::string *>(ptr2));
-		try
-		{
-			ManifestPtr newManifest(new Manifest(manifestFilePath, properties));
-			dependencies->push_back(newManifest);
-			return 0;
-		} 
-		catch(std::exception ex)
-		{
-			std::stringstream msg;
-			msg << "Error occured while loading manifest for the dependency "
-				<< dId.GetGroup() << " / " << dId.GetName()
-				<< " / " << dId.GetVersion()
-				<< " at path " << manifestFilePath.string() << ":"
-				<< ex.what() ;
-			lua_pushstring(L, msg.str().c_str());
-			return lua_error(L);
-		}		
-	}*/
+	return 0;	
 }
 
 int _getUpperLibrary(lua_State * L)
@@ -392,44 +340,6 @@ int _getUpperLibrary(lua_State * L)
 	}	
 	return 1;
 }
-
-/*
-int _runGenerator(lua_State * L)
-{
-	//ContextPtr context = ContextLuaMetaData::GetInstance(L, lua_upvalueindex(1));
-	LibraryPtr library = LibraryLuaMetaData::GetInstance(L, lua_upvalueindex(1));
-	PathPtr path = PathLuaMetaData::GetInstance(L, lua_upvalueindex(2));	
-	void * ptr = lua_touserdata(L, lua_upvalueindex(3));    
-    std::vector<MACARONI_VE_CONST std::string> * sources =
-        reinterpret_cast<std::vector<const std::string> *>(ptr);
-	
-	std::string generatorName(std::string(lua_tolstring(L, 1, NULL)));
-	std::vector<StringPair> pairs;
-
-	if (lua_gettop(L) > 1) 
-	{
-		if (!lua_istable(L, 2)) 
-		{
-			luaL_error(L, "An optional table filled only with strings is expected as the second argument of runGenerator.");
-		}		
-		pairs = LuaEnvironment::GetStringPairsFromTable(L, true);		
-	}
-
-	boost::filesystem::path genPath =
-			Generator::ResolveGeneratorPath(*sources, generatorName);
-	if (!genPath.empty())
-	{
-		boost::filesystem::path output(path->GetAbsolutePath());
-		Generator::RunDynamicGenerator(library, output, genPath, pairs);
-	}
-	else
-	{
-		std::stringstream ss;
-		ss << "Could not find generator " << generatorName << ".";		
-		luaL_error(L, ss.str().c_str());
-	}
-    return 0;
-}*/
 
 int _runScript(lua_State * L)
 {
@@ -488,7 +398,7 @@ int _runScript(lua_State * L)
 		catch (const Macaroni::Exception & ex)
 		{
 			std::stringstream ss;
-			ss << "An error occured running the generator at " 
+			ss << "An error occurred running the generator at " 
 				<< scriptPath << ". C exception thrown from " << ex.GetSource()
 				<< ". Message: " << ex.GetMessage();
 			luaL_error(L, ss.str().c_str());	
@@ -513,7 +423,7 @@ int _source(lua_State * L)
     //Manifest * me = dynamic_cast<Manifest *>(oldThis);
     std::vector<std::string> * sources =
         reinterpret_cast<std::vector<std::string> *>(ptr);
-    sources->push_back(std::string(lua_tolstring(L, 1, NULL)));
+    sources->push_back(std::string(luaL_checkstring(L, 1)));
     return 1;
 }
 
@@ -638,95 +548,6 @@ std::string Manifest::GetProperties()
 	luaEnv.SerializeTable(cereal, "properties");
 	return cereal.str();
 }
-
-//
-//void getFromLuaVarOrDefault(std::string & rtnValue, lua_State * L, const char * name, const char * dflt)
-//{
-//	lua_getglobal(L, name);
-//	if (!lua_isnil(L, -1))
-//	{
-//		rtnValue = std::string(lua_tolstring(L, -1, NULL));
-//	}
-//	else
-//	{
-//		rtnValue = std::string(dflt);
-//	}
-//	lua_pop(L, 1);
-//}
-//
-//std::vector<const std::string> getVectorFromLocalLuaTable(lua_State * L, const char * name)
-//{
-//	std::vector<const std::string> vec;
-//
-//	lua_pushstring(L, name); // push key to get table
-//	lua_gettable(L, -2); // get table
-//	if (lua_istable(L, -1))
-//	{
-//		vec = getVectorFromLuaTable(L);
-//	}
-//
-//	lua_pop(L, 1);
-//	return vec;
-//}
-//
-//std::vector<const std::string> getVectorFromGlobalLuaTable(lua_State * L, const char * name)
-//{
-//	lua_getglobal(L, name);
-//	if (lua_isnil(L, -1))
-//	{
-//		std::vector<const std::string> vec;
-//		return vec;
-//	}
-//	else
-//	{
-//		return getVectorFromLuaTable(L);
-//	}
-//	lua_pop(L, 1);
-//}
-//
-//std::vector<const std::string> getVectorFromLuaTable(lua_State * L)
-//{
-//	std::vector<const std::string> vec;
-//
-//	lua_pushnil(L); // first key
-//	const int tableIndex = -2;
-//	while(lua_next(L, tableIndex)  != 0)
-//	{
-//		if (lua_isstring(L, -1))
-//		{
-//			std::string newStr(lua_tolstring(L, -1, NULL));
-//			vec.push_back(newStr);
-//		}
-//		lua_pop(L, 1); // pops off value, saves key
-//	}
-//
-//	return vec;
-//}
-
-/*bool Manifest::RunTarget(const Console & console, GeneratorContextPtr gContext, const std::string & name)
-{
-	lua_State * L = luaEnv.GetState();
-
-	LibraryLuaMetaData::OpenInLua(L);
-	PathLuaMetaData::OpenInLua(L);
-
-	//ContextLuaMetaData::PutInstanceOnStack(L, gContext->GetContext());
-	LibraryLuaMetaData::PutInstanceOnStack(L, gContext->GetLibrary());
-	PathLuaMetaData::PutInstanceOnStack(L, gContext->GetPath());
-	lua_pushlightuserdata(L, &(this->mSource));
-	lua_pushcclosure(L, &_runGenerator, 3);
-	lua_setglobal(L, "runGenerator");
-
-	lua_getfield(L, LUA_GLOBALSINDEX, name.c_str());
-	if (lua_isnil(L, -1))
-	{		
-		console.WriteLine("Could not find function \"generate\".");
-		return false;
-	}
-	lua_call(L, 0, 1);
-	return true;
-	
-}*/
 
 Manifest::RunResultPtr Manifest::RunTarget(const Console & console, BuildContextPtr iContext, const std::string & manifestMethodName, const std::string & generatorMethodName)
 {
@@ -931,18 +752,18 @@ void setLibraryId(LibraryId & id, lua_State * L)
 
 	lua_pushstring(L, "group");
 	lua_gettable(L, -2);
-	id.SetGroup(std::string(lua_tolstring(L, -1, NULL)));
+	id.SetGroup(std::string(luaL_checkstring(L, -1)));
 	lua_pop(L, 1);
 
 	lua_pushstring(L, "name");
 	lua_gettable(L, -2);
-	id.SetName(std::string(lua_tolstring(L, -1, NULL)));
+	id.SetName(std::string(luaL_checkstring(L, -1)));
 	lua_pop(L, 1);
 
 
 	lua_pushstring(L, "version");
 	lua_gettable(L, -2);
-	id.SetVersion(std::string(lua_tolstring(L, -1, NULL)));
+	id.SetVersion(std::string(luaL_checkstring(L, -1)));
 	lua_pop(L, 1);
 
 	lua_pop(L, 1);

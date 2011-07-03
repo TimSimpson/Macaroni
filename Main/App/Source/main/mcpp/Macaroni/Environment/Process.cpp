@@ -189,7 +189,7 @@ bool Process::Run(const Console & console)
 		LocalFree(lpMsgBuf);		
 		
 		// BLAH!!
-		console.WriteLine("An error occured when calling program.");
+		console.WriteLine("An error occurred when calling program.");
 	}
 	else 
 	{

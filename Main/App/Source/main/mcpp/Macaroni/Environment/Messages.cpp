@@ -49,7 +49,7 @@ Messages::Messages(const char * filePath)
 	std::string exePath = Paths::GetExeDirectoryPath();
 	std::ifstream file;
 	std::stringstream finalFilePath;
-	finalFilePath << exePath << "\\Messages.txt";
+	finalFilePath << exePath << MACARONI_DIRECTORY_SEPERATOR << "messages.txt";
 	file.open(finalFilePath.str().c_str());
 	if (!!file) 
 	{

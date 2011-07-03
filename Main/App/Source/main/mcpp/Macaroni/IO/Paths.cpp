@@ -29,10 +29,12 @@
 #ifdef MACARONI_COMPILE_TARGET_WINDOWS
 	#include <tchar.h>
 	#include <windows.h>
+
+	#define HOME_DIRECTORY_ENV_VAR_NAME "USERPROFILE"
 #endif
 
 #ifdef MACARONI_COMPILE_TARGET_LINUX
-
+	#define HOME_DIRECTORY_ENV_VAR_NAME "HOME"
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -54,8 +56,12 @@ std::string Paths::GetExeDirectoryPath()
 
 std::string Paths::GetUserPath() 
 {
-	// "USERPROFILE"
-	std::string userProfile = getenv("USERPROFILE");
+	const char * p =  getenv(HOME_DIRECTORY_ENV_VAR_NAME);
+	if (p == nullptr)
+	{
+		MACARONI_THROW("Error getting path to home directory!");
+	}
+	std::string userProfile(p);
 	std::string userPath = userProfile + "\\Macaroni";
 	return userPath;
 }

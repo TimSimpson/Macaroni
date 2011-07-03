@@ -97,7 +97,7 @@
 			lua_pushnil(L); // p39, start of table iteratin'
 			while(lua_next(L, tableIndex) != 0)
 			{
-				std::string key(lua_tostring(L, -2)); // key
+				std::string key(luaL_checkstring(L, -2)); // key
 				bool value = (lua_toboolean(L, -1) == 1); // value
 				if (key == "Const")
 				{
