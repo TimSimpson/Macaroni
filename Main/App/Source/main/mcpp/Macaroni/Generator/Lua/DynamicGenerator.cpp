@@ -20,7 +20,7 @@
 #include "../../Model/ContextLua.h"
 #include "../../Exception.h"
 #include <boost/foreach.hpp>
-#include <Macaroni/Build/_.h>
+#include <Macaroni/Build/BuildContextPtr.h>
 #include <Macaroni/Build/BuildContext.h>
 #include "../../Model/LibraryLua.h"
 #include "../../IO/Path.h"

@@ -19,7 +19,7 @@
 #include "../../ME.h"
 #include "../../Model/Context.h"
 #include "DynamicScriptRunner.h"
-#include <Macaroni/Build/_.h>
+#include <Macaroni/Build/BuildContextPtr.h>
 #include <Macaroni/Build/BuildContext.h>
 #include "../../Model/Library.h"
 #include "../../Environment/LuaEnvironment.h"

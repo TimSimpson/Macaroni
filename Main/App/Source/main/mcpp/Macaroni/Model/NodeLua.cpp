@@ -448,6 +448,10 @@ int NodeLuaMetaData::Index(lua_State * L, NodePtr & ptr, const std::string & ind
 	{
 		lua_pushcfunction(L, NodeLuaFunctions::SetHFilePath);
 	}	
+	else if (index == "TypeName")
+	{
+		lua_pushstring(L, ptr->GetTypeName());
+	}
 	else
 	{
 		lua_pushnil(L);

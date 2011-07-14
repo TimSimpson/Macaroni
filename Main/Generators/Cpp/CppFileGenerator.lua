@@ -47,4 +47,8 @@ CppFileGenerator = {
         --end
     end, 
     
+    parseTypedef = function (self, node, path)
+		-- Do nothing
+    end,
+    
 }; -- end CppFileGenerator

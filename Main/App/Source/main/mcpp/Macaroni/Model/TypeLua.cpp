@@ -21,6 +21,7 @@
 #include "NodeListLua.h"
 #include "Type.h"
 #include "TypeArgumentListLua.h"
+#include <Macaroni/Model/TypeModifiersLuaMetaData.h>
 #include "TypeLua.h"
 #include <Macaroni/Model/TypeModifiers.h>
 #include <sstream>
@@ -49,6 +50,11 @@
 		else if (index == "ConstPointer")
 		{
 			lua_pushboolean(L, ptr->IsConstPointer());
+			return 1;
+		}
+		else if (index == "Modifiers")
+		{
+			TypeModifiersLuaMetaData::PutInstanceOnStack(L, ptr->GetModifiers());
 			return 1;
 		}
 		else if (index == "Pointer")

@@ -1,6 +1,7 @@
 require "Cpp/Common";
 require "Macaroni.Model.Cpp.ClassParent"
 require "Macaroni.Model.Cpp.ClassParentList"
+require "Macaroni.Model.TypeModifiers"
 require "table"
 
 local Access = Macaroni.Model.Cpp.Access;
@@ -8,7 +9,6 @@ local Context = Macaroni.Model.Context;
 local Node = Macaroni.Model.Node;
 local TypeNames = Macaroni.Model.TypeNames;
 
-FUTURE = true
 
 DependencyTraveller = {
 	-- Used in conjunction with a DependencyList. If "heavy" is specified,
@@ -74,13 +74,13 @@ DependencyList = {
         check(node ~= nil, "Missing node.");
         check(DependencyTraveller.isType(traveller), "Argument 3 'traveller' must be DependencyTraveller.");
         check(node.Member ~= nil and node.Member.TypeName == TypeNames.Class, "Node must be Class.");        
-        if FUTURE then
-			for i = 1, #node.Member.Parents do
-				local parent = node.Member.Parents[i];
-				self:addDependenciesForType(parent.Parent, traveller); --DependencyTraveller.new(node, false));		
-				-- monkey
-			end
-		end
+        for i = 1, #node.Member.Parents do
+			local parent = node.Member.Parents[i];
+			local newTraveller = traveller:clone();
+			newTraveller.heavy = true; -- need heavy def. for class parent
+			self:addDependenciesForType(parent.Parent, newTraveller);
+			-- monkey
+		end		
         for i = 1, #node.Member.FriendNodes do
             local friend = node.Member.FriendNodes[i];
             if (friend.Member ~= nil and friend.Member.TypeName=="Class" or 
@@ -180,14 +180,31 @@ DependencyList = {
     end,
     
     -- Adds the given type itself to the dependencies
-    addDependenciesForType = function(self, type, traveller)
+    addDependenciesForType = function(self, type, traveller, asLight)
         check(self ~= nil, "Missing self.");
         check(type ~= nil, "Type cannot be nil.");    
         check(DependencyTraveller.isType(traveller), "Argument 3' must be DependencyTraveller.");
+        
+        asLight = asLight or false
+        -- ^- This is an experimental thing. The idea is that 
+        -- boost::shared_ptr<Blah> appears everywhere, but "Blah" is 
+        -- interpretted (correctly) as something that must include a whole 
+        -- #include file which stinks! But if its light, that isn't necessary...
+        
         local newTraveller = traveller:clone();
-        if (type.Pointer or type.ConstPointer or type.Reference) then
-            newTraveller.heavy = false;  
-        end
+        if MACARONI_VERSION=="0.1.0.20" then
+			if not asLight then        
+				if (type.Pointer or type.ConstPointer or type.Reference) then
+					newTraveller.heavy = false;  
+				end
+			else
+				newTraveller.heavy = false;
+			end
+		else
+			if type.Modifiers.MayOnlyNeedForwardDeclaration then
+				newTraveller.heavy = false;
+			end
+		end
         if (not self:canUseLightDef(type.Node)) then
             -- HFiles refer to something defined elsewhere we're including.
             -- A light definition is fundamentally impossible, so force heavy def.
@@ -195,13 +212,19 @@ DependencyList = {
         end
                 
         check(type.Node ~= nil, "Given a type with a nil node!");
-        self:addDependencyNode(type.Node, newTraveller);                               
+        self:addDependencyNode(type.Node, newTraveller);     
+        
+        -- this is a hack, but if it works, I'll add real support
+        -- for some kind of keyword or something into Macaroni
+        local light = type.Node.FullName == "boost::shared_ptr"
+                      or type.Node.Fullname == "boost::intrusive_ptr";
+                                  
         if (type.TypeArguments ~= nil) then
             for i = 1, #type.TypeArguments do
                 local typeArg = type.TypeArguments[i];
                 for j = 1, #typeArg.Arguments do
-                    local typeArgType = typeArg.Arguments[j];
-                    self:addDependenciesForType(typeArgType, traveller); 
+                    local typeArgType = typeArg.Arguments[j];                                        
+                    self:addDependenciesForType(typeArgType, traveller, light); 
                 end                
             end
         end

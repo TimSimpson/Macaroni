@@ -3,6 +3,7 @@ require "Cpp/ClassHFileGenerator";
 require "Cpp/LibraryConfigGenerator";
 require "Cpp/NamespaceHFileGenerator";
 require "Cpp/NodeFileGenerator";
+require "Cpp/TypedefFileGenerator";
 
 require "Macaroni.Model.FileName";
 require "Macaroni.Model.Reason";
@@ -67,5 +68,16 @@ HFileGenerator = {
 			};
         return ng;
     end,
+    
+    createTypedefFileGenerator = function (self, node, path)
+        local filePath = path:NewPath(".h");
+        local tg = TypedefFileGenerator.new{
+			node = node, 
+			path = filePath, 
+			targetLibrary = self.targetLibrary
+			};
+        return tg;
+    end,
+        
     
 }; -- end HFileGenerator

@@ -31,7 +31,7 @@ NodeInfo = {
 	-- definition (a forward reference) looks like, what the heavy one 
 	-- (an #include statement) looks like, etc.	
 	
-    dependencies = nil,
+	dependencies = nil,
     headerFile = nil,
     heavyDef = nil,
     lightDef = nil,
@@ -42,7 +42,7 @@ NodeInfo = {
         local self = {}
         setmetatable(self, {["__index"]=NodeInfo});       
         self.node = node;         
-        self.dependencies = self:createDependencyList(self.node);
+        self.dependencies = self:createDependencyList(self.node);		
         self.headerFile = self:createHeaderFile(self.node);
         self.heavyDef = self:createHeavyDef(self.node);
         self.lightDef = self:createLightDef(self.node);
@@ -64,6 +64,7 @@ NodeInfo = {
         return rtn;
     end,    
     
+    -- Only in 0.1.0.20
     createDependencyList = function(self, node)
         -- Functions and variables don't currently get these because their 
         -- info is too dependent on context.
@@ -78,7 +79,9 @@ NodeInfo = {
         check(self ~= nil, "Member function called without self.");
         check(node ~= nil, "Argument 2, 'node', cannot be nil.");               
         if (node.Member ~= nil and 
-            node.Member.TypeName == Macaroni.Model.TypeNames.Primitive) then
+            (node.Member.TypeName == Macaroni.Model.TypeNames.Primitive
+             or node.Member.TypeName == "AnnotationDefinition")
+            ) then
             return "";
         end
         local path = nil;
@@ -90,7 +93,9 @@ NodeInfo = {
             elseif self:isUnderClass(node) then
 				return self:createHeaderFile(node.Node);
             elseif (node.Member ~= nil) then            
-				if (node.Member.TypeName == Macaroni.Model.TypeNames.Class) then
+				if (node.Member.TypeName == Macaroni.Model.TypeNames.Class or
+				    node.Member.TypeName == Macaroni.Model.TypeNames.Typedef) 
+				    then
 					return '<' .. node:GetPrettyFullName("/") .. '.h>';             
 				end
 			end
@@ -119,7 +124,7 @@ NodeInfo = {
 			for i = 1, #names do
 				rtn = rtn .. "} ";
 			end
-			rtn = rtn .. "// End namespace ";
+			rtn = rtn .. "// End " .. namespaceNode.FullName;
 			rtn = rtn .. "\n";
 		end
 		return rtn;		
@@ -128,9 +133,11 @@ NodeInfo = {
     -- Creates the light definition, in the form of a String. Includes newlines.
     createLightDef = function(self, node)    
         check(self ~= nil, "Member method called without self.");
-        check(node ~= nil, "Argument one must be node.");        
-        if (node.IsRoot or node.HFilePath ~= nil) then
-			ignore = true
+        check(node ~= nil, "Argument one must be node.");  
+        if (node.IsRoot) then
+			return ""; -- Ignore
+        end      
+        if (node.HFilePath ~= nil) then
 			local attr = node.Annotations["Macaroni::Cpp::UseLightDef"];			
 			if (attr ~= nil) then
 				if not attr.IsBool then
@@ -142,7 +149,8 @@ NodeInfo = {
 				end
 			end	
 			if ignore then
-				return ""; -- Ignore
+				-- For header files are forced to use this... :(
+				return self:createHeavyDef(node);
 			end
         end
         local generateWarning = true;
@@ -161,13 +169,14 @@ NodeInfo = {
             elseif (node.Member.TypeName == TypeNames.Primitive) then
                 return ""; -- Ignore
             elseif (node.Member.TypeName == TypeNames.Typedef) then
-                local typeUtil = TypeUtil.new();
-                local rtn = self:beginNs(node.Node);
-                rtn = rtn ..  'typedef ' .. 
-                            typeUtil:createTypeDefinition(node.Member.Type, false) ..
-                            ' ' .. node.Name .. ';';   
-                rtn = rtn .. self:endNs(node.Node);
-                return rtn;               
+				return self:createHeavyDef(node);
+                --local typeUtil = TypeUtil.new();
+                --local rtn = self:beginNs(node.Node);
+                --rtn = rtn ..  'typedef ' .. 
+                            --typeUtil:createTypeDefinition(node.Member.Type, false) ..
+                            --' ' .. node.Name .. ';';   
+                --rtn = rtn .. self:endNs(node.Node);
+                --return rtn;               
             end            
         end
         return "// ~ <(I don't know how to generate definition for " .. node.FullName .. ".)\n"; 

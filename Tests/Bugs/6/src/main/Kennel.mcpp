@@ -1,0 +1,17 @@
+~import std::string;
+
+~namespace Kennel;
+
+class Dog
+{	
+	public Dog()		
+	{}		
+	
+	public const char * Speak() const
+	{
+		return "Was not I who fought the war in those days, but the old man "
+		       "sitting upon the riverbank. His eyes like the sea, never "
+		       "aging, always ready to destroy those who dared to challenge "
+		       "the might of Poseidon.";	
+	}
+};

@@ -1,0 +1,15 @@
+~import Kennel::Dog;
+~import Village::Dog as VDog;
+
+class Dogger
+{
+	private Dog dog;
+	private VDog vdog;
+	
+	public Dogger()
+		: dog("Wolfy"),
+		  vdog()
+	{		
+	}
+
+};

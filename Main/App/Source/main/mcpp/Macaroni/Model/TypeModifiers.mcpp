@@ -28,12 +28,14 @@ namespace Macaroni::Model {
 	{
 		private bool _const;
 		private bool _constPointer;		
+		private bool _light;
 		private bool _pointer;
 		private bool _reference;	
 
 		public TypeModifiers()
 			: _const(false), _constPointer(false),
-			  _pointer(false), _reference(false)
+			  _light(false),
+			  _pointer(false), _reference(false)			  
 		{			
 			if (ConstPointer() && !Pointer())
 			{
@@ -68,11 +70,23 @@ namespace Macaroni::Model {
 			return _constPointer;
 		}
 
+		public inline void SetLight(bool value)
+		{
+			_light = value;
+		}
+
+		public inline bool Light() const
+			@LuaProperty "Light"
+		{
+			return _light;
+		}
+
 		public inline void SetConstPointer(bool value)
 		{
 			_constPointer = value;
 		}
 
+		
 		public inline bool Pointer() const
 			@LuaProperty "Pointer"
 		{
@@ -95,12 +109,20 @@ namespace Macaroni::Model {
 			_reference = value;
 		}
 
+
+		public bool MayOnlyNeedForwardDeclaration()
+			@LuaProperty "MayOnlyNeedForwardDeclaration"
+		{
+			return (_constPointer || _light || _reference || _pointer);
+		}
+
 		public string ToString()
 			@LuaOperator "__tostring"
 		{
 			stringstream ss;			
 			ss << (Const() ? "const " : "") 
 			   << "T"
+			   << (Light() ? " ~L" : "")
 			   << (Pointer() ? " *" : (Reference() ? " &" : ""))
 			   << (ConstPointer() ? " const" : "")
 				;

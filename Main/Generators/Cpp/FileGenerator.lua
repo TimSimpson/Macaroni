@@ -91,20 +91,20 @@ FileGenerator = {
 			for i = 1, #names do
 				self:write("} ");
 			end
-			self:write("// End namespace ");
+			self:write("// End " .. namespaceNode.FullName);
 			self:write("\n");
 		end
     end,
     
     parseMember = nil,  
-
-    ["parse" .. TypeNames.Typedef] = function(self, node)
-        self:writeTabs();
-        local typedef = node.Member;
-        self:write("typedef ");
-        self:writeType(typedef.Type);
-        self:write(node.Name .. ";\n");
-    end,
+    
+    --["parse" .. TypeNames.Typedef] = function(self, node)
+        --self:writeTabs();
+        --local typedef = node.Member;
+        --self:write("typedef ");
+        --self:writeType(typedef.Type);
+        --self:write(node.Name .. ";\n");
+    --end,
     
     ["parse" .. TypeNames.Variable] = function(self, node)
         self:writeTabs();
@@ -120,6 +120,12 @@ FileGenerator = {
         --log:Write("DEBUG:" .. debug.traceback());       
         self.writer:Write(text);
     end,    
+    
+    writeVerbose = function(self, text)
+		if CPP_GENERATE_VERBOSE then
+			self:write(text)
+		end		
+    end,
     
     writeAfterTabs = function(self, text)
         self:writeTabs();

@@ -153,16 +153,17 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         return node.FullName;
     end,       
     
-    includeStatements = function(self)            
-        local section = DependencySection.new();
-        section:add(self.node);
+    includeStatements = function(self)          
+		local section = DependencySection.new();
+        section:add(self.node);   
+        section:eraseNode(self.node);     
         section:eraseDuplicates();
         for i = 1, #section.list do
-            local s = section.list[i];            
+            local s = section.list[i];             
             if (s.heavy == false) then
-                self:write(NodeInfoList[s.node].lightDef);
+				self:write(NodeInfoList[s.node].lightDef);
             else
-                self:write(NodeInfoList[s.node].heavyDef);
+				self:write(NodeInfoList[s.node].heavyDef);
             end
         end       
         
@@ -196,6 +197,7 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         end
         
         self:writeAfterTabs("// Forward declaration necessary if this depends on anything which also depend on this.\n");
+		
         if (not self.isNested) then 
             self:namespaceBegin(self.node.Node);
         end

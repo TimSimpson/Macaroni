@@ -24,7 +24,7 @@ namespace Macaroni { namespace Build {
 } }
 
 
-#include <Macaroni/Build/_.h>
+#include <Macaroni/Build/BuildContextPtr.h>
 #include "Configuration.h"
 #include <Macaroni/Environment/Console.h>
 #include "../Environment/LuaEnvironment.h"

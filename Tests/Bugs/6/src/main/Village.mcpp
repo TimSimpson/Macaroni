@@ -1,0 +1,20 @@
+~import std::string;
+
+/** This is a reference to the ancient Chinese legend of the dog who lived
+ *  in a kennel, and then the other one, who lived instead in a village. */
+ 
+~namespace Village;
+
+class Dog
+{
+	private const string name;
+	
+	public Dog(const string & name)
+		: name(name)
+	{}		
+	
+	public const char * GetName() const
+	{ 
+		return name.c_str();
+	}
+};

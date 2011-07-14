@@ -50,46 +50,48 @@ public:
 	
 	inline bool IsConst() const
 	{
-		return isConst;
+		return modifiers.Const();
 	}
 
-	bool IsConstPointer() const
+	inline bool IsConstPointer() const
 	{
-		return isConstPointer;
+		return modifiers.ConstPointer();
 	}
 
 	/** Light means that the type is a "light dependency", which means it can
 	 * be satisfied with a forward reference. The '~light' keyword is used
 	 * for this. It useful with complex template types Macaroni isn't smart 
 	 * enough to understand which end up just needing forward references. */
-	bool IsLight() const
+	inline bool IsLight() const
 	{
-		return isLight;
+		return modifiers.Light();
 	}
 
-	bool IsPointer() const
+	inline bool IsPointer() const
 	{
-		return isPointer;
+		return modifiers.Pointer();
 	}
 
-	bool IsReference() const
+	inline bool IsReference() const
 	{
-		return isReference;
+		return modifiers.Reference();
 	}
+
+	const TypeModifiers & GetModifiers() const
+	{
+		return modifiers;
+	}
+
 
 	static bool ListContains(TypeListPtr list, TypePtr target);
 
 	static bool ListIsEqual(TypeListPtr list1, TypeListPtr list2);
 
 private:
-	bool isConst;
-	bool isConstPointer;
-	bool isLight;
-	bool isPointer;
-	bool isReference;
-
 	NodePtr type;	
 	TypeArgumentListPtr typeArguments;
+	TypeModifiers modifiers;
+
 };
 
 END_NAMESPACE2

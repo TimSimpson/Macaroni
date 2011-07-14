@@ -7,13 +7,13 @@ namespace Circular {
 
 class Access {}
 
-typedef shared_ptr<Access> AccessPtr;
+typedef shared_ptr<Access ~l> AccessPtr;
 
 class Scope {}
 
 class Class {}
 
-typedef shared_ptr<Class> ClassPtr;
+typedef shared_ptr<Class ~l> ClassPtr;
 
 class ClassParent {}
 
@@ -27,6 +27,10 @@ class Access
 class Scope
 {
 	AccessPtr access;	
+	
+	public Scope(AccessPtr access)
+		: access(access)
+	{}	
 }
 
 class Class : public Scope

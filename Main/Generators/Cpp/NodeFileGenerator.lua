@@ -62,8 +62,10 @@ NodeFileGenerator = {
         -- Don't generate Nodes from other libraries which are in this Context.
         if (typeName ~= TypeNames.Namespace 
 			and not self:memberIsInTargetLibrary(m)) then
-			log:Write(" Different library, not generating.\n");
-			return;
+			if (typeName ~= TypeNames.Typedef or node.HFilePath ~= nil) then
+				log:Write(" Different library, not generating.\n");
+				return;
+			end
         end
         
         log:Write("       " .. typeName);
@@ -77,6 +79,10 @@ NodeFileGenerator = {
             handlerFunc = self.parseNamespace;
         elseif (typeName == TypeNames.Class) then
             handlerFunc = self.parseClass;
+		elseif (typeName == TypeNames.Typedef) then
+            handlerFunc = self.parseTypedef;           
+        else
+	    error("I don't think the code should be here...")
         end
         
         if (handlerFunc ~= nil) then
@@ -86,4 +92,16 @@ NodeFileGenerator = {
         end 
         log:Write(" ^-- Conclude parse.");
     end,
+    
+    parseTypedef = function (self, node, path)
+		if (node.Member == nil or node.Member.TypeName ~= TypeNames.Typedef) then
+            error("node argument must be typedef.", 2);
+        end
+        -- path:CreateDirectory();
+        local ng = self:createTypedefFileGenerator(node, path);
+        if (ng ~= nil and ng:hasEntriesInLibrary(self.targetLibrary)) then
+            ng:parse();
+        end
+        self:iterateNodes(node.Children, path);
+    end,    
 };

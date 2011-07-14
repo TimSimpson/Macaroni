@@ -17,34 +17,27 @@
 #define MACARONI_ENVIRONMENT_REGISTERINTERNALMODULES_CPP
 
 #include "LuaEnvironment.h"
-#include <Macaroni/Model/Cpp/AccessLuaMetaData.h>
 #include <Macaroni/Model/AnnotationTableLua.h>
 #include <Macaroni/Model/AnnotationValueLua.h>
 #include "../Model/AxiomLua.h"
 #include "../Model/BlockLua.h"
 #include <Macaroni/Model/Cpp/ClassLua.h>
-#include <Macaroni/Model/Cpp/ClassParentLuaMetaData.h>
 #include <Macaroni/Model/Cpp/ClassParentListLuaMetaData.h>
 #include "../Model/ContextLua.h"
 //#include "../Model/Document.h"
-#include <Macaroni/Model/FileNameLuaMetaData.h>
 #include "../Model/Cpp/FunctionLua.h"
 #include "../Model/Cpp/FunctionOverloadLua.h"
-#include <Macaroni/IO/GeneratedFileWriterLuaMetaData.h>
 #include "../Model/LibraryLua.h"
 #include <Macaroni/Doc/MDocParser.h>
 #include "../Model/MemberLua.h"
 #include "MessagesLua.h"
 //#include "../Model/NamespaceLua.h"
-#include "../Model/NodeLua.h"
 #include "../Model/NodeListLua.h"
-#include <Macaroni/Model/ReasonLuaMetaData.h>
 #include "../Parser/ParserLua.h"
 #include "../Parser/ParserExceptionLua.h"
 #include "../IO/PathLua.h"
 #include "../IO/Paths.h"
 #include "../Parser/Pippy/PippyParserLua.h"
-#include <Macaroni/Model/SourceLuaMetaData.h>
 #include <sstream>
 #include "../Model/TypeLua.h"
 #include "../Model/TypeArgumentListLua.h"
@@ -54,31 +47,25 @@
 #include "../Model/Cpp/VariableLua.h"
 #include "../Model/Cpp/VariableAssignmentLua.h"
 #include <Macaroni/VersionNo.h>
+#include <LuaModulesInclude_Macaroni___Macaroni_46_App.h>
 
 BEGIN_NAMESPACE2(Macaroni, Environment)
 
 static const struct luaL_Reg libs[] = {
 	{"Macaroni.Environment.Messages", Environment::MessagesLuaMetaData::OpenInLua},
-	{"Macaroni.Model.Cpp.Access", Model::Cpp::AccessLuaMetaData::OpenInLua},
 	{"Macaroni.Model.AnnotationTable", Model::AnnotationTableLuaMetaData::OpenInLua},
 	{"Macaroni.Model.AnnotationValue", Model::AnnotationValueLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Axiom", Model::AxiomLuaMetaData::OpenInLua},	
 	{"Macaroni.Model.Block", Model::BlockLuaMetaData::OpenInLua},	
 	{"Macaroni.Model.Cpp.Class", Model::Cpp::ClassLuaMetaData::OpenInLua},	
-	{"Macaroni.Model.Cpp.ClassParent", Model::Cpp::ClassParentLuaMetaData::OpenInLua},	
 	{"Macaroni.Model.Cpp.ClassParentList", Model::Cpp::ClassParentListLuaMetaData::OpenInLua},	
 	{"Macaroni.Model.Context", Model::ContextLuaMetaData::OpenInLua},	
-	{"Macaroni.Model.FileName", Model::FileNameLuaMetaData::OpenInLua},	
 	{"Macaroni.Model.Cpp.Function", Model::Cpp::FunctionLuaMetaData::OpenInLua},		
 	{"Macaroni.Model.Cpp.FunctionOverload", Model::Cpp::FunctionOverloadLuaMetaData::OpenInLua},		
-	{"Macaroni.IO.GeneratedFileWriter", Macaroni::IO::GeneratedFileWriterLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Library", Model::LibraryLuaMetaData::OpenInLua},	
 	{"Macaroni.Doc.MDocParser", Macaroni::Doc::MDocParser::OpenInLua},	
 	{"Macaroni.Model.Member", Model::MemberLuaMetaData::OpenInLua},	
-	{"Macaroni.Model.Node", Model::NodeLuaMetaData::OpenInLua},
 	{"Macaroni.Model.NodeList", Model::NodeListLuaMetaData::OpenInLua},
-	{"Macaroni.Model.Reason", Model::ReasonLuaMetaData::OpenInLua},	
-	{"Macaroni.Model.Source", Model::SourceLuaMetaData::OpenInLua},
 	{"Macaroni.Parser.Parser", Parser::ParserLuaMetaData::OpenInLua},
 	{"Macaroni.Parser.ParserException", Parser::ParserExceptionLuaMetaData::OpenInLua},
 	{"Macaroni.IO.Path", IO::PathLuaMetaData::OpenInLua},
@@ -91,6 +78,7 @@ static const struct luaL_Reg libs[] = {
 	{"Macaroni.Model.TypeList", Macaroni::Model::TypeListLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Cpp.Variable", Macaroni::Model::Cpp::VariableLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Cpp.VariableAssignment", Macaroni::Model::Cpp::VariableAssignmentLuaMetaData::OpenInLua},
+	#include <LuaModulesRegister_Macaroni___Macaroni_46_App.h>
 	{nullptr, nullptr} /* sentinel */
 	};
 

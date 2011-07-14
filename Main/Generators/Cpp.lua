@@ -20,12 +20,14 @@ require "Cpp/LibraryConfigGenerator";
 require "Macaroni.Model.Library";
 require "Log";
 
+CPP_GENERATE_VERBOSE = false
 
 function Generate(library, path)
-	--log = log.Init("Cpp");
+	log = log.Init("Cpp");
 	--log.Write = function(self, msg) 			
 			--print("[CPP]:" .. msg);
 		--end;
+	
 	if BoostConfigIsAvailable(library.Context) then
 		lcg = LibraryConfigGenerator.new(library);
 		lcg:writeFile(path);

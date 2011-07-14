@@ -18,6 +18,7 @@
 ~import BOOST_FOREACH;
 ~import Macaroni::Build::BuilderArguments;
 ~import Macaroni::Build::BuilderArgumentsPtr;
+~import Macaroni::Build::BuildContextPtr;
 ~import Macaroni::Environment::Console;
 ~import Macaroni::Model::Context;
 ~import Macaroni::Model::ContextPtr;
@@ -120,33 +121,24 @@ class Builder
 	}
 
 
-	//TODO: In Macaroni 0.1.0.4, this does not work.  Causes error:
-	//addDependencyNode was passed Macaroni::Environment::Console, which is a hollow node..
-	~block "h"
+	BuildContextPtr createBuildContext(ManifestPtr manifest, LibraryPtr library)
 	{
-	private :  BuildContextPtr createBuildContext(ManifestPtr manifest, Macaroni::Model::LibraryPtr library);
-	}
-	~block "cpp"
-	{
-		BuildContextPtr Builder::createBuildContext(ManifestPtr manifest, LibraryPtr library)
-		{
-			//const Path dir(manifest->GetRootDirectory(), 
-			//			   manifest->GetRootDirectory());
-			vector<PathPtr> sources;
-			BOOST_FOREACH(const std::string & srcDirectory, manifest->GetMSource())
-			{							
-				path sd(srcDirectory);
-				PathPtr newPath(new Path(sd)); //manifest->GetRootDirectory() / srcDirectory));
-				sources.push_back(newPath);
-			}
-			path od(manifest->GetMOutput());
-			PathPtr genSrc(new Path(od)); //manifest->GetRootDirectory() / manifest->GetMOutput()));
-			path installPath = getInstallPath(manifest->GetId());
-			PathPtr installPathPtr(new Path(installPath, installPath));			
-			BuildContextPtr iCon(new BuildContext(appPaths, library, sources, genSrc, installPathPtr, properties));
-			return iCon;
+		//const Path dir(manifest->GetRootDirectory(), 
+		//			   manifest->GetRootDirectory());
+		vector<PathPtr> sources;
+		BOOST_FOREACH(const std::string & srcDirectory, manifest->GetMSource())
+		{							
+			path sd(srcDirectory);
+			PathPtr newPath(new Path(sd)); //manifest->GetRootDirectory() / srcDirectory));
+			sources.push_back(newPath);
 		}
-	}
+		path od(manifest->GetMOutput());
+		PathPtr genSrc(new Path(od)); //manifest->GetRootDirectory() / manifest->GetMOutput()));
+		path installPath = getInstallPath(manifest->GetId());
+		PathPtr installPathPtr(new Path(installPath, installPath));			
+		BuildContextPtr iCon(new BuildContext(appPaths, library, sources, genSrc, installPathPtr, properties));
+		return iCon;
+	}	
 
 	private LibraryPtr createLibraryForManifest(ManifestPtr manifest, bool isInstalled)
 	{		

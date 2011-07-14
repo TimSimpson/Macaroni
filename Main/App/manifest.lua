@@ -34,7 +34,8 @@ description= [[
 
 -- Bug- the Boost Build builder only looks at the last source path.
 sources = { "Source/main/lua", "Source/main/resources", "Source/main/mcpp",
-            "Source/test/mcpp" }
+            --"Source/test/mcpp" 
+            }
 output = "GeneratedSource"
 --releasePath = "../" .. properties.macaroni.releasepath .. "/App";
 
@@ -45,8 +46,10 @@ dependency {group="Macaroni", name="Boost-filesystem", version="1.46.1"}
 dependency {group="Macaroni", name="Boost-regex", version="1.46.1"}
 dependency {group="Macaroni", name="Lua", version="5.1.4"}
         
-function generate()    
+function generate()   
+	print("Checking the model...") 
 	run("CheckModel");
+	print("Wrapping things in LuaGlue...")
 	run("LuaGlue", { luaImportCode =[[ 
 	extern "C" 
 	{	
@@ -54,11 +57,16 @@ function generate()
 		#include <lualib.h>
 	}
 	]] });
+	print("Creating HTML View...")
 	run("HtmlView");
+	print("Generating C++ code...")
     run "Cpp"
-    --runGenerator "Generators/LuaGlue"
+    --runGenerator "Generators/LuaGlue"    
+    print("Creating Macaroni Library Header...")
     run "InterfaceMh"
+    print("Writing Boost Build files...")
     run "JamGenerator"
+    print("Creating library version info file...")
     run "VersionInfoGenerator"       
 end
    
@@ -77,7 +85,8 @@ jamArgs =
 	  			#library_dependencies
 	  			../Source/main/mcpp/Main.cpp
 	  			../Source/main/resources/Macaroni.rc
-            :
+            :  <target-os>windows:<linkflags>/LIBPATH:"]]
+            .. properties.boost.current["path"] .. [[/stage/lib"
 				
 	  		;
 	  		

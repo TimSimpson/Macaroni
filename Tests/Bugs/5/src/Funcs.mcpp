@@ -1,0 +1,19 @@
+~import boost::shared_ptr;
+~import std::string::const_iterator;
+~import std::string;
+~import std::vector;
+
+class Funcs {
+	
+	public static int AddTwoNumbers
+	(
+		int numberOne
+		/* The first number in this, our argument list. */,
+		int numberTwo
+		/* This right here... it is the SECOND argument. */
+	)
+	{
+		return numberOne + numberTwo;
+	}
+
+};

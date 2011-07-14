@@ -51,6 +51,9 @@ NamespaceHFileGenerator = {
     end,
     
     debugOutDependencyGraph = function(self) 
+		if not CPP_GENERATE_VERBOSE then
+			return;
+		end
         self:write("/* ~ Debug Output of Dependency Graph ~ */\n");
         for i = 1, #self.minors do
             local m = self.minors[i];            
@@ -106,19 +109,21 @@ NamespaceHFileGenerator = {
     includeStatements = function(self) 		
         local section = DependencySection.new();
         for i = 1, #self.minors do
-			self:write("/* Adding minor " .. self.minors[i].FullName .. "*/\n");
+			if CPP_GENERATE_VERBOSE then
+				self:write("/* Adding minor " .. self.minors[i].FullName .. "*/\n");
+			end
             section:add(self.minors[i]);
         end
         for i = 1, #section.list do
             local s = section.list[i];            
             if (s.heavy == false) then
-				self:write("/* Light: " .. s.node.FullName .. "*/\n");
+				self:writeVerbose("/* Light: " .. s.node.FullName .. "*/\n");
                 self:write(NodeInfoList[s.node].lightDef);
-                self:write("/* END Light: " .. s.node.FullName .. "*/\n");
+                self:writeVerbose("/* END Light: " .. s.node.FullName .. "*/\n");
             else
-				self:write("/* Heavy: " .. s.node.FullName .. "*/\n");
+				self:writeVerbose("/* Heavy: " .. s.node.FullName .. "*/\n");
                 self:write(NodeInfoList[s.node].heavyDef);
-                self:write("/* END Heavy: " .. s.node.FullName .. "*/\n");
+                self:writeVerbose("/* END Heavy: " .. s.node.FullName .. "*/\n");
             end
         end        
         --[[
@@ -148,11 +153,11 @@ NamespaceHFileGenerator = {
     memberEligibleForOutput = function(self, member)
 		local typeName = member.TypeName;
 		local handlerFunc = nil;        
-        if (typeName == TypeNames.Typedef) then           
-            handlerFunc = self.parseTypedef;
-        else
-            handlerFunc = self["parse" .. typeName];
-        end
+        --if (typeName == TypeNames.Typedef) then           
+            --handlerFunc = self.parseTypedef;
+        --else
+            --handlerFunc = self["parse" .. typeName];
+        --end
         return handlerFunc ~= nil;
     end,
         
@@ -197,11 +202,11 @@ NamespaceHFileGenerator = {
         end
         local typeName = m.TypeName;
         local handlerFunc = nil;        
-        if (typeName == TypeNames.Typedef) then           
-            handlerFunc = self.parseTypedef;
-        else
+        --if (typeName == TypeNames.Typedef) then           
+            --handlerFunc = self.parseTypedef;
+        --else
             handlerFunc = self["parse" .. typeName];
-        end
+        --end
         
         if (handlerFunc ~= nil) then
             handlerFunc(self, node);
@@ -214,6 +219,7 @@ NamespaceHFileGenerator = {
     shouldIncludeNode = function(self, node)
         if (node.Member ~= nil 
                 and node.Member.TypeName ~= TypeNames.Class
+                and node.Member.Typename ~= TypeNames.Typedef
                 and node.AdoptedHome == nil) then
             if (node.HFilePath == nil) then
 				return true;

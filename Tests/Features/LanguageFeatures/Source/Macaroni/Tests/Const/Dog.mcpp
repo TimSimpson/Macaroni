@@ -1,4 +1,4 @@
-~import Macaroni::Tests::ConstsTests::Cat;
+~import Macaroni::Tests::Const::Cat;
 ~import Macaroni::Tests::ConstsTests::Dog;
 ~import std::string;
 

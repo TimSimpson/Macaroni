@@ -1761,6 +1761,7 @@ public:
 			Variable::Create(node, access, isStatic, type, initializer,
 				Reason::Create(CppAxioms::VariableScopeCreation(), oldItr.GetSource()));
 			seenArg = true;
+			ConsumeWhitespace(itr);
 		}
 	}
 
@@ -2199,6 +2200,13 @@ public:
 					Messages::Get("CppParser.Variable.ConstSeenTwice")); 
 			}
 			modifiers.SetConst(true);
+			ConsumeWhitespace(itr);
+		}
+
+		// See if this is a "light" reference.
+		if (itr.ConsumeWord("~l"))
+		{
+			modifiers.SetLight(true);
 			ConsumeWhitespace(itr);
 		}
 

@@ -20,6 +20,7 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/shared_ptr.hpp>
 #include <Macaroni/IO/GeneratedFileWriter.h>
+#include <Macaroni/IO/GeneratedFileWriterPtr.h>
 #include <vector>
 
 BEGIN_NAMESPACE2(Macaroni, IO)
@@ -72,7 +73,7 @@ public:
 	void CreateDirectory() const;
 
 	/** Opens a file in the current directory for writing. */
-	GeneratedFileWriterPtr CreateFile() const;		
+	GeneratedFileWriterPtr CreateFile() const;	
 
 	/** Creates a new instance with the current path as the absolute path. */
 	PathPtr CreateWithCurrentAsRoot() const;

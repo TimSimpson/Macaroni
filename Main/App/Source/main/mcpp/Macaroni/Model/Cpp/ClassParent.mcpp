@@ -19,6 +19,7 @@
 ~import Macaroni::Model::Cpp::Access;
 ~import Macaroni::Model::Cpp::Class;
 ~import Macaroni::Model::Cpp::ClassPtr;
+~import Macaroni::Model::Cpp::Destructor;
 ~import boost::intrusive_ptr;
 ~import Macaroni::Model::Node;
 ~import Macaroni::Model::NodePtr;

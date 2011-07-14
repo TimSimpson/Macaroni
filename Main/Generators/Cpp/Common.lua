@@ -65,30 +65,7 @@ Util = {
     end,
 };
 
-NodeHelper = {
-    --[[createNamespaceOpener =  function(namespaceNode)
-        check(namespaceNode ~= nil, "namespaceNode cannot be nil.");
-        local fs = namespaceNode.FullName;
-        local names = Macaroni.Model.Node.SplitComplexName(fs);
-        local rtn = "";
-        for i = 1, #names do
-            rtn = rtn .. "namespace " .. names[i] .. " { ";
-        end
-        rtn = rtn .. "\n";
-        return rtn;
-    end,    
-    
-    createNamespaceCloser = function(namespaceNode)
-        check(namespaceNode ~= nil, "namespaceNode cannot be nil.");
-        local names = Macaroni.Model.Node.SplitComplexName(namespaceNode.FullName);
-        local rtn = "";
-        for i = 1, #names do
-            rtn = rtn .. "} ";
-        end
-        rtn = rtn .. "// End namespace ";
-        rtn = rtn .. "\n";
-        return rtn;
-    end,]]--
+NodeHelper = {    
     
     worthIteration = function(node) 
         if (node == nil) then
@@ -122,28 +99,38 @@ Common = {
 
 IncludeFiles = {
     -- Given any Node, will create and return the correct include statement.
-    createStatementForNode = function(node) 		    
-        if (node.Member ~= nil and node.Member.TypeName == Macaroni.Model.TypeNames.Primitive) then
-            return;
-        end
-        local path = nil;
-        if (node.HFilePath ~= nil) then 
-            path = tostring(node.HFilePath);
-        else
-            if (node.AdoptedHome ~= nil) then
-                return createStatementForNode(node.AdoptedHome);
-            end
-            if (node.Member ~= nil and node.Member.TypeName == Macaroni.Model.TypeNames.Class) then
-                path = '<' .. node:GetPrettyFullName("/") .. '.h>'; 
-            elseif (nodeDefinedInNamespaceHeader(node)) then				
-                path = '<' .. node.Node:GetPrettyFullName("/") .. '/_.h>';
-            else
-				path = nil;
-            end            
-        end        
-        if (path ~= nil) then
-			return ('#include ' .. path .. '\n');        
+    createStatementForNode = function(node) 	
+		local hFilePath = NodeInfoList[node].headerFile
+		if hFilePath ~= nil and hFilePath ~= '' then
+			return '#include ' .. hFilePath  .. '\n';
+		else
+			if CPP_GENERATE_VERBOSE then
+				return "/* ~<(Couldn't write import for " .. node.FullName .. "!) */";
+			else
+				return '';
+			end
 		end
+        --if (node.Member ~= nil and node.Member.TypeName == Macaroni.Model.TypeNames.Primitive) then
+            --return;
+        --end
+        --local path = nil;
+        --if (node.HFilePath ~= nil) then 
+            --path = tostring(node.HFilePath);
+        --else
+            --if (node.AdoptedHome ~= nil) then
+                --return createStatementForNode(node.AdoptedHome);
+            --end
+            --if (node.Member ~= nil and node.Member.TypeName == Macaroni.Model.TypeNames.Class) then
+                --path = '<' .. node:GetPrettyFullName("/") .. '.h>'; 
+            --elseif (nodeDefinedInNamespaceHeader(node)) then				
+                --path = '<' .. node.Node:GetPrettyFullName("/") .. '/_.h>';
+            --else
+				--path = nil;
+            --end            
+        --end        
+        --if (path ~= nil) then
+			--return ('#include ' .. path .. '\n');        
+		--end
     end,
         
     createStatementForNodeAndPutInTable = function(node, rtnTable)
@@ -283,7 +270,10 @@ TypeUtil = {
                     if (typeArg ~= nil) then
                         rtnStr = rtnStr .. "<";                      
                         for i = 1, #typeArg.Arguments do                        
-                            rtnStr = rtnStr .. self:createTypeDefinition(typeArg.Arguments[i]);
+							if i > 1 then
+								rtnStr = rtnStr .. ', ';
+                            end
+                            rtnStr = rtnStr .. self:createTypeDefinition(typeArg.Arguments[i]);                            
                         end
                         rtnStr = rtnStr .. ">";                     
                     end

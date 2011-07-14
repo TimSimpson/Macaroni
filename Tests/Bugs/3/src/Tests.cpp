@@ -1,10 +1,12 @@
+
+#define BOOST_TEST_MODULE MyTest
+
 #import <vector>
 
-class Blah;
 
-typedef std::vector<Blah> BlahList;
-
-void Go()
+BOOST_AUTO_TEST_CASE(ProveToMeYouKnowTheSecret)
 {
-	BlahList b;		
+	
+	
+	
 }

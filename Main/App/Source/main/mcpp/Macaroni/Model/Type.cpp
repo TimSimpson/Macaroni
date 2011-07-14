@@ -25,17 +25,14 @@
 BEGIN_NAMESPACE2(Macaroni, Model)
 
 Type::Type(NodePtr type, TypeModifiers modifiers)
-:	isConst(modifiers.Const()), isConstPointer(modifiers.ConstPointer()),
-	isPointer(modifiers.Pointer()), isReference(modifiers.Reference()),
-	type(type), typeArguments(new TypeArgumentList())
+:	type(type), typeArguments(new TypeArgumentList()), modifiers(modifiers)
 {
 }
 
 Type::Type(NodePtr type, TypeModifiers modifiers, TypeArgumentListPtr typeArguments)
-:	isConst(modifiers.Const()), isConstPointer(modifiers.ConstPointer()),
-	isPointer(modifiers.Pointer()), isReference(modifiers.Reference()),
-	type(type),
-	typeArguments(typeArguments)
+:	type(type),
+	typeArguments(typeArguments),
+	modifiers(modifiers)
 {
 }
 	
@@ -45,14 +42,10 @@ Type::~Type()
 
 bool Type::operator== (const Type & other) const
 {	
-	return this->IsConst() == other.IsConst()
-		&& this->IsConstPointer() == other.IsConstPointer()
-		&& this->IsPointer() == other.IsPointer()
-		&& this->IsReference() == other.IsReference()
-		&& type == other.type
-		&& TypeArgument::ListIsEqual(
-			this->GetTypeArguments(), 
-			other.GetTypeArguments());
+	return this->modifiers == other.modifiers
+		   && type == other.type
+		   && TypeArgument::ListIsEqual(this->GetTypeArguments(), 
+		                                other.GetTypeArguments());
 }
 	
 void Type::DescribeDifferences(const TypePtr other, std::stringstream & stream) const

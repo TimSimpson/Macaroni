@@ -287,6 +287,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Cpp\TypedefFileGenerator.lua"
+			>
+		</File>
+		<File
 			RelativePath=".\VCpp\VCpp.lua"
 			>
 		</File>
