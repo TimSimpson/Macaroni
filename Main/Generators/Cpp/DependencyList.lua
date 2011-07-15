@@ -1,7 +1,9 @@
 require "Cpp/Common";
 require "Macaroni.Model.Cpp.ClassParent"
 require "Macaroni.Model.Cpp.ClassParentList"
-require "Macaroni.Model.TypeModifiers"
+if MACARONI_VERSION ~= "0.1.0.20" then
+	require "Macaroni.Model.TypeModifiers"
+end
 require "table"
 
 local Access = Macaroni.Model.Cpp.Access;
