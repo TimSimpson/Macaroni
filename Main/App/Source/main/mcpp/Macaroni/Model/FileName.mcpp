@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+~import boost::filesystem::path;
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaFunction;
 ~import Macaroni::Lua::LuaOperator;
@@ -64,6 +65,13 @@ class FileName
 		@LuaOperator "__tostring"
 	{
 		return name;
+	}
+
+	public string GetOsName() const
+		@LuaProperty "OsName"
+	{
+		boost::filesystem::path p(GetName());
+		return p.string();
 	}
 
 	public int GetReferenceCount() const

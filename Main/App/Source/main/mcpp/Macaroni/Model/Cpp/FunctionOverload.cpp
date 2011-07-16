@@ -34,8 +34,8 @@ FunctionOverload::FunctionOverload
 )
 :ScopeMember(home, "FunctionOverload", 
 			 reason, access, isStatic),
- codeAttached(false),
  codeBlock(),
+ codeBlockAddRedirect(false),
  constMember(constMember), 
  isInline(isInline),
  isVirtual(isVirtual),
@@ -52,9 +52,9 @@ FunctionOverload::FunctionOverload
 )
 :ScopeMember(home, typeName, 
 			 reason, access, isStatic),
- codeAttached(false),
  codeBlock(),
  constMember(constMember),
+ codeSource(),
  isInline(isInline),
  isVirtual(isVirtual),
  returnType(rtnTypeInfo),
@@ -157,9 +157,10 @@ void intrusive_ptr_release(FunctionOverload * p)
 	intrusive_ptr_release((ScopeMember *)p);
 }
 
-void FunctionOverload::SetCodeBlock(std::string & code, SourcePtr startOfCode)
+void FunctionOverload::SetCodeBlock(std::string & code, SourcePtr startOfCode, 
+									bool codeBlockAddRedirect)
 {
-	if (codeAttached)
+	if (!!codeSource)
 	{
 		std::stringstream msg;
 		msg << "Cannot create a code block for function "
@@ -170,8 +171,8 @@ void FunctionOverload::SetCodeBlock(std::string & code, SourcePtr startOfCode)
 		throw ModelInconsistencyException(startOfCode, msg.str());
 	}
 	codeBlock = code;
-	codeAttached = true;
 	codeSource = startOfCode;
+	this->codeBlockAddRedirect = codeBlockAddRedirect;
 }
 
 void FunctionOverload::Visit(MemberVisitor * visitor) const

@@ -216,15 +216,16 @@ ClassCppFileGenerator = {
         end]]--
         self:writeConstructorAssignments(node.Member.Assignments);
         
-        self:write("{\n");
-        self:addTabs(1);
-        
-        self:writeTabs();
-        self:write(node.Member.CodeBlock .. "\n");
-        
-        self:addTabs(-1);        
-        self:writeTabs();
-        self:write("}\n");
+        self:writeFunctionCodeBlock(node.Member);
+        --self:write("{\n");
+        --self:addTabs(1);
+        --
+        --self:writeTabs();
+        --self:write(node.Member.CodeBlock .. "\n");
+        --
+        --self:addTabs(-1);        
+        --self:writeTabs();
+        --self:write("}\n");
     end,
     
     ["parse" .. TypeNames.Destructor] = function(self, node)

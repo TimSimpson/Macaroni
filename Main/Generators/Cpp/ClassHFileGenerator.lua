@@ -108,9 +108,10 @@ ClassHFileGenerator = {
 			if child.TypeName == TypeNames.Block then
 				block = child.Member
 				if block.Id == "h-predef" then
-					self:write("// h-predef block: \n");
-					self:write(block.Code);
-					self:write("\n");
+					self:writeBlockCodeBlock(block)
+					--self:write("// h-predef block: \n");
+					--self:write(block.Code);
+					--self:write("\n");
 				end
 			end			
 		end
@@ -246,7 +247,7 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
     ["parse" .. TypeNames.Block] = function(self, node)    
         local block = node.Member;            
         if (block.Id == "h") then
-            self:write(block.Code);
+			self:writeBlockCodeBlock(block);
         end
     end,      
     
@@ -301,15 +302,16 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         else
             self:write("\n");
             self:writeTabs();
-            self:write("{\n");
-            self:addTabs(1);
-            
-            self:writeTabs();
-            self:write(overload.Member.CodeBlock .. "\n");
-            
-            self:addTabs(-1);        
-            self:writeTabs();
-            self:write("}\n");
+            --self:write("{\n");
+            --self:addTabs(1);
+            --
+            --self:writeTabs();
+            --self:write(overload.Member.CodeBlock .. "\n");
+            --
+            --self:addTabs(-1);        
+            --self:writeTabs();
+            --self:write("}\n");
+            self:writeFunctionCodeBlock(node.Member);
         end        
     end,
     

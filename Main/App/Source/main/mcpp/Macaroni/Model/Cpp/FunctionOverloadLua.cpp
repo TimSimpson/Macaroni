@@ -109,7 +109,8 @@ namespace
 			FunctionOverloadPtr ptr = boost::dynamic_pointer_cast<FunctionOverload>(memberPtr);
 			std::string codeBlock(luaL_checkstring(L, 2));
 			SourcePtr src = SourceLuaMetaData::GetInstance(L, 3);
-			ptr->SetCodeBlock(codeBlock, src);
+			bool codeBlockAddRedirect = lua_toboolean(L, 4);
+			ptr->SetCodeBlock(codeBlock, src, codeBlockAddRedirect);
 			return 0;
 		}
 
@@ -157,6 +158,16 @@ int FunctionOverloadLuaMetaData::Index(lua_State * L,
 	else if (index == "CodeBlock")
 	{
 		lua_pushstring(L, ptr->GetCodeBlock().c_str());
+		return 1;
+	}
+	else if (index == "CodeBlockShouldAddRedirect")
+	{
+		lua_pushboolean(L, ptr->CodeBlockShouldAddRedirect());
+		return 1;
+	}
+	else if (index == "CodeSource")
+	{
+		SourceLuaMetaData::PutInstanceOnStack(L, ptr->GetCodeSource());
 		return 1;
 	}
 	else if (index == "Const")

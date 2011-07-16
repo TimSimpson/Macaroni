@@ -68,6 +68,16 @@ public:
 
 	const std::string & GetCodeBlock() const;
 	
+	inline bool CodeBlockShouldAddRedirect() const
+	{
+		return codeBlockAddRedirect;
+	}
+
+	SourcePtr GetCodeSource() const
+	{
+		return codeSource;
+	}
+
 	inline const TypePtr GetReturnType() const
 	{
 		return returnType;
@@ -96,8 +106,13 @@ public:
 	}
 
 	/** Attaches code to this function. If code was already attached, throws a
-	 * ModelInconsistencyException. */
-	void SetCodeBlock(std::string & code, SourcePtr startOfCode);	
+	 * ModelInconsistencyException. 
+	 * If codeBlockAddRedirect is true, it will modify the generated source so
+	 * that errors produced in the C++ file will be redirected to the original
+	 * Macaroni source code.
+	 */
+	void SetCodeBlock(std::string & code, SourcePtr startOfCode, 
+		              bool codeBlockAddRedirect);	
 
 	virtual void Visit(MemberVisitor * visitor) const;
 
@@ -112,9 +127,9 @@ protected:
 
 private:		
 
-	bool codeAttached;
-
 	std::string codeBlock;
+
+	bool codeBlockAddRedirect;
 	
 	SourcePtr codeSource;
 

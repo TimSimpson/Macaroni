@@ -1204,7 +1204,7 @@ namespace
 			Variable.Create(arg3, Access.Public, false, arg3Type, "", self.reason);		
 							
 			local methodBody = self:createIndexMethodBody(isInstance, dotGet);						
-			fo1:SetCodeBlock(methodBody, self.src);				
+			fo1:SetCodeBlock(methodBody, self.src, false);				
 			
 		end,
 		
@@ -1255,7 +1255,7 @@ namespace
 		}
 	}
 	return returnValue;
-]], self.src);
+]], self.src, false);
 		end,
 	    
 		createOpenInLua = function(self)
@@ -1294,7 +1294,7 @@ namespace
 	lua_setmetatable(L, -2);	
 	
 	return 1;
-]], self.src);
+]], self.src, false);
 		end,
 
 		createGetInstance = function(self)
@@ -1323,7 +1323,7 @@ namespace
 	]] .. refTypeStr .. [[ * ptrToPtr = (]] .. refTypeStr .. [[ *) luaL_checkudata(L, index, "]] .. self.metaTableName .. [[");
 	]] .. refTypeStr .. [[ & ptr = dynamic_cast<]] .. refTypeStr .. [[ &>(*ptrToPtr);
 	return ptr;
-]], self.src);
+]], self.src, false);
 		end,
 		
 		createNewIndexMethod = function(self)			
@@ -1355,7 +1355,7 @@ namespace
 				dotGet = '.';
 			end
 			local methodBody = self:createNewIndexMethodBody(dotGet);	
-			fo1:SetCodeBlock(methodBody, self.src);				
+			fo1:SetCodeBlock(methodBody, self.src, false);				
 			
 		end,
 		
@@ -1399,7 +1399,7 @@ namespace
 			}
 			]];	
 			end
-			fo1:SetCodeBlock(codeBlock, self.src);
+			fo1:SetCodeBlock(codeBlock, self.src, false);
 		end,		
 		
 		luaLRegConcat = function(self, t, seperator)

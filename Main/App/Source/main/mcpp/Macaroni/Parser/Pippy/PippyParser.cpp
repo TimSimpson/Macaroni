@@ -1074,7 +1074,8 @@ public:
 		
 		if (codeAttached)
 		{
-			fOlPtr->SetCodeBlock(codeBlock, startOfCodeBlock.GetSource());
+			fOlPtr->SetCodeBlock(codeBlock, startOfCodeBlock.GetSource(), 
+				                 true);
 		}
 		itr = newItr;
 		return true;
@@ -2579,7 +2580,8 @@ public:
 										 fReason);
 			if (codeAttached)
 			{
-				fOl->SetCodeBlock(codeBlock, startOfCodeBlock.GetSource());
+				fOl->SetCodeBlock(codeBlock, startOfCodeBlock.GetSource(), 
+					              true);
 			}
 			if (global)
 			{
