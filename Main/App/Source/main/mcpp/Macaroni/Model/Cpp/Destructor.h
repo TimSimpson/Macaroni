@@ -38,7 +38,8 @@ friend void intrusive_ptr_release(Destructor * p);
 public:
 
 	static DestructorPtr Create(NodePtr home, bool isInline, AccessPtr access, 
-		                        bool isVirtual, Model::ReasonPtr reason);
+		                        bool isVirtual, bool throwSpecifier, 
+								Model::ReasonPtr reason);
 
 	virtual ~Destructor();
 
@@ -56,7 +57,7 @@ public:
 private:
 	
 	Destructor(Node * home, Model::ReasonPtr reason, bool isInline, 
-		       AccessPtr access, bool isVirtual);
+		       AccessPtr access, bool isVirtual, bool throwSpecifier);
 	
 };
 

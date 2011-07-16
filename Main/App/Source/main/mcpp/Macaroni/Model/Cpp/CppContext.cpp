@@ -56,12 +56,20 @@ void CppContext::CreateCppNodes(ContextPtr context)
 	{
 		addPrimitive(primitiveRoot, "bool");
 		addPrimitive(primitiveRoot, "char");
+		addPrimitive(primitiveRoot, "signed char");
+		addPrimitive(primitiveRoot, "unsigned char");
 		addPrimitive(primitiveRoot, "double");
 		addPrimitive(primitiveRoot, "float");
 		addPrimitive(primitiveRoot, "signed int");
+		addPrimitive(primitiveRoot, "unsigned int");
+		addPrimitive(primitiveRoot, "long");
+		addPrimitive(primitiveRoot, "signed long");
+		addPrimitive(primitiveRoot, "unsigned long");
+		addPrimitive(primitiveRoot, "short");
+		addPrimitive(primitiveRoot, "signed short");
+		addPrimitive(primitiveRoot, "unsigned short");
 		addPrimitive(primitiveRoot, "size_t");
-		addPrimitive(primitiveRoot, "int");
-		addPrimitive(primitiveRoot, "unsigned int");		
+		addPrimitive(primitiveRoot, "int");				
 		addPrimitive(primitiveRoot, "void");
 		addPrimitive(primitiveRoot, "wchar_t");
 	}

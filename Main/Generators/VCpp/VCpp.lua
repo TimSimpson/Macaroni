@@ -27,7 +27,7 @@ ProjectFileWriter = {
 		          "The path to put the generated project file.");
 		checkArgs(args, "ProjectGUID");
 		checkArgs(args, "RootNamespace");
-		checkArgs(args, "PlatformNames");
+		checkArgs(args, "PlatformNames");		
 		if args.Name == nil then
 			args.Name = library.Name
 		end
@@ -88,7 +88,13 @@ ProjectFileWriter = {
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="macaroni.exe generate"
+				]]);
+			if self.Cavatappi then
+				self.writer:Write([[ CommandLine="cavatappi generate" ]])
+			else
+				self.writer:Write([[ CommandLine="macaroni.exe generate" ]])
+			end
+			self.writer:Write([[
 			/>
 			<Tool
 				Name="VCCLCompilerTool"

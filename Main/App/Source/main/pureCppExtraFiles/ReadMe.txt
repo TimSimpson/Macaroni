@@ -40,4 +40,6 @@ export BOOST_ROOT=~/boost_1_46_1/
 Now go to the pure C++ directory and run the command "bjam clean" just to make
 sure everything works.  If you're set, the following command will build:
 
-bjam --cflags=MACARONI_COMPILE_TARGET_LINUX
+bjam --toolset=gcc --cflags=MACARONI_COMPILE_TARGET_LINUX link=static release
+
+If there are failures, use the option "-d+2" for verbose mode.

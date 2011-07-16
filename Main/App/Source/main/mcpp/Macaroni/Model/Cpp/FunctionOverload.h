@@ -40,20 +40,23 @@ public:
 									  const bool isStatic, bool isVirtual,
 									  const TypePtr rtnType, 
 									  bool constMember, 
+									  bool throwSpecifier,
 									  Model::ReasonPtr reason);
 
 	static FunctionOverloadPtr Create(FunctionPtr home, bool isInline, 
 									  const AccessPtr access, 
 									  const bool isStatic, bool isVirtual,
 									  const TypePtr rtnType, 									  
-									  bool constMember, Model::ReasonPtr reason);
+									  bool constMember, bool throwSpecifier,
+									  Model::ReasonPtr reason);
 
 	static FunctionOverloadPtr Create(Function * home, bool isInline, 
 									  const AccessPtr access, 
 									  const bool isStatic, 
 									  bool isVirtual,
 									  const TypePtr rtnType,
-									  bool constMember, Model::ReasonPtr reason);
+									  bool constMember, bool throwSpecifier,
+									  Model::ReasonPtr reason);
 
 	virtual ~FunctionOverload();
 	
@@ -72,6 +75,11 @@ public:
 
 	virtual const char * GetTypeName() const;
 
+	bool HasThrowSpecifier() const
+	{
+		return throwSpecifier;
+	}
+
 	inline bool IsConst() const
 	{
 		return constMember;
@@ -89,16 +97,16 @@ public:
 
 	/** Attaches code to this function. If code was already attached, throws a
 	 * ModelInconsistencyException. */
-	void SetCodeBlock(std::string & code, SourcePtr startOfCode);
+	void SetCodeBlock(std::string & code, SourcePtr startOfCode);	
 
 	virtual void Visit(MemberVisitor * visitor) const;
 
 protected:
 	//FunctionOverload(Node home, bool isInline, const Access access, const bool isStatic, const TypePtr rtnType, bool constMember, Model::ReasonPtr reason);
 	
-	FunctionOverload(Node * home, Model::ReasonPtr reason, bool isInline, Access access, const bool isStatic, bool isVirtual, const TypePtr rtnTypeInfo, bool constMember);
+	FunctionOverload(Node * home, Model::ReasonPtr reason, bool isInline, Access access, const bool isStatic, bool isVirtual, const TypePtr rtnTypeInfo, bool constMember, bool throwSpecifier);
 
-	FunctionOverload(Node * home, const char * typeName, Model::ReasonPtr reason, bool isInline, Access access, const bool isStatic, bool isVirtual, const TypePtr rtnTypeInfo, bool constMember);
+	FunctionOverload(Node * home, const char * typeName, Model::ReasonPtr reason, bool isInline, Access access, const bool isStatic, bool isVirtual, const TypePtr rtnTypeInfo, bool constMember, bool throwSpecifier);
 
 	virtual bool canBeChildOf(const Member * other) const;
 
@@ -119,6 +127,8 @@ private:
 	Macaroni::Model::ReasonPtr reasonCreated;
 
 	TypePtr returnType;
+
+	bool throwSpecifier;
 };
 
 END_NAMESPACE

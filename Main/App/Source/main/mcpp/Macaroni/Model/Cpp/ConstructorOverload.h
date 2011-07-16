@@ -42,8 +42,9 @@ public:
 	ConstructorPtr Create(NodePtr host, bool isInline, AccessPtr access, 
 						  Model::ReasonPtr reason);
 
-	static ConstructorOverloadPtr Create(ConstructorPtr home, 
-		bool isInline, AccessPtr access, Model::ReasonPtr reason);
+	static ConstructorOverloadPtr Create(NodePtr home, 
+		bool isInline, AccessPtr access, bool throwSpecifier,
+		Model::ReasonPtr reason);
 
 	virtual ~ConstructorOverload();
 
@@ -53,7 +54,11 @@ public:
 
 	ConstructorOverloadPtr Create(FunctionPtr home, bool isInline, const Access access, 
 							   const bool isStatic, const TypePtr rtnType, 
-							   bool constMember, Model::ReasonPtr reason);
+							   bool constMember, bool throwSpecifier,
+							   Model::ReasonPtr reason);
+
+	/** Creates a new Node under the given Node where the overload will be. */
+	static NodePtr CreateNode(NodePtr ctorHomeNode); 
 
 	const VariableAssignment & GetAssignment(int index) const;
 
@@ -65,7 +70,8 @@ public:
 
 private:
 	
-	ConstructorOverload(Model::Node * home, Model::ReasonPtr reason, bool isInline, Access access);
+	ConstructorOverload(Model::Node * home, Model::ReasonPtr reason, 
+		                bool isInline, Access access, bool throwSpecifier);
 	
 	std::vector<VariableAssignment> assignments;	
 };

@@ -1185,7 +1185,7 @@ namespace
 			local func = Function.Create(node, self.reason);			
 			local fo1 = FunctionOverload.Create(func, false, Access.Public, 
 			                                    true, false, rtnType,
-									            false, self.reason);
+									            false, false, self.reason);
 			local dotGet = '->';
 			func = node.Member;		
 			local arg1 = fo1.Node:FindOrCreate("L");		
@@ -1226,7 +1226,7 @@ namespace
 			local func = Function.Create(node, self.reason);			
 			fo = FunctionOverload.Create(func, false, Access.Public, true, 
 										 false, rtnType,
-										 false, self.reason);			
+										 false, false, self.reason);
 			func = node.Member;
 			local arg1 = fo.Node:FindOrCreate("L");		
 			local arg1Type = Type.New(self.lua_StateNode, { Pointer = true });
@@ -1268,7 +1268,7 @@ namespace
 			local func = Function.Create(node, self.reason);			
 			local fo1 = FunctionOverload.Create(func, false, Access.Public, 
 			                                    true, false, rtnType,
-										        false, self.reason);
+										        false, false, self.reason);
 			func = node.Member;		
 			local arg1 = fo1.Node:FindOrCreate("L");		
 			local arg1Type = Type.New(self.lua_StateNode, { Pointer = true });
@@ -1305,7 +1305,7 @@ namespace
 			local func = Function.Create(node, self.reason);			
 			local fo1 = FunctionOverload.Create(func, false, Access.Public, 
 			                                    true, false, rtnType,
-										        false, self.reason);
+										        false, false, self.reason);
 			func = node.Member;		
 			local arg1 = fo1.Node:FindOrCreate("L");		
 			local arg1Type = Type.New(self.lua_StateNode, { Pointer = true });
@@ -1335,7 +1335,7 @@ namespace
 			local func = Function.Create(node, self.reason);			
 			local fo1 = FunctionOverload.Create(func, false, Access.Public, 
 			                                    true, false, rtnType,
-									            false, self.reason);
+									            false, false, self.reason);
 			func = node.Member;		
 			local arg1 = fo1.Node:FindOrCreate("L");		
 			local arg1Type = Type.New(self.lua_StateNode, { Pointer = true });
@@ -1367,7 +1367,7 @@ namespace
 			local func = Function.Create(node, self.reason);			
 			local fo1 = FunctionOverload.Create(func, false, Access.Public, 
 			                                    true, false, rtnType,
-										        false, self.reason);
+										        false, false, self.reason);
 			func = node.Member;		
 			local arg1 = fo1.Node:FindOrCreate("L");		
 			local arg1Type = Type.New(self.lua_StateNode, { Pointer = true });		

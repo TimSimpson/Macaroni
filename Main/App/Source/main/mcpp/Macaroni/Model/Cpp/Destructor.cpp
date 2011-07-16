@@ -47,10 +47,11 @@ namespace
 };
 
 Destructor::Destructor(Node * home, Model::ReasonPtr reason, bool isInline, 
-                       AccessPtr access, bool isVirtual)
+                       AccessPtr access, bool isVirtual, bool throwSpecifier)
 :Function(home, "Destructor", reason)
 {
-	FunctionOverload::Create(this, isInline, access, false, isVirtual, voidType(), false, reason);
+	FunctionOverload::Create(this, isInline, access, false, isVirtual, 
+		                     voidType(), false, throwSpecifier, reason);
 }
 
 Destructor::~Destructor()
@@ -63,12 +64,13 @@ bool Destructor::canBeChildOf(const Member * other) const
 }
 
 DestructorPtr Destructor::Create(NodePtr host, bool isInline, AccessPtr access, 
-								 bool isVirtual, Model::ReasonPtr reason)
+								 bool isVirtual, bool throwSpecifier,
+								 Model::ReasonPtr reason)
 {
 	if (!host->GetMember())
 	{
 		return DestructorPtr(new Destructor(host.get(), reason, isInline, 
-			                                access, isVirtual));
+			                                access, isVirtual, throwSpecifier));
 	}
 	Member * member = host->GetMember().get();
 	Destructor * existingFunc = dynamic_cast<Destructor *>(member);
@@ -76,7 +78,7 @@ DestructorPtr Destructor::Create(NodePtr host, bool isInline, AccessPtr access,
 	{
 		// Will throw an error message.
 		return DestructorPtr(new Destructor(host.get(), reason, isInline, 
-			                 access, isVirtual));
+			                 access, isVirtual, throwSpecifier));
 	}
 
 	// Re-use the previously set variable.

@@ -1,4 +1,5 @@
 require "Macaroni.Model.Cpp.Access";
+require "Macaroni.Model.Block";
 require "Cpp/Common";
 require "Cpp/ClassFileGenerator";
 require "Macaroni.Model.FileName";
@@ -101,6 +102,20 @@ ClassHFileGenerator = {
         self:writeAfterTabs("}; // End of class " .. self.node.Name .. "\n");        
     end,
     
+    classIncludeStatementBlocks = function(self)
+		for i = 1, #self.node.Children do
+			local child = self.node.Children[i]
+			if child.TypeName == TypeNames.Block then
+				block = child.Member
+				if block.Id == "h-predef" then
+					self:write("// h-predef block: \n");
+					self:write(block.Code);
+					self:write("\n");
+				end
+			end			
+		end
+    end,
+    
     classPublicGlobals = function(self)  
         assert(self.node.Member ~= nil 
                and 
@@ -193,10 +208,10 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
             self:write('\n');
 			self:writeAfterTabs("#include <" 
 			           .. LibraryConfigFile(self.targetLibrary) 
-			           .. ">\n\n");
+			           .. ">\n\n");			
         end
         
-        self:writeAfterTabs("// Forward declaration necessary if this depends on anything which also depend on this.\n");
+        self:writeAfterTabs("// Forward declaration necessary for anything which also depend on this.\n");
 		
         if (not self.isNested) then 
             self:namespaceBegin(self.node.Node);
@@ -209,11 +224,13 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         
         if (not self.isNested) then  
             self:includeStatements();            
-            self:write('\n');            
+            self:write('\n');
+            self:write('\n');
+			self:classIncludeStatementBlocks();            
             self:namespaceBegin(self.node.Node);
             self:write('\n');
         end
-        
+                
         self:write('\n');
         self:classPublicGlobals();
         self:write('\n');
@@ -248,7 +265,10 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         end
         self:write(self.node.Name .. "(");
         self:writeArgumentList(node);
-        self:write(")");        
+        self:write(")");   
+        if (node.Member.ThrowSpecifier) then
+			self:write(" throw()");
+        end     
         if (not node.Member.Inline) then
             self:write(";\n");
         else

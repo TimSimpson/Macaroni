@@ -833,12 +833,28 @@ public:
 		return true;
 	}
 
-	/** Returns true if a complex name can be parsed from this location. */
 	static int ComplexName(Iterator itr)
 	{
-		int consumed = 0;
-		int simpleNameLength;
+		int ignore;
+		return ComplexName(itr, ignore);
+	}
 
+	/** Returns true if a complex name can be parsed from this location. 
+	 *  If the "signed" or "unsigned" keyword is found, endIndexOfSignedKeyword
+	 *  returns the index where the keyword and its trailing whitespace ends. */
+	static int ComplexName(Iterator itr, int & endWhiteSpaceOfSignedKeyword)
+	{
+		int consumed = 0;
+		int simpleNameLength = 0;
+		endWhiteSpaceOfSignedKeyword = -1;
+		
+		if ((simpleNameLength = SignedOrUnsignedKeyword(itr)) > 0)
+		{
+			consumed += simpleNameLength;
+			itr.Advance(simpleNameLength);				
+			consumed += itr.ConsumeWhitespace();
+			endWhiteSpaceOfSignedKeyword = consumed - 1;
+		}
 		while(true)
 		{
 			if (itr.Is("::"))
@@ -944,33 +960,47 @@ public:
 		NodePtr ctorNode = currentScope->FindOrCreate(nodeName);		
 
 		// Create CTOR or DTOR
-		FunctionOverloadPtr fOlPtr;
+		
+		NodePtr fOlNode;
+		if (!tilda)
+		{
+			fOlNode = ConstructorOverload::CreateNode(ctorNode);
+		} // end !tilda
+		else
+		{
+			fOlNode = ctorNode;
+		}
+		// End create
 
+		NodePtr oldScope = currentScope;
+		currentScope = fOlNode; // fOlPtr->GetNode(); //ctorNode;
+		
+			FunctionArgumentList(newItr);
+
+		currentScope = oldScope;
+		
+		bool throwSpecifier = ThrowSpecifier(newItr);
+		
+		FunctionOverloadPtr fOlPtr;
 		if (!tilda)
 		{
 			ReasonPtr ctorReason = Reason::Create(CppAxioms::CtorCreation(), 
-												  itr.GetSource());
+				itr.GetSource());
 			ConstructorPtr ctor = Constructor::Create(ctorNode, ctorReason);			
 			//isInline, access, 
 			ConstructorOverloadPtr ctorOl =
-				ConstructorOverload::Create(ctor, isInline, access, ctorReason); 
+				ConstructorOverload::Create(fOlNode, isInline, access, 
+				                            throwSpecifier, ctorReason); 
 			fOlPtr = boost::dynamic_pointer_cast<FunctionOverload>(ctorOl);
 		} // end !tilda
 		else
 		{
 			DestructorPtr dtor = Destructor::Create(ctorNode,  isInline, access,
-				isVirtual, 
+				isVirtual, throwSpecifier, 
 				Reason::Create(CppAxioms::DtorCreation(), itr.GetSource()));
 			fOlPtr = dtor->GetFunctionOverload();
 		}
-		// End create
 
-		NodePtr oldScope = currentScope;
-		currentScope = fOlPtr->GetNode(); //ctorNode;
-		
-			FunctionArgumentList(newItr);
-
-		currentScope = oldScope;
 
 		if (!tilda)
 		{
@@ -1111,7 +1141,8 @@ public:
 	 */
 	static bool ConsumeComplexName(Iterator & itr, std::string & result)
 	{
-		int length = ComplexName(itr);
+		int endWhiteSpaceOfSignedKeyword;
+		int length = ComplexName(itr, endWhiteSpaceOfSignedKeyword);
 		if (length < 1)
 		{
 			return false;
@@ -1126,6 +1157,12 @@ public:
 			{
 				ss << itr.Current();
 			}			
+			if (i == endWhiteSpaceOfSignedKeyword)
+			{
+				// Put a *single* whitespace in the canonical name of
+				// a type with the signed or unsigned keyword.
+				ss << " ";
+			}
 			itr.Advance(1);
 		}
 		result = ss.str();
@@ -1390,6 +1427,12 @@ public:
 					Messages::Get("CppParser.Type.TypeDefinitionCommaOrClosingBracketExpected"));
 			}
 		}			
+	}
+
+	bool ConstKeyword(Iterator & itr)
+	{
+		itr.ConsumeWhitespace();
+		return itr.ConsumeWord("const");
 	}
 
 	NodePtr createNextBlockNode(NodePtr node, Iterator & itr)
@@ -2102,6 +2145,27 @@ public:
 		}
 	}
 
+	/** If the keyword "signed" or "unsigned" is encountered the length of the
+	 *  keyword is returned.
+	 *  NOTE: Unlike most methods this doesn't consume whitespace! 
+	 */
+	static int SignedOrUnsignedKeyword(const Iterator & itr)
+	{
+		Iterator myItr = itr;
+		if (myItr.ConsumeWord("signed "))
+		{
+			return 7;
+		}
+		else if (myItr.ConsumeWord("unsigned "))
+		{
+			return 9;
+		}
+		else
+		{
+			return 0;
+		}		
+	}
+
 	static int SimpleName(Iterator itr)
 	{		
 		if (itr.Finished() || (!itr.IsAlpha() && !itr.Is('_')))
@@ -2140,6 +2204,34 @@ public:
 	{
 		ConsumeWhitespace(itr);
 		return itr.ConsumeWord("static");
+	}
+
+	/** Returns true if a throw specifier is read. Right now only empty throw
+	 *  specifiers are implemented. 
+	 */
+	bool ThrowSpecifier(Iterator & itr)
+	{
+		itr.ConsumeWhitespace();
+		if (!itr.ConsumeWord("throw"))
+		{
+			return false;
+		}
+		itr.ConsumeWhitespace();
+		if (!itr.ConsumeChar('('))
+		{
+			throw ParserException(itr.GetSource(),
+				Messages::Get("CppParser.ThrowSpecifier.MissingFirstParanthesis")); 
+		}
+		//TODO: If for some reason the ability to put a type specifier into the
+		//throw statement is ever worth doing, remember to change the error
+		//message which currently gives a reminder that it isn't.
+		itr.ConsumeWhitespace();
+		if (!itr.ConsumeChar(')'))
+		{
+			throw ParserException(itr.GetSource(),
+				Messages::Get("CppParser.ThrowSpecifier.MissingSecondParanthesis")); 
+		}
+		return true;
 	}
 
 	/** Consumes type info into the form of Type, in the format of
@@ -2453,12 +2545,12 @@ public:
 				FunctionArgumentList(itr);			
 
 			bool constMember = false;
-			ConsumeWhitespace(itr);
-			if (itr.ConsumeWord("const"))
-			{
-				constMember = true;
-				ConsumeWhitespace(itr);
-			}
+			bool throwSpecifier = false; // Only empty throw implemented now.
+			
+			while(
+				(!constMember && (constMember = ConstKeyword(itr)))
+			 || (!throwSpecifier && (throwSpecifier = ThrowSpecifier(itr)))
+			){}			
 			
 			while(Annotation(itr));
 
@@ -2482,7 +2574,9 @@ public:
 			FunctionPtr function = Function::Create(node, fReason);
 			FunctionOverloadPtr fOl = 
 				FunctionOverload::Create(foNode, isInline, access, isStatic, 
-				                         isVirtual, type, constMember, fReason);
+				                         isVirtual, type, 
+										 constMember, throwSpecifier,
+										 fReason);
 			if (codeAttached)
 			{
 				fOl->SetCodeBlock(codeBlock, startOfCodeBlock.GetSource());

@@ -85,12 +85,14 @@ namespace
 				bool isVirtual = lua_toboolean(L, 5) != 0;
 				TypePtr rtnType = TypeLuaMetaData::GetInstance(L, 6);
 				bool constMember = lua_toboolean(L, 7) != 0;
-				ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 8);
+				bool throwSpecifier = lua_toboolean(L, 8) != 0;
+				ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 9);
 				FunctionOverloadPtr newFO = FunctionOverload::Create(home, 
 													   isInline, access, 
 													   isStatic, isVirtual,
 													   rtnType, 
-													   constMember, reason);
+													   constMember, 
+													   throwSpecifier, reason);
 				MemberPtr rtnValue = boost::dynamic_pointer_cast<Member>(newFO);
 				MemberLuaMetaData::PutInstanceOnStack(L, rtnValue);
 				return 1;
@@ -180,6 +182,11 @@ int FunctionOverloadLuaMetaData::Index(lua_State * L,
 		lua_pushcfunction(L, FunctionOverloadLuaFunctions::SetCodeBlock);
 		return 1;
 	}		
+	else if (index == "ThrowSpecifier")
+	{
+		lua_pushboolean(L, ptr->HasThrowSpecifier());
+		return 1;
+	}
 	else if (index == "Virtual")
 	{
 		lua_pushboolean(L, ptr->IsVirtual());

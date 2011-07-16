@@ -217,6 +217,9 @@ FileGenerator = {
         if (func.Const) then
             self:write(" const");
         end         
+        if (func.ThrowSpecifier) then
+			self:write(" throw()");
+        end
     end,
         
     writeType = function(self, type)    
