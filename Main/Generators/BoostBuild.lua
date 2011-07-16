@@ -65,7 +65,7 @@ end
 
 function Test(library, sources, outputPath, installPath, extraArgs)
 	log.Init("BoostBuild");	
-	local cmdLine = "bjam link=static "	
+	local cmdLine = "bjam"	
 	if (extraArgs.CmdLine ~= nil) then
 		cmdLine = cmdLine .. " " .. extraArgs.CmdLine
 	end
