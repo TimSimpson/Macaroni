@@ -77,23 +77,58 @@ ClassCppFileGenerator = {
     end,
      
     globals = function(self)
-        self:write("/* Adopted Global Functions */\n"); 
+		local globalNodes = self.node.Member.GlobalNodes;
+		local privateCount = 0;
+		local hiddenCount = 0;
+		local publicCount = 0;
+		for i = 1, #globalNodes do
+			local gNode = globalNodes[i]
+			local access = nil;
+			if gNode.Member ~= nil then
+				access = gNode.Member.Access; 
+			end
+			if access == Access.Hidden then hiddenCount = hiddenCount + 1; end
+			if access == Access.Private then 
+				privateCount = privateCount + 1; 
+			end
+			if access == Access.Public then publicCount = publicCount + 1; end
+		end
+    
+		if privateCount > 0 then
+			self:write([[/* Define "Private" adopted global functions and variables. */]]
+			           .. "\n");
+			self:globalPrototypes(Access.Private);
+		end
         
-        self:write("/* Private Global Prototypes */\n");
-        self:globalPrototypes(Access.Private);
-        
-        self:write("namespace {\n"); 
-        self:write("/* Hidden Global Prototypes */\n");
-        self:globalPrototypes(Access.Hidden);
-        self:write("/* Global Definitions */\n");
-        self:iterateMembers(self.node.Member.GlobalNodes, Access.Hidden);       		
-        self:write("} // end anonymous namespace\n");
-                
-        self:write("/* Private Global Definitions */\n");
-        self:iterateGlobalMembers(self.node.Member.GlobalNodes, Access.Private);       		
-                
-        self:iterateGlobalMembers(self.node.Member.GlobalNodes, Access.Public); 		
-        self:write("/* End globals. */\n");
+        if hiddenCount > 0 then
+			self:write([[/* "Hidden" adopted global functions and variables. */]]
+					   .. "\n");
+			self:write("// Defines and uses an anonymous namespace.\n");			
+			self:write("namespace {"); 
+			self:addTabs(1);        
+			self:writeVerbose("/* Prototypes */\n");
+			self:globalPrototypes(Access.Hidden);
+			self:writeVerbose("/* Implementation */\n");
+			self:iterateMembers(self.node.Member.GlobalNodes, Access.Hidden);       		
+			self:addTabs(-1);
+			self:write("}\n");
+			self:write("// End of anonymous namespace.\n");
+			self:write("\n");
+		end
+           
+        if privateCount > 0 then
+			self:write([[/* Implementation of "Private" adopted global functions and variables. */]] 
+					   .. "\n");
+			self:iterateGlobalMembers(self.node.Member.GlobalNodes, Access.Private);       			        
+			self:write("\n");			
+		end
+		
+		if publicCount > 0 then
+			self:write([[/* "Public" adopted global functions and variables. */]] 
+					   .. "\n");        
+			self:iterateGlobalMembers(self.node.Member.GlobalNodes, Access.Public);			
+			self:write("\n");
+		end
     end,      
     
     globalPrototypes = function(self, access)
@@ -301,7 +336,7 @@ ClassCppFileGenerator = {
 		end
         self:writeTabs();
         local func = node.Member;
-        self:writeType(func.ReturnType);
+        self:writeType(func.ReturnType, not insertIntoNamespaces);
         self:write(" ");
         if (not self:isFunctionOverloadNodeGlobal(node)) then
             self:write(self.node.Name .. "::" .. node.Node.Name);
@@ -362,20 +397,26 @@ ClassCppFileGenerator = {
         self:write("//TODO: Create parseNamespace functionality for Namespaces within classes.");
     end,
     
-    ["parse" .. TypeNames.Variable] = function(self, node)
+    ["parse" .. TypeNames.Variable] = function(self, node, insertIntoNamespaces)
+		if insertIntoNamespaces then
+			self:namespaceBegin(node.Node.Node);
+		end 
         if (self:isNodeGlobal(node)) then            
             self:writeVariableDefinition(node, true);
         elseif (node.Member.Static) then
             self:writeTabs();
             local variable = node.Member;            
-            self:writeType(variable.Type);
+            self:writeType(variable.Type, not insertIntoNamespaces);
             self:write(' ' .. node.Node.Name .. '::' .. node.Name);
             if (variable.Initializer ~= "") then
                 self:write(' = ');
                 self:write(variable.Initializer);
             end
             self:write(";\n");        
-        end                
+        end   
+        if insertIntoNamespaces then
+			self:namespaceEnd(node.Node.Node);
+		end              
     end,        
     
     writeGlobalPrototype = function(self, foNode)
@@ -397,11 +438,11 @@ ClassCppFileGenerator = {
         if (statement ~= nil) then self:write(statement); end
     end,          
     
-    writeType = function(self, type)    
+    writeType = function(self, type, attemptShortName)  
         check(self ~= nil, "Member method called without instance.");
         check(type ~= nil, 'Argument 2 "type" can not be null.');    
         local typeUtil = TypeUtil.new();
-        local str = typeUtil:createTypeDefinition(type, true);
+        local str = typeUtil:createTypeDefinition(type, attemptShortName);
         self:write(str);        
     end,
     
