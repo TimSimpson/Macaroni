@@ -175,6 +175,11 @@ int FunctionOverloadLuaMetaData::Index(lua_State * L,
 		lua_pushboolean(L, ptr->IsConst());
 		return 1;
 	}
+	else if (index == "HasCodeBlock")
+	{
+		lua_pushboolean(L, ptr->HasCodeBlock());
+		return 1;
+	}
 	else if (index == "Inline")
 	{
 		lua_pushboolean(L, ptr->IsInline());

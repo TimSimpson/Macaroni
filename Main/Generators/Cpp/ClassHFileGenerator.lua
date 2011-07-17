@@ -49,6 +49,7 @@ ClassHFileGenerator = {
     end,
     
     classBegin = function(self)
+		self:writeAfterTabs("// Define class " .. self.node.Name .. "\n");
         self:writeAfterTabs("class ")
         if self.libDecl then
 			self:write(self.libDecl .. " ");
@@ -122,7 +123,9 @@ ClassHFileGenerator = {
                and 
                self.node.Member.TypeName == TypeNames.Class);
         local globals = self.node.Member.GlobalNodes;    
-        self:writeAfterTabs("/* Public Global Members */\n");          
+        if CPP_GENERATE_VERBOSE then
+			self:writeAfterTabs("/* Public Global Members */\n");
+		end
 		self:iterateGlobalMembers(globals, Access.Public); 		
     end,
     
@@ -346,17 +349,17 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         else
 			self:writeTabs();
         end                
-        self:writeFunctionOverloadDefinition(node, ownedByClass);
-        if not node.Member.IsPureVirtual then        		
+        self:writeFunctionOverloadDefinition(node, ownedByClass);        
+        if node.Member.IsPureVirtual == true then        		
+			self:write(" = 0;\n");
+		else
 			if (not node.Member.Inline) then
 				self:write(";\n");
 			else
 				self:write("\n");
 				self:writeTabs();				
 				self:writeFunctionCodeBlock(node.Member);
-			end
-		else
-			self:write(" = 0;\n");
+			end		
 		end
 		if insertIntoNamespaces then
 			self:namespaceEnd(node.Node.Node);

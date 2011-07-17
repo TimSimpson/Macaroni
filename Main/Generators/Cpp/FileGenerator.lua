@@ -227,6 +227,7 @@ FileGenerator = {
 		local code = memberWithBlock.CodeBlock;
 		local source = memberWithBlock.CodeSource;
 		local redirect = memberWithBlock.CodeBlockShouldAddRedirect;
+		check(source ~= nil, "Member " ..memberWithBlock.Node.FullName.. " does not have attached source.");
 		self:writeTabs();
 		self:write("{\n");
         self:addTabs(1);

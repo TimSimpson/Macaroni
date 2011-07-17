@@ -85,6 +85,8 @@ public:
 
 	virtual const char * GetTypeName() const;
 
+	bool HasCodeBlock() const;
+
 	bool HasThrowSpecifier() const
 	{
 		return throwSpecifier;

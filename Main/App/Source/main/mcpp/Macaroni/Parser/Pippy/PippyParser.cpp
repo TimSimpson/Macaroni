@@ -2464,7 +2464,7 @@ public:
 
 		access = Access::NotSpecified();
 		_friend = false;
-		bool global;
+		bool global = false;
 		globalHome.reset();
 		isInline = false;		
 		isStatic = false;

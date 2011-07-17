@@ -38,6 +38,7 @@ FunctionOverload::FunctionOverload
  codeBlockAddRedirect(false),
  constMember(constMember), 
  isInline(isInline),
+ isPureVirtual(false),
  isVirtual(isVirtual),
  returnType(rtnTypeInfo),
  throwSpecifier(throwSpecifier)
@@ -146,6 +147,11 @@ const std::string & FunctionOverload::GetCodeBlock() const
 const char * FunctionOverload::GetTypeName() const
 {
 	return "FunctionOverload";
+}
+
+bool FunctionOverload::HasCodeBlock() const
+{
+	return (!!codeSource);
 }
 
 void intrusive_ptr_add_ref(FunctionOverload * p)

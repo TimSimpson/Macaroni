@@ -240,6 +240,10 @@ ClassCppFileGenerator = {
             self:write("//~<(Skipping inline constructor.)\n");
             return;
         end        
+        if (not node.Member.HasCodeBlock) then
+			self:write('//~<(Skipping constructor with no code block "' .. node.FullName .. '")\n');
+			return;
+        end
         if node.Member.Access.VisibleInLibrary and self.libDecl then
 			self:writeTabs();
 			self:write(self.libDecl .. "\n");
@@ -286,7 +290,12 @@ ClassCppFileGenerator = {
         if (overload.Member.Inline) then
             self:write("//~<(Skipping inline destructor.)\n");
             return;
-        end       
+        end
+        if (not overload.Member.HasCodeBlock) then
+			self:write('//~<(Skipping destructor with no code block "' .. node.FullName .. '")\n');
+			return
+        end
+
         if overload.Member.Access.VisibleInLibrary and self.libDecl then
 			self:writeTabs();
 			self:write(self.libDecl .. "\n");
@@ -326,7 +335,11 @@ ClassCppFileGenerator = {
         if (node.Member.Inline or node.Member.IsPureVirtual) then
             self:write('//~<(Skipping inline or pure virtual function "' .. node.FullName .. '")\n');
             return;
-        end 
+        end
+        if (not node.Member.HasCodeBlock) then
+			self:write('//~<(Skipping function with no code block "' .. node.FullName .. '")\n');
+			return;
+        end
         if insertIntoNamespaces then
 			self:namespaceBegin(node.Node.Node);
 		end          
