@@ -51,13 +51,16 @@ FileGenerator = {
 	end,
     
     -- Iterates members of the list. Use access to filter which ones.
-    iterateMembers = function(self, nodeChildren, access)
+    iterateMembers = function(self, nodeChildren, access, insertIntoNamespaces)
+		if insertIntoNamespaces == nil then
+			insertIntoNamespaces = false
+		end		
         for i=1, #nodeChildren do
             local node = nodeChildren[i];            
             if (node.Member ~= nil) then
 				local memberType = node.Member.TypeName
                 if (access == nil or node.Member.Access == access) then
-                    self:parseMember(node);
+                    self:parseMember(node, insertIntoNamespaces);
                 elseif (node.Member.Access == nil) then					
 					if (memberType == "Function" or memberType == "Constructor" 
 						or memberType == "Destructor") then
@@ -69,6 +72,12 @@ FileGenerator = {
             end
         end
     end,       
+    
+    -- Unlike the other method, this will open up and break out of namespaces
+    -- before each definition.
+    iterateGlobalMembers = function(self, nodeChildren, access)
+		self:iterateMembers(nodeChildren, access, true);
+    end,
     
     namespaceBegin = function(self, namespaceNode)
         check(namespaceNode ~= nil, "namespaceNode cannot be nil.");
@@ -184,7 +193,9 @@ FileGenerator = {
         
         -- Write the code as it was so the #line directive will match up.
         self:write(code .. "\n");
-        self:write("#line __LINE__ __FILE__\n");        
+        self:write("#line " .. self.writer.LineNumber + 1 .. ' "');
+        self:writeFileName(self.writer.FilePath)
+        self:write('"' .. "\n");        
     end,
   
     writeConstructorAssignments = function(self, assignments)        
@@ -211,11 +222,12 @@ FileGenerator = {
     
     writeFunctionCodeBlock = function(self, memberWithBlock)
 		check(self ~= nil, "Method called without instance.");
-		check(memberWithBlock.CodeBlock ~= nil, "Member does not have code block.");
+		check(memberWithBlock.CodeBlock ~= nil, "Member " ..memberWithBlock.Node.FullName.. " does not have code block.");
 		
 		local code = memberWithBlock.CodeBlock;
 		local source = memberWithBlock.CodeSource;
 		local redirect = memberWithBlock.CodeBlockShouldAddRedirect;
+		self:writeTabs();
 		self:write("{\n");
         self:addTabs(1);
 		

@@ -78,17 +78,25 @@ ClassCppFileGenerator = {
      
     globals = function(self)
         self:write("/* Adopted Global Functions */\n"); 
+        
+        self:write("/* Private Global Prototypes */\n");
+        self:globalPrototypes(Access.Private);
+        
         self:write("namespace {\n"); 
-        self:write("/* Global Prototypes */\n");
-        self:globalPrototypes();
+        self:write("/* Hidden Global Prototypes */\n");
+        self:globalPrototypes(Access.Hidden);
         self:write("/* Global Definitions */\n");
-        self:iterateMembers(self.node.Member.GlobalNodes, Access.Private);       		
+        self:iterateMembers(self.node.Member.GlobalNodes, Access.Hidden);       		
         self:write("} // end anonymous namespace\n");
-        self:iterateMembers(self.node.Member.GlobalNodes, Access.Public); 		
+                
+        self:write("/* Private Global Definitions */\n");
+        self:iterateGlobalMembers(self.node.Member.GlobalNodes, Access.Private);       		
+                
+        self:iterateGlobalMembers(self.node.Member.GlobalNodes, Access.Public); 		
         self:write("/* End globals. */\n");
-    end,   
+    end,      
     
-    globalPrototypes = function(self)
+    globalPrototypes = function(self, access)
         local globals = self.node.Member.GlobalNodes;        
         for i=1, #globals do
             local node = globals[i];
@@ -96,15 +104,13 @@ ClassCppFileGenerator = {
                 if (node.Member.TypeName == TypeNames.Function) then 
 					for j=1, #node.Children do
 						local nodeJ = node.Children[j]						
-						if (nodeJ.Member.Access == Access.Private) then
-							self:writeFunctionOverloadDefinition(nodeJ);         
-							self:write(";\n");       
+						if (nodeJ.Member.Access == access) then
+							self:writeGlobalPrototype(nodeJ);
 						end
 					end					
 				elseif (node.Member.TypeName == TypeNames.FunctionOverload) then 					
-					if (node.Member.Access == Access.Private) then
-						self:writeFunctionOverloadDefinition(node);  
-						self:write(";\n");       
+					if (node.Member.Access == access) then
+						self:writeGlobalPrototype(node);
 					end
 				end				
             end
@@ -147,13 +153,14 @@ ClassCppFileGenerator = {
 			self:write("// The following configures symbols for export if needed.\n");
 			self:write("#define " .. LibraryCreate(self.targetLibrary) .. "\n");
 			self:write("\n");
-            self:includeStatements();
+            self:includeStatements();            
             self:write('\n');
+            self:parseCppIncludeBlocks();            
             self:usingStatements();
-            self:write('\n');            
-            self:namespaceBegin(self.node.Node);
             self:write('\n');
             self:globals();
+            self:write('\n');                        
+            self:namespaceBegin(self.node.Node);
             self:write('\n');
         end
         self:classBody();
@@ -165,10 +172,20 @@ ClassCppFileGenerator = {
         end
     end,    
     
+    parseCppIncludeBlocks = function(self)
+		for i=1, #self.node.Children do
+			local node = self.node.Children[i]
+			if node.TypeName == TypeNames.Block and
+			   node.Member.Id == "cpp-include" then
+			   self:writeBlockCodeBlock(node.Member);
+			end
+		end
+    end,
+    
     ["parse" .. TypeNames.Block] = function(self, node)    
         local block = node.Member;            
         if (block.Id == "cpp") then
-            self:write(block.Code);
+			self:writeBlockCodeBlock(block);
         end
     end,
     
@@ -256,18 +273,28 @@ ClassCppFileGenerator = {
         self:write("}\n");
     end,
     
-    ["parse" .. TypeNames.Function] = function(self, node)
+    ["parse" .. TypeNames.Function] = function(self, node, insertIntoNamespaces)
+		if insertIntoNamespaces then
+			self:namespaceBegin(node.Node);
+		end
     	for i = 1, #(node.Children) do
     		local overloadNode = node.Children[i];
     		self:parseFunctionOverload(overloadNode);
 		end
+		if insertIntoNamespaces then
+			self:namespaceEnd(node.Node);
+		end
     end,
 
-	["parse" .. TypeNames.FunctionOverload] = function(self, node)
-        if (node.Member.Inline) then
-            self:write('//~<(Skipping inline function "' .. node.FullName .. '")\n');
+	["parse" .. TypeNames.FunctionOverload] = function(self, node, 
+	                                                   insertIntoNamespaces)	    
+        if (node.Member.Inline or node.Member.IsPureVirtual) then
+            self:write('//~<(Skipping inline or pure virtual function "' .. node.FullName .. '")\n');
             return;
-        end                
+        end 
+        if insertIntoNamespaces then
+			self:namespaceBegin(node.Node.Node);
+		end          
         if node.Member.Access.VisibleInLibrary and self.libDecl then
 			self:writeTabs();
 			self:write(self.libDecl .. "\n");
@@ -289,19 +316,23 @@ ClassCppFileGenerator = {
         end
         self:write("\n");        
         
-        self:writeTabs();
-        self:write("{\n");
-        self:addTabs(1);
-        
-        self:writeTabs();
-        self:write(node.Member.CodeBlock .. "\n");
-        
-        self:addTabs(-1);        
-        self:writeTabs();
-        self:write("}\n");
+        --self:writeTabs();
+        --self:write("{\n");
+        --self:addTabs(1);
+        --
+        --self:writeTabs();
+        --self:write(node.Member.CodeBlock .. "\n");
+        --
+        --self:addTabs(-1);        
+        --self:writeTabs();
+        --self:write("}\n");
+        self:writeFunctionCodeBlock(node.Member);
+        if insertIntoNamespaces then
+			self:namespaceEnd(node.Node.Node);
+		end
     end,
         
-    parseMember = function(self, node)
+    parseMember = function(self, node, insertIntoNamespaces)
         local m = node.Member;
         if (m == nil) then
             self:writeTabs();
@@ -319,7 +350,7 @@ ClassCppFileGenerator = {
         end
         
         if (handlerFunc ~= nil) then
-            handlerFunc(self, node);
+            handlerFunc(self, node, insertIntoNamespaces);
         else
             self:writeTabs();
             self:write("//     ~ Have no way to handle node " .. node.Name .. " with Member type " .. typeName .. ".\n");
@@ -346,6 +377,20 @@ ClassCppFileGenerator = {
             self:write(";\n");        
         end                
     end,        
+    
+    writeGlobalPrototype = function(self, foNode)
+		check(foNode.Member.Access.CppKeyword == "private", 
+			  "Why write a prototype for a global method that is not " ..
+			  "private in the CPP file?");
+		if foNode.Member.Access == Access.Private then
+			self:namespaceBegin(foNode.Node.Node);
+		end
+		self:writeFunctionOverloadDefinition(foNode);  
+		self:write(";\n");       
+		if foNode.Member.Access == Access.Private then
+			self:namespaceEnd(foNode.Node.Node);
+		end
+    end,
     
     writeInclude = function(self, import)        
         local statement = IncludeFiles.createStatementForNode(import);

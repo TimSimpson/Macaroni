@@ -56,6 +56,7 @@ FunctionOverload::FunctionOverload
  constMember(constMember),
  codeSource(),
  isInline(isInline),
+ isPureVirtual(false),
  isVirtual(isVirtual),
  returnType(rtnTypeInfo),
  throwSpecifier(throwSpecifier)
@@ -173,6 +174,23 @@ void FunctionOverload::SetCodeBlock(std::string & code, SourcePtr startOfCode,
 	codeBlock = code;
 	codeSource = startOfCode;
 	this->codeBlockAddRedirect = codeBlockAddRedirect;
+	this->isPureVirtual = false;
+}
+
+void FunctionOverload::SetPureVirtual(SourcePtr startOfCode)
+{
+	if (!!codeSource)
+	{
+		std::stringstream msg;
+		msg << "Cannot set function "
+			<< this->getNode()->GetFullName() 
+			<< " as pure virtual because it already has been defined at "
+			<< codeSource->ToString() 
+			<< ".";
+		throw ModelInconsistencyException(startOfCode, msg.str());
+	}
+	this->codeSource = startOfCode;
+	this->isPureVirtual = true;
 }
 
 void FunctionOverload::Visit(MemberVisitor * visitor) const

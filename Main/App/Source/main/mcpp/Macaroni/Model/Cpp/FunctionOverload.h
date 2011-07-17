@@ -100,6 +100,11 @@ public:
 		return isInline;
 	}
 
+	inline bool IsPureVirtual() const
+	{
+		return isPureVirtual;
+	}
+
 	inline bool IsVirtual() const
 	{
 		return isVirtual;
@@ -113,6 +118,10 @@ public:
 	 */
 	void SetCodeBlock(std::string & code, SourcePtr startOfCode, 
 		              bool codeBlockAddRedirect);	
+
+	/** Specifies that this function overload is a "pure virtual function"
+	 *  which means it ends in "= 0". */
+	void SetPureVirtual(SourcePtr startOfCode);
 
 	virtual void Visit(MemberVisitor * visitor) const;
 
@@ -136,6 +145,8 @@ private:
 	bool constMember;
 
 	const bool isInline;
+
+	bool isPureVirtual;
 
 	const bool isVirtual;
 

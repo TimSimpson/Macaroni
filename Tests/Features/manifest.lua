@@ -17,12 +17,16 @@ output = "report"
 children = 
 {
 	"Annotations",
+	"AdditionalAccessTypes",
 	"BoostBuild",
 	"ConstructorOverloading",	
+	"Destructors",
+	"GlobalKeyword",
 	"Inheritance",
 	"LanguageFeatures",
 	"Lua",
 	"NamespaceStatement",
+	--"OperatorOverloading",
 };
 
 dependency {group="Macaroni", name="Boost-filesystem", version="1.46.1"}

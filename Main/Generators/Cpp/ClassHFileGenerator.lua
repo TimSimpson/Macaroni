@@ -123,7 +123,7 @@ ClassHFileGenerator = {
                self.node.Member.TypeName == TypeNames.Class);
         local globals = self.node.Member.GlobalNodes;    
         self:writeAfterTabs("/* Public Global Members */\n");          
-		self:iterateMembers(globals, Access.Public); 		
+		self:iterateGlobalMembers(globals, Access.Public); 		
     end,
     
     classFriends = function(self)
@@ -227,14 +227,18 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
             self:includeStatements();            
             self:write('\n');
             self:write('\n');
-			self:classIncludeStatementBlocks();            
+			self:classIncludeStatementBlocks();            			
+		end
+		
+		self:write('\n');
+        self:classPublicGlobals();
+        self:write('\n');
+		
+		if (not self.isNested) then
             self:namespaceBegin(self.node.Node);
             self:write('\n');
         end
-                
-        self:write('\n');
-        self:classPublicGlobals();
-        self:write('\n');
+                        
         self:classBody();
         if (not self.isNested) then
             self:write('\n');
@@ -291,6 +295,9 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
 		local overload = node.Children[1];
         self:writeTabs();
         self:writeAccess(overload.Member.Access);
+        if (overload.Member.Virtual) then
+			self:write("virtual ");
+		end
         if (overload.Member.Inline) then
             self:write("inline ");
         end
@@ -298,31 +305,32 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         self:writeArgumentList(overload);
         self:write(")");
         if (not overload.Member.Inline) then
-            self:write(";\n");
-        else
-            self:write("\n");
-            self:writeTabs();
-            --self:write("{\n");
-            --self:addTabs(1);
-            --
-            --self:writeTabs();
-            --self:write(overload.Member.CodeBlock .. "\n");
-            --
-            --self:addTabs(-1);        
-            --self:writeTabs();
-            --self:write("}\n");
-            self:writeFunctionCodeBlock(node.Member);
-        end        
+			self:write(";\n");
+		else
+			self:write("\n");
+			self:writeTabs();				
+			self:writeFunctionCodeBlock(overload.Member);
+		end        	
     end,
     
-    ["parse" .. TypeNames.Function] = function(self, node)
+    ["parse" .. TypeNames.Function] = function(self, node, insertIntoNamespaces)
+		if insertIntoNamespaces then
+			self:namespaceBegin(node.Node);
+		end
     	for i = 1, #(node.Children) do
     		local overloadNode = node.Children[i];
     		self:parseFunctionOverload(overloadNode);
 		end
+		if insertIntoNamespaces then
+			self:namespaceEnd(node.Node);
+		end
     end,    
     
-    ["parse".. TypeNames.FunctionOverload] = function(self, node)
+    ["parse".. TypeNames.FunctionOverload] = function(self, node, 
+                                                      insertIntoNamespaces)
+		if insertIntoNamespaces then
+			self:namespaceBegin(node.Node.Node);
+		end
 		local ownedByClass = (node.Node.Node == self.node)		
     	if (ownedByClass) then
     		if not self.internalDef then
@@ -339,23 +347,23 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
 			self:writeTabs();
         end                
         self:writeFunctionOverloadDefinition(node, ownedByClass);
-        if (not node.Member.Inline) then
-            self:write(";\n");
-        else
-            self:writeTabs();
-            self:write("{\n");
-            self:addTabs(1);
-            
-            self:writeTabs();
-            self:write(node.Member.CodeBlock .. "\n");
-            
-            self:addTabs(-1);        
-            self:writeTabs();
-            self:write("}\n");
-        end	
+        if not node.Member.IsPureVirtual then        		
+			if (not node.Member.Inline) then
+				self:write(";\n");
+			else
+				self:write("\n");
+				self:writeTabs();				
+				self:writeFunctionCodeBlock(node.Member);
+			end
+		else
+			self:write(" = 0;\n");
+		end
+		if insertIntoNamespaces then
+			self:namespaceEnd(node.Node.Node);
+		end
 	end,
     
-    parseMember = function(self, node)
+    parseMember = function(self, node, insertIntoNamespaces)
         local m = node.Member;
         if (m == nil) then
             self:writeTabs();
@@ -377,8 +385,8 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
             handlerFunc = self["parse" .. typeName];
         end
         
-        if (handlerFunc ~= nil) then                       
-            handlerFunc(self, node);
+        if (handlerFunc ~= nil) then 
+            handlerFunc(self, node, insertIntoNamespaces);
         else            
             self:writeAfterTabs("//     ~ Have no way to handle node " .. node.Name .. " with Member type " .. typeName .. ".\n");
         end 
@@ -389,12 +397,18 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         self:write("//TODO: Create parseNamespace functionality for Namespaces within classes.");
     end,
     
-    ["parse" .. TypeNames.Variable] = function(self, node)
+    ["parse" .. TypeNames.Variable] = function(self, node, insertIntoNamespaces)
+		if insertIntoNamespaces then
+			self:namespaceBegin(node.Node);
+		end
 		self:writeTabs();
         if (node.Node == self.node) then
             self:writeAccess(node.Member.Access);
         end
         self:writeVariableDefinition(node);
+        if insertIntoNamespaces then
+			self:namespaceEnd(node.Node);
+		end
         --[[self:writeTabs();
         local variable = node.Member;
         self:writeType(variable.Type);

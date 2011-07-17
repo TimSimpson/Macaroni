@@ -1,0 +1,62 @@
+~import std::string;
+
+class Destroyer
+{
+	protected std::string & msg;
+	
+	public Destroyer(std::string & msg)
+		: msg(msg)
+	{
+		msg = "HELLO";
+	}
+	
+	public ~Destroyer()
+	{
+		msg = "GOOD-BYE";
+	}
+}
+
+class VDestroyer
+{
+	protected std::string & msg;
+	
+	public VDestroyer(std::string & msg)
+		: msg(msg)
+	{
+		msg = "V-HELLO";
+	}
+	
+	public virtual ~VDestroyer()
+	{
+		msg = msg + "_V!";
+	}
+}
+
+class SubclassVDestroyer : public virtual VDestroyer
+{
+	public SubclassVDestroyer(std::string & msg)
+		: VDestroyer(msg)
+	{}
+	
+	public virtual ~SubclassVDestroyer()
+	{
+		msg = "ADIOS, ";
+	}
+}
+
+
+class InlineDestroyer
+{
+	protected std::string & msg;
+	
+	public InlineDestroyer(std::string & msg)
+		: msg(msg)
+	{
+		msg = "HELLO from inline";
+	}
+	
+	public inline ~InlineDestroyer()
+	{
+		msg = "inline works";
+	}
+}

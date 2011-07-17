@@ -13,6 +13,7 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --------------------------------------------------------------------------------
+require "Macaroni/Parser/Pippy/Tests/GlobalKeyword";
 require "Macaroni/Parser/Pippy/Tests/PippyParserTests_Class";
 require "Macaroni/Parser/Pippy/Tests/PippyParserTests_Functions";
 require "Macaroni/Parser/Pippy/Tests/Import";

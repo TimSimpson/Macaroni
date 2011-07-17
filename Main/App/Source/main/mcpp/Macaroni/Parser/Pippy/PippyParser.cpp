@@ -626,7 +626,8 @@ public:
 		}
 		if (itr.ConsumeChar('='))
 		{
-			if (CodeBlock(itr, value))
+			SourcePtr startOfBlock;
+			if (CodeBlock(itr, value, startOfBlock))
 			{
 				return true;
 			}
@@ -655,6 +656,7 @@ public:
 		
 		itr.ConsumeWhitespace();
 		std::string id;
+		
 		if (!ConsumeStringLiteral(itr, id))
 		{
 			throw ParserException(itr.GetSource(),
@@ -662,14 +664,15 @@ public:
 		}
 		itr.ConsumeWhitespace();
 		std::string code;
-		if (!CodeBlock(itr, code))
+		SourcePtr codeStart;
+		if (!CodeBlock(itr, code, codeStart))
 		{
 			throw ParserException(itr.GetSource(),
 				Messages::Get("CppParser.CodeBlock.Expected"));
 		}		
 		NodePtr blockHome = createNextBlockNode(currentScope, itr);
 		Block::Create(blockHome, id, code,
-			Reason::Create(CppAxioms::BlockCreation(), itr.GetSource()));
+			Reason::Create(CppAxioms::BlockCreation(), codeStart));
 		return true;
 	}	
 
@@ -782,7 +785,7 @@ public:
 	
 	/** Consumes white space, then returns false if '{' not seen.
 	 * If it is, consumes all text until next '}'. */
-	bool CodeBlock(Iterator & itr, std::string & codeBlock)
+	bool CodeBlock(Iterator & itr, std::string & codeBlock, SourcePtr & start)
 	{
 		ConsumeWhitespace(itr);
 		if (!itr.Is('{'))
@@ -790,7 +793,8 @@ public:
 			return false;
 		}
 		itr.Advance(1);
-		
+		start = itr.GetSource();
+
 		std::stringstream ss;
 		int depth = 1;
 		while(depth > 0)
@@ -1059,9 +1063,9 @@ public:
 		//}*/
 
 		std::string codeBlock;
-		bool codeAttached = false;
-		Iterator startOfCodeBlock = newItr;
-		codeAttached = CodeBlock(newItr, codeBlock);
+		bool codeAttached = false;		
+		SourcePtr startOfCodeBlock;
+		codeAttached = CodeBlock(newItr, codeBlock, startOfCodeBlock);
 		if (!codeAttached)
 		{
 			ConsumeWhitespace(newItr);
@@ -1074,8 +1078,7 @@ public:
 		
 		if (codeAttached)
 		{
-			fOlPtr->SetCodeBlock(codeBlock, startOfCodeBlock.GetSource(), 
-				                 true);
+			fOlPtr->SetCodeBlock(codeBlock, startOfCodeBlock, true);
 		}
 		itr = newItr;
 		return true;
@@ -1614,8 +1617,8 @@ public:
 			// 2010-03-28 - Adding this code may break something as I haven't
 			// been thinking about this section lately but I think this will
 			// fix it so you can use long names for Nodes...
-			rtn = this->context->GetRoot()->Find(complexName);
-		}
+			rtn = this->context->GetRoot()->Find(complexName);			
+		}		
 		return rtn;
 	}	
 
@@ -1756,7 +1759,7 @@ public:
 			Iterator oldItr = itr;
 			AccessPtr access = Access::NotSpecified();
 			bool _friend;
-			bool global;
+			NodePtr global;
 			bool isInline;
 			std::string initializer;
 			bool isStatic;
@@ -1780,7 +1783,7 @@ public:
 				throw ParserException(oldItr.GetSource(),
 					"CppParser.Variable.FriendNotAllowedForArg");
 			}
-			if (global)
+			if (!!global)
 			{
 				throw ParserException(oldItr.GetSource(),
 					"CppParser.Variable.GlobalNotAllowedForArg");
@@ -1809,10 +1812,49 @@ public:
 		}
 	}
 
-	bool GlobalKeyword(Iterator & itr)
+	bool GlobalKeyword(Iterator & itr, NodePtr & home)
 	{
+		home.reset();
+
 		ConsumeWhitespace(itr);
-		return itr.ConsumeWord("~global");
+		if (!itr.ConsumeWord("~global"))
+		{
+			return false;
+		}
+		itr.ConsumeWhitespace();
+		if (!itr.ConsumeChar('('))
+		{
+			home = currentScope->GetNode();
+			return true;
+		}
+		itr.ConsumeWhitespace();
+		if (!ConsumeNodeName(itr, home))
+		{
+			throw ParserException(itr.GetSource(),
+				Messages::Get("CppParser.GlobalKeyword.HomeNodeExpected"));
+		}
+		if (!home)
+		{
+			// No node was found? Check to see if the root node was desired.
+			// I thought of adding to Node::FindNode the ability to specify
+			// the root namespace with "::". But thinking about that, it would
+			// make it legal to identify say node A::B::C with A::B::C::. The
+			// trailing "::" seems too gross... maybe in time though that
+			// idea will make sense.
+			if (!itr.ConsumeWord("::"))
+			{
+				throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.GlobalKeyword.HomeNodeExpected"));
+			}
+			home = currentScope->GetContext()->GetRoot();
+		}
+		itr.ConsumeWhitespace();
+		if (!itr.ConsumeChar(')'))
+		{
+			throw ParserException(itr.GetSource(),
+				Messages::Get("CppParser.GlobalKeyword.ClosingParanthesisExpected"));
+		}		
+		return true;
 	}
 
 	bool HFileDirective(Iterator & itr)
@@ -2082,6 +2124,32 @@ public:
 			return false;
 		}
 		consumed += consume;
+		return true;
+	}
+
+	/** Returns true if the pure virtual syntax is found here (in other words,
+	 *  "= 0;"). "source" is the start of the pure virtual expression.
+	 */
+	bool PureVirtual(Iterator & itr, SourcePtr & source)
+	{
+		itr.ConsumeWhitespace();
+		source = itr.GetSource();
+		if (!itr.ConsumeChar('='))
+		{
+			return false;
+		}
+		itr.ConsumeWhitespace();
+		if (!itr.ConsumeChar('0'))
+		{
+			throw ParserException(itr.GetSource(),
+				Messages::Get("CppParser.PureVirtual.ExpectedZero")); 
+		}	
+		itr.ConsumeWhitespace();
+		if (!itr.ConsumeChar(';'))
+		{
+			throw ParserException(itr.GetSource(),
+				Messages::Get("CppParser.PureVirtual.ExpectedSemicolon")); 
+		}
 		return true;
 	}
 
@@ -2388,7 +2456,7 @@ public:
 	 *   just the first part. ]
 	 */
 	bool Variable(Iterator & itr, AccessPtr & access, bool & _friend, 
-				  bool & global, bool & isInline, bool & isStatic, 
+				  NodePtr & globalHome, bool & isInline, bool & isStatic, 
 				  bool & isVirtual,
 				  TypePtr & type, std::string & varName)
 	{
@@ -2396,7 +2464,8 @@ public:
 
 		access = Access::NotSpecified();
 		_friend = false;
-		global = false;
+		bool global;
+		globalHome.reset();
 		isInline = false;		
 		isStatic = false;
 		isVirtual = false;
@@ -2404,7 +2473,7 @@ public:
 				(*access == *Access::NotSpecified()
 					&& *(access = AccessKeyword(itr)) != *Access::NotSpecified())
 				|| (!_friend && (_friend = FriendModifierKeyword(itr)))
-				|| (!global && (global = GlobalKeyword(itr)))
+				|| (!global && (global = GlobalKeyword(itr, globalHome)))
 				|| (!isInline && (isInline = InlineKeyword(itr)))
 				|| (!isStatic && (isStatic = StaticKeyword(itr)))
 				|| (!isVirtual && (isVirtual = VirtualKeyword(itr)))
@@ -2416,11 +2485,25 @@ public:
 		}
 		
 
-		if (*access == *Access::Public() && global && isStatic) 
+		if (!!global)
 		{
-			throw ParserException(itr.GetSource(),
+			if (*access == *Access::Public() && isStatic) 
+			{
+				throw ParserException(itr.GetSource(),
 					Messages::Get("CppParser.Variable.PublicGlobalStaticMakesNoSense")); 			
-		}
+			}
+
+			// This restricts using the ~global({node}) syntax when the access is
+			// hidden, as ~hidden access means the global node gets tucked into the
+			// anonymous namespace. 
+			// Its a sloppy job though so if someone uses the default node path
+			// it'll currently work.
+			if (*access == *Access::Hidden() && globalHome != currentScope->GetNode()) 
+			{
+				throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.Variable.GlobalHomeNodeSpecifierMakesNoSenseWhenHidden")); 			
+			}
+		}		
 
 		if (!Type(itr, type))
 		{
@@ -2455,7 +2538,7 @@ public:
 
 		AccessPtr access = Access::NotSpecified();
 		bool _friend;
-		bool global;
+		NodePtr globalHome;
 		bool isInline;
 		bool isStatic;
 		bool isVirtual;
@@ -2463,10 +2546,10 @@ public:
 		std::string varName;
 		Iterator oldItr = itr; // Save it in case we need to define where the
 							   // var definition began.
-		if (!Variable(itr, access, _friend, global, isInline, isStatic, 
+		if (!Variable(itr, access, _friend, globalHome, isInline, isStatic, 
 			          isVirtual, type, varName))
 		{
-			if (global)
+			if (!!globalHome)
 			{
 				throw ParserException(itr.GetSource(),
 					Messages::Get("CppParser.Variable.MustFollowGlobalKeyword")); 
@@ -2474,7 +2557,7 @@ public:
 			return false;
 		}
 		
-		if (_friend && !global) 
+		if (_friend && !globalHome) 
 		{
 			throw ParserException(itr.GetSource(),
 					Messages::Get("CppParser.Variable.MustFollowGlobalKeyword")); 
@@ -2487,9 +2570,9 @@ public:
 
 		NodePtr node;
 
-		if (global)
+		if (!!globalHome)
 		{
-			node = currentScope->GetNode()->FindOrCreate(varName);
+			node = globalHome->FindOrCreate(varName);
 			node->SetAdoptedHome(currentScope);			
 		} 
 		else
@@ -2511,7 +2594,7 @@ public:
 		{			
 			Variable::Create(node, access, isStatic, type, initializer,
 				Reason::Create(CppAxioms::VariableScopeCreation(), oldItr.GetSource()));
-			if (global)
+			if (!!globalHome)
 			{
 				ClassPtr classPtr;
 				if (!!currentScope->GetMember())
@@ -2557,17 +2640,21 @@ public:
 
 			currentScope = oldScope;
 
+			bool pureVirtual = false;
 			std::string codeBlock;
 			bool codeAttached = false;
-			Iterator startOfCodeBlock = itr;
-			codeAttached = CodeBlock(itr, codeBlock);
+			SourcePtr startOfCodeBlock;
+			codeAttached = CodeBlock(itr, codeBlock, startOfCodeBlock);
 			if (!codeAttached)
 			{
-				ConsumeWhitespace(itr);
-				if (!itr.ConsumeChar(';'))
+				if (!(pureVirtual = PureVirtual(itr, startOfCodeBlock)))
 				{
-					throw ParserException(itr.GetSource(),
-						Messages::Get("CppParser.Function.SemicolonExpected")); 
+					ConsumeWhitespace(itr);
+					if (!itr.ConsumeChar(';'))
+					{
+						throw ParserException(itr.GetSource(),
+							Messages::Get("CppParser.Function.SemicolonExpected")); 
+					}
 				}
 			}
 			ReasonPtr fReason = Reason::Create(CppAxioms::FunctionCreation(), 
@@ -2580,10 +2667,13 @@ public:
 										 fReason);
 			if (codeAttached)
 			{
-				fOl->SetCodeBlock(codeBlock, startOfCodeBlock.GetSource(), 
-					              true);
+				fOl->SetCodeBlock(codeBlock, startOfCodeBlock, true);
 			}
-			if (global)
+			else if (pureVirtual)
+			{
+				fOl->SetPureVirtual(startOfCodeBlock);
+			}
+			if (!!globalHome)
 			{
 				ClassPtr classPtr;
 				if (!!currentScope->GetMember())

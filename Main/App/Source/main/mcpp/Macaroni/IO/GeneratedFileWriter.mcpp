@@ -15,10 +15,12 @@
  */
 ~import boost::filesystem::create_directories;
 ~import Macaroni::Exception;
+~import BOOST_FOREACH;
 ~import Macaroni::IO::GeneratedFileWriter;
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaFunction;
 ~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Lua::LuaProperty;
 ~import std::ofstream;
 ~import std::ifstream;
 ~import std::ostream;
@@ -44,12 +46,14 @@ class GeneratedFileWriter
 
 	bool closed;
 	bool directToFile;
-	const path filePath;	
+	const string filePath;	
 	bool fileWasWritten;
+	int lineNumber;
 	ostreamptr writer;	
 
 	public GeneratedFileWriter(const path filePath)
-	:	closed(false), filePath(filePath), fileWasWritten(false), writer()
+	:	closed(false), filePath(filePath.string()), fileWasWritten(false), 
+	    lineNumber(1), writer()
 	{
 		path parent = filePath.parent_path();
 		if (!boost::filesystem::exists(parent))
@@ -103,9 +107,16 @@ class GeneratedFileWriter
 		return fileWasWritten;
 	}
 
-	public inline const path & GetFilePath() const
+	public inline const string & GetFilePath() const
+		@LuaProperty "FilePath"
 	{
 		return filePath;
+	}
+
+	public inline int GetLineNumber() const
+		@LuaProperty "LineNumber"
+	{
+		return lineNumber;
 	}
 
 	public static bool isFileDifferentThanBuffer(const path & filePath, stringstream & current)
@@ -154,20 +165,29 @@ class GeneratedFileWriter
 		@LuaOperator "__tostring"
 	{
 		std::stringstream ss;
-		ss << "GeneratedFileWriter [" << GetFilePath().string() << "]";
+		ss << "GeneratedFileWriter [" << GetFilePath() << "]";
 		return ss.str();
 	}
 
 	public void Write(const std::string & text)
 		@LuaFunction "Write"
 	{
-		(*writer) << text;
+		BOOST_FOREACH(const char & ch, text)
+		{
+			(*writer) << ch;
+			if (ch == '\n')
+			{
+				lineNumber ++;
+			}
+		}
 	}
 
 	public void WriteLine(const std::string & text)
 		@LuaFunction "WriteLine"
 	{
-		(*writer) << text << std::endl;
+		Write(text);
+		lineNumber ++;		
+		(*writer) << std::endl;
 	}
 };
 

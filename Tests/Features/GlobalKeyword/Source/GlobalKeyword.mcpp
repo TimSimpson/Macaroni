@@ -1,0 +1,40 @@
+//~import Some::Weird::Place; // Import this node to be used below.
+~import std::string;
+
+namespace Some::Weird::Place { }
+
+~namespace Util;
+
+class Func
+{
+	// This function will be put in the root of the global namespace.
+	public ~global(::) int Add(int a, int b)
+	{
+		return a + b;
+	}
+	
+	// Its also possible to abuse this:
+	public ~global(Some::Weird::Place) int Dumb()
+	{
+		return ::Some::Weird::ReasonlessPrivateGlobal() + 200;
+	}
+	
+	// Puts this in the namespace Some::Weird... but only defines it in the
+	// .cpp file. So ironically it will never be seen.
+	private ~global(Some::Weird) int ReasonlessPrivateGlobal()
+	{		
+		return HiddenGlobal() + 26;
+	}
+
+	// If the global is "~hidden" it gets tucked into the anonymous namespace
+    // of the .cpp file regardless of the global  setting.
+	~hidden ~global int HiddenGlobal()
+	{		
+		return 30;
+	}
+	
+	public static int AddStuff(int c)
+	{
+		return ::Add(Some::Weird::Place::Dumb(), c);
+	}
+};

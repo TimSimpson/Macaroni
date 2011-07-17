@@ -180,6 +180,11 @@ int FunctionOverloadLuaMetaData::Index(lua_State * L,
 		lua_pushboolean(L, ptr->IsInline());
 		return 1;
 	}
+	else if (index == "IsPureVirtual")
+	{
+		lua_pushboolean(L, ptr->IsPureVirtual());
+		return 1;
+	}
 	else if (index == "ReturnType")
 	{
 		TypeLuaMetaData::PutInstanceOnStack(L, ptr->GetReturnType());
