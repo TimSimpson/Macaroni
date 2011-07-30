@@ -63,8 +63,11 @@ Test = {
     failures = {},  -- Stores a list of all failures.
         
     register = function (object)  
-        -- Stores the given test case into its list of tests. The name of the
-        -- test must be unique.
+        -- Stores the given test case into its list of tests. If the name of 
+        -- the test is not unique the previous entry by that name is 
+        -- overwritten.  Necessary because the chain of "require" statements
+        -- can be complicated.
+        
 		-- Expects object to be a valid test suite.
         if (object.name == nil) then
             error("Given test suite has no name property.", 2);
@@ -74,10 +77,7 @@ Test = {
         end
         --[[if (#object.tests < 1) then
             error("Given test suite  " .. object.name .. " has " .. #object.tests .. " tests.");
-        end ]]--
-        if testList[object.name] ~= nil then
-			error("The given test suite " .. object.name .. " has already been registered!");
-        end
+        end ]]--        
         Test.testList[object.name] = object;
     end,
     
