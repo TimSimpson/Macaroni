@@ -88,7 +88,7 @@ ConstructorOverloadPtr ConstructorOverload::Create(
 
 NodePtr ConstructorOverload::CreateNode(NodePtr ctorHomeNode)
 {
-	return ctorHomeNode->GetNode()->CreateNextInSequence("Overload#");	
+	return ctorHomeNode->CreateNextInSequence("Overload#");	
 }
 
 const VariableAssignment & ConstructorOverload::GetAssignment(int index) const

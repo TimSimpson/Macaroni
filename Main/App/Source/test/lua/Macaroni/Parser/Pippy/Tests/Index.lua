@@ -15,6 +15,7 @@
 --------------------------------------------------------------------------------
 require "Macaroni/Parser/Pippy/Tests/GlobalKeyword";
 require "Macaroni/Parser/Pippy/Tests/PippyParserTests_Class";
+require "Macaroni/Parser/Pippy/Tests/PippyParserTests_Constructor";
 require "Macaroni/Parser/Pippy/Tests/PippyParserTests_Functions";
 require "Macaroni/Parser/Pippy/Tests/Import";
 require "Macaroni/Parser/Pippy/Tests/Milestones";

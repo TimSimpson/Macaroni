@@ -104,6 +104,7 @@ DependencyList = {
         local overloads = member.Node.Children;
         log:Write("addDependenciesForConstructor " .. tostring(member.Node.FullName))
         for i = 1, #overloads do
+			log:Write("addDependenciesForConstructor " .. tostring(member.Node.FullName) .. " overload # " .. tostring(i))
         	local olN = overloads[i];
         	local olM = olN.Member;
         	if (olM == nil) then
@@ -214,6 +215,7 @@ DependencyList = {
         end
                 
         check(type.Node ~= nil, "Given a type with a nil node!");
+        log:Write("addDependenciesForType " .. tostring(type.Node.FullName))
         self:addDependencyNode(type.Node, newTraveller);     
         
         -- this is a hack, but if it works, I'll add real support

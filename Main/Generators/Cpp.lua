@@ -25,8 +25,8 @@ CPP_GENERATE_VERBOSE = false
 function Generate(library, path)
 	log = log.Init("Cpp");
 	--log.Write = function(self, msg) 			
-			--print("[CPP]:" .. msg);
-		--end;
+	--		print("[CPP]:" .. msg);
+	--	end;
 	
 	if BoostConfigIsAvailable(library.Context) then
 		lcg = LibraryConfigGenerator.new(library);

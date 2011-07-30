@@ -14,6 +14,8 @@
 -- limitations under the License.
 --------------------------------------------------------------------------------
 
+--TODO: Move to "test" sources once that works.
+
 require "Macaroni.Model.Context";
 require "Macaroni.Model.FileName";
 require "Macaroni.IO.GeneratedFileWriter";
@@ -29,4 +31,16 @@ function Generate(library, path)
 	if cpp.HFilePath == nil then
 		error("NO!GG");
 	end
+	
+	
+	local cmdline = root:FindOrCreate("Macaroni::Build::CmdLine")
+	local ctor = cmdline:Find("$ctor")
+	assert(ctor.TypeName == "Constructor")
+	assert(#ctor.Children == 1)
+	local ol = ctor.Children[1].Member
+	assert(ol.TypeName == "ConstructorOverload")
+	local args = ol.Arguments;
+	local arg1 = args[1]
+	
+	
 end
