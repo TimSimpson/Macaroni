@@ -39,7 +39,7 @@ Test.register(
             end,
             tests = {
                 ["Result is empty."] = function(self)
-                    Test.assert(0, #(self.nodeList));
+                    Test.assertEquals(0, #(self.nodeList));
                 end,
             }
         },
@@ -51,10 +51,10 @@ Test.register(
             end,
             tests = {
                 ["Result has one element."] = function(self)
-                    Test.assert(1, #(self.nodeList));
+                    Test.assertEquals(1, #(self.nodeList));
                 end,
                 ["The element, when retrieved, is what we put in originally."] = function(self)
-                    Test.assert(self.nodeA, self.nodeList[1]);
+                    Test.assertEquals(self.nodeA, self.nodeList[1]);
                 end,
             }
         },
@@ -66,11 +66,11 @@ Test.register(
             end,
             tests = {
                 ["Result has two elements."] = function(self)
-                    Test.assert(2, #(self.nodeList));
+                    Test.assertEquals(2, #(self.nodeList));
                 end,
                 ["The elements can be retrieved via indexing."] = function(self)
-                     Test.assert(self.nodeA, self.nodeList[1]);
-                     Test.assert(self.nodeB, self.nodeList[2]);
+                     Test.assertEquals(self.nodeA, self.nodeList[1]);
+                     Test.assertEquals(self.nodeB, self.nodeList[2]);
                 end,
             }
         },

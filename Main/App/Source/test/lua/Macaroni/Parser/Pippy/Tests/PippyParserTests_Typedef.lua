@@ -76,20 +76,20 @@ tests = {
         end,
         tests = {
             ["Typedef has name 'stringType'."] = function(self)                
-                Test.assert(3, #self.root.Children);
-                Test.assert("stringType", self.root.Children[3].Name);                                  
+                Test.assertEquals(3, #self.root.Children);
+                Test.assertEquals("stringType", self.root.Children[3].Name);                                  
             end,            
             ["stringType's type is typedef."] = function(self)                                
-                Test.assert("Typedef", self.stringType.TypeName);                  
+                Test.assertEquals("Typedef", self.stringType.TypeName);                  
             end,            
             ["The typedef's type is a node."] = function(self)                
                 local type = self.stringType.Type;
-                Test.assert("std::string", type.Node.FullName);
+                Test.assertEquals("std::string", type.Node.FullName);
             end,            
             ["The typedef's type has empty arg list."] = function(self)                                
                 local type = self.stringType.Type;
                 local typeArgs = type.TypeArguments;
-                Test.assert(0, #(typeArgs));            
+                Test.assertEquals(0, #(typeArgs));            
             end,                        
         }
     },
@@ -114,24 +114,24 @@ tests = {
         end,
         tests = {
             ["Typedef has name 'stringArray'."] = function(self)
-                Test.assert("stringArray", self.typedefNode.Name);                                  
+                Test.assertEquals("stringArray", self.typedefNode.Name);                                  
             end,            
             ["The Member's type is typedef."] = function(self)                                
-                Test.assert("Typedef", self.typedef.TypeName);                  
+                Test.assertEquals("Typedef", self.typedef.TypeName);                  
             end,            
             ["The typedef's type is the vector node."] = function(self)                
                 local type = self.typedef.Type;
-                Test.assert("std::vector", type.Node.FullName);
+                Test.assertEquals("std::vector", type.Node.FullName);
             end,            
             ["The typedef's type has an argument list of the String type."] = function(self)                                
                 local type = self.typedef.Type;
                 local typeArgs = type.TypeArguments;
-                Test.assert(1, #(typeArgs));
+                Test.assertEquals(1, #(typeArgs));
 
                 local typeArg1 = typeArgs[1];            
-                Test.assert("std::vector", typeArg1.Node.FullName);            
-                Test.assert(1, #(typeArg1.Arguments));
-                Test.assert("std::string", typeArg1.Arguments[1].Node.FullName);            
+                Test.assertEquals("std::vector", typeArg1.Node.FullName);            
+                Test.assertEquals(1, #(typeArg1.Arguments));
+                Test.assertEquals("std::string", typeArg1.Arguments[1].Node.FullName);            
             end,                        
         }
     },  

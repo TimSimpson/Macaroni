@@ -48,10 +48,10 @@ tests = {
         end,
         tests = {
             ["One node exists within the Context"] = function(this)
-                Test.assert(1, #this.root.Children);
+                Test.assertEquals(1, #this.root.Children);
             end,
             ["Node is for primitives."] = function(this)
-                Test.assert("{C++ Primitives}", this.root.Children[1].Name);  
+                Test.assertEquals("{C++ Primitives}", this.root.Children[1].Name);  
             end,           
         }
     },
@@ -75,19 +75,19 @@ tests = {
                 -- This unit test always fails, but its due to some condition caused
                 -- by a prior unit test.  I can make another method just like it and it
                 -- passes.
-                Test.assert(2, #this.root.Children);
+                Test.assertEquals(2, #this.root.Children);
             end,
             ["Only two nodes are found within the Context 2"] = function(this)               
-                Test.assert(2, #this.root.Children);
+                Test.assertEquals(2, #this.root.Children);
             end,
             ["Second node in Root is Apple."] = function(this)
-                Test.assert("Apple", this.root.Children[2].Name);                  
+                Test.assertEquals("Apple", this.root.Children[2].Name);                  
             end,            
             ["Apple namespace has no children."] = function(this)
-                Test.assert(0, #this.root.Children[2].Children);  
+                Test.assertEquals(0, #this.root.Children[2].Children);  
             end,
             ["Type of Node is Namespace."] = function(this)
-                Test.assert("Namespace", this.root.Children[2].Member.TypeName);                  
+                Test.assertEquals("Namespace", this.root.Children[2].Member.TypeName);                  
             end,
         }
     },
@@ -113,15 +113,15 @@ tests = {
         end,
         tests = {
             ["Node within node found within the Context"] = function(this)
-                Test.assert(2, #this.root.Children);
-                Test.assert(1, #this.root.Children[2].Children);
+                Test.assertEquals(2, #this.root.Children);
+                Test.assertEquals(1, #this.root.Children[2].Children);
             end,
             ["Single node in Root is Apple, then Seed."] = function(this)
-                Test.assert("Apple", this.root.Children[2].Name);  
-                Test.assert("Seed", this.root.Children[2].Children[1].Name);  
+                Test.assertEquals("Apple", this.root.Children[2].Name);  
+                Test.assertEquals("Seed", this.root.Children[2].Children[1].Name);  
             end,
             ["Seed namespace has no children."] = function(this)
-                Test.assert(0, #this.root.Children[2].Children[1].Children);  
+                Test.assertEquals(0, #this.root.Children[2].Children[1].Children);  
             end,        
         }
     },    
@@ -152,31 +152,31 @@ tests = {
         tests = {
             ["Garbage appears before Namespace."] = function(this)
                 local status, err = this.tryParse("dsjfk");
-                Test.assert(false, status);
-                Test.assert(1, err.Source.Line);                
-                Test.assert(1, err.Source.Column);
-                Test.assert(Messages.Get("CppParser.Variable.UnknownTypeName"), err.Message);                
+                Test.assertEquals(false, status);
+                Test.assertEquals(1, err.Source.Line);                
+                Test.assertEquals(1, err.Source.Column);
+                Test.assertEquals(Messages.Get("CppParser.Variable.UnknownTypeName"), err.Message);                
             end,
             ["No identifier after namespace keyword."] = function(this)
                 local status, err = this.tryParse("namespace {}");
-                Test.assert(false, status);
-                Test.assert(1, err.Source.Line);
-                Test.assert(11, err.Source.Column);                
-                Test.assert(Messages.Get("CppParser.Namespace.NoID1"), err.Message);                
+                Test.assertEquals(false, status);
+                Test.assertEquals(1, err.Source.Line);
+                Test.assertEquals(11, err.Source.Column);                
+                Test.assertEquals(Messages.Get("CppParser.Namespace.NoID1"), err.Message);                
             end,
             ["Junk appears between namespace identifier and braces."] = function(this)
                 local status, err = this.tryParse("namespace sa::fsd /12 {}");
-                Test.assert(false, status);
-                Test.assert(1, err.Source.Line);
-                Test.assert(19, err.Source.Column);                
-                Test.assert(Messages.Get("CppParser.Namespace.NoOpeningBrace"), err.Message);                
+                Test.assertEquals(false, status);
+                Test.assertEquals(1, err.Source.Line);
+                Test.assertEquals(19, err.Source.Column);                
+                Test.assertEquals(Messages.Get("CppParser.Namespace.NoOpeningBrace"), err.Message);                
             end,            
             ["Inside of braces has junk."] = function(this)
                 local status, err = this.tryParse("namespace sa::fsd { fkfk}");
-                Test.assert(false, status);
-                Test.assert(1, err.Source.Line);
-                Test.assert(21, err.Source.Column);                
-                Test.assert(Messages.Get("CppParser.Variable.UnknownTypeName", 1), err.Message);                
+                Test.assertEquals(false, status);
+                Test.assertEquals(1, err.Source.Line);
+                Test.assertEquals(21, err.Source.Column);                
+                Test.assertEquals(Messages.Get("CppParser.Variable.UnknownTypeName", 1), err.Message);                
             end,            
         }
     },

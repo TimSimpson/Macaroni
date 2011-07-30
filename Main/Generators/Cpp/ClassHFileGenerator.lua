@@ -25,10 +25,10 @@ ClassHFileGenerator = {
     writer = nil,
     
     new = function(args)          
-        assert(args.node ~= nil);
-        assert(args.targetLibrary ~= nil);
+        assertEquals(args.node ~= nil);
+        assertEquals(args.targetLibrary ~= nil);
         if (args.path == nil) then
-            assert(args.writer ~= nil);
+            assertEquals(args.writer ~= nil);
         else
             --TODO: Somehow calling C++ NewFileWriter() method currently results in entire Lua call from C++ ending.
             --local writer, errorMsg, errorNumber = io.open(args.path.AbsolutePath, 'w+'); --args.path:NewFileWriter(); 
@@ -119,7 +119,7 @@ ClassHFileGenerator = {
     end,
     
     classPublicGlobals = function(self)  
-        assert(self.node.Member ~= nil 
+        assertEquals(self.node.Member ~= nil 
                and 
                self.node.Member.TypeName == TypeNames.Class);
         local globals = self.node.Member.GlobalNodes;    

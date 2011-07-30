@@ -107,7 +107,7 @@ Test.register(
             end,
             tests = {
                 ["TypeArgumentList has no elements."] = function(self)
-                    Test.assert(0, #(self.typeArgList));
+                    Test.assertEquals(0, #(self.typeArgList));
                 end,                
             }
         },
@@ -121,10 +121,10 @@ Test.register(
             end,
             tests = {
                 ["TypeArgumentList has one element."] = function(self)
-                    Test.assert(1, #(self.typeArgList));
+                    Test.assertEquals(1, #(self.typeArgList));
                 end,
                 ["TypeArgumentList's element is the thing we created for it."] = function(self)
-                    Test.assert(self.typeArg_vectorUsesString, self.typeArgList[1]);       
+                    Test.assertEquals(self.typeArg_vectorUsesString, self.typeArgList[1]);       
                 end,
             }
         },
@@ -144,17 +144,17 @@ Test.register(
             end,
             tests = {
                 ["TypeArgumentList has two elements."] = function(self)
-                    Test.assert(2, #(self.typeArgList));           
+                    Test.assertEquals(2, #(self.typeArgList));           
                 end,
                 ["Arguments #1 is that Event takes EventId."] = function(self)
                     local expected = self.typeArg_eventUsesEventId;
                     local actual = self.typeArgList[1];
-                    Test.assert(expected, actual);
+                    Test.assertEquals(expected, actual);
                 end,
                 ["Arguments #2 is that Message accepts a String, and GfxData."] = function(self)
                     local expected = self.typeArg_messageUsesStringAndGfx;
                     local actual = self.typeArgList[2];
-                    Test.assert(expected, actual);
+                    Test.assertEquals(expected, actual);
                 end,
             }
         }

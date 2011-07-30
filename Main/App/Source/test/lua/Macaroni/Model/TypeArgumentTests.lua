@@ -50,10 +50,10 @@ Test.register(
             end,
             tests = {
                 ["Node should be what we gave it."] = function(self)
-                    Test.assert(self.nodeA.FullName, self.typeArgument.Node.FullName);           
+                    Test.assertEquals(self.nodeA.FullName, self.typeArgument.Node.FullName);           
                 end,
                 ["Arguments are empty."] = function(self)
-                    Test.assert(0, #(self.typeArgument.Arguments));           
+                    Test.assertEquals(0, #(self.typeArgument.Arguments));           
                 end,
             }
         },
@@ -65,12 +65,12 @@ Test.register(
             end,
             tests = {
                 ["Node should be what we gave it."] = function(self)
-                    Test.assert(self.nodeA.FullName, self.typeArgument.Node.FullName);           
+                    Test.assertEquals(self.nodeA.FullName, self.typeArgument.Node.FullName);           
                 end,
                 ["Arguments are the TypeList we provided."] = function(self)
                     local expected = self.typeList;
                     local actual = self.typeArgument.Arguments;
-                    Test.assert(expected, actual);
+                    Test.assertEquals(expected, actual);
                 end,
             }
         }

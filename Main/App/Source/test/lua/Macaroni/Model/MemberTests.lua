@@ -39,7 +39,7 @@ Test.register(
                             end,
                         });     
                     end);
-                    Test.assert(false, status);
+                    Test.assertEquals(false, status);
                     
                     local member = Member.New(newNode, {
                             ctor = function(super, node)

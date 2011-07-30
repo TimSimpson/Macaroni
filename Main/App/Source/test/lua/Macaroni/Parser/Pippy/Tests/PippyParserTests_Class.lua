@@ -80,11 +80,11 @@ tests = {
         end,
         tests = {
             ["ClassNode has name 'string'."] = function(self)                               
-                Test.assert("string", self.classNode.Name);                                  
+                Test.assertEquals("string", self.classNode.Name);                                  
             end,                        
             ["ClassNode has hfile of <string>."] = function(self)
                 local actual = self.classNode.HFilePath;
-                Test.assert("<string>", tostring(self.classNode.HFilePath));            
+                Test.assertEquals("<string>", tostring(self.classNode.HFilePath));            
             end      
         }
     },  
@@ -110,20 +110,20 @@ tests = {
         end,
         tests = {
             ["ClassNode has name 'Dog'."] = function(self)                               
-                Test.assert("Dog", self.classNode.Name);                                  
+                Test.assertEquals("Dog", self.classNode.Name);                                  
             end,                        
             ["ClassNode has two children."] = function(self)                               
-                Test.assert(2, #(self.classNode.Children));
+                Test.assertEquals(2, #(self.classNode.Children));
             end,                        
             ["Class has private int."] = function(self)                               
                 local bc = self.classNode.Children[2];
-                Test.assert("bc", bc.Name);
-                Test.assert(Access.Private, bc.Member.Access);                
+                Test.assertEquals("bc", bc.Name);
+                Test.assertEquals(Access.Private, bc.Member.Access);                
             end,                        
             ["Class has public getter."] = function(self)                               
                 local getter = self.classNode.Children[1];
-                Test.assert("GetBarkCount", getter.Name);
-                Test.assert(Access.Public, getter.Children[1].Member.Access);                
+                Test.assertEquals("GetBarkCount", getter.Name);
+                Test.assertEquals(Access.Public, getter.Children[1].Member.Access);                
             end,                        
         }
     },  

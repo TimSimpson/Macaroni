@@ -83,22 +83,22 @@ tests = {
         tests = {
             ["Class 'GlobalKeyword' gets created in Something namespace."] = function(self)                               
 				local classNode = self.root:Find("Something::GlobalKeyword")
-                Test.assert("Something::GlobalKeyword", classNode.FullName);
+                Test.assertEquals("Something::GlobalKeyword", classNode.FullName);
             end,                        
             ["Class has zero children."] = function(self)
                 local classNode = self.root:Find("Something::GlobalKeyword")
-                Test.assert(0, #classNode.Children);
+                Test.assertEquals(0, #classNode.Children);
             end,
             ["Class has 1 global node."] = function(self)
                 local classNode = self.root:Find("Something::GlobalKeyword")
                 local globals = classNode.Member.GlobalNodes;
-                Test.assert(1, #globals);
+                Test.assertEquals(1, #globals);
             end,
             ["Global node lives in Something."] = function(self)
                 local classNode = self.root:Find("Something::GlobalKeyword")
                 local globals = classNode.Member.GlobalNodes;
                 local Something1 = globals[1];
-                Test.assert("Something::Add::Overload#0", Something1.FullName);
+                Test.assertEquals("Something::Add::Overload#0", Something1.FullName);
             end, 
         }
     }, 
@@ -127,22 +127,22 @@ tests = {
         tests = {
             ["Class 'GlobalKeyword' gets created in Something namespace."] = function(self)                               
 				local classNode = self.root:Find("Something::GlobalKeyword")
-                Test.assert("Something::GlobalKeyword", classNode.FullName);
+                Test.assertEquals("Something::GlobalKeyword", classNode.FullName);
             end,                        
             ["Class has zero children."] = function(self)
                 local classNode = self.root:Find("Something::GlobalKeyword")
-                Test.assert(0, #classNode.Children);
+                Test.assertEquals(0, #classNode.Children);
             end,
             ["Class has 1 global node."] = function(self)
                 local classNode = self.root:Find("Something::GlobalKeyword")
                 local globals = classNode.Member.GlobalNodes;
-                Test.assert(1, #globals);
+                Test.assertEquals(1, #globals);
             end,
             ["Global node lives in SomeOtherPlace."] = function(self)
                 local classNode = self.root:Find("Something::GlobalKeyword")
                 local globals = classNode.Member.GlobalNodes;
                 local Something1 = globals[1];
-                Test.assert("SomeOtherPlace::Add::Overload#0", Something1.FullName);
+                Test.assertEquals("SomeOtherPlace::Add::Overload#0", Something1.FullName);
             end, 
         }
     }, 
@@ -172,22 +172,22 @@ tests = {
         tests = {
             ["Class 'GlobalKeyword' gets created in Something namespace."] = function(self)                               
 				local classNode = self.root:Find("Something::GlobalKeyword")
-                Test.assert("Something::GlobalKeyword", classNode.FullName);
+                Test.assertEquals("Something::GlobalKeyword", classNode.FullName);
             end,                        
             ["Class has zero children."] = function(self)
                 local classNode = self.root:Find("Something::GlobalKeyword")
-                Test.assert(0, #classNode.Children);
+                Test.assertEquals(0, #classNode.Children);
             end,
             ["Class has 1 global node."] = function(self)
                 local classNode = self.root:Find("Something::GlobalKeyword")
                 local globals = classNode.Member.GlobalNodes;
-                Test.assert(1, #globals);
+                Test.assertEquals(1, #globals);
             end, 
             ["Global node lives in the root namespace."] = function(self)
                 local classNode = self.root:Find("Something::GlobalKeyword")
                 local globals = classNode.Member.GlobalNodes;
                 local Something1 = globals[1];
-                Test.assert("Add::Overload#0", Something1.FullName);
+                Test.assertEquals("Add::Overload#0", Something1.FullName);
             end,
         }
     }, 
@@ -218,9 +218,9 @@ tests = {
 						};                            
 					]]);         
 					end);
-				Test.assert(false, status);
-				Test.assert(self.file, parserException.Source.FileName);
-				Test.assert(5, parserException.Source.Line);
+				Test.assertEquals(false, status);
+				Test.assertEquals(self.file, parserException.Source.FileName);
+				Test.assertEquals(5, parserException.Source.Line);
 				self.classNode = self.root:Find("Something::GlobalKeyword");   
 				self.class = self.classNode.Member;   
 			end,

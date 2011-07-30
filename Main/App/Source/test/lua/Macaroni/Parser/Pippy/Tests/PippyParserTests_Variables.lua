@@ -65,14 +65,14 @@ tests = {
         end,
         tests = {
             ["C, the var, is added."] = function(this)
-                Test.assert(2, #this.root.Children);
-                Test.assert("c", this.root.Children[2].Name);                                  
+                Test.assertEquals(2, #this.root.Children);
+                Test.assertEquals("c", this.root.Children[2].Name);                                  
             end,            
             ["C's member is a Variable."] = function(this)                                
-                Test.assert("Variable", this.var.TypeName);                  
+                Test.assertEquals("Variable", this.var.TypeName);                  
             end,            
             ["C is not const."] = function(this)                                
-                Test.assert(false, this.var.Type.Const);                  
+                Test.assertEquals(false, this.var.Type.Const);                  
             end,                        
         }
     },
@@ -96,18 +96,18 @@ tests = {
         end,
         tests = {
             ["C and K are siblings."] = function(this)
-                Test.assert(3, #this.root.Children);
-                Test.assert("c", this.root.Children[2].Name);                                  
-                Test.assert("k", this.root.Children[3].Name); 
+                Test.assertEquals(3, #this.root.Children);
+                Test.assertEquals("c", this.root.Children[2].Name);                                  
+                Test.assertEquals("k", this.root.Children[3].Name); 
             end,            
             ["C's member is a Variable."] = function(this)                                
-                Test.assert("Variable", this.var.TypeName);                  
+                Test.assertEquals("Variable", this.var.TypeName);                  
             end,            
             ["C is not const."] = function(this)                                
-                Test.assert(false, this.var.Type.Const);                  
+                Test.assertEquals(false, this.var.Type.Const);                  
             end,                        
             ["K is not const."] = function(this)                                
-                Test.assert(false, this.var2.Type.Const);                  
+                Test.assertEquals(false, this.var2.Type.Const);                  
             end,                        
         }
     },
@@ -131,7 +131,7 @@ tests = {
         end,
         tests = {
             ["C is not const."] = function(this)                                
-                Test.assert(true, this.var.Type.Const);                  
+                Test.assertEquals(true, this.var.Type.Const);                  
             end,          
         }
     },  
@@ -153,13 +153,13 @@ tests = {
         end,
         tests = {
             ["C is const."] = function(this)                                
-                Test.assert(true, this.var.Type.Const); 
+                Test.assertEquals(true, this.var.Type.Const); 
             end,          
             ["C is not a pointer."] = function(this)                                
-                Test.assert(false, this.var.Type.Pointer);                  
+                Test.assertEquals(false, this.var.Type.Pointer);                  
             end, 
             ["C is not a reference."] = function(this)                                
-                Test.assert(false, this.var.Type.Reference);                  
+                Test.assertEquals(false, this.var.Type.Reference);                  
             end,                
         }
     },  
@@ -180,14 +180,14 @@ tests = {
         end,
         tests = {
             ["Donut, an unknown node, is created to nest K."] = function(this)                                
-                Test.assert(2, #this.root.Children);                  
-                Test.assert("Donut", this.root.Children[2].Name);                  
-                Test.assert(nil, this.root.Children[2].Member);
+                Test.assertEquals(2, #this.root.Children);                  
+                Test.assertEquals("Donut", this.root.Children[2].Name);                  
+                Test.assertEquals(nil, this.root.Children[2].Member);
             end,          
             ["K is found within Donut."] = function(this)                                
-                Test.assert(1, #this.root.Children[2].Children);                  
-                Test.assert("Donut::K", this.root.Children[2].Children[1].FullName);                  
-                Test.assert("Variable", this.root.Children[2].Children[1].Member.TypeName);                  
+                Test.assertEquals(1, #this.root.Children[2].Children);                  
+                Test.assertEquals("Donut::K", this.root.Children[2].Children[1].FullName);                  
+                Test.assertEquals("Variable", this.root.Children[2].Children[1].Member.TypeName);                  
             end,          
         }
     },  
@@ -212,18 +212,18 @@ tests = {
         end,
         tests = {
             ["C and K are siblings."] = function(this)
-                Test.assert(3, #this.root.Children);
-                Test.assert("c", this.root.Children[2].Name);                                  
-                Test.assert("k", this.root.Children[3].Name); 
+                Test.assertEquals(3, #this.root.Children);
+                Test.assertEquals("c", this.root.Children[2].Name);                                  
+                Test.assertEquals("k", this.root.Children[3].Name); 
             end,            
             ["C's member is a Variable."] = function(this)                                
-                Test.assert("Variable", this.var.TypeName);                  
+                Test.assertEquals("Variable", this.var.TypeName);                  
             end,            
             ["C is not const."] = function(this)                                
-                Test.assert(false, this.var.Type.Const);                  
+                Test.assertEquals(false, this.var.Type.Const);                  
             end,                        
             ["K is const."] = function(this)                                
-                Test.assert(true, this.var2.Type.Const);                  
+                Test.assertEquals(true, this.var2.Type.Const);                  
             end,                        
         }
     },
@@ -245,17 +245,17 @@ tests = {
         end,
         tests = {
             ["C, the var, is added."] = function(this)
-                Test.assert(2, #this.root.Children);
-                Test.assert("c", this.root.Children[2].Name);                                  
+                Test.assertEquals(2, #this.root.Children);
+                Test.assertEquals("c", this.root.Children[2].Name);                                  
             end,            
             ["C's member is a Variable."] = function(this)                                
-                Test.assert("Variable", this.var.TypeName);                  
+                Test.assertEquals("Variable", this.var.TypeName);                  
             end,            
             ["C is const."] = function(this)                                
-                Test.assert(true, this.var.Type.Const);                  
+                Test.assertEquals(true, this.var.Type.Const);                  
             end,                        
             ["C is a pointer."] = function(this)                                
-                Test.assert(true, this.var.Type.Pointer);                  
+                Test.assertEquals(true, this.var.Type.Pointer);                  
             end,                
         }
     },
@@ -277,17 +277,17 @@ tests = {
         end,
         tests = {
             ["C, the var, is added."] = function(this)
-                Test.assert(2, #this.root.Children);
-                Test.assert("c", this.root.Children[2].Name);                                  
+                Test.assertEquals(2, #this.root.Children);
+                Test.assertEquals("c", this.root.Children[2].Name);                                  
             end,            
             ["C's member is a Variable."] = function(this)                                
-                Test.assert("Variable", this.var.TypeName);                  
+                Test.assertEquals("Variable", this.var.TypeName);                  
             end,            
             ["C is const."] = function(this)                                
-                Test.assert(true, this.var.Type.Const);                  
+                Test.assertEquals(true, this.var.Type.Const);                  
             end,                        
             ["C is a pointer."] = function(this)                                
-                Test.assert(true, this.var.Type.Pointer);                  
+                Test.assertEquals(true, this.var.Type.Pointer);                  
             end,                
         }
     },
@@ -309,23 +309,23 @@ tests = {
         end,
         tests = {
             ["C, the var, is added."] = function(this)
-                Test.assert(2, #this.root.Children);
-                Test.assert("c", this.root.Children[2].Name);                                  
+                Test.assertEquals(2, #this.root.Children);
+                Test.assertEquals("c", this.root.Children[2].Name);                                  
             end,            
             ["C's member is a Variable."] = function(this)                                
-                Test.assert("Variable", this.var.TypeName);                  
+                Test.assertEquals("Variable", this.var.TypeName);                  
             end,            
             ["C is const."] = function(this)                                
-                Test.assert(true, this.var.Type.Const);                  
+                Test.assertEquals(true, this.var.Type.Const);                  
             end,                        
             ["C is a pointer."] = function(this)                                
-                Test.assert(true, this.var.Type.Pointer);                  
+                Test.assertEquals(true, this.var.Type.Pointer);                  
             end,    
             ["C is a const pointer."] = function(this)                                
-                Test.assert(true, this.var.Type.ConstPointer);                  
+                Test.assertEquals(true, this.var.Type.ConstPointer);                  
             end,     
             ["C is not a reference."] = function(this)                                
-                Test.assert(false, this.var.Type.Reference);                  
+                Test.assertEquals(false, this.var.Type.Reference);                  
             end,        
         }
     },
@@ -347,23 +347,23 @@ tests = {
         end,
         tests = {
             ["C, the var, is added."] = function(this)
-                Test.assert(2, #this.root.Children);
-                Test.assert("c", this.root.Children[2].Name);                                  
+                Test.assertEquals(2, #this.root.Children);
+                Test.assertEquals("c", this.root.Children[2].Name);                                  
             end,            
             ["C's member is a Variable."] = function(this)                                
-                Test.assert("Variable", this.var.TypeName);                  
+                Test.assertEquals("Variable", this.var.TypeName);                  
             end,            
             ["C is not const."] = function(this)                                
-                Test.assert(false, this.var.Type.Const);                  
+                Test.assertEquals(false, this.var.Type.Const);                  
             end,                        
             ["C is not a pointer."] = function(this)                                
-                Test.assert(false, this.var.Type.Pointer);                  
+                Test.assertEquals(false, this.var.Type.Pointer);                  
             end,    
             ["C is not a const pointer."] = function(this)                                
-                Test.assert(false, this.var.Type.ConstPointer);                  
+                Test.assertEquals(false, this.var.Type.ConstPointer);                  
             end,            
             ["C is a reference."] = function(this)                                
-                Test.assert(true, this.var.Type.Reference);                  
+                Test.assertEquals(true, this.var.Type.Reference);                  
             end,            
         }
     },
@@ -385,23 +385,23 @@ tests = {
         end,
         tests = {
             ["C, the var, is added."] = function(this)
-                Test.assert(2, #this.root.Children);
-                Test.assert("c", this.root.Children[2].Name);                                  
+                Test.assertEquals(2, #this.root.Children);
+                Test.assertEquals("c", this.root.Children[2].Name);                                  
             end,            
             ["C's member is a Variable."] = function(this)                                
-                Test.assert("Variable", this.var.TypeName);                  
+                Test.assertEquals("Variable", this.var.TypeName);                  
             end,            
             ["C is const."] = function(this)                                
-                Test.assert(true, this.var.Type.Const);                  
+                Test.assertEquals(true, this.var.Type.Const);                  
             end,                        
             ["C is a pointer."] = function(this)                                
-                Test.assert(true, this.var.Type.Pointer);                  
+                Test.assertEquals(true, this.var.Type.Pointer);                  
             end,    
             ["C is a const pointer."] = function(this)                                
-                Test.assert(true, this.var.Type.ConstPointer);                  
+                Test.assertEquals(true, this.var.Type.ConstPointer);                  
             end,     
             ["C is a reference."] = function(this)                                
-                Test.assert(true, this.var.Type.Reference);                  
+                Test.assertEquals(true, this.var.Type.Reference);                  
             end,        
         }
     },
@@ -409,93 +409,93 @@ tests = {
     
     ["Const without ID is invalid."] = function(this)
         local status, err = this.tryParse("const []");
-        Test.assert(false, status);
-        Test.assert(1, err.Source.Line);                
-        Test.assert(7, err.Source.Column);
-        Test.assert(Messages.Get("CppParser.Const.MaybeBeforeVar"), err.Message);                
+        Test.assertEquals(false, status);
+        Test.assertEquals(1, err.Source.Line);                
+        Test.assertEquals(7, err.Source.Column);
+        Test.assertEquals(Messages.Get("CppParser.Const.MaybeBeforeVar"), err.Message);                
     end,
 
     ["Const without ID is invalid."] = function(this)
         -- I tried this in C++ and its illegal.
         local status, err = this.tryParse("const & char c;");
-        Test.assert(false, status);
-        Test.assert(1, err.Source.Line);                
-        Test.assert(7, err.Source.Column);
-        Test.assert(Messages.Get("CppParser.Const.MaybeBeforeVar"), err.Message);                
+        Test.assertEquals(false, status);
+        Test.assertEquals(1, err.Source.Line);                
+        Test.assertEquals(7, err.Source.Column);
+        Test.assertEquals(Messages.Get("CppParser.Const.MaybeBeforeVar"), err.Message);                
     end,
 
     ["Const without ID is invalid."] = function(this)
         -- I tried this in C++ and its illegal.
         local status, err = tryParse("const * char c;");
-        Test.assert(false, status);
-        Test.assert(1, err.Source.Line);                
-        Test.assert(7, err.Source.Column);
-        Test.assert(Messages.Get("CppParser.Variable.ConstMaybeBeforeVar"), err.Message);                
+        Test.assertEquals(false, status);
+        Test.assertEquals(1, err.Source.Line);                
+        Test.assertEquals(7, err.Source.Column);
+        Test.assertEquals(Messages.Get("CppParser.Variable.ConstMaybeBeforeVar"), err.Message);                
     end,
     
     ["Unknown typename is invalid."] = function(this)
         local status, err = tryParse("const quote c;");
-        Test.assert(false, status);
-        Test.assert(1, err.Source.Line);                
-        Test.assert(7, err.Source.Column);
-        Test.assert(Messages.Get("CppParser.Variable.UnknownTypeName"), err.Message);                
+        Test.assertEquals(false, status);
+        Test.assertEquals(1, err.Source.Line);                
+        Test.assertEquals(7, err.Source.Column);
+        Test.assertEquals(Messages.Get("CppParser.Variable.UnknownTypeName"), err.Message);                
     end,
     
     ["Unknown typename is invalid, method 2."] = function(this)
         local status, err = tryParse("quote c;");
-        Test.assert(false, status);
-        Test.assert(1, err.Source.Line);                
-        Test.assert(1, err.Source.Column);
-        Test.assert(Messages.Get("CppParser.Variable.UnknownTypeName"), err.Message);                
+        Test.assertEquals(false, status);
+        Test.assertEquals(1, err.Source.Line);                
+        Test.assertEquals(1, err.Source.Column);
+        Test.assertEquals(Messages.Get("CppParser.Variable.UnknownTypeName"), err.Message);                
     end,
     
     
     ["Const appearing twice is invalid."] = function(this)
         local status, err = tryParse("const char const c;");
-        Test.assert(false, status);
-        Test.assert(1, err.Source.Line);                
-        Test.assert(12, err.Source.Column);
-        Test.assert(Messages.Get("CppParser.Variable.ConstSeenTwice"), err.Message);                
+        Test.assertEquals(false, status);
+        Test.assertEquals(1, err.Source.Line);                
+        Test.assertEquals(12, err.Source.Column);
+        Test.assertEquals(Messages.Get("CppParser.Variable.ConstSeenTwice"), err.Message);                
     end,
 
     ["Name must follow type and const."] = function(this)
         local status, err = tryParse("const char - c;");
-        Test.assert(false, status);
-        Test.assert(1, err.Source.Line);                
-        Test.assert(12, err.Source.Column);
-        Test.assert(Messages.Get("CppParser.Variable.NameExpected"), err.Message);                
+        Test.assertEquals(false, status);
+        Test.assertEquals(1, err.Source.Line);                
+        Test.assertEquals(12, err.Source.Column);
+        Test.assertEquals(Messages.Get("CppParser.Variable.NameExpected"), err.Message);                
     end,    
     
     ["Name must follow type and const, 2."] = function(this)
         local status, err = tryParse("char - c;");
-        Test.assert(false, status);
-        Test.assert(1, err.Source.Line);                
-        Test.assert(6, err.Source.Column);
-        Test.assert(Messages.Get("CppParser.Variable.NameExpected"), err.Message);                
+        Test.assertEquals(false, status);
+        Test.assertEquals(1, err.Source.Line);                
+        Test.assertEquals(6, err.Source.Column);
+        Test.assertEquals(Messages.Get("CppParser.Variable.NameExpected"), err.Message);                
     end, 
     
     ["Name must follow type and const, 3."] = function(this)
         local status, err = tryParse("char const - c;");
-        Test.assert(false, status);
-        Test.assert(1, err.Source.Line);                
-        Test.assert(12, err.Source.Column);
-        Test.assert(Messages.Get("CppParser.Variable.NameExpected"), err.Message);                
+        Test.assertEquals(false, status);
+        Test.assertEquals(1, err.Source.Line);                
+        Test.assertEquals(12, err.Source.Column);
+        Test.assertEquals(Messages.Get("CppParser.Variable.NameExpected"), err.Message);                
     end, 
     
     ["Double definition if conflicting is invalid."] = function(this)
         local status, err = tryParse("char c; const char c;");
-        Test.assert(false, status);
-        Test.assert(1, err.Source.Line);                
-        Test.assert(9, err.Source.Column);
-        --Test.assert(Messages.Get("CppParser.Variable.NameExpected"), err.Message);                
+        Test.assertEquals(false, status);
+        Test.assertEquals(1, err.Source.Line);                
+        Test.assertEquals(9, err.Source.Column);
+        --Test.assertEquals(Messages.Get("CppParser.Variable.NameExpected"), err.Message);                
     end, 
     
     ["Must see ; at the end of free standing var."] = function(this)
         local status, err = tryParse("char c");
-        Test.assert(false, status);
-        Test.assert(1, err.Source.Line);                
-        Test.assert(7, err.Source.Column);
-        Test.assert(Messages.Get("CppParser.Variable.SemicolonExpected"), err.Message);                
+        Test.assertEquals(false, status);
+        Test.assertEquals(1, err.Source.Line);                
+        Test.assertEquals(7, err.Source.Column);
+        Test.assertEquals(Messages.Get("CppParser.Variable.SemicolonExpected"), err.Message);                
     end, 
     
    

@@ -40,7 +40,7 @@ tests = {
         tests = {
             ["Find returns the same Node that was created."] = function(this)
                 local foundNode = this.root:Find("Dog");
-                Test.assert(this.newNode, foundNode);
+                Test.assertEquals(this.newNode, foundNode);
             end,            
         }        
     },    

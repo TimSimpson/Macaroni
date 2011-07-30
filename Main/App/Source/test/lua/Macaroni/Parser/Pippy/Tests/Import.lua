@@ -48,14 +48,14 @@ tests = {
         end,
         tests = {
             ["The imports are added as maleable nodes."] = function(this)
-                Test.assert(4, #this.root.Children);
-                Test.assert("{C++ Primitives}", this.root.Children[1].Name);  
-                Test.assert("System", this.root.Children[2].Name);  
-                Test.assert("Turtles", this.root.Children[3].Name);  
-                Test.assert("Cat", this.root.Children[4].Name);  
+                Test.assertEquals(4, #this.root.Children);
+                Test.assertEquals("{C++ Primitives}", this.root.Children[1].Name);  
+                Test.assertEquals("System", this.root.Children[2].Name);  
+                Test.assertEquals("Turtles", this.root.Children[3].Name);  
+                Test.assertEquals("Cat", this.root.Children[4].Name);  
             end,
             ["Sub nodes are also added."] = function(this)
-                Test.assert("Turtles::Fight::With::Honor", 
+                Test.assertEquals("Turtles::Fight::With::Honor", 
                             this.root.Children[3].Children[1].Children[1].FullName);  
             end,           
         }

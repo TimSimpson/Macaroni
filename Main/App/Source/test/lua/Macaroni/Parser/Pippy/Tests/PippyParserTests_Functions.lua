@@ -74,23 +74,23 @@ tests = {
         end,
         tests = {
             ["Main is added."] = function(this)
-                Test.assert(2, #this.root.Children);
-                Test.assert("main", this.root.Children[2].Name);                                  
+                Test.assertEquals(2, #this.root.Children);
+                Test.assertEquals("main", this.root.Children[2].Name);                                  
             end,            
             ["Main's type is function."] = function(this)                                
-                Test.assert("Function", this.func.TypeName);                  
+                Test.assertEquals("Function", this.func.TypeName);                  
             end,     
             ["Main has one overload."] = function(this)
-				Test.assert(1, #(this.funcNode.Children));
+				Test.assertEquals(1, #(this.funcNode.Children));
             end,       
             ["Main.Overload#0 type is overload."] = function(this)
-				Test.assert("FunctionOverload", this.fo1.TypeName);
+				Test.assertEquals("FunctionOverload", this.fo1.TypeName);
             end,       
             ["Main.Overload#0 return type is void."] = function(this)                                
-                Test.assert("void", this.fo1.ReturnType.Node.Name);  --                
+                Test.assertEquals("void", this.fo1.ReturnType.Node.Name);  --                
             end,            
             ["Main.Overload#0 argument list is empty."] = function(this)                                
-                Test.assert(0, #this.fo1.Arguments);    --              
+                Test.assertEquals(0, #this.fo1.Arguments);    --              
             end,                        
         }
     },
@@ -114,23 +114,23 @@ tests = {
         end,
         tests = {
             ["Function 'go' is added."] = function(this)
-                Test.assert(3, #this.root.Children);
-                Test.assert("go", this.root.Children[3].Name);                                  
+                Test.assertEquals(3, #this.root.Children);
+                Test.assertEquals("go", this.root.Children[3].Name);                                  
             end,            
             ["Go's type is function."] = function(this)                                
-                Test.assert("Function", this.func.TypeName);                  
+                Test.assertEquals("Function", this.func.TypeName);                  
             end,            
             ["Go has one child."] = function(this)                                
-                Test.assert(1, #(this.funcNode.Children));                  
+                Test.assertEquals(1, #(this.funcNode.Children));                  
             end,            
             ["Go.Overload#1 is type 'FunctionOverload'"] = function(this)
-				Test.assert("FunctionOverload", this.fo1.TypeName);
+				Test.assertEquals("FunctionOverload", this.fo1.TypeName);
             end,
             ["Go.Overload#1's return type is void."] = function(this)                                
-                Test.assert("void", this.fo1.ReturnType.Node.Name);
+                Test.assertEquals("void", this.fo1.ReturnType.Node.Name);
             end,            
             ["Go.Overload#1's argument list has one entry."] = function(this)                 
-                Test.assert(1, #this.fo1.Arguments);    
+                Test.assertEquals(1, #this.fo1.Arguments);    
             end,   
             ["Go.Overload#1's argument #1 is std::string."] = function(this)
                 local args = this.fo1.Arguments;
@@ -138,7 +138,7 @@ tests = {
                 local arg1 = args[1];                   
                 local arg1Type = arg1.Member.Type;
                 local arg1TypeName = arg1Type.Node.FullName;       
-                Test.assert("std::string", arg1TypeName); 
+                Test.assertEquals("std::string", arg1TypeName); 
             end,                       
         }
     },  

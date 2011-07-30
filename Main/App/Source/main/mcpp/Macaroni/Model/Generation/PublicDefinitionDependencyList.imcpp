@@ -1,0 +1,140 @@
+~import Macaroni::Model::AnnotationTable;
+~import Macaroni::Model::AnnotationValue;
+~import BOOST_FOREACH;
+~import Macaroni::Model::Generation::DependencyType;
+~import Macaroni::Model::Generation::DependentType;
+~import Macaroni::Model::Generation::NodeDependency;
+~import Macaroni::Model::Generation::NodeDependencyList;
+~import Macaroni::Model::Generation::NodeDependencyListPtr;
+~import Macaroni::Model::Node;
+~import Macaroni::Model::NodePtr;
+~import std::stringstream;
+~import Macaroni::Model::Type;
+~import Macaroni::Model::TypePtr;
+
+
+~namespace Macaroni::Model::Generation;
+
+class PublicDefinitionDependencyList : public NodeDependencyList
+{
+	protected PublicDefinitionDependencyList(Node * node)
+		: Owner(node), OwnerType(DependentType::PublicDefinition())
+	{
+		init();
+	}
+
+
+	/** Given a Node, traverses it differently based on its Member Type and 
+	 *  adds other entries to this dependency list. */
+	private void addDependencyOnNode
+	(
+		DependencyType dependencyType,
+		/* The minimum dependency type to add if possible. Sometimes the caller
+		 * knows if a certain type is the least possible (in some cases, adding
+		 * a simple ForwardDeclaration may be impossible). */
+	    NodePtr node
+	)
+	{
+		if (!node.GetMember())
+		{
+			stringstream ss;
+			ss << "addDependencyOnNode was passed node \"" 
+			   << node->GetFullName() << "\" which was hollow.";
+			MACARONI_THROW(ss.str().c_str());
+		}
+		
+	}
+
+	/** Given a type, traverses it and adds relevant info to this dependency 
+	 *  list. */
+	private void addDependencyOnType
+	(
+		/* The minimum dependency type to add if possible. Sometimes the caller
+		 * knows if a certain type is the least possible (in some cases, adding
+		 * a simple ForwardDeclaration may be impossible). */
+		DependencyType dependencyType,		
+		// The type to add. The Node represented at its base, as well as its
+		// type argument (template arguments) will be traversed and added.
+        TypePtr * type		
+	)
+	{
+		if (dependencyType < DependencyType::Definition())
+		{
+			if (!CanUseLightDef(type->GetNode())
+			{
+				dependencyType = DependencyType::Definition();
+			}
+			else
+			{
+				// Have to use the full definition if the light definition isn't
+				// available or the type modifiers say we need the definition 
+				// or will make use of it.
+				if (!(type->IsLight() || type->IsPointer() 
+				      || type->IsReference() || type->IsConstPointer()))
+				{
+					dependencyType = DependencyType::Definition();
+				}
+			}
+		}
+		this->addDependencyOnNode(type->GetNode(), dependencyType);
+		if (!!type->GetTypeArguments()) 
+		{
+			BOOST_FOREACH(TypeArgumentPtr typeArg, type->GetTypeArguments())
+			{
+				BOOST_FOREACH(TypePtr typeArgType, typeArg->GetArguments())
+				{
+					this->addDependencyOnType(typeArgType, dependencyType);
+				}
+			}
+		}
+	}
+
+	/** For header definitions, if a function requires a 
+	protected virtual bool alwaysRequireHeavyDependencyForTypes() 
+	{
+		return false;
+	}
+
+	public static bool canUseLightDef(NodePtr node)
+	{
+		return canUseLightDef(node.get());
+	}
+
+	/** "Lite" definitions are preferable but sometimes Macaroni can't use 
+     *  them. For example, if the definition comes from an external file. */
+	public static bool CanUseLightDef(const Node * node)
+	{
+		if (!node.GetHFilePath())
+		{
+			return true;
+		}
+		AnnotationValuePtr value = node->GetAnnotations()
+			                       .GetByName("Macaroni::Cpp::UseLightDef");
+		if (!!value)
+		{
+			if (!value.IsBool())
+			{
+				stringstream ss;
+				ss << "The node " << node->GetFullName() << " annotation value "
+				      "\"Macaroni::Cpp::UseLightDef\" must be a boolean.";
+				MACARONI_THROW(ss.str().c_str());
+			}
+			return value.GetValueAsBool();
+		}
+		return false;
+	}	
+
+	private void init()
+	{
+		if (!(this->GetOwner()->GetMember()))
+		{
+			MACARONI_THROW("NodePublicDefinitionDependencyList was passed a "
+				           "hallow node.");
+		}
+		if (GetOwner()->GetTypeName() == "Variable")
+		{
+			addDependencyOnType(DependencyType::ForwardDeclaration(),
+				                GetOwner()->GetMember()->GetType());
+		}
+	}
+};

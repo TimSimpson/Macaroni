@@ -98,7 +98,7 @@ Test.register(
             end,
             tests = {
                 ["Type points to the Node represent std::string."] = function(self)
-                    Test.assert(self.stdstring, self.typeString.Node);
+                    Test.assertEquals(self.stdstring, self.typeString.Node);
                 end,                
             }
         },
@@ -110,10 +110,10 @@ Test.register(
             end,
             tests = {
                 ["Type points to the Node represent std::string."] = function(self)
-                    Test.assert(self.stdstring, self.typeString.Node);
+                    Test.assertEquals(self.stdstring, self.typeString.Node);
                 end,  
                 ["Type is const."] = function(self)
-                    Test.assert(true, self.typeString.Const);
+                    Test.assertEquals(true, self.typeString.Const);
                 end,              
             }
         },
@@ -125,10 +125,10 @@ Test.register(
             end,
             tests = {
                 ["Type points to the Node represent std::string."] = function(self)
-                    Test.assert(self.stdstring, self.typeString.Node);
+                    Test.assertEquals(self.stdstring, self.typeString.Node);
                 end,  
                 ["Type is pointer."] = function(self)
-                    Test.assert(true, self.typeString.Pointer);
+                    Test.assertEquals(true, self.typeString.Pointer);
                 end,              
             }
         },
@@ -140,10 +140,10 @@ Test.register(
             end,
             tests = {
                 ["Type points to the Node represent std::string."] = function(self)
-                    Test.assert(self.stdstring, self.typeString.Node);
+                    Test.assertEquals(self.stdstring, self.typeString.Node);
                 end,  
                 ["Type is reference."] = function(self)
-                    Test.assert(true, self.typeString.Reference);
+                    Test.assertEquals(true, self.typeString.Reference);
                 end,              
             }
         },
@@ -155,10 +155,10 @@ Test.register(
             end,
             tests = {                
                 ["Type points to the Node represent std::string."] = function(self)
-                    Test.assert(self.stdstring, self.typeString.Node);
+                    Test.assertEquals(self.stdstring, self.typeString.Node);
                 end,  
                 ["Type is const pointer."] = function(self)
-                    Test.assert(true, self.typeString.ConstPointer);
+                    Test.assertEquals(true, self.typeString.ConstPointer);
                 end,              
             }
         },
@@ -171,16 +171,16 @@ Test.register(
             end,
             tests = {
                 ["Type is const."] = function(self)
-                    Test.assert(true, self.typeString.Const);
+                    Test.assertEquals(true, self.typeString.Const);
                 end,
                 ["Type points to the Node represent std::string."] = function(self)
-                    Test.assert(self.stdstring, self.typeString.Node);
+                    Test.assertEquals(self.stdstring, self.typeString.Node);
                 end,  
                 ["Type is const pointer."] = function(self)
-                    Test.assert(true, self.typeString.ConstPointer);
+                    Test.assertEquals(true, self.typeString.ConstPointer);
                 end,            
                 ["Type is pointer."] = function(self)
-                    Test.assert(true, self.typeString.Pointer);
+                    Test.assertEquals(true, self.typeString.Pointer);
                 end,    
             }
         },
@@ -197,10 +197,10 @@ Test.register(
             end,
             tests = {
                 ["Type points to Node representing Vector."] = function(self)
-                    Test.assert(self.vector, self.type.Node);
+                    Test.assertEquals(self.vector, self.type.Node);
                 end,                
                 ["Type argument list reflect original argument."] = function(self)
-                    Test.assert(self.typeArgs, self.type.TypeArguments);
+                    Test.assertEquals(self.typeArgs, self.type.TypeArguments);
                 end,                
             }
         },
@@ -221,10 +221,10 @@ Test.register(
             end,
             tests = {
                 ["Type points to Node representing Event::Message."] = function(self)
-                    Test.assert(self.message, self.type.Node);
+                    Test.assertEquals(self.message, self.type.Node);
                 end,                
                 ["Type argument list reflect original argument."] = function(self)
-                    Test.assert(self.typeArgs, self.type.TypeArguments);
+                    Test.assertEquals(self.typeArgs, self.type.TypeArguments);
                 end,                
             }
         },       

@@ -15,7 +15,10 @@
 --------------------------------------------------------------------------------
 
 Test = {
-    assert = function (expected, actual)
+    assertEquals = function (expected, actual)
+		-- Checks if "expected" is equal to "actual" and if they aren't calls
+		-- error. The advantage of using this as opposed to 
+		-- "assert(expected == actual)" is that the error message is nicer.
         if (type(expected) ~= type(actual)) then			
             error("ASSERT FAILED: Expected Type:" .. tostring(type(expected))
                   .. ",Actual:" .. tostring(type(actual)), 2);
@@ -23,7 +26,7 @@ Test = {
         if (type(expected) == "table") then
             for i,v in pairs(expected) do
                 local status, err = pcall(function() 
-                    assert(expected[i], actual[i]) 
+                    Test.assertEquals(expected[i], actual[i]) 
                 end);
                 if (not status) then
                     error('ASSERT FAILED: While checking table key "' ..
@@ -42,24 +45,27 @@ Test = {
                   .. ",Actual:" .. tostring(actual), 2);
         end
     end,
-    
-    assertFalse = function (expected, actual)
+        
+    assertNotEquals = function (expected, actual)
+		-- Tests that the two objects are not equal.
         --[[if (type(expected) ~= type(actual)) then
             error("ASSERTFALSE FAILED: Expected Type:" .. tostring(type(expected))
                   .. ",Actual:" .. tostring(type(actual)), 2);
         end]]--
         if (expected == actual) then 
-            error("ASSERTFALSE FAILED: Expected:" .. tostring(expected)
+            error("ASSERT NOT EQUALS FAILED: Expected:" .. tostring(expected)
                   .. ",Actual:" .. tostring(actual), 2);
         end
     end,
     
-    count = 0,
+    count = 0,  -- Stores a count of all tests.
     
-    failures = {},
-    
-    -- Expects object to be a valid test suite.
+    failures = {},  -- Stores a list of all failures.
+        
     register = function (object)  
+        -- Stores the given test case into its list of tests. The name of the
+        -- test must be unique.
+		-- Expects object to be a valid test suite.
         if (object.name == nil) then
             error("Given test suite has no name property.", 2);
         end       
@@ -69,10 +75,14 @@ Test = {
         --[[if (#object.tests < 1) then
             error("Given test suite  " .. object.name .. " has " .. #object.tests .. " tests.");
         end ]]--
+        if testList[object.name] ~= nil then
+			error("The given test suite " .. object.name .. " has already been registered!");
+        end
         Test.testList[object.name] = object;
     end,
     
     runCase = function (test, name, func, output)
+		-- Runs a test case.
         output.setTest(name);		
         co = coroutine.create(function() func(test) end);
         result, msg = coroutine.resume(co);
@@ -104,6 +114,7 @@ Test = {
     end,
     
     runAll = function (output)
+		-- Runs all tests that were previously registered.
         for i, v in pairs(Test.testList) do
             Test.runSuite(Test.testList[i], output);
         end
@@ -111,6 +122,8 @@ Test = {
     end,
     
     runSuite = function (test, output)
+		-- Runs a "suite" instead of a test case.  Runs "init" and 
+		-- "shutdown" methods last.
         if (test.name == nil) then
             error("No name property for test suite.", 2);
         end       

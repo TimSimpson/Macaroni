@@ -55,7 +55,7 @@ Test.register(
             end,
             tests = {
                 ["TypeList is empty."] = function(self)
-                    Test.assert(0, #(self.typeList));
+                    Test.assertEquals(0, #(self.typeList));
                 end,                
             }
         },
@@ -67,10 +67,10 @@ Test.register(
             end,
             tests = {
                 ["TypeList has one element."] = function(self)
-                    Test.assert(1, #(self.typeList));
+                    Test.assertEquals(1, #(self.typeList));
                 end,                
                 ["TypeList first element is what we gave it."] = function(self)
-                    Test.assert(self.stdstringType, self.typeList[1]);
+                    Test.assertEquals(self.stdstringType, self.typeList[1]);
                 end,                
             }
         },        

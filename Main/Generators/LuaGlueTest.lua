@@ -78,73 +78,73 @@ tests =
 			["Polo"] = function(self)
 				local type = Type.New(self.polo, {});
 				local tm = self.generator:TypeManipulators(type)
-				Test.assert([[Example::PoloPtr & blah = Example::PoloLuaMetaData::GetInstance(L, 5);]], tm.get("blah", 5));
-				Test.assert(self.trim([[Example::PoloPtr & blah_AsRef = Example::PoloLuaMetaData::GetInstance(L, 5);]] ..
+				Test.assertEquals([[Example::PoloPtr & blah = Example::PoloLuaMetaData::GetInstance(L, 5);]], tm.get("blah", 5));
+				Test.assertEquals(self.trim([[Example::PoloPtr & blah_AsRef = Example::PoloLuaMetaData::GetInstance(L, 5);]] ..
 				NEW_LINE .. [[Example::Polo & blah = *(*(blah_AsRef));]]), tm.convertArgument("blah", 5));
-				Test.assert([[Example::PoloLuaMetaData::PutInstanceOnStack(L, blah);]], tm.put("blah"));
+				Test.assertEquals([[Example::PoloLuaMetaData::PutInstanceOnStack(L, blah);]], tm.put("blah"));
 			end, 
 			["const Polo"] = function(self)
 				local type = Type.New(self.polo, { Const = true });
 				local tm = self.generator:TypeManipulators(type);
-				Test.assert([[Example::PoloPtr & blah = Example::PoloLuaMetaData::GetInstance(L, 5);]], tm.get("blah", 5));
-				Test.assert(self.trim(
+				Test.assertEquals([[Example::PoloPtr & blah = Example::PoloLuaMetaData::GetInstance(L, 5);]], tm.get("blah", 5));
+				Test.assertEquals(self.trim(
 				[[Example::PoloPtr & blah_AsRef = Example::PoloLuaMetaData::GetInstance(L, 5);]] ..
 				NEW_LINE .. [[const Example::Polo & blah = *(*(blah_AsRef));]]), tm.convertArgument("blah", 5));
-				Test.assert([[Example::PoloLuaMetaData::PutInstanceOnStack(L, blah);]], tm.put("blah"));
+				Test.assertEquals([[Example::PoloLuaMetaData::PutInstanceOnStack(L, blah);]], tm.put("blah"));
 			end, 
 			["const Polo *"] = function(self)
 				local type = Type.New(self.polo, { Const = true, Pointer = true });
 				local tm = self.generator:TypeManipulators(type)
-				Test.assert([[Example::PoloPtr & blah = Example::PoloLuaMetaData::GetInstance(L, 5);]], tm.get("blah", 5));
-				Test.assert(self.trim([[Example::PoloPtr & blah_AsRef = Example::PoloLuaMetaData::GetInstance(L, 5);]] ..
+				Test.assertEquals([[Example::PoloPtr & blah = Example::PoloLuaMetaData::GetInstance(L, 5);]], tm.get("blah", 5));
+				Test.assertEquals(self.trim([[Example::PoloPtr & blah_AsRef = Example::PoloLuaMetaData::GetInstance(L, 5);]] ..
 NEW_LINE .. 				
 [[const Example::Polo * blah = *(blah_AsRef);]]), tm.convertArgument("blah", 5));
-				Test.assert([[Example::PoloLuaMetaData::PutInstanceOnStack(L, blah);]], tm.put("blah"));
+				Test.assertEquals([[Example::PoloLuaMetaData::PutInstanceOnStack(L, blah);]], tm.put("blah"));
 			end, 
 			["Polo &"] = function(self)
 				local type = Type.New(self.polo, { Reference = true });
 				local tm = self.generator:TypeManipulators(type)
-				Test.assert([[Example::PoloPtr & blah = Example::PoloLuaMetaData::GetInstance(L, 5);]], tm.get("blah", 5));
-				Test.assert(self.trim([[Example::PoloPtr & blah_AsRef = Example::PoloLuaMetaData::GetInstance(L, 5);]] ..
+				Test.assertEquals([[Example::PoloPtr & blah = Example::PoloLuaMetaData::GetInstance(L, 5);]], tm.get("blah", 5));
+				Test.assertEquals(self.trim([[Example::PoloPtr & blah_AsRef = Example::PoloLuaMetaData::GetInstance(L, 5);]] ..
 NEW_LINE .. [[Example::Polo & blah = *(*(blah_AsRef));]]), tm.convertArgument("blah", 5));
-				Test.assert([[Example::PoloLuaMetaData::PutInstanceOnStack(L, blah);]], tm.put("blah"));
+				Test.assertEquals([[Example::PoloLuaMetaData::PutInstanceOnStack(L, blah);]], tm.put("blah"));
 			end, 
 			["const Polo &"] = function(self)
 				local type = Type.New(self.polo, { Const = true, Reference = true });
 				local tm = self.generator:TypeManipulators(type)
-				Test.assert([[Example::PoloPtr & blah = Example::PoloLuaMetaData::GetInstance(L, 5);]], tm.get("blah", 5));
-				Test.assert(self.trim([[Example::PoloPtr & blah_AsRef = Example::PoloLuaMetaData::GetInstance(L, 5);]] ..
+				Test.assertEquals([[Example::PoloPtr & blah = Example::PoloLuaMetaData::GetInstance(L, 5);]], tm.get("blah", 5));
+				Test.assertEquals(self.trim([[Example::PoloPtr & blah_AsRef = Example::PoloLuaMetaData::GetInstance(L, 5);]] ..
 NEW_LINE .. [[const Example::Polo & blah = *(*(blah_AsRef));]]), tm.convertArgument("blah", 5));
-				Test.assert([[Example::PoloLuaMetaData::PutInstanceOnStack(L, blah);]], tm.put("blah"));
+				Test.assertEquals([[Example::PoloLuaMetaData::PutInstanceOnStack(L, blah);]], tm.put("blah"));
 			end, 
 			["const Polo * const"] = function(self)
 				local type = Type.New(self.polo, { Const = true, ConstPointer = true, Pointer = true });
 				local tm = self.generator:TypeManipulators(type)
-				Test.assert([[Example::PoloPtr & blah = Example::PoloLuaMetaData::GetInstance(L, 5);]], tm.get("blah", 5));
-				Test.assert(self.trim([[Example::PoloPtr & blah_AsRef = Example::PoloLuaMetaData::GetInstance(L, 5);]] ..
+				Test.assertEquals([[Example::PoloPtr & blah = Example::PoloLuaMetaData::GetInstance(L, 5);]], tm.get("blah", 5));
+				Test.assertEquals(self.trim([[Example::PoloPtr & blah_AsRef = Example::PoloLuaMetaData::GetInstance(L, 5);]] ..
 NEW_LINE .. [[const Example::Polo * const blah = *(blah_AsRef);]]), tm.convertArgument("blah", 5));
-				Test.assert([[Example::PoloLuaMetaData::PutInstanceOnStack(L, blah);]], tm.put("blah"));
+				Test.assertEquals([[Example::PoloLuaMetaData::PutInstanceOnStack(L, blah);]], tm.put("blah"));
 			end, 
 			["int"] = function(self)				
 				local type = Type.New(self.intNode, {});
 				local tm = self.generator:TypeManipulators(type)			
-				Test.assert(tm.get("blah", 5), [[int blah(luaL_checkint(L, 5));]]);
-				Test.assert([[int blah(luaL_checkint(L, 5));]], tm.convertArgument("blah", 5));
-				Test.assert(tm.put("blah"), [[lua_pushint(L, blah);]]);
+				Test.assertEquals(tm.get("blah", 5), [[int blah(luaL_checkint(L, 5));]]);
+				Test.assertEquals([[int blah(luaL_checkint(L, 5));]], tm.convertArgument("blah", 5));
+				Test.assertEquals(tm.put("blah"), [[lua_pushint(L, blah);]]);
 			end,   
 			["const int"] = function(self)				
 				local type = Type.New(self.intNode, { Const = true });
 				local tm = self.generator:TypeManipulators(type)			
-				Test.assert(tm.get("blah", 5), [[int blah(luaL_checkint(L, 5));]]);
-				Test.assert([[int blah(luaL_checkint(L, 5));]], tm.convertArgument("blah", 5));
-				Test.assert(tm.put("blah"), [[lua_pushint(L, blah);]]);
+				Test.assertEquals(tm.get("blah", 5), [[int blah(luaL_checkint(L, 5));]]);
+				Test.assertEquals([[int blah(luaL_checkint(L, 5));]], tm.convertArgument("blah", 5));
+				Test.assertEquals(tm.put("blah"), [[lua_pushint(L, blah);]]);
 			end,    
 			["std::string"] = function(self)
 				local type = Type.New(self.stdstring, {});
 				local tm = self.generator:TypeManipulators(type)			
-				Test.assert([[const std::string blah(luaL_checkstring(L, 5));]], tm.get("blah", 5));
-				Test.assert([[const std::string blah(luaL_checkstring(L, 5));]], tm.convertArgument("blah", 5));
-				Test.assert(tm.put("blah"), [[lua_pushlstring(L, blah.c_str(), blah.length());]]);
+				Test.assertEquals([[const std::string blah(luaL_checkstring(L, 5));]], tm.get("blah", 5));
+				Test.assertEquals([[const std::string blah(luaL_checkstring(L, 5));]], tm.convertArgument("blah", 5));
+				Test.assertEquals(tm.put("blah"), [[lua_pushlstring(L, blah.c_str(), blah.length());]]);
 			end,    
 			["undo test context"] = function(self)
 				self.generator.LuaWrapperArguments = self.oldLuaWrapperArguments;
@@ -205,7 +205,7 @@ NEW_LINE .. [[const Example::Polo * const blah = *(blah_AsRef);]]), tm.convertAr
 				local type = Type.New(self.polo, {});
 				local tm = self.generator:TypeManipulators(type)
 				local method = self.generator:wrapMethod(self.poloDoSomething);
-				Test.assert(self.trim("\n\tstatic int DoSomething(lua_State * L)" ..
+				Test.assertEquals(self.trim("\n\tstatic int DoSomething(lua_State * L)" ..
 					"\n\t{" ..
 					"\n\t\tExample::PoloPtr & instance = Example::PoloLuaMetaData::GetInstance(L, 1);" ..
 					"\n\t\tint arg1(luaL_checkint(L, 2));" ..
@@ -223,15 +223,15 @@ NEW_LINE .. [[const Example::Polo * const blah = *(blah_AsRef);]]), tm.convertAr
 				local type = Type.New(self.polo, {});
 				local tm = self.generator:TypeManipulators(type)
 				local funcs = self.generator:findAllFunctionsInNode(self.polo);
-				Test.assert(1, #funcs);
-				Test.assert(self.poloDoSomething, funcs[1]);
+				Test.assertEquals(1, #funcs);
+				Test.assertEquals(self.poloDoSomething, funcs[1]);
 			end, 			
 			
 			["wrap methods"] = function(self)
 				local type = Type.New(self.polo, {});
 				local tm = self.generator:TypeManipulators(type)
 				local text = self.generator:wrapMethods({ helperName = "PoloMethodLuaGlue", originalNode = self.polo, referenceType = self.poloPtr });
-				Test.assert(self.trim(
+				Test.assertEquals(self.trim(
 					"\tstruct PoloMethodLuaGlue" ..
 					"\n\t{" ..
 					"\n\t\tstatic int __index(lua_State * L)" ..

@@ -36,14 +36,14 @@ Test.register(
             tests = {            
                 ["Axiom is what was passed in."] = function(this)
                     local a = this.reason.Axiom;
-                    Test.assert(this.axiom, a);
+                    Test.assertEquals(this.axiom, a);
                 end,                
                 ["Source is what was passed in."] = function(this)
                     local src = this.reason.Source;
-                    Test.assert(this.source, src);
+                    Test.assertEquals(this.source, src);
                 end,
                 ["Tostring concats both relevant parts."] = function(this)
-                    Test.assert("Mino.mcpp, line 10, column 1: Class keyword discovered at start of line.", 
+                    Test.assertEquals("Mino.mcpp, line 10, column 1: Class keyword discovered at start of line.", 
                                 tostring(this.reason));
                 end,                
             }

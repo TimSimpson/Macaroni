@@ -56,17 +56,17 @@ tests = {
         end,
         tests = {
             ["Hello."] = function(this)
-                Test.assert(5, #this.root.Children);
+                Test.assertEquals(5, #this.root.Children);
                 local hello = this.root.Children[3];                
-                Test.assert("hello", hello.Name);
-                Test.assert("Variable", hello.Member.TypeName);
-                Test.assert("std::string", hello.Member.Type.Node.FullName);
+                Test.assertEquals("hello", hello.Name);
+                Test.assertEquals("Variable", hello.Member.TypeName);
+                Test.assertEquals("std::string", hello.Member.Type.Node.FullName);
             end,            
             ["donuts"] = function(this)                
                 local donuts = this.root.Children[5].Children[1];
-                Test.assert("Apple::donuts", donuts.FullName);
-                Test.assert("Variable", donuts.Member.TypeName);
-                Test.assert("double", donuts.Member.Type.Node.Name);
+                Test.assertEquals("Apple::donuts", donuts.FullName);
+                Test.assertEquals("Variable", donuts.Member.TypeName);
+                Test.assertEquals("double", donuts.Member.Type.Node.Name);
             end,            
         }
     },

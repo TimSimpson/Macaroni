@@ -29,7 +29,7 @@ Test.register(
             end,
             tests = {
                 ["Attempting tostring() on Axiom retrieves words."] = function(this)
-                    Test.assert("barf", tostring(this.axiom));           
+                    Test.assertEquals("barf", tostring(this.axiom));           
                 end,
             }
         }

@@ -31,25 +31,25 @@ tests = {
             this.context = Context.New("{r}");
             this.root = this.context.Root;
             this.newNode = this.root:Find("Dog");
-            Test.assert(nil, this.newNode);
+            Test.assertEquals(nil, this.newNode);
             this.newNode = this.root:FindOrCreate("Dog");
-            Test.assertFalse(nil, this.newNode);
+            Test.assertNotEquals(nil, this.newNode);
         end,
         tests = {
             ["Find returns the same Node that was created."] = function(this)
                 local foundNode = this.root:Find("Dog");
-                Test.assert(this.newNode, foundNode);
+                Test.assertEquals(this.newNode, foundNode);
             end,
             ["The Children property has the same reference."] = function(this)
                 local nodes = this.root.Children;
-                Test.assert(1, #nodes);
-                Test.assert(foundNode, nodes[0]);
+                Test.assertEquals(1, #nodes);
+                Test.assertEquals(foundNode, nodes[0]);
             end,
             --["The default of a node is private."] = function(this)
             --    local foundNode = this.root:Find("Dog");
             --    local expected = Access.Private;
             --    local actual = foundNode.Access;
-            --    Test.assert(expected, actual); 
+            --    Test.assertEquals(expected, actual); 
             --end,
         }        
     },
@@ -61,40 +61,40 @@ tests = {
                 local context = Context.New("{ROOT}", "{WILDCARD}");
                 local resultNode, resultName = 
                     context.Root:ParseComplexName("");
-                Test.assert("", resultName);
-                Test.assert(0, #context.Root.Children);
+                Test.assertEquals("", resultName);
+                Test.assertEquals(0, #context.Root.Children);
             end,                
             
             ["ParseComplexName creates nothing if given a simple name."] = function(this)
                 local context = Context.New("{ROOT}", "{WILDCARD}");
                 local resultNode, resultName = context.Root:ParseComplexName("Doggy");
-                Test.assert("Doggy", resultName);
-                Test.assert(0, #context.Root.Children);
+                Test.assertEquals("Doggy", resultName);
+                Test.assertEquals(0, #context.Root.Children);
             end,
             
             ["ParseComplexName creates UnknownScope if given a complex name."] = function(this)
                 local context = Context.New("{ROOT}", "{WILDCARD}");
                 local resultNode, resultName = context.Root:ParseComplexName("Animals::Doggy");
-                Test.assert("Doggy", resultName);
-                Test.assert(1, #(context.Root.Children));
-                Test.assert("Animals", resultNode.Name);
-                Test.assert(context.Root.Children[1], resultNode);
-                Test.assert(0, #(resultNode.Children));
+                Test.assertEquals("Doggy", resultName);
+                Test.assertEquals(1, #(context.Root.Children));
+                Test.assertEquals("Animals", resultNode.Name);
+                Test.assertEquals(context.Root.Children[1], resultNode);
+                Test.assertEquals(0, #(resultNode.Children));
             end,
             
             ["ParseComplexName creates multiple UnknownScope if needed."] = function(this)
                 local context = Context.New("{ROOT}", "{WILDCARD}");
                 local resultNode, resultName = 
                     context.Root:ParseComplexName("Organisms::Animals::Kitty");
-                Test.assert("Kitty", resultName);
-                Test.assert(1, #(context.Root.Children));
+                Test.assertEquals("Kitty", resultName);
+                Test.assertEquals(1, #(context.Root.Children));
                 local organisms = context.Root.Children[1];
-                Test.assert("Organisms", organisms.Name);        
-                Test.assert(1, #(organisms.Children));
-                Test.assert("Animals", context.Root.Children[1].Children[1].Name);
-                Test.assert(0, #(context.Root.Children[1].Children[1].Children));
-                Test.assert(context.Root.Children[1].Children[1], resultNode);
-                Test.assert("Organisms::Animals", resultNode.FullName);
+                Test.assertEquals("Organisms", organisms.Name);        
+                Test.assertEquals(1, #(organisms.Children));
+                Test.assertEquals("Animals", context.Root.Children[1].Children[1].Name);
+                Test.assertEquals(0, #(context.Root.Children[1].Children[1].Children));
+                Test.assertEquals(context.Root.Children[1].Children[1], resultNode);
+                Test.assertEquals("Organisms::Animals", resultNode.FullName);
             end,
             
         }
@@ -106,117 +106,117 @@ tests = {
         tests={	       
 
             ["IsComplexName returns false for blanks."] = function(this)                
-                Test.assert(false, Node.IsComplexName(""));
+                Test.assertEquals(false, Node.IsComplexName(""));
             end, 
             
             ["IsComplexName returns false for simple names."] = function(this)                
-                Test.assert(false, Node.IsComplexName("A"));
-                Test.assert(false, Node.IsComplexName("Animal"));
-                Test.assert(false, Node.IsComplexName("Doggy42"));
+                Test.assertEquals(false, Node.IsComplexName("A"));
+                Test.assertEquals(false, Node.IsComplexName("Animal"));
+                Test.assertEquals(false, Node.IsComplexName("Doggy42"));
             end, 
             
             ["IsComplexName returns true in the presense of ::."] = function(this)                
-                Test.assert(true, Node.IsComplexName("::"));
-                Test.assert(true, Node.IsComplexName("A::B"));
-                Test.assert(true, Node.IsComplexName("Organisms::Animals::Dog"));
+                Test.assertEquals(true, Node.IsComplexName("::"));
+                Test.assertEquals(true, Node.IsComplexName("A::B"));
+                Test.assertEquals(true, Node.IsComplexName("Organisms::Animals::Dog"));
             end, 
             
             ["IsSimpleName returns true for blanks."] = function(this)                
-                Test.assert(true, Node.IsSimpleName(""));		
+                Test.assertEquals(true, Node.IsSimpleName(""));		
             end, 
             
             ["IsSimpleName returns true for simple names."] = function(this)                
-                Test.assert(true, Node.IsSimpleName("A"));		
-                Test.assert(true, Node.IsSimpleName("Doggy"));		
-                Test.assert(true, Node.IsSimpleName("DogCatDemonHide"));		
+                Test.assertEquals(true, Node.IsSimpleName("A"));		
+                Test.assertEquals(true, Node.IsSimpleName("Doggy"));		
+                Test.assertEquals(true, Node.IsSimpleName("DogCatDemonHide"));		
             end, 
             
             ["IsSimpleName returns false when faced with ::."] = function(this)                
-                Test.assert(false, Node.IsSimpleName("A::B"));		
-                Test.assert(false, Node.IsSimpleName("Animals::Doggy"));		
-                Test.assert(false, Node.IsSimpleName("Ryu::Enemies::DogCatDemonHide"));		
+                Test.assertEquals(false, Node.IsSimpleName("A::B"));		
+                Test.assertEquals(false, Node.IsSimpleName("Animals::Doggy"));		
+                Test.assertEquals(false, Node.IsSimpleName("Ryu::Enemies::DogCatDemonHide"));		
             end,   
             
             ["SplitComplexName returns component parts."] = function(this)
                 local names = Node.SplitComplexName("boost::filesystem::path");                               
-                Test.assert(3, #names);		
-                Test.assert("boost", names[1]);
-                Test.assert("filesystem", names[2]);
-                Test.assert("path", names[3]);                
+                Test.assertEquals(3, #names);		
+                Test.assertEquals("boost", names[1]);
+                Test.assertEquals("filesystem", names[2]);
+                Test.assertEquals("path", names[3]);                
             end,                
             
             ["SplitFirstNameOffComplexName returns nothing for nothing."] = function(this)        
                 local firstPart, lastPart = Node.SplitFirstNameOffComplexName("")        
-                Test.assert("", firstPart);
-                Test.assert("", lastPart);
+                Test.assertEquals("", firstPart);
+                Test.assertEquals("", lastPart);
             end, 
             
             ["SplitFirstNameOffComplexName returns only first part when no :: are found."] = function(this)        
                 local firstPart, lastPart = Node.SplitFirstNameOffComplexName("Doggy")        
-                Test.assert("Doggy", firstPart);
-                Test.assert("", lastPart);
+                Test.assertEquals("Doggy", firstPart);
+                Test.assertEquals("", lastPart);
             end, 
             
             ["SplitFirstNameOffComplexName returns simple string when some stuff after :: is found."] = function(this)        
                 local firstPart, lastPart = Node.SplitFirstNameOffComplexName("Animal::Doggy")        
-                Test.assert("Animal", firstPart);
-                Test.assert("Doggy", lastPart);
+                Test.assertEquals("Animal", firstPart);
+                Test.assertEquals("Doggy", lastPart);
             end, 
             
             ["SplitFirstNameOffComplexName returns lots of stuff if found after ::."] = function(this)        
                 local firstPart, lastPart = Node.SplitFirstNameOffComplexName("Organisms::Animal::Doggy")        
-                Test.assert("Organisms", firstPart);
-                Test.assert("Animal::Doggy", lastPart);
+                Test.assertEquals("Organisms", firstPart);
+                Test.assertEquals("Animal::Doggy", lastPart);
             end, 
             
             ["SplitNodeAndMemberName scope is blank, member is blank if nothing given."] = function(this)        
                 local scope, member = Node.SplitNodeAndMemberName("")
-                Test.assert("", scope);
-                Test.assert("", member);
+                Test.assertEquals("", scope);
+                Test.assertEquals("", member);
             end, 
             
             ["SplitNodeAndMemberName scope is blank if no :: found."] = function(this)        
                 local scope, member = Node.SplitNodeAndMemberName("a")
-                Test.assert("", scope);
-                Test.assert("a", member);
+                Test.assertEquals("", scope);
+                Test.assertEquals("a", member);
             end,
             
             ["SplitNodeAndMemberName works with one :: found."] = function(this)
                 local scopeName, memberName = Node.SplitNodeAndMemberName("b::a")
-                Test.assert("b", scopeName);
-                Test.assert("a", memberName);
+                Test.assertEquals("b", scopeName);
+                Test.assertEquals("a", memberName);
             end,
             
             ["SplitNodeAndMemberName works with two :: found."] = function(this)
                 local scopeName, memberName = Node.SplitNodeAndMemberName("Arg::big::Orange")
-                Test.assert("Arg::big", scopeName);
-                Test.assert("Orange", memberName);
+                Test.assertEquals("Arg::big", scopeName);
+                Test.assertEquals("Orange", memberName);
             end,
             
             ["SplitNodeAndMemberName works with three (or lets presume more) :: found."] = function(this)
                 local scopeName, memberName = Node.SplitNodeAndMemberName("King::Darius::Gradius::Vic")
-                Test.assert("King::Darius::Gradius", scopeName);
-                Test.assert("Vic", memberName);
+                Test.assertEquals("King::Darius::Gradius", scopeName);
+                Test.assertEquals("Vic", memberName);
             end,   
             
             ["SplitComplexName returns zero elements for blank."] = function(this)
                 local names = Node.SplitComplexName("")
-                Test.assert({}, names);        
+                Test.assertEquals({}, names);        
             end,   
             
             ["SplitComplexName returns one element for single names."] = function(this)
                 local names = Node.SplitComplexName("Porcupine")
-                Test.assert({"Porcupine"}, names);        
+                Test.assertEquals({"Porcupine"}, names);        
             end,   
             
             ["SplitComplexName returns 2 elements when it needs to."] = function(this)
                 local names = Node.SplitComplexName("Animals::Porcupine")
-                Test.assert({"Animals", "Porcupine"}, names);        
+                Test.assertEquals({"Animals", "Porcupine"}, names);        
             end,   
             
             ["SplitComplexName returns 3 or more elements when it needs to."] = function(this)
                 local names = Node.SplitComplexName("Organisms::Animals::Porcupine")
-                Test.assert({"Organisms", "Animals", "Porcupine"}, names);        
+                Test.assertEquals({"Organisms", "Animals", "Porcupine"}, names);        
             end,   
         }
     } -- End of static tests
