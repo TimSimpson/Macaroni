@@ -20,6 +20,7 @@ require "Macaroni/Parser/Pippy/Tests/PippyParserTests_Functions";
 require "Macaroni/Parser/Pippy/Tests/Import";
 require "Macaroni/Parser/Pippy/Tests/Milestones";
 require "Macaroni/Parser/Pippy/Tests/PippyParserTests_Namespace";
+require "Macaroni/Parser/Pippy/Tests/PippyParserTests_Operators";
 require "Macaroni/Parser/Pippy/Tests/PippyParserTests_Typedef";
 require "Macaroni/Parser/Pippy/Tests/PippyParserTests_Variables";
 

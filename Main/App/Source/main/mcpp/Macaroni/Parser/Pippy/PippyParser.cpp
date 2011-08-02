@@ -844,20 +844,23 @@ public:
 	}
 
 	/** Returns true if a complex name can be parsed from this location. 
-	 *  If the "signed" or "unsigned" keyword is found, endIndexOfSignedKeyword
+	 *  "endWhiteSpaceOfKeyword" refers to the index whitespace before some 
+	 *  keyword ends, and only if Macaroni needs to store a single space before
+	 *  that keyword in the complexName.  For example, if the "signed" or 
+	 *  "unsigned" keyword is found, endIndexOfSignedKeyword
 	 *  returns the index where the keyword and its trailing whitespace ends. */
-	static int ComplexName(Iterator itr, int & endWhiteSpaceOfSignedKeyword)
+	static int ComplexName(Iterator itr, int & endWhiteSpaceOfKeyword)
 	{
 		int consumed = 0;
 		int simpleNameLength = 0;
-		endWhiteSpaceOfSignedKeyword = -1;
+		endWhiteSpaceOfKeyword = -1;
 		
 		if ((simpleNameLength = SignedOrUnsignedKeyword(itr)) > 0)
 		{
 			consumed += simpleNameLength;
 			itr.Advance(simpleNameLength);				
 			consumed += itr.ConsumeWhitespace();
-			endWhiteSpaceOfSignedKeyword = consumed - 1;
+			endWhiteSpaceOfKeyword = consumed - 1;
 		}
 		while(true)
 		{
@@ -866,8 +869,15 @@ public:
 				itr.Advance(2);
 				consumed += 2;
 			}
-			else if ((simpleNameLength = OperatorName(itr)) > 0)
+			else if ((simpleNameLength = 
+			    OperatorName(itr, endWhiteSpaceOfKeyword)) > 0)
 			{
+				if (endWhiteSpaceOfKeyword > 0)
+				{
+					// endWhiteSpaceOfKeyword is relative to the operator name,
+					// so increase it by whatever we've already consumed.
+					endWhiteSpaceOfKeyword += consumed;
+				}
 				consumed += simpleNameLength;
 				itr.Advance(simpleNameLength);
 				// We've seen an operator.  A name like
@@ -1145,8 +1155,8 @@ public:
 	 */
 	static bool ConsumeComplexName(Iterator & itr, std::string & result)
 	{
-		int endWhiteSpaceOfSignedKeyword;
-		int length = ComplexName(itr, endWhiteSpaceOfSignedKeyword);
+		int endWhiteSpaceOfKeyword;
+		int length = ComplexName(itr, endWhiteSpaceOfKeyword);
 		if (length < 1)
 		{
 			return false;
@@ -1161,7 +1171,7 @@ public:
 			{
 				ss << itr.Current();
 			}			
-			if (i == endWhiteSpaceOfSignedKeyword)
+			if (i == endWhiteSpaceOfKeyword)
 			{
 				// Put a *single* whitespace in the canonical name of
 				// a type with the signed or unsigned keyword.
@@ -2036,7 +2046,7 @@ public:
 	// Its necessary to do it this way because "operatorFunctions" is a valid
 	// name but "operator+" refers to "operator +".  So we have to actually
 	// check the operator and the keyword here.
-	static int OperatorName(Iterator & itr)
+	static int OperatorName(Iterator & itr, int & endWhiteSpaceOfKeyword)
 	{		
 		Iterator myItr = itr;
 		if (!myItr.ConsumeWord("operator"))
@@ -2046,7 +2056,7 @@ public:
 		int consumed = 8;
 		bool committed = myItr.IsWhiteSpace();
 		consumed += myItr.ConsumeWhitespace();
-		if (OverloadableOperator(myItr, consumed))
+		if (OverloadableOperator(myItr, consumed, endWhiteSpaceOfKeyword))
 		{
 			return consumed;
 		}
@@ -2063,23 +2073,29 @@ public:
 
 	// If the itr lies at an overloadable operator, parses through it and
 	// returns the consumed count, then returns true.  Otherwise returns false.
-	static bool OverloadableOperator(Iterator & itr, int & consumed)
+	static bool OverloadableOperator(Iterator & itr, int & consumed,
+		                             int & endWhiteSpaceOfKeyword)
 	{
+		endWhiteSpaceOfKeyword = -1;
 		int consume = 0;
 		if (itr.ConsumeWord("new[]"))
 		{
+			endWhiteSpaceOfKeyword = consumed - 1;
 			consume = 5;
 		}
 		else if (itr.ConsumeWord("new"))
 		{
+			endWhiteSpaceOfKeyword = consumed - 1;
 			consume = 3;
 		}		
 		else if (itr.ConsumeWord("delete[]"))
 		{
+			endWhiteSpaceOfKeyword = consumed - 1;
 			consume = 8;
 		}
 		else if (itr.ConsumeWord("delete"))
 		{
+			endWhiteSpaceOfKeyword = consumed - 1;
 			consume = 6;
 		}	
 		else if (itr.ConsumeWord("[]")

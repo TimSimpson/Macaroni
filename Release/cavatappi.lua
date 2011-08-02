@@ -31,13 +31,27 @@ end
 
 function createDistributionDirectory()
 	local dstDir = newPath("target/macaroni-" .. upper.Version);
+	createDistributionDirectoryBase(dstDir)
+	newPath("../Main/App/GeneratedSource/release/release"):NewPath("/macaroni.exe")
+		:CopyToDifferentRootPath(dstDir, true);	
+	newPath("../Main/App/GeneratedSource/release/release"):NewPath("/messages.txt")
+		:CopyToDifferentRootPath(dstDir, true);	
+end
+
+function createDebugDistributionDirectory()
+	local dstDir = newPath("target/macaroni-" .. upper.Version .. "-debug");
+	createDistributionDirectoryBase(dstDir)
 	newPath("../Main/App/GeneratedSource/release/debug"):NewPath("/macaroni.exe")
-		:CopyToDifferentRootPath(dstDir, true);
+		:CopyToDifferentRootPath(dstDir, true);	
 	newPath("../Main/App/GeneratedSource/release/debug"):NewPath("/messages.txt")
-		:CopyToDifferentRootPath(dstDir, true);
+		:CopyToDifferentRootPath(dstDir, true);	
+end
+
+function createDistributionDirectoryBase(dstDir)
 	copyFiles(newPath("../Main"):NewPath("/Generators"), dstDir, [[\.lua?$]]);
 	copyFiles(newPath("../Main"):NewPath("/Libraries"), dstDir, [[\.(jam|lua|mh)?$]]);	
 end
+
 
 function createPureCpp()	
 	local dstDir = newPath("target/macaroni-pureCpp-" .. upper.Version);
@@ -50,6 +64,7 @@ end
 
 function build()	
 	createDistributionDirectory();
+	createDebugDistributionDirectory();
 	createPureCpp();
 	run("Site");
 	local versionDownloads = manifestDir:NewPathForceSlash(
