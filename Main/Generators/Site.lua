@@ -171,3 +171,39 @@ SiteGenerator =
 
 
 
+Site = 
+-- Helper functions
+{
+	htmlCodes = {
+		{"&", "&amp;"},
+		{"<", "&lt;"},
+		{">", "&gt;"},
+		{" ", "&nbsp;"},
+		{'"' ,"&quot;"},
+		{"'", "&#39;"},
+		{"`", "&lsquo;"},
+		{"\n", "<br/>"}
+	},
+	
+	textToHtml = function(original)
+		check(writer ~= nil, "Global variable 'writer' is nil! You are " ..
+		                     "calling this from within an mdoc, right?")
+		modified = original
+		for i, v in ipairs(Site.htmlCodes) do
+			modified = modified:gsub(v[1], v[2])
+		end		
+		writer:Write(modified)
+	end,
+	
+	shellToHtml = function(original)
+		writer:Write([[<pre class="shell">]]);
+		Site.textToHtml(original);
+		writer:Write([[</pre>]]);
+	end,
+	
+	luaToHtml = function(original)
+		writer:Write([[<pre class="lua-code">]]);
+		Site.textToHtml(original);
+		writer:Write([[</pre>]]);
+	end,
+}; 

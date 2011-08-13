@@ -26,6 +26,10 @@ DependencySection = {
         for node in d:iterateHeavyDependencies() do
             self:addToList(node, true);
         end
+        if node.TypeName == "FunctionOverload" 
+           or node.TypeName == "ConstructorOverload" then
+           self:add(node.Node);
+        end
     end,   
     
     addToList = function(self, newNode, isHeavy)

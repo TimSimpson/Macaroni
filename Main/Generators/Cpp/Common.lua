@@ -260,7 +260,7 @@ TypeUtil = {
             rtnStr = rtnStr .. type.Node.Name;
         else
             if (typeArguments == nil) then
-                rtnStr = rtnStr .. type.Node.FullName;
+                rtnStr = rtnStr .. "::" ..type.Node.FullName;
             else
                 local nodeList = self:createPathListFromNode(type.Node);            
                 for i = 1, #nodeList do

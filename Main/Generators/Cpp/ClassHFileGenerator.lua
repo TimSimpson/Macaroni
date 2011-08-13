@@ -139,7 +139,7 @@ ClassHFileGenerator = {
             if (friend.Member ~= nil 
                 and friend.Member.TypeName == TypeNames.FunctionOverload) then
                 self:writeAfterTabs("friend ");
-                self:writeFunctionOverloadDefinition(friend, false); -- ); --, true);
+                self:writeFunctionOverloadDefinition(friend, false, true);
                 self:write(";\n");
             elseif (friend.Member ~= nil 
 				     and friend.Member.TypeName == TypeNames.Function) then
@@ -150,14 +150,15 @@ apply it to specific overloads, use the "~friend" keyword on the definitions
 of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n');
 				for i = 1, #friend.Children do   
 					self:writeAfterTabs("friend "); 	
-					self:writeFunctionOverloadDefinition(friend.Children[i], false);	
+					self:writeFunctionOverloadDefinition(friend.Children[i], 
+						false, true);	
     				self:write(";\n");
     			end
 			elseif (friend.Member ~= nil
 			         and friend.Member.TypeName == TypeNames.Class) then
-			    self:writeAfterTabs("friend class " .. friend.FullName .. ";\n");
+			    self:writeAfterTabs("friend class ::" .. friend.FullName .. ";\n");
 			else
-                self:writeAfterTabs("friend /*~<(What is this?!)*/" 
+                self:writeAfterTabs("friend /*~<(What is this?!)*/ ::" 
                                     .. friend.FullName .. ";\n");
             end
         end 
@@ -174,7 +175,11 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
     
     includeStatements = function(self)          
 		local section = DependencySection.new();
-        section:add(self.node);   
+        section:add(self.node);           
+        local globals = self.node.Member.GlobalNodes;   
+        for i = 1, #globals do
+			section:add(globals[i]);
+        end
         section:eraseNode(self.node);     
         section:eraseDuplicates();
         for i = 1, #section.list do

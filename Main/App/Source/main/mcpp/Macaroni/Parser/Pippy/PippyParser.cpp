@@ -2077,7 +2077,7 @@ public:
 		                             int & endWhiteSpaceOfKeyword)
 	{
 		endWhiteSpaceOfKeyword = -1;
-		int consume = 0;
+		int consume = 0; 
 		if (itr.ConsumeWord("new[]"))
 		{
 			endWhiteSpaceOfKeyword = consumed - 1;

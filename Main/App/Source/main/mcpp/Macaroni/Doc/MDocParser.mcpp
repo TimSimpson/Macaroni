@@ -31,10 +31,11 @@
 ~import Macaroni::Model::Source;
 ~import Macaroni::Model::SourcePtr;
 ~import std::string;
+~import std::stringstream;
 ~import Macaroni::Parser::TextIterator;
 
-namespace Macaroni::Doc  
-{
+~namespace Macaroni::Doc;
+
 
 /** 
  * Parses variant HTML files which have embedded special characters.
@@ -56,7 +57,7 @@ class MDocParser
 	/** The path of the file we're parsing. */
 	private PathPtr path;
 	// Anytime we print a Path out, prefix it with this.
-	private std::string pathPrefix;		
+	private const std::string pathPrefix;		
 	private GeneratedFileWriterPtr writer;
 
 	public MDocParser(lua_State * L, TextIterator & itr,
@@ -386,49 +387,40 @@ class MDocParser
 		}
 	}
 
-	~block "h" 
-	{ 
-		static bool Parse(lua_State * L, Macaroni::IO::PathPtr input, Macaroni::IO::PathPtr output);
-		static bool Parse(lua_State * L, Macaroni::IO::PathPtr input, Macaroni::IO::GeneratedFileWriterPtr writer);
-		static bool Parse(lua_State * L, const std::string & pathPrefix, 
-			              Macaroni::IO::PathPtr input, Macaroni::IO::GeneratedFileWriterPtr writer);
+	public static bool Parse(lua_State * L, PathPtr input, PathPtr output)
+	{
+		boost::filesystem::path outputP(output->GetAbsolutePath());
+		GeneratedFileWriterPtr writer(new GeneratedFileWriter(outputP));	
+		return Parse(L, input, writer);
 	}
-	~block "cpp"
-	{		
-		bool MDocParser::Parse(lua_State * L, PathPtr input, PathPtr output)
-		{
-			boost::filesystem::path outputP(output->GetAbsolutePath());
-			GeneratedFileWriterPtr writer(new GeneratedFileWriter(outputP));	
 
-			return Parse(L, input, writer);			
+	public static bool Parse(lua_State * L, PathPtr input, 
+		                     GeneratedFileWriterPtr writer)
+	{
+		const std::string empty = "";
+		return Parse(L, empty, input, writer);
+	}
+
+	public static bool Parse(lua_State * L, const string & pathPrefix, 
+			                 PathPtr input, GeneratedFileWriterPtr writer)
+	{
+		if (!input->IsRegularFile())
+		{
+			std::stringstream ss;
+			ss << "Input path \"" 
+				<< input->GetAbsolutePath()
+				<< "\" does not refer to a regular file.";
+			throw Macaroni::Exception("Input path ");
 		}
+		std::string fileContents;
+		SourcePtr source;
+		readFileIntoString(input, fileContents, source);
 		
-		bool MDocParser::Parse(lua_State * L, Macaroni::IO::PathPtr input, Macaroni::IO::GeneratedFileWriterPtr writer)
-		{
-			return Parse(L, "", input, writer);
-		}
-
-		bool MDocParser::Parse(lua_State * L, const std::string & pathPrefix,
-							   Macaroni::IO::PathPtr input, Macaroni::IO::GeneratedFileWriterPtr writer)
-		{
-			if (!input->IsRegularFile())
-			{
-				std::stringstream ss;
-				ss << "Input path \"" 
-					<< input->GetAbsolutePath()
-					<< "\" does not refer to a regular file.";
-				throw Macaroni::Exception("Input path ");
-			}
-			std::string fileContents;
-			SourcePtr source;
-			readFileIntoString(input, fileContents, source);
-			
-			TextIterator itr(fileContents.begin(), fileContents.end(), source);	
-			MDocParser p(L, itr, pathPrefix, input->GetParentPath(), writer);
-			p.Parse();
-			return true;
-		}
-	}
+		TextIterator itr(fileContents.begin(), fileContents.end(), source);	
+		MDocParser p(L, itr, pathPrefix, input->GetParentPath(), writer);
+		p.Parse();
+		return true;
+	}	
 
 	private bool pathDirective()
 	{
@@ -494,21 +486,62 @@ class MDocParser
 		}
 		file.close();
 		output = contents.str();
+	}	
+
+	~hidden static inline string removeDuplicateSlashes(const string original)
+	{
+		std::string modified = original;
+		bool seenSlash = false;
+		for (size_t index = 0; index < modified.size(); index ++)
+		{
+			if (stringHasSlashAtIndex(modified, index))
+			{
+				if (seenSlash)
+				{
+					modified.erase(index, 1);
+					index --;
+				}
+				else
+				{
+					seenSlash = true;
+				}
+			}
+			else
+			{
+				seenSlash = false;
+			}
+		}
+		return modified;
+	}
+
+	~hidden inline string removeStartSlashes(const std::string str)
+	{
+		std::string rel = str;	
+		while(rel.size() > 0 && stringHasSlashAtIndex(rel, 0))
+		{
+			rel = rel.substr(1);
+		}
+		return rel;
+	}
+
+	~hidden static inline bool stringHasSlashAtIndex(const string str, 
+		                                             const unsigned int index)
+	{
+		if (str.size() <= index)
+		{
+			MACARONI_THROW("Bad index to stringHasSlashAtIndex.");
+		}
+		return str[index] == '/' || str[index] == '\\';
 	}
 
 	private void writeRelativePath(PathPtr rPath)
 	{
-		std::stringstream ss;
+		const string rel = removeStartSlashes(rPath->GetRelativePath());		
+		stringstream ss;
 		ss << pathPrefix;
-		ss << rPath->GetRelativePath();
-		std::string p = ss.str();
-		if (p.size() > 0 && (p[0] == '/' || p[0] == '\\'))
-		{
-			p = p.substr(1);
-		}
+		ss << rel;
+		string p = removeDuplicateSlashes(removeStartSlashes(ss.str()));
 		writer->Write(p);
 	}
 
 };
-
-} // end Macaroni::Doc

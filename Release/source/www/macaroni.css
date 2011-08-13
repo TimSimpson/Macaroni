@@ -194,3 +194,26 @@ code
 	font-weight:normal;
 	font-size:120%;
 }
+
+pre.lua-code
+{
+	color:black;
+	/*color:#EEEE00;
+	color:#EC7400;*/
+	/*background-color: #F0F0C7;*/
+	background-color: #EEEEBB;
+	border-bottom-color: yellow;
+	font-family:'Courier New', helvetica, monospace;
+	font-weight:normal;
+	/*font-size:120%;*/
+}
+
+pre.shell
+{
+	color:#DDFFDD;
+	background-color: #001C00;
+	border-bottom-color: yellow;
+	font-family:'Courier New', helvetica, monospace;
+	font-weight:normal;
+}
+}
