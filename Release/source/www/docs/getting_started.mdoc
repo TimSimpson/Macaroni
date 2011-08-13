@@ -1,0 +1,147 @@
+<~#include <header.mdoc>~>
+
+<h3>Getting Started with Macaroni</h3>
+
+<div><i>This tutorial is for the Windows version, which is currently the 
+only one that works.</i></div>
+
+<p>
+This tutorial will show the quickest path to using Macaroni in the simplest possible way.
+</p><p>
+Macaroni is able to generate source code as well as call tools to compile and
+test C++ programs. Here we'll show only the former and not the later.</p>
+<p>
+First, <a href="<~#path "download.html" ~>">download Macaroni from this link</a>. 
+You'll need to install the MS Visual C++ 2008 Redistributable Package as well.
+Unzip
+the archive and put the whole directory somewhere nice.</p>
+<h4>Add Macaroni's folder to you %PATH% environment variable</h4>
+<p>There are a few ways to do this in Windows. Lots of utilities have installers
+which add to the path variable so its always there. I personally don't like this
+as I find overtime it lets garbage build up in %PATH%. Often I'll download something
+just to play with it, give in to temptation and use the installer and then find
+that the junk its added to the path has stayed there forever. </p>
+<p>My preference it to create a batch file that manipulates the path variable
+and is only used when you need certain developer programs.</p>
+<p>Create a new file called "devinit.bat" and put the following inside it:</p>
+
+<~lua require "Site" Site.shellToHtml([[
+SET PATH=%PATH%;C:\Tools\macaroni-0.1.0.22
+]]); ~>
+
+<p>
+Now start a command prompt and execute devinit.bat.  Type "macaroni" and the following
+should appear:</p>
+<~lua require "Site" Site.shellToHtml([[
+C:\>cd Tools
+
+C:\Tools>type devinit.bat
+SET PATH=%PATH%;C:\Tools\macaroni-0.1.0.22
+C:\Tools>macaroni
+Macaroni for C++
+Version 0.1.0.22 built at 2011-7-30-17:25:22
+
+Could not find init.lua at "C:\Documents and Settings\Tim\Macaroni\init.lua".
+THROWN EXCEPTION:Could not open Lua file "manifest.lua".
+
+An error occurred.
+
+Could not open Lua file "manifest.lua".
+
+
+Program finished.
+
+C:\Tools>
+
+]]); ~>
+
+
+<div><b>NOTE: If you see "The system cannot execute the specified program," it means you
+need to first download and install the <a href="<~#path "download.html" ~>">
+Microsoft Visual C++ Redistributable Package</a></b></div>
+
+<p>
+If you see the above, good! It means that Macaroni is succesfully installed.
+</p>
+<div style="background-color:#b0c4de;"><table><tr><td><span style="float:left" ><img src="../images/INoUnderstand.gif"/></span>
+What is "init.lua"? If you guessed a script that gets executed every time you invoke 
+Macaroni, you're right! I'll discuss it more in a later tutorial.</td></tr></table>
+</div>
+
+<h4>Coding in Macaroni</h4>
+<p>
+Macaroni starts by reading a file called "manifest.lua" in the current 
+directory which contains information describing the project.
+</p>
+<p>
+Create a new directory somewhere (mine's "C:\Work\MacaroniExample") and create
+a file called "manifest.lua" with the following contents:
+</p>
+
+<~lua require "Site" Site.luaToHtml([==[
+id =
+{
+    group="Macaroni.Examples",
+    name="Example1",
+    version="1.0.0.0"
+}
+
+description= [[  
+         ________________________
+    '_' < Sorry, I know nothing. )
+         ------------------------
+]]
+
+sources = { "source" }
+output = "target"
+
+]==]); ~>
+
+<p>
+This file is in Lua, so if you don't know the Lua language you may be a bit 
+confused. Thankfully Lua is pretty simple though so even if you don't already
+know it you should be able to at least read the code and imitate it. Knowing Lua
+is only necessary if you're going to write plugins for Macaroni.</p>
+<p>With that out of the way, here's a summary of what's going on in the 
+file above:</p>
+<ul>
+<li>
+Macaroni reads this file to figure out the library ID. The ID is stored as a
+Lua table with three values: group, name, and version.
+</li>
+<li>A description can be given to libraries to make them a bit easier to 
+grok.</li>
+<li>"sources" is all of the source directories (relative from the location 
+of "manifest.lua") that Macaroni needs to iterate to find files ending in 
+.mcpp which it will then parse.  It's an array-style table because there could
+be multiple source directories.</li>
+<li>"output" is where Macaroni will output all of its generated source code.</li>
+</ul>
+<p>
+At the command prompt, enter the directory and execute "macaroni build".
+</p>
+<~lua require "Site" Site.shellToHtml([==[
+C:\Work\MacaroniExample>macaroni build
+Macaroni for C++
+Version 0.1.0.22 built at 2011-7-30-17:25:22
+
+Could not find init.lua at "C:\Documents and Settings\Tim\Macaroni\init.lua".
+--------------------------------------------------------------------------------
+
+    Example1
+--------------------------------------------------------------------------------
+
+~ Creating Macaroni model from source files (.mh, .mcpp). ~
+~ Success!
+
+Program finished.
+]==]); ~>
+<p>
+As you can see everything was successful. Of course this didn't actually do anything...</p>
+<h4>Writing a C++ class in Macaroni</h4>
+<p>
+In the same directory as the "manifest.lua" file create a new directory named "source". 
+Within that, make a new file called "A"
+
+
+<~#include <footer.mdoc> ~>

@@ -254,7 +254,13 @@ FileGenerator = {
     
     --[[ Writes a function overload definition, not including the Class name 
          before the function name. ]]--
-    writeFunctionOverloadDefinition = function(self, foNode, calledFromClassWriter)
+    writeFunctionOverloadDefinition = function(self, foNode, 
+		calledFromClassWriter, calledForFriendDefinition)
+		-- foNode - the FunctionOverload node
+		-- calledFromClassWriter 
+		-- calledForFriendDefinition - If true, then write the entire
+		--     fullName of the Node instead of just the name.
+		
     	check(self ~= nil, "Method called without instance.");
     	check(foNode ~= nil, "foNode must be a Node, not nil.");
     	check(foNode.Member ~= nil, "functionNode must have instance");
@@ -272,7 +278,11 @@ FileGenerator = {
             self:write("inline ");
         end
         self:writeType(func.ReturnType);
-        self:write(" " .. foNode.Node.Name .. "(");
+        if not calledForFriendDefinition then
+			self:write(" " .. foNode.Node.Name .. "(");
+		else
+			self:write(" ::" .. foNode.Node.FullName .. "(");
+		end
         self:writeArgumentList(foNode);
         self:write(")");
         if (func.Const) then

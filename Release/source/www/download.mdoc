@@ -1,95 +1,57 @@
 <~#include <header.mdoc>~>
 
-<center><h1>Downloads</h1></center>
-<h2>DISCLAIMER</h2>
+<div>
+<div style="float:right">
+<img src="<~#path <images/MacaroniFightsEmauloeiTheBugLord.gif>~>"/><br/>
+<div style="text-align:center"><b>Warning:</b> <i>Macaroni currently wrestles with demon bugs!</i></div>
+<br/>
+</div>
+
+<h2 style="text-align:center">DISCLAIMER(S)</h2>
 <p>
 The software linked to below comes with NO WARRANTY of ANY KIND. Its in 
 extreme alpha mode and can easily jack your machine if you're not careful.
 Consider yourself warned. Don't come crying to me aching for vengence when this 
 program formats your hard drive and inadvertently murders your entire family.
 </p>
-<h2>Use Extreme Caution with Macaroni Code You Didn't Write</h2>
+<h3>Use Extreme Caution with Macaroni Code You Didn't Write</h3>
 <p>
 Macaroni makes extensive use Lua scripts. Because it mixes them in with typical 
 source code, this means that
 <b>any program code you download can harm your machine even if all you're doing
 is running something innocent like "clean".</b> This is typically the case 
-with Makefiles and the like
-but Macaroni makes harming other peoples machines even easier.
+with makefiles and the like
+but Macaroni makes destroying your machine even easier.
 </p>
+</div>
 
-
-<center>
-<a href="downloads/<~= library.Version ~>/macaroni-<~= library.Version ~>.zip">
-Click here to download Macaroni for C++, Version <~= library.Version ~> 
-for Windows and Ubuntu</a>
 <br/>
-<a href="downloads/<~= library.Version ~>/macaroni-pureCpp-<~= library.Version ~>.zip">
-Click here to download a pure C++ version of Macaroni's source code</a>
-<br/>
-<a href="https://github.com/TimSimpson/Macaroni">
-Click here to see the code on GitHub (requires Macaroni to build)</a>
-</center>
+<h1 style="text-align:left"/>Downloads</h1>
 
-<h3>Set Up Instructions</h3>
-<p>
-Macaroni uses a series of Lua scripts as well as a Messages file which sit
-alongside its executable.</p>
-<p> 
-In Windows this just works, but in Linux its difficult to know what this
-is. In that environment you just need to make sure you always invoke it using
-the full path. So if you download it to ~/macaroni-<~= library.Version ~>/, 
-then you need to invoke it as $~/macaroni-<~= library.Version ~>/macaroni 
-every single time. If this is a hassle you can make a bash script to invoke it
-and use that instead.</p>
-<p>
-Second, Macaroni sets up shop in a directory called Macaroni that lives under
-your home directory (C:\Users\your_name\Macaroni in Windows, 
-/home/your_name/Macaroni in Linux, etc). What's that you say, you already have
-a directory living there named Macaroni and its actually your favorite 
-directory on your machine? Well then, I guess <i>youuuuu</i> just won't be able
-to use Macaroni, will you?
-</p>
-<p>
-Create this directory and within it create a file name "init.lua." Put the
-following stuff inside of it:
-</p>
-<blockquote>
-properties = <br/>
-{<br/>
-  boost = <br/>
-  {<br/>
-    ["1.46.1"] =<br/>
-    {<br/>
-      include = [[C:/Tools/boost_1_46_1]],<br/>
-      lib = [[C:/Tools/boost_1_46_1/stage/lib]],<br/>
-      path = [[C:/Tools/boost_1_46_1]],      <br/>
-    },<br/>
-  },<br/>
-  lua =<br/>
-  {<br/>
-    ["5.1.4"] =<br/>
-    {<br/>
-      include = [[C:/tools/Lua/lua-5.1.4/src]],<br/>
-      source = [[C:/tools/Lua/lua-5.1.4/src]]<br/>
-    },<br/>
-  },<br/>
-};<br/>
-properties.boost.current = properties.boost["1.46.1"];<br/>
-</blockquote>
-<p>
-This is a place to store machine specific configuration data for use in 
-building projects. The idea is that most stuff in Macaroni then won't have to
-use hard-coded paths.
-</p>
-<p>
-The "lua" part is optional but "boost" is required. I thought of not making it
-a requirement for using Macaroni but after awhile just gave in because being
-able to assume its there somewhere made so much of the build process nicer.  If
-you've never used Boost before you should look into it- its definetely more
-interesting than the page you're viewing now. You can read its docs on 
-getting started <a 
-href="http://www.boost.org/doc/libs/1_46_1/more/getting_started/">here</a>.
-</p>
+<div style="text-align:left">
+<h3><~= library.Version ~></h3>
+<ul>
+
+<li><a href="http://c710763.r63.cf2.rackcdn.com/macaroni-<~= library.Version ~>.zip">
+macaroni-<~= library.Version ~>.zip</a> (requires 
+<a href="http://www.microsoft.com/download/en/details.aspx?displaylang=en&id=29">the
+Microsoft Visual C++ 2008 Redistributable Package</a>)
+</li>
+
+<li><a href="http://c710763.r63.cf2.rackcdn.com/macaroni-<~= library.Version ~>-debug.zip">
+macaroni-<~= library.Version ~>-debug.zip</a></li>
+
+<li><a href="http://c710763.r63.cf2.rackcdn.com/macaroni-<~= library.Version ~>-pureCpp.zip">
+macaroni-<~= library.Version ~>-pureCpp.zip</a> (<i>Used to build Macaroni from scatch sans Macaroni.</i>)</li>
+
+</ul>
+</div>
+
+<div style="text-align:left">
+<h3>Source</h3>
+<ul>
+<li><a href="https://github.com/TimSimpson/Macaroni">Fork Macaroni on GitHub</a></li>
+</ul>
+</div>
 
 <~#include <footer.mdoc> ~>

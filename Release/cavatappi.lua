@@ -54,7 +54,7 @@ end
 
 
 function createPureCpp()	
-	local dstDir = newPath("target/macaroni-pureCpp-" .. upper.Version);
+	local dstDir = newPath("target/macaroni-" .. upper.Version .. "-pureCpp");
 	copyCppFiles(newPath("../Main/Dependencies/Lua/target"), dstDir);
 	copyCppFiles(newPath("../Main/App/Source/main/mcpp"), dstDir);
 	copyResourceFiles(newPath("../Main/App/Source/main/resources"), dstDir);

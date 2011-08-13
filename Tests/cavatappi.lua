@@ -3,6 +3,7 @@ output = "target"
 children = 
 {
 	"Bugs",	
+	"Examples",
 	"Features",	
 };
 

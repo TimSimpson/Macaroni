@@ -1,0 +1,65 @@
+<~#include <header.mdoc>~>
+
+<h1>Set Up Instructions</h3>
+<br/>
+<p>
+Macaroni uses a series of Lua scripts as well as a Messages file which sit
+alongside its executable.</p>
+<p> 
+In Windows this just works, but in Linux its difficult to know what this
+is. In that environment you just need to make sure you always invoke it using
+the full path. So if you download it to ~/macaroni-<~= library.Version ~>/, 
+then you need to invoke it as $~/macaroni-<~= library.Version ~>/macaroni 
+every single time. If this is a hassle you can make a bash script to invoke it
+and use that instead.</p>
+<p>
+Second, Macaroni sets up shop in a directory called Macaroni that lives under
+your home directory (C:\Users\your_name\Macaroni in Windows, 
+/home/your_name/Macaroni in Linux, etc). What's that you say, you already have
+a directory living there named Macaroni and its actually your favorite 
+directory on your machine? Well then, I guess <i>youuuuu</i> just won't be able
+to use Macaroni, will you?
+</p>
+<p>
+Create this directory and within it create a file name "init.lua." Put the
+following stuff inside of it:
+</p>
+<blockquote>
+properties = <br/>
+{<br/>
+  boost = <br/>
+  {<br/>
+    ["1.46.1"] =<br/>
+    {<br/>
+      include = [[C:/Tools/boost_1_46_1]],<br/>
+      lib = [[C:/Tools/boost_1_46_1/stage/lib]],<br/>
+      path = [[C:/Tools/boost_1_46_1]],      <br/>
+    },<br/>
+  },<br/>
+  lua =<br/>
+  {<br/>
+    ["5.1.4"] =<br/>
+    {<br/>
+      include = [[C:/tools/Lua/lua-5.1.4/src]],<br/>
+      source = [[C:/tools/Lua/lua-5.1.4/src]]<br/>
+    },<br/>
+  },<br/>
+};<br/>
+properties.boost.current = properties.boost["1.46.1"];<br/>
+</blockquote>
+<p>
+This is a place to store machine specific configuration data for use in 
+building projects. The idea is that most stuff in Macaroni then won't have to
+use hard-coded paths.
+</p>
+<p>
+The "lua" part is optional but "boost" is required. I thought of not making it
+a requirement for using Macaroni but after awhile just gave in because being
+able to assume its there somewhere made so much of the build process nicer.  If
+you've never used Boost before you should look into it- its definetely more
+interesting than the page you're viewing now. You can read its docs on 
+getting started <a 
+href="http://www.boost.org/doc/libs/1_46_1/more/getting_started/">here</a>.
+</p>
+
+<~#include <footer.mdoc> ~>
