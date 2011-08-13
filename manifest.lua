@@ -16,7 +16,7 @@
 
 id =
 {
-    group="Macaroni",
+    group="Macaroni" ,
     name="Macaroni.All",
     version="0.1.0.23",
     author="Tim Simpson"
