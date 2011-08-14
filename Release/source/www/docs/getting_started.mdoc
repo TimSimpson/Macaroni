@@ -78,24 +78,9 @@ Create a new directory somewhere (mine's "C:\Work\MacaroniExample") and create
 a file called "manifest.lua" with the following contents:
 </p>
 
-<~lua require "Site" Site.luaToHtml([==[
-id =
-{
-    group="Macaroni.Examples",
-    name="Example1",
-    version="1.0.0.0"
-}
-
-description= [[  
-         ________________________
-    '_' < Sorry, I know nothing. )
-         ------------------------
-]]
-
-sources = { "source" }
-output = "target"
-
-]==]); ~>
+<~lua require "Site" Site.luaToHtmlBegin(); ~>
+<~#include "../../../../Test/Examples/Hello/manifest.lua"~>
+<~lua require "Site" Site.luaToHtmlEnd(); ~>
 
 <p>
 This file is in Lua, so if you don't know the Lua language you may be a bit 

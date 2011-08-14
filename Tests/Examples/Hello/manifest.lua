@@ -6,15 +6,16 @@ id =
 }
 
 description= [[  
-         ________________________
-    '_' < Sorry, I know nothing. )
-         ------------------------
+         _________________________________________
+    '_' < A quick example of how to use Macaroni. )
+         -----------------------------------------
 ]]
 
 sources = { "source" }
 output = "target"
 
 dependency {group="Macaroni", name="CppStd", version="2003"}
+dependency {group="Macaroni", name="Boost.Config", version="1.46.1"}
 
 function generate()
 	run("cpp")

@@ -171,6 +171,7 @@ SiteGenerator =
 
 
 
+
 Site = 
 -- Helper functions
 {
@@ -202,8 +203,16 @@ Site =
 	end,
 	
 	luaToHtml = function(original)
-		writer:Write([[<pre class="lua-code">]]);
+		Site.luaToHtmlBegin();
 		Site.textToHtml(original);
+		Site.luaToHtmlEnd();
+	end,
+	
+	luaToHtmlBegin = function(original)
+		writer:Write([[<pre class="lua-code">]]);
+	end,
+	
+	luaToHtmlEnd = function(original)
 		writer:Write([[</pre>]]);
 	end,
 }; 
