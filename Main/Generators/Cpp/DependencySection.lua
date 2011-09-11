@@ -48,15 +48,27 @@ DependencySection = {
     end,
         
     eraseDuplicates = function(self)
-        for i = 1, #self.list do
+		local i = 1
+		while i < #self.list do        
             local index = 0;
             repeat 
+				if self.list[i] == nil then
+					local m = ''
+					for j = 1, #self.list do
+						m = m .. j .. " = " .. tostring(self.list[j]) .. '\n'					
+					end
+					error("self.list[" .. tostring(i) .. "] == nil! List= " 
+					      .. m)
+				end
 				index = self:indexOfDependency(self.list[i], i + 1);                        
 				if (index ~= nil) then
 					table.remove(self.list, index);
-					i = i - 1;
 				end
 			until index == nil
+			i = i + 1
+			if i >= #self.list then
+				return
+			end
         end
     end,    
     
@@ -84,6 +96,9 @@ DependencySection = {
     end,
     
     indexOfDependency = function(self, dependency, startIndex)
+		if (dependency == nil) then 
+			error("Arg #2, dependency, can't be nil!")
+		end
         startIndex = startIndex or 1;
         for i = startIndex, #self.list do
             if (self.list[i].node.FullName == dependency.node.FullName and

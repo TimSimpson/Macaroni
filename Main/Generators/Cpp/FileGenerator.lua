@@ -260,7 +260,7 @@ FileGenerator = {
 		-- calledFromClassWriter 
 		-- calledForFriendDefinition - If true, then write the entire
 		--     fullName of the Node instead of just the name.
-		
+		calledForFriendDefinition = calledForFriendDefinition or false;
     	check(self ~= nil, "Method called without instance.");
     	check(foNode ~= nil, "foNode must be a Node, not nil.");
     	check(foNode.Member ~= nil, "functionNode must have instance");
