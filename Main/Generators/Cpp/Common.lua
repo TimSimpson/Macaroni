@@ -5,8 +5,12 @@ require "Macaroni.Model.Node";
 require "Macaroni.Model.Context";
 require "Macaroni.Model.Context";
 require "Macaroni.Model.FileName"
---require "Macaroni.Model.Cpp.Function";
-require "Macaroni.Model.Member";
+--require "Macaroni.Model.Cpp.Function";\
+if MACARONI_VERSION == "0.1.0.22" then
+	require "Macaroni.Model.Member";
+else
+	require "Macaroni.Model.Element";
+end
 require "Macaroni.Model.Node";
 require "Macaroni.Model.Type";
 require "Macaroni.Model.TypeArgument";

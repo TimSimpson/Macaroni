@@ -60,12 +60,12 @@ tests = {
                 Test.assertEquals(1, #Blah.Children);
                 Test.assertEquals("Blah::$ctor", Blah.Children[1].FullName);
                 local ctorNode = Blah.Children[1];                
-                Test.assertEquals("Constructor", ctorNode.Member.TypeName);
+                Test.assertEquals("Constructor", ctorNode.Element.TypeName);
                 Test.assertEquals(1, #(ctorNode.Children));
 				local ol = ctorNode.Children[1]
-				Test.assertEquals("ConstructorOverload", ol.Member.TypeName);
-				Test.assertEquals("ConstructorOverload", ol.Member.TypeName);
-				Test.assertEquals(2, #ol.Member.Arguments);
+				Test.assertEquals("ConstructorOverload", ol.Element.TypeName);
+				Test.assertEquals("ConstructorOverload", ol.Element.TypeName);
+				Test.assertEquals(2, #ol.Element.Arguments);
             end,                   
         }
     },  

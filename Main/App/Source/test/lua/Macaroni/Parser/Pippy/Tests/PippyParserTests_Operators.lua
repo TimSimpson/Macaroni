@@ -58,12 +58,12 @@ function operatorTest(actualCode, expectedNode)
                 Test.assertEquals("Blah::" .. expectedNode, 
                                   Blah.Children[1].FullName);
                 local funcNode = Blah.Children[1];                
-                Test.assertEquals("Function", funcNode.Member.TypeName);
+                Test.assertEquals("Function", funcNode.Element.TypeName);
                 Test.assertEquals(1, #(funcNode.Children));
 				local ol = funcNode.Children[1]
-				Test.assertEquals("FunctionOverload", ol.Member.TypeName);
-				Test.assertEquals("FunctionOverload", ol.Member.TypeName);
-				Test.assertEquals(2, #ol.Member.Arguments);
+				Test.assertEquals("FunctionOverload", ol.Element.TypeName);
+				Test.assertEquals("FunctionOverload", ol.Element.TypeName);
+				Test.assertEquals(2, #ol.Element.Arguments);
             end,                   
         }
     }

@@ -19,7 +19,7 @@
 #include "BlockLua.h"
 #include "NodeLua.h"
 #include "../Environment/DebugLog.h"
-#include "MemberLua.h"
+#include "ElementLua.h"
 #include "NodeLua.h"
 #include "NodeListLua.h"
 #include <Macaroni/Model/ReasonLuaMetaData.h>
@@ -50,8 +50,8 @@ namespace
 			std::string block(luaL_checkstring(L, 3));
 			ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 4);
 			BlockPtr newBlock = Block::Create(home, id, block, reason);
-			MemberPtr rtnValue = boost::dynamic_pointer_cast<Member>(newBlock);
-			MemberLuaMetaData::PutInstanceOnStack(L, rtnValue);
+			ElementPtr rtnValue = boost::dynamic_pointer_cast<Element>(newBlock);
+			ElementLuaMetaData::PutInstanceOnStack(L, rtnValue);
 			return 1;
 		}
 	}; // end struct
@@ -63,14 +63,14 @@ namespace
 	};
 }
 
-MemberPtr & BlockLuaMetaData::GetInstance(lua_State * L, int index)
+ElementPtr & BlockLuaMetaData::GetInstance(lua_State * L, int index)
 {
-	return MemberLuaMetaData::GetInstance(L, index);
+	return ElementLuaMetaData::GetInstance(L, index);
 }
 
 bool BlockLuaMetaData::IsType(lua_State * L, int index)
 {
-	return MemberLuaMetaData::IsType(L, index);
+	return ElementLuaMetaData::IsType(L, index);
 }
 
 int BlockLuaMetaData::Index(lua_State * L, const BlockPtr & ptr, 
@@ -95,10 +95,10 @@ int BlockLuaMetaData::OpenInLua(lua_State * L)
 	return 1;
 }
 
-void BlockLuaMetaData::PutInstanceOnStack(lua_State * L, const MemberPtr & ptr)
+void BlockLuaMetaData::PutInstanceOnStack(lua_State * L, const ElementPtr & ptr)
 {
-	MemberPtr memberPtr = boost::dynamic_pointer_cast<Member>(ptr);
-	MemberLuaMetaData::PutInstanceOnStack(L, memberPtr);
+	ElementPtr memberPtr = boost::dynamic_pointer_cast<Element>(ptr);
+	ElementLuaMetaData::PutInstanceOnStack(L, memberPtr);
 }
 
 END_NAMESPACE2

@@ -28,6 +28,7 @@ END_NAMESPACE
 #include <Macaroni/Model/Cpp/AccessPtr.h>
 #include <Macaroni/Model/Cpp/ClassParent.h>
 #include <Macaroni/Model/Cpp/ClassParentPtr.h>
+#include <Macaroni/Model/ElementPtr.h>
 #include <string>
 #include <vector>
 #include <boost/shared_ptr.hpp>
@@ -84,7 +85,7 @@ public:
 	virtual const char * GetTypeName() const;
 	
 	/** Returns true if the given member is an instance of Class. */
-	static bool IsInstance(Model::MemberPtr other);
+	static bool IsInstance(Model::ElementPtr other);
 
 	virtual void Visit(MemberVisitor * visitor) const;
 

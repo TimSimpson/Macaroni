@@ -68,12 +68,12 @@ tests = {
                 Test.assertEquals(1, #nodes);
                 Test.assertEquals(foundNode, nodes[0]);
             end,
-            ["The Class can use Member methods such as Library."] = function(this)
+            ["The Class can use Element methods such as Library."] = function(this)
                 local class = this.newClass;
                 local library = class.Library;
                 Test.assertEquals(this.library, library);
             end,
-            ["The Class can use Member methods such as TypeName."] = function(this)
+            ["The Class can use Element methods such as TypeName."] = function(this)
                 local class = this.newClass;
                 local typename = class.TypeName;
                 Test.assertEquals("Class", tostring(typename));

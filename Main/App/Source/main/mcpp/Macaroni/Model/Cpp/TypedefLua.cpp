@@ -19,8 +19,8 @@
 #include "../../LuaGlueClear.h"
 #include "Typedef.h"
 #include "TypedefLua.h"
+#include "../ElementLua.h"
 #include "../NodeLua.h"
-#include "../MemberLua.h"
 #include "../NodeListLua.h"
 #include "../TypeLua.h"
 

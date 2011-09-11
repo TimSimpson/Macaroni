@@ -52,21 +52,21 @@ tests = {
                     double donuts;
                 }
             ]]);         
-            this.var = this.root.Children[2].Member;   
+            this.var = this.root.Children[2].Element;   
         end,
         tests = {
             ["Hello."] = function(this)
                 Test.assertEquals(5, #this.root.Children);
                 local hello = this.root.Children[3];                
                 Test.assertEquals("hello", hello.Name);
-                Test.assertEquals("Variable", hello.Member.TypeName);
-                Test.assertEquals("std::string", hello.Member.Type.Node.FullName);
+                Test.assertEquals("Variable", hello.Element.TypeName);
+                Test.assertEquals("std::string", hello.Element.Type.Node.FullName);
             end,            
             ["donuts"] = function(this)                
                 local donuts = this.root.Children[5].Children[1];
                 Test.assertEquals("Apple::donuts", donuts.FullName);
-                Test.assertEquals("Variable", donuts.Member.TypeName);
-                Test.assertEquals("double", donuts.Member.Type.Node.Name);
+                Test.assertEquals("Variable", donuts.Element.TypeName);
+                Test.assertEquals("double", donuts.Element.Type.Node.Name);
             end,            
         }
     },

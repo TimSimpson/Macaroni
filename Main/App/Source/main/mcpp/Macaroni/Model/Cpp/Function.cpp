@@ -89,7 +89,7 @@ bool Function::canBeChildOf(const Member * other) const
 
 FunctionPtr Function::Create(NodePtr host, Model::ReasonPtr reason)
 {
-	if (!host->GetMember())
+	if (!host->GetElement())
 	{
 		//return FunctionPtr(
 		Function * fo = new Function(host.get(), reason);
@@ -105,7 +105,7 @@ FunctionPtr Function::Create(NodePtr host, Model::ReasonPtr reason)
 		//}
 		//return FunctionPtr(fo);		*/
 	}
-	Member * member = host->GetMember().get();
+	Element * member = host->GetElement().get();
 	Function * existingFunc = dynamic_cast<Function *>(member);
 	if (existingFunc == nullptr)
 	{
@@ -126,7 +126,7 @@ FunctionPtr Function::Create(NodePtr host, Model::ReasonPtr reason)
 	//										  ss.str());	
 	//}
 	// Re-use the previously set variable.
-	return FunctionPtr(boost::dynamic_pointer_cast<Function>(host->GetMember()));
+	return FunctionPtr(boost::dynamic_pointer_cast<Function>(host->GetElement()));
 }
 
 bool Function::DoesDefinitionReference(NodePtr node) const

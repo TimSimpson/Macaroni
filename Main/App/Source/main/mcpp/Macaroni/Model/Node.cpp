@@ -65,7 +65,7 @@ Node::Node(Context & context, const std::string & name)
 annotations(context),
 context(&context), 
 hFilePath(), hFilePathReason(),
-member(nullptr), name(name), scope(nullptr)
+element(nullptr), name(name), scope(nullptr)
 {	
 }
 
@@ -74,7 +74,7 @@ Node::Node(Node * scope, const std::string & name)
 annotations(*(scope->context)),
 context(scope->context), 
 hFilePath(), hFilePathReason(),
-member(nullptr), name(name), scope(scope)
+element(nullptr), name(name), scope(scope)
 {	
 
 }
@@ -337,11 +337,11 @@ std::string Node::GetOperatorName() const
 
 const char * Node::GetTypeName() const
 {
-	if (this->member == nullptr)
+	if (this->element == nullptr)
 	{
 		return "";
 	}
-	return this->member->GetTypeName();
+	return this->element->GetTypeName();
 }
 
 void intrusive_ptr_add_ref(Node * p)
@@ -405,6 +405,23 @@ void Node::SetAdoptedHome(NodePtr node)
 	this->adoptedHome = node;
 }
 
+void Node::setElement(Element * const value, const ReasonPtr reasonCreated)
+{
+	if (this->element != nullptr)
+	{
+		std::stringstream ss;
+		ss << "Member for node " << GetFullName() 
+			<< " is already a(n) " << element->GetTypeName() << " and cannot "
+			"morph into a(n) " << this->element->GetTypeName() << ".";
+		throw ModelInconsistencyException(element->GetReasonCreated(),
+			reasonCreated,
+			ss.str());	
+	}
+	this->element = value;
+	this->element->node = this;
+}
+
+
 void Node::SetHFilePath(ReasonPtr why, FileNamePtr file)
 {
 	if (!!this->hFilePath)
@@ -417,22 +434,6 @@ void Node::SetHFilePath(ReasonPtr why, FileNamePtr file)
 	}
 	this->hFilePath = file;
 	this->hFilePathReason = why;
-}
-
-void Node::setMember(Member * value, const char * typeName, const ReasonPtr reasonCreated)
-{
-	if (this->member != nullptr)
-	{
-		std::stringstream ss;
-		ss << "Member for node " << GetFullName() 
-			<< " is already a(n) " << member->GetTypeName() << " and cannot "
-			"morph into a(n) " << typeName << ".";
-		throw ModelInconsistencyException(member->GetReasonCreated(),
-			reasonCreated,
-			ss.str());	
-	}
-	this->member = value;
-	this->member->node = this;
 }
 
 void Node::SplitFirstNameOffComplexName(const std::string & complexName,

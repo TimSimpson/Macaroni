@@ -19,8 +19,8 @@
 #include <Macaroni/Model/Cpp/AccessLuaMetaData.h>
 #include "../NodeLua.h"
 #include "../../Environment/DebugLog.h"
+#include "../ElementLua.h"
 #include "FunctionLua.h"
-#include "../MemberLua.h"
 #include "../ModelInconsistencyException.h"
 #include "../NodeLua.h"
 #include "../NodeListLua.h"
@@ -38,8 +38,8 @@ struct lua_State;
 
 using Macaroni::Model::Cpp::Access;
 using Macaroni::Model::Cpp::AccessLuaMetaData;
-using Macaroni::Model::Member;
-using Macaroni::Model::MemberLuaMetaData;
+using Macaroni::Model::Element;
+using Macaroni::Model::ElementLuaMetaData;
 using Macaroni::Model::Node;
 using Macaroni::Model::NodeLuaMetaData;
 using Macaroni::Model::ReasonLuaMetaData;
@@ -71,8 +71,8 @@ namespace
 				VariablePtr variable = Variable::Create(home, access,
 														isStatic, type, 
 														initializer, reason);
-				MemberPtr rtnValue = boost::dynamic_pointer_cast<Member>(variable);
-				MemberLuaMetaData::PutInstanceOnStack(L, rtnValue);
+				ElementPtr rtnValue = boost::dynamic_pointer_cast<Element>(variable);
+				ElementLuaMetaData::PutInstanceOnStack(L, rtnValue);
 				return 1;
 			} 
 			catch(const ModelInconsistencyException & ex) 
@@ -91,14 +91,14 @@ namespace
 } // end of anon namespace
 
 
-MemberPtr & VariableLuaMetaData::GetInstance(lua_State * L, int index)
+ElementPtr & VariableLuaMetaData::GetInstance(lua_State * L, int index)
 {
-	return MemberLuaMetaData::GetInstance(L, index);
+	return ElementLuaMetaData::GetInstance(L, index);
 }
 
 bool VariableLuaMetaData::IsType(lua_State * L, int index)
 {
-	return MemberLuaMetaData::IsType(L, index);
+	return ElementLuaMetaData::IsType(L, index);
 }
 
 

@@ -55,7 +55,7 @@ bool Block::canBeChildOf(const Member *) const
 BlockPtr Block::Create(NodePtr host, const std::string & id, 
 					   const std::string & block, const ReasonPtr reasonCreated)
 {
-	MemberPtr existingMember = host->GetMember();
+	ElementPtr existingMember = host->GetElement();
 	if (!!existingMember)
 	{
 		BlockPtr existingBlock = boost::dynamic_pointer_cast<Block>(existingMember);

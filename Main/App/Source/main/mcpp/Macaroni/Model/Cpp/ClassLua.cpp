@@ -19,9 +19,9 @@
 #include "ClassLua.h"
 #include <Macaroni/Model/Cpp/AccessLuaMetaData.h>
 #include <Macaroni/Model/Cpp/ClassParentListLuaMetaData.h>
+#include "../ElementLua.h"
 #include <Macaroni/Model/LibraryLua.h>
 #include "../NodeLua.h"
-#include "../MemberLua.h"
 #include "../NodeListLua.h"
 #include <Macaroni/Model/ReasonLuaMetaData.h>
 #include "TypeInfoLua.h"
@@ -62,8 +62,8 @@ END_NAMESPACE
 		using Macaroni::Model::Library;
 		using Macaroni::Model::LibraryPtr;
 		using Macaroni::Model::LibraryLuaMetaData;
-		using Macaroni::Model::Member;
-		using Macaroni::Model::MemberLuaMetaData;
+		using Macaroni::Model::Element;
+		using Macaroni::Model::ElementLuaMetaData;
 		using Macaroni::Model::Node;
 		using Macaroni::Model::NodeLuaMetaData;
 		using Macaroni::Model::NodePtr;
@@ -106,8 +106,8 @@ END_NAMESPACE
 		
 		ClassPtr newInstance = Class::Create(library, node, access, 
 			                                 imports, reason); 
-		MemberPtr memberPtr = boost::dynamic_pointer_cast<Member>(newInstance);
-		MemberLuaMetaData::PutInstanceOnStack(L, memberPtr);
+		ElementPtr memberPtr = boost::dynamic_pointer_cast<Element>(newInstance);
+		ElementLuaMetaData::PutInstanceOnStack(L, memberPtr);
 		return 1;
 	}
 

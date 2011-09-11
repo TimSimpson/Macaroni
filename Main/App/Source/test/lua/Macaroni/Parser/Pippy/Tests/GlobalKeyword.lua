@@ -78,7 +78,7 @@ tests = {
 				};                            
             ]]);         
             self.classNode = self.root:Find("Something::GlobalKeyword");   
-            self.class = self.classNode.Member;   
+            self.class = self.classNode.Element;   
         end,
         tests = {
             ["Class 'GlobalKeyword' gets created in Something namespace."] = function(self)                               
@@ -91,12 +91,12 @@ tests = {
             end,
             ["Class has 1 global node."] = function(self)
                 local classNode = self.root:Find("Something::GlobalKeyword")
-                local globals = classNode.Member.GlobalNodes;
+                local globals = classNode.Element.GlobalNodes;
                 Test.assertEquals(1, #globals);
             end,
             ["Global node lives in Something."] = function(self)
                 local classNode = self.root:Find("Something::GlobalKeyword")
-                local globals = classNode.Member.GlobalNodes;
+                local globals = classNode.Element.GlobalNodes;
                 local Something1 = globals[1];
                 Test.assertEquals("Something::Add::Overload#0", Something1.FullName);
             end, 
@@ -122,7 +122,7 @@ tests = {
 				};                            
             ]]);         
             self.classNode = self.root:Find("Something::GlobalKeyword");   
-            self.class = self.classNode.Member;   
+            self.class = self.classNode.Element;   
         end,
         tests = {
             ["Class 'GlobalKeyword' gets created in Something namespace."] = function(self)                               
@@ -135,12 +135,12 @@ tests = {
             end,
             ["Class has 1 global node."] = function(self)
                 local classNode = self.root:Find("Something::GlobalKeyword")
-                local globals = classNode.Member.GlobalNodes;
+                local globals = classNode.Element.GlobalNodes;
                 Test.assertEquals(1, #globals);
             end,
             ["Global node lives in SomeOtherPlace."] = function(self)
                 local classNode = self.root:Find("Something::GlobalKeyword")
-                local globals = classNode.Member.GlobalNodes;
+                local globals = classNode.Element.GlobalNodes;
                 local Something1 = globals[1];
                 Test.assertEquals("SomeOtherPlace::Add::Overload#0", Something1.FullName);
             end, 
@@ -167,7 +167,7 @@ tests = {
 				};                            
             ]]);         
             self.classNode = self.root:Find("Something::GlobalKeyword");   
-            self.class = self.classNode.Member;   
+            self.class = self.classNode.Element;   
         end,
         tests = {
             ["Class 'GlobalKeyword' gets created in Something namespace."] = function(self)                               
@@ -180,12 +180,12 @@ tests = {
             end,
             ["Class has 1 global node."] = function(self)
                 local classNode = self.root:Find("Something::GlobalKeyword")
-                local globals = classNode.Member.GlobalNodes;
+                local globals = classNode.Element.GlobalNodes;
                 Test.assertEquals(1, #globals);
             end, 
             ["Global node lives in the root namespace."] = function(self)
                 local classNode = self.root:Find("Something::GlobalKeyword")
-                local globals = classNode.Member.GlobalNodes;
+                local globals = classNode.Element.GlobalNodes;
                 local Something1 = globals[1];
                 Test.assertEquals("Add::Overload#0", Something1.FullName);
             end,
@@ -222,7 +222,7 @@ tests = {
 				Test.assertEquals(self.file, parserException.Source.FileName);
 				Test.assertEquals(5, parserException.Source.Line);
 				self.classNode = self.root:Find("Something::GlobalKeyword");   
-				self.class = self.classNode.Member;   
+				self.class = self.classNode.Element;   
 			end,
 		}
 	}, 

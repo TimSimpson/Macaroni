@@ -53,13 +53,13 @@ bool Variable::canBeChildOf(const Member * other) const
 
 VariablePtr Variable::Create(NodePtr host, AccessPtr access, bool isStatic, const TypePtr type, std::string initializer, ReasonPtr reason)
 {
-	if (!host->GetMember())
+	if (!host->GetElement())
 	{
 		//return Variable::Create(host, access, type, reason);
 		return VariablePtr(new Variable(host.get(), reason, *access, isStatic, type, initializer));
 	}
-	Member * member = host->GetMember().get();
-	Variable * existingVar = dynamic_cast<Variable *>(member);
+	Element * element = host->GetElement().get();
+	Variable * existingVar = dynamic_cast<Variable *>(element);
 	if (existingVar == nullptr)
 	{
 		// Will throw an error message.
@@ -88,12 +88,12 @@ VariablePtr Variable::Create(NodePtr host, AccessPtr access, bool isStatic, cons
 			ss << "Previous definition was reference.";
 		}
 		existingVar->type->DescribeDifferences(type, ss);
-		throw ModelInconsistencyException(member->GetReasonCreated(),
+		throw ModelInconsistencyException(element->GetReasonCreated(),
 											  reason,
 											  ss.str());	
 	}
 	// Re-use the previously set variable.
-	return VariablePtr(boost::dynamic_pointer_cast<Variable>(host->GetMember()));
+	return VariablePtr(boost::dynamic_pointer_cast<Variable>(host->GetElement()));
 }
 
 bool Variable::DoesDefinitionReference(NodePtr node) const

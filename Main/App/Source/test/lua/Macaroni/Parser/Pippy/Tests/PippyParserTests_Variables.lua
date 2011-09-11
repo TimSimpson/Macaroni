@@ -61,7 +61,7 @@ tests = {
             this.parser:Read(this.library, this.src, [[
                 char c;
             ]]);         
-            this.var = this.root.Children[2].Member;   
+            this.var = this.root.Children[2].Element;   
         end,
         tests = {
             ["C, the var, is added."] = function(this)
@@ -91,8 +91,8 @@ tests = {
                 char c;
                 double k;
             ]]);         
-            this.var = this.root.Children[2].Member;   
-            this.var2 = this.root.Children[3].Member;   
+            this.var = this.root.Children[2].Element;   
+            this.var2 = this.root.Children[3].Element;   
         end,
         tests = {
             ["C and K are siblings."] = function(this)
@@ -127,7 +127,7 @@ tests = {
             this.parser:Read(this.library, this.src, [[
                 const char c;
             ]]);     
-            this.var = this.root.Children[2].Member;          
+            this.var = this.root.Children[2].Element;          
         end,
         tests = {
             ["C is not const."] = function(this)                                
@@ -149,7 +149,7 @@ tests = {
             this.parser:Read(this.library, this.src, [[
                 char const c;
             ]]);     
-            this.var = this.root.Children[2].Member;          
+            this.var = this.root.Children[2].Element;          
         end,
         tests = {
             ["C is const."] = function(this)                                
@@ -182,12 +182,12 @@ tests = {
             ["Donut, an unknown node, is created to nest K."] = function(this)                                
                 Test.assertEquals(2, #this.root.Children);                  
                 Test.assertEquals("Donut", this.root.Children[2].Name);                  
-                Test.assertEquals(nil, this.root.Children[2].Member);
+                Test.assertEquals(nil, this.root.Children[2].Element);
             end,          
             ["K is found within Donut."] = function(this)                                
                 Test.assertEquals(1, #this.root.Children[2].Children);                  
                 Test.assertEquals("Donut::K", this.root.Children[2].Children[1].FullName);                  
-                Test.assertEquals("Variable", this.root.Children[2].Children[1].Member.TypeName);                  
+                Test.assertEquals("Variable", this.root.Children[2].Children[1].Element.TypeName);                  
             end,          
         }
     },  
@@ -207,8 +207,8 @@ tests = {
                 double const k; // I'd like to keep the feature though so IOU
                 const double k; // one bug fix. ~ Tim of the Past
             ]]);         
-            this.var = this.root.Children[2].Member;   
-            this.var2 = this.root.Children[3].Member;   
+            this.var = this.root.Children[2].Element;   
+            this.var2 = this.root.Children[3].Element;   
         end,
         tests = {
             ["C and K are siblings."] = function(this)
@@ -241,7 +241,7 @@ tests = {
             this.parser:Read(this.library, this.src, [[
                 const char * c;
             ]]);         
-            this.var = this.root.Children[2].Member;   
+            this.var = this.root.Children[2].Element;   
         end,
         tests = {
             ["C, the var, is added."] = function(this)
@@ -273,7 +273,7 @@ tests = {
             this.parser:Read(this.library, this.src, [[
                 char const * c;
             ]]);         
-            this.var = this.root.Children[2].Member;   
+            this.var = this.root.Children[2].Element;   
         end,
         tests = {
             ["C, the var, is added."] = function(this)
@@ -305,7 +305,7 @@ tests = {
             this.parser:Read(this.library, this.src, [[
                 char const * const c;
             ]]);         
-            this.var = this.root.Children[2].Member;   
+            this.var = this.root.Children[2].Element;   
         end,
         tests = {
             ["C, the var, is added."] = function(this)
@@ -343,7 +343,7 @@ tests = {
             this.parser:Read(this.library, this.src, [[
                 char & c;
             ]]);         
-            this.var = this.root.Children[2].Member;   
+            this.var = this.root.Children[2].Element;   
         end,
         tests = {
             ["C, the var, is added."] = function(this)
@@ -381,7 +381,7 @@ tests = {
             this.parser:Read(this.library, this.src, [[
                 char const * const & c;
             ]]);         
-            this.var = this.root.Children[2].Member;   
+            this.var = this.root.Children[2].Element;   
         end,
         tests = {
             ["C, the var, is added."] = function(this)

@@ -18,8 +18,8 @@
 
 #include "Cpp/ClassLua.h"
 #include "Cpp/FunctionLua.h"
-#include "MemberLua.h"
-#include "Member.h"
+#include "ElementLua.h"
+#include <Macaroni/Model/Element.h>
 #include "Node.h"
 #include "NodeLua.h"
 #include "NodeListLua.h"

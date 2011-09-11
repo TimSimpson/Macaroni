@@ -148,7 +148,7 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile,
 	lua_setglobal(L, "LATEST");
 
 	boost::filesystem::path mDirPath = 
-		boost::filesystem::system_complete(manifestFile.parent_path());
+		boost::filesystem::system_complete(manifestFile).parent_path();	
 	lua_pushstring(L, mDirPath.string().c_str());
 	lua_setglobal(L, "manifestDirectory");
 

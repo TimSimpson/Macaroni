@@ -28,7 +28,11 @@ require "Macaroni.Model.Cpp.FunctionOverload";
 require "LuaGlue/LuaGlueCppFile";
 require "LuaGlue/LuaGlueHFile";
 require "Macaroni.Model.Library";
-require "Macaroni.Model.Member";
+if MACARONI_VERSION == "0.1.0.22" then
+	require "Macaroni.Model.Member";
+else
+	require "Macaroni.Model.Element";
+end
 require "Macaroni.Model.Node";
 require "Macaroni.Model.NodeList";
 require "Macaroni.Model.Reason";
@@ -45,7 +49,12 @@ Context = Macaroni.Model.Context;
 FileName = Macaroni.Model.FileName;
 Function = Macaroni.Model.Cpp.Function;
 FunctionOverload = Macaroni.Model.Cpp.FunctionOverload;
-Member = Macaroni.Model.Member;
+if MACARONI_VERSION == "0.1.0.22" then
+	Member = Macaroni.Model.Member;
+else
+	--TODO: change Member to Element
+	Member = Macaroni.Model.Element;
+end
 NodeList = Macaroni.Model.NodeList;
 Reason = Macaroni.Model.Reason;
 Source = Macaroni.Model.Source;

@@ -17,10 +17,12 @@
 #define MACARONI_MODEL_CPP_FUNCTIONLUA_CPP
 
 #include <Macaroni/Model/Cpp/AccessLuaMetaData.h>
+#include <Macaroni/Model/Element.h>
+#include <Macaroni/Model/ElementLua.h>
 #include "../NodeLua.h"
 #include "../../Environment/DebugLog.h"
 #include "FunctionLua.h"
-#include "../MemberLua.h"
+#include <Macaroni/Model/Element.h>
 #include "../ModelInconsistencyException.h"
 #include "../NodeLua.h"
 #include "../NodeListLua.h"
@@ -40,8 +42,8 @@ struct lua_State;
 
 using Macaroni::Model::Cpp::Access;
 using Macaroni::Model::Cpp::AccessLuaMetaData;
-using Macaroni::Model::Member;
-using Macaroni::Model::MemberLuaMetaData;
+using Macaroni::Model::Element;
+using Macaroni::Model::ElementLuaMetaData;
 using Macaroni::Model::Node;
 using Macaroni::Model::NodeLuaMetaData;
 using Macaroni::Model::ReasonLuaMetaData;
@@ -68,8 +70,8 @@ namespace
 				NodePtr home = NodeLuaMetaData::GetInstance(L, 1);
 				ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 2);
 				FunctionPtr newFunc = Function::Create(home, reason);
-				MemberPtr rtnValue = boost::dynamic_pointer_cast<Member>(newFunc);
-				MemberLuaMetaData::PutInstanceOnStack(L, rtnValue);
+				ElementPtr rtnValue = boost::dynamic_pointer_cast<Element>(newFunc);
+				ElementLuaMetaData::PutInstanceOnStack(L, rtnValue);
 				return 1;
 			} 
 			catch(const ModelInconsistencyException & ex) 
@@ -97,14 +99,14 @@ namespace
 	};
 } // end of anon namespace
 
-MemberPtr & FunctionLuaMetaData::GetInstance(lua_State * L, int index)
+ElementPtr & FunctionLuaMetaData::GetInstance(lua_State * L, int index)
 {
-	return MemberLuaMetaData::GetInstance(L, index);
+	return ElementLuaMetaData::GetInstance(L, index);
 }
 
 bool FunctionLuaMetaData::IsType(lua_State * L, int index)
 {
-	return MemberLuaMetaData::IsType(L, index);
+	return ElementLuaMetaData::IsType(L, index);
 }
 
 int FunctionLuaMetaData::OpenInLua(lua_State * L) 
@@ -115,8 +117,8 @@ int FunctionLuaMetaData::OpenInLua(lua_State * L)
 
 void FunctionLuaMetaData::PutInstanceOnStack(lua_State * L, const FunctionPtr & ptr)
 {
-	MemberPtr memberPtr = boost::dynamic_pointer_cast<Member>(ptr);
-	MemberLuaMetaData::PutInstanceOnStack(L, memberPtr);
+	ElementPtr memberPtr = boost::dynamic_pointer_cast<Element>(ptr);
+	ElementLuaMetaData::PutInstanceOnStack(L, memberPtr);
 }
 
 int FunctionLuaMetaData::Index(lua_State * L, const FunctionPtr & ptr, 

@@ -20,9 +20,10 @@
 #include "AnnotationValuePtr.h"
 #include "AnnotationTable.h"
 #include "ContextPtr.h"
+#include <Macaroni/Model/Element.h>
+#include <Macaroni/Model/ElementPtr.h>
 #include <Macaroni/Model/FileNamePtr.h>
 #include "Library.h"
-#include "MemberPtr.h"
 #include "NodePtr.h"
 #include "ReasonPtr.h"
 #include <vector>
@@ -35,7 +36,7 @@ class Namespace;
 class Node
 { 
 friend class Context;
-friend class Member;
+friend class Element;
 friend void intrusive_ptr_add_ref(Node * p);
 friend void intrusive_ptr_release(Node * p);
 
@@ -106,10 +107,44 @@ public:
 	/** Returns the operator string.  Throws if this Node is not an operator. */
 	std::string GetOperatorName() const;
 
-	MemberPtr GetMember()
+	ElementPtr GetElement()
 	{
-		return MemberPtr(member);
+		return ElementPtr(element);
 	}
+
+	/** Returns an element cast to some pointer type of subclass. If the 
+	 *  element is not of that type returns an empty pointer. */
+	template<class PtrType> PtrType GetElement()
+	{
+		typedef PtrType::element_type UnderlyingType;
+		ElementPtr element = GetElement();
+		if (!element)
+		{
+			return PtrType();
+		}
+		PtrType rtnValue = 
+			boost::dynamic_pointer_cast<UnderlyingType>(element);
+		if (!rtnValue)
+		{
+			return PtrType();			
+		}
+		else
+		{
+			return rtnValue;
+		}
+	}
+
+	/** Destroys an object. */
+	//template<class T> void Destroy(T * p) = 0;
+	template<typename T> void Destroy(T * p)
+	{
+		if (p)
+		{
+			p->~T();
+			this->Free(p);
+		}
+	}
+
 
 	//TO-DO: Rename to "getParent" or something.
 	NodePtr GetNode() const;
@@ -172,14 +207,14 @@ protected:
 		return children[index];
 	}
 
-	Member * getMember() 
+	Element * getElement() 
 	{
-		return member;
+		return element;
 	}
 
 	Node * getNode() const;
 
-	void setMember(Member * member, const char * typeName, const ReasonPtr reasonCreated);
+	void setElement(Element * const member, const ReasonPtr reasonCreated);
 
 private:
 
@@ -199,11 +234,11 @@ private:
 
 	Context * context;
 
+	Element * element;
+
 	FileNamePtr hFilePath;
 
-	ReasonPtr hFilePathReason;
-
-	Member * member;
+	ReasonPtr hFilePathReason;	
 
 	std::string name;
 

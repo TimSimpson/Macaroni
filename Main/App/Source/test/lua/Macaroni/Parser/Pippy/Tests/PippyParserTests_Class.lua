@@ -76,7 +76,7 @@ tests = {
                 }
             ]]);         
             self.classNode = self.root.Children[2].Children[1];   
-            self.class = self.classNode.Member;   
+            self.class = self.classNode.Element;   
         end,
         tests = {
             ["ClassNode has name 'string'."] = function(self)                               
@@ -106,7 +106,7 @@ tests = {
                 }                
             ]]);         
             self.classNode = self.root.Children[2];   
-            self.class = self.classNode.Member;   
+            self.class = self.classNode.Element;   
         end,
         tests = {
             ["ClassNode has name 'Dog'."] = function(self)                               
@@ -118,12 +118,12 @@ tests = {
             ["Class has private int."] = function(self)                               
                 local bc = self.classNode.Children[2];
                 Test.assertEquals("bc", bc.Name);
-                Test.assertEquals(Access.Private, bc.Member.Access);                
+                Test.assertEquals(Access.Private, bc.Element.Access);                
             end,                        
             ["Class has public getter."] = function(self)                               
                 local getter = self.classNode.Children[1];
                 Test.assertEquals("GetBarkCount", getter.Name);
-                Test.assertEquals(Access.Public, getter.Children[1].Member.Access);                
+                Test.assertEquals(Access.Public, getter.Children[1].Element.Access);                
             end,                        
         }
     },  

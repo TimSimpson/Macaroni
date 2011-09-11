@@ -58,11 +58,11 @@ bool Constructor::canBeChildOf(const Member * other) const
 
 ConstructorPtr Constructor::Create(NodePtr host, Model::ReasonPtr reason)
 {
-	if (!host->GetMember())
+	if (!host->GetElement())
 	{
 		return ConstructorPtr(new Constructor(host.get(), reason));
 	}
-	Member * member = host->GetMember().get();
+	Member * member = host->GetElement<MemberPtr>().get();
 	Constructor * existingFunc = dynamic_cast<Constructor *>(member);
 	if (existingFunc == nullptr)
 	{
@@ -71,7 +71,7 @@ ConstructorPtr Constructor::Create(NodePtr host, Model::ReasonPtr reason)
 	}
 
 	// Re-use the previously set variable.
-	return ConstructorPtr(boost::dynamic_pointer_cast<Constructor>(host->GetMember()));
+	return ConstructorPtr(boost::dynamic_pointer_cast<Constructor>(host->GetElement()));
 }
 //
 //const VariableAssignment & Constructor::GetAssignment(int index) const

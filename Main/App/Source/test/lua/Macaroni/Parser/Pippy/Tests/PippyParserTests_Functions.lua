@@ -69,8 +69,8 @@ tests = {
                 void main(){}
             ]]);         
             this.funcNode = this.root.Children[2];
-            this.func = this.funcNode.Member;               
-            this.fo1 = this.funcNode.Children[1].Member;
+            this.func = this.funcNode.Element;               
+            this.fo1 = this.funcNode.Children[1].Element;
         end,
         tests = {
             ["Main is added."] = function(this)
@@ -109,8 +109,8 @@ tests = {
                 void go(string blah){}
             ]]);         
             this.funcNode = this.root.Children[3];
-            this.func = this.funcNode.Member;   
-            this.fo1 = this.funcNode.Children[1].Member;
+            this.func = this.funcNode.Element;   
+            this.fo1 = this.funcNode.Children[1].Element;
         end,
         tests = {
             ["Function 'go' is added."] = function(this)
@@ -136,7 +136,7 @@ tests = {
                 local args = this.fo1.Arguments;
                 local number = #args;
                 local arg1 = args[1];                   
-                local arg1Type = arg1.Member.Type;
+                local arg1Type = arg1.Element.Type;
                 local arg1TypeName = arg1Type.Node.FullName;       
                 Test.assertEquals("std::string", arg1TypeName); 
             end,                       

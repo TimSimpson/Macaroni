@@ -72,7 +72,7 @@ tests = {
                 
                 typedef std::string stringType;
             ]]);         
-            self.stringType = self.root.Children[3].Member;   
+            self.stringType = self.root.Children[3].Element;   
         end,
         tests = {
             ["Typedef has name 'stringType'."] = function(self)                
@@ -110,13 +110,13 @@ tests = {
                 typedef std::vector<std::string> stringArray;
             ]]);         
             self.typedefNode = self.root.Children[3];             
-            self.typedef = self.typedefNode.Member;            
+            self.typedef = self.typedefNode.Element;            
         end,
         tests = {
             ["Typedef has name 'stringArray'."] = function(self)
                 Test.assertEquals("stringArray", self.typedefNode.Name);                                  
             end,            
-            ["The Member's type is typedef."] = function(self)                                
+            ["The Element's type is typedef."] = function(self)                                
                 Test.assertEquals("Typedef", self.typedef.TypeName);                  
             end,            
             ["The typedef's type is the vector node."] = function(self)                

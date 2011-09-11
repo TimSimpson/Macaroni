@@ -12,7 +12,11 @@ require "LuaGlue/LuaGlueCppFile";
 require "LuaGlue/LuaGlueHFile";
 require "Macaroni.Model.Library";
 require "Macaroni.Doc.MDocParser";
-require "Macaroni.Model.Member";
+if MACARONI_VERSION == "0.1.0.22" then
+	require "Macaroni.Model.Member";
+else
+	require "Macaroni.Model.Element";
+end
 require "Macaroni.Model.Node";
 require "Macaroni.Model.NodeList";
 require "Macaroni.IO.Path";
@@ -22,6 +26,7 @@ require "Macaroni.Model.Type";
 require "Macaroni.Model.Cpp.Variable";
 require "Cpp/NodeInfo";
 require "Log";
+require "io";
 
 Axiom = Macaroni.Model.Axiom;
 Block = Macaroni.Model.Axiom;
@@ -30,7 +35,12 @@ Context = Macaroni.Model.Context;
 FileName = Macaroni.Model.FileName;
 Function = Macaroni.Model.Cpp.Function;
 MDocParser = Macaroni.Doc.MDocParser;
-Member = Macaroni.Model.Member;
+if MACARONI_VERSION == "0.1.0.22" then
+	Member = Macaroni.Model.Member;
+else
+	--TODO: change Member to Element
+	Member = Macaroni.Model.Element;
+end
 NodeList = Macaroni.Model.NodeList;
 Reason = Macaroni.Model.Reason;
 Source = Macaroni.Model.Source;
@@ -100,22 +110,9 @@ SiteGenerator =
         self.library = library;
         setmetatable(self, {["__index"] = SiteGenerator});                                 
         return self;
-    end,        
-	 
-	pathIsLuaHtml = function(self, path)
-		--local str = tostring(path);
-		--local size = #str;
-		--local ext;
-		--if (size < 4) then
-	--		ext = str;
-		--else
-	--		ext = str:sub(size - 4);		
-		--end
-		--return ext == string.lower(".mdoc");
-		return stringEndsWith(tostring(path), ".mdoc");
-	end,
-	
-	lHtmlToHtmlPath = function(self, path)
+    end,       
+    
+    lHtmlToHtmlPath = function(self, path)
 		local dir = path.ParentPath;
 		local oldFileName = path.FileName;
 		local newFileName = oldFileName:sub(1, #oldFileName - 4);
@@ -158,11 +155,26 @@ SiteGenerator =
 		elseif (self:pathIsCopyResource(inputPath)) then
 			inputPath:CopyToDifferentRootPath(self.outputPath, true);
 		end		
-	end,
+	end, 		
+
+	pathIsLuaHtml = function(self, path)
+		--local str = tostring(path);
+		--local size = #str;
+		--local ext;
+		--if (size < 4) then
+	--		ext = str;
+		--else
+	--		ext = str:sub(size - 4);		
+		--end
+		--return ext == string.lower(".mdoc");
+		return stringEndsWith(tostring(path), ".mdoc");
+	end,		
+		
 	
 	pathIsCopyResource = function(self, path)
 		local str = tostring(path);
 		return stringEndsWith(str, ".css") 
+		    or stringEndsWith(str, ".jpg")
 			or stringEndsWith(str, ".gif")
 			or stringEndsWith(str, ".png");
 	end,
@@ -186,6 +198,73 @@ Site =
 		{"\n", "<br/>"}
 	},
 	
+	luaToHtml = function(original)
+		Site.luaToHtmlBegin();
+		Site.textToHtml(original);
+		Site.luaToHtmlEnd();
+	end,	
+	
+	luaToHtmlBegin = function(original)
+		writer:Write([[<pre class="lua-code">]]);
+	end,
+	
+	luaToHtmlEnd = function(original)
+		writer:Write([[</pre>]]);
+	end,
+	
+	pathToLibraryFile = function(libraryId, relativeFilePath)
+		check(libraryId.Group ~= nil, "libraryId arg is missing 'Group'");
+		check(libraryId.Name ~= nil, "libraryId arg is missing 'Name'");
+		check(libraryId.Version ~= nil, "libraryId arg is missing 'Version'");
+		function libIdToString(libraryId)
+			return "group=" .. libraryId.Group
+				   .. ", name=" .. libraryId.Name 
+				   .. ", version=" .. libraryId.Version;
+		end
+		local context = library.Context; -- library is a global var
+		local otherLibrary = context:FindLibrary(
+			libraryId.Group, libraryId.Name, libraryId.Version);	
+		if (otherLibrary == nil) then
+			error("Could not find library " .. libIdToString(libraryId));
+		end
+		
+		local installPath = otherLibrary:FindInstallPath();
+		if (installPath == nil) then
+			error("Could not find install path for library " 
+				  .. libIdToString(libraryId)); 
+		end
+		local realFilePath = installPath:NewPathForceSlash(relativeFilePath);
+		if (not realFilePath.Exists) then
+			error("Relative file path " .. relativeFilePath .. " was not found "
+				  .. " in the installed artifacts for library "
+				  .. libIdToString(libraryId) .. " at path " 
+				  .. realFilePath.AbsolutePath .. ".");
+		end
+		return realFilePath;
+	end,
+	
+	readLibraryFile = function(libraryId, relativeFilePath, from, to)
+		-- Reads an installed artifact file from a library and returns it as a
+		-- string.
+		-- libraryId = A table with group, name, and id.
+		-- relativeFilePath - Path in terms of the library.
+		-- from - The first line to read in (default is 1).
+		-- to - The last line to read (default is -1 for EOF).
+		from = from or 1
+		to = to or -1
+		local realFilePath = Site.pathToLibraryFile(libraryId, 
+		                                            relativeFilePath);
+		local lines = {}
+		local number = 1
+		for line in io.lines(realFilePath.AbsolutePath) do
+			if (number >= from and to < 0 or number <= to) then
+				table.insert(lines, line)
+			end
+			number = number + 1
+		end
+		return table.concat(lines, "\n");		
+	end,
+	
 	textToHtml = function(original)
 		check(writer ~= nil, "Global variable 'writer' is nil! You are " ..
 		                     "calling this from within an mdoc, right?")
@@ -201,18 +280,5 @@ Site =
 		Site.textToHtml(original);
 		writer:Write([[</pre>]]);
 	end,
-	
-	luaToHtml = function(original)
-		Site.luaToHtmlBegin();
-		Site.textToHtml(original);
-		Site.luaToHtmlEnd();
-	end,
-	
-	luaToHtmlBegin = function(original)
-		writer:Write([[<pre class="lua-code">]]);
-	end,
-	
-	luaToHtmlEnd = function(original)
-		writer:Write([[</pre>]]);
-	end,
+		
 }; 

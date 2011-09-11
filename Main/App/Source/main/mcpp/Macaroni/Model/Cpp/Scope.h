@@ -18,14 +18,14 @@
 
 #include "../../ME.h"
 #include <vector>
-#include "../LibraryMember.h"
+#include "../LibraryElement.h"
 #include "../Member.h"
 #include "../NodePtr.h"
 #include "ScopeMember.h"
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-class Scope : public ScopeMember, public virtual Model::LibraryMember
+class Scope : public ScopeMember, public virtual Model::LibraryElement
 {
 friend void intrusive_ptr_add_ref(Scope * p);
 friend void intrusive_ptr_release(Scope * p);

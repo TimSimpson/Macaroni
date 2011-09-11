@@ -22,7 +22,7 @@
 #include "AnnotationValueTypeException.h"
 #include "Axiom.h"
 #include "Context.h"
-#include "FileName.h"
+#include <Macaroni/Model/FileName.h>
 #include <Macaroni/Parser/Macaroni/MacaroniAxioms.h>
 #include "Member.h"
 #include "ModelInconsistencyException.h"
@@ -66,13 +66,13 @@ BOOST_AUTO_TEST_CASE(Bool)
 	ContextPtr context(new Context("%ROOT%"));
 	NodePtr boolAttrNode = context->GetRoot()->FindOrCreate(
 		"Macaroni::Test::Annotations::Bool");
-	BOOST_CHECK_MESSAGE(!boolAttrNode->GetMember(), "Annotation def is empty.");
+	BOOST_CHECK_MESSAGE(!boolAttrNode->GetElement(), "Annotation def is empty.");
 
 	AnnotationValue value(boolAttrNode, true, createReason());
 	
 	BOOST_CHECK_EQUAL(value.GetName(), boolAttrNode);//"boolAnnotation");	
-	BOOST_CHECK_MESSAGE(boolAttrNode->GetMember(), "Annotation def is not empty.");
-	BOOST_CHECK_EQUAL(boolAttrNode->GetMember()->GetTypeName(), "AnnotationDefinition");
+	BOOST_CHECK_MESSAGE(boolAttrNode->GetElement(), "Annotation def is not empty.");
+	BOOST_CHECK_EQUAL(boolAttrNode->GetElement()->GetTypeName(), "AnnotationDefinition");
 	BOOST_CHECK_EQUAL(value.GetTypeString(), "bool");	
 	BOOST_CHECK_MESSAGE(value.IsBool(), "Should look like bool.");
 	BOOST_CHECK_MESSAGE(!value.IsNode(), "Should not look like a node.");		

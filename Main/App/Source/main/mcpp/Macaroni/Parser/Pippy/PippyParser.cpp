@@ -1515,7 +1515,7 @@ public:
 		{
 			return NodePtr();
 		}
-		if (Class::IsInstance(node->GetMember()))
+		if (Class::IsInstance(node->GetElement()))
 		{
 			return node;
 		}
@@ -1530,7 +1530,7 @@ public:
 		{
 			return NodePtr();
 		}
-		if (Namespace::IsInstance(node->GetMember()))
+		if (Namespace::IsInstance(node->GetElement()))
 		{
 			return node;
 		}
@@ -1720,13 +1720,13 @@ public:
 			return false;
 		}
 
-		ClassPtr classPtr;
-		if (!!currentScope->GetMember())
+		ClassPtr classPtr = currentScope->GetElement<ClassPtr>();
+		if (!classPtr) //!!currentScope->GetElement())
 		{
-			classPtr = boost::dynamic_pointer_cast<Macaroni::Model::Cpp::Class>(currentScope->GetMember());
-		}
-		if (!classPtr)
-		{
+		//	/*classPtr = boost::dynamic_pointer_cast<Macaroni::Model::Cpp::Class>(currentScope->GetElement());
+		//}
+		//if (!classPtr)
+		//{*/
 			throw ParserException(itr.GetSource(),
 				Messages::Get("CppParser.Friend.FriendKeywordOnlyForClasses"));
 		}
@@ -1979,7 +1979,7 @@ public:
 		NodePtr ns = currentScope;
 		while(ns != oldScope)
 		{
-			if (ns->GetMember() == nullptr)
+			if (!ns->GetElement())
 			{
 				Namespace::Create(library, ns, 
 					Reason::Create(CppAxioms::NamespaceCreation(), newItr.GetSource()));
@@ -2612,11 +2612,7 @@ public:
 				Reason::Create(CppAxioms::VariableScopeCreation(), oldItr.GetSource()));
 			if (!!globalHome)
 			{
-				ClassPtr classPtr;
-				if (!!currentScope->GetMember())
-				{
-					classPtr = boost::dynamic_pointer_cast<Macaroni::Model::Cpp::Class>(currentScope->GetMember());
-				}
+				ClassPtr classPtr = currentScope->GetElement<ClassPtr>();				
 				if (!classPtr)
 				{
 					throw ParserException(itr.GetSource(),
@@ -2691,11 +2687,7 @@ public:
 			}
 			if (!!globalHome)
 			{
-				ClassPtr classPtr;
-				if (!!currentScope->GetMember())
-				{
-					classPtr = boost::dynamic_pointer_cast<Macaroni::Model::Cpp::Class>(currentScope->GetMember());
-				}
+				ClassPtr classPtr = currentScope->GetElement<ClassPtr>();				
 				if (!classPtr)
 				{
 					throw ParserException(itr.GetSource(),

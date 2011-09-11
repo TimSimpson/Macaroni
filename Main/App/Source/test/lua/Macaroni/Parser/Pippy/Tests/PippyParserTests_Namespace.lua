@@ -16,7 +16,7 @@
 require "Macaroni.Model.Context";
 require "Macaroni.Model.Library";
 require "Macaroni.Environment.Messages";
-require "Macaroni.Model.Member";
+require "Macaroni.Model.Element";
 require "Macaroni.Model.Node";
 require "Macaroni.Parser.Pippy.PippyParser";
 require "Macaroni.Parser.Parser";
@@ -87,7 +87,7 @@ tests = {
                 Test.assertEquals(0, #this.root.Children[2].Children);  
             end,
             ["Type of Node is Namespace."] = function(this)
-                Test.assertEquals("Namespace", this.root.Children[2].Member.TypeName);                  
+                Test.assertEquals("Namespace", this.root.Children[2].Element.TypeName);                  
             end,
         }
     },

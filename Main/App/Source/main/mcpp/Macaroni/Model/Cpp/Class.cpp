@@ -28,6 +28,8 @@
 #include <sstream>
 #include "Variable.h"
 
+using Macaroni::Model::Element;
+using Macaroni::Model::ElementPtr;
 using Macaroni::Model::Cpp::Function;
 using Macaroni::Model::Cpp::FunctionPtr;
 using Macaroni::Model::NodeList;
@@ -88,7 +90,7 @@ bool Class::canBeChildOf(const Member * other) const
 ClassPtr Class::Create(LibraryPtr library, NodePtr parent, AccessPtr access, 
 					   NodeListPtr importedNodes, ReasonPtr reason)
 {
-	MemberPtr existingMember = parent->GetMember();
+	ElementPtr existingMember = parent->GetElement();
 	if (!!existingMember)
 	{
 		ClassPtr existingClass = boost::dynamic_pointer_cast<Class>(existingMember);
@@ -96,7 +98,7 @@ ClassPtr Class::Create(LibraryPtr library, NodePtr parent, AccessPtr access,
 		{
 			std::stringstream ss;
 			ss << "The member at node " << parent->GetFullName() 
-				<< " is a " << parent->GetMember()->GetTypeName() 
+				<< " is a " << parent->GetElement()->GetTypeName() 
 				<< " and cannot be morphed into a class.";
 			throw Model::ModelInconsistencyException(existingMember->GetReasonCreated(),
 				reason, ss.str());
@@ -147,7 +149,7 @@ void intrusive_ptr_release(Class * p)
 	intrusive_ptr_release((ScopeMember *)p);
 }
 
-bool Class::IsInstance(MemberPtr other)
+bool Class::IsInstance(ElementPtr other)
 {
 	if (!other) 
 	{
@@ -169,9 +171,10 @@ void Class::Visit(MemberVisitor * visitor) const
 	for(unsigned int i = 0; i < this->GetNode()->GetChildCount(); i ++)
 	{
 		NodePtr child = GetNode()->GetChild(i);
-		if (child->GetMember() != nullptr)
+		if (!!child->GetElement())
 		{
-			child->GetMember()->Visit(classVisitor);
+			MemberPtr memberPtr = boost::dynamic_pointer_cast<Member>(child);
+			memberPtr->Visit(classVisitor);
 		}
 	}
 
@@ -180,23 +183,18 @@ void Class::Visit(MemberVisitor * visitor) const
 	for(unsigned int i = 0; i < this->globals->size(); i ++)
 	{
 		NodePtr globalNode = (*(this->globals))[i];
-		MemberPtr child = globalNode->GetMember();
-		if (!!child)
+		FunctionPtr fPtr = globalNode->GetElement<FunctionPtr>();
+		VariablePtr vPtr = globalNode->GetElement<VariablePtr>();
+		if (!!fPtr)
 		{
-			FunctionPtr fPtr = boost::dynamic_pointer_cast<Function>(child);
-			VariablePtr vPtr = boost::dynamic_pointer_cast<Variable>(child);
-			if (!!fPtr)
-			{
-				Function & func = *(fPtr.get());
-				classVisitor->VisitAdoptedFunction(func);
-			}
-			else if (!!vPtr)
-			{
-				Variable & var = *(vPtr.get());
-				classVisitor->VisitAdoptedVariable(var);
-			}
-
+			Function & func = *(fPtr.get());
+			classVisitor->VisitAdoptedFunction(func);
 		}
+		else if (!!vPtr)
+		{
+			Variable & var = *(vPtr.get());
+			classVisitor->VisitAdoptedVariable(var);
+		}	
 	}
 }
 

@@ -17,11 +17,15 @@
 #define MACARONI_GENERATOR_DEBUGENUMERATOR_CPP
 
 #include "DebugEnumerator.h"
+#include <Macaroni/Model/Element.h>
+#include <Macaroni/Model/ElementPtr.h>
 #include "../Model/Node.h"
 #include "../Model/Member.h"
 
 using Macaroni::Model::Context;
 using Macaroni::Model::ContextPtr;
+using Macaroni::Model::Element;
+using Macaroni::Model::ElementPtr;
 using Macaroni::Model::Member;
 using Macaroni::Model::MemberPtr;
 using Macaroni::Model::Node;
@@ -41,7 +45,7 @@ void iterateNode(std::ostream & out, int depth, NodePtr node)
 {
 	std::string deeper(depth, ' ');
 	out << deeper << node->GetFullName() << "";
-	MemberPtr member = node->GetMember();
+	ElementPtr member = node->GetElement();
 	out << deeper << " : ";
 	if (member)
 	{

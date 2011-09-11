@@ -18,15 +18,14 @@
 
 #include "../ME.h"
 #include "Cpp/NamespacePtr.h"
-#include "NodePtr.h"
-#include "ReasonPtr.h"
+#include <Macaroni/Model/Element.h>
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
 class MemberVisitor;
 
 //TODO: Possibly rename this to "Element"?
-class Member
+class Member : public Element
 {
 friend class Node;
 friend void intrusive_ptr_add_ref(Member * p);
@@ -42,12 +41,8 @@ public:
 	//TODO: 2009-10-03- I just saw this and suddenly I HATE it.  The meaning
 	//would seem to be too variant between types.  Ugh!
 	virtual bool DoesDefinitionReference(NodePtr node) const;
-
-	NodePtr GetNode() const;
-
-	ReasonPtr GetReasonCreated() const;	
-
-	virtual const char * GetTypeName() const = 0;
+	
+	//virtual const char * GetTypeName() const = 0;
 
 	/** Finds a parent namespace by iterating backwards, skipping unknown nodes. */
 	Cpp::NamespacePtr FindClosestParentNamespace() const;
@@ -58,27 +53,27 @@ public:
 protected:
 	Member(Node * node, const char * typeName, const ReasonPtr reasonCreated);
 
-	// Check all children to see if they can legally be children of this object.
-	void assertChildrenAreLegal();
+	//// Check all children to see if they can legally be children of this object.
+	//void assertChildrenAreLegal();
 
-	// Subclasses should call this to ensure everything happened as intended.
-	void assertValidConstruction();
+	//// Subclasses should call this to ensure everything happened as intended.
+	//void assertValidConstruction();
 
 	/** This is called from the public method. */
 	virtual bool canBeChildOf(const Member * other) const = 0;
 
-	Node * getNode() const;
+	//Node * getNode() const;
 
 	//virtual construct() = 0;
 
 	//void setNode(Node * node);
 
-	void setReasonCreation(const ReasonPtr reason);
+	//void setReasonCreation(const ReasonPtr reason);
 
 private:
-	Node * node;
+	//Node * node;
 
-	ReasonPtr reasonCreated;
+	//ReasonPtr reasonCreated;
 };
 
 END_NAMESPACE2

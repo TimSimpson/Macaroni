@@ -67,30 +67,30 @@ DestructorPtr Destructor::Create(NodePtr host, bool isInline, AccessPtr access,
 								 bool isVirtual, bool throwSpecifier,
 								 Model::ReasonPtr reason)
 {
-	if (!host->GetMember())
+	if (!host->GetElement())
 	{
 		return DestructorPtr(new Destructor(host.get(), reason, isInline, 
 			                                access, isVirtual, throwSpecifier));
 	}
-	Member * member = host->GetMember().get();
-	Destructor * existingFunc = dynamic_cast<Destructor *>(member);
-	if (existingFunc == nullptr)
+	DestructorPtr dPtr = host->GetElement<DestructorPtr>();
+	if (!dPtr)
 	{
+		// Something already exists here, and it isn't a destructor.
 		// Will throw an error message.
 		return DestructorPtr(new Destructor(host.get(), reason, isInline, 
-			                 access, isVirtual, throwSpecifier));
+			access, isVirtual, throwSpecifier));
 	}
-
-	// Re-use the previously set variable.
-	return DestructorPtr(boost::dynamic_pointer_cast<Destructor>(host->GetMember()));
+	// Re-use previously set variable.
+	return dPtr;
 }
 
 FunctionOverloadPtr Destructor::GetFunctionOverload()
 {
 	Node * node = this->getNode();
 	NodePtr nodePtr = node->Find("Overload#0");
-	MemberPtr member = nodePtr->GetMember();
-	FunctionOverloadPtr fol = boost::dynamic_pointer_cast<FunctionOverload>(member);
+	//MemberPtr member = nodePtr->GetMember();
+	//FunctionOverloadPtr fol = boost::dynamic_pointer_cast<FunctionOverload>(member);
+	FunctionOverloadPtr fol = nodePtr->GetElement<FunctionOverloadPtr>();
 	if (!fol)
 	{
 		throw Macaroni::Exception("Tried to grab the destructors "

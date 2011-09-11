@@ -25,11 +25,12 @@
 #include <Macaroni/Model/Cpp/ClassParentListLuaMetaData.h>
 #include "../Model/ContextLua.h"
 //#include "../Model/Document.h"
+#include <Macaroni/Model/ElementLua.h>
 #include "../Model/Cpp/FunctionLua.h"
 #include "../Model/Cpp/FunctionOverloadLua.h"
 #include "../Model/LibraryLua.h"
 #include <Macaroni/Doc/MDocParser.h>
-#include "../Model/MemberLua.h"
+//#include "../Model/MemberLua.h"
 #include "MessagesLua.h"
 //#include "../Model/NamespaceLua.h"
 #include "../Model/NodeListLua.h"
@@ -60,11 +61,12 @@ static const struct luaL_Reg libs[] = {
 	{"Macaroni.Model.Cpp.Class", Model::Cpp::ClassLuaMetaData::OpenInLua},	
 	{"Macaroni.Model.Cpp.ClassParentList", Model::Cpp::ClassParentListLuaMetaData::OpenInLua},	
 	{"Macaroni.Model.Context", Model::ContextLuaMetaData::OpenInLua},	
+	{"Macaroni.Model.Element", Model::ElementLuaMetaData::OpenInLua},	
 	{"Macaroni.Model.Cpp.Function", Model::Cpp::FunctionLuaMetaData::OpenInLua},		
 	{"Macaroni.Model.Cpp.FunctionOverload", Model::Cpp::FunctionOverloadLuaMetaData::OpenInLua},		
 	{"Macaroni.Model.Library", Model::LibraryLuaMetaData::OpenInLua},	
 	{"Macaroni.Doc.MDocParser", Macaroni::Doc::MDocParser::OpenInLua},	
-	{"Macaroni.Model.Member", Model::MemberLuaMetaData::OpenInLua},	
+	//{"Macaroni.Model.Member", Model::MemberLuaMetaData::OpenInLua},	
 	{"Macaroni.Model.NodeList", Model::NodeListLuaMetaData::OpenInLua},
 	{"Macaroni.Parser.Parser", Parser::ParserLuaMetaData::OpenInLua},
 	{"Macaroni.Parser.ParserException", Parser::ParserExceptionLuaMetaData::OpenInLua},

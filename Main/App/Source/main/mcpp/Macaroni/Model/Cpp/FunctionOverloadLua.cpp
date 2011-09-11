@@ -19,9 +19,9 @@
 #include <Macaroni/Model/Cpp/AccessLuaMetaData.h>
 #include "../NodeLua.h"
 #include "../../Environment/DebugLog.h"
+#include "../ElementLua.h"
 #include "FunctionLua.h"
 #include "FunctionOverloadLua.h"
-#include "../MemberLua.h"
 #include "../ModelInconsistencyException.h"
 #include "../NodeLua.h"
 #include "../NodeListLua.h"
@@ -41,14 +41,14 @@ struct lua_State;
 
 using Macaroni::Model::Cpp::Access;
 using Macaroni::Model::Cpp::AccessLuaMetaData;
+using Macaroni::Model::Element;
+using Macaroni::Model::ElementLuaMetaData;
 using Macaroni::Model::Cpp::Function;
 using Macaroni::Model::Cpp::FunctionLuaMetaData;
 using Macaroni::Model::Cpp::FunctionPtr;
 using Macaroni::Model::Cpp::FunctionOverload;
 using Macaroni::Model::Cpp::FunctionOverloadPtr;
-using Macaroni::Model::Member;
-using Macaroni::Model::MemberLuaMetaData;
-using Macaroni::Model::MemberPtr;
+using Macaroni::Model::ElementPtr;
 using Macaroni::Model::Node;
 using Macaroni::Model::NodeLuaMetaData;
 using Macaroni::Model::ReasonLuaMetaData;
@@ -72,7 +72,7 @@ namespace
 				//static FunctionPtr Create(NodePtr home, bool isInline, 
 				//	const Access access, const bool isStatic, const TypePtr rtnType, 
 				//	bool constMember, Model::ReasonPtr reason);
-				MemberPtr memberPtr = FunctionLuaMetaData::GetInstance(L, 1);
+				ElementPtr memberPtr = FunctionLuaMetaData::GetInstance(L, 1);
 				FunctionPtr home = 
 					boost::dynamic_pointer_cast<Function>(memberPtr);
 				if (!home)
@@ -93,8 +93,8 @@ namespace
 													   rtnType, 
 													   constMember, 
 													   throwSpecifier, reason);
-				MemberPtr rtnValue = boost::dynamic_pointer_cast<Member>(newFO);
-				MemberLuaMetaData::PutInstanceOnStack(L, rtnValue);
+				ElementPtr rtnValue = boost::dynamic_pointer_cast<Element>(newFO);
+				ElementLuaMetaData::PutInstanceOnStack(L, rtnValue);
 				return 1;
 			} 
 			catch(const ModelInconsistencyException & ex) 
@@ -105,7 +105,7 @@ namespace
 
 		static int SetCodeBlock(lua_State * L)
 		{
-			MemberPtr memberPtr = MemberLuaMetaData::GetInstance(L, 1);
+			ElementPtr memberPtr = ElementLuaMetaData::GetInstance(L, 1);
 			FunctionOverloadPtr ptr = boost::dynamic_pointer_cast<FunctionOverload>(memberPtr);
 			std::string codeBlock(luaL_checkstring(L, 2));
 			SourcePtr src = SourceLuaMetaData::GetInstance(L, 3);
@@ -123,14 +123,14 @@ namespace
 	};
 } // end of anon namespace
 
-MemberPtr & FunctionOverloadLuaMetaData::GetInstance(lua_State * L, int index)
+ElementPtr & FunctionOverloadLuaMetaData::GetInstance(lua_State * L, int index)
 {
-	return MemberLuaMetaData::GetInstance(L, index);
+	return ElementLuaMetaData::GetInstance(L, index);
 }
 
 bool FunctionOverloadLuaMetaData::IsType(lua_State * L, int index)
 {
-	return MemberLuaMetaData::IsType(L, index);
+	return ElementLuaMetaData::IsType(L, index);
 }
 
 int FunctionOverloadLuaMetaData::OpenInLua(lua_State * L) 
@@ -141,8 +141,8 @@ int FunctionOverloadLuaMetaData::OpenInLua(lua_State * L)
 
 void FunctionOverloadLuaMetaData::PutInstanceOnStack(lua_State * L, const FunctionOverloadPtr & ptr)
 {
-	MemberPtr memberPtr = boost::dynamic_pointer_cast<Member>(ptr);
-	MemberLuaMetaData::PutInstanceOnStack(L, memberPtr);
+	ElementPtr memberPtr = boost::dynamic_pointer_cast<Element>(ptr);
+	ElementLuaMetaData::PutInstanceOnStack(L, memberPtr);
 }
 
 int FunctionOverloadLuaMetaData::Index(lua_State * L, 

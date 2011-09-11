@@ -53,7 +53,7 @@ const char * Namespace::GetTypeName() const
 }
 
 
-bool Namespace::IsInstance(MemberPtr other)
+bool Namespace::IsInstance(ElementPtr other)
 {
 	if (!other) 
 	{
@@ -241,9 +241,9 @@ void Namespace::Visit(MemberVisitor * visitor) const
 	for(unsigned int i = 0; i < this->GetNode()->GetChildCount(); i ++)
 	{
 		NodePtr child = GetNode()->GetChild(i);
-		if (child->GetMember() != nullptr)
+		if (!!child->GetElement<MemberPtr>())
 		{
-			child->GetMember()->Visit(nsVisitor);
+			child->GetElement<MemberPtr>()->Visit(nsVisitor);
 		}
 	}
 }

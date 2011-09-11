@@ -20,9 +20,9 @@
 #include "../NodeLua.h"
 #include "../../Environment/DebugLog.h"
 #include "ConstructorOverloadLua.h"
+#include "../ElementLua.h"
 #include "FunctionLua.h"
 #include "FunctionOverloadLua.h"
-#include "../MemberLua.h"
 #include "../ModelInconsistencyException.h"
 #include "../NodeLua.h"
 #include "../NodeListLua.h"
@@ -50,8 +50,8 @@ using Macaroni::Model::Cpp::FunctionLuaMetaData;
 using Macaroni::Model::Cpp::FunctionPtr;
 using Macaroni::Model::Cpp::FunctionOverload;
 using Macaroni::Model::Cpp::FunctionOverloadPtr;
-using Macaroni::Model::Member;
-using Macaroni::Model::MemberLuaMetaData;
+using Macaroni::Model::Element;
+using Macaroni::Model::ElementLuaMetaData;
 using Macaroni::Model::Node;
 using Macaroni::Model::NodeLuaMetaData;
 using Macaroni::Model::ReasonLuaMetaData;
@@ -76,14 +76,14 @@ namespace
 	};
 } // end of anon namespace
 
-MemberPtr & ConstructorOverloadLuaMetaData::GetInstance(lua_State * L, int index)
+ElementPtr & ConstructorOverloadLuaMetaData::GetInstance(lua_State * L, int index)
 {
-	return MemberLuaMetaData::GetInstance(L, index);
+	return ElementLuaMetaData::GetInstance(L, index);
 }
 
 bool ConstructorOverloadLuaMetaData::IsType(lua_State * L, int index)
 {
-	return MemberLuaMetaData::IsType(L, index);
+	return ElementLuaMetaData::IsType(L, index);
 }
 
 int ConstructorOverloadLuaMetaData::OpenInLua(lua_State * L) 
@@ -94,8 +94,8 @@ int ConstructorOverloadLuaMetaData::OpenInLua(lua_State * L)
 
 void ConstructorOverloadLuaMetaData::PutInstanceOnStack(lua_State * L, const ConstructorOverloadPtr & ptr)
 {
-	MemberPtr memberPtr = boost::dynamic_pointer_cast<Member>(ptr);
-	MemberLuaMetaData::PutInstanceOnStack(L, memberPtr);
+	ElementPtr memberPtr = boost::dynamic_pointer_cast<Element>(ptr);
+	ElementLuaMetaData::PutInstanceOnStack(L, memberPtr);
 }
 
 int ConstructorOverloadLuaMetaData::Index(lua_State * L, 

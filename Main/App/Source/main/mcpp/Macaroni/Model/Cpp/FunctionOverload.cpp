@@ -130,9 +130,9 @@ NodeListPtr FunctionOverload::GetArguments() const
 	for (unsigned int i = 0; i < getNode()->GetChildCount(); i ++)
 	{
 		NodePtr child = getNode()->GetChild(i);
-		MACARONI_ASSERT(!!child->GetMember(), "Member for function argument set to null.");
-		MemberPtr member = child->GetMember();
-		MACARONI_ASSERT(boost::dynamic_pointer_cast<Variable>(member), 
+		MACARONI_ASSERT(!!child->GetElement(), "Member for function argument set to null.");
+		ElementPtr element = child->GetElement();
+		MACARONI_ASSERT(boost::dynamic_pointer_cast<Variable>(element), 
 					"Member was not of type variable - code is out of date.");
 		argList->push_back(child);
 	}	

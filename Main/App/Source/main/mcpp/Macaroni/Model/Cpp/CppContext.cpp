@@ -41,7 +41,7 @@ BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 void CppContext::CreateCppNodes(ContextPtr context)
 {
-	if (context->GetRoot()->GetMember() == nullptr)
+	if (context->GetRoot()->GetElement() == nullptr)
 	{
 		FileNamePtr file = FileName::Create(std::string("Cpp Parser"));
 		SourcePtr src = Source::Create(file, 0, 0);

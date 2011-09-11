@@ -59,7 +59,7 @@ bool AnnotationDefinition::canBeChildOf(const Member * other) const
 
 void AnnotationDefinition::Define(NodePtr node, TypeCode type, const ReasonPtr & reason)
 {
-	MemberPtr member = node->GetMember();
+	ElementPtr member = node->GetElement();
 	if (!!member)
 	{
 		AnnotationDefinitionPtr existingDef = boost::dynamic_pointer_cast<AnnotationDefinition>(member); 

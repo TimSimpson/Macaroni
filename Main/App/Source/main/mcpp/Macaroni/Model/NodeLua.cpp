@@ -24,8 +24,8 @@
 #include "AnnotationTableLua.h"
 #include "../Exception.h"
 #include "../Environment/DebugLog.h"
+#include "ElementLua.h"
 #include <Macaroni/Model/FileNameLuaMetaData.h>
-#include "MemberLua.h"
 #include "Node.h"
 #include "NodeLua.h"
 #include "NodeListLua.h"
@@ -426,10 +426,16 @@ int NodeLuaMetaData::Index(lua_State * L, NodePtr & ptr, const std::string & ind
 		luaL_getmetatable(L, MEMBERSPROPERTY_METATABLENAME);
 		lua_setmetatable(L, -2);
 		return 1;
-	}		
+	}	
+	else if (index == "Element")
+	{
+		ElementLuaMetaData::PutInstanceOnStack(L, ptr->GetElement());
+	}
 	else if (index == "Member")
 	{
-		MemberLuaMetaData::PutInstanceOnStack(L, ptr->GetMember());
+		ElementLuaMetaData::PutInstanceOnStack(L, ptr->GetElement());
+		//return luaL_error(L, 
+		//	"Member is the old name, please switch to \"Element\".");
 	}
 	else if (index == "Name")
 	{
@@ -509,7 +515,7 @@ int NodeLuaMetaData::OpenInLua(lua_State * L)
 	NodeListLuaMetaData::OpenInLua(L);	
 	// 2009-10-31- Taking this out as it is EVIL!! 
 	// Causes some kind of memory corruption error:
-	MemberLuaMetaData::OpenInLua(L);
+	ElementLuaMetaData::OpenInLua(L);
 
 	// Creates or reuses a table called "Macaroni_File" and puts it in global 
 	// scope.
