@@ -33,3 +33,8 @@ function build()
 		  ]]
 	})
 end
+
+function install()
+	run("Archive", { directory=manifestDirectory, 
+	                 regex=[[\.(cpp|h|mcpp|lua)?$]]} );
+end

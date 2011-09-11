@@ -1,4 +1,5 @@
 dependency {group=upper.Group, name="Macaroni.Tests.Bugs", version=upper.Version}
+dependency {group="Macaroni.Examples", name="Hello", version="1.0.0.0"}
 
 sources = { "source/scripts", "source/www" }
 output = "target"

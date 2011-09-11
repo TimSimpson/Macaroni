@@ -12,7 +12,7 @@ id =
 
 description="Examples for Macaroni."
 
-output = "report"
+output = "target"
 
 children = 
 {
