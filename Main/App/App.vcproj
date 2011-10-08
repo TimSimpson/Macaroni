@@ -42,7 +42,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="GeneratedSource;Source\main\mcpp;F:\Tools\boost_1_46_1"
+				AdditionalIncludeDirectories="C:\Users\Tim\Macaroni\Libraries\Lua\Lua\5.1.4\Cpp;GeneratedSource;Source\main\mcpp;F:\Tools\boost_1_46_1"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -394,19 +394,19 @@
 				>
 			</File>
 			<File
-				RelativePath=".\GeneratedSource\Macaroni\Model\Dependencies\DependentType.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\GeneratedSource\Macaroni\Model\Generation\DependentType.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\GeneratedSource\Macaroni\Model\Dependencies\DependentTypeLuaMetaData.cpp"
+				RelativePath=".\GeneratedSource\Macaroni\Model\Dependencies\DependentType.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\GeneratedSource\Macaroni\Model\Generation\DependentTypeLuaMetaData.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GeneratedSource\Macaroni\Model\Dependencies\DependentTypeLuaMetaData.cpp"
 				>
 			</File>
 			<File
@@ -430,11 +430,19 @@
 				>
 			</File>
 			<File
-				RelativePath=".\GeneratedSource\Macaroni\Platform\Windows\EnvironmentVariable.cpp"
+				RelativePath=".\GeneratedSource\Macaroni\Model\Element.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\main\mcpp\Macaroni\Model\ElementLua.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\GeneratedSource\Macaroni\Platform\EnvironmentVariable.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GeneratedSource\Macaroni\Platform\Windows\EnvironmentVariable.cpp"
 				>
 			</File>
 			<File
@@ -598,11 +606,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\GeneratedSource\Macaroni\Model\Generation\NodeDependencyListLuaMetaData.cpp"
+				RelativePath=".\GeneratedSource\Macaroni\Model\Dependencies\NodeDependencyListLuaMetaData.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\GeneratedSource\Macaroni\Model\Dependencies\NodeDependencyListLuaMetaData.cpp"
+				RelativePath=".\GeneratedSource\Macaroni\Model\Generation\NodeDependencyListLuaMetaData.cpp"
 				>
 			</File>
 			<File
@@ -1144,11 +1152,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Generator\Cpp\CppSourceGenerator2.h"
+				RelativePath=".\Source\main\mcpp\Macaroni\Generator\CppSourceGenerator2.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Generator\CppSourceGenerator2.h"
+				RelativePath=".\Source\main\mcpp\Macaroni\Generator\Cpp\CppSourceGenerator2.h"
 				>
 			</File>
 			<File
@@ -1172,11 +1180,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\GeneratedSource\Macaroni\Model\Dependencies\DependencyTypeLuaMetaData.h"
+				RelativePath=".\GeneratedSource\Macaroni\Model\Generation\DependencyTypeLuaMetaData.h"
 				>
 			</File>
 			<File
-				RelativePath=".\GeneratedSource\Macaroni\Model\Generation\DependencyTypeLuaMetaData.h"
+				RelativePath=".\GeneratedSource\Macaroni\Model\Dependencies\DependencyTypeLuaMetaData.h"
 				>
 			</File>
 			<File
@@ -1188,11 +1196,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\GeneratedSource\Macaroni\Model\Generation\DependentTypeLuaMetaData.h"
+				RelativePath=".\GeneratedSource\Macaroni\Model\Dependencies\DependentTypeLuaMetaData.h"
 				>
 			</File>
 			<File
-				RelativePath=".\GeneratedSource\Macaroni\Model\Dependencies\DependentTypeLuaMetaData.h"
+				RelativePath=".\GeneratedSource\Macaroni\Model\Generation\DependentTypeLuaMetaData.h"
 				>
 			</File>
 			<File
@@ -1220,7 +1228,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\GeneratedSource\Macaroni\Platform\Windows\EnvironmentVariable.h"
+				RelativePath=".\GeneratedSource\Macaroni\Model\Element.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\main\mcpp\Macaroni\Model\ElementLua.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GeneratedSource\Macaroni\Model\ElementPtr.h"
 				>
 			</File>
 			<File
@@ -1228,11 +1244,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\GeneratedSource\Macaroni\Platform\EnvironmentVariables.h"
+				RelativePath=".\GeneratedSource\Macaroni\Platform\Windows\EnvironmentVariable.h"
 				>
 			</File>
 			<File
 				RelativePath=".\GeneratedSource\Macaroni\Platform\Windows\EnvironmentVariables.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GeneratedSource\Macaroni\Platform\EnvironmentVariables.h"
 				>
 			</File>
 			<File
@@ -1316,15 +1336,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\main\mcpp\Macaroni\Model\LibraryElement.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\main\mcpp\Macaroni\Build\LibraryId.h"
 				>
 			</File>
 			<File
 				RelativePath=".\Source\main\mcpp\Macaroni\Model\LibraryLua.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Model\LibraryMember.h"
 				>
 			</File>
 			<File
@@ -1460,11 +1480,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\GeneratedSource\Macaroni\Model\Dependencies\NodeDependencyListLuaMetaData.h"
+				RelativePath=".\GeneratedSource\Macaroni\Model\Generation\NodeDependencyListLuaMetaData.h"
 				>
 			</File>
 			<File
-				RelativePath=".\GeneratedSource\Macaroni\Model\Generation\NodeDependencyListLuaMetaData.h"
+				RelativePath=".\GeneratedSource\Macaroni\Model\Dependencies\NodeDependencyListLuaMetaData.h"
 				>
 			</File>
 			<File
@@ -1580,11 +1600,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Model\Reason.h"
+				RelativePath=".\GeneratedSource\Macaroni\Model\Reason.h"
 				>
 			</File>
 			<File
-				RelativePath=".\GeneratedSource\Macaroni\Model\Reason.h"
+				RelativePath=".\Source\main\mcpp\Macaroni\Model\Reason.h"
 				>
 			</File>
 			<File
@@ -1620,11 +1640,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\GeneratedSource\Macaroni\Model\Source.h"
+				RelativePath=".\Source\main\mcpp\Macaroni\Model\Source.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\main\mcpp\Macaroni\Model\Source.h"
+				RelativePath=".\GeneratedSource\Macaroni\Model\Source.h"
 				>
 			</File>
 			<File
@@ -1831,6 +1851,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Source\main\mcpp\Macaroni\Model\Element.mcpp"
+			>
+		</File>
+		<File
 			RelativePath=".\Source\main\mcpp\Macaroni\Platform\EnvironmentVariable.mcpp"
 			>
 		</File>
@@ -1935,11 +1959,23 @@
 			>
 		</File>
 		<File
+			RelativePath=".\Source\test\lua\Macaroni\Parser\Pippy\Tests\PippyParserTests_Operators.lua"
+			>
+		</File>
+		<File
 			RelativePath=".\Source\test\lua\Macaroni\Parser\Pippy\Tests\PippyParserTests_Typedef.lua"
 			>
 		</File>
 		<File
 			RelativePath=".\Source\test\lua\Macaroni\Parser\Pippy\Tests\PippyParserTests_Variables.lua"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\main\mcpp\Macaroni\Model\Project\Project.mcpp"
+			>
+		</File>
+		<File
+			RelativePath=".\Source\main\mcpp\Macaroni\Model\Project\ProjectVersion.mcpp"
 			>
 		</File>
 		<File

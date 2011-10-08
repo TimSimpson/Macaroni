@@ -18,7 +18,7 @@
 
 #include "../ME.h"
 #include <boost/optional.hpp>
-#include "Console.h"
+#include <Macaroni/Environment/Console.h>
 #include <cstdlib>
 #include <Macaroni/Platform/EnvironmentVariables.h>
 #include "Messages.h"

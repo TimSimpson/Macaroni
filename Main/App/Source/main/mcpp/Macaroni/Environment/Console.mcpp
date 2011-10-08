@@ -1,0 +1,103 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+~import std::cin;
+~import std::cout;
+~import Macaroni::Environment::Environment;
+~import Macaroni::Environment::Input;
+~import Macaroni::Environment::InputPtr;
+~import Macaroni::Environment::Output;
+~import Macaroni::Environment::OutputPtr;
+~import Macaroni::Environment::Messages;
+~import std::string;
+~import std::vector;
+
+~namespace Macaroni::Environment;
+
+class Console : public virtual Input, public virtual Output
+{
+	private int indentLevel;
+	private std::string indentString;
+	private bool open;
+	private int referenceCount;
+
+	public Console(int indentLevel=0) 
+	: indentLevel(indentLevel),
+	  open(true),
+	  referenceCount(0),
+	  indentString(indentLevel, '=')
+	{
+	}
+
+	protected virtual void addReference()
+	{
+		referenceCount ++;
+	}
+
+	public virtual void End() 
+	{
+		open = false;
+	}
+
+	public virtual void ReadString(string & input) const
+	{		
+		cout << ">>";
+		getline(cin, input);
+	}
+
+	protected virtual bool releaseReference()
+	{
+		referenceCount --;
+		return referenceCount <= 0;
+	}
+
+	/* Starts a new Output. */
+	public virtual OutputPtr Start(const char * name) {
+		OutputPtr ptr(new Console(indentLevel + 1));
+		return ptr;
+	}
+
+
+	public virtual void Write(const char * msg) const
+	{
+		cout << indentString << msg;
+	}
+
+	public void Write(const std::string & msg) const
+	{
+		cout << indentString << msg;
+	}
+
+	public void WriteMessage(const char * msgKey) const
+	{
+		cout << indentString << Macaroni::Environment::Messages::Get(msgKey);
+	}
+
+	public virtual void WriteLine(const char * msg) const
+	{
+		cout << indentString << msg << std::endl;
+	}
+
+	public void WriteLine(const wchar_t * msg) const
+	{
+		cout << indentString << msg << std::endl;
+	}
+
+	public void WriteLine(const std::string & msg) const
+	{
+		cout << indentString << msg << std::endl;
+	}	
+};

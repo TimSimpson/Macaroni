@@ -24,6 +24,10 @@ BEGIN_NAMESPACE2(Macaroni, Model)
 class Context;
 typedef boost::intrusive_ptr<Context> ContextPtr;
 
+void intrusive_ptr_add_ref(Context * p);
+
+void intrusive_ptr_release(Context * p);
+
 END_NAMESPACE2
 
 #endif

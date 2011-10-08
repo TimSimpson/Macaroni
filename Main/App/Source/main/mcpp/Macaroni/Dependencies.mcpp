@@ -4,38 +4,41 @@
 
 
 // Primitives (I just fixed this so this line will need to go soon)
-class size_t { ~hfile=<Macaroni/ME.h> }
+class size_t { ~hfile=<Macaroni/ME.h> };
 
 // C std
-class system { ~hfile=<cstdlib> }
-class strlen { ~hfile=<string.h> }
+class system { ~hfile=<cstdlib> };
+class strlen { ~hfile=<string.h> };
 
 // Std lib stuff
-class std::auto_ptr { ~hfile=<memory> }
-class std::string::const_iterator { ~hfile=<string> } 
-class std::ifstream { ~hfile=<fstream> }
-class std::fstream { ~hfile=<fstream> }
-class std::istream { ~hfile=<iostream> }
-class std::map { ~hfile=<map> }
-class std::ofstream { ~hfile=<iostream> }
-class std::ostream { ~hfile=<iostream> }
-class std::stringstream { ~hfile=<sstream> }
-class std::string { ~hfile=<string> }
-class std::vector { ~hfile=<vector> }
+class std::auto_ptr { ~hfile=<memory> };
+class std::string::const_iterator { ~hfile=<string> };
+class std::cin { ~hfile=<iostream> };
+class std::cout { ~hfile=<iostream> };
+class std::ifstream { ~hfile=<fstream> };
+class std::fstream { ~hfile=<fstream> };
+class std::istream { ~hfile=<iostream> };
+class std::map { ~hfile=<map> };
+class std::ofstream { ~hfile=<iostream> };
+class std::ostream { ~hfile=<iostream> };
+class std::stringstream { ~hfile=<sstream> };
+class std::string { ~hfile=<string> };
+class std::vector { ~hfile=<vector> };
 
 // Boost
-class boost::bad_lexical_cast { ~hfile=<boost/lexical_cast.hpp> }
-class boost::filesystem::directory_iterator { ~hfile=<boost/filesystem/operations.hpp> }
-class boost::lexical_cast { ~hfile=<boost/lexical_cast.hpp> }
-class BOOST_FOREACH { ~hfile=<boost/foreach.hpp> }
-class boost::hash { ~hfile=<boost/functional/hash.hpp> }
+class boost::bad_lexical_cast { ~hfile=<boost/lexical_cast.hpp> };
+class boost::filesystem::directory_iterator { ~hfile=<boost/filesystem/operations.hpp> };
+class boost::lexical_cast { ~hfile=<boost/lexical_cast.hpp> };
+class BOOST_FOREACH { ~hfile=<boost/foreach.hpp> };
+class boost::format { ~hfile=<boost/format.hpp> };
+class boost::hash { ~hfile=<boost/functional/hash.hpp> };
 //class boost::filesystem::create_directories { ~hfile=<boost/filesystem/convenience.hpp> }
-class boost::intrusive_ptr { ~hfile=<boost/intrusive_ptr.hpp> }
-class boost::optional { ~hfile=<boost/optional.hpp> }
+class boost::intrusive_ptr { ~hfile=<boost/intrusive_ptr.hpp> };
+class boost::optional { ~hfile=<boost/optional.hpp> };
 //class boost::filesystem::path { ~hfile=<boost/filesystem.hpp> }
-class boost::regex { ~hfile=<boost/regex.hpp> }
-class boost::shared_ptr { ~hfile=<boost/shared_ptr.hpp> }
-class boost::to_lower { ~hfile=<boost/algorithm/string.hpp> }
+class boost::regex { ~hfile=<boost/regex.hpp> };
+class boost::shared_ptr { ~hfile=<boost/shared_ptr.hpp> };
+class boost::to_lower { ~hfile=<boost/algorithm/string.hpp> };
 
 // Lua
 //class lua_State { ~hfile=<Lua/lua.h> }
@@ -44,8 +47,8 @@ class boost::to_lower { ~hfile=<boost/algorithm/string.hpp> }
 
 class Macaroni::Containers::AssignVectorToConstElementVector { ~hfile=<Macaroni/Containers.h.> } //TODO: Make function 
 
-class Macaroni::Model::AxiomLuaMetaData { ~hfile=<Macaroni/Model/AxiomLua.h> }
-class Macaroni::Model::AxiomPtr { ~hfile=<Macaroni/Model/AxiomPtr.h> }
+class Macaroni::Model::AxiomLuaMetaData { ~hfile=<Macaroni/Model/AxiomLua.h> };
+class Macaroni::Model::AxiomPtr { ~hfile=<Macaroni/Model/AxiomPtr.h> };
 class Macaroni::Model::Axiom
 	@LuaClass 
 	[
@@ -55,8 +58,8 @@ class Macaroni::Model::Axiom
 	{ ~hfile=<Macaroni/Model/Axiom.h> }
 class Macaroni::Model::AxiomPtr @LuaClass [ SameAsNode=Axiom ] {}
 
-class MACARONI_CHECK { ~hfile=<Macaroni/ME.h> }
-class Macaroni::Model::Cpp::ClassLuaMetaData { ~hfile=<Macaroni/Model/Cpp/ClassLua.h> }
+class MACARONI_CHECK { ~hfile=<Macaroni/ME.h> };
+class Macaroni::Model::Cpp::ClassLuaMetaData { ~hfile=<Macaroni/Model/Cpp/ClassLua.h> };
 class Macaroni::Model::Cpp::ClassPtr { 
 	~hfile=<Macaroni/Model/Cpp/ClassPtr.h> 
 	@LuaClass 
@@ -64,7 +67,7 @@ class Macaroni::Model::Cpp::ClassPtr {
 		LuaGlueClass = Macaroni::Model::Cpp::ClassLuaMetaData,
 		ReferenceType = Macaroni::Model::Cpp::ClassPtr,
 	]
-}
+};
 class Macaroni::Model::Cpp::Class 
 	@UseLightDef true
 { 
@@ -74,35 +77,34 @@ class Macaroni::Model::Cpp::Class
 		LuaGlueClass = Macaroni::Model::Cpp::ClassLuaMetaData,
 		ReferenceType = Macaroni::Model::Cpp::ClassPtr,
 	]	
-}
-class Macaroni::Environment::Console { ~hfile=<Macaroni/Environment/Console.h> }
-class Macaroni::Build::Cpp::CompilerSettings { ~hfile=<Macaroni/Build/Cpp/CompilerSettings.h> }
-class Macaroni::Build::Cpp::CompilerSettingsPtr { ~hfile=<Macaroni/Build/Cpp/CompilerSettings.h> }
-class Macaroni::Build::Configuration { ~hfile=<Macaroni/Build/Configuration.h> }
-class Macaroni::Build::ConfigurationId { ~hfile=<Macaroni/Build/ConfigurationId.h> }
-class Macaroni::Model::Context { ~hfile=<Macaroni/Model/Context.h> }
-class Macaroni::Model::ContextPtr { ~hfile=<Macaroni/Model/ContextPtr.h> }
-class Macaroni::Generator::Lua::DynamicGenerator { ~hfile=<Macaroni/Generator/Lua/DynamicGenerator.h> }
-class Macaroni::Exception { ~hfile=<Macaroni/Exception.h> }
-class Macaroni::IO::FileNotFoundException { ~hfile=<Macaroni/IO/FileNotFoundException.h> }
+};
+class Macaroni::Build::Cpp::CompilerSettings { ~hfile=<Macaroni/Build/Cpp/CompilerSettings.h> };
+class Macaroni::Build::Cpp::CompilerSettingsPtr { ~hfile=<Macaroni/Build/Cpp/CompilerSettings.h> };
+class Macaroni::Build::Configuration { ~hfile=<Macaroni/Build/Configuration.h> };
+class Macaroni::Build::ConfigurationId { ~hfile=<Macaroni/Build/ConfigurationId.h> };
+class Macaroni::Model::Context { ~hfile=<Macaroni/Model/Context.h> };
+class Macaroni::Model::ContextPtr { ~hfile=<Macaroni/Model/ContextPtr.h> };
+class Macaroni::Generator::Lua::DynamicGenerator { ~hfile=<Macaroni/Generator/Lua/DynamicGenerator.h> };
+class Macaroni::Exception { ~hfile=<Macaroni/Exception.h> };
+class Macaroni::IO::FileNotFoundException { ~hfile=<Macaroni/IO/FileNotFoundException.h> };
 //class Macaroni::Model::FileName { ~hfile=<Macaroni/Model/FileName.h> }
 //class Macaroni::Model::FileNamePtr { ~hfile=<Macaroni/Model/FileNamePtr.h> }
-class Macaroni::IO::FileSet { ~hfile=<Macaroni/IO/FileSet.h> }
-class Macaroni::Model::Cpp::Function { ~hfile=<Macaroni/Model/Cpp/Function.h> }
-class Macaroni::Model::Cpp::FunctionOverload { ~hfile=<Macaroni/Model/Cpp/FunctionOverload.h> }
-class Macaroni::Model::Cpp::FunctionOverloadPtr { ~hfile=<Macaroni/Model/Cpp/FunctionOverloadPtr.h> }
-class Macaroni::Environment::LuaEnvironment { ~hfile=<Macaroni/Environment/LuaEnvironment.h> }
-class Macaroni::Model::Library { ~hfile=<Macaroni/Model/Library.h> }
-class Macaroni::Build::LibraryId { ~hfile=<Macaroni/Build/LibraryId.h> }
-class Macaroni::Model::LibraryPtr { ~hfile=<Macaroni/Model/LibraryPtr.h> }
-class MACARONI_FAIL { ~hfile=<Macaroni/ME.h> }
-class Macaroni::Build::Manifest { ~hfile=<Macaroni/Build/Manifest.h> }
-class Macaroni::Build::ManifestPtr { ~hfile=<Macaroni/Build/Manifest.h> }
-class Macaroni::Build::MCompiler { ~hfile=<Macaroni/Build/MCompiler.h> }
-class Macaroni::Build::MCompilerOptions { ~hfile=<Macaroni/Build/MCompilerOptions.h> }
-class Macaroni::Model::Member { ~hfile=<Macaroni/Model/Member.h> }
-class Macaroni::Model::MemberVisitor { ~hfile=<Macaroni/Model/MemberVisitor.h> }
-class Macaroni::Environment::Messages { ~hfile=<Macaroni/Environment/Messages.h> }
+class Macaroni::IO::FileSet { ~hfile=<Macaroni/IO/FileSet.h> };
+class Macaroni::Model::Cpp::Function { ~hfile=<Macaroni/Model/Cpp/Function.h> };
+class Macaroni::Model::Cpp::FunctionOverload { ~hfile=<Macaroni/Model/Cpp/FunctionOverload.h> };
+class Macaroni::Model::Cpp::FunctionOverloadPtr { ~hfile=<Macaroni/Model/Cpp/FunctionOverloadPtr.h> };
+class Macaroni::Environment::LuaEnvironment { ~hfile=<Macaroni/Environment/LuaEnvironment.h> };
+class Macaroni::Model::Library { ~hfile=<Macaroni/Model/Library.h> };
+class Macaroni::Build::LibraryId { ~hfile=<Macaroni/Build/LibraryId.h> };
+class Macaroni::Model::LibraryPtr { ~hfile=<Macaroni/Model/LibraryPtr.h> };
+class MACARONI_FAIL { ~hfile=<Macaroni/ME.h> };
+class Macaroni::Build::Manifest { ~hfile=<Macaroni/Build/Manifest.h> };
+class Macaroni::Build::ManifestPtr { ~hfile=<Macaroni/Build/Manifest.h> };
+class Macaroni::Build::MCompiler { ~hfile=<Macaroni/Build/MCompiler.h> };
+class Macaroni::Build::MCompilerOptions { ~hfile=<Macaroni/Build/MCompilerOptions.h> };
+class Macaroni::Model::Member { ~hfile=<Macaroni/Model/Member.h> };
+class Macaroni::Model::MemberVisitor { ~hfile=<Macaroni/Model/MemberVisitor.h> };
+class Macaroni::Environment::Messages { ~hfile=<Macaroni/Environment/Messages.h> };
 
 ~import Macaroni::Model::Node;
 class Macaroni::Model::NodePtr 
@@ -115,17 +117,17 @@ class Macaroni::Model::Node
 	[
 		ReferenceType = Macaroni::Model::NodePtr,
 	]	
-}
-class Macaroni::Model::NodeLuaMetaData { ~hfile=<Macaroni/Model/NodeLua.h> }
-class nullptr { ~hfile=<Macaroni/ME.h> }
-class Macaroni::Parser::ParserException { ~hfile=<Macaroni/Parser/ParserException.h> }
-class Macaroni::IO::Path { ~hfile=<Macaroni/IO/Path.h> }
-class Macaroni::IO::PathLuaMetaData { ~hfile=<Macaroni/IO/PathLua.h> }
-class Macaroni::IO::PathPtr { ~hfile=<Macaroni/IO/Path.h> }
-class Macaroni::IO::Paths { ~hfile=<Macaroni/IO/Paths.h> }
-class Macaroni::Environment::Process { ~hfile=<Macaroni/Environment/Process.h> }	
-class Macaroni::Environment::StringPair { ~hfile=<Macaroni/Environment/StringPair.h> }
-class Macaroni::Model::TypeLuaMetaData { ~hfile=<Macaroni/Model/TypeLua.h> }
+};
+class Macaroni::Model::NodeLuaMetaData { ~hfile=<Macaroni/Model/NodeLua.h> };
+class nullptr { ~hfile=<Macaroni/ME.h> };
+class Macaroni::Parser::ParserException { ~hfile=<Macaroni/Parser/ParserException.h> };
+class Macaroni::IO::Path { ~hfile=<Macaroni/IO/Path.h> };
+class Macaroni::IO::PathLuaMetaData { ~hfile=<Macaroni/IO/PathLua.h> };
+class Macaroni::IO::PathPtr { ~hfile=<Macaroni/IO/Path.h> };
+class Macaroni::IO::Paths { ~hfile=<Macaroni/IO/Paths.h> };
+class Macaroni::Environment::Process { ~hfile=<Macaroni/Environment/Process.h> };
+class Macaroni::Environment::StringPair { ~hfile=<Macaroni/Environment/StringPair.h> };
+class Macaroni::Model::TypeLuaMetaData { ~hfile=<Macaroni/Model/TypeLua.h> };
 class Macaroni::Model::TypePtr { 
 	~hfile=<Macaroni/Model/TypePtr.h> 
 	@LuaClass 
@@ -133,7 +135,7 @@ class Macaroni::Model::TypePtr {
 		LuaGlueClass = Macaroni::Model::TypeLuaMetaData,
 		ReferenceType = Macaroni::Model::TypePtr,
 	]
-}
+};
 class Macaroni::Model::Type 
 { 
 	~hfile=<Macaroni/Model/Type.h> 
@@ -142,9 +144,9 @@ class Macaroni::Model::Type
 		LuaGlueClass = Macaroni::Model::TypeLuaMetaData,
 		ReferenceType = Macaroni::Model::TypePtr,
 	]	
-}
-class MACARONI_THROW { ~hfile=<Macaroni/ME.h> }
-class Macaroni::Containers::VectorOfConstString { ~hfile=<Macaroni/Containers.h> }
+};
+class MACARONI_THROW { ~hfile=<Macaroni/ME.h> };
+class Macaroni::Containers::VectorOfConstString { ~hfile=<Macaroni/Containers.h> };
 
 
 

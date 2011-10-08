@@ -74,16 +74,6 @@ private:
 	
 };
 
-inline void intrusive_ptr_add_ref(Context * p)
-{
-	p->onAddReference();
-}
-
-inline void intrusive_ptr_release(Context * p)
-{
-	p->onReleaseReference();
-}
-
 
 
 END_NAMESPACE2

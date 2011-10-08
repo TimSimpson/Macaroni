@@ -1,0 +1,115 @@
+Group
+
+* Project
+
+* * Project Version
+
+* * * Variant
+
+* * * Target
+
+
+Task
+
+Condition
+
+
+THE GOAL: Create the data only model first. Think about the idea of a general
+task system, but don't do it yet. Try to make the model flexible enough that
+it can drive the creation of BJAM and Visual Studio files.
+
+
+padding-top: 20px;
+
+Group:
+	Name
+	Projects()
+
+Project:
+	Name,
+	Versions()
+
+Project Version:
+	Name,
+	Targets
+
+Target: -> Task
+	Dependencies()
+
+
+Object File:
+	Source - a single C++ file.
+
+Library:  -> Target
+	Sources - A list of sources, MCPP and C++.
+		Using annotations you can put Macaroni nodes into a Library.
+		All C++ files generated then become part of that Library.
+
+Exe: -> Target
+	This creates an executable.
+	Sources- list of sources
+	Exe name
+
+Test: -> Target
+	Like an EXE but produces a file or something.
+	Sources - Makes up an exe. 
+
+
+Sources - a list of files, C++ and Macaroni, as well as targets.
+	For example, the EXEs include libraries in the sources.
+
+
+
+Example (in Lua):
+
+require "Macaroni.Model.Context";
+require "Macaroni.Model.Project.Group"
+require "Macaroni.Model.Project.Library"
+require "Macaroni.Model.Project.Project"
+require "Macaroni.Model.Project.ProjectVersion"
+require "Macaroni.Model.Project.Test"
+
+project = Context:Group("Lp3"):Project("Lp3::Core"):Version("1.3")
+
+project:Targets:Add()
+
+-- Thought: Maybe the targets don't even need to know what Project they're in?
+
+lib = Library{name="lib",
+              sources= {FileSet("src/main/**/*.cpp"),
+                         FileSet("src/main/**/*.mcpp")}}
+-- When "mcpp" files are discovered, the Model is parsed for nodes which were
+-- created from those files. These nodes are then annotated as belonging to
+-- given target.
+
+test1 = Test{name="test1", sources = { lib, File("src/test/test1.cpp")} }
+
+-- exe doesn't use test1 in its sources but still requires on it.
+-- The sources are also required.
+exe = Exe{name="main", sources={lib, test1, File("src/main/main.cpp")},
+          dependsOn={test1}}
+
+project:Targets:Add{lib, test1, exe}
+
+
+
+_______________________________________________________________________________
+                            ANNOTATIONS
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+Macaroni.Project - denotes the Node as belonging to the given project.
+In any active build context, only one Version of a project is allowed.
+So the version does not need to be specified.
+
+Macaroni.Project.Target - A string. The default is "core". Or maybe "default."
+
+
+
+Macaroni.Environment - A decorator for a Context which gives it neat abilities.
+Eventually all work happens here.
+At start up, it reads the file project.lua in the root directory. It then goes
+into a Lua REPL if interactive mode is specified.
+
+
+

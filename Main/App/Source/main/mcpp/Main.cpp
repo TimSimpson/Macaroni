@@ -56,7 +56,7 @@ int generic_main(std::vector<MACARONI_VE_CONST std::string> & args)
 		" built at " << BUILD_TIMESTAMP_LOCAL << std::endl;	
 	std::cout << std::endl;
 
-	Console output;
+	Console output(0);
 
 	CmdLine cmd(args, output);
 

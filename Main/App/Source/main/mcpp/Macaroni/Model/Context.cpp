@@ -25,6 +25,16 @@ using Macaroni::Build::LibraryId;
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
+void intrusive_ptr_add_ref(Context * p)
+{
+	p->onAddReference();
+}
+
+void intrusive_ptr_release(Context * p)
+{
+	p->onReleaseReference();
+}
+
 Context::Context(const std::string & rootName)
 :hasBeenDeleted(false),
  libraries(),

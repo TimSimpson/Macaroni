@@ -1,0 +1,117 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+~import Macaroni::AppPaths;
+~import Macaroni::AppPathsPtr;
+~import BOOST_FOREACH;
+~import Macaroni::Model::Context;
+~import Macaroni::Model::ContextPtr;
+~import Macaroni::Model::Element;
+~import Macaroni::Exception;
+~import boost::format;
+~import Macaroni::Environment::Input;
+~import Macaroni::Environment::InputPtr;
+~import Macaroni::Environment::Output;
+~import Macaroni::Environment::OutputPtr;
+~import Macaroni::Environment::LuaEnvironment;
+~import Macaroni::Model::NodePtr;
+~import boost::filesystem::path;
+~import Macaroni::Model::Reason;
+~import std::string;
+
+// There's a bug which prevents Macaroni from detecting creating a node within
+// a Namespace if the node has the same short name. :(
+
+class Macaroni::Environment::Environment
+/*
+ * Handles the interactive portions of a context, particularly regarding
+ * the project / build system. 
+ */
+{
+	private AppPathsPtr appPaths;
+	private ContextPtr context;
+	private InputPtr input;	
+	private LuaEnvironment luaEnvironment;
+	private OutputPtr output;
+
+	public Environment(AppPathsPtr appPaths, ContextPtr context, 
+		               InputPtr input, OutputPtr output)
+	: appPaths(appPaths),
+	  context(context), 
+	  input(input),	  
+	  luaEnvironment(),
+	  output(output)
+	{
+		output->WriteLine("Creating new Environment with the following AppPaths:");
+		output->Write(format("Message file : %s") % 
+		           appPaths->GetMessagePaths().string());
+		output->Write("Library Paths : [");
+		BOOST_FOREACH(const boost::filesystem::path & path, 
+			          appPaths->GetLibraryRepoPaths()) 
+		{
+			output->Write(path.string());
+		}
+		output->WriteLine("]");
+		output->Write("Generator Paths : [");
+		BOOST_FOREACH(const boost::filesystem::path & path, 
+			          appPaths->GetGeneratorPaths()) 
+		{
+			output->Write(path.string());
+		}
+		output->WriteLine("]");
+		output->WriteLine("");		
+	}
+
+	public inline ContextPtr GetContext() 
+	{
+		return context;
+	}
+
+	public inline LuaEnvironment & GetLuaEnvironment()
+	{
+		return luaEnvironment;
+	}
+
+	public bool Repl()
+	{		
+		string line;
+		while(true) 
+		{
+			input->ReadString(line);
+			if (line == "quit" || line == "exit")
+			{
+				return true;	
+			}
+			else
+			{
+				try 
+				{
+					luaEnvironment.ParseString("REPL", line.c_str());
+				} catch(const Macaroni::Exception & me) {
+					output->WriteLine(format("Error parsing : %s") 
+					                  % me.what());
+				}
+				try
+				{
+					luaEnvironment.Run();		
+				} catch(const Macaroni::Exception & me) {
+					output->WriteLine(format("Error running Lua : %s") 
+					                  % me.what());
+				}
+			}
+		}
+	}
+};

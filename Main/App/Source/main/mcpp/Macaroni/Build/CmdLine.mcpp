@@ -20,9 +20,12 @@
 ~import Macaroni::Environment::Console;
 ~import Macaroni::Model::Context;
 ~import Macaroni::Model::ContextPtr;
+~import Macaroni::Environment::Environment;
 ~import Macaroni::IO::FileSet;
 ~import BOOST_FOREACH;
 ~import Macaroni::Exception;
+~import Macaroni::Environment::Input;
+~import Macaroni::Environment::InputPtr;
 ~import Macaroni::Model::Library;
 ~import Macaroni::Model::LibraryPtr;
 ~import Macaroni::Environment::LuaEnvironment;
@@ -31,6 +34,8 @@
 ~import Macaroni::Build::MCompiler;
 ~import Macaroni::Build::MCompilerOptions;
 ~import Macaroni::Environment::Messages;
+~import Macaroni::Environment::Output;
+~import Macaroni::Environment::OutputPtr;
 ~import boost::optional;
 ~import Macaroni::IO::Paths;
 ~import boost::filesystem::path;
@@ -48,6 +53,7 @@ namespace Macaroni::Build {
 class CmdLine
 {			
 	private bool about;
+	private bool advance;
 	private bool build;
 	private bool cavatappiMode;	
 	private bool clean;
@@ -70,6 +76,7 @@ class CmdLine
 
 	public CmdLine(const VectorOfConstString & args, Console & console)
 	:	about(false),
+		advance(false),
 	    build(false),
 		cavatappiMode(false),	    
 		clean(false),
@@ -203,6 +210,17 @@ class CmdLine
 			runLuaTests();
 			return true;
 		}
+		else if (advance) 
+		{
+			// Advance mode - creates an Environment.
+			Console * console = new Console(0);			
+			InputPtr input(console);
+			OutputPtr output(console);
+			ContextPtr context(new Context("%ROOT%"));
+			Macaroni::Environment::Environment env(createAppPaths(), context, 
+			                                       input, output);
+			return env.Repl();
+		}
 		else if (!(inputPath.empty() && outputPath.empty()))
 		{
 			// Allows someone to not use a manifest.  Not really a great idea for
@@ -224,6 +242,10 @@ class CmdLine
 		if (arg == "about")
 		{			
 			about = true;
+		}
+		else if (arg == "a")
+		{
+			advance = true;
 		}
 		else if (arg == "cavatappi")
 		{
