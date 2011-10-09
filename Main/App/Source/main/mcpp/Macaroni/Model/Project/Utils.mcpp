@@ -1,0 +1,47 @@
+~import BOOST_FOREACH;
+~import std::string;
+~import std::stringstream;
+
+
+~namespace Macaroni::Model::Project;
+
+class Utils
+{
+	public static string CreateCId(const string & original)
+		/* Turns any string into one that can be used as a C identifier. */
+	{
+		std::stringstream str;
+		int i = 0;
+		BOOST_FOREACH(char ch, original)
+		{
+			bool isValid = (i == 0 ? validCId1stChar(ch) : validCIdNChar(ch));
+			if (isValid)
+			{
+				str << ch;
+			}
+			else if (ch == '_')
+			{
+				str << "__";
+			}
+			else
+			{
+				int ord = (int) ch;
+				str << "_" << ord << "_";
+			}
+			i ++;
+		}
+		return str.str();
+	}
+
+	public static bool validCId1stChar(const char ch)
+	{
+		return (ch >= 'a' && ch <= 'z')
+			|| (ch >= 'A' && ch <= 'Z');
+	}
+
+	public static bool validCIdNChar(const char ch)
+	{
+		return (ch >= '0' && ch <= '9') || validCId1stChar(ch);
+	}
+
+};

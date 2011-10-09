@@ -16,7 +16,7 @@
 #ifndef MACARONI_BUILD_CPP_COMPILERSETTINGS_H
 #define MACARONI_BUILD_CPP_COMPILERSETTINGS_H
 
-#include "../../Environment/Console.h"
+#include <Macaroni/Environment/Console.h>
 #include <boost/filesystem/operations.hpp>
 #include <string>
 #include "../../Environment/StringPair.h"
@@ -26,10 +26,10 @@ BEGIN_NAMESPACE(Macaroni, Build, Cpp)
 
 class CompilerSettings
 {
-public:	
-	CompilerSettings();	
+public:
+	CompilerSettings();
 
-	CompilerSettings(const boost::filesystem::path & filePath);	
+	CompilerSettings(const boost::filesystem::path & filePath);
 
 	inline const std::string & GetAdditionalCompilerArgs() const
 	{
@@ -51,7 +51,7 @@ public:
 		return environmentVariables;
 	}
 
-	inline const std::vector<MACARONI_VE_CONST std::string> & GetIncludePaths() const 
+	inline const std::vector<MACARONI_VE_CONST std::string> & GetIncludePaths() const
 	{
 		return includePaths;
 	}
@@ -66,7 +66,7 @@ public:
 		return linkerLibraryPaths;
 	}
 
-	inline const std::vector<MACARONI_VE_CONST std::string> & GetPaths() const 
+	inline const std::vector<MACARONI_VE_CONST std::string> & GetPaths() const
 	{
 		return paths;
 	}
@@ -81,7 +81,7 @@ public:
 		includePaths = value;
 	}
 
-private:	
+private:
 	typedef std::vector<MACARONI_VE_CONST std::string> StrVec;
 
 	std::string additionalCompilerArgs;
@@ -94,7 +94,7 @@ private:
 	StrVec linkerLibraryPaths;
 	std::string oSwitch;
 	StrVec paths;
-	std::vector<Macaroni::Environment::StringPair> preprocessorDirectives; 	
+	std::vector<Macaroni::Environment::StringPair> preprocessorDirectives;
 };
 
 

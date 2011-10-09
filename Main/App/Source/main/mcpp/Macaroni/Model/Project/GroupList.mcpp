@@ -1,0 +1,83 @@
+~import BOOST_FOREACH;
+~import Macaroni::Model::Context;
+~import Macaroni::Model::Project::Group;
+~import Macaroni::Model::Project::GroupPtr;
+~import boost::intrusive_ptr;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import boost::optional;
+~import Macaroni::Model::Project;
+~import std::string;
+~import Macaroni::Cpp::UseLightDef;
+~import std::vector;
+
+
+~namespace Macaroni::Model::Project;
+
+
+class GroupList {};
+
+typedef intrusive_ptr<GroupList> GroupListPtr
+	@LuaClass [ SameAsNode = GroupList ]
+	@UseLightDef true;
+
+
+class GroupList
+	@LuaClass [
+		ReferenceType = GroupListPtr
+	]
+{
+	friend Context;
+	private Context * const context;
+	private vector<Group * const> groups;
+
+	protected GroupList(Context * const context)
+	: context(context), groups()
+	{
+
+	}
+
+	public ~GroupList()
+	{
+		BOOST_FOREACH(Group * const group, groups)
+		{
+			delete group;
+		}
+	}
+
+	public GroupPtr Find(string name)
+		@LuaFunction "Find"
+	{
+		BOOST_FOREACH(Group * const group, groups)
+		{
+			if (group->GetName() == name)
+			{
+				GroupPtr ptr(group);
+				return ptr;
+			}
+		}
+		return GroupPtr();
+	}
+
+	public GroupPtr FindOrCreate(string name)
+		@LuaFunction "FindOrCreate"
+	{
+		GroupPtr rtn = Find(name);
+		if (!rtn)
+		{
+			groups.push_back(new Group(this, name));
+		}
+		return GroupPtr(groups.back());
+	}
+
+	public ~global ~friend void intrusive_ptr_add_ref(GroupList * p)
+	{
+		intrusive_ptr_add_ref(p->context);
+	}
+
+	public ~global ~friend void intrusive_ptr_release(GroupList * p)
+	{
+		intrusive_ptr_release(p->context);
+	}
+
+};

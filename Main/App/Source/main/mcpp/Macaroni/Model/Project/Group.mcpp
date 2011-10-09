@@ -1,0 +1,62 @@
+~import BOOST_FOREACH;
+~import Macaroni::Model::Project::GroupList;
+~import boost::intrusive_ptr;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Lua::LuaProperty;
+~import std::string;
+~import std::stringstream;
+~import Macaroni::Cpp::UseLightDef;
+~import Macaroni::Model::Project::Utils;
+
+
+~namespace Macaroni::Model::Project;
+
+class Group {};
+
+typedef intrusive_ptr<Group> GroupPtr
+	@LuaClass [ SameAsNode = Group ]
+	@UseLightDef true;
+
+class Group
+	@LuaClass [
+		ReferenceType = GroupPtr
+	]
+{
+	friend GroupList;
+
+	private const string name;
+	private GroupList * const parent;
+
+	protected Group(GroupList * parent, const string & name)
+	: name(name),
+	  parent(parent)
+	{
+	}
+
+	/** Returns a version of this ID which can be used as a C identifier.
+	 * The point isn't to make a pretty name but just one that maps uniquely.
+	 */
+	string GetCId() const
+	{
+		std::stringstream ss;
+		ss << Utils::CreateCId(name);
+		return ss.str();
+	}
+
+	public const string & GetName() const {
+		return name;
+	}
+
+	public ~global ~friend void intrusive_ptr_add_ref(Group * p)
+	{
+		intrusive_ptr_add_ref(p->parent);
+	}
+
+	public ~global ~friend void intrusive_ptr_release(Group * p)
+	{
+		intrusive_ptr_release(p->parent);
+	}
+
+};

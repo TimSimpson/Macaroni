@@ -38,44 +38,47 @@
 class Macaroni::Environment::Environment
 /*
  * Handles the interactive portions of a context, particularly regarding
- * the project / build system. 
+ * the project / build system.
  */
 {
 	private AppPathsPtr appPaths;
 	private ContextPtr context;
-	private InputPtr input;	
+	private InputPtr input;
 	private LuaEnvironment luaEnvironment;
 	private OutputPtr output;
 
-	public Environment(AppPathsPtr appPaths, ContextPtr context, 
+	public Environment(AppPathsPtr appPaths, ContextPtr context,
 		               InputPtr input, OutputPtr output)
 	: appPaths(appPaths),
-	  context(context), 
-	  input(input),	  
+	  context(context),
+	  input(input),
 	  luaEnvironment(),
 	  output(output)
 	{
-		output->WriteLine("Creating new Environment with the following AppPaths:");
-		output->Write(format("Message file : %s") % 
+		output->WriteLine("Creating new Environment with the following "
+		                  "AppPaths:");
+		output->Write(format("Message file : %s") %
 		           appPaths->GetMessagePaths().string());
+		output->WriteLine("");
 		output->Write("Library Paths : [");
-		BOOST_FOREACH(const boost::filesystem::path & path, 
-			          appPaths->GetLibraryRepoPaths()) 
+		BOOST_FOREACH(const boost::filesystem::path & path,
+			          appPaths->GetLibraryRepoPaths())
 		{
 			output->Write(path.string());
 		}
 		output->WriteLine("]");
 		output->Write("Generator Paths : [");
-		BOOST_FOREACH(const boost::filesystem::path & path, 
-			          appPaths->GetGeneratorPaths()) 
+		BOOST_FOREACH(const boost::filesystem::path & path,
+			          appPaths->GetGeneratorPaths())
 		{
 			output->Write(path.string());
 		}
 		output->WriteLine("]");
-		output->WriteLine("");		
+		output->WriteLine("Opening internal modules...");
+		output->WriteLine("");
 	}
 
-	public inline ContextPtr GetContext() 
+	public inline ContextPtr GetContext()
 	{
 		return context;
 	}
@@ -86,29 +89,29 @@ class Macaroni::Environment::Environment
 	}
 
 	public bool Repl()
-	{		
+	{
 		string line;
-		while(true) 
+		while(true)
 		{
 			input->ReadString(line);
 			if (line == "quit" || line == "exit")
 			{
-				return true;	
+				return true;
 			}
 			else
 			{
-				try 
+				try
 				{
 					luaEnvironment.ParseString("REPL", line.c_str());
 				} catch(const Macaroni::Exception & me) {
-					output->WriteLine(format("Error parsing : %s") 
+					output->WriteLine(format("Error parsing : %s")
 					                  % me.what());
 				}
 				try
 				{
-					luaEnvironment.Run();		
+					luaEnvironment.Run();
 				} catch(const Macaroni::Exception & me) {
-					output->WriteLine(format("Error running Lua : %s") 
+					output->WriteLine(format("Error running Lua : %s")
 					                  % me.what());
 				}
 			}
