@@ -36,18 +36,18 @@ public:
 	 * type of the given member. */
 	bool CanBeChildOf(const Member * other) const;
 
-	/** Returns true if the given node is used to define type information for 
+	/** Returns true if the given node is used to define type information for
 	 * this node. */
 	//TODO: 2009-10-03- I just saw this and suddenly I HATE it.  The meaning
 	//would seem to be too variant between types.  Ugh!
 	virtual bool DoesDefinitionReference(NodePtr node) const;
-	
+
 	//virtual const char * GetTypeName() const = 0;
 
 	/** Finds a parent namespace by iterating backwards, skipping unknown nodes. */
 	Cpp::NamespacePtr FindClosestParentNamespace() const;
 
-	//TODO: Get rid of this.  
+	//TODO: Get rid of this.
 	virtual void Visit(MemberVisitor * visitor) const = 0;
 
 protected:

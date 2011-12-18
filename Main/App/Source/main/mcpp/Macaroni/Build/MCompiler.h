@@ -20,7 +20,7 @@
 #include <Macaroni/AppPaths.h>
 #include "MCompilerOptions.h"
 #include "../Model/ContextPtr.h"
-#include "../IO/FileSet.h"
+#include <Macaroni/IO/FileSet.h>
 #include "../Model/LibraryPtr.h"
 #include <vector>
 
@@ -31,7 +31,7 @@ class MCompiler
 public:
 	MCompiler(const Macaroni::AppPathsPtr & appPaths);
 
-	bool BuildModel(Macaroni::Model::LibraryPtr library, const std::vector<Macaroni::IO::FileSet> inputFiles);
+	bool BuildModel(Macaroni::Model::LibraryPtr library, const std::vector<Macaroni::IO::FileSet> & inputFiles);
 
 	void Compile(Macaroni::Model::LibraryPtr library,
 		         const MCompilerOptions & options);

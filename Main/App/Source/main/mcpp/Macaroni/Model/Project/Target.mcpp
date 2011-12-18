@@ -1,0 +1,164 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+~import Macaroni::Model::Context;
+~import Macaroni::Model::ContextPtr;
+~import boost::format;
+~import Macaroni::Model::Element;
+~import Macaroni::Model::Project::Group;
+~import boost::intrusive_ptr;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Lua::LuaProperty;
+~import Macaroni::Model::NodePtr;
+~import Macaroni::Model::Project::Project;
+~import Macaroni::Model::Project::ProjectVersion;
+~import Macaroni::Model::Project::ProjectVersionPtr;
+~import Macaroni::Model::Reason;
+~import std::string;
+~import Macaroni::Cpp::UseLightDef;
+~import std::vector;
+
+~namespace Macaroni::Model::Project;
+
+class Target {};
+
+typedef intrusive_ptr<Target ~l> TargetPtr
+		@LuaClass [ SameAsNode = Target ]
+		@UseLightDef true;
+
+//~import Macaroni::Model::Project::TargetList;
+
+//typedef vector<Target *> RealTargetList;
+
+//typedef intrusive_ptr<TargetList> TargetListPtr;
+
+class Target
+	@LuaClass [
+		ReferenceType = TargetPtr
+	]
+{
+	friend ProjectVersion;
+
+	protected vector<Target *> dependencies;
+	private const string name;
+	private Target * parent;
+	private ProjectVersion * const projectVersion;
+	protected vector<Target *> requirements;
+
+	protected Target(ProjectVersion * projectVersion, const string & name)
+	:   dependencies(),
+	    name(name),
+	    parent(0),
+		projectVersion(projectVersion),
+		requirements()
+	{
+	}
+
+	public bool operator==(const Target & target) const {
+		return (*projectVersion == *target.projectVersion
+			    && name == target.name);
+	}
+
+	public ContextPtr GetContext() const
+	{
+		return projectVersion->GetProject()->GetGroup()->GetContext();
+	}
+
+	/* This includes anything which gets included or must be run before this
+	 * target. For example, in a Library, needed DLLs as well as every single
+	 * TranslationUnit is a dependency. */
+	public virtual const vector<Target *> & GetDependencies() const
+	{
+		return dependencies;
+	}
+
+	public ProjectVersionPtr GetProjectVersion() const
+		@LuaProperty "ProjectVersion"
+	{
+		ProjectVersionPtr ptr(projectVersion);
+		return ptr;
+	}
+
+	public inline const string & GetName() const
+		@LuaProperty "name"
+	{		return name;
+	}
+
+	public TargetPtr GetParent() const {
+		return TargetPtr(parent);
+	}
+
+	/** Requirements are targets that this target does not need on its own but
+	 *  anything which depends on this target is going to need.
+	 *  The big difference is that the end result will not actually include the
+	 *  requirements.
+	 *  For example, a library might list unit tests as a requirement- meaning
+	 *  the library could be built by itself, but if an exe is to be built
+	 *  which depends on the library all of the libraries requirements - the
+	 *  tests - should be run first. It also is a bit tricky in that sometimes
+	 *  the targets in Requirements might list *this* target as a dependency
+	 * (of course, if true unit tests just dependended on their
+	 *	 TranslationUnits, and then the library dependended on the tests,
+	 *  that'd be different).
+	 */
+	public virtual const vector<Target *> & GetRequirements() const
+	{
+		return requirements;
+	}
+
+	public ~global ~friend void intrusive_ptr_add_ref(Target * p)
+	{
+		intrusive_ptr_add_ref(p->projectVersion);
+	}
+
+	public ~global ~friend void intrusive_ptr_release(Target * p)
+	{
+		intrusive_ptr_release(p->projectVersion);
+	}
+
+	public string ToString() const
+		@LuaOperator "__tostring"
+	{
+		return str(format("%s, Target=\"%s\"")
+		           % projectVersion->ToString() % name);
+	}
+};
+
+/*
+class TargetList {
+	private const vector<Target *> * const list;
+
+	public RealTarget::const_iterator begin() const {
+		return list->begin();
+	}
+
+	public RealTarget::const_iterator end() const {
+		return list->end();
+	}
+
+	public RealTarget::const_reverse_iterator rbegin() const {
+		return list->rbegin();
+	}
+
+	public RealTarget::const_reverse_iterator rend() const {
+		return list->rend();
+	}
+
+	public size_t size() const {
+		return list.size();
+	}
+};*/

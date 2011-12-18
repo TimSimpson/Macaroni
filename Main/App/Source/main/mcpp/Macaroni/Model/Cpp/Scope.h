@@ -22,6 +22,7 @@
 #include "../Member.h"
 #include "../NodePtr.h"
 #include "ScopeMember.h"
+#include <Macaroni/Model/Project/TargetPtr.h>
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
@@ -30,7 +31,7 @@ class Scope : public ScopeMember, public virtual Model::LibraryElement
 friend void intrusive_ptr_add_ref(Scope * p);
 friend void intrusive_ptr_release(Scope * p);
 
-public:		
+public:
 	virtual Model::LibraryPtr GetLibrary() const;
 
 	size_t GetMemberCount() const;
@@ -39,14 +40,21 @@ public:
 
 	virtual const char * GetTypeName() const = 0;
 
+	/** Returns true if this Scope's target is the given target or a child of
+	 *  the given target. */
+	virtual bool OwnedBy(Macaroni::Model::Project::TargetPtr target) const;
+
 protected:
 	Scope(Library * library, Node * scope, const char * typeName, ReasonPtr reason);
+	Scope(Macaroni::Model::Project::Target * target, Node * scope, const char * typeName, ReasonPtr reason);
 	Scope(const Scope & other);
 	void operator=(const Scope & other);
 	virtual ~Scope(){}
 
 private:
 	Model::Library * library;
+
+	Macaroni::Model::Project::Target * target;
 };
 
 END_NAMESPACE

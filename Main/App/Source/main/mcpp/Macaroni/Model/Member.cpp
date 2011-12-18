@@ -34,8 +34,8 @@ Member::Member(Node * node, const char * typeName, const ReasonPtr reasonCreated
 {
 }
 
-//void Member::assertChildrenAreLegal() 
-//{	
+//void Member::assertChildrenAreLegal()
+//{
 //	for(unsigned int i = 0; i < getNode()->GetChildCount(); i ++)
 //	{
 //		NodePtr child = getNode()->GetChild(i);
@@ -56,10 +56,10 @@ Member::Member(Node * node, const char * typeName, const ReasonPtr reasonCreated
 //
 //void Member::assertValidConstruction()
 //{
-//	// The Constructor of a subclass in C++ can't chain to a virtual method 
+//	// The Constructor of a subclass in C++ can't chain to a virtual method
 //	// because the vtable isn't ready to roll at that point, so unfortunately
 //	// there's no good way I can think of to force check that subclasses adhere
-//	// to these behaviors.	
+//	// to these behaviors.
 //	assertChildrenAreLegal();
 //}
 

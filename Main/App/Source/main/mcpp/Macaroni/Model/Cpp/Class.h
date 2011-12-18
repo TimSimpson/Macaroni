@@ -36,7 +36,8 @@ END_NAMESPACE
 #include "../Member.h"
 #include "ClassPtr.h"
 #include "Scope.h"
- 
+#include <Macaroni/Model/Project/TargetPtr.h>
+
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 
@@ -44,25 +45,29 @@ class Class : public Scope
 {
 friend void intrusive_ptr_add_ref(Class * p);
 friend void intrusive_ptr_release(Class * p);
-public:	
-	static ClassPtr Create(LibraryPtr library, NodePtr home, 
+public:
+	static ClassPtr Create(LibraryPtr library, NodePtr home,
 		AccessPtr access,
 		Model::NodeListPtr importedNodes, ReasonPtr reason);
 
+	static ClassPtr Create(Macaroni::Model::Project::TargetPtr target,
+	    NodePtr home, AccessPtr access,
+		Model::NodeListPtr importedNodes, ReasonPtr reason);
+
 	virtual ~Class();
-	
+
 	AccessPtr GetAccess() const;
 
 	void AddFriend(NodePtr node);
-	
+
 	void AddGlobal(NodePtr node);
-	
+
 	void AddParent(TypePtr parent, AccessPtr access, bool _virtual);
 
 	virtual bool canBeChildOf(const Member * other) const;
 
 	virtual bool DoesDefinitionReference(NodePtr node) const;
-	
+
 	/** Classes which this Class inherits from. */
 	ClassParentListPtr GetParents() const;
 
@@ -71,7 +76,7 @@ public:
 	 * most secrets. */
 	NodeListPtr GetFriendNodes() const;
 
-	/** A list of Nodes that may or may not have anything to do with this 
+	/** A list of Nodes that may or may not have anything to do with this
 	 * class, but are adopted by this class.  They are usually defined in the
 	 * same MCPP file and get stored in the same code files as the class.
 	 * An example would be a global function thats callable from plain C but
@@ -83,14 +88,17 @@ public:
 	NodeListPtr GetImportedNodes() const;
 
 	virtual const char * GetTypeName() const;
-	
+
 	/** Returns true if the given member is an instance of Class. */
 	static bool IsInstance(Model::ElementPtr other);
 
 	virtual void Visit(MemberVisitor * visitor) const;
 
-protected:	
-	Class(Library * library, Node * home, Access access, 
+protected:
+	Class(Library * library, Node * home, Access access,
+		  Model::NodeListPtr importedNodes, ReasonPtr reason);
+	Class(Macaroni::Model::Project::Target * target,
+	      Node * home, Access access,
 		  Model::NodeListPtr importedNodes, ReasonPtr reason);
 
 private:
@@ -104,9 +112,9 @@ private:
 	NodeListPtr globals;
 
 	NodeListPtr imports;
-	
+
 	Macaroni::Model::Cpp::ClassParentListPtr parents;
-	
+
 };
 
 

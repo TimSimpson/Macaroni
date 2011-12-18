@@ -1,0 +1,6 @@
+
+class Hi {
+    public const char * Greeting() const {
+        return "How are you doing?";
+    }
+};

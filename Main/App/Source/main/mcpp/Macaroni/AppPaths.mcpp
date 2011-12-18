@@ -20,8 +20,10 @@
 ~import Macaroni::Build::LibraryId;
 ~import boost::filesystem::path;
 ~import nullptr;
+~import Macaroni::IO::Path;
 ~import Macaroni::IO::Paths;
 ~import boost::shared_ptr;
+~import std::string;
 ~import std::stringstream;
 ~import std::vector;
 
@@ -32,51 +34,47 @@ typedef shared_ptr<AppPaths> AppPathsPtr;
 
 /** Stores files paths to common elements. */
 class AppPaths
-{	
+{
 	private vector<path> generatorPaths;
 	private vector<path> libraryRepoPaths;
 	private path messagesPath;
+	private path workingDirectory;
 
-	public AppPaths(vector<path> generatorPaths, vector<path> libraryRepoPaths, 
+	public AppPaths(vector<path> generatorPaths, vector<path> libraryRepoPaths,
 					path messagesPath)
 	:	generatorPaths(generatorPaths),
 		libraryRepoPaths(libraryRepoPaths),
 		messagesPath(messagesPath)
 	{
+		const string empty = "./";
+		Path p(empty);
+		this->workingDirectory = p.GetAbsolutePath();
 	}
 
-	~block "h"
+	public AppPaths()
+	:	generatorPaths(defaultGeneratorPaths()),
+		libraryRepoPaths(defaultLibraryPaths()),
+		messagesPath(Paths::GetExeDirectoryPath())
 	{
-		public: AppPaths();
-	}	
+	}
 
-	~block "cpp" 
+	~hidden	static vector<path> defaultGeneratorPaths()
 	{
-		static vector<path> defaultGeneratorPaths()
-		{
-			vector<path> gPaths;
-			path exePath = Paths::GetExeDirectoryPath(); 
-			gPaths.push_back(exePath / "Generators");
-			return gPaths;
-		}
+		vector<path> gPaths;
+		path exePath = Paths::GetExeDirectoryPath();
+		gPaths.push_back(exePath / "Generators");
+		return gPaths;
+	}
 
-		static vector<path> defaultLibraryPaths()
-		{
-			vector<path> lPaths;
-			path exePath = Paths::GetExeDirectoryPath(); 
-			lPaths.push_back(exePath / "Libraries");
-			path userPath = Paths::GetUserPath(); 
-			lPaths.push_back(userPath / "Libraries");
-			return lPaths;
-		}
-
-		AppPaths::AppPaths()
-		:	generatorPaths(defaultGeneratorPaths()),
-			libraryRepoPaths(defaultLibraryPaths()),
-			messagesPath(Paths::GetExeDirectoryPath())
-		{
-		}
-	}	
+	~hidden	static vector<path> defaultLibraryPaths()
+	{
+		vector<path> lPaths;
+		path exePath = Paths::GetExeDirectoryPath();
+		lPaths.push_back(exePath / "Libraries");
+		path userPath = Paths::GetUserPath();
+		lPaths.push_back(userPath / "Libraries");
+		return lPaths;
+	}
 
 	public path FindFinalManifestFile(const LibraryId & id) const
 	{
@@ -84,12 +82,12 @@ class AppPaths
 		rp = rp / id.GetName();
 		rp = rp / id.GetVersion();
 		rp = rp / "manifest-final.lua";
-		
+
 		std::stringstream ss;
 		ss << "Could not find the given relative path ";
 		ss << rp.string() ;
 
-		BOOST_FOREACH(const boost::filesystem::path & path, 
+		BOOST_FOREACH(const boost::filesystem::path & path,
 					  libraryRepoPaths)
 		{
 			boost::filesystem::path guess = path / rp;
@@ -97,7 +95,7 @@ class AppPaths
 			if (boost::filesystem::exists(guess) && boost::filesystem::is_regular_file(guess))
 			{
 				return guess;
-			}	
+			}
 		}
 
 		throw FileNotFoundException(ss.str());
@@ -109,19 +107,29 @@ class AppPaths
 		return file.branch_path();
 	}
 
-	public inline vector<path> GetGeneratorPaths() 
+	public inline vector<path> GetGeneratorPaths()
 	{
 		return generatorPaths;
 	}
-	
-	public inline vector<path> GetLibraryRepoPaths() 
+
+	public inline vector<path> GetLibraryRepoPaths()
 	{
 		return libraryRepoPaths;
 	}
 
-	public inline path GetMessagePaths() 
+	public inline path GetMessagePaths()
 	{
 		return messagesPath;
+	}
+
+	public inline path GetWorkingDirectory() const
+	{
+		return workingDirectory;
+	}
+
+	public void SetWorkingDirectory(const path & value)
+	{
+		workingDirectory = value;
 	}
 };
 

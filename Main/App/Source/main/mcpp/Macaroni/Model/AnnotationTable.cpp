@@ -19,7 +19,7 @@
 #include "AnnotationTable.h"
 #include <boost/foreach.hpp>
 
-#include "Context.h"
+#include <Macaroni/Model/Context.h>
 #include <Macaroni/Exception.h>
 #include "Node.h"
 

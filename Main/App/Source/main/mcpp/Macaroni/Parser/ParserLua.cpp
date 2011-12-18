@@ -17,12 +17,12 @@
 #define MACARONI_PARSER_PARSERLUA_CPP
 
 #include "ParserLua.h"
-#include "Parser.h"
-#include "../Model/Context.h"
+#include <Macaroni/Parser/Parser.h>
+#include <Macaroni/Model/Context.h>
 #include "../Model/ContextLua.h"
 #include "../Model/Library.h"
 #include "../Model/LibraryLua.h"
-#include "ParserException.h"
+#include <Macaroni/Parser/ParserException.h>
 #include "ParserExceptionLua.h"
 #include <Macaroni/Model/Source.h>
 #include <Macaroni/Model/SourceLuaMetaData.h>
@@ -49,16 +49,16 @@ using Macaroni::Model::SourceLuaMetaData;
 
 #include "../LuaGlue.hpp"
 
-	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr, 
+	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr,
 									  const std::string & index)
-	{		
-		if (index == "Read") 
+	{
+		if (index == "Read")
 		{
 			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::Read);
 		}
-		else 
+		else
 		{
-			lua_pushnil(L);			
+			lua_pushnil(L);
 		}
 		return 1;
 	}
@@ -66,7 +66,7 @@ using Macaroni::Model::SourceLuaMetaData;
 	static int __tostring(lua_State * L)
 	{
 		//LUAGLUE_CLASSREFNAME & ptr = getInstance(L);
-		lua_pushstring(L, "Parser"); 
+		lua_pushstring(L, "Parser");
 		return 1;
 	}
 
@@ -88,13 +88,13 @@ using Macaroni::Model::SourceLuaMetaData;
 			Macaroni::Parser::ParserException * copy = new Macaroni::Parser::ParserException(pe.GetSource(), pe.GetMessage());
 
 			ParserExceptionPtr newPtr(copy);
-			ParserExceptionLuaMetaData::Throw(L, newPtr, 1); // DOES NOT RETURN			
+			ParserExceptionLuaMetaData::Throw(L, newPtr, 1); // DOES NOT RETURN
 			return 0;
 		}
 	}
 
 	#define LUAGLUE_ADDITIONALMETATABLEMETHODS \
-		{"__tostring", LUAGLUE_HELPERCLASS::__tostring}, 
+		{"__tostring", LUAGLUE_HELPERCLASS::__tostring},
 
 	#define LUAGLUE_ADDITIONALTABLEMETHODS \
 		/*{"LuaCreate", LUAGLUE_HELPERCLASS::LuaCreate},*/

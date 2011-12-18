@@ -17,7 +17,7 @@
 #define MACARONI_MODEL_LIBRARY_CPP
 
 #include "../ME.h"
-#include "Context.h"
+#include <Macaroni/Model/Context.h>
 #include <boost/foreach.hpp>
 #include "Library.h"
 #include <Macaroni/Exception.h>

@@ -1,0 +1,35 @@
+I believe a universal model to represent the majority of test frameworks or structures is achievable.
+
+Let's say a test function is "fn", and has an input and output.
+
+
+First, xUnit:
+  
+  class SomeTest
+      def setUp
+      def tearDown
+      def test1
+      def test2
+      def test3
+      
+xUnit style frameworks always create one instance of the test class and pass them to each test method, like this:
+
+  setUp(void) : SomeTest -> test1(SomeTest) : SomeTest -> tearDown(SomeTest)
+  setUp(void) : SomeTest -> test2(SomeTest) : SomeTest -> tearDown(SomeTest)
+  setUp(void) : SomeTest -> test3(SomeTest) : SomeTest -> tearDown(SomeTest)
+      
+  Here, there are three test routes. Each one runs the test function "setUp" and returns as its result an instance of
+ "SomeTest" which is the argument to every test method.
+  More exactly, if the languages could provide that SomeTest was never modified by any of the test methods, calling
+  setUp multiple times would be unnecessary. It is done to get around the potential risk of mutability in the test methods.
+  In reality, the test routes are like this:
+  
+  setUp(void) : SomeTest ->
+    test1(const SomeTest)
+    test2(const SomeTest)
+    test3(const SomeTest),
+    tearDown(SomeTest)
+    
+    
+ 
+ TestNG 

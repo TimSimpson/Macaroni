@@ -17,7 +17,7 @@
 #define MACARONI_MODEL_NODE_CPP
 
 #include "Node.h"
-#include "Context.h"
+#include <Macaroni/Model/Context.h>
 #include "../Exception.h"
 #include <Macaroni/Model/FileName.h>
 #include "Member.h"

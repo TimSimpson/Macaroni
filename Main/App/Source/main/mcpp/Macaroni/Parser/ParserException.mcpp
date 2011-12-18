@@ -1,0 +1,79 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+~import Macaroni::Exception;
+~import boost::format;
+~import Macaroni::Parser::ParserExceptionPtr;
+~import Macaroni::Model::SourcePtr;
+~import std::string;
+
+
+~namespace Macaroni::Parser;
+
+
+/** Any exception which occurs within the Parser. */
+class ParserException : public Exception
+{
+	private string msg;
+	private SourcePtr source;
+	private string throwLocation;
+	private string whatString;
+
+	~block "h"
+	{
+		public:
+		ParserException(Macaroni::Model::SourcePtr source,
+			            const std::string & msg,
+			            const std::string & throwLocation = "");
+	}
+
+	~block "cpp"
+	{
+		ParserException::ParserException(SourcePtr source, const string & msg,
+			            const string & throwLocation)
+		:   Exception(source->ToString(), msg),
+		    msg(msg),
+		    source(source),
+		    throwLocation(throwLocation),
+			whatString(str(format("%s : %s") % source->ToString() % msg))
+		{
+		}
+	}
+
+	public virtual ~ParserException() throw()
+	{
+	}
+
+	public SourcePtr GetSource() const
+	{
+		return source;
+	}
+
+	public const char * GetMessage() const
+	{
+		return msg.c_str();
+	}
+
+	public const char * GetThrowLocation() const
+	{
+		return throwLocation.c_str();
+	}
+
+	public virtual const char * what() const throw()
+	{
+		return whatString.c_str();
+	}
+
+};

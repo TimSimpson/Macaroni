@@ -84,6 +84,17 @@ static const struct luaL_Reg libs[] = {
 	{nullptr, nullptr} /* sentinel */
 	};
 
+void LuaEnvironment::OpenAllLuaModules()
+{
+	std::stringstream ss;
+	for (const luaL_Reg * ptr = libs; ptr->name != nullptr; ptr ++)
+	{
+		ss << "require \"" << ptr->name << "\";" << std::endl;
+	}
+	ParseString("Require-All-Internal", ss.str().c_str());
+	Run();
+}
+
 void LuaEnvironment::registerInternalLuaModules()
 {
 	// How this works:

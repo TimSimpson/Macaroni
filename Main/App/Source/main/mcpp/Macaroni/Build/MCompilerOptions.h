@@ -16,8 +16,9 @@
 #ifndef MACARONI_BUILD_MCOMPILEROPTIONS_H
 #define MACARONI_BUILD_MCOMPILEROPTIONS_H
 
+#include <Macaroni/ME.h>
 #include <boost/filesystem/operations.hpp>
-#include "../IO/FileSet.h"
+#include <Macaroni/IO/FileSet.h>
 #include <string>
 #include <vector>
 
@@ -28,12 +29,12 @@ class MCompilerOptions
 {
 public:
 	//TODO: Remove the generators which goto this as an argument.
-	MCompilerOptions(const std::vector<Macaroni::IO::FileSet> & input, 
+	MCompilerOptions(const std::vector<Macaroni::IO::FileSet> & input,
 					 const boost::filesystem::path & output,
 					 const std::vector<MACARONI_VE_CONST std::string> generators);
 
 	~MCompilerOptions();
-	
+
 	inline const std::vector<MACARONI_VE_CONST std::string> GetGenerators() const
 	{
 		return generators;
@@ -53,7 +54,7 @@ public:
 private:
 	const std::vector<MACARONI_VE_CONST std::string> generators;
 	std::vector<Macaroni::IO::FileSet> input;
-	boost::filesystem::path output;	
+	boost::filesystem::path output;
 };
 
 

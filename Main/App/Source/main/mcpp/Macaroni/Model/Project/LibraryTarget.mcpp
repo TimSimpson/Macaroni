@@ -1,0 +1,110 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+~import Macaroni::AppPathsPtr;
+~import BOOST_FOREACH;
+~import boost::format;
+~import Macaroni::Model::Element;
+~import Macaroni::Exception;
+~import Macaroni::IO::FileSet;
+~import Macaroni::IO::FileSetPtr;
+~import boost::intrusive_ptr;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Lua::LuaProperty;
+~import Macaroni::Build::MCompiler;
+~import Macaroni::Model::NodePtr;
+~import Macaroni::Model::Project::ProjectVersion;
+~import Macaroni::Model::Project::ProjectVersionPtr;
+~import Macaroni::Model::Reason;
+~import Macaroni::Model::Project::Target;
+~import Macaroni::Model::Project::TargetFileSweeper;
+~import Macaroni::Model::Project::TargetPtr;
+~import std::string;
+~import Macaroni::Cpp::UseLightDef;
+~import std::vector;
+
+~namespace Macaroni::Model::Project;
+
+//TODO: Rename to "Library" after getting rid of old class.
+
+class LibraryTarget {};
+
+typedef intrusive_ptr<LibraryTarget ~l> LibraryTargetPtr
+		@LuaClass [ SameAsNode = LibraryTarget ]
+		@UseLightDef true;
+
+class LibraryTarget : public Macaroni::Model::Project::Target
+{
+	@LuaClass [
+		ReferenceType = LibraryTargetPtr
+	]
+
+	private LibraryTarget(ProjectVersion * projectVersion,
+		            const string & name)
+	:   Target(projectVersion, name)
+	{
+	}
+
+	public static LibraryTargetPtr Create(
+		ProjectVersion * projectVersion,
+		const string & name,
+		const vector<Macaroni::Model::Project::TargetPtr> & dependencies,
+		const vector<FileSetPtr> & sources
+		)
+	{
+		LibraryTargetPtr lib(new LibraryTarget(projectVersion, name));
+		BOOST_FOREACH(TargetPtr target, dependencies) {
+			lib->dependencies.push_back(target.get());
+		}
+
+		TargetPtr ptr(lib.get());
+		TargetFileSweeper sweeper(ptr);
+		BOOST_FOREACH(FileSetPtr fs, sources) {
+			if (!!fs) {
+				sweeper.ParseFileSet(*(fs.get()));
+			}
+		}
+
+		return lib;
+	}
+
+	void readFile(std::stringstream & contents, const std::string & filePath)
+	{
+		std::ifstream file(filePath.c_str());
+		if (!file.is_open())
+		{
+			std::stringstream ss;
+			ss << "Could not open file " << filePath << "!";
+			throw Macaroni::Exception(ss.str().c_str());
+		}
+		std::string line;
+		while(! file.eof())
+		{
+			std::getline(file, line);
+			contents << line << "\n";
+		}
+		file.close();
+	}
+
+	public string ToString() const
+		@LuaOperator "__tostring"
+	{
+		return str(format("%s (Library)")
+		           % Target::ToString());
+	}
+
+};

@@ -13,41 +13,114 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+~import BOOST_FOREACH;
+~import boost::format;
 ~import Macaroni::Model::Element;
-//~import Macaroni::Lua::LuaClass;
-//~import Macaroni::Lua::LuaFunction;
-//~import Macaroni::Lua::LuaOperator;
-//~import Macaroni::Lua::LuaProperty;
+~import Macaroni::Exception;
+~import Macaroni::Model::Project::Group;
+~import Macaroni::Model::Project::GroupPtr;
+~import boost::intrusive_ptr;
+~import Macaroni::Model::Project::LibraryTarget;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Lua::LuaProperty;
 ~import Macaroni::Model::NodePtr;
+~import Macaroni::Model::Project::ProjectVersion;
+~import Macaroni::Model::Project::ProjectVersionPtr;
 ~import Macaroni::Model::Reason;
+~import std::string;
+~import Macaroni::Cpp::UseLightDef;
+~import std::vector;
 
 
 class Macaroni::Model::Project::Project {};
 
-class Macaroni::Model::Project::ProjectLuaMetaData {
-	~hfile=<Macaroni/Model/Project/ProjectLuaMetaData.h>
-};
+//class Macaroni::Model::Project::ProjectLuaMetaData {/
+//	~hfile=<Macaroni/Model/Project/ProjectLuaMetaData.h>
+//};
 
-typedef boost::intrusive_ptr<Macaroni::Model::Project::Project> 
+typedef intrusive_ptr<Macaroni::Model::Project::Project ~l>
 	Macaroni::Model::Project::ProjectPtr
-	//@LuaClass [ SameAsNode = Project ]
-	//@UseLightDef true
-;
+		@LuaClass [ SameAsNode = Macaroni::Model::Project::Project ]
+		@UseLightDef true;
 
-class Macaroni::Model::Project::Project : public Element
-	//@LuaClass [ 
-	//	LuaGlueClass = ProjectLuaMetaData,
-	//	ReferenceType = ProjectPtr 
-	//]
+class Macaroni::Model::Project::Project
+	@LuaClass [
+		ReferenceType = ProjectPtr
+	]
 {
-	private Project(Node * node, Reason * reasonCreated)
-		: Element(node, reasonCreated)
+	friend Group;
+
+	Group * const group;
+	const string name;
+	private vector<Macaroni::Model::Project::ProjectVersion *> versions;
+
+	protected Project(Group * group, const string & name)
+	:  group(group),
+	   name(name)
 	{
 	}
 
-	public virtual const char * GetTypeName() const 
+	private ~Project()
 	{
-		return "Project";
+		BOOST_FOREACH(Macaroni::Model::Project::ProjectVersion * v, versions)
+		{
+			delete v;
+		}
+	}
+
+	public bool operator==(const Macaroni::Model::Project::Project & other) const {
+		return (*group == *other.group
+			    && name == other.name);
+	}
+
+	private void addVersion(ProjectVersion * newVersion) {
+		BOOST_FOREACH(ProjectVersion * v, versions) {
+			if (*v == *newVersion) {
+				throw Macaroni::Exception("Attempted to add a version twice.");
+			}
+		}
+		versions.push_back(newVersion);
+	}
+
+	public GroupPtr GetGroup() const
+		@LuaProperty "Group"
+	{
+		GroupPtr ptr(group);
+		return ptr;
+	}
+
+	public inline const string & GetName() const
+		@LuaProperty "Name"
+	{
+		return name;
+	}
+
+	public ~global ~friend void intrusive_ptr_add_ref(Macaroni::Model::Project::Project * p)
+	{
+		intrusive_ptr_add_ref(p->group);
+	}
+
+	public ~global ~friend void intrusive_ptr_release(Macaroni::Model::Project::Project * p)
+	{
+		intrusive_ptr_release(p->group);
+	}
+
+	public string ToString() const
+		@LuaOperator "__tostring"
+	{
+		return str(format("%s, Project=\"%s\"")
+		           % group->ToString() % name);
+	}
+
+	public ProjectVersionPtr Version(const std::string & version)
+		@LuaFunction "Version"
+	{
+		using Macaroni::Model::Project::ProjectVersion;
+		ProjectVersionPtr projectVersion(new ProjectVersion(this, version));
+		addVersion(projectVersion.get());
+		return projectVersion;
 	}
 };
 

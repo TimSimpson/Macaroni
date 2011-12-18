@@ -17,11 +17,11 @@
 #define MACARONI_PARSER_PARSERFACTORY_H
 
 #include "../ME.h"
-#include "Parser.h"
+#include <Macaroni/Parser/Parser.h>
 
 BEGIN_NAMESPACE2(Macaroni, Parser)
 
-/** Grabs a Parser based on hard-coded conventions such as file name 
+/** Grabs a Parser based on hard-coded conventions such as file name
   * extensions. */
 class ParserFactory
 {

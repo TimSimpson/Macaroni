@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MACARONI_IO_FILESET_ITERATOR_CPP
+#ifdef MACARONI_IO_FILESET_ITERATOR_CPP
 #define MACARONI_IO_FILESET_ITERATOR_CPP
 
 #include "FileSet.h"
@@ -29,7 +29,7 @@ FileSet::Iterator::Iterator(const FileSet * parent)
 : fileSet(parent), iterateSingleFile(false), stack()
 {
 	if (fileSet != nullptr)
-	{		
+	{
 		if (is_directory(fileSet->root))
 		{
 			stack.push_back(directory_iterator(fileSet->root));
@@ -112,13 +112,13 @@ FileSet::Iterator FileSet::Iterator::operator++()
 //	directory_iterator end_itr;
 //	bool freshItr = false;
 //	while(stack.size() > 0)
-//	{		
+//	{
 //		directory_iterator & itr = stack.back();
 //		int stackAdds = 0;
 //		while(itr != end_itr)
 //		{
 //			if (!freshItr)
-//			{	
+//			{
 //				itr ++;
 //			}
 //			if (itr != end_itr && true)
@@ -132,9 +132,9 @@ FileSet::Iterator FileSet::Iterator::operator++()
 //				else if (true)//boost::regex_match((*itr).string(), fileSet->regExp))
 //				{
 //					return *this;
-//				}				
+//				}
 //			}
-//		}	
+//		}
 //		if (itr == end_itr)
 //		{
 //			stack.pop_back();
@@ -143,9 +143,9 @@ FileSet::Iterator FileSet::Iterator::operator++()
 //	fileSet = nullptr;
 //	return *this;
 }
-	
+
 bool FileSet::Iterator::finished()
-{	
+{
 	if (fileSet == nullptr)
 	{
 		MACARONI_ASSERT(stack.size() < 1, "Stack size < 1, yet fileset is null.");
@@ -159,8 +159,8 @@ void FileSet::Iterator::iterate(bool freshItr)
 	using boost::filesystem::is_directory;
 	directory_iterator end_itr;
 	while(stack.size() > 0)
-	{		
-		directory_iterator & itr = stack.back();		
+	{
+		directory_iterator & itr = stack.back();
 
 		if (!freshItr)
 		{
@@ -169,9 +169,9 @@ void FileSet::Iterator::iterate(bool freshItr)
 		freshItr = false;
 
 		if (itr == end_itr)
-		{			
+		{
 			stack.pop_back();
-		} 
+		}
 		else if (is_directory(itr->status()))
 		{
 			stack.push_back(directory_iterator(*itr));
@@ -179,7 +179,7 @@ void FileSet::Iterator::iterate(bool freshItr)
 			continue;
 		}
 		else if (true)
-		{			
+		{
 			if (fileSet->testPath((*itr).path().string()))//boost::regex_search((*itr).string(), fileSet->regExp))
 			{
 				return;

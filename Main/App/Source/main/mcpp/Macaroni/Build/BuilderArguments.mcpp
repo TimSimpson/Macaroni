@@ -18,7 +18,7 @@
 namespace Macaroni::Build {
 
 class BuilderArguments
-{			
+{
 	private const bool cavatappiMode;
 	private const bool clean;
 	private const bool generate;
@@ -45,32 +45,32 @@ class BuilderArguments
 	{
 		return build || Test();
 	}
-	
+
 	public inline bool CavatappiMode() const
 	{
 		return cavatappiMode;
 	}
-	
+
 	public inline bool Clean() const
 	{
-		return clean;	
-	}		
+		return clean;
+	}
 
 	public inline bool Generate() const
 	{
 		return generate || Build();
-	}	
+	}
 
 	public inline bool Install() const
 	{
 		return install;
 	}
-		
+
 	public inline bool Test() const
 	{
 		return test || Install();
-	}	
-	
+	}
+
 };
 
 typedef shared_ptr<BuilderArguments> BuilderArgumentsPtr;

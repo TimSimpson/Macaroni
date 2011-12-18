@@ -59,11 +59,11 @@ end
 
 badHtmlChars =
 {
-	{ '&', '&amp;'},	
+	{ '&', '&amp;'},
 	{ '<', '&lt;'},
-	{ '>', '&gt;'},	
+	{ '>', '&gt;'},
 	{ '"', '&quot;'},
-	{ ' ', '&nbsp;'},	
+	{ ' ', '&nbsp;'},
 };
 
 codeToHtml = function(text)
@@ -71,55 +71,55 @@ codeToHtml = function(text)
 		text = string.gsub(text, badHtmlChars[i][1], badHtmlChars[i][2])
 	end
 	return text
-end  
+end
 
-HtmlViewGenerator = 
+HtmlViewGenerator =
 {
-	new = function(rootNode, library, writer)    
+	new = function(rootNode, library, writer)
 		check(rootNode ~= nil, 'Argument 1, "rootNode", must be specified.');
         local self = {}
-        setmetatable(self, {["__index"] = HtmlViewGenerator});                                 
+        setmetatable(self, {["__index"] = HtmlViewGenerator});
         self.library = library;
         self.rootNode = rootNode;
         self.writer = writer;
         return self;
-    end,    
-    
+    end,
+
     getEntryText = function(self, node)
 		if node.Member == nil then
 			return "<i>" .. node.Name .. "</i>";
 		end
 		local typeName = node.Member.TypeName;
 		if typeName == 'Class' then
-			return [[<font color="#000077" face="courier"><b>]] 
+			return [[<font color="#000077" face="courier"><b>]]
 				   .. node.Name .. "</b></font>";
 		elseif typeName == 'Namespace' then
-			return [[<font color="#0000CC" face="courier">]] 
+			return [[<font color="#0000CC" face="courier">]]
 				   .. node.Name .. "</font>";
 		elseif typeName == 'Function' or typeName =="FunctionOverload"
 		       or typeName == 'Constructor' or typeName == "ConstructorOverload"
 		       or typeName == 'Destructor' or typeName == "DestructorOverload"
 		       then
-			return [[<font color="#770000" face="courier">]] 
-				   .. node.Name .. "</font>";		
+			return [[<font color="#770000" face="courier">]]
+				   .. node.Name .. "</font>";
 		elseif typeName == 'Typedef' then
-			return [[<font color="#380077" face="courier"><b>]] 
+			return [[<font color="#380077" face="courier"><b>]]
 				   .. node.Name .. "</b></font>";
 		elseif typeName == 'Variable' then
-			return [[<font color="#FF0077" face="courier">]] 
+			return [[<font color="#FF0077" face="courier">]]
 				   .. node.Name .. "</font>";
 		elseif typeName == 'AnnotationDefinition' then
-			return [[<font color="#777700" face="courier"><b>]] 
+			return [[<font color="#777700" face="courier"><b>]]
 				   .. node.Name .. "</b></font>";
 		elseif typeName == 'Block' then
-			return [[<font color="#005500" face="courier">]] 
-				   .. node.Name .. "</font>";		
+			return [[<font color="#005500" face="courier">]]
+				   .. node.Name .. "</font>";
 		else
-			return [[??! ]] 
+			return [[??! ]]
 				   .. node.Name .. "";
 		end
     end,
-    
+
     getNodeId = function(self, node)
 		notNull("self", self);
 		notNull("node", node);
@@ -128,11 +128,11 @@ HtmlViewGenerator =
 			return node.Name;
 		else
 			return id;
-		end		
+		end
     end,
-    
+
     rootNode = nil,
-    	
+
     run = function(self)
 		self:write([[
 <html>
@@ -148,11 +148,11 @@ div.hide { display:none; }
 	self:writeNode(self.rootNode);
 	self:write([[
 <script type="text/javascript">
-function change(id) 
+function change(id)
 {
-	var e = document.getElementById(id);	
+	var e = document.getElementById(id);
 	var c = e.className;
-	if (c == "hide") 
+	if (c == "hide")
 	{
 		e.className = "show"; //Annotation("class", "show");
 	}
@@ -165,44 +165,44 @@ function change(id)
 change('%ROOT%');
 </script>
 </body>
-</html>		
+</html>
 		]]);
     end,
-    
+
     write = function(self, text)
         if (type(text) ~= "string") then
             error("String was expected in call to write, but got " .. type(text) .. " instead.", 2);
         end
-        --log:Write("DEBUG:" .. debug.traceback());       
+        --log:Write("DEBUG:" .. debug.traceback());
         self.writer:Write(text);
-    end,              
-    
-    writeDivBegin = function(self, id)
-		self:write([[<div id="]] .. id .. [[" class="hide" >]]);	
     end,
-    
+
+    writeDivBegin = function(self, id)
+		self:write([[<div id="]] .. id .. [[" class="hide" >]]);
+    end,
+
     writeDivEnd = function(self)
 		self:write([[</div>]]);
     end,
-    
+
     writeEntryStart = function(self, id, name)
 		check(name ~= nil, 'Argument #3 name cannot be nil.')
-		self:write('<a name="' .. id 
+		self:write('<a name="' .. id
 				.. [[" href="javascript:change(']] .. id .. [[');">]]
 				.. name .. [[</a>]]);
     end,
 
-	writeBlockDetails = function(self, node, member)		
-		local id = self:getNodeId(node);		
+	writeBlockDetails = function(self, node, member)
+		local id = self:getNodeId(node);
 		self:write("<br/>");
 		self:writeEntryStart(id .. "-block-extras", node.Member.Id);
 		self:writeDivBegin(id .. "-block-extras");
 		self:write("<br/>");
 		self:write(codeToHtml(node.Member.Code));
-		self:write("<br/>");		
+		self:write("<br/>");
 		self:writeDivEnd();
 	end,
-	
+
     writeClassDetails = function(self, node, member)
 		local id = self:getNodeId(node);
 		self:write("<li>");
@@ -216,14 +216,14 @@ change('%ROOT%');
 			self:writeNodeList(list, false);
 			self:write([[<ul>]]);
 			self:writeDivEnd();
-		end							
+		end
 		writeNL(id .. "-imports", "imports", member.ImportedNodes);
 		writeNL(id .. "-friend-nodes", "friends", member.FriendNodes);
-		writeNL(id .. "-globals", "globals", member.GlobalNodes);				
+		writeNL(id .. "-globals", "globals", member.GlobalNodes);
 		self:writeDivEnd();
 		self:write("</li>");
     end,
-    
+
     writeCppNodeInfo = function(self, node, member)
 		if node.IsRoot then
 			return
@@ -234,7 +234,7 @@ change('%ROOT%');
 		self:writeDivBegin(id .. "-nodecppinfo");
 		local info = NodeInfoList[node];
 		self:write([[<ul>]]);
-		self:write([[<li>Header File: ]] .. codeToHtml(info.headerFile) 
+		self:write([[<li>Header File: ]] .. codeToHtml(info.headerFile)
 				   .. [[</li>]]);
 		self:write([[<li>Light Def: ]] .. codeToHtml(info.lightDef)
 		            .. [[</li>]]);
@@ -257,7 +257,7 @@ change('%ROOT%');
 							self:write([[<li>]] .. n.FullName .. [[</li>]]);
 						end
 					self:write([[</ul>]]);
-				self:write([[</li>]]);				
+				self:write([[</li>]]);
 			self:write([[</ul>]]);
 		self:write([[</li>]]);
 		self:write([[</ul>]]);
@@ -269,78 +269,78 @@ change('%ROOT%');
 			self:writeNodeList(list, false);
 			self:write([[<ul>]]);
 			self:writeDivEnd();
-		end							
+		end
 		self:writeDivEnd();
 		self:write("</li>");
     end,
-    
+
     writeLocationInfo = function(self, node, member)
 		local id = self:getNodeId(node);
-		self:write("<li>");			
+		self:write("<li>");
 		self:writeEntryStart(id .. "-location-info", "Location Info");
-		self:writeDivBegin(id .. "-location-info");				
+		self:writeDivBegin(id .. "-location-info");
 			local reason = member.ReasonCreated;
-			local srcFile = tostring(reason.Source.FileName);        
+			local srcFile = tostring(reason.Source.FileName);
 			local src = reason.Source;
 			self:write([[<br/>
 			<i>]] .. tostring(reason.Axiom) .. [[</i><br/>
-			<i>]] .. tostring(src.FileName) .. [[, line ]] 
-			.. tostring(src.Line) .. [[, column ]] 
+			<i>]] .. tostring(src.FileName) .. [[, line ]]
+			.. tostring(src.Line) .. [[, column ]]
 			.. tostring(src.Column) .. [[</i><br/>
 			]]);
 			if node.HFilePath ~= nil then
 				self:write("<br/>~hfile=" .. tostring(node.HFilePath) .. "<br/>");
 			else
 				self:write("<br/>~hfile=null<br/>");
-			end			
+			end
 		self:writeDivEnd();
 		self:write("</li>");
     end,
-    
+
     writeMemberDetails = function(self, node, member)
 		if (member == nil) then
 			self:write("<i>hollow</i>");
-		else 	
+		else
 			local id = self:getNodeId(node);
-			local typeName = member.TypeName;			
-			self:write("<table border='1'><tr><td>");						
-			self:writeEntryStart(id .. "-node-info", 
-				[[<font color="#000000" face="courier">]] 
+			local typeName = member.TypeName;
+			self:write("<table border='1'><tr><td>");
+			self:writeEntryStart(id .. "-node-info",
+				[[<font color="#000000" face="courier">]]
 				.. typeName .. ' ' .. node.FullName .. [[</font>]]);
 			self:write([[<ul>]]);
-			self:writeDivBegin(id .. "-node-info");			
-						
-			self:write(typeName);			
+			self:writeDivBegin(id .. "-node-info");
+
+			self:write(typeName);
 			if (typeName == "Class") then
-				self:writeClassDetails(node, member);		
+				self:writeClassDetails(node, member);
 			elseif (typeName == "Block") then
 				self:writeBlockDetails(node, member);
 			end
-			
+
 			self:writeLocationInfo(node, member);
-			
+
 			self:writeCppNodeInfo(node, member);
-			
+
 			self:writeDivEnd();
 			self:write([[</ul>]]);
 			self:write("</td></tr></table>");
 		end
     end,
-    
+
     writeNode = function(self, node)
-		local id = self:getNodeId(node); 
-		local name = node.Name;		
+		local id = self:getNodeId(node);
+		local name = node.Name;
 		local entryText = self:getEntryText(node);
-		self:writeEntryStart(id, entryText);		
+		self:writeEntryStart(id, entryText);
 		self:writeDivBegin(id);
 		self:write([[<ul>]]);
-		self:writeMemberDetails(node, node.Member);				
-		self:writeNodeList(node.Children, true);		
+		self:writeMemberDetails(node, node.Member);
+		self:writeNodeList(node.Children, true);
 		self:write([[</ul>]]);
 		self:writeDivEnd();
     end,
-        
-    writeNodeList = function(self, nodeList, recurse)		
+
+    writeNodeList = function(self, nodeList, recurse)
 		-- Alphabetize so its easier to see.
 		local t = {}
 		for i = 1, #nodeList do
@@ -358,23 +358,27 @@ change('%ROOT%');
 				self:write('<a href="#' .. self:getNodeId(element) .. '">' .. element.FullName .. '</a>');
 			end
 			self:write([[</li>]]);
-		end		
-    end,      
-    
-    
-    
+		end
+    end,
+
+
+
     writer = nil
-     
+
 }; -- end HtmlViewGenerator class
 
 
 
-function Generate(library, path, arguments)	
+function Generate(library, path, arguments)
 	log.Init("HtmlView");
-	arguments = arguments or {}	
+	--log.Write = function(self, msg)
+	--	print("[HTML]:" .. msg);
+	--end;
+
+	arguments = arguments or {}
     CurrentLibrary = library;
     local writer = path:NewPath("/macaroni-model.html"):CreateFile();
-    local generator = HtmlViewGenerator.new(library.Context.Root, library, writer);    
+    local generator = HtmlViewGenerator.new(library.Context.Root, library, writer);
     generator:run();
 end
 

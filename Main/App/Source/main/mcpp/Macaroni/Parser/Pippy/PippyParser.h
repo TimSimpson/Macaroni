@@ -19,7 +19,8 @@
 #include "../../ME.h"
 #include "../../Model/LibraryPtr.h"
 #include "PippyParserPtr.h"
-#include "../Parser.h"
+#include <Macaroni/Parser/Parser.h>
+#include <Macaroni/Model/Project/TargetPtr.h>
 
 BEGIN_NAMESPACE(Macaroni, Parser, Pippy)
 
@@ -34,12 +35,20 @@ public:
 
 	virtual int Read(Model::LibraryPtr c, Model::SourcePtr source, const std::string & text);
 
-	static void RunTests(); 
+	virtual int Read(Macaroni::Model::Project::TargetPtr target,
+	                 Model::SourcePtr source, const std::string & text);
+
+	virtual int Read(Model::LibraryPtr l,
+	                 Macaroni::Model::Project::TargetPtr target,
+	                 Model::SourcePtr source, const std::string & text);
+
+
+	static void RunTests();
 
 private:
 
 private:
-	
+
 };
 
 END_NAMESPACE

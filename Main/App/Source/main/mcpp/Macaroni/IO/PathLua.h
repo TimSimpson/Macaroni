@@ -23,7 +23,7 @@ struct lua_State;
 BEGIN_NAMESPACE2(Macaroni, IO)
 
 struct PathLuaMetaData
-{	
+{
 	static bool IsType(lua_State * L, int index);
 	static int OpenInLua(lua_State * L);
 	static PathPtr & GetInstance(lua_State * L, int index);
@@ -31,6 +31,13 @@ struct PathLuaMetaData
 	static void PutInstanceOnStack(lua_State * L, const PathPtr & ptr);
 };
 
+struct PathListLuaMetaData
+{
+	static bool IsType(lua_State * L, int index);
+	static int OpenInLua(lua_State * L);
+	static PathListPtr & GetInstance(lua_State * L, int index);
+	static void PutInstanceOnStack(lua_State * L, PathListPtr & ptr);
+};
 
 END_NAMESPACE2
 

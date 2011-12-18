@@ -47,15 +47,14 @@
 namespace Macaroni::Build {
 
 /** Governs the main execution routine of Macaroni.  The command line
- * has a few options other than just building the project, which 
- * are sorted through here. 
+ * has a few options other than just building the project, which
+ * are sorted through here.
  */
 class CmdLine
-{			
+{
 	private bool about;
-	private bool advance;
 	private bool build;
-	private bool cavatappiMode;	
+	private bool cavatappiMode;
 	private bool clean;
 	private string config;
 	private Console & console;
@@ -69,19 +68,20 @@ class CmdLine
 	private string luaTestsPath;
 	private string manifestPath;
 	private optional<path> messagesPath;
+	private bool modeM;
 	private string outputPath;
+	private bool repl;
 	private bool saveCppSource;
 	private bool startPrompt;
-	private bool test;	
+	private bool test;
 
 	public CmdLine(const VectorOfConstString & args, Console & console)
 	:	about(false),
-		advance(false),
 	    build(false),
-		cavatappiMode(false),	    
+		cavatappiMode(false),
 		clean(false),
 	    config(""),
-		console(console),		
+		console(console),
 		debugMode(false),
 		endPrompt(false),
 		generate(false),
@@ -92,7 +92,9 @@ class CmdLine
 		luaTestsPath(""),
 		manifestPath(""),
 		messagesPath(),
+		modeM(false),
 		outputPath(""),
+		repl(false),
 		saveCppSource(false),
 		startPrompt(false),
 		test(false)
@@ -115,8 +117,8 @@ class CmdLine
 		outputPath = "";
 		config = "";
 		luaTestsPath = "";
-	}	
-	
+	}
+
 
 	private bool pathContains(vector<path> & paths, path & path)
 	{
@@ -132,7 +134,7 @@ class CmdLine
 
 	private AppPathsPtr createAppPaths()
 	{
-		if (generatorPaths.size() < 1) 
+		if (generatorPaths.size() < 1)
 		{
 			path gPath = Paths::GetExeDirectoryPath();
 			generatorPaths.push_back(gPath / "Generators");
@@ -150,9 +152,9 @@ class CmdLine
 		{
 			libraryRepoPaths.push_back(lPath2);
 		}
-		path mPath = !messagesPath 
-						? Paths::GetExeDirectoryPath() 
-						: messagesPath.get();		
+		path mPath = !messagesPath
+						? Paths::GetExeDirectoryPath()
+						: messagesPath.get();
 		AppPathsPtr appPaths(new AppPaths(generatorPaths, libraryRepoPaths, mPath));
 		return appPaths;
 	}
@@ -210,17 +212,6 @@ class CmdLine
 			runLuaTests();
 			return true;
 		}
-		else if (advance) 
-		{
-			// Advance mode - creates an Environment.
-			Console * console = new Console(0);			
-			InputPtr input(console);
-			OutputPtr output(console);
-			ContextPtr context(new Context("%ROOT%"));
-			Macaroni::Environment::Environment env(createAppPaths(), context, 
-			                                       input, output);
-			return env.Repl();
-		}
 		else if (!(inputPath.empty() && outputPath.empty()))
 		{
 			// Allows someone to not use a manifest.  Not really a great idea for
@@ -229,23 +220,28 @@ class CmdLine
 			directCompile();
 			return true;
 		}
-		else
+		else if (repl)
+		{
+			return runProject(true);
+		}
+		else if (modeM)
 		{
 			// Reads project information and runs one or more of the stages
 			// of Macaroni's build cycle.
 			return runManifest();
 		}
-	}	
+		else
+		{
+			return runProject(true);
+			//runDefault();
+		}
+	}
 
 	private void parseArg(const string & arg, const string & next)
 	{
 		if (arg == "about")
-		{			
-			about = true;
-		}
-		else if (arg == "a")
 		{
-			advance = true;
+			about = true;
 		}
 		else if (arg == "cavatappi")
 		{
@@ -264,12 +260,12 @@ class CmdLine
 		}
 		else if (arg == "clean")
 		{
-			clean = true;	
+			clean = true;
 		}
 		else if (arg == "build")
 		{
 			build = true;
-		}		
+		}
 		else if (arg == "debug")
 		{
 			debugMode = true;
@@ -337,6 +333,25 @@ class CmdLine
 				manifestPath = next;
 			}
 		}
+		else if (arg == "messagesPath")
+		{
+			if (next.empty())
+			{
+				console.Write("No messages path given following "
+				              "\"messagesPath\" arg.");
+			}
+			else
+			{
+				path p = next;
+				messagesPath = optional<path>(p);
+				string file = (p / "Messages.txt").string(); 
+				Messages::Init(file.c_str());
+			}
+		}
+		else if (arg == "m" || arg == "modeM")
+		{
+			modeM = true;
+		}
 		else if (arg == "outputDirectory")
 		{
 			if (next.empty())
@@ -352,6 +367,10 @@ class CmdLine
 		{
 			endPrompt = true;
 		}
+		else if (arg == "repl")
+		{
+			repl = true;
+		}
 		else if (arg == "saveCppSource")
         {
             saveCppSource = true;
@@ -362,7 +381,7 @@ class CmdLine
 		}
 		else if (arg == "test")
 		{
-			test = true;	
+			test = true;
 		}
         else if (arg == "wait")
         {
@@ -372,10 +391,22 @@ class CmdLine
 	}
 
 	private void printAboutText()
-	{		
+	{
 		console.WriteLine(
 		#include <Macaroni/AboutText.h>
 			);
+	}
+
+	private void runDefault()
+	{
+		//WHOA! This using statement made Visual Studio have an internal
+		// compiler error.
+		//using boost::filesystem::path;
+		//optional<boost::filesystem::path> path =
+		//	Macaroni::Environment::Environment::FindDefaultProject();
+		//if (path) {
+		//runProject(true);
+		//}
 	}
 
 	private void runLuaTests()
@@ -399,13 +430,10 @@ class CmdLine
 		{
 			manifestPath = "manifest.lua";
 		}
-
 		if (config.empty())
 		{
 			config = "all";
 		}
-
-		boost::filesystem::path manifestFilePath(manifestPath);
 
 		/*const Configuration * mConfig = manifest.GetConfiguration(config);
 		if (mConfig == nullptr)
@@ -418,9 +446,28 @@ class CmdLine
 		const Configuration & mRefConfig = *mConfig;*/
 
 		ContextPtr context(new Context("%ROOT%"));
-		Builder builder(createAppPaths(), context, console);		
+		Builder builder(createAppPaths(), context, console);
 		BuilderArguments args(clean, generate, build, test, install, cavatappiMode);
-		return builder.Execute(args, manifestFilePath);
+		return builder.Execute(args, manifestPath);
+	}
+
+	private bool runProject(bool withRepl)
+	{
+		// Advance mode - creates an Environment.
+		Console * console = new Console(0);
+		InputPtr input(console);
+		OutputPtr output(console);
+		ContextPtr context(new Context("%ROOT%"));
+		Macaroni::Environment::Environment env(createAppPaths(), context,
+		                                       input, output);
+		if (!env.RunDefaultProject() && !withRepl) {
+			return false;
+		}
+		if (withRepl) {
+			return env.Repl();
+		} else {
+			return true;
+		}
 	}
 
 	public inline bool StartPrompt()

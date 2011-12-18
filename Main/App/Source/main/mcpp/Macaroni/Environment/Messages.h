@@ -32,19 +32,19 @@ public:
 
 	template<typename ObjectType>
 	static std::string Get(const char * id, ObjectType value);
-	
+
 	// Initializes all Messages.
-	static void Init();
+	static void Init(const char * filePath);
 private:
-	Messages(const char * filePath);
-	
+	Messages(const char * filePath = 0);
+
 	void add(std::string key, std::string content);
-	
+
 	std::map<std::string, std::string> bag;
 
 	std::string get(const char * id);
 
-	static Messages & getInstance();
+	static Messages & getInstance(const char * filePath = 0);
 };
 
 

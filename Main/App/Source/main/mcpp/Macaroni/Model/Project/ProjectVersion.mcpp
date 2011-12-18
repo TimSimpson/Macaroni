@@ -13,43 +13,174 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+~import boost::format;
+~import BOOST_FOREACH;
+~import Macaroni::IO::FileSet;
+~import Macaroni::IO::FileSetPtr;
 ~import Macaroni::Model::Element;
-//~import Macaroni::Lua::LuaClass;
-//~import Macaroni::Lua::LuaFunction;
-//~import Macaroni::Lua::LuaOperator;
-//~import Macaroni::Lua::LuaProperty;
+~import Macaroni::Exception;
+~import boost::intrusive_ptr;
+~import Macaroni::Model::Project::LibraryTarget;
+~import Macaroni::Model::Project::LibraryTargetPtr;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaGlueCode;
+~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Lua::LuaProperty;
 ~import Macaroni::Model::NodePtr;
-~import Macaroni::Model::Project;
+~import Macaroni::Model::Project::Project;
+~import Macaroni::Model::Project::ProjectPtr;
 ~import Macaroni::Model::Reason;
+~import std::string;
+~import Macaroni::Model::Project::Target;
+~import Macaroni::Model::Project::TargetPtr;
+~import Macaroni::Cpp::UseLightDef;
+~import std::vector;
 
+class Macaroni::Model::Project::ProjectVersion {};
 
-~namespace Macaroni::Model::Project;
+typedef intrusive_ptr<Macaroni::Model::Project::ProjectVersion ~l>
+	Macaroni::Model::Project::ProjectVersionPtr
+		@LuaClass [ SameAsNode = Macaroni::Model::Project::ProjectVersion ]
+		@UseLightDef true;
 
-class ProjectVersion {};
-
-class ProjectVersionLuaMetaData {
-	~hfile=<Macaroni/Model/Project/ProjectVersionLuaMetaData.h>
-};
-
-typedef boost::intrusive_ptr<ProjectVersion> ProjectVersionPtr
-	//@LuaClass [ SameAsNode = Project ]
-	//@UseLightDef true
-;
-
-class ProjectVersion : public Element
-	//@LuaClass [ 
-	//	LuaGlueClass = ProjectLuaMetaData,
-	//	ReferenceType = ProjectPtr 
-	//]
+class Macaroni::Model::Project::ProjectVersion
+	@LuaClass [
+		ReferenceType = Macaroni::Model::Project::ProjectVersionPtr
+	]
 {
-	private ProjectVersion(Node * node, Reason * reasonCreated)
-		: Element(node, reasonCreated)
+	friend Macaroni::Model::Project::Project;
+
+	private Macaroni::Model::Project::Project * const project;
+	private std::vector<Target *> targets;
+	private const string version;
+
+	private ProjectVersion(Project * project, const string & version)
+	:   project(project),
+	    version(version)
 	{
 	}
 
-	public virtual const char * GetTypeName() const 
+	private ~ProjectVersion()
 	{
-		return "ProjectVersion";
+		BOOST_FOREACH(Macaroni::Model::Project::Target * target,
+		              targets)
+		{
+			delete target;
+		}
+	}
+
+	public bool operator==(const ProjectVersion & other) const {
+		return (*project == *other.project
+			    && version == other.version);
+	}
+
+	private void addTarget(Target * target) {
+		BOOST_FOREACH(Macaroni::Model::Project::Target * t, targets) {
+			if (t->GetName() == target->GetName()) {
+				throw Macaroni::Exception("Target already added.");
+			}
+		}
+		targets.push_back(target);
+	}
+
+	public Macaroni::Model::Project::ProjectPtr GetProject() const
+		@LuaProperty "Project"
+	{
+		Macaroni::Model::Project::ProjectPtr ptr(project);
+		return ptr;
+	}
+
+	public inline const string & GetVersion() const
+		@LuaProperty "Version"
+	{
+		return version;
+	}
+
+	public ~global ~friend void intrusive_ptr_add_ref(
+		Macaroni::Model::Project::ProjectVersion * const p)
+	{
+		intrusive_ptr_add_ref((Macaroni::Model::Project::Project *) p->project);
+	}
+
+	public ~global ~friend void intrusive_ptr_release(
+		Macaroni::Model::Project::ProjectVersion * const p)
+	{
+		intrusive_ptr_release((Macaroni::Model::Project::Project *) p->project);
+	}
+
+	public LibraryTargetPtr Library(
+		string name,
+		const vector<TargetPtr> & dependencies,
+		const vector<FileSetPtr> & sources
+	)
+		@LuaFunction "Library"
+		@LuaGlueCode ={
+			ProjectVersionPtr & instance =
+				ProjectVersionLuaMetaData::GetInstance(L, 1);
+			string name(luaL_checkstring(L, 2));
+
+			vector<TargetPtr> deps;
+			luaL_checktype(L, 3, LUA_TTABLE);
+			// TODO
+
+			vector<FileSetPtr> sources;
+			luaL_checktype(L, 4, LUA_TTABLE);
+			int index = 0;
+			while(true)
+			{
+				index ++;
+				lua_pushnumber(L, index);
+				lua_gettable(L, 4);
+				if (lua_isnil(L, -1) == 0)
+				{
+					if (FileSetLuaMetaData::IsType(L, -1))
+					{
+						FileSetPtr fs =
+							FileSetLuaMetaData::GetInstance(L, -1);
+						sources.push_back(fs);
+					}
+					else
+					{
+						std::stringstream ss;
+						// Reusing variables is evil, but SO MUCH FUN!  YEAA!!
+						ss << "When constructing new FileSet list argument "
+						      "for method Library, index " << index
+						   << " was not type FileSet.";
+						luaL_error(L, ss.str().c_str());
+					}
+				}
+				else
+				{
+					break;
+				}
+			}
+			LibraryTargetPtr lib = instance->Library(name, deps, sources);
+
+			LibraryTargetLuaMetaData::PutInstanceOnStack(L, lib);
+			return 1;
+		}
+
+	{
+		LibraryTargetPtr lib = LibraryTarget::Create(this, name, dependencies, sources);
+		addTarget(lib.get());
+		return lib;
+	}
+
+	public TargetPtr Target(const std::string & name)
+		@LuaFunction "Target"
+	{
+		using Macaroni::Model::Project::Target;
+		TargetPtr target(new Target(this, name));
+		addTarget(target.get());
+		return target;
+	}
+
+	public string ToString() const
+		@LuaOperator "__tostring"
+	{
+		return str(format("%s, Version=\"%s\"")
+		           % project->ToString() % version);
 	}
 };
 

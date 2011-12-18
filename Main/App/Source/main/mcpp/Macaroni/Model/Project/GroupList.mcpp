@@ -1,10 +1,12 @@
 ~import BOOST_FOREACH;
+~import boost::format;
 ~import Macaroni::Model::Context;
 ~import Macaroni::Model::Project::Group;
 ~import Macaroni::Model::Project::GroupPtr;
 ~import boost::intrusive_ptr;
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaOperator;
 ~import boost::optional;
 ~import Macaroni::Model::Project;
 ~import std::string;
@@ -65,7 +67,7 @@ class GroupList
 		GroupPtr rtn = Find(name);
 		if (!rtn)
 		{
-			groups.push_back(new Group(this, name));
+			groups.push_back(new Group(context, this, name));
 		}
 		return GroupPtr(groups.back());
 	}
@@ -80,4 +82,9 @@ class GroupList
 		intrusive_ptr_release(p->context);
 	}
 
+	public string ToString() const
+		@LuaOperator "__tostring"
+	{
+		return str(format("GroupList, size=:%d") % groups.size());
+	}
 };

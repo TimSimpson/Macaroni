@@ -17,17 +17,19 @@
 #define MACARONI_BUILD_COMPILER_CPP
 
 #include "MCompilerOptions.h"
-#include "../Model/Context.h"
+#include <Macaroni/Model/Context.h>
 //#include "../Generator/Cpp/CppSourceGenerator.h"
 #include "../Generator/DebugEnumerator.h"
 #include "../Exception.h"
 #include <Macaroni/Model/FileName.h>
+#include <Macaroni/IO/FileSet.h>
+#include <Macaroni/IO/FileSetIterator.h>
 #include <Macaroni/Build/BuildContext.h>
 #include "../Model/LibraryPtr.h"
 #include <memory>
 #include "../Model/Node.h"
 #include "../Model/MemberVisitor.h"
-#include "../Parser/ParserException.h"
+#include <Macaroni/Parser/ParserException.h>
 #include "../Parser/Pippy/PippyParser.h"
 #include <Macaroni/Generator/DynamicGeneratorRunner.h>
 #include <Macaroni/IO/Path.h>
@@ -44,6 +46,7 @@ using Macaroni::Exception;
 using Macaroni::Model::FileName;
 using Macaroni::Model::FileNamePtr;
 using Macaroni::IO::FileSet;
+using Macaroni::IO::FileSetIterator;
 #include <fstream>
 #include <iostream>
 using Macaroni::Build::BuildContext;
@@ -71,11 +74,11 @@ class MCompiler
 public:
 	MCompiler(const Macaroni::AppPathsPtr & appPaths);
 	/** Iteratres all input files, parsing each one into the given context. */
-	bool BuildModel(LibraryPtr library, const std::vector<FileSet> filePath);
+	bool BuildModel(LibraryPtr library, const std::vector<FileSet> & filePath);
 	void Compile(LibraryPtr library,
 				 const MCompilerOptions & options);
 
-private:	
+private:
 	AppPathsPtr appPaths;
 
 	/** Reads from the model to generates output files. */
@@ -101,7 +104,7 @@ void MCompiler::readFile(std::stringstream & contents, const std::string & fileP
 		std::stringstream ss;
 		ss << "Could not open file " << filePath << "!";
 		throw Macaroni::Exception(ss.str().c_str());
-	}	
+	}
 	std::string line;
 	while(! file.eof())
 	{
@@ -115,29 +118,29 @@ void MCompiler::parseFile(LibraryPtr library, path filePath)
 {
 	std::stringstream fileContents;
 	readFile(fileContents, filePath.string());
-	
+
 	FileNamePtr fileName = FileName::Create(filePath.string());
 	SourcePtr source = Source::Create(fileName, 1, 1);
 	PippyParser parser;
 	parser.Read(library, source, fileContents.str());
 }
 
-bool MCompiler::BuildModel(LibraryPtr library, const std::vector<FileSet> inputFiles)
-{		
+bool MCompiler::BuildModel(LibraryPtr library, const std::vector<FileSet> & inputFiles)
+{
 	for (unsigned int i = 0; i < inputFiles.size(); i ++)
 	{
 		const FileSet & files = inputFiles[i];
-		if (!parseFileSet(library, files)) 
+		if (!parseFileSet(library, files))
 		{
 			return false;
 		}
-	}	
+	}
 	return true;
 }
 
 
 
-bool MCompiler::generateFiles(LibraryPtr library, path output, 
+bool MCompiler::generateFiles(LibraryPtr library, path output,
 							  const MCompilerOptions & options)
 {
 	for(unsigned int i = 0; i < options.GetGenerators().size(); i ++)
@@ -153,13 +156,13 @@ bool MCompiler::generateFiles(LibraryPtr library, path output,
 			BuildContextPtr buildContext(new BuildContext(appPaths, library, sources, outputPath, installDir, "{}"));
 			runner.RunDynamicGenerator(genPath, buildContext, "Generate", "{}");
 		}
-	} 
-	
+	}
+
 	return true;
 }
 
 void MCompiler::Compile(LibraryPtr library, const MCompilerOptions & options)
-{		
+{
 	if (!BuildModel(library, options.GetInput()))
 	{
 		std::cerr << "GAME OVER\n";
@@ -177,21 +180,21 @@ void MCompiler::Compile(LibraryPtr library, const MCompilerOptions & options)
 }
 
 bool MCompiler::parseFileSet(LibraryPtr library, const FileSet inputFiles)
-{	
-	FileSet::Iterator itr = inputFiles.Begin();
-	FileSet::Iterator end = inputFiles.End();
+{
+	FileSetIterator itr = inputFiles.Begin();
+	FileSetIterator end = inputFiles.End();
 	for(; itr != end; ++ itr)
-	{	
+	{
 		path p = *itr;
 		/*try
 		{*/
 			parseFile(library, p);
-		/*} 
+		/*}
 		catch(ParserException pe)
 		{
 			std::cerr << "ERROR: ";
 			std::cerr << pe.GetSource()->ToString() << "\n";
-			std::cerr << pe.GetMessage() << "\n";			
+			std::cerr << pe.GetMessage() << "\n";
 			return false;
 		}*/
 	}

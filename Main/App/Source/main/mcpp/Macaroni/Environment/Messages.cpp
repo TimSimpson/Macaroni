@@ -19,10 +19,14 @@
 #include "Messages.h"
 
 #include <fstream>
+#include <boost/format.hpp>
 #include "../IO/Paths.h"
 #include <sstream>
+#include <string>
 
+using boost::format;
 using Macaroni::IO::Paths;
+using std::string;
 
 BEGIN_NAMESPACE2(Macaroni, Environment)
 
@@ -30,10 +34,10 @@ namespace
 {
 	template<typename ObjectType>
 	void replace(std::string & str, unsigned int index, ObjectType obj)
-	{		
+	{
 		std::stringstream marker;
 		marker << "{" << index << "}";
-		unsigned int indexOf = str.find_first_of(marker.str());		
+		unsigned int indexOf = str.find_first_of(marker.str());
 		if (indexOf != std::string::npos)
 		{
 			std::stringstream newValue;
@@ -46,15 +50,23 @@ namespace
 Messages::Messages(const char * filePath)
 :bag()
 {
-	std::string exePath = Paths::GetExeDirectoryPath();
+	string finalFilePath;
+	if (filePath != nullptr)
+	{
+		finalFilePath = filePath;
+	}
+	else
+	{
+
+		finalFilePath = str(format("%s%s%s") % Paths::GetExeDirectoryPath()
+		                    % MACARONI_DIRECTORY_SEPERATOR % "Messages.txt");
+	}
 	std::ifstream file;
-	std::stringstream finalFilePath;
-	finalFilePath << exePath << MACARONI_DIRECTORY_SEPERATOR << "messages.txt";
-	file.open(finalFilePath.str().c_str());
-	if (!!file) 
+	file.open(finalFilePath.c_str());
+	if (!!file)
 	{
 		std::string next;
-			
+
  		do
 		{
 			std::getline(file, next);
@@ -64,15 +76,15 @@ Messages::Messages(const char * filePath)
 				std::string key = next.substr(0, index);
 				std::string content = next.substr(index + 1, next.size() - index);
 				add(key, content);
-			}		
+			}
 		}while(!file.eof());
 		file.close();
 	}
 	else
 	{
-		std::stringstream ss;
-		ss << "\"Messages.txt\" not found at \"" << finalFilePath.str() << "\".";
-		MACARONI_THROW(ss.str().c_str())
+		string msg = str(format("Messages file not not found at \"%s\".")
+		                 % finalFilePath);
+		MACARONI_THROW(msg.c_str());
 	}
 }
 
@@ -83,12 +95,12 @@ void Messages::add(std::string key, std::string content)
 
 
 std::string Messages::Get(const char * id)
-{	
+{
 	return getInstance().get(id);
 }
 
 std::string Messages::Get(const char * id, int var)
-{	
+{
 	std::string msg(Get(id));
 	replace(msg, 0, var);
 	return msg;
@@ -96,7 +108,7 @@ std::string Messages::Get(const char * id, int var)
 
 template<typename ObjectType>
 std::string Messages::Get(const char * id, ObjectType var)
-{	
+{
 	std::string msg(Get(id));
 	replace(msg, 0, var);
 	return msg;
@@ -118,16 +130,20 @@ std::string Messages::get(const char * id)
 	return std::string("~Mysterious Message of Macaroni~");*/
 }
 
-Messages & Messages::getInstance()
+Messages & Messages::getInstance(const char * filePath)
 {
 	static Messages * instance = nullptr;
 	if (instance == nullptr)
 	{
-		instance = new Messages("Messages.txt");
-	}	
+		instance = new Messages(filePath);
+	}
 	return dynamic_cast<Messages &>(*instance);
 }
 
+void Messages::Init(const char * filePath)
+{
+	getInstance(filePath);
+}
 
 
 END_NAMESPACE2

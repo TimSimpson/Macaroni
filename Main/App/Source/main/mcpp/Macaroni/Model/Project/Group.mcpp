@@ -1,21 +1,29 @@
 ~import BOOST_FOREACH;
+~import Macaroni::Model::Context;
+~import Macaroni::Model::ContextPtr;
+~import Macaroni::Exception;
+~import BOOST_FOREACH;
+~import boost::format;
 ~import Macaroni::Model::Project::GroupList;
 ~import boost::intrusive_ptr;
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaFunction;
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
+~import Macaroni::Model::Project::Project;
+~import Macaroni::Model::Project::ProjectPtr;
 ~import std::string;
 ~import std::stringstream;
 ~import Macaroni::Cpp::UseLightDef;
 ~import Macaroni::Model::Project::Utils;
+~import std::vector;
 
 
 ~namespace Macaroni::Model::Project;
 
 class Group {};
 
-typedef intrusive_ptr<Group> GroupPtr
+typedef intrusive_ptr<Group ~l> GroupPtr
 	@LuaClass [ SameAsNode = Group ]
 	@UseLightDef true;
 
@@ -26,26 +34,50 @@ class Group
 {
 	friend GroupList;
 
+	private Context * context;
 	private const string name;
 	private GroupList * const parent;
+	private vector<Macaroni::Model::Project::Project *> projects;
 
-	protected Group(GroupList * parent, const string & name)
-	: name(name),
+	protected Group(Context * context, GroupList * parent, const string & name)
+	: context(context),
+	  name(name),
 	  parent(parent)
 	{
+	}
+
+	protected ~Group()
+	{
+		BOOST_FOREACH(Macaroni::Model::Project::Project * project, projects)
+		{
+			delete project;
+		}
+	}
+
+	public bool operator==(const Group & other) const {
+		return (name == other.name);
 	}
 
 	/** Returns a version of this ID which can be used as a C identifier.
 	 * The point isn't to make a pretty name but just one that maps uniquely.
 	 */
-	string GetCId() const
+	public string GetCId() const
+		@LuaFunction "GetCId"
 	{
 		std::stringstream ss;
 		ss << Utils::CreateCId(name);
 		return ss.str();
 	}
 
-	public const string & GetName() const {
+	public ContextPtr GetContext() const
+	{
+		ContextPtr ptr(context);
+		return ptr;
+	}
+
+	public const string & GetName() const
+		@LuaProperty "Name"
+	{
 		return name;
 	}
 
@@ -59,4 +91,28 @@ class Group
 		intrusive_ptr_release(p->parent);
 	}
 
+	private void addProject(Project * project) {
+		BOOST_FOREACH(Macaroni::Model::Project::Project * p, projects) {
+			if (*p == *project) {
+				throw Macaroni::Exception("Attempt to add the same project "
+										  "twice.");
+			}
+		}
+		projects.push_back(project);
+	}
+
+	public ProjectPtr Project(const std::string & name)
+		@LuaFunction "Project"
+	{
+		using Macaroni::Model::Project::Project;
+		ProjectPtr project(new Project(this, name));
+		addProject(project.get());
+		return project;
+	}
+
+	public string ToString() const
+		@LuaOperator "__tostring"
+	{
+		return str(format("Group=\"%s\"") % name);
+	}
 };

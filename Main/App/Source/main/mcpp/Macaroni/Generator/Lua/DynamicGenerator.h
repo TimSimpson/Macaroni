@@ -17,7 +17,7 @@
 #define MACARONI_GENERATOR_LUA_DYNAMICGENERATOR_H
 
 #include "../../ME.h"
-#include "../../Model/Context.h"
+#include <Macaroni/Model/Context.h>
 #include "DynamicScriptRunner.h"
 #include <Macaroni/Build/BuildContextPtr.h>
 #include <Macaroni/Build/BuildContext.h>

@@ -17,8 +17,14 @@
 #define MACARONI_MODEL_CPP_SCOPE_CPP
 
 #include "Scope.h"
+#include <Macaroni/Exception.h>
 #include "../Library.h"
 #include "../Node.h"
+#include <Macaroni/Model/Project/Target.h>
+#include <Macaroni/Model/Project/TargetPtr.h>
+
+using Macaroni::Model::Project::Target;
+using Macaroni::Model::Project::TargetPtr;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
@@ -34,13 +40,26 @@ void intrusive_ptr_release(Scope * p)
 
 Scope::Scope(Library * library, Node * node, const char * typeName, ReasonPtr reason)
 :ScopeMember(node, typeName, reason),
- library(library)
+ library(library),
+ target(0)
 {
 }
 
+Scope::Scope(Target * target, Node * node, const char * typeName, ReasonPtr reason)
+:ScopeMember(node, typeName, reason),
+ library(0),
+ target(target)
+{
+}
+
+
 LibraryPtr Scope::GetLibrary() const
 {
-	return LibraryPtr(library);
+	if (!target) {
+		return LibraryPtr(library);
+	} else {
+		throw Macaroni::Exception("Deprecated- use 'OwnedBy' instead.");
+	}
 }
 
 size_t Scope::GetMemberCount() const
@@ -51,6 +70,20 @@ size_t Scope::GetMemberCount() const
 NodePtr Scope::GetMember(int index) const
 {
 	return getNode()->GetChild(index);
+}
+
+bool Scope::OwnedBy(Macaroni::Model::Project::TargetPtr target) const {
+	if (!target) {
+		return false;
+	}
+	if (*target == *(this->target)) {
+		return true;
+	}
+	TargetPtr parent = this->target->GetParent();
+	if (!!parent && *target == *parent) {
+		return true;
+	}
+	return false;
 }
 
 END_NAMESPACE

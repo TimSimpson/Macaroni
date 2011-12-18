@@ -2,7 +2,7 @@
 #define MACARONI_PARSER_CPP_CPPPARSERSTATE_H
 
 #include "../../ME.h"
-#include "../../Model/Context.h"
+#include <Macaroni/Model/Context.h>
 #include "../../Model/SourcePtr.h"
 #include <string>
 

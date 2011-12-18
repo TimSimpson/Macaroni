@@ -1,0 +1,52 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+~import Macaroni::Model::Context;
+~import Macaroni::Model::ContextPtr;
+~import BOOST_FOREACH;
+~import std::ifstream;
+~import Macaroni::IO::FileSet;
+~import Macaroni::IO::FileSetIterator;
+~import Macaroni::Model::Library;
+~import Macaroni::Model::LibraryPtr;
+~import Macaroni::Parser::ParserPtr;
+~import Macaroni::Model::SourcePtr;
+~import Macaroni::Model::Project::TargetPtr;
+
+~namespace Macaroni::Parser;
+
+/** Interface for parsing text into Model objects. */
+class Parser
+{
+	public Parser(){}
+	public virtual ~Parser(){}
+
+	//TODO: Why didn't I call this Parse instead of Read? :/
+
+	//TODO: Remove the library version eventually.
+	/** Returns lines read.  Throws Model::ModelInconsistencyException, or
+	 * Parser::ParserException. */
+	public virtual int Read(Model::LibraryPtr l, // Library to read into.
+					  Model::SourcePtr source, // Where the text begins.
+					  const std::string & text // Text.
+					  ) = 0;
+
+	public virtual int Read(Macaroni::Model::Project::TargetPtr target,
+	                      // ^-- Target to read stuff into.
+					  Model::SourcePtr source, // Where the text begins.
+					  const std::string & text // Text.
+					  ) = 0;
+
+};

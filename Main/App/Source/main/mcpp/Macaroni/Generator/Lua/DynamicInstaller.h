@@ -17,7 +17,7 @@
 #define MACARONI_GENERATOR_LUA_DYNAMICINSTALLER_H
 
 #include "../../ME.h"
-#include "../../Model/Context.h"
+#include <Macaroni/Model/Context.h>
 #include "DynamicScriptRunner.h"
 #include "../../Model/Library.h"
 #include "../../Environment/LuaEnvironment.h"

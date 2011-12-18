@@ -51,9 +51,9 @@ using Macaroni::Environment::Messages;
 
 int generic_main(std::vector<MACARONI_VE_CONST std::string> & args)
 {
-	std::cout << MACARONI_FILE_DESCRIPTION << std::endl;	
-	std::cout << "Version " << MACARONI_VERSION_STRING << 
-		" built at " << BUILD_TIMESTAMP_LOCAL << std::endl;	
+	std::cout << MACARONI_FILE_DESCRIPTION << std::endl;
+	std::cout << "Version " << MACARONI_VERSION_STRING <<
+		" built at " << BUILD_TIMESTAMP_LOCAL << std::endl;
 	std::cout << std::endl;
 
 	Console output(0);
@@ -62,7 +62,7 @@ int generic_main(std::vector<MACARONI_VE_CONST std::string> & args)
 
 	if (cmd.StartPrompt())
 	{
-		std::cout << 
+		std::cout <<
 			"\"startPrompt\" was specified- waiting for user to enter text and "
 			"hit enter." << std::endl;
 		std::string stuff;
@@ -73,23 +73,23 @@ int generic_main(std::vector<MACARONI_VE_CONST std::string> & args)
 	if (cmd.StartPrompt()) // Not running in a try / catch makes it easier to debug
 	{
 		if (cmd.Execute())
-		{		
-			returnCode = 0; // success		
+		{
+			returnCode = 0; // success
 		}
 	}
 	else
 	{
-		try
+		/*try
 		{
-			if (cmd.Execute())
-			{		
-				returnCode = 0; // success		
+		*/	if (cmd.Execute())
+			{
+				returnCode = 0; // success
 			}
-		} catch(std::exception & ex)
+		/*} catch(std::exception & ex)
 		{
 			std::cerr << "An error occurred.\n" << std::endl;
 			std::cerr << ex.what()  << std::endl;
-		}
+		}*/
 	}
 	std::cout << std::endl << "Program finished." << std::endl;
 	if (cmd.EndPrompt())
@@ -119,14 +119,14 @@ void convert(std::wstring & original, std::string & rtnString)
 /** I'm not sure if using the _TCHAR version of main is necessary. Maybe
  *  there's an easier way to achieve platform independence here. */
 int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
-{	
+{
 	std::vector<MACARONI_VE_CONST std::string> convertedArgs;
 	for (int i = 0; i < argc; i ++)
 	{
 		NonWindowsString convertedString(argv[i]);
 		convertedArgs.push_back(convertedString.get());
 	}
-	
+
 	return generic_main(convertedArgs);
 }
 
@@ -138,18 +138,18 @@ int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
 #ifdef MACARONI_COMPILE_TARGET_LINUX
 
 // This hack facilitates Macaroni::IO::Paths::GetExePath.
-namespace Macaroni { namespace IO { 
-std::string CURRENT_EXE_PATH; 
+namespace Macaroni { namespace IO {
+std::string CURRENT_EXE_PATH;
 } };
 
 int main(int argc, const char * argv[])
-{	
+{
 	if (argc < 1)
 	{
 		std::cerr << "Less than one argument?! But how could that be?!!";
 		return -500; // Negative 500 is super bad.
 	}
-	
+
 	Macaroni::IO::CURRENT_EXE_PATH = argv[0];
 
 	std::vector<MACARONI_VE_CONST std::string> convertedArgs;

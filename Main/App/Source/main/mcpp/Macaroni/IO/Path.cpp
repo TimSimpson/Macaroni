@@ -20,13 +20,15 @@
 #include <boost/filesystem/convenience.hpp>
 #include <boost/foreach.hpp>
 #include <Macaroni/Platform/FileTime.h>
-#include "../IO/FileSet.h"
+#include <Macaroni/IO/FileSet.h>
+#include <Macaroni/IO/FileSetIterator.h>
 #include "../Exception.h"
 #include <iostream>
 #include <sstream>
 
 using Macaroni::Platform::FileTime;
 using Macaroni::IO::FileSet;
+using Macaroni::IO::FileSetIterator;
 
 BEGIN_NAMESPACE2(Macaroni, IO)
 
@@ -60,7 +62,7 @@ Path::Path(const Path & other)
 
 Path::Path(boost::filesystem::path rootPath, boost::filesystem::path path)
 :path(path), rootPath(rootPath)
-{		
+{
 	assertPathExistsInRootPath();
 }
 
@@ -84,7 +86,7 @@ void Path::ClearDirectoryContents()
 	if (!Exists())
 	{
 		std::stringstream ss;
-		ss << "Can't clear directory contents from path \"" << path.string() 
+		ss << "Can't clear directory contents from path \"" << path.string()
 		   << "\" as it does not exist.";
 		std::string msg(ss.str());
 		throw Macaroni::Exception(msg.c_str());
@@ -95,9 +97,9 @@ void Path::ClearDirectoryContents()
 		ss << "Cannot clear directory contents from path \"" << path.string()
 		   << " as it is not a directory.";
 		std::string msg(ss.str());
-		throw Macaroni::Exception(msg.c_str());		
-	} 
-	else 
+		throw Macaroni::Exception(msg.c_str());
+	}
+	else
 	{
 		boost::filesystem::remove_all(path);
 	}
@@ -112,15 +114,15 @@ void Path::CopyDirectoryContents(boost::filesystem::path & bSrc,
 
 void Path::CopyDirectoryContents(Path & src,
 								 boost::filesystem::path & bDst)
-{ 
+{
 	PathListPtr paths = src.GetPaths();
 	for(unsigned int i = 0; i < paths->size(); i ++)
-	{ 
+	{
 		PathPtr p = (*paths)[i];
 		if (!p->IsDirectory())
 		{
 			p->CopyToDifferentRootPath(bDst);
-		} 
+		}
 		else
 		{
 			CopyDirectoryContents(*p, bDst);
@@ -135,7 +137,7 @@ void Path::CopyToDifferentRootPath(boost::filesystem::path newRootPath,
 	//std::cio << "Creating directories at " .. dstPath.branch_path() << std::endl;
 	boost::filesystem::create_directories(dstPath.branch_path());
 	//boost::filesystem::remove(dstPath);
-	
+
 	if (boost::filesystem::exists(dstPath))
 	{
 		if (overrideIfExist)
@@ -143,14 +145,14 @@ void Path::CopyToDifferentRootPath(boost::filesystem::path newRootPath,
 			boost::filesystem::remove(dstPath);
 		}
 	}
-	boost::filesystem::copy_file(this->path, dstPath);	
+	boost::filesystem::copy_file(this->path, dstPath);
 }
 
-void Path::CopyToDifferentRootPath(const PathPtr & rootPath, 
+void Path::CopyToDifferentRootPath(const PathPtr & rootPath,
 								   bool overrideIfExist)
 {
 	boost::filesystem::path rp(rootPath->GetAbsolutePath());
-	this->CopyToDifferentRootPath(rp, overrideIfExist);	
+	this->CopyToDifferentRootPath(rp, overrideIfExist);
 }
 
 void Path::CreateDirectory() const
@@ -158,9 +160,9 @@ void Path::CreateDirectory() const
 	if (Exists())
 	{
 		return;
-	}	
+	}
 	boost::filesystem::create_directories(path);
-	//boost::filesystem::create_directory(path);	
+	//boost::filesystem::create_directory(path);
 }
 
 GeneratedFileWriterPtr Path::CreateFile() const
@@ -176,7 +178,7 @@ PathPtr Path::CreateWithCurrentAsRoot() const
 }
 
 PathPtr Path::CreateWithDifferentRootPath(const PathPtr & otherPath)
-{	
+{
 	boost::filesystem::path p = otherPath->rootPath / GetRelativePath();
 	PathPtr path(new Path(otherPath->rootPath, p));
 	return path;
@@ -197,7 +199,7 @@ std::string Path::GetAbsolutePathForceSlash() const
 	//const char seperator = boost::filesystem::path_alt_separator<boost::filesystem::path>::value;
 	//TODO: The line above worked in 1.42.0 but doesn't in 1.45.0.  Find
 	// an actual way to do this.
-	const char seperator = '\\'; 
+	const char seperator = '\\';
 	if (!(seperator == '/'))
 	{
 		std::string original = GetAbsolutePath();
@@ -208,7 +210,7 @@ std::string Path::GetAbsolutePathForceSlash() const
 			{
 				ss << "/";
 			}
-			else 
+			else
 			{
 				ss << c;
 			}
@@ -227,7 +229,7 @@ std::string Path::GetFileName() const
 	{
 		std::stringstream ss;
 		ss << "Cannot change the extension as the given path \""
-			<< GetAbsolutePath() 
+			<< GetAbsolutePath()
 			<< "\" is not a regular file.";
 		throw Macaroni::Exception(ss.str().c_str());
 	}*/
@@ -249,14 +251,14 @@ PathListPtr Path::GetPaths(const std::string & matchingPattern) const
 {
 	PathListPtr rtnList(new PathList());
 
-	FileSet files(this->path, matchingPattern);	
-	for(FileSet::Iterator itr = files.Begin(); itr != files.End(); ++ itr)
+	FileSet files(this->path, matchingPattern);
+	for(FileSetIterator itr = files.Begin(); itr != files.End(); ++ itr)
 	{
 		PathPtr p(new Path(this->rootPath, *itr));
-		rtnList->push_back(p);	
+		rtnList->push_back(p);
 	}
 
-	return rtnList;		
+	return rtnList;
 }
 
 PathPtr Path::GetRoot() const
@@ -276,7 +278,7 @@ std::string Path::GetStringBackToRoot() const
 		p = p.parent_path();
 		if (!first)
 		{
-			ss << "/";			
+			ss << "/";
 		}
 		else
 		{
@@ -296,13 +298,13 @@ bool Path::IsFileOlderThan(const std::string & filePath) const
 {
 	if (!this->Exists())
 	{
-		return true; // FoR WHAT BE MORE ANCIENT THAN THE VOID OF 
+		return true; // FoR WHAT BE MORE ANCIENT THAN THE VOID OF
 					 // ETERNAL NOTHINGNESS?!!
-	} 
+	}
 	boost::filesystem::path one(this->GetAbsolutePath());
 	boost::filesystem::path two(filePath);
-	
-	return FileTime::File1IsOlderThanFile2(one, two);	
+
+	return FileTime::File1IsOlderThanFile2(one, two);
 }
 
 bool Path::IsRegularFile() const
@@ -311,8 +313,8 @@ bool Path::IsRegularFile() const
 }
 
 PathPtr Path::NewPath(const std::string & name) const
-{	 
-	std::string newStr(this->path.string() + name);	
+{
+	std::string newStr(this->path.string() + name);
 	boost::filesystem::path newPath(newStr);
 	if (!stringBeginsWith(newPath.string(), this->rootPath.string()))
 	{
@@ -322,8 +324,8 @@ PathPtr Path::NewPath(const std::string & name) const
 }
 
 PathPtr Path::NewPathForceSlash(const std::string & name) const
-{	
-	//std::string newStr(this->path.string() + name);	
+{
+	//std::string newStr(this->path.string() + name);
 	boost::filesystem::path newPath(this->path / name);////newStr);
 	if (!stringBeginsWith(newPath.string(), this->rootPath.string()))
 	{
@@ -369,7 +371,7 @@ std::string Path::ToString() const
 	return GetRelativePath();
 }
 
-	
+
 END_NAMESPACE2
 
 #endif

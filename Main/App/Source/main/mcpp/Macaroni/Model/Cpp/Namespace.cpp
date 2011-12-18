@@ -22,8 +22,12 @@
 #include "../Node.h"
 #include <memory>
 #include <sstream>
+#include <Macaroni/Model/Project/Target.h>
+#include <Macaroni/Model/Project/TargetPtr.h>
 
 using Macaroni::Model::Node;
+using Macaroni::Model::Project::Target;
+using Macaroni::Model::Project::TargetPtr;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
@@ -32,9 +36,14 @@ Namespace::Namespace(Library * library, Node * parent, ReasonPtr reason)
 {
 }
 
+Namespace::Namespace(Target * target, Node * parent, ReasonPtr reason)
+:Scope(target, parent, "Namespace", reason)
+{
+}
+
 Namespace::~Namespace()
 {
-	
+
 }
 
 bool Namespace::canBeChildOf(const Member * other) const
@@ -47,6 +56,12 @@ NamespacePtr Namespace::Create(LibraryPtr library, NodePtr parent, ReasonPtr rea
 	return NamespacePtr(new Namespace(library.get(), parent.get(), reason));
 }
 
+NamespacePtr Namespace::Create(TargetPtr target, NodePtr parent, ReasonPtr reason)
+{
+	return NamespacePtr(new Namespace(target.get(), parent.get(), reason));
+}
+
+
 const char * Namespace::GetTypeName() const
 {
 	return "Namespace";
@@ -55,17 +70,17 @@ const char * Namespace::GetTypeName() const
 
 bool Namespace::IsInstance(ElementPtr other)
 {
-	if (!other) 
+	if (!other)
 	{
 		return false;
 	}
 	NamespacePtr nsPtr = boost::dynamic_pointer_cast<Namespace>(other);
-	return (!!nsPtr);	
+	return (!!nsPtr);
 }
 
 //
 //Namespace * Namespace::create(std::string & name)
-//{	
+//{
 //	std::auto_ptr<Namespace> newNs(new Namespace(this, name));
 //	addScopeMember(newNs.get());
 //	return newNs.release();
@@ -74,7 +89,7 @@ bool Namespace::IsInstance(ElementPtr other)
 //NamespacePtr Namespace::CreatePrimitiveTypes(NamespacePtr parentNs, const std::string & name)
 //{
 //	NamespacePtr primitiveNs
-//		= NamespacePtr(new Namespace(name));	
+//		= NamespacePtr(new Namespace(name));
 //	primitiveNs->selfPtr = primitiveNs;
 //	Class::FindOrCreate(primitiveNs, std::string("char"));
 //	Class::FindOrCreate(primitiveNs, std::string("double"));
@@ -145,11 +160,11 @@ bool Namespace::IsInstance(ElementPtr other)
 //		lastPart = name.substr(index + 2);
 //	}
 //
-//	
-//	Namespace * ns = dynamic_cast<Namespace *>(this->find(firstPart));		
+//
+//	Namespace * ns = dynamic_cast<Namespace *>(this->find(firstPart));
 //	if (ns == nullptr)
 //	{
-//		ns = create(firstPart);		
+//		ns = create(firstPart);
 //	}
 //
 //	if (lastPart.size() < 1)
@@ -164,7 +179,7 @@ bool Namespace::IsInstance(ElementPtr other)
 
 
 //void Namespace::FindOrCreate(NamespacePtr startingNs, std::string & complexName,
-//							 NamespacePtr & parentNamespace, 
+//							 NamespacePtr & parentNamespace,
 //							 std::string & simpleName)
 //{
 //	MACARONI_ASSERT(startingNs != false, "Root namespace in FindOrCreate cannot be nullptr.");
@@ -177,7 +192,7 @@ bool Namespace::IsInstance(ElementPtr other)
 //	}
 //	else
 //	{
-//		std::string additionalNsName = complexName.substr(0, index - 1);		
+//		std::string additionalNsName = complexName.substr(0, index - 1);
 //		parentNamespace = startingNs->FindOrCreate(additionalNsName);
 //		simpleName = complexName.substr(index + 1);
 //	}
@@ -225,7 +240,7 @@ void intrusive_ptr_release(Namespace * p)
 //	{
 //		root = NamespacePtr(new Namespace(std::string("{ROOT}"), NamespacePtr()));
 //	}
-//	
+//
 //	return root;
 //}
 
@@ -237,7 +252,7 @@ void Namespace::Visit(MemberVisitor * visitor) const
 	{
 		nsVisitorDeleter.release(); // do not let auto_ptr destroy.
 	}
-	
+
 	for(unsigned int i = 0; i < this->GetNode()->GetChildCount(); i ++)
 	{
 		NodePtr child = GetNode()->GetChild(i);

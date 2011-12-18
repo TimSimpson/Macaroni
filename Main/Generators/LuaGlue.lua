@@ -61,7 +61,7 @@ Source = Macaroni.Model.Source;
 Type = Macaroni.Model.Type;
 Variable = Macaroni.Model.Cpp.Variable;
 
-OPERATORS_CPP_TO_LUA = 
+OPERATORS_CPP_TO_LUA =
 {
 	["=="]="__eq",
 	["+"]="__add",
@@ -73,7 +73,7 @@ OPERATORS_CPP_TO_LUA =
 	[">"]="__gt",
 	[">="]="__ge",
 	["<<"]="__concat",
-	["^"]="__pow"		
+	["^"]="__pow"
 };
 
 -- For obvious reasons, don't put any spaces or junk inside of the
@@ -93,14 +93,15 @@ local check2 = function(con, msg)
 end
 
 
-LuaGlueGenerator = 
+LuaGlueGenerator =
 {
-	new = function(rootNode) 
+	new = function(rootNode)
 		check(rootNode ~= nil, 'Argument 1, "rootNode", must be specified.');
         local self = {}
-        setmetatable(self, {["__index"] = LuaGlueGenerator});                                 
+        setmetatable(self, {["__index"] = LuaGlueGenerator});
         self.LuaClass = "Macaroni::Lua::LuaClass";
         self.LuaFunction = "Macaroni::Lua::LuaFunction";
+        self.LuaGlueCode = "Macaroni::Lua::LuaGlueCode";
         self.LuaOperator = "Macaroni::Lua::LuaOperator";
         self.LuaProperty = "Macaroni::Lua::LuaProperty";
         self.RootNode = rootNode;
@@ -108,22 +109,22 @@ LuaGlueGenerator =
         self.LuaPropGetNode = self.RootNode:FindOrCreate("Macaroni::Lua::LuaPropGet");
         self.LuaPropSetNode = self.RootNode:FindOrCreate("Macaroni::Lua::LuaPropSet");
         self.Creators = self:CreatorsClass();
-        self.CurrentFileName = FileName.Create("LuaGlue.lua");  
+        self.CurrentFileName = FileName.Create("LuaGlue.lua");
         self.lua_StateNode = self.RootNode:Find("lua_State");
         if (self.lua_StateNode == nil) then
 			error('To use this generator, node "lua_State" must not be hollow.', 2);
-        end 
+        end
         self.luaL_RegNode = self.RootNode:Find("luaL_Reg");
         if (self.luaL_RegNode == nil) then
 			error('To use this generator, node "luaL_Reg" must not be hollow.', 2);
-        end             
+        end
         return self;
-    end,    
-    
+    end,
+
 	LuaGlueAxioms =
 	{
 		LuaClassStart = Axiom.LuaCreate("LuaGlue.LuaClassWraps");
-	},	
+	},
 
 	RootNode = nil, -- This will be set by the Generate function.
 
@@ -138,18 +139,18 @@ LuaGlueGenerator =
 		me.stringNode = self.RootNode:FindOrCreate("std::string");
 		me.constCharPtr = me.primitives:FindOrCreate("char");
 		me.charNode = me.primitives:Find("char");
-		me.debugMetaTable = function(obj) 
+		me.debugMetaTable = function(obj)
 			local mt = getmetatable(obj);
 			log:Write("The meta table of obj is " .. tostring(mt) .. "... !");
-			for i, v in ipairs(mt) do 
-				log:Write("mt... " .. tostring(i) .. "=" .. tostring(v) .. ""); 
+			for i, v in ipairs(mt) do
+				log:Write("mt... " .. tostring(i) .. "=" .. tostring(v) .. "");
 			end
 		end;
 		return me;
 	end,
-	
+
 	Creators = nil,
-	
+
 	LuaWrapperArguments = function(self, node, lastCaller)
 		-- Given a node, returns a table with info on how to wrap it.
 		-- For example, this includes the node containing the LuaGlue class,
@@ -180,29 +181,29 @@ LuaGlueGenerator =
 		log:Write("Creating wrapper args for " .. tostring(node.FullName) .. ".");
 		local luaClass = "Macaroni::Lua::LuaClass";--RootNode:FindOrCreate("Macaroni::Lua::LuaClass");
 		local referenceTypeNode = "Macaroni::Lua::LuaClass";
-		local rtn = {};	
+		local rtn = {};
 		rtn.node = node;
 		local attr = node.Annotations[luaClass];
 		if (attr == nil) then
 			error("The given node " .. tostring(node.Fullname) ..
-				" does not have an annotation " .. luaClass .. 
+				" does not have an annotation " .. luaClass ..
 				" necessary to be wrapped in LuaGlue.", 2);
-		end	
+		end
 		if (not attr.IsTable) then
 			error("The given node " .. tostring(node.Fullname) ..
-				" has an annotation " .. luaClass .. 
-				" but it is not a table.", 2);	
+				" has an annotation " .. luaClass ..
+				" but it is not a table.", 2);
 		end
 		local args = attr.ValueAsTable;
 		log:Write("args looks like dis: " .. tostring(args) .. "");
-		
+
 		-- If "SameAsNode" is set, it means another node has the values for
 		-- this type as well and we can reuse those.
 		local sameAsNode = args["SameAsNode"];
 		if (sameAsNode ~= nil) then
 			if not sameAsNode.IsNode then
 				error('While wrapping node ' .. tostring(node.FullName) ..
-				': "SameAsNode" must refer to a Node.');	
+				': "SameAsNode" must refer to a Node.');
 			end
 			otherNode = sameAsNode.ValueAsNode;
 			lastCaller[#lastCaller + 1] = node;
@@ -210,7 +211,7 @@ LuaGlueGenerator =
 			wrapperArgs.glueAlreadyExists = true;
 			wrapperArgs.node = node;
 			rtn = wrapperArgs;
-		else		
+		else
 			local refTypeAttrValue = args["ReferenceType"];
 			if (refTypeAttrValue == nil) then
 				error('While wrapping node ' .. tostring(node.FullName) ..
@@ -219,11 +220,11 @@ LuaGlueGenerator =
 			end
 			if (refTypeAttrValue.IsNode == false) then
 				error('While wrapping node ' .. tostring(node.FullName) ..
-					': "ReferenceType" must refer to a Node.');				
+					': "ReferenceType" must refer to a Node.');
 			end
 			rtn.glueAlreadyExists = false
-			rtn.referenceType = refTypeAttrValue.ValueAsNode;		
-			
+			rtn.referenceType = refTypeAttrValue.ValueAsNode;
+
 			local existingMetaNode = args["LuaGlueClass"];
 			log:Write("LuaGlueClass = " .. tostring(existingMetaNode));
 			if (existingMetaNode == nil) then
@@ -239,16 +240,16 @@ LuaGlueGenerator =
 				end
 			end
 		end
-		return rtn;	
+		return rtn;
 	end,
-		
-	TypeManipulators = function(self, type)	
+
+	TypeManipulators = function(self, type)
 		-- Returns a table with methods to write wrapper code.
 		--
 		-- convertArgument - returns code which grabs a reference to the type
 		--   from the Lua Stack, then converts it to a reference to the real
 		--   type.  Example:
-		--     convert("inst", 5) = 
+		--     convert("inst", 5) =
 		--     [[SomeClassPtr & inst_AsRef = SomeClassLuaMetaData::GetInstance(L, 5);
 		--       const SomeClass & inst = *(inst_AsRef); ]]
 		--
@@ -258,22 +259,22 @@ LuaGlueGenerator =
 		--
 		-- "get" - code which, given a var and index, writes code to make a
 		--   a variable named "var" as the reference type.  Example:
-		--     get("ptr", 3) = 
-		--     'SomeClassPtr & ptr = SomeClassLuaMetaData::GetInstance(L, 3)'		
+		--     get("ptr", 3) =
+		--     'SomeClassPtr & ptr = SomeClassLuaMetaData::GetInstance(L, 3)'
 		--
 		-- "put" - code which given a var puts it into the Lua stack. Example:
 		--     put("something") =
 		--     'SomeClassLuaMetaData::PutInstanceOnStack(L, something);'
-		-- 
+		--
 		-- An important node is that if the type lacks special annotations, its
 		-- ok as long as its some primitive type the code can guess.  So if its
  		-- a std::string, integer, boolean or something the code will be work.
-		-- 
+		--
 		local node = type.Node;
 		local rtn = {};
 		rtn.dotGet = '->';
 		local success, args = pcall(function() return self:LuaWrapperArguments(node) end);
-		if (success) then	
+		if (success) then
 			-- imports = self.metaNode.Member.ImportedNodes;
 			-- alreadyImported = false
 			-- for i in #imports do
@@ -283,13 +284,13 @@ LuaGlueGenerator =
 			-- 	end
 			-- end
 			-- if not alreadyImported then
-			-- 	imports[#imports + 1] = args.metaNode 
-			-- end			
-			rtn.referenceType = args.referenceType;	
-			
-			rtn.get = function(var, index) 
+			-- 	imports[#imports + 1] = args.metaNode
+			-- end
+			rtn.referenceType = args.referenceType;
+
+			rtn.get = function(var, index)
 				return args.referenceType.FullName .. " & " .. var .. " = "  ..
-					args.metaNode.FullName .. "::GetInstance(L, " .. index .. ");"; 
+					args.metaNode.FullName .. "::GetInstance(L, " .. index .. ");";
 			end;
 			if args.node == args.referenceType then
 				rtn.convertArgument = rtn.get;
@@ -308,7 +309,7 @@ LuaGlueGenerator =
 							str = str .. "const ";
 						end
 					else
-						str = str .. "& ";				
+						str = str .. "& ";
 					end
 					str = str .. var .. " = ";
 					if (type.Pointer == false) then
@@ -322,43 +323,43 @@ LuaGlueGenerator =
 					return str;
 				end;
 			end
-			rtn.put = function(var) return args.metaNode.FullName .. "::PutInstanceOnStack(L, " .. var .. ");"; end;			
-			
+			rtn.put = function(var) return args.metaNode.FullName .. "::PutInstanceOnStack(L, " .. var .. ");"; end;
+
 		else
-			rtn.referenceType = node; -- args.node;			
+			rtn.referenceType = node; -- args.node;
 			if (node == self.Creators.stringNode) then
 				rtn.get = function(var, index)
-					return "const std::string " .. var .. "(luaL_checkstring(L, " .. index .. "));"; 
-				end;				
+					return "const std::string " .. var .. "(luaL_checkstring(L, " .. index .. "));";
+				end;
 				rtn.put = function(var) return "lua_pushlstring(L, " .. var .. ".c_str(), " .. var .. ".length());" end;
 			elseif (node == self.Creators.constCharPtr) then
 				rtn.get = function(var, index)
-					return "const char * " .. var .. " = luaL_checkstring(L, " .. index .. ");"; 
-				end;				
+					return "const char * " .. var .. " = luaL_checkstring(L, " .. index .. ");";
+				end;
 				rtn.put = function(var) return "lua_pushstring(L, " .. var .. ");" end;
 			elseif (node.FullName == self.Creators.intNode.FullName) then
 				rtn.get = function(var, index)
-					return "int " .. var .. "(luaL_checkint(L, " .. index .. "));"; 
+					return "int " .. var .. "(luaL_checkint(L, " .. index .. "));";
 				end;
 				rtn.put = function(var) return "lua_pushinteger(L, " .. var .. ");" end;
 			elseif (node.FullName == self.Creators.boolNode.FullName) then
 				rtn.get = function(var, index)
-					return "bool " .. var .. "((bool) luaL_checkboolean(L, " .. index .. "));"; 
+					return "bool " .. var .. "((bool) luaL_checkboolean(L, " .. index .. "));";
 				end;
 				rtn.put = function(var) return "lua_pushboolean(L, (int)" .. var .. ");" end;
 			else
-				error('The given type "' .. tostring(type) 
+				error('The given type "' .. tostring(type)
 				      .. '" cannot be manipulated. '
-					  .. 'It is not a primitive and an attempt to get wrapper ' 
+					  .. 'It is not a primitive and an attempt to get wrapper '
 					  .. 'using annotation data resulted in this error:'
 					  .. args, 2);
 			end
 			rtn.convertArgument = rtn.get;
-		end		
+		end
 		return rtn;
 	end,
-	
-		
+
+
 	markNodeWithLua = function(self, node)
 		-- Adds the luaDef to the passed in Node.
 		local nodeInfo = NodeInfoList[node]
@@ -371,49 +372,49 @@ LuaGlueGenerator =
 			node = node,
 			ptrNode = ptrNode,
 			path = rootPath:NewPath("/" .. node:GetPrettyFullName("/") .. "Lua.h");
-		});        
+		});
 		hGen:parse();
 		local cppGen = LuaGlueCppFile.new({
 			node = node,
 			ptrNode = ptrNode,
 			path = rootPath:NewPath("/" .. node:GetPrettyFullName("/") .. "Lua.cpp");
-		});        
+		});
 		cppGen:parse();
 	end,
 
-	findAllAttr = function(self, node)		
+	findAllAttr = function(self, node)
 		-- Given a node, iterates recursively through NodeSpace and returns a
 		-- a list of all Nodes which are marked with the "LuaClass" annotation.
-		
-		check(self ~= nil, "Function must be called with self.");		
-		if (node == nil) then			
+
+		check(self ~= nil, "Function must be called with self.");
+		if (node == nil) then
 			return {};
-		end    
+		end
 		local rtn = {}
 		local nodes = node.Children
 		for i = 1, #nodes do
 			local n = nodes[i];
-			if (n.Annotations[self.LuaClass] ~= nil) then				
+			if (n.Annotations[self.LuaClass] ~= nil) then
 				rtn[#rtn + 1] = n
 			end
-			for k,v in pairs(self:findAllAttr(n)) do 			
-				rtn[#rtn + 1] = v 
+			for k,v in pairs(self:findAllAttr(n)) do
+				rtn[#rtn + 1] = v
 			end
-		end		
+		end
 		return rtn;
 	end,
-	
+
 	findAllFunctionsWithAnnotation = function(self, node, annotationName, criteria)
-		-- Iterates node (not recursively) and returns list of all function 
+		-- Iterates node (not recursively) and returns list of all function
 		-- overloads matching annotationName.
-		
+
 		if (node == nil) then
 			error("Node cannot be nil.", 2);
 		end
 		local rtn = {};
 		for i = 1, #node.Children do
 			local child = node.Children[i];
-			if (child.Member ~= nil and 
+			if (child.Member ~= nil and
 			    child.Member.TypeName == "Function") then
 				for j = 1, #child.Children do
 					local fon = child.Children[j]; -- FunctionOverload node
@@ -422,31 +423,31 @@ LuaGlueGenerator =
 						and criteria(fon)) then
 						rtn[#rtn + 1] = fon;
 					end
-				end	
+				end
 			end
 		end
 		return rtn;
 	end,
-	
+
 	findAllFunctionsInNode = function(self, node, findStatic)
-		-- Iterates node (not recursively) and returns list of all function 
+		-- Iterates node (not recursively) and returns list of all function
 		-- overloads.
 		return self:findAllFunctionsWithAnnotation(node, self.LuaFunction,
-		           (function(node) 						
+		           (function(node)
 						if findStatic == nil then
 							return true;
 						end
-						return node.Member.Static == findStatic 
+						return node.Member.Static == findStatic
 					end));
-	end,			
-	
+	end,
+
 	findAllGettersInNode = function(self, node, static)
 		return self:findAllFunctionsWithAnnotation(node, self.LuaProperty,
 		   (function(node)
 				varCount, returnType = self:getFunctionArgCountAndReturnType(node);
 				if (varCount > 1) then
 					error("The node " .. node.Node.FullName .. " is marked as "
-					      .. "@Property but does not look like a getter or " 
+					      .. "@Property but does not look like a getter or "
 					      .. "setter.");
 				end
 				if varCount == 1 then
@@ -457,68 +458,68 @@ LuaGlueGenerator =
 					      .. "@Property, has zero arguments but does not "
 					      .. "return anything, so it can't be a getter.");
 				end
-				return node.Member.Static == static;				
+				return node.Member.Static == static;
 		   end));
-	end,		
-	
+	end,
+
 	findAllOperatorsInNode = function(self, node, findStatic)
-		-- Iterates node (not recursively) and returns list of all function 
+		-- Iterates node (not recursively) and returns list of all function
 		-- overloads.
 		local nodeList = self:findAllFunctionsWithAnnotation(node, self.LuaOperator,
-		           (function(node)			
+		           (function(node)
 						if node.Member.Static then
-							error("Cannot put LuaOperator annotation on static member " 
+							error("Cannot put LuaOperator annotation on static member "
 								.. node.FullName .. ".");
-						end			
-						return true;					
+						end
+						return true;
 					end));
 		local rtnList = {}
 		for i=1, #nodeList do
 			local n = nodeList[i];
 			local item = {}
-			item.Node = n;			
-			local attr = n.Annotations[self.LuaOperator]			
+			item.Node = n;
+			local attr = n.Annotations[self.LuaOperator]
 			if attr.IsString and attr.ValueAsString ~= '' then
-				item.Operator = attr.ValueAsString;				
+				item.Operator = attr.ValueAsString;
 			else
-				cppOp = n.Node:GetOperatorName();				
-				item.Operator = OPERATORS_CPP_TO_LUA[cppOp];				
+				cppOp = n.Node:GetOperatorName();
+				item.Operator = OPERATORS_CPP_TO_LUA[cppOp];
 				if item.Operator == nil then
 					error([[
 Could not determine which Lua operator mapped to C++ operator ]] .. cppOp .. [[
 in Node "]] .. n.Node.FullName .. [[". You can specify the Lua metatable entry for
 this operator manually by putting a string in the LuaOperator annotation.]]);
-				end				
-			end			
-			item.MethodName = "op" .. item.Operator; 
+				end
+			end
+			item.MethodName = "op" .. item.Operator;
 			rtnList[#rtnList + 1] = item
-		end					
+		end
 		return rtnList;
-	end,	
-	
+	end,
+
 	findAllSettersInNode = function(self, node)
 		return self:findAllFunctionsWithAnnotation(node, self.LuaProperty,
 		   (function(node)
 				varCount, returnType = self:getFunctionArgCountAndReturnType(node);
 				if (varCount > 1) then
 					error("The node " .. node.Node.FullName .. " is marked as "
-					      .. "@Property but does not look like a getter or " 
+					      .. "@Property but does not look like a getter or "
 					      .. "setter.");
 				end
 				if (varCount == 0) then
-					if (returnType.Node.FullName 
+					if (returnType.Node.FullName
 					    == self.Creators.voidNode.FullName) then
 						error("The node " .. node.Node.FullName .. " is marked as "
 							  .. "@Property, has zero arguments but does not "
 							  .. "return anything, so it can't be a getter.");
 					end
 					return false;
-				end				
+				end
 				-- Anything else is a setter, even if it returns the value.
 				return true;
 		   end));
 	end,
-	
+
 	findFirstArgument = function(self, methodOverloadNode)
 		-- Returns the first Variable in the node.
 		for i=1, #methodOverloadNode.Children do
@@ -528,7 +529,7 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 			end
 		end
 	end,
-	
+
 	getFunctionArgCountAndReturnType = function(self, node)
 		-- Returns the number of arguments in a function and its return type.
 		local vars = node.Children
@@ -537,13 +538,13 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 			if (node.Children[i].Member.TypeName == "Variable") then
 				varCount = varCount + 1;
 			end
-		end		
-		local returnType = node.Member.ReturnType;				
+		end
+		local returnType = node.Member.ReturnType;
 		return varCount, returnType;
 	end,
-	
-	wrapMethod = function(self, methodOverloadNode, methodName) 
-		-- Returns a table with: 
+
+	wrapMethod = function(self, methodOverloadNode, methodName)
+		-- Returns a table with:
 		--   name - The name of the method which is wrapped.
 		--   text - The actual code for the glue method which will call the
 		--          wrapped method.
@@ -563,30 +564,52 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 		--  To do that, it'd need to check arguments and resolve the overload
 		--  at runtime!
 		--
-		
+
 		check(self ~= nil, 'Argument "self" missing!');
 		check(methodOverloadNode ~= nil, 'Argument "methodNode" missing!');
-		check(methodOverloadNode.Member ~= nil, 'Argument "methodNode" has no Member defined!');		
+		check(methodOverloadNode.Member ~= nil, 'Argument "methodNode" has no Member defined!');
 		check(methodOverloadNode.Member.TypeName == "FunctionOverload", 'Argument "methodNode" must have Member defined as FunctionOverload.');
+		local annotation = methodOverloadNode.Annotations[self.LuaFunction];
+
 		local node = methodOverloadNode.Node.Node;
 		check(node ~= nil, "The methodNode had no parent?! How can that be?!");
 		local rtn = {}
-		local methodName = methodName or methodOverloadNode.Node.Name
+		local methodName = methodName or
+		                   methodOverloadNode.Annotations[self.LuaFunction]
+		                   .ValueAsString or
+		                   methodOverloadNode.Node.Name
 		rtn.name = methodName;
 		local t = { }
-		t[#t + 1]  = "static int " .. methodName .. "(lua_State * L)";		
+		t[#t + 1]  = "static int " .. methodName .. "(lua_State * L)";
 		t[#t + 1] = "{";
 		t[#t + 1] = "LUA_GLUE_TRY";
+		glueAnn = methodOverloadNode.Annotations[self.LuaGlueCode]
+		if (glueAnn == nil) then
+			self:wrapMethodBody(methodOverloadNode, methodName, node, rtn,
+		                        t);
+		else
+			t[#t + 1] = glueAnn.ValueAsString;
+		end
+		t[#t + 1] = "LUA_GLUE_CATCH";
+		t[#t + 1] = "}";
+		rtn.text = table.concat(t, "\n\t");
+		return rtn;
+	end,
+
+	wrapMethodBody = function(self, methodOverloadNode, methodName, node, rtn,
+		                      t)
+		-- Wraps a "normal" method (i.e. not a property, index method, etc).
+		-- Most class methods will use this.
 		local startIndex;
 		if (not methodOverloadNode.Member.Static) then
 			startIndex = 2;
 		else
 			startIndex = 1;
-		end		
+		end
 		local instanceDotGet = '->';
 		if (not methodOverloadNode.Member.Static) then
 			local instanceType = Type.New(node, {});
-			local tm = self:TypeManipulators(instanceType);					
+			local tm = self:TypeManipulators(instanceType);
 			instanceDotGet = tm.dotGet;
 			t[#t + 1] = "\t" .. tm.get("instance", 1);
 		end
@@ -607,17 +630,17 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 		-- Write line which actually calls the target method in C code and
 		-- saves the return value, if any.
 		local returnType = methodOverloadNode.Member.ReturnType;
-		local returnTypeTm;		
+		local returnTypeTm;
 		if (returnType.Node.FullName ~= self.Creators.voidNode.FullName) then
-			returnTypeTm = self:TypeManipulators(returnType);						
+			returnTypeTm = self:TypeManipulators(returnType);
 		else
 			returnTypeTm = null;
 		end
-		
+
 		local methodCall = "";
-		if (returnType.Node.FullName ~= self.Creators.voidNode.FullName) then		
+		if (returnType.Node.FullName ~= self.Creators.voidNode.FullName) then
 			methodCall = methodCall .. tostring(returnType) .. " rtn = ";
-		end		
+		end
 		if (not methodOverloadNode.Member.Static) then
 			methodCall = methodCall .. "instance" .. instanceDotGet;
 		else
@@ -634,39 +657,35 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 				argIndexK = argIndexK + 1;
 				if (k < #methodOverloadNode.Children) then
 					methodCall = methodCall .. ", ";
-				end	
-			end		
+				end
+			end
 		end
 		methodCall = methodCall .. ");";
 		-- If there's a return value, put it onto the Lua stack.
 		-- Either way return the number of return values (0 or 1).
 		t[#t + 1] = "\t" .. methodCall;
-		if (returnType.Node.FullName == self.Creators.voidNode.FullName) then		
+		if (returnType.Node.FullName == self.Creators.voidNode.FullName) then
 			t[#t + 1] = "\t" .. "return 0;";
-		else			
+		else
 			t[#t + 1] = "\t" .. returnTypeTm.put("rtn");
 			t[#t + 1] = "\t" .. "return 1;";
-		end	
-		t[#t + 1] = "LUA_GLUE_CATCH";
-		t[#t + 1] = "}";
-		rtn.text = table.concat(t, "\n\t");
-		return rtn;
+		end
 	end,
-	
-	wrapGetterCall = function(self, methodOverloadNode, dotGet) 
+
+	wrapGetterCall = function(self, methodOverloadNode, dotGet)
 		-- Returns code which calls a C++ function, stores the return value,
 		-- put that onto the Lua stack.
 		-- So if it's "std::string SomeClass::GetName();" it's something like:
 		--    std::string str = instance->GetName();
 		--    lua_pushstring(L, str.c_str());
-		-- "dotGet" is usually "->" but if accessing a wrapped type which is 
+		-- "dotGet" is usually "->" but if accessing a wrapped type which is
 		-- its own reference type then it should be ".".
 		check(self ~= nil, 'Argument "self" missing!');
 		check(methodOverloadNode ~= nil, 'Argument "methodNode" missing!');
-		check(methodOverloadNode.Member ~= nil, 'Argument "methodNode" has no Member defined!');		
+		check(methodOverloadNode.Member ~= nil, 'Argument "methodNode" has no Member defined!');
 		check(methodOverloadNode.Member.TypeName == "FunctionOverload", 'Argument "methodNode" must have Member defined as FunctionOverload.');
 		check(dotGet ~= nil, "DotGet can't be nil!")
-		
+
 		local node = methodOverloadNode.Node.Node;
 		check(node ~= nil, "The methodNode had no parent?! How can that be?!");
 		local rtn = {}
@@ -683,7 +702,7 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 		local returnTypeTm = self:TypeManipulators(returnType);
 		local methodCall = "";
 		methodCall = methodCall .. tostring(returnType) .. " rtn = ";
-		
+
 		if (not methodOverloadNode.Member.Static) then
 			methodCall = methodCall .. "instance" .. dotGet;
 			--error("Node marked as getter (" .. methodOverloadNode.Node.FullName
@@ -692,29 +711,29 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 			local mNode = self:getMetaNode(node);
 			methodCall = methodCall .. node.Name .. "::";
 		end
-		methodCall = methodCall .. methodName .. "();";		
+		methodCall = methodCall .. methodName .. "();";
 		t[#t + 1] = "\t" .. methodCall;
-		t[#t + 1] = "\t" .. returnTypeTm.put("rtn");				
+		t[#t + 1] = "\t" .. returnTypeTm.put("rtn");
 		return t;
-	end,	
-	
-	wrapSetterCall = function(self, methodOverloadNode, nextStackIndex, dotGet) 
+	end,
+
+	wrapSetterCall = function(self, methodOverloadNode, nextStackIndex, dotGet)
 		-- Returns code which calls a C++ function to set some value from the
 		-- Lua stack.
-		-- So if it's "void SomeClass::SetName(const std::string & value);" 
+		-- So if it's "void SomeClass::SetName(const std::string & value);"
 		-- it's something like:
 		--    std::string value(lua_checkstring(L, 1));
 		--    instance->SetName(value);
 		-- dotGet - '->' for most things, but '.' if the type 'instance' is its
 		--     own reference type.
-		
+
 		check(self ~= nil, 'Argument "self" missing!');
 		check(methodOverloadNode ~= nil, 'Argument "methodNode" missing!');
-		check(methodOverloadNode.Member ~= nil, 'Argument "methodNode" has no Member defined!');		
+		check(methodOverloadNode.Member ~= nil, 'Argument "methodNode" has no Member defined!');
 		check(methodOverloadNode.Member.TypeName == "FunctionOverload", 'Argument "methodNode" must have Member defined as FunctionOverload.');
 		check(nextStackIndex ~= nil, "nextStackIndex must be a number.");
 		check(dotGet ~= nil, "DotGet can't be nil.");
-		
+
 		local node = methodOverloadNode.Node.Node;
 		check(node ~= nil, "The methodNode had no parent?! How can that be?!");
 		local rtn = {}
@@ -723,15 +742,15 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 		local t = { }
 		-- Write line which actually calls the target method in C code and
 		-- saves the return value, if any.
-		local argument = self:findFirstArgument(methodOverloadNode);		
+		local argument = self:findFirstArgument(methodOverloadNode);
 		if argument == nil then
-			error("Node has no function arguments (" 
+			error("Node has no function arguments ("
 			      .. methodOverloadNode.Node.FullName .. ").");
 		end
-		local argumentType = argument.Member.Type;		
+		local argumentType = argument.Member.Type;
 		local argumentTypeTm = self:TypeManipulators(argumentType);
 		local methodCall = "";
-		t[#t + 1] = "\t" .. argumentTypeTm.convertArgument("newValue", nextStackIndex);				
+		t[#t + 1] = "\t" .. argumentTypeTm.convertArgument("newValue", nextStackIndex);
 		if (methodOverloadNode.Member.Static) then
 			error("Node marked as setter (" .. methodOverloadNode.Node.FullName
 				  .. ") but is static.");
@@ -739,16 +758,16 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 		t[#t + 1] = "\tinstance" .. dotGet .. methodName .. "(newValue);";
 		return t;
 	end,
-	 
+
 	checkArgumentIsNodeGeneratorType = function(self, name, args)
-		-- Assertion helper function called by members of "NodeGenerator" to 
+		-- Assertion helper function called by members of "NodeGenerator" to
 		-- make sure the tables sent in as "self" are properly formed.
 		check2(args ~= nil, 'Argument "' .. name .. '" may not be nil.');
 		check2(args.helperName ~= nil, 'Argument "' .. name .. '.helperName" may not be nil.');
 		check2(args.originalNode ~= nil, 'Argument "' .. name .. '.originalNode" may not be nil.');
-		check2(args.referenceType ~= nil, 'Argument "' .. name .. '.referenceType" may not be nil.');					
+		check2(args.referenceType ~= nil, 'Argument "' .. name .. '.referenceType" may not be nil.');
 	end,
-	
+
 	createGlueHelperStruct = function(self, args)
 		-- Given a table with a Node, its Lua glue reference type (usually a
 		-- smart pointer of some kind) and a name of a helper struct, returns
@@ -757,11 +776,11 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 		-- So if the class has "const std::string GetName()" that gets wrapped
 		-- as "int GetName(lua_State * L)" which calls the same method.
 		self:checkArgumentIsNodeGeneratorType("args", args);
-				
-		local t = { }				
-		
-		local funcs = self:findAllFunctionsInNode(args.originalNode);	
-		local opOverloads = self:findAllOperatorsInNode(args.originalNode);	
+
+		local t = { }
+
+		local funcs = self:findAllFunctionsInNode(args.originalNode);
+		local opOverloads = self:findAllOperatorsInNode(args.originalNode);
 		t[#t + 1] = "struct " .. args.helperName .. "";
 		t[#t + 1] = "{";
 		t[#t + 1] = self:createHelperGc(args);
@@ -772,47 +791,47 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 		for i = 1, #funcs do
 			local node = funcs[i];
 			local methodInfo = self:wrapMethod(node);
-			t[#t + 1] = methodInfo.text;		
+			t[#t + 1] = methodInfo.text;
 		end
 		for i = 1, #opOverloads do
 			local node = opOverloads[i].Node;
 			local methodInfo = self:wrapMethod(node, opOverloads[i].MethodName);
-			t[#t + 1] = methodInfo.text;		
+			t[#t + 1] = methodInfo.text;
 		end
 		t[#t + 1] = "};";
-		return table.concat(t, "\n\t");	
+		return table.concat(t, "\n\t");
 	end,
 
 	createHelperGc = function(self, args)
 		-- Returns the C++ code defining a Lua glue C function which is called
 		-- when the Lua instance is garbage collected.  This code by default
-		-- calls the destructor on the reference type.  So if its a smart 
+		-- calls the destructor on the reference type.  So if its a smart
 		-- pointer it'll decrease the reference count.
-		
+
 		self:checkArgumentIsNodeGeneratorType("args", args);
-		
+
 		local metaNodeName = self:getMetaNode(args.originalNode).FullName;
 		local t = { }
 		t[#t + 1] = "\tstatic int __luaGc(lua_State * L)";
-		t[#t + 1] = "\t{";	
+		t[#t + 1] = "\t{";
 		t[#t + 1] = "\t\t" .. args.referenceType.FullName .. " & ptr = " .. metaNodeName ..  "::GetInstance(L, 1);";
 		t[#t + 1] = "\t\tptr.~" .. args.referenceType.Name .. "();";
 		t[#t + 1] = "\t\treturn 0;"
-		t[#t + 1] = "\t}";	
-		return table.concat(t, "\n\t");	
-	end,	
-	
+		t[#t + 1] = "\t}";
+		return table.concat(t, "\n\t");
+	end,
+
 	createHelperGlobalTableIndex = function(self, args)
 		-- Lua glue C function called when the global table is index to return
 		-- property like values.
-		
+
 		self:checkArgumentIsNodeGeneratorType("args", args);
-		
+
 		local metaNodeName = self:getMetaNode(args.originalNode).FullName;
 		local t = { }
 		t[#t + 1] = "\tstatic int __global__index(lua_State * L)";
-		t[#t + 1] = "\t{";	
-		t[#t + 1] = "\t\t// Assume Lua will pass in table as first argument.";	
+		t[#t + 1] = "\t{";
+		t[#t + 1] = "\t\t// Assume Lua will pass in table as first argument.";
 		t[#t + 1] = "\t\tstd::string index(luaL_checkstring(L, 2));";
 		t[#t + 1] = "\t\tint rtnCount = " .. metaNodeName .. "::GlobalIndex(L, index);"
 		t[#t + 1] = "\t\tif (rtnCount > 0)";
@@ -824,42 +843,42 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 		t[#t + 1] = "\t\t\tlua_pushnil(L);";
 		t[#t + 1] = "\t\t\treturn 1;";
 		t[#t + 1] = "\t\t}";
-		t[#t + 1] = "\t}";	
-		return table.concat(t, "\n\t");	
+		t[#t + 1] = "\t}";
+		return table.concat(t, "\n\t");
 	end,
-	
+
 	createHelperGlobalTableNewIndex = function(self, args)
 		-- Lua glue C function called when the global table is index to return
 		-- property like values.
-		
+
 		self:checkArgumentIsNodeGeneratorType("args", args);
-		
+
 		local metaNodeName = self:getMetaNode(args.originalNode).FullName;
 		local t = { }
 		t[#t + 1] = "\tstatic int __global__newindex(lua_State * L)";
-		t[#t + 1] = "\t{";	
+		t[#t + 1] = "\t{";
 		t[#t + 1] = "\t\tlua_pushstring(L, \"Table is read-only.\");";
 		t[#t + 1] = "\t\treturn lua_error(L);";
-		t[#t + 1] = "\t}";	
-		return table.concat(t, "\n\t");	
+		t[#t + 1] = "\t}";
+		return table.concat(t, "\n\t");
 	end,
-	
+
 	createHelperIndex = function(self, args)
 		-- Creates a Lua glue C function which is called when the Lua instance
-		-- is indexed.  This is basically a big if statement checking the 
+		-- is indexed.  This is basically a big if statement checking the
 		-- string name and returning the correct helper struct Lua glue C
 		-- function or property.
-		-- This actually passes to a public method "BlahLuaMetaData::Index".		
+		-- This actually passes to a public method "BlahLuaMetaData::Index".
 		--
 		-- TODO: Move this into the ClassWrapper
-		
+
 		self:checkArgumentIsNodeGeneratorType("args", args);
-		
+
 		local metaNodeName = self:getMetaNode(args.originalNode).FullName;
 		local t = { }
 		t[#t + 1] = "\tstatic int __index(lua_State * L)";
-		t[#t + 1] = "\t{";	
-		t[#t + 1] = "\t\tLUA_GLUE_TRY";	
+		t[#t + 1] = "\t{";
+		t[#t + 1] = "\t\tLUA_GLUE_TRY";
 		t[#t + 1] = "\t\t" .. args.referenceType.FullName .. " & ptr = " .. metaNodeName ..  "::GetInstance(L, 1);";
 		t[#t + 1] = "\t\tstd::string index(luaL_checkstring(L, 2));";
 		t[#t + 1] = "\t\tint rtnCount = " .. metaNodeName .. "::Index(L, ptr, index);"
@@ -872,23 +891,23 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 		t[#t + 1] = "\t\t\tlua_pushnil(L);";
 		t[#t + 1] = "\t\t\treturn 1;";
 		t[#t + 1] = "\t\t}";
-		
+
 		t[#t + 1] = "\t\tLUA_GLUE_CATCH";
-		t[#t + 1] = "\t}";	
-		return table.concat(t, "\n\t");	
-	end,	
-	
+		t[#t + 1] = "\t}";
+		return table.concat(t, "\n\t");
+	end,
+
 	createHelperNewIndex = function(self, args)
 		-- Creates a Lua glue C function which is called when the Lua instance
 		-- has a new value indexed.  This is what provides for property setter
 		-- like functionality.
-		
+
 		self:checkArgumentIsNodeGeneratorType("args", args);
-		
+
 		local metaNodeName = self:getMetaNode(args.originalNode).FullName;
 		local t = { }
 		t[#t + 1] = "\tstatic int __newindex(lua_State * L)";
-		t[#t + 1] = "\t{";	
+		t[#t + 1] = "\t{";
 		t[#t + 1] = "\t\t" .. args.referenceType.FullName .. " & ptr = " .. metaNodeName ..  "::GetInstance(L, 1);";
 		t[#t + 1] = "\t\tstd::string index(luaL_checkstring(L, 2));";
 		t[#t + 1] = "\t\tLUA_GLUE_TRY";
@@ -900,13 +919,13 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 		t[#t + 1] = "\t\t// TODO: Check inheritance chain and call the setters there if false returned."
 		t[#t + 1] = "\t\tstd::stringstream ss;";
 		t[#t + 1] = "\t\t" .. [[ss << "The property \"" << index << "\" cannot be set.";]];
-		t[#t + 1] = "\t\treturn luaL_error(L, ss.str().c_str());;"		
-		t[#t + 1] = "\t}";	
-		return table.concat(t, "\n\t");	
-	end,	
-	
+		t[#t + 1] = "\t\treturn luaL_error(L, ss.str().c_str());;"
+		t[#t + 1] = "\t}";
+		return table.concat(t, "\n\t");
+	end,
+
 	getMetaNode = function(self, node)
-		-- Given a node, returns its "meta node" containing the LuaGlue 
+		-- Given a node, returns its "meta node" containing the LuaGlue
 		-- wrapper stuff.
 		-- Currently, for "Blah", this would be "BlahLuaMetaData".
 		--
@@ -914,111 +933,111 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 		local metaNode = self.RootNode:FindOrCreate(metaNodeName);
 		return metaNode;
 	end,
-	
-	ClassWrapper = { 
+
+	ClassWrapper = {
 		-- like a nested class, this has the helper methods called by Lua
 		-- It also defines a lot of constants referred to repeatedly in the
 		-- glue, such as the name of the global table created.
-		
+
 		new = function(parent, node, referenceType)
-			-- "parent" is some magical factory LuaGlue creator object in 
+			-- "parent" is some magical factory LuaGlue creator object in
 			--   charge of this one
 			-- "node" is the thing we're actually wrapping
-			-- "referenceType" is what that node uses as its reference type in Lua.			
+			-- "referenceType" is what that node uses as its reference type in Lua.
 			check(parent ~= nil, "Parent instance must be passed to ClassWrapper.");
-			check(node ~= nil, 'Argument "node" may not be nil.');	
-			check(node.Member ~= nil, 'Argument "node.Member" may not be nil.');	
+			check(node ~= nil, 'Argument "node" may not be nil.');
+			check(node.Member ~= nil, 'Argument "node.Member" may not be nil.');
 			local self = {}
-			setmetatable(self, {["__index"] = parent.ClassWrapper});         
-			self.helperName = node.Name .. "MethodLuaGlue";		
+			setmetatable(self, {["__index"] = parent.ClassWrapper});
+			self.helperName = node.Name .. "MethodLuaGlue";
 			self.creators = parent:CreatorsClass();
 			self.originalNode = node;
 			-- rtn.node = rtn.originalNode;
 			self.globalTableName = self.originalNode:GetPrettyFullName(".");
 			self.lua_StateNode = parent.lua_StateNode;
 			self.luaL_RegNode = parent.luaL_RegNode;
-			self.metaTableName = self.originalNode:GetPrettyFullName(".");	
+			self.metaTableName = self.originalNode:GetPrettyFullName(".");
 			self.metaNode = parent:getMetaNode(self.originalNode);
 			self.axiom = parent.LuaGlueAxioms.LuaClassStart;
-			self.referenceType = referenceType; 
+			self.referenceType = referenceType;
 			self.src = Source.Create(parent.CurrentFileName, 3, 5);
 			self.reason = Reason.Create(self.axiom, node.Member.ReasonCreated.Source);
 			self.parent = parent;
-			return self;			
-		end,				
-		
+			return self;
+		end,
+
 		blocks = function(self)
 			-- There's some stuff we have to add to the Glue which Macaroni
 			-- can't really handle.  So we put it in the following C block.
 			-- This includes stuff like the static data mapping metatable
 			-- values to c functions, but also more complex things like the
-			-- helper struct.  
-			
+			-- helper struct.
+
 			local blockHome = self.metaNode:FindOrCreate("functionPtrStructBlock");
 			log:Write("Going to create block for function pointer struct.");
-			local wrappedFunctions = self.parent:createGlueHelperStruct(self);			
+			local wrappedFunctions = self.parent:createGlueHelperStruct(self);
 			local staticText = {};
-			-- Writes the list of methods and strings which are used as the 
+			-- Writes the list of methods and strings which are used as the
 			-- meta table.
 			local funcs = self.parent:findAllFunctionsInNode(self.originalNode, true);
 			for i = 1, #funcs do
 				local fNode = funcs[i]
-				local tableEntry = '{"' .. fNode.Node.Name .. '", ' 
-					.. self.helperName .. "::" .. fNode.Node.Name .. '}'; 
-				staticText[#staticText + 1] = tableEntry;				
+				local tableEntry = '{"' .. fNode.Node.Name .. '", '
+					.. self.helperName .. "::" .. fNode.Node.Name .. '}';
+				staticText[#staticText + 1] = tableEntry;
 			end
 			local extraMetaMethods = {};
 			local skipNormalIndex = false;
-			local wrappedOperators = self.parent:findAllOperatorsInNode(self.originalNode);	
+			local wrappedOperators = self.parent:findAllOperatorsInNode(self.originalNode);
 			for i = 1, #wrappedOperators do
 				local wo = wrappedOperators[i]
 				if wo.Operator == '__index' then
 					skipNormalIndex = true
 				end
-				local tableEntry = '{"' .. wo.Operator .. '", ' 
-					.. self.helperName .. "::" .. wo.MethodName .. '}'; 
-				extraMetaMethods[#extraMetaMethods + 1] = tableEntry;				
+				local tableEntry = '{"' .. wo.Operator .. '", '
+					.. self.helperName .. "::" .. wo.MethodName .. '}';
+				extraMetaMethods[#extraMetaMethods + 1] = tableEntry;
 			end
 			log:Write("Creating me a block.");
-			
-			--TODO: This sucks because if the user wants the typical index 
+
+			--TODO: This sucks because if the user wants the typical index
 			-- method there's no way to call the specific, overloaded one first
 			-- and then call the general one. That's because the method to
 			-- wrap functions is a bit complex and I'd have to change a lot of
 			-- the code which marshals arguments... someday though I'd like
-			-- it to work such a way that if they specify the "__index" 
-			-- operator, the generated code will first call that method, and 
-			-- then if nothing is found or the arguments don't pass type 
+			-- it to work such a way that if they specify the "__index"
+			-- operator, the generated code will first call that method, and
+			-- then if nothing is found or the arguments don't pass type
 			-- checking it calls the general one.
 			function indexCode()
-				if skipNormalIndex then 
-					return [[ 
+				if skipNormalIndex then
+					return [[
 /* ~<(Sorry, but when "__index" is specified as an operator in a Macaroni
-   attribtute then the general __index helper function (as well as all 
+   attribtute then the general __index helper function (as well as all
    properties and methods) can't be called (hopefully this will change).) */
-]] 
+]]
 				end
 				return [[
 {"__index", ]] .. self.helperName .. [[::__index},
 ]];
-			end			
-			local block = Block.Create(blockHome, "cpp",					
+			end
+			local block = Block.Create(blockHome, "cpp",
 [[
 
 #define LUA_GLUE_TRY try {
 #define LUA_GLUE_CATCH } catch(const std::exception & ex){ return luaL_error(L, ex.what()); }
 
 namespace
-{	
+{
 	]] .. wrappedFunctions .. [[
-	
-	
+
+
 	static const struct luaL_Reg globalTableMethods[]=
 	{
-		]] .. self:luaLRegConcat(staticText, ",\n\t")	.. [[ 
+		]] .. self:luaLRegConcat(staticText, ",\n\t")	.. [[
 		{0, 0}
 	};
-	
+
 	static const struct luaL_Reg globalTableMetaTableMethods[]=
 	{
 		{"__index", ]] .. self.helperName .. [[::__global__index},
@@ -1027,46 +1046,46 @@ namespace
 	};
 
 	static const struct luaL_Reg metaTableMethods[]=
-	{	
-		]] .. self:luaLRegConcat(extraMetaMethods, ",\n\t")	.. [[ 
+	{
+		]] .. self:luaLRegConcat(extraMetaMethods, ",\n\t")	.. [[
 		//{"__eq", NodeLuaFunctions::__eq},
 		{"__gc", ]] .. self.helperName .. [[::__luaGc}, ]]
 		.. indexCode() .. [[
 		{"__newindex", ]] .. self.helperName .. [[::__newindex},
-		//{"__tostring", NodeLuaFunctions::__tostring},		
+		//{"__tostring", NodeLuaFunctions::__tostring},
 		{0, 0}
-	};	
+	};
 }; // end anon-namespace
-]], self.reason);						
+]], self.reason);
 		end,
-		
+
 		createImport = function(self, node, path)
-			local imports = NodeList.New({});   
+			local imports = NodeList.New({});
 			local nodeClass = Class.Create(CurrentLibrary, node, imports, self.reason);
 			local fileName = FileName.Create(path);
 			node:SetHFilePath(self.reason, fileName);
 		end,
-	    
+
 		createLuaImports = function(self)
-			-- TODO: Review. This should not be needed... if lua_State * L is 
-			-- added anywhere, the magic of the C++ generators should 
+			-- TODO: Review. This should not be needed... if lua_State * L is
+			-- added anywhere, the magic of the C++ generators should
 			-- automatically add the import.
 			-- self:createImport(self.lua_StateNode, self.parent.luaImportCode);
 			-- self:createImport(self.luaL_RegNode, self.parent.luaImportCode);
-			
+
 			--TODO: I'm putting the imports on the class in "createClass"
 			-- consider deleting this function.
 		end,
-		
-		createClass = function(self)        
-			log:Write("Wrapping " .. tostring(self.originalNode) .. " as " .. tostring(self.metaNode) .. ".");			
+
+		createClass = function(self)
+			log:Write("Wrapping " .. tostring(self.originalNode) .. " as " .. tostring(self.metaNode) .. ".");
 			local imports = NodeList.New({
 			    self.originalNode,
 				self.lua_StateNode,
 				self.luaL_RegNode,
 				self.parent.RootNode:FindOrCreate("std::string"),
 				self.parent.RootNode:FindOrCreate("std::stringstream"),
-			});        
+			});
 			for i = 1, #imports do
 				log:Write("imports[".. i .. "]=".. tostring(imports[i]));
 			end
@@ -1076,33 +1095,33 @@ namespace
 				for i = 1, #otherImports do
 					local otherImport = otherImports[i];
 					imports[#imports + 1] = otherImport;
-					success, args = pcall(function() 
+					success, args = pcall(function()
 						return self.parent:LuaWrapperArguments(otherImport);
 					end)
 					if success then
 						imports[#imports + 1] = args.metaNode;
-					end				
+					end
 				end
 			end
-			
-			if MACARONI_VERSION=="0.1.0.18" then				
-				local metaClass = Class.Create(CurrentLibrary, self.metaNode, 
-											  imports, self.reason);    			    
+
+			if MACARONI_VERSION=="0.1.0.18" then
+				local metaClass = Class.Create(CurrentLibrary, self.metaNode,
+											  imports, self.reason);
 			else
-				local metaClass = Class.Create(CurrentLibrary, self.metaNode, 
+				local metaClass = Class.Create(CurrentLibrary, self.metaNode,
 											  Access.Public, imports, self.reason);
 			end
-			-- static bool IsType(lua_State * L, int index);        
+			-- static bool IsType(lua_State * L, int index);
 		end,
-		
+
 		createIndexMethodBody = function(self, isInstance, dotGet)
 			-- isInstance - True if its the index for instance (i.e. no static
 			--     methods or props will be exposed).
 			-- dotGet - If the instance is its own ref type, should be "."
-			--     For everything else, -> is fine.			
+			--     For everything else, -> is fine.
 			check(dotGet ~= nil, "DotGet is nil!");
-			local first = true;				
-			local t = {}			
+			local first = true;
+			local t = {}
 			local funcs = self.parent:findAllFunctionsInNode(self.originalNode, false);
 			for i = 1, #funcs do
 				local node = funcs[i];
@@ -1115,14 +1134,14 @@ namespace
 				t[#t + 1] = '{';
 				t[#t + 1] = '\tlua_pushcfunction(L, ' .. self.helperName .. '::' .. node.Node.Name .. ');';
 				t[#t + 1] = '\treturn 1;';
-				t[#t + 1] = '}';					
+				t[#t + 1] = '}';
 			end
 			local getters = self.parent:findAllGettersInNode(self.originalNode, not isInstance);
 			for i = 1, #getters do
 				local node = getters[i];
 				local propName = node.Annotations[self.parent.LuaProperty]
 				                                                 .ValueAsString;
-				if (first) then					
+				if (first) then
 					t[#t + 1] = 'if (index == "' .. propName .. '")';
 					first = false;
 				else
@@ -1132,9 +1151,9 @@ namespace
 				local getCode = self.parent:wrapGetterCall(node, dotGet);
 				for j = 1, #getCode do
 					t[#t + 1] = getCode[j];
-				end				
+				end
 				t[#t + 1] = '\treturn 1;';
-				t[#t + 1] = '}';					
+				t[#t + 1] = '}';
 			end
 			if not first then
 				t[#t + 1] = 'else'
@@ -1142,24 +1161,24 @@ namespace
 			end
 			t[#t + 1] = "\treturn 0;"
 			if not first then
-				t[#t + 1] = '}'	
-			end			
-			
-			return table.concat(t, "\n\t");		
+				t[#t + 1] = '}'
+			end
+
+			return table.concat(t, "\n\t");
 		end,
-		
+
 		createNewIndexMethodBody = function(self, dotGet)
 			-- dotGet - For instance index method body's, dotGet is how to
-			--     retrieve members of the "instance" variable.	
-			check(dotGet ~= nil, "DotGet can't be nil.");		
-			local first = true;				
-			local t = {}						
+			--     retrieve members of the "instance" variable.
+			check(dotGet ~= nil, "DotGet can't be nil.");
+			local first = true;
+			local t = {}
 			local setters = self.parent:findAllSettersInNode(self.originalNode);
 			for i = 1, #setters do
 				local node = setters[i];
 				local propName = node.Annotations[self.parent.LuaProperty]
 				                                                 .ValueAsString;
-				if (first) then					
+				if (first) then
 					t[#t + 1] = 'if (index == "' .. propName .. '")';
 					first = false;
 				else
@@ -1169,9 +1188,9 @@ namespace
 				local getCode = self.parent:wrapSetterCall(node, 'nextStackIndex', dotGet);
 				for j = 1, #getCode do
 					t[#t + 1] = getCode[j];
-				end				
+				end
 				t[#t + 1] = '\treturn true;';
-				t[#t + 1] = '}';					
+				t[#t + 1] = '}';
 			end
 			if not first then
 				t[#t + 1] = 'else'
@@ -1179,72 +1198,72 @@ namespace
 			end
 			t[#t + 1] = "\treturn false;"
 			if not first then
-				t[#t + 1] = '}'		
+				t[#t + 1] = '}'
 			end
-			
-			return table.concat(t, "\n\t");		
+
+			return table.concat(t, "\n\t");
 		end,
-		
+
 		createEitherIndexMethod = function(self, methodName, isInstance)
 			local node = self.metaNode:FindOrCreate(methodName);
-			-- NodePtr home, bool isInline, const Access access, const bool isStatic, 
-			-- const TypePtr rtnType, bool constMember, Model::ReasonPtr reason);		
+			-- NodePtr home, bool isInline, const Access access, const bool isStatic,
+			-- const TypePtr rtnType, bool constMember, Model::ReasonPtr reason);
 			local rtnType = Type.New(self.parent.Creators.intNode, { });
 			log:Write("Going to create Index " .. methodName);
-			local func = Function.Create(node, self.reason);			
-			local fo1 = FunctionOverload.Create(func, false, Access.Public, 
+			local func = Function.Create(node, self.reason);
+			local fo1 = FunctionOverload.Create(func, false, Access.Public,
 			                                    true, false, rtnType,
 									            false, false, self.reason);
 			local dotGet = '->';
-			func = node.Member;		
-			local arg1 = fo1.Node:FindOrCreate("L");		
+			func = node.Member;
+			local arg1 = fo1.Node:FindOrCreate("L");
 			local arg1Type = Type.New(self.lua_StateNode, { Pointer = true });
 			Variable.Create(arg1, Access.Public, false, arg1Type, "", self.reason);
 			if isInstance then
 				local arg2 = fo1.Node:FindOrCreate("instance");
 				local arg2Type = Type.New(self.referenceType, { Reference = true });
-				Variable.Create(arg2, Access.Public, false, arg2Type, "", self.reason);		
+				Variable.Create(arg2, Access.Public, false, arg2Type, "", self.reason);
 				if self.referenceType == self.originalNode then
 					dotGet = '.';
 				end
 			end
-			local arg3 = fo1.Node:FindOrCreate("index");			
+			local arg3 = fo1.Node:FindOrCreate("index");
 			local arg3Type = Type.New(self.parent.Creators.stringNode, { Const = true, Reference = true });
-			Variable.Create(arg3, Access.Public, false, arg3Type, "", self.reason);		
-							
-			local methodBody = self:createIndexMethodBody(isInstance, dotGet);						
-			fo1:SetCodeBlock(methodBody, self.src, false);				
-			
+			Variable.Create(arg3, Access.Public, false, arg3Type, "", self.reason);
+
+			local methodBody = self:createIndexMethodBody(isInstance, dotGet);
+			fo1:SetCodeBlock(methodBody, self.src, false);
+
 		end,
-		
+
 		createGlobalIndexMethod = function(self)
 			self:createEitherIndexMethod("GlobalIndex", false);
 		end,
-		
-		createIndexMethod = function(self)			
+
+		createIndexMethod = function(self)
 			self:createEitherIndexMethod("Index", true);
 		end,
-	    
+
 		createIsType = function(self)
 			local node = self.metaNode:FindOrCreate("IsType");
-			-- NodePtr home, bool isInline, const Access access, const bool isStatic, 
+			-- NodePtr home, bool isInline, const Access access, const bool isStatic,
 			-- const TypePtr rtnType, bool constMember, Model::ReasonPtr reason);
 			log:Write("Going to create IsType.");
 			local rtnType = Type.New(self.parent.Creators.boolNode, { Pointer = false });
 			log:Write("Going to create IsType.");
-			local func = Function.Create(node, self.reason);			
-			fo = FunctionOverload.Create(func, false, Access.Public, true, 
+			local func = Function.Create(node, self.reason);
+			fo = FunctionOverload.Create(func, false, Access.Public, true,
 										 false, rtnType,
 										 false, false, self.reason);
 			func = node.Member;
-			local arg1 = fo.Node:FindOrCreate("L");		
+			local arg1 = fo.Node:FindOrCreate("L");
 			local arg1Type = Type.New(self.lua_StateNode, { Pointer = true });
 			Variable.Create(arg1, Access.Public, false, arg1Type, "", self.reason);
-			local arg2 = fo.Node:FindOrCreate("index");			
+			local arg2 = fo.Node:FindOrCreate("index");
 			local arg2Type = Type.New(self.parent.Creators.intNode, {});
-			local var = Variable.Create(arg2, Access.Public, false, arg2Type, "", self.reason);		
-							
-			
+			local var = Variable.Create(arg2, Access.Public, false, arg2Type, "", self.reason);
+
+
 			fo:SetCodeBlock(
 [[
 	// Copied this from the luaL_checkudata function
@@ -1266,42 +1285,42 @@ namespace
 	return returnValue;
 ]], self.src, false);
 		end,
-	    
+
 		createOpenInLua = function(self)
 			local node = self.metaNode:FindOrCreate("OpenInLua");
-			-- NodePtr home, bool isInline, const Access access, const bool isStatic, 
+			-- NodePtr home, bool isInline, const Access access, const bool isStatic,
 			-- const TypePtr rtnType, bool constMember, Model::ReasonPtr reason);
 			log:Write("Going to create IsType.");
 			local rtnType = Type.New(self.parent.Creators.intNode, { });
 			log:Write("Going to create IsType.");
-			local func = Function.Create(node, self.reason);			
-			local fo1 = FunctionOverload.Create(func, false, Access.Public, 
+			local func = Function.Create(node, self.reason);
+			local fo1 = FunctionOverload.Create(func, false, Access.Public,
 			                                    true, false, rtnType,
 										        false, false, self.reason);
-			func = node.Member;		
-			local arg1 = fo1.Node:FindOrCreate("L");		
+			func = node.Member;
+			local arg1 = fo1.Node:FindOrCreate("L");
 			local arg1Type = Type.New(self.lua_StateNode, { Pointer = true });
-			Variable.Create(arg1, Access.Public, false, arg1Type, "", self.reason);					
-			
+			Variable.Create(arg1, Access.Public, false, arg1Type, "", self.reason);
+
 			fo1:SetCodeBlock(
 [[
 	luaL_getmetatable(L, "]] .. self.metaTableName .. [[");
 	if (lua_isnil(L, -1) != 1)
 	{
 		return 0; // Already loaded, DO NOT WASTE TIME DUMMY.
-	}	
+	}
 	luaL_newmetatable(L, "]] .. self.metaTableName .. [["); // create metaTable
 	luaL_register(L, 0, metaTableMethods);
-	// TODO: Put dependencies here		
-		
-	luaL_register(L, "]] .. self.globalTableName .. [[", globalTableMethods);		
+	// TODO: Put dependencies here
+
+	luaL_register(L, "]] .. self.globalTableName .. [[", globalTableMethods);
 	// New global table is left at the top of the stack.
-	
+
 	// Now create a meta table for the global table.
 	lua_newtable(L); // t
 	luaL_register(L, 0, globalTableMetaTableMethods);
-	lua_setmetatable(L, -2);	
-	
+	lua_setmetatable(L, -2);
+
 	return 1;
 ]], self.src, false);
 		end,
@@ -1310,21 +1329,21 @@ namespace
 			local node = self.metaNode:FindOrCreate("GetInstance");
 			log:Write("Going to create GetInstance.");
 			local rtnType = Type.New(self.referenceType, { Reference = true });
-			log:Write("Going to create IsType.");		
-			local func = Function.Create(node, self.reason);			
-			local fo1 = FunctionOverload.Create(func, false, Access.Public, 
+			log:Write("Going to create IsType.");
+			local func = Function.Create(node, self.reason);
+			local fo1 = FunctionOverload.Create(func, false, Access.Public,
 			                                    true, false, rtnType,
 										        false, false, self.reason);
-			func = node.Member;		
-			local arg1 = fo1.Node:FindOrCreate("L");		
+			func = node.Member;
+			local arg1 = fo1.Node:FindOrCreate("L");
 			local arg1Type = Type.New(self.lua_StateNode, { Pointer = true });
 			log:Write("GETINSTANCE 2");
-			Variable.Create(arg1, Access.Public, false, arg1Type, "", self.reason);					
-			local arg2 = fo1.Node:FindOrCreate("index");	
-			log:Write("H+RMMMR?");	
+			Variable.Create(arg1, Access.Public, false, arg1Type, "", self.reason);
+			local arg2 = fo1.Node:FindOrCreate("index");
+			log:Write("H+RMMMR?");
 			local arg2Type = Type.New(self.parent.Creators.intNode, { });
 			log:Write("WHHH!?")
-			Variable.Create(arg2, Access.Public, false, arg2Type, "", self.reason);					
+			Variable.Create(arg2, Access.Public, false, arg2Type, "", self.reason);
 			log:Write("WHAT?!!");
 			local refTypeStr = self.referenceType.FullName;
 			fo1:SetCodeBlock(
@@ -1334,71 +1353,71 @@ namespace
 	return ptr;
 ]], self.src, false);
 		end,
-		
-		createNewIndexMethod = function(self)			
+
+		createNewIndexMethod = function(self)
 			local node = self.metaNode:FindOrCreate("NewIndex");
-			-- NodePtr home, bool isInline, const Access access, const bool isStatic, 
-			-- const TypePtr rtnType, bool constMember, Model::ReasonPtr reason);		
+			-- NodePtr home, bool isInline, const Access access, const bool isStatic,
+			-- const TypePtr rtnType, bool constMember, Model::ReasonPtr reason);
 			local rtnType = Type.New(self.parent.Creators.boolNode, { });
 			log:Write("Going to create NewIndex.");
-			local func = Function.Create(node, self.reason);			
-			local fo1 = FunctionOverload.Create(func, false, Access.Public, 
+			local func = Function.Create(node, self.reason);
+			local fo1 = FunctionOverload.Create(func, false, Access.Public,
 			                                    true, false, rtnType,
 									            false, false, self.reason);
-			func = node.Member;		
-			local arg1 = fo1.Node:FindOrCreate("L");		
+			func = node.Member;
+			local arg1 = fo1.Node:FindOrCreate("L");
 			local arg1Type = Type.New(self.lua_StateNode, { Pointer = true });
-			Variable.Create(arg1, Access.Public, false, arg1Type, "", self.reason);			
+			Variable.Create(arg1, Access.Public, false, arg1Type, "", self.reason);
 			local arg2 = fo1.Node:FindOrCreate("instance");
 			local arg2Type = Type.New(self.referenceType, { Reference = true });
-			Variable.Create(arg2, Access.Public, false, arg2Type, "", self.reason);		
-			local arg3 = fo1.Node:FindOrCreate("index");			
+			Variable.Create(arg2, Access.Public, false, arg2Type, "", self.reason);
+			local arg3 = fo1.Node:FindOrCreate("index");
 			local arg3Type = Type.New(self.parent.Creators.stringNode, { Const = true, Reference = true });
-			Variable.Create(arg3, Access.Public, false, arg3Type, "", self.reason);		
-			local arg4 = fo1.Node:FindOrCreate("nextStackIndex");			
+			Variable.Create(arg3, Access.Public, false, arg3Type, "", self.reason);
+			local arg4 = fo1.Node:FindOrCreate("nextStackIndex");
 			local arg4Type = Type.New(self.parent.Creators.intNode, { Const = true });
-			Variable.Create(arg4, Access.Public, false, arg4Type, "", self.reason);		
-							
+			Variable.Create(arg4, Access.Public, false, arg4Type, "", self.reason);
+
 			local dotGet = '->';
 			if self.referenceType == self.originalNode then
 				dotGet = '.';
 			end
-			local methodBody = self:createNewIndexMethodBody(dotGet);	
-			fo1:SetCodeBlock(methodBody, self.src, false);				
-			
+			local methodBody = self:createNewIndexMethodBody(dotGet);
+			fo1:SetCodeBlock(methodBody, self.src, false);
+
 		end,
-		
+
 		createPutInstanceOnStack = function(self)
 			local node = self.metaNode:FindOrCreate("PutInstanceOnStack");
 			log:Write("Going to create PutInstanceOnStack.");
 			local rtnType = Type.New(self.parent.Creators.voidNode, { });
-			log:Write("Going to create putInstanceOnStack.");		
-			local func = Function.Create(node, self.reason);			
-			local fo1 = FunctionOverload.Create(func, false, Access.Public, 
+			log:Write("Going to create putInstanceOnStack.");
+			local func = Function.Create(node, self.reason);
+			local fo1 = FunctionOverload.Create(func, false, Access.Public,
 			                                    true, false, rtnType,
 										        false, false, self.reason);
-			func = node.Member;		
-			local arg1 = fo1.Node:FindOrCreate("L");		
-			local arg1Type = Type.New(self.lua_StateNode, { Pointer = true });		
-			Variable.Create(arg1, Access.Public, false, arg1Type, "", self.reason);					
-			
-			local arg2 = fo1.Node:FindOrCreate("ptr");	
+			func = node.Member;
+			local arg1 = fo1.Node:FindOrCreate("L");
+			local arg1Type = Type.New(self.lua_StateNode, { Pointer = true });
+			Variable.Create(arg1, Access.Public, false, arg1Type, "", self.reason);
+
+			local arg2 = fo1.Node:FindOrCreate("ptr");
 			local arg2Type = Type.New(self.referenceType, { Const = true, Reference = true });
-			Variable.Create(arg2, Access.Public, false, arg2Type, "", self.reason);					
-			
+			Variable.Create(arg2, Access.Public, false, arg2Type, "", self.reason);
+
 			local refTypeStr = self.referenceType.FullName;
 			codeBlock = [[
 				void * memory = lua_newuserdata(L, sizeof(]] .. refTypeStr .. [[));
-				]] .. refTypeStr .. [[ * instance = new (memory) ]] .. refTypeStr .. [[(ptr);		
+				]] .. refTypeStr .. [[ * instance = new (memory) ]] .. refTypeStr .. [[(ptr);
 				// (*instance).operator=(ptr);	~<(Used to do it this way...)
 				luaL_getmetatable(L, "]] .. self.metaTableName .. [[");
-				lua_setmetatable(L, -2); 
+				lua_setmetatable(L, -2);
 ]];
 			-- If the referenceType is the node itself, then effectively there
 			-- is no reference type, so don't check to push nil.
 			if (self.originalNode ~= self.referenceType) then
 				codeBlock = [[
-			if (!ptr) 
+			if (!ptr)
 			{
 				lua_pushnil(L);
 			}
@@ -1406,42 +1425,42 @@ namespace
 			{
 			]] .. codeBlock .. [[
 			}
-			]];	
+			]];
 			end
 			fo1:SetCodeBlock(codeBlock, self.src, false);
-		end,		
-		
+		end,
+
 		luaLRegConcat = function(self, t, seperator)
 			if (#t < 1) then
 				return "";
 			else
 				return table.concat(t, seperator) .. ',';
-			end						
+			end
 		end,
-		
+
 		wrapClass = function(self)
 			self:blocks();
 			self:createLuaImports();
 			self:createClass();
-			self:createIsType(); 
+			self:createIsType();
 			self:createOpenInLua();
 			self:createGetInstance();
 			self:createPutInstanceOnStack();
 			self:createNewIndexMethod();
 			self:createIndexMethod();
 			self:createGlobalIndexMethod();
-		    
+
 			log:Write("End of wrapClassFunction.");
 		end
-	}, -- End object "ClassWrapper"		
-	
-	wrapClass = function(self, args)		
+	}, -- End object "ClassWrapper"
+
+	wrapClass = function(self, args)
 		check(args ~= nil, 'Argument "args" may not be nil.');
-		check(args.node ~= nil, 'Argument "args.node" may not be nil.');		
+		check(args.node ~= nil, 'Argument "args.node" may not be nil.');
 		local wrapper = self.ClassWrapper.new(self, args.node, args.referenceType);
 		wrapper:wrapClass();
 	end
-	
+
 }; -- end LuaGlueGenerator class
 
 
@@ -1458,7 +1477,7 @@ LuaModulesRegisterFile = function(library)
 	return "LuaModulesRegister_" .. library:GetCId() .. ".h"
 end
 
-function Generate(library, path, arguments)	
+function Generate(library, path, arguments)
 	log.Init("LuaGlue");
 	log = {
 		Write = function(self, msg)
@@ -1466,7 +1485,7 @@ function Generate(library, path, arguments)
 		end
 	}
 	log:Write("Entered Generate");
-	
+
 	local includeFile = path:NewPath("/" .. LuaModulesIncludeFile(library))
 		:CreateFile();
 	includeFile:Write([[
@@ -1474,7 +1493,7 @@ function Generate(library, path, arguments)
 // This file was generated by Macaroni. To use it, include it after the last
 // #include statement in code where you initialize a Lua environment,
 // and then #include its companion file:
-// ( ]] .. LuaModulesRegisterFile(library) .. [[ ) 
+// ( ]] .. LuaModulesRegisterFile(library) .. [[ )
 // in the section where you construct an array of type luaL_Reg.
 //-----------------------------------------------------------------------------
 ]]);
@@ -1482,25 +1501,25 @@ function Generate(library, path, arguments)
 		:CreateFile();
 	registerFile:Write([[
 //-----------------------------------------------------------------------------
-// This file was generated by Macaroni. To use it, first include its 
+// This file was generated by Macaroni. To use it, first include its
 // companion file:
 // ( ]] .. LuaModulesIncludeFile(library) .. [[ )
 // after the last #include statement in the code where you initialize a Lua
-// environment. Then #include this file in the middle of a definition of an 
+// environment. Then #include this file in the middle of a definition of an
 // array of luaL_Reg.
 //-----------------------------------------------------------------------------
 ]]);
-	
-	arguments = arguments or {}		
+
+	arguments = arguments or {}
     CurrentLibrary = library;
     local generator = LuaGlueGenerator.new(library.Context.Root);
     --RootNode:FindOrCreate("Macaroni::Lua::LuaClass");
-    
+
     local classes = generator:findAllAttr(generator.RootNode);
-   
+
     log:Write("Found " .. #(classes) .. " classes with annotations...");
     log:Write("BEGIN LUA GLUE");
-    for i, class in ipairs(classes) do		
+    for i, class in ipairs(classes) do
 		log:Write("Wrapping " .. tostring(class) .. ".");
 		local wrapArgs = generator:LuaWrapperArguments(class);
 		log:Write("WTF:" .. tostring(wrapArgs));
@@ -1510,9 +1529,9 @@ function Generate(library, path, arguments)
 		if wrapArgs.glueAlreadyExists == false then
 			log:Write("Going to wrap.");
 			generator:wrapClass(wrapArgs)
-			includeFile:Write( 
+			includeFile:Write(
 				NodeInfoList[wrapArgs.metaNode].heavyDef .. "");
-			registerFile:Write( 
+			registerFile:Write(
 				[[{ "]] .. wrapArgs.node:GetPrettyFullName('.') ..
 				[[", ]] .. wrapArgs.metaNode.FullName .. "::OpenInLua }, \n")
 		else
@@ -1526,16 +1545,16 @@ function Generate(library, path, arguments)
     --[[markNodeWithLua(library.Context.Root:Find("Macaroni::Model::Cpp::Access"));
     markNodeWithLua(library.Context.Root:Find("Macaroni::Model::Cpp::Class"));
     markNodeWithLua(library.Context.Root:Find("Macaroni::Model::Node"));
-    
-    local ClassParent = library.Context.Root:Find("Macaroni::Model::Cpp::ClassParent"); 
+
+    local ClassParent = library.Context.Root:Find("Macaroni::Model::Cpp::ClassParent");
     local ClassParentPtr = library.Context.Root:Find("Macaroni::Model::Cpp::ClassParentPtr");
     parseNode(path, ClassParent, ClassParentPtr);]]--
-    
+
 end
 
 
 
---if Test == nil then 
+--if Test == nil then
 --	Test = { register = function() end }
 --end
 

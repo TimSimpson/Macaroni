@@ -17,7 +17,7 @@
 #define MACARONI_MODEL_CPP_CPPCONTEXT_H
 
 #include "../../ME.h"
-#include "../Context.h"
+#include <Macaroni/Model/Context.h>
 #include "CppContextPtr.h"
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)

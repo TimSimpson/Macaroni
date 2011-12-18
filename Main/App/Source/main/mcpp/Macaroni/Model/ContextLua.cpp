@@ -19,13 +19,20 @@
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
-#include "Context.h"
+#include <Macaroni/Model/Context.h>
 #include "ContextLua.h"
 #include "../Environment/DebugLog.h"
+#include <Macaroni/Model/Project/Group.h>
+#include <Macaroni/Model/Project/GroupPtr.h>
+#include <Macaroni/Model/Project/GroupLuaMetaData.h>
 #include "LibraryLua.h"
 #include "Node.h"
 #include "NodeLua.h"
 #include <sstream>
+
+using Macaroni::Model::Project::Group;
+using Macaroni::Model::Project::GroupPtr;
+using Macaroni::Model::Project::GroupLuaMetaData;
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
@@ -37,14 +44,14 @@ BEGIN_NAMESPACE2(Macaroni, Model)
 
 namespace {
 
-	// Taking a NamespacePtr, creates a Lua user data for a new NamespacePtr 
+	// Taking a NamespacePtr, creates a Lua user data for a new NamespacePtr
 	// controlled by Lua which is then put on top of the Lua Stack.
-	// Note that this won't even be garbage collected as there's no table 
+	// Note that this won't even be garbage collected as there's no table
 	// associated with it.
 	static inline void createContextPtrUserData(lua_State * L, const ContextPtr & source)
 	{
 		void * memory = lua_newuserdata(L, sizeof(ContextPtr));
-		ContextPtr * instance = new (memory) ContextPtr();		
+		ContextPtr * instance = new (memory) ContextPtr();
 		(*instance).operator=(source);
 	}
 
@@ -64,20 +71,20 @@ namespace {
 	{
 		createContextPtrUserData(L, source);
 		luaL_getmetatable(L, METATABLENAME);
-		lua_setmetatable(L, -2); 
+		lua_setmetatable(L, -2);
 	}
 
 } // End Anon namespace
 
 struct ContextLuaFunctions
-{	
+{
 	static int findLibrary(lua_State * L)
 	{
 		L_BEGIN
 		ContextPtr context = getInstance(L);
 		std::string group(luaL_checkstring(L, 2));
 		std::string name(luaL_checkstring(L, 3));
-		std::string version(luaL_checkstring(L, 4));		
+		std::string version(luaL_checkstring(L, 4));
 		LibraryPtr library = context->FindLibrary(group, name, version);
 		LibraryLuaMetaData::PutInstanceOnStack(L, library);
 		return 1;
@@ -90,9 +97,66 @@ struct ContextLuaFunctions
 		ContextPtr context = getInstance(L);
 		std::string group(luaL_checkstring(L, 2));
 		std::string name(luaL_checkstring(L, 3));
-		std::string version(luaL_checkstring(L, 4));		
+		std::string version(luaL_checkstring(L, 4));
 		LibraryPtr library = context->FindOrCreateLibrary(group, name, version);
 		LibraryLuaMetaData::PutInstanceOnStack(L, library);
+		return 1;
+		L_END
+	}
+
+	// static int _library(lua_State * L)
+	// {
+	// 	L_BEGIN
+	// 	ContextPtr context = getInstance(L);
+	// 	std::string name(luaL_checkstring(L, 2));
+	// 	if (!(lua_istable(L, 3)))
+	// 	{
+	// 		throw Macaroni::Exception("Lua table (array of FileSet) expected "
+	// 								  .. "for argument #3.");
+	// 	}
+	// 	lua_gettable(L, 3);
+	// 	std::vector<FileSetPtr> vec;
+
+	// 	int index = 1;
+	// 	lua_pushnil(L); // first key
+	// 	const int tableIndex = -2;
+	// 	while(lua_next(L, tableIndex)  != 0)
+	// 	{
+	// 		if (FileSetLuaMetaData::IsType(L, -1))
+	// 		{
+	// 			FileSetPtr fs = FileSetLuaMetaData::GetInstance(L, -1);
+	// 			vec.push_back(fs);
+	// 		} else {
+	// 			string msg = str(format("Index %d of argument 3 is not a "
+	// 			                        "FileSetPtr.") % index).c_str()
+	// 			lua_error(msg.c_str());
+	// 		}
+	// 		lua_pop(state, 1); // pops off value, saves key
+	// 		index ++;
+	// 	}
+
+	// 	return vec;
+	// 	L_END
+	// }
+
+	static int _group(lua_State * L)
+	{
+		L_BEGIN
+		ContextPtr context = getInstance(L);
+		std::string name(luaL_checkstring(L, 2));
+		GroupPtr group = context->Group(name);
+		GroupLuaMetaData::PutInstanceOnStack(L, group);
+		return 1;
+		L_END
+	}
+
+	static int _node(lua_State * L)
+	{
+		L_BEGIN
+		ContextPtr context = getInstance(L);
+		std::string name(luaL_checkstring(L, 2));
+		NodePtr node = context->Node(name);
+		NodeLuaMetaData::PutInstanceOnStack(L, node);
 		return 1;
 		L_END
 	}
@@ -104,7 +168,7 @@ struct ContextLuaFunctions
 		nsPtr->~ContextPtr();
 		return 0;
 		L_END
-	}	
+	}
 
 	static int __eq(lua_State * L)
 	{
@@ -122,7 +186,7 @@ struct ContextLuaFunctions
 		ContextPtr & context = getInstance(L);
 
 		std::string index(luaL_checkstring(L, 2));
-		
+
 		if (index == "FindLibrary")
 		{
 			lua_pushcfunction(L, findLibrary);
@@ -133,12 +197,20 @@ struct ContextLuaFunctions
 		}
 		else if (index == "GetReferenceCount")
 		{
-			lua_pushcfunction(L, GetReferenceCount);	
+			lua_pushcfunction(L, GetReferenceCount);
+		}
+		else if (index == "Group")
+		{
+			lua_pushcfunction(L, _group);
+		}
+		else if (index == "Node")
+		{
+			lua_pushcfunction(L, _node);
 		}
 		else if (index == "Root")
 		{
 			NodeLuaMetaData::PutInstanceOnStack(L, context->GetRoot());
-		}	
+		}
 		else if (index == "RootLibrary")
 		{
 			LibraryLuaMetaData::PutInstanceOnStack(L, context->GetRootLibrary());
@@ -146,7 +218,7 @@ struct ContextLuaFunctions
 		else
 		{
 			lua_pushnil(L);
-		}		
+		}
 		return 1;
 		L_END
 	}
@@ -158,7 +230,7 @@ struct ContextLuaFunctions
 		std::stringstream ss;
 		ss << "Context[references:" << context->GetReferenceCount()
 			<< ",Root:"
-			<< (context->GetRoot() != false 
+			<< (context->GetRoot() != false
 				? context->GetRoot()->GetName()
 				: "nullptr")
 			<< "]";
@@ -171,8 +243,8 @@ struct ContextLuaFunctions
 	{
 		L_BEGIN
 		std::string rootName(luaL_checkstring(L, 1));
-	
-		ContextPtr ptr = new Context(rootName);		
+
+		ContextPtr ptr = new Context(rootName);
 		putContextInstanceOnStack(L, ptr);
 		return 1;
 		L_END
@@ -182,7 +254,7 @@ struct ContextLuaFunctions
 	{
 		L_BEGIN
 		ContextPtr & context = getInstance(L);
-		lua_pushinteger(L, context->GetReferenceCount());		
+		lua_pushinteger(L, context->GetReferenceCount());
 		return 1;
 		L_END
 	}
@@ -228,15 +300,15 @@ int ContextLuaMetaData::OpenInLua(lua_State * L)
 
 	/*
 	// Duplicate the meta table to create the indexing metatable, assign it
-	// to the __index of the first metatable, then register the instance 
-	// methods.  Pg 266 of the Lua book.	
+	// to the __index of the first metatable, then register the instance
+	// methods.  Pg 266 of the Lua book.
 	lua_pushvalue(L, -1); // duplicates the metatable
 	lua_setfield(L, -2, "__index"); // set stack[-2].__index = stack[-1]
 	luaL_register(L, nullptr, metaTableMethods);
 	*/
-	
-	
-	// Creates or reuses a table called "Macaroni_File" and puts it in global 
+
+
+	// Creates or reuses a table called "Macaroni_File" and puts it in global
 	// scope.
 	luaL_register(L, GLOBALTABLENAME, tableMethods);
 

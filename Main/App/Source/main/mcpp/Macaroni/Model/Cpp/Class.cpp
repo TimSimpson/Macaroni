@@ -26,6 +26,8 @@
 #include <memory>
 #include "../ModelInconsistencyException.h"
 #include <sstream>
+#include <Macaroni/Model/Project/Target.h>
+#include <Macaroni/Model/Project/TargetPtr.h>
 #include "Variable.h"
 
 using Macaroni::Model::Element;
@@ -38,17 +40,31 @@ using Macaroni::Model::NodePtr;
 using Macaroni::Model::NodeList;
 using Macaroni::Model::Cpp::Variable;
 using Macaroni::Model::Cpp::VariablePtr;
+using Macaroni::Model::Project::Target;
+using Macaroni::Model::Project::TargetPtr;
 
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-Class::Class(Library * library, Node * parent, 
+Class::Class(Library * library, Node * parent,
 			 Access access,
 			 NodeListPtr importedNodes, ReasonPtr reason)
-:Scope(library, parent, "Class", reason), 
+:Scope(library, parent, "Class", reason),
  access(access),
- friends(new NodeList()), 
- globals(new NodeList()), 
+ friends(new NodeList()),
+ globals(new NodeList()),
+ imports(importedNodes),
+ parents(new ClassParentList())
+{
+}
+
+Class::Class(Target * target, Node * parent,
+			 Access access,
+			 NodeListPtr importedNodes, ReasonPtr reason)
+:Scope(target, parent, "Class", reason),
+ access(access),
+ friends(new NodeList()),
+ globals(new NodeList()),
  imports(importedNodes),
  parents(new ClassParentList())
 {
@@ -56,7 +72,7 @@ Class::Class(Library * library, Node * parent,
 
 Class::~Class()
 {
-	
+
 }
 
 AccessPtr Class::GetAccess() const
@@ -87,7 +103,7 @@ bool Class::canBeChildOf(const Member * other) const
 	return dynamic_cast<const Scope *>(other) != nullptr;
 }
 
-ClassPtr Class::Create(LibraryPtr library, NodePtr parent, AccessPtr access, 
+ClassPtr Class::Create(LibraryPtr library, NodePtr parent, AccessPtr access,
 					   NodeListPtr importedNodes, ReasonPtr reason)
 {
 	ElementPtr existingMember = parent->GetElement();
@@ -97,8 +113,8 @@ ClassPtr Class::Create(LibraryPtr library, NodePtr parent, AccessPtr access,
 		if (!existingClass)
 		{
 			std::stringstream ss;
-			ss << "The member at node " << parent->GetFullName() 
-				<< " is a " << parent->GetElement()->GetTypeName() 
+			ss << "The member at node " << parent->GetFullName()
+				<< " is a " << parent->GetElement()->GetTypeName()
 				<< " and cannot be morphed into a class.";
 			throw Model::ModelInconsistencyException(existingMember->GetReasonCreated(),
 				reason, ss.str());
@@ -109,6 +125,28 @@ ClassPtr Class::Create(LibraryPtr library, NodePtr parent, AccessPtr access,
 	return ClassPtr(new Class(library.get(), parent.get(), *access, importedNodes, reason));
 }
 
+ClassPtr Class::Create(TargetPtr target, NodePtr parent, AccessPtr access,
+					   NodeListPtr importedNodes, ReasonPtr reason)
+{
+	ElementPtr existingMember = parent->GetElement();
+	if (!!existingMember)
+	{
+		ClassPtr existingClass = boost::dynamic_pointer_cast<Class>(existingMember);
+		if (!existingClass)
+		{
+			std::stringstream ss;
+			ss << "The member at node " << parent->GetFullName()
+				<< " is a " << parent->GetElement()->GetTypeName()
+				<< " and cannot be morphed into a class.";
+			throw Model::ModelInconsistencyException(existingMember->GetReasonCreated(),
+				reason, ss.str());
+		}
+		return existingClass;
+	}
+	ClassPtr other = boost::dynamic_pointer_cast<Class>(existingMember);
+	ClassPtr ptr(new Class(target.get(), parent.get(), *access, importedNodes, reason));
+	return ptr;
+}
 bool Class::DoesDefinitionReference(NodePtr node) const
 {
 	return this->Member::DoesDefinitionReference(node);
@@ -151,12 +189,12 @@ void intrusive_ptr_release(Class * p)
 
 bool Class::IsInstance(ElementPtr other)
 {
-	if (!other) 
+	if (!other)
 	{
 		return false;
 	}
 	ClassPtr classPtr = boost::dynamic_pointer_cast<Class>(other);
-	return (!!classPtr);	
+	return (!!classPtr);
 }
 
 void Class::Visit(MemberVisitor * visitor) const
@@ -194,7 +232,7 @@ void Class::Visit(MemberVisitor * visitor) const
 		{
 			Variable & var = *(vPtr.get());
 			classVisitor->VisitAdoptedVariable(var);
-		}	
+		}
 	}
 }
 

@@ -17,7 +17,7 @@
 #define MACARONI_GENERATOR_DEBUGENUMERATOR_H
 
 #include "../ME.h"
-#include "../Model/Context.h"
+#include <Macaroni/Model/Context.h>
 #include <fstream>
 #include <boost/filesystem/operations.hpp>
 

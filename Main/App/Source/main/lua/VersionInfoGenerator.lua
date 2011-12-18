@@ -23,7 +23,7 @@ function aboutText(version)
 Macaroni for C++, Version ]] .. version .. "\n" .. [[
 ----------------------------------
 
-Copyright 2011 Tim Simpson                                                   
+Copyright 2011 Tim Simpson
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -44,22 +44,22 @@ The Programming Language Lua
 ----------------------------
 
 Copyright (C) 1994-2011 Lua.org, PUC-Rio.
-Permission is hereby granted, free of charge, to any person obtaining a copy 
-of this software and associated documentation files (the "Software"), to deal 
-in the Software without restriction, including without limitation the rights 
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
-of the Software, and to permit persons to whom the Software is furnished to do 
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
 so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all 
+The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 Boost C++ Libraries
@@ -88,18 +88,18 @@ SHALL THE COPYRIGHT HOLDERS OR ANYONE DISTRIBUTING THE SOFTWARE BE LIABLE
 FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE,
 ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
-]]			
+]]
 	local aboutT = string.gsub("~ " .. about, "\"", "\\\"")
 	local aboutT = string.gsub(aboutT, "\n", "\\n\"\n\"~ ");
 	return [[
-"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"	
+"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
 "]] .. aboutT .. [[\n"
 "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
 	]];
 end
 
 function formatTimeToString(date)
-    return (date.year .. "-" .. date.month .. "-" .. date.day .. "-" .. 
+    return (date.year .. "-" .. date.month .. "-" .. date.day .. "-" ..
             date.hour .. ":" .. date.min .. ":" .. date.sec);
 end
 
@@ -111,15 +111,15 @@ function utc()
     return formatTimeToString( os.date("!*t") );
 end
 
-function Generate(library, path)    
+function Generate(library, path)
     local commaVersion = string.gsub(library.Version, "%.", "\,");
-    local version = library.Version;    
-    createVersionNoH(path, library) 
+    local version = library.Version;
+    createVersionNoH(path, library)
     createAbout(path, library)
 end
 
 function createAbout(path, library)
-	local version = library.Version;    
+	local version = library.Version;
 	local file = path:NewPath("/Macaroni/AboutText.h");
     local writer = file:CreateFile();
 	writer:Write(aboutText(version));
@@ -127,20 +127,20 @@ end
 
 function createVersionNoH(path, library)
 	local commaVersion = string.gsub(library.Version, "%.", "\,");
-    local version = library.Version;    
+    local version = library.Version;
     local file = path:NewPath("/Macaroni/VersionNo.h");
     local writer = file:CreateFile();
-	
+
     writer:Write([[
 #ifndef MACARONI_VERSION
 
-#define MACARONI_VERSION ]] .. commaVersion .. [[ 
-#define MACARONI_VERSION_STRING "]] .. version .. [["
+#define MACARONI_VERSION ]] .. commaVersion .. "\n" .. [[
+#define MACARONI_VERSION_STRING "]] .. version .. "\"\n" .. [[
 #define MACARONI_FILE_DESCRIPTION "Macaroni for C++"
 #define MACARONI_COPYRIGHT "(C) Tim Simpson, 2011"
-#define BUILD_TIMESTAMP_LOCAL "]] .. localTime() .. [["
-#define BUILD_TIMESTAMP_UTC "]] .. utc() .. [["
+#define BUILD_TIMESTAMP_LOCAL "]] .. localTime() .. "\"\n" .. [[
+#define BUILD_TIMESTAMP_UTC "]] .. utc() .. "\"\n" .. [[
 #endif
-]]);    
+]]);
 
 end

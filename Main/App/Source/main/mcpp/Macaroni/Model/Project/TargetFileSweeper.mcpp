@@ -1,0 +1,112 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+~import Macaroni::Model::Context;
+~import Macaroni::Model::ContextPtr;
+~import Macaroni::Exception;
+~import BOOST_FOREACH;
+~import std::ifstream;
+~import Macaroni::Model::FileName;
+~import Macaroni::IO::FileSet;
+~import Macaroni::IO::FileSetIterator;
+~import Macaroni::Model::Library;
+~import Macaroni::Model::LibraryPtr;
+~import Macaroni::Parser::ParserPtr;
+~import Macaroni::Parser::Pippy::PippyParser;
+~import boost::filesystem::path;
+~import boost::regex;
+~import Macaroni::Model::Source;
+~import Macaroni::Model::SourcePtr;
+~import std::string;
+~import std::stringstream;
+~import Macaroni::Model::Project::Target;
+~import Macaroni::Model::Project::TargetPtr;
+
+~namespace Macaroni::Model::Project;
+
+/** This class sweeps up files into Targets. */
+class TargetFileSweeper
+{
+	private TargetPtr target;
+
+	~block "cpp" {
+		namespace {
+			regex cppRegex("\\.c($|pp$|c$)");
+			regex hppRegex("\\.h($|pp$)");
+			regex mcppRegex("\\.mcpp$");
+
+		}
+	}
+
+	public TargetFileSweeper(TargetPtr target)
+	: target(target)
+	{
+	}
+
+	public void ParseFile(const path & file) {
+		string str = file.string();
+		if (boost::regex_search(str, mcppRegex)) {
+			ParseMacaroniFile(file);
+		} else {
+			// TODO: If its ".cpp", ".c", or ".cc" create a TranslationUnit
+			// target as the child of the given target.
+			if (boost::regex_search(str, cppRegex)) {
+
+			} else if (boost::regex_search(str, hppRegex)) {
+
+			}
+		}
+	}
+
+	public void ParseFileSet(const FileSet & fileSet) {
+		FileSetIterator itr = fileSet.Begin();
+		FileSetIterator end = fileSet.End();
+		for(; itr != end; ++ itr)
+		{
+			path p = *itr;
+			ParseFile(p);
+		}
+	}
+
+	public void ParseMacaroniFile(const path & filePath) {
+		std::stringstream fileContents;
+		readFile(fileContents, filePath.string());
+
+		FileNamePtr fileName = FileName::Create(filePath.string());
+		SourcePtr source = Source::Create(fileName, 1, 1);
+		PippyParser parser;
+		parser.Read(target, source, fileContents.str());
+	}
+
+	/** Helper function which reads in a file. */
+	private void readFile(stringstream & contents, const string & filePath)
+	{
+		ifstream file(filePath.c_str());
+		if (!file.is_open())
+		{
+			std::stringstream ss;
+			ss << "Could not open file " << filePath << "!";
+			throw Macaroni::Exception(ss.str().c_str());
+		}
+		string line;
+		while(! file.eof())
+		{
+			std::getline(file, line);
+			contents << line << "\n";
+		}
+		file.close();
+	}
+
+};

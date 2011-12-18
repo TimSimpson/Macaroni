@@ -46,12 +46,12 @@ struct lua_State;
 //		luaL_newmetatable(L, "Macaroni.Generator.Output.Path.PathList"); \
 //		luaL_register(L, nullptr, PathsProperty_MetaTableMethods);*/
 
-#define LUAGLUE_CREATEMETATABLE 
+#define LUAGLUE_CREATEMETATABLE
 
 
 BEGIN_NAMESPACE2(Macaroni, IO)
 
-namespace {			
+namespace {
 
 	PathListPtr getPathListPtrFromStack(lua_State * L, int index)
 	{
@@ -85,7 +85,7 @@ namespace {
 		if (index >= 0 && index < paths->size())
 		{
 			PathPtr & element = paths->at(index);
-			PathLuaMetaData::PutInstanceOnStack(L, element);			
+			PathLuaMetaData::PutInstanceOnStack(L, element);
 		}
 		else
 		{
@@ -94,20 +94,20 @@ namespace {
 		return 1;
 	}
 
-	
+
 	static int paths__len(lua_State * L)
 	{
 		PathListPtr paths = getPathListPtrFromStack(L, 1);
 		lua_pushinteger(L, paths->size());
 		return 1;
-	}	
+	}
 
 	static int paths__tostring(lua_State * L)
 	{
 		PathListPtr paths = getPathListPtrFromStack(L, 1);
 		lua_pushstring(L, "Paths Array");
 		return 1;
-	}	
+	}
 
 	static const struct luaL_Reg PathsProperty_MetaTableMethods[]=
 	{
@@ -126,7 +126,7 @@ END_NAMESPACE2
 
 #include "../LuaGlue.hpp"
 
-	static int copyToDifferentRootPath(lua_State * L) 
+	static int copyToDifferentRootPath(lua_State * L)
 	{
 		TRY
 			PathPtr me = getInstance(L, 1);
@@ -135,12 +135,12 @@ END_NAMESPACE2
 			if (lua_isboolean(L, 3))
 			{
 				ovride = (lua_toboolean(L, 3) == 1);
-			}			
-			me->CopyToDifferentRootPath(rootPath, ovride);			
+			}
+			me->CopyToDifferentRootPath(rootPath, ovride);
 			return 0;
 		CATCH
-	}	
-	
+	}
+
 	static int createDirectory(lua_State * L)
 	{
 		TRY
@@ -175,13 +175,13 @@ END_NAMESPACE2
 	{
 		TRY
 			PathPtr path = getInstance(L);
-			std::string matchesPattern(luaL_checkstring(L, 2));		
+			std::string matchesPattern(luaL_checkstring(L, 2));
 			PathListPtr paths = path->GetPaths(matchesPattern);
 			pushPathListPtrOntoStack(L, paths);
-			return 1;		
+			return 1;
 		CATCH
 	}
-		
+
 	static int isFileOlderThan(lua_State * L)
 	{
 		TRY
@@ -193,18 +193,18 @@ END_NAMESPACE2
 		CATCH
 	}
 
-	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr, 
+	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr,
 									  const std::string & index)
-	{		
+	{
 		TRY
 		if (index == "AbsolutePath")
-		{	
+		{
 			std::string absPath = ptr->GetAbsolutePath();
 			lua_pushstring(L, absPath.c_str());
 			return 1;
 		}
 		if (index == "AbsolutePathForceSlash")
-		{	
+		{
 			std::string absPath = ptr->GetAbsolutePathForceSlash();
 			lua_pushstring(L, absPath.c_str());
 			return 1;
@@ -220,12 +220,12 @@ END_NAMESPACE2
 			return 1;
 		}
 		else if (index == "CreateDirectory")
-		{	
+		{
 			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::createDirectory);
 			return 1;
 		}
 		else if (index == "CreateFile")
-		{	
+		{
 			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::createFile);
 			return 1;
 		}
@@ -259,28 +259,28 @@ END_NAMESPACE2
 		else if (index == "GetPaths")
 		{
 			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::getPaths);
-			return 1;		
+			return 1;
 		}
 		else if (index == "IsDirectory")
 		{
 			bool isDirectory = ptr->IsDirectory();
 			lua_pushboolean(L, isDirectory);
-			return 1; 
+			return 1;
 		}
 		else if (index == "IsFileOlderThan")
 		{
 			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::isFileOlderThan);
-			return 1; 
-		} 
+			return 1;
+		}
 		else if (index == "NewPath")
 		{
 			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::newPath);
-			return 1;			
+			return 1;
 		}
 		else if (index == "NewPathForceSlash")
 		{
 			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::newPathForceSlash);
-			return 1;			
+			return 1;
 		}
 		else if (index == "ParentPath")
 		{
@@ -290,7 +290,7 @@ END_NAMESPACE2
 		}
 		else if (index == "Paths")
 		{
-			PathListPtr paths = ptr->GetPaths();			
+			PathListPtr paths = ptr->GetPaths();
 			pushPathListPtrOntoStack(L, paths);
 			return 1;
 		}
@@ -303,16 +303,16 @@ END_NAMESPACE2
 		else if (index == "RenameRelative")
 		{
 			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::renameRelative);
-			return 1;	
+			return 1;
 		}
-		lua_pushnil(L);			
+		lua_pushnil(L);
 		return 1;
 		CATCH
 	}
 
 	static int clearDirectoryContents(lua_State * L)
 	{
-		TRY 
+		TRY
 			PathPtr ptr = getInstance(L);
 			ptr->ClearDirectoryContents();
 			return 0;
@@ -334,10 +334,10 @@ END_NAMESPACE2
 		TRY
 			std::string absolutePath(luaL_checkstring(L, 1));
 			PathPtr newPath(new Path(absolutePath));
-			LUAGLUE_REGISTRATIONCLASSNAME::PutInstanceOnStack(L, newPath);			
+			LUAGLUE_REGISTRATIONCLASSNAME::PutInstanceOnStack(L, newPath);
 			return 1;
 		CATCH
-	}	
+	}
 
 
 	static int newPath(lua_State * L)
@@ -364,7 +364,7 @@ END_NAMESPACE2
 
 	static int renameRelative(lua_State * L)
 	{
-		TRY 
+		TRY
 			PathPtr ptr = getInstance(L);
 			std::string newRelative(luaL_checkstring(L, 2));
 			ptr->RenameRelative(newRelative);
@@ -379,7 +379,7 @@ END_NAMESPACE2
 			lua_pushstring(L, path->ToString().c_str());
 			return 1;
 		CATCH
-	}	
+	}
 
 	#define LUAGLUE_ADDITIONALMETATABLEMETHODS \
 		{"__tostring", LUAGLUE_HELPERCLASS::__tostring},
@@ -388,5 +388,45 @@ END_NAMESPACE2
 		{"New", LUAGLUE_HELPERCLASS::newInstance},
 
 #include "../LuaGlue2.hpp"
+
+BEGIN_NAMESPACE2(Macaroni, IO)
+
+bool PathListLuaMetaData::IsType(lua_State * L, int index)
+{
+	void * p = lua_touserdata(L, index);
+	bool returnValue = false;
+	if (p != nullptr) // is user data
+	{
+		// Compares metatable from user data to one in registry.
+		if (lua_getmetatable(L, index))
+		{
+			lua_getfield(L, LUA_REGISTRYINDEX, PATHSMETATABLENAME);
+			if (lua_rawequal(L, -1, -2))
+			{
+				returnValue = true;
+			}
+			lua_pop(L, 2); // remove meta tables
+		}
+	}
+	return returnValue;
+}
+
+int PathListLuaMetaData::OpenInLua(lua_State * L)
+{
+	return PathLuaMetaData::OpenInLua(L);
+}
+
+PathListPtr & PathListLuaMetaData::GetInstance(lua_State * L, int index)
+{
+	return getPathListPtrFromStack(L, index);
+}
+
+void PathListLuaMetaData::PutInstanceOnStack(lua_State * L,
+                                             PathListPtr & ptr)
+{
+	return pushPathListPtrOntoStack(L, ptr);
+}
+
+END_NAMESPACE2
 
 #endif

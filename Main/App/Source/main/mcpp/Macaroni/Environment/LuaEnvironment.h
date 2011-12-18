@@ -38,7 +38,7 @@ public:
 	 *  destroyed. */
 	LuaEnvironment(lua_State * L = nullptr);
 	~LuaEnvironment();
-	
+
 	/** Creates a new table in otherL at the top of the stack and populates
 	 * it with the pairs of strings. */
 	static void CreateNewTableFromStringPairs(lua_State * otherL, std::vector<StringPair> & pairs);
@@ -52,7 +52,7 @@ public:
 	 * for loading files and registering modules to enforce consistency. */
 	lua_State * GetState();
 
-	void BLARGOS();	
+	void BLARGOS();
 
 	std::vector<StringPair> GetStringPairsFromGlobalTable(const char * tableName);
 
@@ -60,7 +60,7 @@ public:
 
 	static std::vector<StringPair> GetStringPairsFromTable(lua_State * L, bool errorIfNotStrings);
 
-	/** Grabs the given table as Lua code. Only primitives are allowed to be 
+	/** Grabs the given table as Lua code. Only primitives are allowed to be
 	 *  there. */
 	std::string GetTableAsLuaCode(const char * tableName);
 
@@ -70,11 +70,14 @@ public:
 
 	/** Finds the table of the given name and reads each element into the String
 	 * Vector which is returned. */
-	std::vector<std::string> GetVectorFromGlobalTable(const char * tableName);	
+	std::vector<std::string> GetVectorFromGlobalTable(const char * tableName);
 
 	/** Assumes that a table is on top of the stack, and reads its elements into
 	 * Vector of Strings. */
-	std::vector<std::string> GetVectorFromTable();	
+	std::vector<std::string> GetVectorFromTable();
+
+	/** "Requires" every single module defined internally. */
+	void OpenAllLuaModules();
 
 	void ParseFile(std::string filePath);
 
@@ -83,22 +86,22 @@ public:
 	void Run(int results = 0);
 
 	/** Calls Lua, but uses pcall so a Macaroni::Exception is thrown instead of
-	 *  the "PANIC" message which is harder to pin down. 
+	 *  the "PANIC" message which is harder to pin down.
 	 *  Call with __FILE__, __LINE__ for best results.
 	 */
-	static void Run(const char * file, int lineNumber, 
+	static void Run(const char * file, int lineNumber,
 		            lua_State * L, int args, int results);
 
 	/** Serializes the value at the top of the stack to a string. */
-	static void SerializeField(lua_State * L, std::stringstream & ss, 
+	static void SerializeField(lua_State * L, std::stringstream & ss,
 		                       int depth = 0, int fieldIndex = -1);
 
-	void SerializeField(std::stringstream & ss, int depth = 0, 
+	void SerializeField(std::stringstream & ss, int depth = 0,
 		                int fieldIndex = -1);
 
 	/** Transforms a table in Lua to a String that can be executed. */
 	void SerializeTable(std::stringstream & ss, const std::string & tableName);
-	
+
 	/** Like the above but uses whatever is at the top of the stack. */
 	static void SerializeTable(lua_State * L, std::stringstream & ss);
 
@@ -108,15 +111,15 @@ public:
 
 private:
 	std::ifstream * input;
-	bool iOwnLuaState;	
+	bool iOwnLuaState;
 	static const char * loadFile(lua_State * L, void * data, size_t *size);
-	static const char * loadString(lua_State * L, void * data, size_t *size);	
-	void registerInternalLuaModules();	
-	static void serializeString(lua_State * L, std::stringstream & cereal, 
+	static const char * loadString(lua_State * L, void * data, size_t *size);
+	void registerInternalLuaModules();
+	static void serializeString(lua_State * L, std::stringstream & cereal,
 								std::string str);
-	static void serializeTable(lua_State * L, std::stringstream & cereal, 
+	static void serializeTable(lua_State * L, std::stringstream & cereal,
 							   int depth);
-	lua_State * state;	
+	lua_State * state;
 };
 
 END_NAMESPACE2

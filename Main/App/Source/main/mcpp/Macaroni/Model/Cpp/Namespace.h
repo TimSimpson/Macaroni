@@ -26,6 +26,7 @@
 #include "../MemberVisitor.h"
 #include "NamespacePtr.h"
 #include "Scope.h"
+#include <Macaroni/Model/Project/TargetPtr.h>
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
@@ -34,8 +35,10 @@ class Namespace : public Scope
 friend struct NamespaceLuaFunctions;
 friend void intrusive_ptr_add_ref(Namespace * p);
 friend void intrusive_ptr_release(Namespace * p);
-public:	
+public:
 	static NamespacePtr Create(LibraryPtr library, NodePtr home, ReasonPtr reason);
+	static NamespacePtr Create(Macaroni::Model::Project::TargetPtr target,
+		NodePtr home, ReasonPtr reason);
 
 	//ClassPtr FindClass(std::string & name);
 
@@ -59,10 +62,12 @@ public:
 
 	virtual void Visit(MemberVisitor * visitor) const;
 
-protected:	
+protected:
 	Namespace(Library * library, Node * home, ReasonPtr reason);
+	Namespace(Macaroni::Model::Project::Target * target,
+	          Node * home, ReasonPtr reason);
 private:
-	
+
 	/** Assumes the given namespace does not exist and creates it as a child
 	 * of this namespace. */
 	//Namespace * create(std::string & name);

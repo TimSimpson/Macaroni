@@ -18,18 +18,22 @@
 ~import Macaroni::AppPathsPtr;
 ~import BOOST_FOREACH;
 ~import Macaroni::Model::Context;
+~import Macaroni::Model::ContextLuaMetaData;
 ~import Macaroni::Model::ContextPtr;
 ~import Macaroni::Model::Element;
 ~import Macaroni::Exception;
 ~import boost::format;
 ~import Macaroni::Environment::Input;
 ~import Macaroni::Environment::InputPtr;
+~import boost::optional;
 ~import Macaroni::Environment::Output;
+~import Macaroni::Environment::OutputLuaMetaData;
 ~import Macaroni::Environment::OutputPtr;
 ~import Macaroni::Environment::LuaEnvironment;
 ~import Macaroni::Model::NodePtr;
 ~import boost::filesystem::path;
 ~import Macaroni::Model::Reason;
+~import Macaroni::Environment::ReplCommand;
 ~import std::string;
 
 // There's a bug which prevents Macaroni from detecting creating a node within
@@ -46,6 +50,7 @@ class Macaroni::Environment::Environment
 	private InputPtr input;
 	private LuaEnvironment luaEnvironment;
 	private OutputPtr output;
+	private bool quitRepl;
 
 	public Environment(AppPathsPtr appPaths, ContextPtr context,
 		               InputPtr input, OutputPtr output)
@@ -53,7 +58,8 @@ class Macaroni::Environment::Environment
 	  context(context),
 	  input(input),
 	  luaEnvironment(),
-	  output(output)
+	  output(output),
+	  quitRepl(false)
 	{
 		output->WriteLine("Creating new Environment with the following "
 		                  "AppPaths:");
@@ -75,7 +81,48 @@ class Macaroni::Environment::Environment
 		}
 		output->WriteLine("]");
 		output->WriteLine("Opening internal modules...");
+		luaEnvironment.OpenAllLuaModules();
 		output->WriteLine("");
+
+
+		ContextLuaMetaData::PutInstanceOnStack(luaEnvironment.GetState(),
+		                                       context);
+		lua_setglobal(luaEnvironment.GetState(), "context");
+
+		OutputLuaMetaData::PutInstanceOnStack(luaEnvironment.GetState(),
+		                                      output);
+		lua_setglobal(luaEnvironment.GetState(), "output");
+
+
+	}
+
+	~hidden bool exit(string line)
+		@ReplCommand [
+			Name = "~exit",
+			Summary = "Exit REPL."
+		]
+	{
+		quitRepl = true;
+		return true;
+	}
+
+	/* Finds any file named "project.lua" in the current directory or any
+	 * directory it can find by iterating downward. */
+	public static optional<path> FindDefaultProject()
+	{
+		path defaultLua = "project.lua";
+		if (boost::filesystem::exists(defaultLua)) {
+			return optional<path>(defaultLua);
+		}
+		path directory = "../";
+		while(boost::filesystem::exists(directory)) {
+			path file = directory / "project.lua";
+			if (boost::filesystem::exists(file)) {
+				return optional<path>(file);
+			}
+			directory = directory / "../";
+		}
+		return boost::none;
 	}
 
 	public inline ContextPtr GetContext()
@@ -88,17 +135,46 @@ class Macaroni::Environment::Environment
 		return luaEnvironment;
 	}
 
+	~hidden bool maccy(string line)
+		@ReplCommand[
+			Name = "~",
+			Summary = "Who is justice?"
+		]
+	{
+		output->WriteLine("");
+		output->WriteLine("           ~'o'~");
+		output->WriteLine("           \\___/");
+		output->WriteLine("");
+		output->WriteLine("             ^");
+        output->WriteLine("      ( I AM JUSTICE! )");
+        output->WriteLine("");
+		return true;
+	}
+
+	~hidden bool pwd(string line)
+		@ReplCommand [
+			Name = "~pwd",
+			Summary = "Print working directory."
+		]
+	{
+		output->WriteLine(appPaths->GetWorkingDirectory().string());
+		return true;
+	}
+
+
 	public bool Repl()
 	{
+		output->WriteLine("Starting Lua REPL. Type \"~help\" for commands.");
 		string line;
-		while(true)
+		quitRepl = false;
+		while(!quitRepl)
 		{
 			input->ReadString(line);
-			if (line == "quit" || line == "exit")
+			if (line == "~quit" || line=="~exit")
 			{
 				return true;
 			}
-			else
+			else if (!replCommand(line))
 			{
 				try
 				{
@@ -117,4 +193,51 @@ class Macaroni::Environment::Environment
 			}
 		}
 	}
+
+	~hidden bool replCommand(string line);
+
+	public bool RunDefaultProject() {
+		optional<path> projectFilePath = FindDefaultProject();
+		if (projectFilePath) {
+			string filePath = projectFilePath.get().string();
+			output->WriteLine(format("Parsing file %s...") % filePath);
+			try
+			{
+				luaEnvironment.ParseFile(filePath);
+				luaEnvironment.Run();
+			} catch(const Macaroni::Exception & me) {
+				output->WriteLine(me.what());
+				return false;
+			}			
+			return true; // or throw :p
+		} else {
+			output->WriteLine("No \"project.lua\" file found.");
+			return false;
+		}
+	}
+
+	~hidden bool setDirectory(string line)
+		@ReplCommand[
+			Name = "~cd",
+			Summary = "Change working directory."
+		]
+	{
+		string newDir = line.substr(3, line.size() - 3);
+		path p(newDir);
+		appPaths->SetWorkingDirectory(p);
+		std::vector<std::string> paths;
+		paths.push_back(appPaths->GetWorkingDirectory().string());
+		BOOST_FOREACH(path gp, appPaths->GetGeneratorPaths()) {
+			paths.push_back(gp.string());
+		}
+		luaEnvironment.SetPackageDirectory(paths);
+		return true;
+	}
+
+	~hidden bool showHelp(string line)
+		@ReplCommand[
+			Name = "~help",
+			Summary = "Print help."
+		]
+	;
 };

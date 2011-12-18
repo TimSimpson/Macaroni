@@ -17,7 +17,7 @@
 #define MACARONI_PARSER_PARSEREXCEPTIONLUA_CPP
 
 #include "ParserExceptionLua.h"
-#include "ParserException.h"
+#include <Macaroni/Parser/ParserException.h>
 #include <Macaroni/Model/Source.h>
 #include <Macaroni/Model/SourceLuaMetaData.h>
 #include <sstream>
@@ -38,9 +38,9 @@ using Macaroni::Model::SourceLuaMetaData;
 
 #include "../LuaGlue.hpp"
 
-	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr, 
+	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr,
 									  const std::string & index)
-	{		
+	{
 		if (index == "Message")
 		{
 			lua_pushstring(L, ptr->GetMessage());
@@ -48,10 +48,10 @@ using Macaroni::Model::SourceLuaMetaData;
 		else if (index == "Source")
 		{
 			Macaroni::Model::SourceLuaMetaData::PutInstanceOnStack(L, ptr->GetSource());
-		}	
-		else 
+		}
+		else
 		{
-			lua_pushnil(L);			
+			lua_pushnil(L);
 		}
 		return 1;
 	}
@@ -62,28 +62,28 @@ using Macaroni::Model::SourceLuaMetaData;
 		std::stringstream ss;
 		ss << "Description:" << ptr->GetMessage();
 		ss << " ParsedSource:" << ptr->GetSource()->ToString();
-		ss << " Thrown from:" << ptr->GetThrowLocation();		
+		ss << " Thrown from:" << ptr->GetThrowLocation();
 		lua_pushstring(L, ss.str().c_str());
 		return 1;
 	}
 
 
 	#define LUAGLUE_ADDITIONALMETATABLEMETHODS \
-		{"__tostring", LUAGLUE_HELPERCLASS::__tostring}, 
+		{"__tostring", LUAGLUE_HELPERCLASS::__tostring},
 
 	#define LUAGLUE_ADDITIONALTABLEMETHODS \
-		/*{"LuaCreate", LUAGLUE_HELPERCLASS::LuaCreate},*/	
+		/*{"LuaCreate", LUAGLUE_HELPERCLASS::LuaCreate},*/
 
 #include "../LuaGlue2.hpp"
 
 	LUAGLUE_STARTNAMESPACE
 
-	void ParserExceptionLuaMetaData::Throw(lua_State *L, const ParserExceptionPtr & ptr, int level) 
-	{		
-		luaL_where(L, level);		
+	void ParserExceptionLuaMetaData::Throw(lua_State *L, const ParserExceptionPtr & ptr, int level)
+	{
+		luaL_where(L, level);
 		ParserExceptionPtr newInstance(
 				new ParserException(ptr->GetSource(), ptr->GetMessage(), lua_tostring(L, -1))
-			);		
+			);
 		ParserExceptionLuaMetaData::PutInstanceOnStack(L, newInstance);
 		lua_error(L);
 		// DOES NOT RETURN

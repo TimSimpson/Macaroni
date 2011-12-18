@@ -63,22 +63,22 @@ namespace Macaroni::Build {
 /* Governs the main execution routine of Macaroni.
 	 * Options:
 	 * 	generate - Call "generate" function of manifest.  This
-	 *  is where the generation of extra information in the AST or C++ source 
+	 *  is where the generation of extra information in the AST or C++ source
 	 *  code occurs.
 	 *  build - After "generate" phase, call build routines.  These are utility
 	 *  functions for building the project through Macaroni.
-	 *  install - Copy resources  
+	 *  install - Copy resources
 */
 class Builder
-{	
-	private AppPathsPtr appPaths;		
+{
+	private AppPathsPtr appPaths;
 	private vector<CppFile> cppFiles;
-	private VectorOfConstString cppSrcRoots;	
+	private VectorOfConstString cppSrcRoots;
 	//private path manifestPath;
 	private MCompiler compiler;
 	private const Console & console;
 	private ContextPtr context;
-	private bool initialized;	
+	private bool initialized;
 	private string properties;
 
 	public Builder(AppPathsPtr appPaths, ContextPtr context, Console & console)
@@ -91,8 +91,8 @@ class Builder
 		//manifest(),
 		//manifestPath(manifestPath),
 		properties()
-	{		
-	}	
+	{
+	}
 
 	public bool Clean(ManifestPtr manifest)
 	{
@@ -102,16 +102,16 @@ class Builder
 		boost::filesystem::remove_all(outputPath);
 		return true;
 	}
-	
+
 	/** From whatever manifest we've opened with, recursively look for a parent.
 	 * End when the parent has been returned. */
 	private path climbToTop(vector<path> & manifests, path manifestPath)
-	{		
+	{
 		manifests.push_back(manifestPath);
 		path p = boost::filesystem::system_complete(manifestPath);
 		if (p.has_parent_path())
-		{			
-			path mp = p.parent_path().parent_path() / "manifest.lua";		
+		{
+			path mp = p.parent_path().parent_path() / "manifest.lua";
 			if (boost::filesystem::exists(mp))
 			{
 				return climbToTop(manifests, mp);
@@ -123,11 +123,11 @@ class Builder
 
 	BuildContextPtr createBuildContext(ManifestPtr manifest, LibraryPtr library)
 	{
-		//const Path dir(manifest->GetRootDirectory(), 
+		//const Path dir(manifest->GetRootDirectory(),
 		//			   manifest->GetRootDirectory());
 		vector<PathPtr> sources;
 		BOOST_FOREACH(const std::string & srcDirectory, manifest->GetMSource())
-		{							
+		{
 			path sd(srcDirectory);
 			PathPtr newPath(new Path(sd)); //manifest->GetRootDirectory() / srcDirectory));
 			sources.push_back(newPath);
@@ -135,13 +135,13 @@ class Builder
 		path od(manifest->GetMOutput());
 		PathPtr genSrc(new Path(od)); //manifest->GetRootDirectory() / manifest->GetMOutput()));
 		path installPath = getInstallPath(manifest->GetId());
-		PathPtr installPathPtr(new Path(installPath, installPath));			
+		PathPtr installPathPtr(new Path(installPath, installPath));
 		BuildContextPtr iCon(new BuildContext(appPaths, library, sources, genSrc, installPathPtr, properties));
 		return iCon;
-	}	
+	}
 
 	private LibraryPtr createLibraryForManifest(ManifestPtr manifest, bool isInstalled)
-	{		
+	{
 		optional<path> installPath;
 		if (isInstalled)
 		{
@@ -162,8 +162,14 @@ class Builder
 	//}*/
 
 	//TO-DO : Change "test" to "build".
+	public bool Execute(const BuilderArguments & arguments, string manifestPath)
+	{
+		boost::filesystem::path p;
+		return Execute(arguments, p);
+	}
+
 	public bool Execute(const BuilderArguments & arguments, path manifestPath)
-	{	
+	{
 		LibraryPtr library;
 		ManifestPtr manifest;
 		if (!initialized)
@@ -177,15 +183,15 @@ class Builder
 		return execute(arguments, manifest, library);
 	}
 
-	private bool execute(const BuilderArguments & arguments, 
-						 const ManifestPtr manifest, 
+	private bool execute(const BuilderArguments & arguments,
+						 const ManifestPtr manifest,
 						 const LibraryPtr library)
-	{		
+	{
 		console.WriteLine("--------------------------------------------------------------------------------");
 		console.Write("    ");
-		console.WriteLine(manifest->GetName());		
-		console.WriteLine("--------------------------------------------------------------------------------");	
-		
+		console.WriteLine(manifest->GetName());
+		console.WriteLine("--------------------------------------------------------------------------------");
+
 		if (manifest->ContainsCavatappi() && !arguments.CavatappiMode())
 		{
 			return executeCavatappi(arguments, manifest, library, false);
@@ -194,13 +200,13 @@ class Builder
 		{
 			return executeNormal(arguments, manifest, library);
 		}
-	}	
+	}
 
-	private bool executeCavatappi(const BuilderArguments & arguments, 
-								  const ManifestPtr manifest, 
+	private bool executeCavatappi(const BuilderArguments & arguments,
+								  const ManifestPtr manifest,
 								  const LibraryPtr library,
 								  const bool forceNewProcess)
-	{		
+	{
 		console.WriteLine("~~ Invoking Cavatappi...");
 		//TODO: Uninstall artifacts from repo
 		if (library->IsInstalled())
@@ -213,13 +219,13 @@ class Builder
 		}
 
 		std::stringstream cmd;
-		cmd << "cavatappi install manifest " 
+		cmd << "cavatappi install manifest "
 			<< manifest->GetManifestFile().string();
 		system(cmd.str().c_str());
-		
+
 		UpdateInstallStatus(library);
-		
-		
+
+
 		return library->IsInstalled();
 		//vector<const string> paths;
 		//vector<StringPair> envVars;
@@ -231,48 +237,48 @@ class Builder
 		//				envVars);
 		//bool success = process.Run(console);
 		//return success;
-	}	
-	
-	private bool executeNormal(const BuilderArguments & arguments, 
-							   const ManifestPtr manifest, 
+	}
+
+	private bool executeNormal(const BuilderArguments & arguments,
+							   const ManifestPtr manifest,
 							   const LibraryPtr library)
-	{		
+	{
 		PathPtr genSrc(new Path(manifest->GetMOutput(), manifest->GetMOutput()));
 		genSrc->CreateDirectory();
 
-		bool success = parseChildren(arguments, manifest, library) 
+		bool success = parseChildren(arguments, manifest, library)
 			&& parseBugs(arguments, manifest, library);
-		
+
 		if (success && arguments.Clean())
 		{
-			success = Clean(manifest);	
+			success = Clean(manifest);
 		}
 		if (success && arguments.Generate())
 		{
 			success = ParseMacaroniSource(arguments, manifest, library);
 			if (success)
 			{
-				BuildContextPtr iCon = createBuildContext(manifest, library);				
+				BuildContextPtr iCon = createBuildContext(manifest, library);
 				success = manifest->RunTarget(console, iCon, "generate", "Generate")->Success;
 			}
 		}
 
 		if (success && arguments.Build())
 		{
-						
+
 			BuildContextPtr iCon = createBuildContext(manifest, library);//new BuildContext(library, src, genSrc, installPathPtr));
 			success = manifest->RunTarget(console, iCon, "build", "Build")->Success;
 		}
 		if (success && arguments.Test())
-		{			
+		{
 			BuildContextPtr iCon = createBuildContext(manifest, library);//new BuildContext(library, src, genSrc, installPathPtr));
 			success = manifest->RunTarget(console, iCon, "test", "Test")->Success;
 		}
 
 		if (success && arguments.Install())
-		{				
+		{
 			success = Install(manifest, library);
-		}		
+		}
 
 		if (success)
 		{
@@ -289,25 +295,25 @@ class Builder
 	{
 		path userPath(Paths::GetUserPath());
 		return userPath / "Libraries" / id.GetGroup()
-						/ id.GetName() / id.GetVersion();		
-	}	
+						/ id.GetName() / id.GetVersion();
+	}
 
 	/** Runs init.lua in Macaroni user directory to establish base
 	 * settings, then initializes manifest and prepares all
 	 * found dependencies.
 	 */
-	public bool Init(const BuilderArguments & arguments, 
+	public bool Init(const BuilderArguments & arguments,
 					 path manifestPath,
 					 ManifestPtr & manifest,
 					 LibraryPtr  & library)
-	{		
+	{
 		initialized = true;
 		properties = RunInitialScript();
 		vector<path> manifests;
 		path topParent = climbToTop(manifests, manifestPath);
 		ManifestPtr upperManifest;
 		for (int i = manifests.size() - 1; i >= 0; i --)
-		{			
+		{
 			loadManifest(arguments, upperManifest, manifests[i], false, manifest, library);
 			properties = manifest->GetProperties();
 			if (!parseManifest(arguments, manifest, library))
@@ -320,24 +326,24 @@ class Builder
 		// Finally, the manifest and library of whatever we're working on is loaded.
 		// Now, get a list of the children...
 
-	//	/*struct Resolve : public LocalManifestResolver 
+	//	/*struct Resolve : public LocalManifestResolver
 	//	{
-	//		virtual optional<LibraryId> FindParent(const optional<string &> & parentPath) 
+	//		virtual optional<LibraryId> FindParent(const optional<string &> & parentPath)
 	//		{
 	//			bool mustExist = false;
 	//			path filePath;
 	//			if (!parentPath)
 	//			{
-	//				filePath = manifestPath.branch_path();					
+	//				filePath = manifestPath.branch_path();
 	//			}
 	//			else
 	//			{
 	//				filePath = manifestPath / (parentPath.get());
 	//				mustExist = true;
-	//			}				
+	//			}
 	//			if (!boost::filesystem::exists(filePath))
 	//			{
-	//				if (mustExist) 
+	//				if (mustExist)
 	//				{
 	//					stringstream ss;
 	//					ss	<< "Could not find parent manifest of \""
@@ -353,11 +359,11 @@ class Builder
 	//		virtual LibraryId FindChild(const std::string & childPath) = 0;
 
 	//		virtual void SelfLibraryId(const LibraryId & myId) = 0;
-	//	};		*/		
+	//	};		*/
 	}
 
 	public bool Install(ManifestPtr manifest, LibraryPtr library)
-	{		
+	{
 		path installPath = getInstallPath(manifest->GetId());
 		if (boost::filesystem::exists(installPath))
 		{
@@ -379,22 +385,22 @@ class Builder
 		//boost::filesystem::copy_file(localMhInterface, exportMhInterface);
 
 		//const Path dir(manifest->GetRootDirectory(), manifest->GetRootDirectory());
-		//PathPtr genSrc = dir.NewPathForceSlash(manifest->GetMOutput());//"/GeneratedSource");		
+		//PathPtr genSrc = dir.NewPathForceSlash(manifest->GetMOutput());//"/GeneratedSource");
 		//PathPtr src(new Path(manifest->GetRootDirectory(), manifest->GetRootDirectory()));
 		//PathPtr installPathPtr(new Path(installPath, installPath));
 		BuildContextPtr iCon = createBuildContext(manifest, library); //(new BuildContext(library, src, genSrc, installPathPtr));
 		Manifest::RunResultPtr result = manifest->RunTarget(console, iCon, "install", "Install");
 		//Path::CopyDirectoryContents(headersLocal, headersInstall);
 		// return true;
-		if (result->Success) 
+		if (result->Success)
 		{
 			manifest->SaveAs(installPath / "manifest-final.lua", result->RunList);
 			optional<path> ip(installPath);
-			library->SetInstallPath(ip); 
+			library->SetInstallPath(ip);
 		}
 		return result->Success;
 	}
-	
+
 	/** Loads a manifest, which is to say it opens up the Manifest file,
 	 * creates a library, and opens all dependencies, running their prepare
 	 * phases.  Does not load children.  Returns the new properties setting
@@ -402,81 +408,81 @@ class Builder
 	private void loadManifest(const BuilderArguments & arguments,
 							  ManifestPtr upperManifest,
 							  path manifestPath, bool isInstalled,
-							  ManifestPtr & outManifest, 
+							  ManifestPtr & outManifest,
 							  LibraryPtr & outLibrary)
 	{
 		ManifestPtr newM(new Manifest(manifestPath, properties, upperManifest, arguments.CavatappiMode()));
 		outManifest = newM;
 		outLibrary = createLibraryForManifest(outManifest, isInstalled);
-	}	
+	}
 
-	///*private void parseChildren(vector<LibraryId> & dependencyStack, 
-	//						   ManifestPtr sourceManifest, 
+	///*private void parseChildren(vector<LibraryId> & dependencyStack,
+	//						   ManifestPtr sourceManifest,
 	//						   LibraryPtr sourceLibrary)
 	//{
 	//	const std::vector<const std::string> children = sourceManifest->GetChildren();
 	//	BOOST_FOREACH(const string & child, children)
-	//	{			
-	//		
+	//	{
+	//
 	//		std::vector<FileSet> input;
-	//		input.push_back(FileSet(boost::filesystem::path(child), "\\.m(cpp|h)?$"));			
-	//		compiler.BuildModel(sourceLibrary, input);			
+	//		input.push_back(FileSet(boost::filesystem::path(child), "\\.m(cpp|h)?$"));
+	//		compiler.BuildModel(sourceLibrary, input);
 	//	}
 	//}*/
 
-	/////** Parse a list of manifests almost like you're parsing Children, 
+	/////** Parse a list of manifests almost like you're parsing Children,
 	//// * but instead invoke Cavatappi. */
-	////private bool parseCavatappi(GeneratedFileWriter & writer, 
-	////						    const ManifestPtr manifest, 
-	////						    const LibraryPtr library) 
+	////private bool parseCavatappi(GeneratedFileWriter & writer,
+	////						    const ManifestPtr manifest,
+	////						    const LibraryPtr library)
 	////{
 	////	writer.WriteLine("-- Cavatappi Success Report");
 	////	writer.WriteLine("");
-	////	writer.WriteLine("count=" 
-	////		+ lexical_cast<string>(manifest->GetCavatappiManifests().size()) 
+	////	writer.WriteLine("count="
+	////		+ lexical_cast<string>(manifest->GetCavatappiManifests().size())
 	////		+ ";");
 	////	writer.WriteLine("results = {");
 	////	BOOST_FOREACH(const string & directory, manifest->GetCavatappiManifests())
-	////	{			
+	////	{
 	////		path cavatappiManifest(manifest->GetRootDirectory());
 	////		//TODO: Uninstall each manifest from the repo!
-	////	}	
+	////	}
 
 	////	BOOST_FOREACH(const string & directory, manifest->GetCavatappiManifests())
-	////	{			
+	////	{
 	////		path cavatappiManifest(manifest->GetRootDirectory());
 	////		cavatappiManifest = cavatappiManifest / directory / "manifest.lua";
 	////		bool success = invokeCavatappi(cavatappiManifest);
 	////		if (!success)
 	////		{
-	////			writer.WriteLine("\t{ 
+	////			writer.WriteLine("\t{
 	////		}
 	////		//writer.WriteLine("\t{");
-	////		//writer.WriteLine("\t\tid={group=" + 
+	////		//writer.WriteLine("\t\tid={group=" +
 	////		//writer.WriteLine("\t}");
 
 	////		ManifestPtr childManifest(new Manifest(childPath, properties));
 	////		childManifests.push_back(childManifest);
-	////	}	
+	////	}
 	////	writer.WriteLine("}; -- end of results");
 	////}
 
 	/////** Invokes cavatappi to completely build whatever is here.
-	//// *  We can confirm cavatappi's success by checking to see if the 
+	//// *  We can confirm cavatappi's success by checking to see if the
 	//// *  artifacts exist in the repo. */
 	////private bool invokeCavatappi(const path & manifestPath)
 	////{
-	////	// TODO: Invoke, and if exit code suggests failure uninstall repo 
+	////	// TODO: Invoke, and if exit code suggests failure uninstall repo
 	////	// artifacts just to be safe.
 	////}
 
-	public bool parseBugs(const BuilderArguments & arguments, 
-						  const ManifestPtr manifest, 
+	public bool parseBugs(const BuilderArguments & arguments,
+						  const ManifestPtr manifest,
 						  const LibraryPtr library)
 	{
 		std::vector<ManifestPtr> bugsManifests;
 		BOOST_FOREACH(const string & bugDir, manifest->GetBugs())
-		{			
+		{
 			path bugPath(manifest->GetRootDirectory());
 			bugPath = bugPath / bugDir / "manifest.lua";
 			ManifestPtr bugManifest;
@@ -487,13 +493,13 @@ class Builder
 			{
 				// Always claim we aren't Cavatappi.
 				// That way, if the bug is to show an issue with the manifest
-				// loading process, they can use the Cavatappi mechanism to 
+				// loading process, they can use the Cavatappi mechanism to
 				// put the library credentials in the first part and the buggy
 				// part in the second manifest file.
 				bugManifest.reset(new Manifest(bugPath, properties, manifest, false));
 			}
 			catch(...)
-			{				
+			{
 				console.Write("An error occurred simply parsing the bug manifest \"");
 				console.Write(bugPath.string());
 				console.WriteLine("\".");
@@ -506,19 +512,19 @@ class Builder
 			desc = bugManifest->GetDescription();
 			manifest->SetBugResult(bugDir, bugLibrary, desc);
 		}
-		return true; 
-	}	
+		return true;
+	}
 
-	public bool parseChildren(const BuilderArguments & arguments, 
-							  const ManifestPtr manifest, 
+	public bool parseChildren(const BuilderArguments & arguments,
+							  const ManifestPtr manifest,
 							  const LibraryPtr library)
 	{
 		std::vector<ManifestPtr> childManifests;
 		BOOST_FOREACH(const string & child, manifest->GetChildren())
-		{			
+		{
 			path childPath(manifest->GetRootDirectory());
 			childPath = childPath / child / "manifest.lua";
-			ManifestPtr childManifest(new Manifest(childPath, properties, 
+			ManifestPtr childManifest(new Manifest(childPath, properties,
 												   manifest, arguments.CavatappiMode()));
 			childManifests.push_back(childManifest);
 		}
@@ -527,7 +533,7 @@ class Builder
 		BOOST_FOREACH(ManifestPtr manifest, childManifests)
 		{
 			// Create libraries so that the final-manifest will not be searched.
-			createLibraryForManifest(manifest, false);			
+			createLibraryForManifest(manifest, false);
 		}
 		BOOST_FOREACH(ManifestPtr childManifest, childManifests)
 		{
@@ -536,10 +542,10 @@ class Builder
 			if (!execute(arguments, childManifest, library))
 			{
 				return false;
-			}						
-		}				
-		return true; 
-	}	
+			}
+		}
+		return true;
+	}
 
 	/////** Reads and consumes all dependencies of *this* manifest, including
 	//// * Macaroni source.  May also invoke "prepare" phases of final-manifests. */
@@ -554,10 +560,10 @@ class Builder
 								   ManifestPtr sourceManifest,
 								   LibraryPtr sourceLibrary)
 	{
-		BOOST_FOREACH(const LibraryId id, sourceManifest->GetDependencies()) 
-		{			
+		BOOST_FOREACH(const LibraryId id, sourceManifest->GetDependencies())
+		{
 			dependencyStack.push_back(id);
-			parseDependency(arguments, dependencyStack, sourceManifest, 
+			parseDependency(arguments, dependencyStack, sourceManifest,
 							sourceLibrary, id);
 			dependencyStack.pop_back();
 		}
@@ -566,32 +572,32 @@ class Builder
 	private void parseDependency(const BuilderArguments & arguments,
 								 vector<LibraryId> & dependencyStack,
 								 ManifestPtr sourceManifest,
-								 LibraryPtr sourceLibrary, 
+								 LibraryPtr sourceLibrary,
 								 const LibraryId dependencyId)
 	{
 		LibraryPtr existingLib = sourceLibrary->GetContext()->FindLibrary(dependencyId);
 		if (!existingLib)
-		{			
+		{
 			// Load manifest of dependency, create libraries
 			path manifestFilePath = appPaths->FindFinalManifestFile(dependencyId);
 			ManifestPtr none;
-			ManifestPtr dManifest(new Manifest(manifestFilePath, properties, 
+			ManifestPtr dManifest(new Manifest(manifestFilePath, properties,
 											   none,
-											   arguments.CavatappiMode()));			
+											   arguments.CavatappiMode()));
 			const boost::optional<boost::filesystem::path> installPath(
 				appPaths->FindInstallPath(dependencyId));
 			LibraryPtr dLib = sourceLibrary->GetContext()->FindOrCreateLibrary(installPath, dependencyId);
 			// Now parse all of the dependency's dependencies before continuing.
-			parseDependencies(arguments, dependencyStack, dManifest, dLib);		
+			parseDependencies(arguments, dependencyStack, dManifest, dLib);
 			// Now add all dependencies to library
 
 			// Parse all of its source.
 			parseManifestSource(arguments, dManifest, dLib);
-			
+
 			// Run prepare phase of dependency
 			BuildContextPtr iCon = createBuildContext(dManifest, dLib);
 			iCon->GetOutputDir()->CreateDirectory();
-			//TODO: Don't really care if this fails.  But it probably shouldn't 
+			//TODO: Don't really care if this fails.  But it probably shouldn't
 			// print a message to the console.
 			Manifest::RunResultPtr result = dManifest->RunTarget(console, iCon, "prepare", "Prepare");
 
@@ -600,23 +606,16 @@ class Builder
 			existingLib = dLib;
 		}
 		sourceLibrary->AddDependency(existingLib);
-	}	
+	}
 
 	public bool ParseMacaroniSource(const BuilderArguments & arguments,
 									ManifestPtr manifest, LibraryPtr library)
-	{		
+	{
 		console.WriteLine("~ Creating Macaroni model from source files (.mh, .mcpp). ~");
 		try
 		{
 			parseManifestSource(arguments, manifest, library);
 			return true;
-		}
-		catch(Macaroni::Exception & ex)
-		{
-			console.Write("An error occurred parsing Macaroni source files.");
-			console.WriteLine(ex.GetSource());
-			console.WriteLine(ex.GetMessage());
-			return false;
 		}
 		catch(Macaroni::Parser::ParserException & pe)
 		{
@@ -625,26 +624,42 @@ class Builder
 			console.WriteLine(pe.GetMessage());
 			return false;
 		}
+		catch(Macaroni::Exception & ex)
+		{
+			console.Write("An error occurred parsing Macaroni source files.");
+			console.WriteLine(ex.GetSource());
+			console.WriteLine(ex.GetMessage());
+			return false;
+		}		
 	}
-	
-	public bool parseManifest(const BuilderArguments & arguments, 
-							  ManifestPtr & manifest, LibraryPtr & library) 
+
+	public bool parseManifest(const BuilderArguments & arguments,
+							  ManifestPtr & manifest, LibraryPtr & library)
 	{
 		vector<LibraryId> dependencyStack;
 		dependencyStack.push_back(manifest->GetId());
-		try 
+		try
 		{
 			///*stringstream ss;
 			//ss << "~ Parsing dependencies for {[["
-			//	<< library->GetGroup() 
+			//	<< library->GetGroup()
 			//	<< "]], [[" << library->GetName()
-			//	<< "]], [[" << library->GetVersion() 
+			//	<< "]], [[" << library->GetVersion()
 			//	<< "]]}";
 			//console.WriteLine(ss.str().c_str());*/
 			parseDependencies(arguments, dependencyStack, manifest, library);
 			//parseNestedLibraries(dependencyStack, manifest, library);
 			//console.WriteLine("~ Creating Macaroni model from source files (.mh, .mcpp). ~");
 			//parseManifestSource(manifest, library);
+		}
+				catch(Macaroni::Parser::ParserException & pe)
+		{
+			console.Write("An error occurred parsing Macaroni code while in dependency ");
+			printOutDependencyStack(dependencyStack);
+			console.WriteLine(".");
+			console.WriteLine(pe.GetSource()->ToString());
+			console.WriteLine(pe.GetMessage());
+			return false;
 		}
 		catch(Macaroni::Exception & ex)
 		{
@@ -653,15 +668,6 @@ class Builder
 			console.WriteLine(".");
 			console.WriteLine(ex.GetSource());
 			console.WriteLine(ex.GetMessage());
-			return false;
-		}
-		catch(Macaroni::Parser::ParserException & pe)
-		{
-			console.Write("An error occurred parsing Macaroni code while in dependency ");
-			printOutDependencyStack(dependencyStack);
-			console.WriteLine(".");
-			console.WriteLine(pe.GetSource()->ToString());
-			console.WriteLine(pe.GetMessage());
 			return false;
 		}
 		catch(std::exception & ex)
@@ -674,7 +680,7 @@ class Builder
 		}
 		return true;
 	/*
-		
+
 
 
 		std::string mSrc = manifest->GetMSource()[0];
@@ -682,7 +688,7 @@ class Builder
 		std::vector<FileSet> inputFiles;
 
 		// Include dependencies
-		BOOST_FOREACH(ManifestPtr dependency, manifest->GetDependencies()) 
+		BOOST_FOREACH(ManifestPtr dependency, manifest->GetDependencies())
 		{
 			parseDependency(library, compiler, dependency);
 		}
@@ -713,21 +719,21 @@ class Builder
 			console.WriteLine(pe.GetMessage());
 			return false;
 		}
-		return true;*/		
+		return true;*/
 	}
 
-	/** Given the manifest and library, add its Macaroni source to the Context. 
+	/** Given the manifest and library, add its Macaroni source to the Context.
 	 */
 	private void parseManifestSource(const BuilderArguments & arguments,
-									 ManifestPtr sourceManifest, 
+									 ManifestPtr sourceManifest,
 									 LibraryPtr sourceLibrary)
 	{
 		const std::vector<MACARONI_VE_CONST std::string> src = sourceManifest->GetMSource();
 		BOOST_FOREACH(const string & dir, src)
-		{			
+		{
 			std::vector<FileSet> input;
-			input.push_back(FileSet(boost::filesystem::path(dir), "\\.m(cpp|h)?$"));			
-			compiler.BuildModel(sourceLibrary, input);			
+			input.push_back(FileSet(boost::filesystem::path(dir), "\\.m(cpp|h)?$"));
+			compiler.BuildModel(sourceLibrary, input);
 		}
 	}
 
@@ -746,11 +752,11 @@ class Builder
 		bool seenOne = false;
 		BOOST_FOREACH(LibraryId & id, dependencyStack)
 		{
-			if (!seenOne) 
+			if (!seenOne)
 			{
 				seenOne = true;
 			}
-			else 
+			else
 			{
 				console.Write(" -> ");
 			}
@@ -766,17 +772,17 @@ class Builder
 	public string RunInitialScript()
 	{
 		path userPath(Paths::GetUserPath());
-		path initLuaPath = userPath / "init.lua";		
+		path initLuaPath = userPath / "init.lua";
 		if (!boost::filesystem::exists(initLuaPath))
 		{
 			stringstream ss;
 			ss	<< "Could not find init.lua at "
-				<< initLuaPath 
+				<< initLuaPath
 				<< ".";
 			console.WriteLine(ss.str());
-			return "{}";			
-		} 
-		else 
+			return "{}";
+		}
+		else
 		{
 			LuaEnvironment env;
 			env.ParseFile(initLuaPath.string());
@@ -784,7 +790,7 @@ class Builder
 			stringstream cereal;
 			env.SerializeTable(cereal, "properties");
 			return cereal.str();
-		}		
+		}
 	}
 
 	///*public bool SaveCppSource()
@@ -806,12 +812,12 @@ class Builder
 	//}*/
 	/** Tries to uninstall artifacts. */
 	public bool Uninstall(LibraryPtr library)
-	{		
+	{
 		PathPtr installPath = library->FindInstallPath();
 		if (!!installPath)
 		{
 			stringstream ss;
-			ss << "~ Uninstalling library from \"" 
+			ss << "~ Uninstalling library from \""
 			   << installPath->GetAbsolutePath() << "\"...";
 			console.WriteLine(ss.str());
 			installPath->ClearDirectoryContents();
@@ -835,9 +841,9 @@ class Builder
 			{
 				optional<path> op(p);
 				library->SetInstallPath(op);
-			}			
+			}
 		}
-		else 
+		else
 		{
 			if (installPath->NewPathForceSlash("manifest-final.lua")->Exists())
 			{

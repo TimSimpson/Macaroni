@@ -61,19 +61,19 @@ using Macaroni::Model::TypeLuaMetaData;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-namespace 
+namespace
 {
 	struct FunctionOverloadLuaFunctions
 	{
-		static int Create(lua_State * L) 
+		static int Create(lua_State * L)
 		{
 			try
 			{
-				//static FunctionPtr Create(NodePtr home, bool isInline, 
-				//	const Access access, const bool isStatic, const TypePtr rtnType, 
+				//static FunctionPtr Create(NodePtr home, bool isInline,
+				//	const Access access, const bool isStatic, const TypePtr rtnType,
 				//	bool constMember, Model::ReasonPtr reason);
 				ElementPtr memberPtr = FunctionLuaMetaData::GetInstance(L, 1);
-				FunctionPtr home = 
+				FunctionPtr home =
 					boost::dynamic_pointer_cast<Function>(memberPtr);
 				if (!home)
 				{
@@ -87,19 +87,19 @@ namespace
 				bool constMember = lua_toboolean(L, 7) != 0;
 				bool throwSpecifier = lua_toboolean(L, 8) != 0;
 				ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 9);
-				FunctionOverloadPtr newFO = FunctionOverload::Create(home, 
-													   isInline, access, 
+				FunctionOverloadPtr newFO = FunctionOverload::Create(home,
+													   isInline, access,
 													   isStatic, isVirtual,
-													   rtnType, 
-													   constMember, 
+													   rtnType,
+													   constMember,
 													   throwSpecifier, reason);
 				ElementPtr rtnValue = boost::dynamic_pointer_cast<Element>(newFO);
 				ElementLuaMetaData::PutInstanceOnStack(L, rtnValue);
 				return 1;
-			} 
-			catch(const ModelInconsistencyException & ex) 
+			}
+			catch(const ModelInconsistencyException & ex)
 			{
-				return luaL_error(L, "ModelInconsistencyException: %c", ex.what()); 
+				return luaL_error(L, "ModelInconsistencyException: %c", ex.what());
 			}
 		}
 
@@ -109,7 +109,7 @@ namespace
 			FunctionOverloadPtr ptr = boost::dynamic_pointer_cast<FunctionOverload>(memberPtr);
 			std::string codeBlock(luaL_checkstring(L, 2));
 			SourcePtr src = SourceLuaMetaData::GetInstance(L, 3);
-			bool codeBlockAddRedirect = lua_toboolean(L, 4);
+			bool codeBlockAddRedirect = lua_toboolean(L, 4) != 0;
 			ptr->SetCodeBlock(codeBlock, src, codeBlockAddRedirect);
 			return 0;
 		}
@@ -133,9 +133,9 @@ bool FunctionOverloadLuaMetaData::IsType(lua_State * L, int index)
 	return ElementLuaMetaData::IsType(L, index);
 }
 
-int FunctionOverloadLuaMetaData::OpenInLua(lua_State * L) 
+int FunctionOverloadLuaMetaData::OpenInLua(lua_State * L)
 {
-	luaL_register(L, GLOBALTABLENAME, tableMethods);		
+	luaL_register(L, GLOBALTABLENAME, tableMethods);
 	return 1;
 }
 
@@ -145,10 +145,10 @@ void FunctionOverloadLuaMetaData::PutInstanceOnStack(lua_State * L, const Functi
 	ElementLuaMetaData::PutInstanceOnStack(L, memberPtr);
 }
 
-int FunctionOverloadLuaMetaData::Index(lua_State * L, 
-									   const FunctionOverloadPtr & ptr, 
+int FunctionOverloadLuaMetaData::Index(lua_State * L,
+									   const FunctionOverloadPtr & ptr,
 									   const std::string & index)
-{		
+{
 	if (index == "Arguments")
 	{
 		NodeListPtr argList = ptr->GetArguments();
@@ -197,12 +197,12 @@ int FunctionOverloadLuaMetaData::Index(lua_State * L,
 		//luaL_getmetatable(L, PROPERTIES_METATABLENAME_RETURNTYPE);
 		//lua_setmetatable(L, -2); */
 		return 1;
-	}		
+	}
 	else if (index == "SetCodeBlock")
 	{
 		lua_pushcfunction(L, FunctionOverloadLuaFunctions::SetCodeBlock);
 		return 1;
-	}		
+	}
 	else if (index == "ThrowSpecifier")
 	{
 		lua_pushboolean(L, ptr->HasThrowSpecifier());

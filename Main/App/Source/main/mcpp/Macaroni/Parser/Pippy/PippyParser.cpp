@@ -27,7 +27,7 @@
 #include "../../Model/Cpp/Constructor.h"
 #include <Macaroni/Model/Cpp/ConstructorOverload.h>
 #include "../../Model/Cpp/ConstructorPtr.h"
-#include "../../Model/Context.h"
+#include <Macaroni/Model/Context.h>
 #include "../Cpp/CppAxioms.h"
 #include "../../Model/Cpp/CppContext.h"
 #include "../../Model/Cpp/Destructor.h"
@@ -42,11 +42,13 @@
 #include "../../Model/Cpp/Namespace.h"
 #include "../../Model/Node.h"
 #include "PippyParser.h"
-#include "../Parser.h"
-#include "../ParserException.h"
+#include <Macaroni/Parser/Parser.h>
+#include <Macaroni/Parser/ParserException.h>
 #include "../../Model/Cpp/Primitive.h"
 #include <Macaroni/Model/Reason.h>
 #include <Macaroni/Model/Source.h>
+#include <Macaroni/Model/Project/Target.h>
+#include <Macaroni/Model/Project/TargetPtr.h>
 #include "../../Model/Type.h"
 #include "../../Model/TypeArgument.h"
 #include <Macaroni/Model/TypeModifiers.h>
@@ -96,12 +98,14 @@ using Macaroni::Model::Node;
 using Macaroni::Model::NodeList;
 using Macaroni::Model::NodeListPtr;
 using Macaroni::Model::NodePtr;
-using Macaroni::Model::Source;
-using Macaroni::Model::SourcePtr;
 using Macaroni::Parser::ParserException;
 using Macaroni::Model::Cpp::Primitive;
 using Macaroni::Model::Reason;
 using Macaroni::Model::ReasonPtr;
+using Macaroni::Model::Source;
+using Macaroni::Model::SourcePtr;
+using Macaroni::Model::Project::Target;
+using Macaroni::Model::Project::TargetPtr;
 using Macaroni::Model::Type;
 using Macaroni::Model::TypeArgument;
 using Macaroni::Model::TypeArgumentList;
@@ -109,13 +113,13 @@ using Macaroni::Model::TypeArgumentListPtr;
 using Macaroni::Model::TypeArgumentPtr;
 using Macaroni::Model::Cpp::Typedef;
 using Macaroni::Model::Cpp::TypedefPtr;
+using Macaroni::Model::Cpp::TypeInfo;
 using Macaroni::Model::TypeList;
 using Macaroni::Model::TypeListPtr;
 using Macaroni::Model::TypeModifiers;
 using Macaroni::Model::TypePtr;
 using Macaroni::Model::Cpp::Variable;
 using Macaroni::Model::Cpp::VariableAssignment;
-using Macaroni::Model::Cpp::TypeInfo;
 
 BEGIN_NAMESPACE(Macaroni, Parser, Pippy)
 
@@ -137,7 +141,7 @@ public:
 		fileName(source->GetFileName()),
 		itr(itr), line(source->GetLine())
 	{
-		
+
 	}
 
 	inline void Advance(int count)
@@ -220,7 +224,7 @@ public:
 	inline bool Is(const char * string)
 	{
 		StringItr src = itr;
-		
+
 		while(src != endItr)
 		{
 			if (*string == '\0')
@@ -232,12 +236,12 @@ public:
 				return false;
 			}
 			src ++;
-			string ++;			
+			string ++;
 		}
 
 		return *string == '\0';
 	}
-	
+
 	inline bool IsWhiteSpace()
 	{
 		return *itr <= 32;
@@ -269,7 +273,7 @@ public:
 			itr.Advance(5);
 			// Advances one past Word, going out of bounds.
 			// Thus, an exception must be thrown.
-			Assert(false); 
+			Assert(false);
 		}
 		catch(Macaroni::Exception &)
 		{
@@ -307,7 +311,7 @@ public:
 	{
 		return Finished() ? false : IsDigit(*itr);
 	}
-	
+
 	static inline bool IsDigit(const char c)
 	{
 		return c >=48 && c <= 57;
@@ -330,7 +334,7 @@ public:
 		Assert(!IsDigit(':'));
 		Assert(!IsDigit('/'));
 	}
-	
+
 	static void RunTests()
 	{
 		IsAlphaTests();
@@ -342,7 +346,7 @@ private:
 	StringItr endItr;
 	FileNamePtr fileName;
 	StringItr itr;
-	int line;		
+	int line;
 };
 
 static std::string unsafeStaticNightmareString;
@@ -356,8 +360,8 @@ static Iterator createTestItr(const char * msgChars)
 	unsafeStaticNightmareString = std::string(msgChars);
 	FileNamePtr file = FileName::Create(std::string("Blah.mcpp"));
 	SourcePtr src = Source::Create(file, 1, 1);
-	Iterator p(unsafeStaticNightmareString.begin(), 
-			   unsafeStaticNightmareString.end(), 
+	Iterator p(unsafeStaticNightmareString.begin(),
+			   unsafeStaticNightmareString.end(),
 			   src);
 	return p;
 }
@@ -372,14 +376,16 @@ private:
 	std::string hFilesForNewNodes;
 	NodeListPtr importedNodes;
 	LibraryPtr library;
+	TargetPtr target;
 public:
 
-	ParserFunctions(ContextPtr context, LibraryPtr library)
-		:context(context), 
-		 currentScope(context->GetRoot()), 
+	ParserFunctions(ContextPtr context, LibraryPtr library, TargetPtr target)
+		:context(context),
+		 currentScope(context->GetRoot()),
 		 importedNodes(new NodeList()),
-		 library(library)
-	{			
+		 library(library),
+		 target(target)
+	{
 		MACARONI_ASSERT(!!CppContext::GetPrimitives(context),
 			"Cpp nodes must be found to parse successfully.");
 		NodePtr primitiveRoot = CppContext::GetPrimitives(context);
@@ -389,7 +395,7 @@ public:
 		}
 	}
 
-	/** Attempts to consume whatever access it can, returning 
+	/** Attempts to consume whatever access it can, returning
 	 * "Access_NotSpecified" if it finds nothing. */
 	AccessPtr AccessKeyword(Iterator & itr)
 	{
@@ -414,7 +420,7 @@ public:
 			else
 			{
 				access = Access::Internal();
-			}			
+			}
 		}*/
 		else if (itr.ConsumeWord("private"))
 		{
@@ -450,7 +456,7 @@ public:
 	}
 
 	bool Annotation(Iterator & itr)
-	{		
+	{
 		if (!itr.ConsumeChar('@'))
 		{
 			return false;
@@ -473,7 +479,7 @@ public:
 		if (AnnotationValue_(itr, attrBegin, name, annotationValue))
 		{
 			itr.ConsumeWhitespace();
-			// Changing this, because if its in a typedef or Variable its 
+			// Changing this, because if its in a typedef or Variable its
 			// ambiguous.
 			// itr.ConsumeChar(';'); // Consume this (its optional)
 			currentScope->GetAnnotations().Add(annotationValue);
@@ -481,10 +487,10 @@ public:
 		}
 		throw ParserException(itr.GetSource(),
 				Messages::Get("CppParser.Annotation.ValueExpectedFollowingNodeName"));
-	}	
+	}
 
-	bool AnnotationValue_(Iterator & itr, Iterator & attrBegin, 
-						 const NodePtr & name, 
+	bool AnnotationValue_(Iterator & itr, Iterator & attrBegin,
+						 const NodePtr & name,
 						 AnnotationValueInternalPtr & annotationValue)
 	{
 		itr.ConsumeWhitespace();
@@ -494,40 +500,40 @@ public:
 		// number - a number literal
 		// string - a string in the form "blah", {blah}, or (blah)
 		// table - starts with [
-		
+
 		bool valueBool;
 		double valueNumber;
 		NodePtr valueNode;
 		std::string valueString;
 		if (AnnotationValueBool(itr, valueBool))
-		{	
-			annotationValue = AnnotationValueInternalPtr(new AnnotationValue(name, valueBool, 
+		{
+			annotationValue = AnnotationValueInternalPtr(new AnnotationValue(name, valueBool,
 					Reason::Create(CppAxioms::AnnotationValueCreation(), attrBegin.GetSource())
 				));
 		}
 		else if (AnnotationValueNumber(itr, valueNumber))
 		{
-			annotationValue = AnnotationValueInternalPtr(new AnnotationValue(name, valueNumber, 
+			annotationValue = AnnotationValueInternalPtr(new AnnotationValue(name, valueNumber,
 					Reason::Create(CppAxioms::AnnotationValueCreation(), attrBegin.GetSource())
 				));
 		}
 		else if (AnnotationValueNode(itr, valueNode))
 		{
-			annotationValue = AnnotationValueInternalPtr(new AnnotationValue(name, valueNode, 
+			annotationValue = AnnotationValueInternalPtr(new AnnotationValue(name, valueNode,
 					Reason::Create(CppAxioms::AnnotationValueCreation(), attrBegin.GetSource())
 				));
 		}
 		else if (AnnotationValueString(itr, valueString))
 		{
-			annotationValue = AnnotationValueInternalPtr(new AnnotationValue(name, valueString, 
+			annotationValue = AnnotationValueInternalPtr(new AnnotationValue(name, valueString,
 					Reason::Create(CppAxioms::AnnotationValueCreation(), attrBegin.GetSource())
 				));
 		}
 		else if (itr.ConsumeChar('['))
 		{
-			annotationValue = AnnotationValueInternalPtr(new AnnotationValue(name, 
+			annotationValue = AnnotationValueInternalPtr(new AnnotationValue(name,
 					Reason::Create(CppAxioms::AnnotationValueCreation(), attrBegin.GetSource())
-				));			
+				));
 			annotationTableContents(itr, annotationValue->GetValueAsTable());
 		}
 		else
@@ -535,9 +541,9 @@ public:
 			// Short hand syntax allows for an empty annotation.
 			// For now this is a table but it'd be cool if it could be nothing
 			// to avoid the waste.
-			annotationValue = AnnotationValueInternalPtr(new AnnotationValue(name, 
+			annotationValue = AnnotationValueInternalPtr(new AnnotationValue(name,
 				Reason::Create(CppAxioms::AnnotationValueCreation(), attrBegin.GetSource())
-				));						
+				));
 		}
 		return !!annotationValue;
 	}
@@ -554,7 +560,7 @@ public:
 			{
 				throw ParserException(itr.GetSource(),
 					Messages::Get("CppParser.Annotation.EndBracketOrSimpleNameExpectedInsideAnnotationTable"));
-			}			
+			}
 			itr.ConsumeWhitespace();
 			if (!itr.ConsumeChar('='))
 			{
@@ -577,7 +583,7 @@ public:
 			if (itr.ConsumeChar(',')) // optional
 			{
 				itr.ConsumeWhitespace();
-			}				
+			}
 		}
 		itr.Advance(1);
 	}
@@ -615,7 +621,7 @@ public:
 
 	bool AnnotationValueNumber(Iterator & itr, double & value)
 	{
-		return RealNumber(itr, value);		
+		return RealNumber(itr, value);
 	}
 
 	bool AnnotationValueString(Iterator & itr, std::string & value)
@@ -635,10 +641,10 @@ public:
 			{
 				throw ParserException(itr.GetSource(), Messages::Get(
 					"CppParser.Annotation.CodeBlockExpectedAfterEquals"));
-			}			
-		}		
+			}
+		}
 		return false;
-	}	
+	}
 
 	bool Block(Iterator & itr)
 	{
@@ -653,14 +659,14 @@ public:
 			// We're committed.
 			itr = newItr;
 		}
-		
+
 		itr.ConsumeWhitespace();
 		std::string id;
-		
+
 		if (!ConsumeStringLiteral(itr, id))
 		{
 			throw ParserException(itr.GetSource(),
-				Messages::Get("CppParser.StringLiteralStartExpected"));		
+				Messages::Get("CppParser.StringLiteralStartExpected"));
 		}
 		itr.ConsumeWhitespace();
 		std::string code;
@@ -669,53 +675,63 @@ public:
 		{
 			throw ParserException(itr.GetSource(),
 				Messages::Get("CppParser.CodeBlock.Expected"));
-		}		
+		}
 		NodePtr blockHome = createNextBlockNode(currentScope, itr);
 		Block::Create(blockHome, id, code,
 			Reason::Create(CppAxioms::BlockCreation(), codeStart));
 		return true;
-	}	
+	}
 
 	// looks for "class [complexName]{}" Ignores whitespace.
 	// Modifies itr argument if match is found.
 	bool Class(Iterator & itr)
 	{
-		Iterator newItr = itr; 
+		Iterator newItr = itr;
 		ConsumeWhitespace(newItr);
 
-		AccessPtr access = AccessKeyword(newItr);				
+		AccessPtr access = AccessKeyword(newItr);
 		newItr.ConsumeWhitespace();
 
 		if (!newItr.ConsumeWord("class"))
 		{
 			return false;
 		}
-		
+
 		// Once the parser has seen "class" it must see the correct
 		// grammar or there will be hell to pay.
 
-		ConsumeWhitespace(newItr); 
-		
+		ConsumeWhitespace(newItr);
+
 		std::string name;
 		if (!ConsumeComplexName(newItr, name))
 		{
 			throw ParserException(newItr.GetSource(),
 				Messages::Get("CppParser.Namespace.NoID1"));
-		}		
+		}
 
 		NodePtr oldScope = currentScope;
 		currentScope = currentScope->FindOrCreate(name, hFilesForNewNodes);
-		ClassPtr newClass = 
-			Class::Create(library, currentScope, access, importedNodes,  
+		ClassPtr newClass;
+		if (!this->target) {
+			// OLD WAY
+			newClass =
+			Class::Create(library, currentScope, access, importedNodes,
 				Reason::Create(CppAxioms::ClassCreation(), newItr.GetSource()));
+		} else {
+			// OLD WAY
+			newClass =
+			Class::Create(this->target, currentScope, access, importedNodes,
+				Reason::Create(CppAxioms::ClassCreation(), newItr.GetSource()));
+		}
+
 
 		ClassParents(newItr, newClass);
 
-		ConsumeWhitespace(newItr);   
+		ConsumeWhitespace(newItr);
 
 		while(Annotation(newItr));
 
-		ConsumeWhitespace(newItr);   
+		ConsumeWhitespace(newItr);
 
 		SourcePtr firstBraceSrc = newItr.GetSource();
 
@@ -724,27 +740,27 @@ public:
 			throw ParserException(newItr.GetSource(),
 				Messages::Get("CppParser.Class.NoOpeningBrace"));
 			//EXCEPTION MSG: Expectedd { after namespace identifier.")
-		}		
+		}
 
 		ScopeFiller(newItr);
 
 		ConsumeWhitespace(newItr);
-		
+
 		//Model::Cpp::Namespace::Create(currentScope,
-		//	
+		//
 	///		);
-		
+
 		ConsumeWhitespace(newItr);
 		if (!newItr.ConsumeChar('}'))
 		{
 			throw ParserException(newItr.GetSource(),
-				Messages::Get("CppParser.Class.NoEndingBrace", firstBraceSrc->GetLine()));			
+				Messages::Get("CppParser.Class.NoEndingBrace", firstBraceSrc->GetLine()));
 		}
 
 		// The ';' following a class def is optional.
 		ConsumeWhitespace(newItr);
 		newItr.ConsumeChar(';');
-		
+
 		itr = newItr; // Success! :)
 		currentScope = oldScope;
 		return true;
@@ -757,15 +773,15 @@ public:
 		itr.ConsumeWhitespace();
 		if (!itr.ConsumeChar(':')) {
 			return false;
-		}		
-		do 
+		}
+		do
 		{
 			itr.ConsumeWhitespace();
 			AccessPtr access = AccessKeyword(itr);
 			if ((*access) == (*(Access::NotSpecified())))
 			{
 				access = Access::Private();
-			}			
+			}
 
 			bool _virtual = VirtualKeyword(itr);
 
@@ -782,7 +798,7 @@ public:
 		} while (itr.ConsumeChar(','));
 		return true;
 	}
-	
+
 	/** Consumes white space, then returns false if '{' not seen.
 	 * If it is, consumes all text until next '}'. */
 	bool CodeBlock(Iterator & itr, std::string & codeBlock, SourcePtr & start)
@@ -843,10 +859,10 @@ public:
 		return ComplexName(itr, ignore);
 	}
 
-	/** Returns true if a complex name can be parsed from this location. 
-	 *  "endWhiteSpaceOfKeyword" refers to the index whitespace before some 
+	/** Returns true if a complex name can be parsed from this location.
+	 *  "endWhiteSpaceOfKeyword" refers to the index whitespace before some
 	 *  keyword ends, and only if Macaroni needs to store a single space before
-	 *  that keyword in the complexName.  For example, if the "signed" or 
+	 *  that keyword in the complexName.  For example, if the "signed" or
 	 *  "unsigned" keyword is found, endIndexOfSignedKeyword
 	 *  returns the index where the keyword and its trailing whitespace ends. */
 	static int ComplexName(Iterator itr, int & endWhiteSpaceOfKeyword)
@@ -854,11 +870,11 @@ public:
 		int consumed = 0;
 		int simpleNameLength = 0;
 		endWhiteSpaceOfKeyword = -1;
-		
+
 		if ((simpleNameLength = SignedOrUnsignedKeyword(itr)) > 0)
 		{
 			consumed += simpleNameLength;
-			itr.Advance(simpleNameLength);				
+			itr.Advance(simpleNameLength);
 			consumed += itr.ConsumeWhitespace();
 			endWhiteSpaceOfKeyword = consumed - 1;
 		}
@@ -869,7 +885,7 @@ public:
 				itr.Advance(2);
 				consumed += 2;
 			}
-			else if ((simpleNameLength = 
+			else if ((simpleNameLength =
 			    OperatorName(itr, endWhiteSpaceOfKeyword)) > 0)
 			{
 				if (endWhiteSpaceOfKeyword > 0)
@@ -883,20 +899,20 @@ public:
 				// We've seen an operator.  A name like
 				// Macaroni::operator +::Parser is not valid, so once we've
 				// seen one of these exit.
-				return consumed; 
+				return consumed;
 			}
 			else if ((simpleNameLength = SimpleName(itr)) > 0)
 			{
 				consumed += simpleNameLength;
 				itr.Advance(simpleNameLength);
-			}			
+			}
 			else
 			{
 				return consumed;
 			}
 		}
 	}
-	
+
 	static void ComplexNameTests()
 	{
 		Assert(ComplexName(createTestItr("{dsf")) == 0);
@@ -916,9 +932,9 @@ public:
 		using namespace Macaroni::Model::Cpp;
 
 		Iterator newItr = itr;
-		
-		AccessPtr access = Access::NotSpecified();		
-		bool isInline = false;		
+
+		AccessPtr access = Access::NotSpecified();
+		bool isInline = false;
 		bool isVirtual = false;
 		while(
 			(*access == *Access::NotSpecified()
@@ -954,9 +970,9 @@ public:
 			}
 			throw ParserException(newItr.GetSource(),
 				Messages::Get("CppParser.Constructor.ClassNameExpected")); */
-		}		
+		}
 		ConsumeWhitespace(newItr);
-		
+
 		if (!newItr.ConsumeChar('('))
 		{
 			if (tilda)
@@ -971,10 +987,10 @@ public:
 		}
 
 		std::string nodeName(!tilda ? "$ctor" : "$dtor");
-		NodePtr ctorNode = currentScope->FindOrCreate(nodeName);		
+		NodePtr ctorNode = currentScope->FindOrCreate(nodeName);
 
 		// Create CTOR or DTOR
-		
+
 		NodePtr fOlNode;
 		if (!tilda)
 		{
@@ -988,29 +1004,29 @@ public:
 
 		NodePtr oldScope = currentScope;
 		currentScope = fOlNode; // fOlPtr->GetNode(); //ctorNode;
-		
+
 			FunctionArgumentList(newItr);
 
 		currentScope = oldScope;
-		
+
 		bool throwSpecifier = ThrowSpecifier(newItr);
-		
+
 		FunctionOverloadPtr fOlPtr;
 		if (!tilda)
 		{
-			ReasonPtr ctorReason = Reason::Create(CppAxioms::CtorCreation(), 
+			ReasonPtr ctorReason = Reason::Create(CppAxioms::CtorCreation(),
 				itr.GetSource());
-			ConstructorPtr ctor = Constructor::Create(ctorNode, ctorReason);			
-			//isInline, access, 
+			ConstructorPtr ctor = Constructor::Create(ctorNode, ctorReason);
+			//isInline, access,
 			ConstructorOverloadPtr ctorOl =
-				ConstructorOverload::Create(fOlNode, isInline, access, 
-				                            throwSpecifier, ctorReason); 
+				ConstructorOverload::Create(fOlNode, isInline, access,
+				                            throwSpecifier, ctorReason);
 			fOlPtr = boost::dynamic_pointer_cast<FunctionOverload>(ctorOl);
 		} // end !tilda
 		else
 		{
 			DestructorPtr dtor = Destructor::Create(ctorNode,  isInline, access,
-				isVirtual, throwSpecifier, 
+				isVirtual, throwSpecifier,
 				Reason::Create(CppAxioms::DtorCreation(), itr.GetSource()));
 			fOlPtr = dtor->GetFunctionOverload();
 		}
@@ -1018,12 +1034,12 @@ public:
 
 		if (!tilda)
 		{
-			//ReasonPtr ctorReason = Reason::Create(CppAxioms::CtorCreation(), 
+			//ReasonPtr ctorReason = Reason::Create(CppAxioms::CtorCreation(),
 			//									  itr.GetSource());
-			//ConstructorPtr ctor = Constructor::Create(ctorNode, ctorReason);			
-			////isInline, access, 
+			//ConstructorPtr ctor = Constructor::Create(ctorNode, ctorReason);
+			////isInline, access,
 			//ConstructorOverloadPtr ctorOl =
-			//	ConstructorOverload::Create(ctor, isInline, access, ctorReason); 
+			//	ConstructorOverload::Create(ctor, isInline, access, ctorReason);
 			//fOlPtr = boost::dynamic_pointer_cast<FunctionOverload>(ctorOl);
 
 			ConsumeWhitespace(newItr);
@@ -1032,7 +1048,7 @@ public:
 				// Look for assignments to class vars, such as x(4), y(3)
 				do
 				{
-					ConsumeWhitespace(newItr);				
+					ConsumeWhitespace(newItr);
 					std::string varName;
 					if (!ConsumeComplexName(newItr, varName))
 					{
@@ -1049,7 +1065,7 @@ public:
 						throw ParserException(newItr.GetSource(),
 							Messages::Get("CppParser.Constructor.NoInitializerExpr"));
 					}
-					
+
 					std::string exprCode;
 					ConsumeExpression(newItr, ")", exprCode);
 					newItr.Advance(1);
@@ -1073,7 +1089,7 @@ public:
 		//}*/
 
 		std::string codeBlock;
-		bool codeAttached = false;		
+		bool codeAttached = false;
 		SourcePtr startOfCodeBlock;
 		codeAttached = CodeBlock(newItr, codeBlock, startOfCodeBlock);
 		if (!codeAttached)
@@ -1082,10 +1098,10 @@ public:
 			if (!newItr.ConsumeChar(';'))
 			{
 				throw ParserException(newItr.GetSource(),
-					Messages::Get("CppParser.Function.SemicolonExpected")); 
+					Messages::Get("CppParser.Function.SemicolonExpected"));
 			}
 		}
-		
+
 		if (codeAttached)
 		{
 			fOlPtr->SetCodeBlock(codeBlock, startOfCodeBlock, true);
@@ -1118,7 +1134,7 @@ public:
 		}
 		else if (cmtItr.Current() == '*')
 		{
-			itr.Advance(1);			
+			itr.Advance(1);
 			bool seenStar = false;
 			bool commentFinished = false;
 			while(!itr.Finished() && !commentFinished)
@@ -1150,8 +1166,8 @@ public:
 		while(!itr.Finished() && ConsumeComment(itr)){}
 	}
 
-	/** If no complex name found, nothing happens. 
-	 * If one is found, it is consumed and the name itself is placed in result. 
+	/** If no complex name found, nothing happens.
+	 * If one is found, it is consumed and the name itself is placed in result.
 	 */
 	static bool ConsumeComplexName(Iterator & itr, std::string & result)
 	{
@@ -1167,10 +1183,10 @@ public:
 			// operator overloads may put spaces here...
 			// For the purposes of Macaroni generators, the canonical version
 			// should be used.
-			if (!itr.IsWhiteSpace()) 
+			if (!itr.IsWhiteSpace())
 			{
 				ss << itr.Current();
-			}			
+			}
 			if (i == endWhiteSpaceOfKeyword)
 			{
 				// Put a *single* whitespace in the canonical name of
@@ -1190,7 +1206,7 @@ public:
 	 *  }, or else the parser will simply think the { is new and increase
 	 *  its depth.
 	 **/
-	void ConsumeExpression(Iterator & itr, const char * stopAtChars, 
+	void ConsumeExpression(Iterator & itr, const char * stopAtChars,
 		                   std::string & code)
 	{
 		Iterator exceptionItr = itr;
@@ -1199,27 +1215,27 @@ public:
 		std::stringstream ss;
 
 		while(!itr.Finished())
-		{			
+		{
 			char c = itr.Current();
 			if (c == '(')
 			{
 				blocks.push_back('(');
-			} 
+			}
 			else if (c == '{')
 			{
 				blocks.push_back('{');
 			}
 			else if (	blocks.size() > 0 &&
 						(
-							(blocks.back() == '(' && c == ')') 
+							(blocks.back() == '(' && c == ')')
 							||
-							(blocks.back() == '{' && c == '}') 
+							(blocks.back() == '{' && c == '}')
 						)
 					)
 			{
 				blocks.pop_back();
 			}
-			else 
+			else
 			{
 				for (int stopAtI = 0; stopAtChars[stopAtI] != '\0'; stopAtI ++)
 				{
@@ -1231,13 +1247,13 @@ public:
 					}
 				}
 			}
-			
+
 			ss << c;
-			itr.Advance(1);	
+			itr.Advance(1);
 		}
 
-		throw ParserException(exceptionItr.GetSource(), 
-			Messages::Get("CppParser.Expression.CouldNotMatch")); 
+		throw ParserException(exceptionItr.GetSource(),
+			Messages::Get("CppParser.Expression.CouldNotMatch"));
 	}
 
 	bool ConsumeFilePath(Iterator & itr, std::string & filePath)
@@ -1254,20 +1270,20 @@ public:
 		}
 		ss << itr.Current();
 		itr.Advance(1);
-		
+
 		while(!itr.Finished() && itr.Current() !='\"' && itr.Current() !='>')
 		{
 			ss << itr.Current();
 			itr.Advance(1);
 		}
-		
+
 		if (itr.Finished())
 		{
 			throw ParserException(itr.GetSource(),
 				Messages::Get("CppParser.FileNameExpected"));
 		}
 		ss << itr.Current();
-	
+
 		//TO-DO: Check for > if ankels is true and " if not true, and make sure
 		// there's no mismatch.
 
@@ -1284,22 +1300,22 @@ public:
 	{
 		node = NodePtr();
 		Iterator newItr = itr;
-		std::string name;	
+		std::string name;
 		if (!ConsumeComplexName(newItr, name))
 		{
 			return false;
 		}
 		node = FindNode(name);
 		if (!!node)
-		{ 
+		{
 			// Advance only if Node was found.
 			itr = newItr;
 		}
 		return true;
 	}
 
-	/** If no simple name found, nothing happens. 
-	 * If one is found, it is consumed and the name itself is placed in result. 
+	/** If no simple name found, nothing happens.
+	 * If one is found, it is consumed and the name itself is placed in result.
 	 * Btw, if this finds a Complex name it stops right at :: and returns
 	 * true, so be prepared for that sucka.
 	 */
@@ -1327,36 +1343,36 @@ public:
 		if (!(itr.Current() == '"'))
 		{
 			return false;
-		}		
+		}
 		itr.Advance(1); // skip first "
-		
+
 		while(!itr.Finished() && itr.Current() !='\"')
 		{
 			ss << itr.Current();
 			itr.Advance(1);
 		}
-		
+
 		if (itr.Finished())
 		{
 			throw ParserException(itr.GetSource(),
 				Messages::Get("CppParser.StringLiteralEndingExpected"));
-		}				
+		}
 		itr.Advance(1); // skip last "
 		rtnString = ss.str();
 		return true;
 	}
 
 	/** Looks for a node name with type arguments either at the end of in the middle.
-	 * Example: a::b<c>, a::b::d, a<b,c>::b<a::b::c>::e<a *,const e::g> 
+	 * Example: a::b<c>, a::b::d, a<b,c>::b<a::b::c>::e<a *,const e::g>
 	 * Returns false if it does not find a name.
 	 */
-	bool ConsumeTypeMainNodeAndArguments(Iterator & itr, NodePtr & mainNode, 
+	bool ConsumeTypeMainNodeAndArguments(Iterator & itr, NodePtr & mainNode,
 										 TypeArgumentListPtr & typeArgumentList)
 	{
 		typeArgumentList.reset(new TypeArgumentList());
 
 		NodePtr lastNode;
-		
+
 		while(!mainNode)
 		{
 			ConsumeWhitespace(itr);
@@ -1369,7 +1385,7 @@ public:
 
 			NodePtr node;
 			if (!lastNode) // The first iteration of the loop?
-			{				
+			{
 				node = FindNode(complexName);
 				if (!node)
 				{
@@ -1389,14 +1405,14 @@ public:
 				TypeListPtr list = ConsumeTypeDefinitionList(itr);
 				TypeArgumentPtr arg(new TypeArgument(node, list));
 				typeArgumentList->push_back(arg);
-				
+
 				itr.ConsumeWhitespace();
 				if (itr.ConsumeWord("::")) // More to come, looks like.
 				{
 					lastNode = node;
 					continue; // SO tempted to just use a GOTO here... too lazy to decompose method.
 				}
-			}	
+			}
 
 			mainNode = node;
 		}
@@ -1404,15 +1420,15 @@ public:
 		return true;
 	}
 
-	
-	
+
+
 	/** This is called to find lists of type defs, as can be seen in ankle
 	 * brackets.  Throws if it can't find type argument.   Ends when it
 	 * sees ">". */
 	TypeListPtr ConsumeTypeDefinitionList(Iterator & itr)
 	{
 		TypeListPtr typeList(new TypeList());
-		
+
 		while(true) // Remember, its not as bad as GOTO because its WHILE. :p
 		{
 			Iterator newItr = itr;
@@ -1440,7 +1456,7 @@ public:
 				throw ParserException(itr.GetSource(),
 					Messages::Get("CppParser.Type.TypeDefinitionCommaOrClosingBracketExpected"));
 			}
-		}			
+		}
 	}
 
 	bool ConstKeyword(Iterator & itr)
@@ -1468,10 +1484,10 @@ public:
 			}
 		}
 		std::stringstream ss;
-		ss << "The node " << node->GetFullName() 
+		ss << "The node " << node->GetFullName()
 			<< " has exceded the maximum number of blocks allowed by the "
 			<< "Parser (" << maxBlocks << ").";
-		throw ParserException(itr.GetSource(), ss.str());		
+		throw ParserException(itr.GetSource(), ss.str());
 	}
 
 	bool Directives(Iterator & itr)
@@ -1552,7 +1568,7 @@ public:
 		if (!result)
 		{
 			result = FindNodeFromImports(complexName);
-		}		
+		}
 		if (!result)
 		{
 			if (complexName == currentScope->GetFullName() ||
@@ -1580,7 +1596,7 @@ public:
 				}
 				return imp->Find(lastPart);
 			}
-		}		
+		}
 		return NodePtr();
 	}
 
@@ -1588,7 +1604,7 @@ public:
 	{
 		NodePtr rtnValue = FindNodeFromImports(complexName);
 		NodePtr scopeItr = currentScope;
-		if (complexName == currentScope->GetName() || 
+		if (complexName == currentScope->GetName() ||
 			complexName == currentScope->GetFullName())
 		{
 			return currentScope;
@@ -1600,7 +1616,7 @@ public:
 		}
 		return rtnValue;
 	}
-	
+
 	/** Finds a node using visibility rules.
 	 * First checks the Class, then the namespace, and finally imports.
 	 */
@@ -1614,7 +1630,7 @@ public:
 		// Check class first,
 		rtn = FindNodeFromNode(classNode, complexName);
 		// then namespace,
-		if (!rtn) 
+		if (!rtn)
 		{
 			rtn = FindNodeFromNode(namespaceNode, complexName);
 			if (!rtn)
@@ -1627,20 +1643,20 @@ public:
 			// 2010-03-28 - Adding this code may break something as I haven't
 			// been thinking about this section lately but I think this will
 			// fix it so you can use long names for Nodes...
-			rtn = this->context->GetRoot()->Find(complexName);			
-		}		
+			rtn = this->context->GetRoot()->Find(complexName);
+		}
 		return rtn;
-	}	
+	}
 
 	/** Searchs a node for the given complex name. */
 	NodePtr FindNodeFromNode(NodePtr scope, const std::string & complexName)
-	{				
+	{
 		if (!scope)
 		{
 			return NodePtr();
 		}
 		NodePtr scopeItr = scope;
-		if (complexName == scope->GetName() || 
+		if (complexName == scope->GetName() ||
 			complexName == scope->GetFullName())
 		{
 			return scope;
@@ -1660,7 +1676,7 @@ public:
 			scopeItr = scopeItr->GetNode();
 		}
 		return rtnValue;
-	}	
+	}
 
 
 
@@ -1669,12 +1685,14 @@ public:
 		ContextPtr c(new Context("{ROOT}"));
 		LibraryPtr l = c->FindOrCreateLibrary("Tests", "FindNodeTest", "1");
 		CppContext::CreateCppNodes(c);
-		ParserFunctions funcs(c, l);
+
+		TargetPtr t;
+		ParserFunctions funcs(c, l, t);
 
 		// It is found.
 		NodePtr nodeInt = funcs.FindNode("signed int");
 		Assert(nodeInt->GetFullName() == CppContext::GetPrimitives(c)->Find("signed int")->GetFullName());
-		
+
 		// int is found, but nothing is found beyond that.
 		NodePtr nodeInt2 = funcs.FindNode("signed int::something");
 		Assert(nodeInt2 == NodePtr());
@@ -1685,22 +1703,24 @@ public:
 		funcs.AddImport(orange);
 		NodePtr foundSeed = funcs.FindNode(std::string("Orange::Seed"));
 		Assert(foundSeed->GetFullName() == seed->GetFullName());
-		
+
 		NodePtr foundFruit = funcs.FindNode(std::string("Fruit"));
 		Assert(foundFruit->GetFullName() == fruit->GetFullName());
 	}
-		
+
 	static void FindNodeFromImportsTest()
 	{
 		ContextPtr c(new Context("{ROOT}"));
 		CppContext::CreateCppNodes(c);
 		LibraryPtr l = c->FindOrCreateLibrary("Tests", "FindNodeFromImportsTest", "1");
-		ParserFunctions funcs(c, l);
+
+		TargetPtr t;
+		ParserFunctions funcs(c, l, t);
 
 		// It is found.
 		NodePtr nodeInt = funcs.FindNodeFromImports(std::string("signed int"));
 		Assert(nodeInt->GetFullName() == CppContext::GetPrimitives(c)->Find("signed int")->GetFullName());
-		
+
 		// int is found, but nothing is found beyond that.
 		NodePtr nodeInt2 = funcs.FindNodeFromImports(std::string("signed int::something"));
 		Assert(nodeInt2 == NodePtr());
@@ -1754,18 +1774,18 @@ public:
 	bool FriendModifierKeyword(Iterator & itr)
 	{
 		ConsumeWhitespace(itr);
-		return itr.ConsumeWord("~friend");		
+		return itr.ConsumeWord("~friend");
 	}
 
 	/** This function expects us to be committed to finding a function and to
 	 * have seen '('. We parse until we see ')'. */
-	void FunctionArgumentList(Iterator & itr)//, TypeInfo & rtnTypeInfo, 
+	void FunctionArgumentList(Iterator & itr)//, TypeInfo & rtnTypeInfo,
 							  //std::string & name)
 	{
 		ConsumeWhitespace(itr);
 		bool seenArg = false;
 		while(!itr.ConsumeChar(')'))
-		{	
+		{
 			Iterator oldItr = itr;
 			AccessPtr access = Access::NotSpecified();
 			bool _friend;
@@ -1863,7 +1883,7 @@ public:
 		{
 			throw ParserException(itr.GetSource(),
 				Messages::Get("CppParser.GlobalKeyword.ClosingParanthesisExpected"));
-		}		
+		}
 		return true;
 	}
 
@@ -1898,7 +1918,7 @@ public:
 		return true;
 	}
 
-	// looks for "import [complexName];" 
+	// looks for "import [complexName];"
 	// Modifies itr argument if match is found.
 	bool Import(Iterator & itr)
 	{
@@ -1910,14 +1930,14 @@ public:
 
 		// Now we're committed!
 		ConsumeWhitespace(itr);
-		
+
 		std::string name;
 		if (!ConsumeComplexName(itr, name))
 		{
 			throw ParserException(itr.GetSource(),
 				Messages::Get("CppParser.Import.NameNotFound"));
 		}
-		
+
 		ConsumeWhitespace(itr);
 		if (!itr.ConsumeChar(';'))
 		{
@@ -1940,39 +1960,39 @@ public:
 	// Modifies itr argument if match is found.
 	bool Namespace(Iterator & itr)
 	{
-		Iterator newItr = itr; 
+		Iterator newItr = itr;
 		ConsumeWhitespace(newItr);
 
 		bool withBraces = true;
 
 		if (newItr.ConsumeWord("namespace"))
 		{
-			withBraces = true;			
+			withBraces = true;
 		}
 		else if (newItr.ConsumeWord("~namespace"))
 		{
-			withBraces = false;			
+			withBraces = false;
 		}
 		else
 		{
 			return false;
 		}
-		
+
 		// Once the parser has seen "namespace" it must see the correct
 		// grammar or there will be hell to pay.
 
 		ConsumeWhitespace(newItr);
-		
+
 		std::string name;
 		if (!ConsumeComplexName(newItr, name))
 		{
 			throw ParserException(newItr.GetSource(),
 				Messages::Get("CppParser.Namespace.NoID1"));
-		}		
+		}
 
 		NodePtr oldScope = currentScope;
 		currentScope = currentScope->FindOrCreate(name);
-		
+
 		// Create any parent namespaces that may have been introduced;
 		// for example, if we parse "A::B", A is also a namespace
 		// because only Namespaces can contain Namespaces.
@@ -1981,8 +2001,16 @@ public:
 		{
 			if (!ns->GetElement())
 			{
-				Namespace::Create(library, ns, 
-					Reason::Create(CppAxioms::NamespaceCreation(), newItr.GetSource()));
+				if (!this->target) {
+					// OLD WAY
+					Namespace::Create(this->library, ns,
+						Reason::Create(CppAxioms::NamespaceCreation(),
+						               newItr.GetSource()));
+				} else {
+					Namespace::Create(this->target, ns,
+						Reason::Create(CppAxioms::NamespaceCreation(),
+						               newItr.GetSource()));
+				}
 			}
 			ns = ns->GetNode();
 		}
@@ -1999,8 +2027,8 @@ public:
 					Messages::Get("CppParser.Namespace.NoOpeningBrace"));
 				//EXCEPTION MSG: Expectedd { after namespace identifier.")
 				return false;
-			}			
-		}		
+			}
+		}
 		else
 		{
 			if (!newItr.ConsumeChar(';'))
@@ -2009,32 +2037,32 @@ public:
 					Messages::Get("CppParser.Namespace.NoOpeningBrace"));
 				//EXCEPTION MSG: Expectedd { after namespace identifier.")
 				return false;
-			}	
+			}
 		}
-	
+
 		ScopeFiller(newItr);
 
 		ConsumeWhitespace(newItr);
-		
+
 		//Model::Cpp::Namespace::Create(currentScope,
-		//	
+		//
 	///		);
-		
-		if (withBraces) 
-		{			
+
+		if (withBraces)
+		{
 			if (!newItr.ConsumeChar('}'))
 			{
 				throw ParserException(newItr.GetSource(),
-					Messages::Get("CppParser.Namespace.NoEndingBrace", firstBraceSrc->GetLine()));			
-			}						
-		}		
+					Messages::Get("CppParser.Namespace.NoEndingBrace", firstBraceSrc->GetLine()));
+			}
+		}
 		else
 		{
 			if (!newItr.Finished())
 			{
 				throw ParserException(newItr.GetSource(),
-					Messages::Get("CppParser.Namespace.StatementEof", 
-					newItr.GetSource()->GetLine()));			
+					Messages::Get("CppParser.Namespace.StatementEof",
+					newItr.GetSource()->GetLine()));
 			}
 		}
 		currentScope = oldScope;
@@ -2047,11 +2075,11 @@ public:
 	// name but "operator+" refers to "operator +".  So we have to actually
 	// check the operator and the keyword here.
 	static int OperatorName(Iterator & itr, int & endWhiteSpaceOfKeyword)
-	{		
+	{
 		Iterator myItr = itr;
 		if (!myItr.ConsumeWord("operator"))
 		{
-			return 0;			
+			return 0;
 		}
 		int consumed = 8;
 		bool committed = myItr.IsWhiteSpace();
@@ -2063,7 +2091,7 @@ public:
 		else if (committed)
 		{
 			throw ParserException(myItr.GetSource(),
-				Messages::Get("CppParser.Operator.InvalidOperator")); 
+				Messages::Get("CppParser.Operator.InvalidOperator"));
 		}
 		else
 		{
@@ -2077,7 +2105,7 @@ public:
 		                             int & endWhiteSpaceOfKeyword)
 	{
 		endWhiteSpaceOfKeyword = -1;
-		int consume = 0; 
+		int consume = 0;
 		if (itr.ConsumeWord("new[]"))
 		{
 			endWhiteSpaceOfKeyword = consumed - 1;
@@ -2087,7 +2115,7 @@ public:
 		{
 			endWhiteSpaceOfKeyword = consumed - 1;
 			consume = 3;
-		}		
+		}
 		else if (itr.ConsumeWord("delete[]"))
 		{
 			endWhiteSpaceOfKeyword = consumed - 1;
@@ -2097,7 +2125,7 @@ public:
 		{
 			endWhiteSpaceOfKeyword = consumed - 1;
 			consume = 6;
-		}	
+		}
 		else if (itr.ConsumeWord("[]")
 			|| itr.ConsumeWord("->")
 			|| itr.ConsumeWord("==")
@@ -2126,7 +2154,7 @@ public:
 			|| itr.ConsumeChar('|')
 			|| itr.ConsumeChar('&')
 			|| itr.ConsumeChar('&')
-			|| itr.ConsumeChar('~')			
+			|| itr.ConsumeChar('~')
 			|| itr.ConsumeChar('<')
 			|| itr.ConsumeChar('>')
 			|| itr.ConsumeChar('!')
@@ -2134,7 +2162,7 @@ public:
 			)
 		{
 			consume = 1;
-		}		
+		}
 		else
 		{
 			return false;
@@ -2158,13 +2186,13 @@ public:
 		if (!itr.ConsumeChar('0'))
 		{
 			throw ParserException(itr.GetSource(),
-				Messages::Get("CppParser.PureVirtual.ExpectedZero")); 
-		}	
+				Messages::Get("CppParser.PureVirtual.ExpectedZero"));
+		}
 		itr.ConsumeWhitespace();
 		if (!itr.ConsumeChar(';'))
 		{
 			throw ParserException(itr.GetSource(),
-				Messages::Get("CppParser.PureVirtual.ExpectedSemicolon")); 
+				Messages::Get("CppParser.PureVirtual.ExpectedSemicolon"));
 		}
 		return true;
 	}
@@ -2173,7 +2201,7 @@ public:
 	// If it sees ANYTHING in the form "1" or "." etc it will advance
 	// the iterator.  It returns IMMEDIETELY following the number.
 	bool RealNumber(Iterator & itr, double & number)
-	{		
+	{
 		Iterator newItr = itr;
 		std::stringstream ss;
 		bool seenDot = false;
@@ -2200,9 +2228,9 @@ public:
 			ss << c;
 			newItr.Advance(1);
 		}
-		if (seenDigit) 
+		if (seenDigit)
 		{
-			
+
 			ss.seekg(std::ios_base::beg);
 			ss >> number;
 			itr = newItr;
@@ -2214,13 +2242,13 @@ public:
 	// Very destructive - takes the itr and attempts to consume
 	// anything that could be fit in a Scope.
 	void ScopeFiller(Iterator & itr)
-	{	
+	{
 		// Take whatever you can get, replace the iter
-		while (Directives(itr) 
+		while (Directives(itr)
 				|| Block(itr)
-				|| ConstructorOrDestructor(itr)				
+				|| ConstructorOrDestructor(itr)
 				|| FriendDeclaration(itr)
-				|| Namespace(itr) 
+				|| Namespace(itr)
 				|| Class(itr)
 				|| Typedef(itr)
 				|| VariableOrFunction(itr)
@@ -2232,7 +2260,7 @@ public:
 
 	/** If the keyword "signed" or "unsigned" is encountered the length of the
 	 *  keyword is returned.
-	 *  NOTE: Unlike most methods this doesn't consume whitespace! 
+	 *  NOTE: Unlike most methods this doesn't consume whitespace!
 	 */
 	static int SignedOrUnsignedKeyword(const Iterator & itr)
 	{
@@ -2248,18 +2276,18 @@ public:
 		else
 		{
 			return 0;
-		}		
+		}
 	}
 
 	static int SimpleName(Iterator itr)
-	{		
+	{
 		if (itr.Finished() || (!itr.IsAlpha() && !itr.Is('_')))
 		{
 			return 0;
 		}
 		int consumed = 1;
 		itr.Advance(1);
-		while(!itr.Finished() && 
+		while(!itr.Finished() &&
 			  (itr.IsAlpha() || itr.IsDigit() || itr.Is("_"))
 			  )
 		{
@@ -2292,7 +2320,7 @@ public:
 	}
 
 	/** Returns true if a throw specifier is read. Right now only empty throw
-	 *  specifiers are implemented. 
+	 *  specifiers are implemented.
 	 */
 	bool ThrowSpecifier(Iterator & itr)
 	{
@@ -2305,7 +2333,7 @@ public:
 		if (!itr.ConsumeChar('('))
 		{
 			throw ParserException(itr.GetSource(),
-				Messages::Get("CppParser.ThrowSpecifier.MissingFirstParanthesis")); 
+				Messages::Get("CppParser.ThrowSpecifier.MissingFirstParanthesis"));
 		}
 		//TODO: If for some reason the ability to put a type specifier into the
 		//throw statement is ever worth doing, remember to change the error
@@ -2314,7 +2342,7 @@ public:
 		if (!itr.ConsumeChar(')'))
 		{
 			throw ParserException(itr.GetSource(),
-				Messages::Get("CppParser.ThrowSpecifier.MissingSecondParanthesis")); 
+				Messages::Get("CppParser.ThrowSpecifier.MissingSecondParanthesis"));
 		}
 		return true;
 	}
@@ -2333,7 +2361,7 @@ public:
 		TypeModifiers modifiers;
 		TypeArgumentListPtr typeArgumentList;
 
-		ConsumeWhitespace(newItr);		
+		ConsumeWhitespace(newItr);
 		if (newItr.ConsumeWord("const"))
 		{
 			modifiers.SetConst(true);
@@ -2347,7 +2375,7 @@ public:
 			{
 				// If we saw const, they're committed.
 				throw ParserException(newItr.GetSource(),
-					Messages::Get("CppParser.Variable.ConstMaybeBeforeVar")); 
+					Messages::Get("CppParser.Variable.ConstMaybeBeforeVar"));
 			}
 			else
 			{
@@ -2356,13 +2384,13 @@ public:
 				return false;
 			}
 		}
-				
-		// At this point, we're committed, so start using the actual itr passed 
+
+		// At this point, we're committed, so start using the actual itr passed
 		// in.
 		if (!mainNode) // The function could not find the node.
  		{
 			throw ParserException(beforeTypeInfoItr.GetSource(),
-				Messages::Get("CppParser.Variable.UnknownTypeName")); 
+				Messages::Get("CppParser.Variable.UnknownTypeName"));
 		}
 
 		itr = newItr;
@@ -2374,7 +2402,7 @@ public:
 			{
 				// Appeared twice!? How dare it!
 				throw ParserException(itr.GetSource(0, -5),
-					Messages::Get("CppParser.Variable.ConstSeenTwice")); 
+					Messages::Get("CppParser.Variable.ConstSeenTwice"));
 			}
 			modifiers.SetConst(true);
 			ConsumeWhitespace(itr);
@@ -2394,7 +2422,7 @@ public:
 			ConsumeWhitespace(itr);
 			if (itr.ConsumeWord("const"))
 			{
-				modifiers.SetConstPointer(true);		
+				modifiers.SetConstPointer(true);
 				ConsumeWhitespace(itr);
 			}
 		}
@@ -2415,15 +2443,15 @@ public:
 	// Modifies itr argument if match is found.
 	bool Typedef(Iterator & itr)
 	{
-		Iterator newItr = itr; 
+		Iterator newItr = itr;
 		ConsumeWhitespace(newItr);
 		if (!newItr.ConsumeWord("typedef"))
 		{
 			return false;
-		}		
+		}
 
 		ConsumeWhitespace(newItr);
-		
+
 		TypePtr type;
 		if (!Type(newItr, type))
 		{
@@ -2436,43 +2464,43 @@ public:
 		{
 			throw ParserException(newItr.GetSource(),
 				Messages::Get("CppParser.Typedef.NoName"));
-		}		
+		}
 
 		NodePtr typedefNode = currentScope->FindOrCreate(name);
-		
-		Typedef::Create(typedefNode, 
+
+		Typedef::Create(typedefNode,
 			Reason::Create(CppAxioms::TypedefCreation(), newItr.GetSource()),
 			type);
 
 		ConsumeWhitespace(newItr);
-		
+
 		NodePtr oldScope = currentScope;
 		currentScope = typedefNode;
-		
+
 		while(Directives(newItr) || Annotation(newItr)) {
 			ConsumeWhitespace(newItr);
 		}
-		currentScope = oldScope;		
+		currentScope = oldScope;
 
 		if (!newItr.ConsumeChar(';'))
 		{
 			throw ParserException(newItr.GetSource(),
-				Messages::Get("CppParser.Typedef.NoSemicolon"));			
-		}		
-		
-		itr = newItr; // Success! :)		
+				Messages::Get("CppParser.Typedef.NoSemicolon"));
+		}
+
+		itr = newItr; // Success! :)
 		return true;
 	}
 
 	/** Attempts to parse a variable. Returns false if it can't.  Will move
 	 * itr.  If it finds variable type info followed by a complex name it
 	 * will return the typeInfo and name.  Otherwise an exception gets thrown.
-	 * Does not parse the semicolon though, just stops after the name. 
+	 * Does not parse the semicolon though, just stops after the name.
 	 * [ WARNING: This name is misleading.  It doesn't fully parse the var,
 	 *   just the first part. ]
 	 */
-	bool Variable(Iterator & itr, AccessPtr & access, bool & _friend, 
-				  NodePtr & globalHome, bool & isInline, bool & isStatic, 
+	bool Variable(Iterator & itr, AccessPtr & access, bool & _friend,
+				  NodePtr & globalHome, bool & isInline, bool & isStatic,
 				  bool & isVirtual,
 				  TypePtr & type, std::string & varName)
 	{
@@ -2482,7 +2510,7 @@ public:
 		_friend = false;
 		bool global = false;
 		globalHome.reset();
-		isInline = false;		
+		isInline = false;
 		isStatic = false;
 		isVirtual = false;
 		while(
@@ -2499,27 +2527,27 @@ public:
 			//  ^..^
 			// ~."".
 		}
-		
+
 
 		if (!!global)
 		{
-			if (*access == *Access::Public() && isStatic) 
+			if (*access == *Access::Public() && isStatic)
 			{
 				throw ParserException(itr.GetSource(),
-					Messages::Get("CppParser.Variable.PublicGlobalStaticMakesNoSense")); 			
+					Messages::Get("CppParser.Variable.PublicGlobalStaticMakesNoSense"));
 			}
 
 			// This restricts using the ~global({node}) syntax when the access is
 			// hidden, as ~hidden access means the global node gets tucked into the
-			// anonymous namespace. 
+			// anonymous namespace.
 			// Its a sloppy job though so if someone uses the default node path
 			// it'll currently work.
-			if (*access == *Access::Hidden() && globalHome != currentScope->GetNode()) 
+			if (*access == *Access::Hidden() && globalHome != currentScope->GetNode())
 			{
 				throw ParserException(itr.GetSource(),
-					Messages::Get("CppParser.Variable.GlobalHomeNodeSpecifierMakesNoSenseWhenHidden")); 			
+					Messages::Get("CppParser.Variable.GlobalHomeNodeSpecifierMakesNoSenseWhenHidden"));
 			}
-		}		
+		}
 
 		if (!Type(itr, type))
 		{
@@ -2535,16 +2563,16 @@ public:
 		if (!ConsumeComplexName(itr, varName))
 		{
 			throw ParserException(itr.GetSource(),
-					Messages::Get("CppParser.Variable.NameExpected")); 
-		}		
+					Messages::Get("CppParser.Variable.NameExpected"));
+		}
 
 		itr.ConsumeWhitespace();
-		
+
 		return true;
 	}
 
 	/** Will look at and consume variables with type info, a name, and ending
-	 * with a semicolon.  Returns false if nothing is found. 
+	 * with a semicolon.  Returns false if nothing is found.
 	 * If it finds something it creates the variable within currentScope, and
 	 * may define additional nodes if the variable's name is complex. */
 	bool VariableOrFunction(Iterator & itr)
@@ -2562,21 +2590,21 @@ public:
 		std::string varName;
 		Iterator oldItr = itr; // Save it in case we need to define where the
 							   // var definition began.
-		if (!Variable(itr, access, _friend, globalHome, isInline, isStatic, 
+		if (!Variable(itr, access, _friend, globalHome, isInline, isStatic,
 			          isVirtual, type, varName))
 		{
 			if (!!globalHome)
 			{
 				throw ParserException(itr.GetSource(),
-					Messages::Get("CppParser.Variable.MustFollowGlobalKeyword")); 
+					Messages::Get("CppParser.Variable.MustFollowGlobalKeyword"));
 			}
 			return false;
 		}
-		
-		if (_friend && !globalHome) 
+
+		if (_friend && !globalHome)
 		{
 			throw ParserException(itr.GetSource(),
-					Messages::Get("CppParser.Variable.MustFollowGlobalKeyword")); 
+					Messages::Get("CppParser.Variable.MustFollowGlobalKeyword"));
 		}
 
 		if (*access == *Access::NotSpecified())
@@ -2589,15 +2617,15 @@ public:
 		if (!!globalHome)
 		{
 			node = globalHome->FindOrCreate(varName);
-			node->SetAdoptedHome(currentScope);			
-		} 
+			node->SetAdoptedHome(currentScope);
+		}
 		else
 		{
 			node = currentScope->FindOrCreate(varName);
-		}		
+		}
 
 		ConsumeWhitespace(itr);
-		
+
 		std::string initializer;
 
 		if (itr.ConsumeChar('='))
@@ -2607,12 +2635,12 @@ public:
 		}
 
 		if (itr.ConsumeChar(';'))
-		{			
+		{
 			Variable::Create(node, access, isStatic, type, initializer,
 				Reason::Create(CppAxioms::VariableScopeCreation(), oldItr.GetSource()));
 			if (!!globalHome)
 			{
-				ClassPtr classPtr = currentScope->GetElement<ClassPtr>();				
+				ClassPtr classPtr = currentScope->GetElement<ClassPtr>();
 				if (!classPtr)
 				{
 					throw ParserException(itr.GetSource(),
@@ -2623,31 +2651,31 @@ public:
 				{
 					classPtr->AddFriend(node);
 				}
-			}	
-		} 
+			}
+		}
 		else if (itr.ConsumeChar('('))
 		{
-			// Was going to throw exception if initializer found, but really 
+			// Was going to throw exception if initializer found, but really
 			// it will parse to ; anyway...
 			///*if (!initializer.empty())
 			//{
 			//	throw ParserException(itr.GetSource(),
-			//			Messages::Get("CppParser.Variable.InitializerNotAllowedemicolonExpected")); 
+			//			Messages::Get("CppParser.Variable.InitializerNotAllowedemicolonExpected"));
 			//}*/
 
 			NodePtr oldScope = currentScope;
 			NodePtr foNode = node->CreateNextInSequence("Overload#");
 			currentScope = foNode;
-				FunctionArgumentList(itr);			
+				FunctionArgumentList(itr);
 
 			bool constMember = false;
 			bool throwSpecifier = false; // Only empty throw implemented now.
-			
+
 			while(
 				(!constMember && (constMember = ConstKeyword(itr)))
 			 || (!throwSpecifier && (throwSpecifier = ThrowSpecifier(itr)))
-			){}			
-			
+			){}
+
 			while(Annotation(itr));
 
 			currentScope = oldScope;
@@ -2665,16 +2693,16 @@ public:
 					if (!itr.ConsumeChar(';'))
 					{
 						throw ParserException(itr.GetSource(),
-							Messages::Get("CppParser.Function.SemicolonExpected")); 
+							Messages::Get("CppParser.Function.SemicolonExpected"));
 					}
 				}
 			}
-			ReasonPtr fReason = Reason::Create(CppAxioms::FunctionCreation(), 
+			ReasonPtr fReason = Reason::Create(CppAxioms::FunctionCreation(),
 											   oldItr.GetSource());
 			FunctionPtr function = Function::Create(node, fReason);
-			FunctionOverloadPtr fOl = 
-				FunctionOverload::Create(foNode, isInline, access, isStatic, 
-				                         isVirtual, type, 
+			FunctionOverloadPtr fOl =
+				FunctionOverload::Create(foNode, isInline, access, isStatic,
+				                         isVirtual, type,
 										 constMember, throwSpecifier,
 										 fReason);
 			if (codeAttached)
@@ -2687,7 +2715,7 @@ public:
 			}
 			if (!!globalHome)
 			{
-				ClassPtr classPtr = currentScope->GetElement<ClassPtr>();				
+				ClassPtr classPtr = currentScope->GetElement<ClassPtr>();
 				if (!classPtr)
 				{
 					throw ParserException(itr.GetSource(),
@@ -2698,15 +2726,15 @@ public:
 				{
 					classPtr->AddFriend(foNode);
 				}
-			}	
+			}
 
 		}
 		else
 		{
 			throw ParserException(itr.GetSource(),
-				Messages::Get("CppParser.Variable.SemicolonExpected")); 
+				Messages::Get("CppParser.Variable.SemicolonExpected"));
 		}
-		
+
 		return true;
 	}
 
@@ -2721,7 +2749,7 @@ public:
 		ComplexNameTests();
 		FindNodeTest();
 		FindNodeFromImportsTest();
-		SimpleNameTests();		
+		SimpleNameTests();
 	}
 };
 
@@ -2740,10 +2768,27 @@ PippyParserPtr PippyParser::Create()
 
 int PippyParser::Read(Model::LibraryPtr l, Model::SourcePtr source, const std::string & text)
 {
-	CppContext::CreateCppNodes(l->GetContext());
-	ParserFunctions funcs(l->GetContext(), l);		
-	Iterator itr(text.begin(), 
-			   text.end(), 
+	TargetPtr t;
+	return Read(l, t, source, text);
+}
+int PippyParser::Read(TargetPtr target, Model::SourcePtr source, const std::string & text)
+{
+	LibraryPtr l;
+	return Read(l, target, source, text);
+}
+
+int PippyParser::Read(Model::LibraryPtr l, TargetPtr target, Model::SourcePtr source, const std::string & text)
+{
+	ContextPtr context;
+	if (!!target) {
+		context = target->GetContext();
+	} else {
+		context = l->GetContext();
+	}
+	CppContext::CreateCppNodes(context);
+	ParserFunctions funcs(context, l, target);
+	Iterator itr(text.begin(),
+			   text.end(),
 			   source);
 	try
 	{
@@ -2753,7 +2798,7 @@ int PippyParser::Read(Model::LibraryPtr l, Model::SourcePtr source, const std::s
 	{
 		throw ParserException(mie.GetSource(), mie.GetMessage());
 	}
-	
+
 	return 1;
 }
 

@@ -18,17 +18,18 @@
 
 #include "Block.h"
 #include <Macaroni/Model/Element.h>
+#include <Macaroni/Model/ElementPtr.h>
 
 struct lua_State;
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
 struct BlockLuaMetaData
-{		
+{
 	static bool IsType(lua_State * L, int index);
 	static int OpenInLua(lua_State * L);
-	static ElementPtr & GetInstance(lua_State * L, int index);	
-	static int Index(lua_State * L, const BlockPtr & ptr, const std::string & index);	
+	static ElementPtr & GetInstance(lua_State * L, int index);
+	static int Index(lua_State * L, const BlockPtr & ptr, const std::string & index);
 	static void PutInstanceOnStack(lua_State * L, const ElementPtr & ptr);
 };
 

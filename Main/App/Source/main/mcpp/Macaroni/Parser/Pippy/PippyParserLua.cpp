@@ -18,10 +18,10 @@
 
 #include "PippyParserLua.h"
 #include "PippyParser.h"
-#include "../../Model/Context.h"
+#include <Macaroni/Model/Context.h>
 #include "../../Model/ContextLua.h"
-#include "../Parser.h"
-#include "../ParserLua.h"
+#include <Macaroni/Parser/Parser.h>
+#include <Macaroni/Parser/ParserLua.h>
 #include <Macaroni/Model/Source.h>
 #include <Macaroni/Model/SourceLuaMetaData.h>
 #include <sstream>
@@ -42,11 +42,11 @@ using Macaroni::Model::SourceLuaMetaData;
 
 #include "../../LuaGlue.hpp"
 
-	/*static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr, 
+	/*static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr,
 									  const std::string & index)
 	{
 		ParserPtr p = boost::dynamic_pointer_cast<Parser>(ptr);
-		return ParserLuaMetaData::Index(L, p, index);		
+		return ParserLuaMetaData::Index(L, p, index);
 	}
 
 	static int __tostring(lua_State * L)
@@ -69,7 +69,7 @@ using Macaroni::Model::SourceLuaMetaData;
 		try
 		{
 			PippyParser::RunTests();
-		} 
+		}
 		catch(const std::exception & ex)
 		{
 			luaL_error(L, ex.what());

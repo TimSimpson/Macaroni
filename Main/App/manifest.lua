@@ -26,7 +26,7 @@ id =
     author="Tim Simpson"
 }
 
-description= [[  
+description= [[
     Macaroni is a builder / parser for C++ that aims to increase
     DRYness by slimming down boilerplate and eliminating the need to store
     redundant information.
@@ -34,7 +34,7 @@ description= [[
 
 -- Bug- the Boost Build builder only looks at the last source path.
 sources = { "Source/main/lua", "Source/main/resources", "Source/main/mcpp",
-            --"Source/test/mcpp" 
+            --"Source/test/mcpp"
             }
 output = "GeneratedSource"
 --releasePath = "../" .. properties.macaroni.releasepath .. "/App";
@@ -45,72 +45,100 @@ output = "GeneratedSource"
 dependency {group="Macaroni", name="Boost-filesystem", version="1.46.1"}
 dependency {group="Macaroni", name="Boost-regex", version="1.46.1"}
 dependency {group="Macaroni", name="Lua", version="5.1.4"}
-        
-function generate()   
-	print("Checking the model...") 
+
+function generate()
+	print("Checking the model...")
 	run("CheckModel");
-	print("Wrapping things in LuaGlue...")
-	run("LuaGlue", { luaImportCode =[[ 
-	extern "C" 
-	{	
+    run("ReplCommand");
+    print("Wrapping things in LuaGlue...")
+	run("LuaGlue", { luaImportCode =[[
+	extern "C"
+	{
 		#include <lauxlib.h>
 		#include <lualib.h>
 	}
 	]] });
-	print("Creating HTML View...")
-	run("HtmlView");
+	-- print("Creating HTML View...")
+	-- run("HtmlView");
 	print("Generating C++ code...")
     run "Cpp"
-    --runGenerator "Generators/LuaGlue"    
+
     print("Creating Macaroni Library Header...")
     run "InterfaceMh"
     print("Writing Boost Build files...")
     run "JamGenerator"
     print("Creating library version info file...")
-    run "VersionInfoGenerator"       
+    run "VersionInfoGenerator"
 end
-   
-jamArgs = 
-{ 	
+
+
+jamArgs =
+{
+	-- Uncomment the line below to see the commands Boost Build is using:
+	--CmdLine = [[ -d+2 ]],
 	ExcludePattern = "Main.cpp *Test.cpp *Tests.cpp .svn",
-	ExtraTargets = [[		
+	ExtraTargets = [[
 		install installmsgs
 			:	../Source/main/resources/Messages.txt
 			:	<variant>debug:<location>release/debug
 				<variant>release:<location>release/release
 			;
 
-	  	exe macaroni 
+	  	exe macaroni
 	  		:	library #library_sources
 	  			#library_dependencies
 	  			../Source/main/mcpp/Main.cpp
 	  			../Source/main/resources/Macaroni.rc
             :  <target-os>windows:<linkflags>/LIBPATH:"]]
             .. properties.boost.current["path"] .. [[/stage/lib"
-				
+
 	  		;
-	  		
-	  	install final 
-        :	macaroni		       
+
+	  	install final
+        :	macaroni
         :	<install-dependencies>on <install-type>EXE
           #<install-type>LIB
           <variant>debug:<location>release/debug
-          <variant>release:<location>release/release          		
+          <variant>release:<location>release/release
         ;
 	  ]],
 	  Link="static",
-	  -- Alas, not yet... 
-	  -- Tests = 
+	  -- Alas, not yet...
+	  -- Tests =
 	  -- {
 	  --   "Macaroni/Build/ManifestOrganizerTest.cpp",
 	  --   "Macaroni/IO/GeneratedFileWriterTest.cpp",
 	  --   "Macaroni/Model/ContextTests.cpp",
 	  --   "Macaroni/Model/NodeTest.cpp",
-	  --   "BoostTestTest.cpp",	    
+	  --   "BoostTestTest.cpp",
 	  -- }
 	};
-		
-function build()	
+
+function build()
+    print("Creating Visual C++ 10 Project File...")
+    local proj = {
+        ProjectFile="macaroni.vcxproj",
+        ProjectGUID="5D09EE96-A873-4C96-813E-B48BBE31EB10",
+        RootNamespace="Macaroni",
+        SourcePaths = {"Source/main/resources", "Source/main/mcpp"},
+        AdditionalIncludePaths={
+            properties.boost.current["path"]
+        },
+        AdditionalLibraryPaths={
+            properties.boost.current["path"] .. '/stage/lib'
+        },
+
+        AdditionalSourcePaths={
+            [[C:\Documents and Settings\Tim\Macaroni\Libraries\Macaroni\Lua\5.1.4\Cpp]]
+        },
+        SourceExcludePatterns = {
+            "lua.cpp",
+            "lu.cpp.cpp",
+            "Test.cpp", "Tests.cpp"
+        }
+    };
+    run("VCpp/VCpp10", proj)
+
 	run("BoostBuild", jamArgs)
 end
 
@@ -126,5 +154,5 @@ function test()
 	os.execute(cmd);
 end
 
-function install()	
+function install()
 end

@@ -1,0 +1,166 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+~import Macaroni::Model::ContextPtr;
+~import BOOST_FOREACH;
+~import Macaroni::Model::Project::GroupList;
+~import Macaroni::Model::Project::Group;
+~import Macaroni::Model::Project::GroupPtr;
+~import boost::intrusive_ptr;
+~import Macaroni::Build::LibraryId;
+~import Macaroni::Model::LibraryPtr;
+~import MACARONI_ASSERT;
+~import Macaroni::Model::Node;
+~import Macaroni::Model::NodePtr;
+~import boost::optional;
+~import boost::filesystem::path;
+~import std::string;
+
+
+~namespace Macaroni::Model;
+
+
+/** This object holds a tree of Nodes.  In addition to providing the root Node,
+ * it also stores a count of Node references.  Deleting this deletes all Nodes.
+ */
+class Context
+{
+	private GroupList * groups;
+	private bool hasBeenDeleted;
+	private std::vector<Library *> libraries;
+	private int referenceCount;
+	private Node ~l * root;
+
+	public ~global ~friend void intrusive_ptr_add_ref(Context * p)
+	{
+		p->onAddReference();
+	}
+
+	public ~global ~friend void intrusive_ptr_release(Context * p)
+	{
+		p->onReleaseReference();
+	}
+
+	public Context(const std::string & rootName)
+	: groups(nullptr),
+	  hasBeenDeleted(false),
+	  libraries(),
+	  referenceCount(0),
+	  root(nullptr)
+	{
+		groups = new GroupList(this);
+		root = new Macaroni::Model::Node(*this, rootName);
+		/*root->context = this;
+		 */
+		libraries.push_back(new Library(this, "%ROOT%", ""));
+	}
+
+	public ~Context()
+	{
+		MACARONI_ASSERT(referenceCount == 0, "Ref count != 0 on Context destruction!");
+		delete root;
+		for (unsigned int i = 0; i < libraries.size(); i ++)
+		{
+			delete libraries[i];
+		}
+		delete groups;
+		hasBeenDeleted = true;
+	}
+
+	public LibraryPtr FindLibrary(const Macaroni::Build::LibraryId & id)
+	{
+		BOOST_FOREACH(Library * lib, libraries)
+		{
+			if (lib->GetId() == id)
+			{
+				return LibraryPtr(lib);
+			}
+		}
+		return LibraryPtr();
+	}
+
+	public LibraryPtr FindLibrary(const std::string & group,
+		                          const std::string & name,
+		                          const std::string & version)
+	{
+		Macaroni::Build::LibraryId id(group, name, version);
+		return FindLibrary(id);
+	}
+
+	public LibraryPtr FindOrCreateLibrary(const std::string & group,
+										  const std::string & name,
+										  const std::string & version)
+	{
+		const LibraryId id(group, name, version);
+		boost::optional<boost::filesystem::path> none;
+		return FindOrCreateLibrary(none, id);
+	}
+
+	public LibraryPtr FindOrCreateLibrary(
+		const boost::optional<boost::filesystem::path> & installPath,
+		const Macaroni::Build::LibraryId & id)
+	{
+		LibraryPtr rtn = FindLibrary(id);
+		if (!rtn)
+		{
+			libraries.push_back(new Library(this, id, installPath));
+			rtn.reset(libraries.back());
+		}
+		return rtn;
+	}
+
+	public int GetReferenceCount() const
+	{
+		return referenceCount;
+	}
+
+	/** The root Node could be considered the global namespace. */
+	public NodePtr GetRoot()
+	{
+		return NodePtr(root);
+	}
+
+	public LibraryPtr GetRootLibrary()
+	{
+		Library * lib = libraries[0];
+		return LibraryPtr(lib);
+	}
+
+    public GroupPtr Group(string name)
+	{
+		return groups->FindOrCreate(name);
+	}
+
+	public NodePtr Node(string name)
+	{
+		return root->FindOrCreate(name);
+	}
+
+	private void onAddReference()
+	{
+		referenceCount ++;
+	}
+
+	private void onReleaseReference()
+	{
+		referenceCount --;
+		if (referenceCount == 0)
+		{
+			delete this;
+		}
+	}
+
+};
