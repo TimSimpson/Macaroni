@@ -165,6 +165,7 @@ class Builder
 	public bool Execute(const BuilderArguments & arguments, string manifestPath)
 	{
 		boost::filesystem::path p;
+		p = manifestPath;
 		return Execute(arguments, p);
 	}
 

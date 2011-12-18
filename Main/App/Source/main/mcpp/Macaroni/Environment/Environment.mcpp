@@ -22,6 +22,7 @@
 ~import Macaroni::Model::ContextPtr;
 ~import Macaroni::Model::Element;
 ~import Macaroni::Exception;
+~import Macaroni::IO::FileNotFoundException;
 ~import boost::format;
 ~import Macaroni::Environment::Input;
 ~import Macaroni::Environment::InputPtr;
@@ -196,24 +197,34 @@ class Macaroni::Environment::Environment
 
 	~hidden bool replCommand(string line);
 
-	public bool RunDefaultProject() {
+	public bool RunDefaultProject() 
+	{
 		optional<path> projectFilePath = FindDefaultProject();
 		if (projectFilePath) {
-			string filePath = projectFilePath.get().string();
-			output->WriteLine(format("Parsing file %s...") % filePath);
-			try
-			{
-				luaEnvironment.ParseFile(filePath);
-				luaEnvironment.Run();
-			} catch(const Macaroni::Exception & me) {
-				output->WriteLine(me.what());
-				return false;
-			}			
-			return true; // or throw :p
+			return RunProject(projectFilePath.get());
 		} else {
 			output->WriteLine("No \"project.lua\" file found.");
 			return false;
 		}
+	}
+
+	public bool RunProject(path projectFilePath)
+	{
+		if (!boost::filesystem::exists(projectFilePath))
+		{
+			throw FileNotFoundException(projectFilePath.string());
+		}
+		string filePath = projectFilePath.string();
+		output->WriteLine(format("Parsing file %s...") % filePath);
+		try
+		{
+			luaEnvironment.ParseFile(filePath);
+			luaEnvironment.Run();
+		} catch(const Macaroni::Exception & me) {
+			output->WriteLine(me.what());
+			return false;
+		}			
+		return true;
 	}
 
 	~hidden bool setDirectory(string line)

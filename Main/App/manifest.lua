@@ -71,7 +71,6 @@ function generate()
     run "VersionInfoGenerator"
 end
 
-
 jamArgs =
 {
 	-- Uncomment the line below to see the commands Boost Build is using:
@@ -115,9 +114,9 @@ jamArgs =
 	};
 
 function build()
-    print("Creating Visual C++ 10 Project File...")
+    print("Creating Visual C++ 9 Project File...")
     local proj = {
-        ProjectFile="macaroni.vcxproj",
+        ProjectFile="macaroni_9.vcproj",
         ProjectGUID="5D09EE96-A873-4C96-813E-B48BBE31EB10",
         RootNamespace="Macaroni",
         SourcePaths = {"Source/main/resources", "Source/main/mcpp"},
@@ -129,14 +128,19 @@ function build()
         },
 
         AdditionalSourcePaths={
-            [[C:\Documents and Settings\Tim\Macaroni\Libraries\Macaroni\Lua\5.1.4\Cpp]]
+            [[C:\Users\Tim\Macaroni\Libraries\Macaroni\Lua\5.1.4\Cpp]]
         },
+        PreBuildEvent = [[macaroni.exe generatorPath F:\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Generators generate]],
         SourceExcludePatterns = {
             "lua.cpp",
             "lu.cpp.cpp",
             "Test.cpp", "Tests.cpp"
         }
     };
+    run("VCpp/VCpp9", proj)
+
+    print("Creating Visual C++ 10 Project File...")
+    proj.ProjectFile="macaroni_10.vcxproj";
     run("VCpp/VCpp10", proj)
 
 	run("BoostBuild", jamArgs)

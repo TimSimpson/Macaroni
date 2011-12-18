@@ -50,13 +50,20 @@ ProjectFileWriter = {
         if args.SourceExcludePatterns == nil then
             args.SourceExcludePatterns = {}
         end
+        if args.PreBuildEvent == nil then
+            if args.Cavatappi then
+              args.PreBuildEvent = "cavatappi generate";
+            else
+              args.PreBuildEvent = "macaroni.exe generate";
+            end
+        end
         if args.Configurations == nil then
             args.Configurations = {
                 {
                   Name="Debug|Win32",
                   Configuration="Debug",
                   Platform="Win32",
-                  --PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+                  PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
                  }
             };
         end
@@ -88,129 +95,33 @@ ProjectFileWriter = {
     -- end,
 
     WriteFile = function(self)
-        self:writeBegin();
+        self.writer:Write([[
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject
+  ProjectType="Visual C++"
+  Version="9.00"
+  Name="]] .. self.Name .. [["
+  ProjectGUID="{]] .. self.ProjectGUID .. [[}"
+  RootNamespace="]] .. self.RootNamespace .. [["
+  Keyword="Win32Proj"
+  TargetFrameworkVersion="196613"
+  >
+        ]]);
+        self:writePlatforms();
+        self.writer:Write([[
+        <ToolFiles>
+        </ToolFiles>
+        ]]);
         self:writeConfigurations();
         self.writer:Write([[
-      <PropertyGroup Label="Globals">
-        <ProjectGuid>{]] .. self.ProjectGUID .. [[}</ProjectGuid>
-        <Keyword>Win32Proj</Keyword>
-        <RootNamespace>]] .. self.RootNamespace .. [[</RootNamespace>
-      </PropertyGroup>
-
-        ]])
-
-        self.writer:Write([[
-<Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <ImportGroup Label="ExtensionSettings">
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
-  </PropertyGroup>
-  ]]);
-
-    self.writer:Write([[
-    <PropertyGroup>
-        <LinkIncremental>true</LinkIncremental>
-        <IncludePath>]]);
-
-    -- for i, source in ipairs(self.sources) do
-    --     self.writer:Write('"' .. source.AbsolutePath .. '";')
-    -- end
-    -- self.writer:Write('"' .. self.outputPath.AbsolutePath .. '";')
-    self.writer:Write([[$(IncludePath)</IncludePath>
-      </PropertyGroup>
-    ]])
-
-    self.writer:Write([[
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>]]);
-
-
-    for i, source in ipairs(self.sources) do
-        self.writer:Write('"' .. source.AbsolutePath .. '";')
-    end
-    self.writer:Write('"' .. self.outputPath.AbsolutePath .. '";')
-    for i, dir in ipairs(self.AdditionalIncludePaths) do
-        self.writer:Write('"' .. Path.New(dir).AbsolutePath .. '";')
-    end
-
-      self.writer:Write([[%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>]]);
-
-      for i, dir in ipairs(self.AdditionalLibraryPaths) do
-          self.writer:Write('"' .. Path.New(dir).AbsolutePath .. '";')
-      end
-
-      self.writer:Write([[%(AdditionalLibraryDirectories)
-      </AdditionalLibraryDirectories>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemGroup>
-    <None Include="ReadMe.txt" />
-  </ItemGroup>
-  ]]);
+          <References>
+          </References>
+          ]]);
         self:writeFiles();
         self.writer:Write([[
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-  </ImportGroup>
-        ]]);
-
-        -- TODO: References?
-
---        self:writeFiles();
-
-
-        self:writeEnd();
+          <Globals>
+          </Globals>
+</VisualStudioProject>]]);
     end,
 
     writeBegin = function(self)
@@ -220,23 +131,58 @@ ProjectFileWriter = {
     end,
 
     writeConfiguration = function(self, config)
+      self.writer:Write([[<Configuration
+        Name="]] .. config.Name .. [["
+        OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+        IntermediateDirectory="$(ConfigurationName)"
+        ConfigurationType="1"
+        CharacterSet="1"
+        >
+        <Tool
+          Name="VCPreBuildEventTool"
+          ]]);
+        self.writer:Write([[ CommandLine="]] .. self.PreBuildEvent .. [[" ]]);
         self.writer:Write([[
-            <ProjectConfiguration Include="]] .. config.Name .. [[">
-              <Configuration>]] .. config.Configuration .. [[</Configuration>
-              <Platform>]] .. config.Platform .. [[</Platform>
-            </ProjectConfiguration>
+        />
+        <Tool
+          Name="VCCLCompilerTool"
+          Optimization="0"
+          AdditionalIncludeDirectories="]] ..
+            self:writeIncludeDirectories(";") ..
+          [["
+          PreprocessorDefinitions="]] ..
+            config.PreprocessorDefinitions ..
+          [["
+          MinimalRebuild="true"
+          BasicRuntimeChecks="3"
+          RuntimeLibrary="3"
+          UsePrecompiledHeader="0"
+          WarningLevel="3"
+          DebugInformationFormat="4"
+        />
+        <Tool
+          Name="VCLinkerTool"
+          LinkIncremental="2"
+          AdditionalLibraryDirectories="]] ..
+          self:writeLibraryDirectories(';') ..
+          [["
+          GenerateDebugInformation="true"
+          SubSystem="1"
+          TargetMachine="1"
+        />
+        </Configuration>
         ]]);
     end,
 
     writeConfigurations = function(self)
         self.writer:Write([[
-            <ItemGroup Label="ProjectConfigurations">
+            <Configurations>
             ]]);
         for i, v in ipairs(self.Configurations) do
             self:writeConfiguration(v);
         end
         self.writer:Write([[
-            </ItemGroup>
+            </Configurations>
         ]]);
     end,
 
@@ -251,44 +197,74 @@ ProjectFileWriter = {
     end,
 
     writeFiles = function(self)
-        local writeDirFiles = function(elementName, src, regex)
+        self.writer:Write("<Files>");
+        local writeDirFiles = function(src, regex, printFunction)
             local filePaths = src:GetPaths(regex)
             for i = 1, #filePaths do
                 local fp = filePaths[i];
                 if not self:filePathExclude(fp) then
-                  if elementName == "None" then
-                      self.writer:Write([[<None Include="]] ..
-                          fp.AbsolutePath ..
-                          [[">
-                            <FileType>Document</FileType>
-                          </None>]])
-                  else
-                      self.writer:Write([[<]] .. elementName ..[[ Include="]])
-                      self.writer:Write(fp.AbsolutePath .. [[" />]] .. '\n')
-                  end
+                  printFunction(fp.AbsolutePath);
+                  -- if elementName == "None" then
+                  --     self.writer:Write([[<None Include="]] ..
+                  --         fp.AbsolutePath ..
+                  --         [[">
+                  --           <FileType>Document</FileType>
+                  --         </None>]])
+                  -- else
+                  --     self.writer:Write([[<]] .. elementName ..[[ Include="]])
+                  --     self.writer:Write(fp.AbsolutePath .. [[" />]] .. '\n')
+                  -- end
                 end
             end
         end
 
-        self.writer:Write([[<ItemGroup>]]);
+        -- All the "custom files" don't nest inside an XML element.
         for i, v in ipairs(self.sources) do
-            writeDirFiles("None", v, [[\.(mcpp)?$]])
+            writeDirFiles(v, [[\.(mcpp)?$]], function(fp)
+              self.writer:Write([[
+      <File RelativePath="]] .. fp .. [[">
+        <FileConfiguration
+         Name="Debug|Win32"
+         ExcludedFromBuild="true">
+           <Tool Name="VCCustomBuildTool" />
+        </FileConfiguration>
+      </File>
+              ]]);
+            end);
         end
-        self.writer:Write([[</ItemGroup>]]);
 
-        self.writer:Write([[<ItemGroup>]]);
-        for i, v in ipairs(self.sources) do
-            writeDirFiles("ClCompile", v, [[\.(c|cc|cpp)?$]])
-        end
-        writeDirFiles("ClCompile", self.outputPath, [[\.(c|cpp)?$]])
-        self.writer:Write([[</ItemGroup>]]);
+        self.writer:Write([[
+        <Filter
+          Name="Source Files"
+          Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
+          UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
+          >]]);
 
-        self.writer:Write([[<ItemGroup>]]);
-        for i, v in ipairs(self.sources) do
-            writeDirFiles("ClInclude", v, [[\.(h|hpp)?$]])
+        local writeFile = function(fp)
+            self.writer:Write([[
+                <File RelativePath="]] .. fp .. [[">
+                </File>
+            ]]);
         end
-        writeDirFiles("ClInclude", self.outputPath, [[\.(h|hpp)?$]])
-        self.writer:Write([[</ItemGroup>]]);
+        for i, v in ipairs(self.sources) do
+            writeDirFiles(v, [[\.(c|cc|cpp)?$]], writeFile);
+        end
+        writeDirFiles(self.outputPath, [[\.(c|cc|cpp)?$]], writeFile);
+        self.writer:Write([[</Filter>]]);
+
+        self.writer:Write([[
+        <Filter
+          Name="Header Files"
+          Filter="h;hpp;hxx;hm;inl;inc;xsd"
+          UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
+          >]]);
+        for i, v in ipairs(self.sources) do
+            writeDirFiles(v, [[\.(h|hpp)?$]], writeFile);
+        end
+        writeDirFiles(self.outputPath, [[\.(h|hpp)?$]], writeFile);
+        self.writer:Write([[</Filter>]]);
+
+        self.writer:Write("</Files>");
     end,
 
     writeEnd = function(self)
@@ -304,34 +280,46 @@ ProjectFileWriter = {
             rtn = rtn .. v.AbsolutePath .. seperator
         end
         rtn = rtn .. self.outputPath.AbsolutePath .. seperator
-        for i, v in ipairs(self.library.Dependencies) do
+        local appendIncludeDir = function(v)
             local dir = guessIncludeLocation(v)
             if dir ~= nil then
                 rtn = rtn .. dir .. seperator
             end
         end
+        for i, v in ipairs(self.library.Dependencies) do
+            appendIncludeDir(v);
+        end
+        for i, v in ipairs(self.AdditionalIncludePaths) do
+            rtn = rtn .. v .. seperator
+        end
         return rtn;
     end,
 
     writeLibraryDirectories = function(self, seperator)
-        rtn = ""
+        local rtn = ""
         for i, v in ipairs(self.sources) do
             rtn = rtn .. v.AbsolutePath .. seperator
         end
         rtn = rtn .. self.outputPath.AbsolutePath .. seperator
-        for i, v in ipairs(self.library.Dependencies) do
+        local appendLibPath = function(v)
             local dir = guessBoostBuildLibraryLocation(v)
             if dir ~= nil then
                 rtn = rtn .. dir .. seperator
             end
+        end
+        for i, v in ipairs(self.library.Dependencies) do
+            appendLibPath(v);
+        end
+        for i, v in ipairs(self.AdditionalLibraryPaths) do
+            rtn = rtn .. v .. seperator
         end
         return rtn;
     end,
 
     writePlatforms = function(self)
         self.writer:Write("<Platforms>")
-        for i, n in ipairs(self.PlatformNames) do
-            self.writer:Write('<Platform Name="' .. n .. '" />')
+        for i, n in ipairs(self.Configurations) do
+            self.writer:Write('<Platform Name="' .. n.Platform .. '" />')
         end
         self.writer:Write("</Platforms>")
     end,

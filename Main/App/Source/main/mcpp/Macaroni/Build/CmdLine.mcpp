@@ -460,6 +460,11 @@ class CmdLine
 		ContextPtr context(new Context("%ROOT%"));
 		Macaroni::Environment::Environment env(createAppPaths(), context,
 		                                       input, output);
+		if (!env.FindDefaultProject()) 
+		{
+			output->WriteLine("No project file found, trying to use manifest.");
+			return runManifest();
+		}
 		if (!env.RunDefaultProject() && !withRepl) {
 			return false;
 		}
