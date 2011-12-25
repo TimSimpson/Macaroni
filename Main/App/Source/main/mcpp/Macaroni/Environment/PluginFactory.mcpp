@@ -1,0 +1,54 @@
+~import Macaroni::AppPathsPtr;
+~import boost::intrusive_ptr;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Lua::LuaProperty;
+~import Macaroni::Environment::Plugin;
+~import Macaroni::Environment::PluginPtr;
+~import Macaroni::Environment::PluginFactory;
+~import Macaroni::Environment::PluginFactoryPtr;
+~import std::string;
+~import Macaroni::Cpp::UseLightDef;
+
+~namespace Macaroni::Environment;
+
+typedef intrusive_ptr<PluginFactory ~l> PluginFactoryPtr
+        @LuaClass [ SameAsNode = PluginFactory ]
+        @UseLightDef true;
+
+class PluginFactory
+    @LuaClass [
+        ReferenceType = PluginFactoryPtr
+    ]
+{
+    private AppPathsPtr appPaths;
+    private int referenceCount;
+
+    public PluginFactory(AppPathsPtr appPaths)
+    :   appPaths(appPaths),
+        referenceCount(0)
+    {
+    }
+
+    public PluginPtr Get(string name)
+        @LuaFunction "Get"
+    {
+        return PluginPtr();
+    }
+
+    public ~global ~friend void intrusive_ptr_add_ref(PluginFactory * p)
+    {
+        p->referenceCount ++;
+    }
+
+    public ~global ~friend void intrusive_ptr_release(PluginFactory * p)
+    {
+        p->referenceCount --;
+        if (p->referenceCount < 1)
+        {
+            delete p;
+        }
+    }
+
+};

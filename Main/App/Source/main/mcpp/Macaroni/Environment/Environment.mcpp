@@ -33,6 +33,9 @@
 ~import Macaroni::Environment::LuaEnvironment;
 ~import Macaroni::Model::NodePtr;
 ~import boost::filesystem::path;
+~import Macaroni::Environment::PluginFactory;
+~import Macaroni::Environment::PluginFactoryLuaMetaData;
+~import Macaroni::Environment::PluginFactoryPtr;
 ~import Macaroni::Model::Reason;
 ~import Macaroni::Environment::ReplCommand;
 ~import std::string;
@@ -46,11 +49,16 @@ class Macaroni::Environment::Environment
  * the project / build system.
  */
 {
+	~block "h-predef" {
+		#include <Macaroni/Environment/PluginFactory.h>
+	}
+
 	private AppPathsPtr appPaths;
 	private ContextPtr context;
 	private InputPtr input;
 	private LuaEnvironment luaEnvironment;
 	private OutputPtr output;
+	private PluginFactoryPtr pluginFactory;
 	private bool quitRepl;
 
 	public Environment(AppPathsPtr appPaths, ContextPtr context,
@@ -60,6 +68,7 @@ class Macaroni::Environment::Environment
 	  input(input),
 	  luaEnvironment(),
 	  output(output),
+	  pluginFactory(new PluginFactory(appPaths)),
 	  quitRepl(false)
 	{
 		output->WriteLine("Creating new Environment with the following "
@@ -93,8 +102,10 @@ class Macaroni::Environment::Environment
 		OutputLuaMetaData::PutInstanceOnStack(luaEnvironment.GetState(),
 		                                      output);
 		lua_setglobal(luaEnvironment.GetState(), "output");
-
-
+		
+		PluginFactoryLuaMetaData::PutInstanceOnStack(luaEnvironment.GetState(), 
+													 pluginFactory);
+		lua_setglobal(luaEnvironment.GetState(), "plugins");
 	}
 
 	~hidden bool exit(string line)

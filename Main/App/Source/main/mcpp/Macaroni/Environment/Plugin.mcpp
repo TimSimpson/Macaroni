@@ -1,0 +1,58 @@
+~import boost::intrusive_ptr;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Lua::LuaProperty;
+~import Macaroni::Environment::Plugin;
+~import Macaroni::Environment::PluginPtr;
+~import std::string;
+~import Macaroni::Model::Project::Target;
+~import Macaroni::Model::Project::TargetPtr;
+~import Macaroni::Cpp::UseLightDef;
+
+~namespace Macaroni::Environment;
+
+typedef intrusive_ptr<Plugin ~l> PluginPtr
+        @LuaClass [ SameAsNode = Plugin ]
+        @UseLightDef true;
+
+
+class Plugin
+    @LuaClass [
+        ReferenceType = PluginPtr
+    ]
+{
+    private string name;
+    private int referenceCount;
+
+    public Plugin(string name)
+    :   name(name),
+        referenceCount(0)
+    {
+    }
+
+    public const string & GetName() const
+        @LuaProperty "Name"
+    {
+        return name;
+    }
+
+    public ~global ~friend void intrusive_ptr_add_ref(Plugin * p)
+    {
+        p->referenceCount ++;
+    }
+
+    public ~global ~friend void intrusive_ptr_release(Plugin * p)
+    {
+        p->referenceCount --;
+        if (p->referenceCount < 1)
+        {
+            delete p;
+        }
+    }
+
+    public void Run(string action, TargetPtr target
+                    /* Some kind of work context */)
+    {
+    }
+};

@@ -300,6 +300,52 @@ context:RunFileGenerator("JamGenerator", { libs = lib, luaLib, cppLib } );
 
 
 _______________________________________________________________________________
+                         Macaroni Project File Plugins
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+-- I like this style the best:
+lib:Generate("Cpp", {output=output})
+
+-- But this style seems more flexible
+local cpp = plugins:Get("Cpp")
+local builder = BuildContext(lib, output)
+cpp:Run("Generate", builder)
+
+cpp:Run("Generate", lib, { output=output} )
+
+-- The more I look at it actually I like this the best:
+local bjam = plugins:Get("bjam")
+local cpp = plugins:Get("Cpp")
+
+local buildContext = BuildContext("target")
+cpp:Run("Generate", lib, buildContext, {})
+
+
+bjam:Run("Generate", lib, buildContext, {
+
+})
+
+
+
+_______________________________________________________________________________
+                         Macaroni Project Tasks
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+Tasks are methods with dependencies.
+The interface in C++ is something like:
+
+class Task {
+    virtual list<int> dependsOn() const = 0;
+    virtual int uuid() const = 0;
+    virtual void operator()() = 0;
+}
+
+These are created and thrown into a bit of code that sorts them out before
+running them.
+
+_______________________________________________________________________________
                             ANNOTATIONS
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
