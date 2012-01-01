@@ -22,10 +22,10 @@ class Plugin
         ReferenceType = PluginPtr
     ]
 {
-    private string name;
+    private const string name;
     private int referenceCount;
 
-    public Plugin(string name)
+    public Plugin(const string & name)
     :   name(name),
         referenceCount(0)
     {

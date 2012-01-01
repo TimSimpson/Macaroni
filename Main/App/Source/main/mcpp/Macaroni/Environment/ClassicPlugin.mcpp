@@ -1,0 +1,67 @@
+~import Macaroni::Build::BuildContext;
+~import Macaroni::Build::BuildContextPtr;
+~import Macaroni::Generator::DynamicGeneratorRunner;
+~import boost::intrusive_ptr;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Environment::LuaEnvironment;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Lua::LuaProperty;
+~import boost::filesystem::path;
+~import Macaroni::Environment::Plugin;
+~import Macaroni::Environment::PluginPtr;
+~import std::string;
+~import Macaroni::Model::Project::Target;
+~import Macaroni::Model::Project::TargetPtr;
+~import Macaroni::Cpp::UseLightDef;
+
+
+~namespace Macaroni::Environment;
+
+class ClassicPlugin : public Plugin
+{
+    ~block "cpp" { namespace
+    {
+
+        class Runner
+        {
+        private:
+            LuaEnvironment env;
+            path luaFilePath;
+        public:
+             Runner(path luaFilePath)
+            :   env(),
+                luaFilePath(luaFilePath)
+            {
+                env.SetPackageDirectory(luaFile.branch_path().string());
+            }
+
+
+        };
+
+    } } // end anonymous namespace and h-block
+
+    private AppPathsPtr appPaths;
+
+    public ClassicPlugin(AppPathsPtr appPaths, const string & name)
+    :   plugin(name),
+        appPaths(appPaths),
+        env(),
+        luaFilePath(name)
+    {
+
+    }
+
+    public void Run(string action, TargetPtr target
+                    /* Some kind of work context */)
+    {
+        DynamicGeneratorRunner runner(appPaths);
+        path generatorFilePath(action);
+        BuildContextPtr buildContext(appPaths, target, );
+        runner.RunDynamicGenerator(generatorFilePath,)
+        RunDynamicGenerator(const path & generatorFilePath,
+                                    BuildContextPtr buildContext,
+                                    const string & methodName,
+                                    const string & arguments)
+    }
+};

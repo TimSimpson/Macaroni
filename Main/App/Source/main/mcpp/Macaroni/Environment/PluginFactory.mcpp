@@ -1,4 +1,5 @@
 ~import Macaroni::AppPathsPtr;
+~import Macaroni::Environment::ClassicPlugin;
 ~import boost::intrusive_ptr;
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaFunction;
@@ -34,7 +35,7 @@ class PluginFactory
     public PluginPtr Get(string name)
         @LuaFunction "Get"
     {
-        return PluginPtr();
+        return PluginPtr(new ClassicPlugin(appPaths, name));
     }
 
     public ~global ~friend void intrusive_ptr_add_ref(PluginFactory * p)

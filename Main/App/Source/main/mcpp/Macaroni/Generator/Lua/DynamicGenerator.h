@@ -30,36 +30,32 @@
 
 BEGIN_NAMESPACE(Macaroni, Generator, Lua)
 
-/** 
+/**
  * Represents a Lua file which gets run in its own environment.
  * Lua files must define the following function:
  *     function Generate(library, path)
  * Context and rootPath are passed in as expected, while log is a simple
  * output apparatus that for the time being simply echoes everything to the
  * screen.
- * 
+ *
  */
 class DynamicGenerator : public DynamicScriptRunner
 {
 public:
 	DynamicGenerator(const boost::filesystem::path & luaFile,
 					 Macaroni::Build::BuildContextPtr buildContext,
-					//Model::LibraryPtr context, 
-					 //const boost::filesystem::path & rootPath,					 
+					//Model::LibraryPtr context,
+					 //const boost::filesystem::path & rootPath,
 					 const std::string & arguments /* Represents a table. */);
-	
+
 	~DynamicGenerator();
-	
+
 	std::string Run(const std::string & methodName);
 
 private:
 	std::string arguments;
 
 	Macaroni::Build::BuildContextPtr buildContext;
-
-	Model::LibraryPtr library;
-
-	boost::filesystem::path rootPath;
 
 };
 

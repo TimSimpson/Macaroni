@@ -141,6 +141,9 @@ function build()
 
     print("Creating Visual C++ 10 Project File...")
     proj.ProjectFile="macaroni_10.vcxproj";
+    proj.AdditionalSourcePaths={
+        [[C:\Documents and Settings\Tim\Macaroni\Libraries\Macaroni\Lua\5.1.4\Cpp]]
+    };
     run("VCpp/VCpp10", proj)
 
 	run("BoostBuild", jamArgs)
