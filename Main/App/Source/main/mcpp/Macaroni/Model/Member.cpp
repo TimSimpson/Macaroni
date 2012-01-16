@@ -17,11 +17,12 @@
 #define MACARONI_MODEL_MEMBER_CPP
 
 #include "Member.h"
-#include "../Exception.h"
+#include <Macaroni/Exception.h>
 #include "Cpp/Namespace.h"
 #include "Node.h"
 #include "Reason.h"
 #include <sstream>
+#include <Macaroni/StringException.h>
 
 using Macaroni::Model::Cpp::Namespace;
 using Macaroni::Model::Cpp::NamespacePtr;
@@ -99,7 +100,7 @@ NamespacePtr Member::FindClosestParentNamespace() const
 		}
 		itr = itr->GetNode();
 	}
-	throw Macaroni::Exception("Could not find Namespace in this Member.");
+	throw Macaroni::StringException("Could not find Namespace in this Member.");
 }
 
 //NodePtr Member::GetNode() const

@@ -20,7 +20,7 @@
 #include <Macaroni/Model/Context.h>
 #include <boost/foreach.hpp>
 #include "Library.h"
-#include <Macaroni/Exception.h>
+#include <Macaroni/StringException.h>
 
 using Macaroni::Build::LibraryId;
 using Macaroni::IO::Path;
@@ -51,7 +51,7 @@ Library::Library(Context * context, const LibraryId & id,
 {
 	if (!!installPath && installPath.get() == "")
 	{
-		throw Macaroni::Exception("Empty path is not valid for install path!");
+		throw Macaroni::StringException("Empty path is not valid for install path!");
 	}
 }
 

@@ -22,6 +22,7 @@
 #include "AnnotationValueTypeException.h"
 #include "Node.h"
 #include <sstream>
+#include <Macaroni/StringException.h>
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
@@ -31,7 +32,8 @@ namespace
 	{
 		if (!node)
 		{
-			throw Macaroni::Exception("Attempted to assign AnnotationValue a name which was a null node.");
+			throw StringException("Attempted to assign "
+							"AnnotationValue a name which was a null node.");
 		}
 		return *(node.get());
 	}
@@ -40,7 +42,8 @@ namespace
 	{
 		if (!node)
 		{
-			throw Macaroni::Exception("Attempted to assign AnnotationValue a node value which was null.");
+			throw StringException("Attempted to assign "
+					"AnnotationValue a node value which was null.");
 		}
 		return *(node.get());
 	}

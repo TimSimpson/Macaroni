@@ -1,0 +1,51 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+~import std::string;
+
+~namespace Macaroni::Environment;
+
+/* 
+ * The need seems to arise every so often to create a simple value object
+ * at runtime containing configuration information or some kind of value to 
+ * pass between C++ and Lua.
+ * These values are like a JSON object or a Lua Table.
+ * Right now I'm simply creating a string which is parsed by Lua and contains
+ * a table, but in the future I'd like to make this a bit more flexible and
+ * be able to iterate these values from C++ (I may use some JSON library).
+ */
+/*
+class Table
+{
+	private string luaTableCode;
+
+	public Table()
+	{
+	}
+
+	// Should be copyable.
+
+	public void ReadFromLua(string & luaCode)
+	{
+		luaTableCode = luaCode;
+	}
+
+	public string WriteToLua() const
+	{
+		return luaTableCode;
+	}
+
+};*/

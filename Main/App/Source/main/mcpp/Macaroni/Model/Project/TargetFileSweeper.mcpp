@@ -30,6 +30,7 @@
 ~import Macaroni::Model::Source;
 ~import Macaroni::Model::SourcePtr;
 ~import std::string;
+~import Macaroni::StringException;
 ~import std::stringstream;
 ~import Macaroni::Model::Project::Target;
 ~import Macaroni::Model::Project::TargetPtr;
@@ -98,7 +99,7 @@ class TargetFileSweeper
 		{
 			std::stringstream ss;
 			ss << "Could not open file " << filePath << "!";
-			throw Macaroni::Exception(ss.str().c_str());
+			throw Macaroni::StringException(ss.str().c_str());
 		}
 		string line;
 		while(! file.eof())

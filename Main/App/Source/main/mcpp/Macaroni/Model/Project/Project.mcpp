@@ -30,7 +30,9 @@
 ~import Macaroni::Model::Project::ProjectVersionPtr;
 ~import Macaroni::Model::Reason;
 ~import std::string;
+~import Macaroni::StringException;
 ~import Macaroni::Cpp::UseLightDef;
+~import Macaroni::Model::Project::Utils;
 ~import std::vector;
 
 
@@ -78,10 +80,20 @@ class Macaroni::Model::Project::Project
 	private void addVersion(ProjectVersion * newVersion) {
 		BOOST_FOREACH(ProjectVersion * v, versions) {
 			if (*v == *newVersion) {
-				throw Macaroni::Exception("Attempted to add a version twice.");
+				throw Macaroni::StringException("Attempted to add a version twice.");
 			}
 		}
 		versions.push_back(newVersion);
+	}
+
+	/** Returns a version of this ID which can be used as a C identifier.
+	 * The point isn't to make a pretty name but just one that maps uniquely.
+	 */
+	public string GetCId() const
+		@LuaFunction "GetCId"
+	{
+		return str(format("%s___%s") % group->GetCId() 
+			                         % Utils::CreateCId(name));
 	}
 
 	public GroupPtr GetGroup() const

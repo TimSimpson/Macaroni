@@ -21,9 +21,15 @@
 #include <lauxlib.h>
 #include <lualib.h>
 
+#include <Macaroni/Environment/Values/Any.h>
+#include <Macaroni/Environment/Values/AnyPtr.h>
 #include <fstream>
+#include <Macaroni/InternalSource.h>
 #include <string>
+#include <boost/optional.hpp>
+#include <sstream>
 #include "StringPair.h"
+#include <Macaroni/Environment/Values/Table.h>
 #include <vector>
 
 BEGIN_NAMESPACE2(Macaroni, Environment)
@@ -32,6 +38,11 @@ BEGIN_NAMESPACE2(Macaroni, Environment)
 class LuaEnvironment
 {
 public:
+	///*class FunctionSetup
+	//{
+	//	virtual int operator()(lua_State * L) = 0;
+	//};*/
+
 	/** Creates a new LuaEnvironment.  If no lua_State is given, then one
 	 *  is created and destroyed when this object is destroyed.
 	 *  If one is given, then its used and left alone when this object is
@@ -89,8 +100,13 @@ public:
 	 *  the "PANIC" message which is harder to pin down.
 	 *  Call with __FILE__, __LINE__ for best results.
 	 */
-	static void Run(const char * file, int lineNumber,
+	static void Run(const Macaroni::InternalSource & source,
 		            lua_State * L, int args, int results);
+
+	/////* Calls a function. The functor must push all of this to the top of the 
+	//// * stack. */
+	////static void Run(const Macaroni::InternalSource & source,
+	////	            lua_State * L, FunctionSetup & funcSetup, int results);
 
 	/** Serializes the value at the top of the stack to a string. */
 	static void SerializeField(lua_State * L, std::stringstream & ss,
@@ -104,6 +120,17 @@ public:
 
 	/** Like the above but uses whatever is at the top of the stack. */
 	static void SerializeTable(lua_State * L, std::stringstream & ss);
+
+	/** Serializes whatever value is in the stack at the position given by index
+	 *  to an Any. If "key" is given it is used when throwing an exception
+	 *  to specify where the error occurred. */
+	static Values::AnyPtr SerializeValue(lua_State * L, int index,
+		boost::optional<std::string> key=boost::none);
+
+	/** Given a table on the Lua stack at the given index, fills in the given
+	 *  table value. */
+	static void SerializeTable(Values::Table & table, lua_State * L, int index,
+		                    boost::optional<std::string> key=boost::none);
 
 	void SetPackageDirectory(const std::string & path);
 

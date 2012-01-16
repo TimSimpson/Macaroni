@@ -1,6 +1,9 @@
+~import Macaroni::Environment::Values::AnyPtr;
 ~import boost::intrusive_ptr;
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaGlueCode;
+~import Macaroni::Lua::LuaIncludes;
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
 ~import Macaroni::Environment::Plugin;
@@ -21,6 +24,13 @@ class Plugin
     @LuaClass [
         ReferenceType = PluginPtr
     ]
+	@LuaIncludes ={
+		#include <Macaroni/Environment/Values/Any.h>
+		#include <Macaroni/Environment/Values/AnyPtr.h>
+		#include <Macaroni/Environment/LuaEnvironment.h>		
+		#include <sstream>
+		#include <Macaroni/Environment/Values/Table.h>
+	}
 {
     private const string name;
     private int referenceCount;
@@ -30,6 +40,10 @@ class Plugin
         referenceCount(0)
     {
     }
+
+	public virtual ~Plugin()
+	{
+	}
 
     public const string & GetName() const
         @LuaProperty "Name"
@@ -51,8 +65,37 @@ class Plugin
         }
     }
 
-    public void Run(string action, TargetPtr target
+    public virtual void Run(string action, AnyPtr arguments
                     /* Some kind of work context */)
-    {
-    }
+		@LuaFunction "Run"
+		@LuaGlueCode ={ 		
+			PluginPtr & instance = PluginLuaMetaData::GetInstance(L, 1);
+
+			// Set the global properties.
+			lua_getglobal(L, "properties");
+			AnyPtr globalProperties = LuaEnvironment::SerializeValue(L, -1);
+			lua_pop(L, 1); // get rid of global table.
+			instance->SetGlobalProperties(globalProperties);			
+		
+			// Marshall arguments.	
+			const std::string arg1(luaL_checkstring(L, 2));
+			//Macaroni::Model::Project::TargetPtr & arg2 = 
+			//	Macaroni::Model::Project::TargetLuaMetaData::GetInstance(L, 3);
+			// The third argument will be a lua table. Or rather, it should be.
+			Values::AnyPtr arg2(new Values::Table());
+			if (1 == lua_istable(L, 3))
+			{	
+				Values::Table & table = static_cast<Values::Table &>(*arg2);
+				LuaEnvironment::SerializeTable(table, L, 3);				
+			} 			
+			instance->Run(arg1, arg2);
+			return 0;			
+		}
+	= 0;
+	
+	public virtual void SetGlobalProperties(AnyPtr properties) = 0;
+
+	public virtual string ToString() 
+		@LuaOperator "__tostring"
+		= 0;
 };

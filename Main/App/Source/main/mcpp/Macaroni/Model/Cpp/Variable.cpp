@@ -17,7 +17,7 @@
 #define MACARONI_MODEL_CPP_VARIABLE_CPP
 
 #include "Primitive.h"
-#include "../../Exception.h"
+#include <Macaroni/Exception.h>
 #include "../MemberVisitor.h"
 #include "../ModelInconsistencyException.h"
 #include "Namespace.h"

@@ -13,6 +13,7 @@
 ~import Macaroni::Model::Project::Project;
 ~import Macaroni::Model::Project::ProjectPtr;
 ~import std::string;
+~import Macaroni::StringException;
 ~import std::stringstream;
 ~import Macaroni::Cpp::UseLightDef;
 ~import Macaroni::Model::Project::Utils;
@@ -64,9 +65,7 @@ class Group
 	public string GetCId() const
 		@LuaFunction "GetCId"
 	{
-		std::stringstream ss;
-		ss << Utils::CreateCId(name);
-		return ss.str();
+		return Utils::CreateCId(name);
 	}
 
 	public ContextPtr GetContext() const
@@ -94,7 +93,7 @@ class Group
 	private void addProject(Project * project) {
 		BOOST_FOREACH(Macaroni::Model::Project::Project * p, projects) {
 			if (*p == *project) {
-				throw Macaroni::Exception("Attempt to add the same project "
+				throw Macaroni::StringException("Attempt to add the same project "
 										  "twice.");
 			}
 		}

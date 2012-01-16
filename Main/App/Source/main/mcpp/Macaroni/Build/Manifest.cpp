@@ -21,18 +21,20 @@
 #include <Macaroni/Containers.h>
 #include <Macaroni/Model/ContextLua.h>
 #include <Macaroni/Generator/DynamicGeneratorRunner.h>
-#include "../Exception.h"
+#include <Macaroni/Exception.h>
 #include <Macaroni/Build/GeneratorContext.h>
+#include <Macaroni/InternalSource.h>
 #include <Macaroni/Model/Library.h>
 #include <Macaroni/Model/LibraryLua.h>
-#include "../Environment/LuaEnvironment.h"
+#include <Macaroni/Environment/LuaEnvironment.h>
 #include <boost/optional.hpp>
 #include <iostream>
 #include <fstream>
 #include <Macaroni/IO/PathLua.h>
-#include "../IO/Paths.h"
+#include <Macaroni/IO/Paths.h>
 #include <sstream>
-#include "../Environment/StringPair.h"
+#include <Macaroni/StringException.h>
+#include <Macaroni/Environment/StringPair.h>
 
 using boost::optional;
 using Macaroni::Environment::Console;
@@ -399,8 +401,14 @@ int _runScript(lua_State * L)
 		{
 			std::stringstream ss;
 			ss << "An error occurred running the generator at " 
-				<< scriptPath << ". C exception thrown from " << ex.GetSource()
-				<< ". Message: " << ex.GetMessage();
+				<< scriptPath << ". ";
+			if (ex.where())
+			{
+				ss << "C exception thrown from " << ex.where().get().FileName 
+				   << ", line " << ex.where().get().Line << ". ";
+			}
+			
+			ss << "Message: " << ex.what();
 			luaL_error(L, ss.str().c_str());	
 		}		
 		catch (const std::exception & ex)
@@ -597,7 +605,7 @@ Manifest::RunResultPtr Manifest::RunTarget(const Console & console, BuildContext
 		result->Success = true; //false;
 		return result;
 	}
-	LuaEnvironment::Run(__FILE__, __LINE__, L, 0, 1);
+	LuaEnvironment::Run(MACARONI_INTERNAL_SOURCE, L, 0, 1);
 	result->Success = true;
 	return result;
 	/*int success = lua_pcall(L, 0, 1, 0);
@@ -747,7 +755,7 @@ void setLibraryId(LibraryId & id, lua_State * L)
 	lua_getglobal(L, "id");
 	if (!lua_istable(L, -1))
 	{
-		throw Macaroni::Exception("Table \"id\" not found in Manifest file.");
+		throw Macaroni::StringException("Table \"id\" not found in Manifest file.");
 	}
 
 	lua_pushstring(L, "group");

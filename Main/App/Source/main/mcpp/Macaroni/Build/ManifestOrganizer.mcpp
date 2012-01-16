@@ -22,6 +22,7 @@
 ~import Macaroni::Build::ManifestPtr;
 ~import boost::shared_ptr;
 ~import std::string;
+~import Macaroni::StringException;
 ~import std::stringstream;
 ~import std::vector;
 
@@ -99,7 +100,7 @@ class ManifestOrganizer
 		{
 			stringstream ss;
 			ss << "Set for position " << position << " is not valid.";
-			throw Exception(ss.str().c_str());
+			throw StringException(ss.str().c_str());
 		}
 		//const LibraryId & libId = manifest->GetId();		
 		list[position] = manifest;
@@ -137,7 +138,7 @@ class ManifestOrganizer
 			std::stringstream ss;
 			ss	<< "A can't be more than B. A = " << a 
 				<< " and B = " << b << ".";
-			throw Exception(ss.str().c_str());
+			throw StringException(ss.str().c_str());
 		}
 
 		const LibraryId & libB = list.at(b)->GetId();

@@ -19,16 +19,16 @@
 
 #include "Class.h"
 #include "Function.h"
-#include "../../Exception.h"
-#include "../MemberVisitor.h"
-#include "../Node.h"
-#include "../NodePtr.h"
+#include <Macaroni/Exception.h>
+#include <Macaroni/Model/MemberVisitor.h>
+#include <Macaroni/Model/Node.h>
+#include <Macaroni/Model/NodePtr.h>
 #include <memory>
-#include "../ModelInconsistencyException.h"
+#include <Macaroni/Model/ModelInconsistencyException.h>
 #include <sstream>
 #include <Macaroni/Model/Project/Target.h>
 #include <Macaroni/Model/Project/TargetPtr.h>
-#include "Variable.h"
+#include <Macaroni/Model/Cpp/Variable.h>
 
 using Macaroni::Model::Element;
 using Macaroni::Model::ElementPtr;

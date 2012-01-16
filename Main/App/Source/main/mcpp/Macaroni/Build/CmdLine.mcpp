@@ -188,8 +188,7 @@ class CmdLine
 			catch(Macaroni::Exception & ex)
 			{
 				console.Write("UNHANDLED EXCEPTION:\n");
-				console.WriteLine(ex.GetMessage());
-				console.WriteLine(ex.GetSource());
+				console.WriteLine(ex);
 			}
 		}
 	}

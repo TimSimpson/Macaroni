@@ -31,9 +31,14 @@
 ~import Macaroni::Model::Project::ProjectVersionPtr;
 ~import Macaroni::Model::Reason;
 ~import Macaroni::Model::Project::Target;
+~import Macaroni::Model::Project::Files;
+~import Macaroni::Model::Project::FilesPtr;
+~import Macaroni::Model::Project::FileList;
+~import Macaroni::Model::Project::FileListPtr;
 ~import Macaroni::Model::Project::TargetFileSweeper;
 ~import Macaroni::Model::Project::TargetPtr;
 ~import std::string;
+~import Macaroni::StringException;
 ~import Macaroni::Cpp::UseLightDef;
 ~import std::vector;
 
@@ -44,38 +49,50 @@
 class LibraryTarget {};
 
 typedef intrusive_ptr<LibraryTarget ~l> LibraryTargetPtr
-		@LuaClass [ SameAsNode = LibraryTarget ]
+		// @LuaClass [ SameAsNode = LibraryTarget ]
 		@UseLightDef true;
 
 class LibraryTarget : public Macaroni::Model::Project::Target
 {
 	@LuaClass [
-		ReferenceType = LibraryTargetPtr
+		ReferenceType = TargetPtr
 	]
 
 	private LibraryTarget(ProjectVersion * projectVersion,
 		            const string & name)
 	:   Target(projectVersion, name)
 	{
+		GetSources()->Add("Macaroni");
 	}
+
+	private LibraryTarget(ProjectVersion * projectVersion,
+		            const string & name, FilesPtr sources)
+	:   Target(projectVersion, name, sources)
+	{
+		GetSources()->Add("Macaroni");
+	}
+
 
 	public static LibraryTargetPtr Create(
 		ProjectVersion * projectVersion,
 		const string & name,
 		const vector<Macaroni::Model::Project::TargetPtr> & dependencies,
-		const vector<FileSetPtr> & sources
+		FilesPtr sources
 		)
 	{
-		LibraryTargetPtr lib(new LibraryTarget(projectVersion, name));
+		LibraryTargetPtr lib(new LibraryTarget(projectVersion, name, sources));
 		BOOST_FOREACH(TargetPtr target, dependencies) {
 			lib->dependencies.push_back(target.get());
 		}
 
+		sources->Add("Macaroni");
+
 		TargetPtr ptr(lib.get());
 		TargetFileSweeper sweeper(ptr);
-		BOOST_FOREACH(FileSetPtr fs, sources) {
+		BOOST_FOREACH(FileSetPtr fs, *(sources->Macaroni())) {
 			if (!!fs) {
 				sweeper.ParseFileSet(*(fs.get()));
+				//lib->GetSources()->Macaroni()->push_back(fs);
 			}
 		}
 
@@ -89,7 +106,7 @@ class LibraryTarget : public Macaroni::Model::Project::Target
 		{
 			std::stringstream ss;
 			ss << "Could not open file " << filePath << "!";
-			throw Macaroni::Exception(ss.str().c_str());
+			throw Macaroni::StringException(ss.str().c_str());
 		}
 		std::string line;
 		while(! file.eof())

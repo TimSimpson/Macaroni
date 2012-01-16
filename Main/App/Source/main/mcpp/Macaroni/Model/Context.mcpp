@@ -22,6 +22,7 @@
 ~import boost::intrusive_ptr;
 ~import Macaroni::Build::LibraryId;
 ~import Macaroni::Model::LibraryPtr;
+~import Macaroni::Lua::LuaClass;
 ~import MACARONI_ASSERT;
 ~import Macaroni::Model::Node;
 ~import Macaroni::Model::NodePtr;
@@ -37,6 +38,10 @@
  * it also stores a count of Node references.  Deleting this deletes all Nodes.
  */
 class Context
+	@LuaClass
+	[
+		ReferenceType = Macaroni::Model::ContextPtr,
+	]
 {
 	private GroupList * groups;
 	private bool hasBeenDeleted;

@@ -102,10 +102,13 @@ LuaGlueGenerator =
         self.LuaClass = "Macaroni::Lua::LuaClass";
         self.LuaFunction = "Macaroni::Lua::LuaFunction";
         self.LuaGlueCode = "Macaroni::Lua::LuaGlueCode";
+        self.LuaIncludes = "Macaroni::Lua::LuaIncludes";
+        self.LuaIndexExtraCode = "Macaroni::Lua::LuaIndexExtraCode";
         self.LuaOperator = "Macaroni::Lua::LuaOperator";
         self.LuaProperty = "Macaroni::Lua::LuaProperty";
         self.RootNode = rootNode;
         self.LuaClassNode = self.RootNode:FindOrCreate("Macaroni::Lua::LuaClass");
+        self.LuaIncludesNode = self.RootNode:FindOrCreate("Macaroni::Lua::LuaIncludes");
         self.LuaPropGetNode = self.RootNode:FindOrCreate("Macaroni::Lua::LuaPropGet");
         self.LuaPropSetNode = self.RootNode:FindOrCreate("Macaroni::Lua::LuaPropSet");
         self.Creators = self:CreatorsClass();
@@ -740,22 +743,29 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 		local methodName = methodOverloadNode.Node.Name
 		rtn.name = methodName;
 		local t = { }
-		-- Write line which actually calls the target method in C code and
-		-- saves the return value, if any.
-		local argument = self:findFirstArgument(methodOverloadNode);
-		if argument == nil then
-			error("Node has no function arguments ("
-			      .. methodOverloadNode.Node.FullName .. ").");
+		t[#t + 1] = "LUA_GLUE_TRY";
+		glueAnn = methodOverloadNode.Annotations[self.LuaGlueCode]
+		if (glueAnn == nil) then
+			-- Write line which actually calls the target method in C code and
+			-- saves the return value, if any.
+			local argument = self:findFirstArgument(methodOverloadNode);
+			if argument == nil then
+				error("Node has no function arguments ("
+				      .. methodOverloadNode.Node.FullName .. ").");
+			end
+			local argumentType = argument.Member.Type;
+			local argumentTypeTm = self:TypeManipulators(argumentType);
+			local methodCall = "";
+			t[#t + 1] = "\t" .. argumentTypeTm.convertArgument("newValue", nextStackIndex);
+			if (methodOverloadNode.Member.Static) then
+				error("Node marked as setter (" .. methodOverloadNode.Node.FullName
+					  .. ") but is static.");
+			end
+			t[#t + 1] = "\tinstance" .. dotGet .. methodName .. "(newValue);";
+		else
+			t[#t + 1] = glueAnn.ValueAsString;
 		end
-		local argumentType = argument.Member.Type;
-		local argumentTypeTm = self:TypeManipulators(argumentType);
-		local methodCall = "";
-		t[#t + 1] = "\t" .. argumentTypeTm.convertArgument("newValue", nextStackIndex);
-		if (methodOverloadNode.Member.Static) then
-			error("Node marked as setter (" .. methodOverloadNode.Node.FullName
-				  .. ") but is static.");
-		end
-		t[#t + 1] = "\tinstance" .. dotGet .. methodName .. "(newValue);";
+		t[#t + 1] = "LUA_GLUE_CATCH";
 		return t;
 	end,
 
@@ -879,9 +889,14 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 		t[#t + 1] = "\tstatic int __index(lua_State * L)";
 		t[#t + 1] = "\t{";
 		t[#t + 1] = "\t\tLUA_GLUE_TRY";
-		t[#t + 1] = "\t\t" .. args.referenceType.FullName .. " & ptr = " .. metaNodeName ..  "::GetInstance(L, 1);";
+		t[#t + 1] = "\t\t" .. args.referenceType.FullName .. " & instance = " .. metaNodeName ..  "::GetInstance(L, 1);";
+		glueAnn = args.originalNode.Annotations[self.LuaIndexExtraCode]
+		if (glueAnn ~= nil) then
+			t[#t + 1] = glueAnn.ValueAsString;
+		end
 		t[#t + 1] = "\t\tstd::string index(luaL_checkstring(L, 2));";
-		t[#t + 1] = "\t\tint rtnCount = " .. metaNodeName .. "::Index(L, ptr, index);"
+		t[#t + 1] = "\t\tint rtnCount = " .. metaNodeName
+		            .. "::Index(L, instance, index);"
 		t[#t + 1] = "\t\tif (rtnCount > 0)";
 		t[#t + 1] = "\t\t{";
 		t[#t + 1] = "\t\t\treturn rtnCount;";
@@ -966,12 +981,26 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 			return self;
 		end,
 
+		blockIncludes = function(self)
+			-- Create the block for include statements.
+			local includeCode = self.originalNode.Annotations[
+				self.parent.LuaIncludes]
+			if (includeCode ~= nil) then
+				local includeBlockHome = self.metaNode:FindOrCreate(
+					"includeBlock");
+				Block.Create(includeBlockHome, "cpp-include",
+					includeCode.ValueAsString, self.reason);
+			end
+		end,
+
 		blocks = function(self)
 			-- There's some stuff we have to add to the Glue which Macaroni
 			-- can't really handle.  So we put it in the following C block.
 			-- This includes stuff like the static data mapping metatable
 			-- values to c functions, but also more complex things like the
 			-- helper struct.
+
+			self:blockIncludes();
 
 			local blockHome = self.metaNode:FindOrCreate("functionPtrStructBlock");
 			log:Write("Going to create block for function pointer struct.");

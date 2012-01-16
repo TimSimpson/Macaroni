@@ -31,6 +31,7 @@
 ~import Macaroni::Model::Source;
 ~import Macaroni::Model::SourcePtr;
 ~import std::string;
+~import Macaroni::StringException;
 ~import std::stringstream;
 ~import Macaroni::Parser::TextIterator;
 
@@ -71,7 +72,7 @@ class MDocParser
 	{
 		if (!path->IsDirectory())
 		{
-			throw Macaroni::Exception("The given path must be a directory.");
+			throw Macaroni::StringException("The given path must be a directory.");
 		}
 	}
 
@@ -90,7 +91,12 @@ class MDocParser
 						bool result = MDocParser::Parse(L, in, out);
 						lua_pushboolean(L, result);
 						return 1;
-					} 
+					}
+					catch(const Macaroni::Exception & ex) 
+					{
+						string msg = ex.message();
+						return luaL_error(L, msg.c_str());
+					}
 					catch(const std::exception & ex) 
 					{
 						return luaL_error(L, ex.what());
@@ -174,7 +180,7 @@ class MDocParser
 				SourcePtr src = itr.GetSource();
 				msg << src->ToString();
 				msg << ".  Expected '<' or '\"'.";
-				throw Macaroni::Exception(msg.str().c_str());
+				throw Macaroni::StringException(msg.str().c_str());
 			}
 			return true;
 		}
@@ -200,7 +206,7 @@ class MDocParser
 					msg << endsWith << " at ";
 					SourcePtr src = itr.GetSource();
 					msg << src->ToString();
-					throw Macaroni::Exception(msg.str().c_str());
+					throw Macaroni::StringException(msg.str().c_str());
 				}
 				fileNameS << itr.Current();
 				itr.Advance(1);
@@ -343,7 +349,7 @@ class MDocParser
 					SourcePtr src = itr.GetSource();
 					msg << src->ToString();
 					msg << ".";
-					throw Macaroni::Exception(msg.str().c_str());
+					throw Macaroni::StringException(msg.str().c_str());
 				}
 			}
 			else if (lua() || luaExpression())
@@ -357,7 +363,7 @@ class MDocParser
 				SourcePtr src = itr.GetSource();
 				msg << src->ToString();
 				msg << ".";
-				throw Macaroni::Exception(msg.str().c_str());
+				throw Macaroni::StringException(msg.str().c_str());
 			}			
 			return true;
 		} 
@@ -410,7 +416,7 @@ class MDocParser
 			ss << "Input path \"" 
 				<< input->GetAbsolutePath()
 				<< "\" does not refer to a regular file.";
-			throw Macaroni::Exception("Input path ");
+			throw Macaroni::StringException("Input path ");
 		}
 		std::string fileContents;
 		SourcePtr source;
@@ -434,7 +440,7 @@ class MDocParser
 				SourcePtr src = itr.GetSource();
 				msg << src->ToString();
 				msg << ".  Expected '<' or '\"'.";
-				throw Macaroni::Exception(msg.str().c_str());
+				throw Macaroni::StringException(msg.str().c_str());
 			}
 			return true;
 			return true;
@@ -476,7 +482,7 @@ class MDocParser
 		{
 			std::stringstream ss;
 			ss << "Could not open file " << inputAsStr << "!";
-			throw Macaroni::Exception(ss.str().c_str());
+			throw Macaroni::StringException(ss.str().c_str());
 		}	
 		std::string line;
 		while(!file.eof())

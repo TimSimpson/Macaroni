@@ -59,7 +59,7 @@ function generate()
 	}
 	]] });
 	-- print("Creating HTML View...")
-	-- run("HtmlView");
+	run("HtmlView");
 	print("Generating C++ code...")
     run "Cpp"
 
@@ -77,11 +77,26 @@ jamArgs =
 	--CmdLine = [[ -d+2 ]],
 	ExcludePattern = "Main.cpp *Test.cpp *Tests.cpp .svn",
 	ExtraTargets = [[
+        #alias test_dependencies
+        #    : "]] .. properties.boost.current["path"] ..
+            [[/libs/test/build//boost_unit_test_framework"
+        #    :
+        #    ;
+
 		install installmsgs
 			:	../Source/main/resources/Messages.txt
 			:	<variant>debug:<location>release/debug
 				<variant>release:<location>release/release
 			;
+
+        #unit-test macaroni-tests
+        #    :   library
+        #        test_dependencies
+        #        ../Source/test/mcpp/Macaroni/Model/AnnotationValueTest.cpp
+        #    :  <target-os>windows:<linkflags>/LIBPATH:"]]
+            .. properties.boost.current["path"] .. [[/stage/lib"
+        #
+        #    ;
 
 	  	exe macaroni
 	  		:	library #library_sources

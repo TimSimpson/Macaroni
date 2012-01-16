@@ -17,7 +17,7 @@
 #define MACARONI_MODEL_CPP_NAMESPACE_CPP
 
 #include "Namespace.h"
-#include "../../Exception.h"
+#include <Macaroni/Exception.h>
 #include "../Library.h"
 #include "../Node.h"
 #include <memory>

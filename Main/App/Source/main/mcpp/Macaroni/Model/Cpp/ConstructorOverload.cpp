@@ -20,7 +20,7 @@
 #include "Class.h"
 #include "Constructor.h"
 #include "Primitive.h"
-#include "../../Exception.h"
+#include <Macaroni/Exception.h>
 #include "../MemberVisitor.h"
 #include "../ModelInconsistencyException.h"
 #include "Namespace.h"

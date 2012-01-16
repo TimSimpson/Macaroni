@@ -17,7 +17,7 @@
 #define MACARONI_MODEL_CPP_PRIMITIVE_CPP
 
 #include "Primitive.h"
-#include "../../Exception.h"
+#include <Macaroni/Exception.h>
 #include "Namespace.h"
 #include "../Node.h"
 #include "Scope.h"

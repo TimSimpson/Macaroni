@@ -18,14 +18,15 @@
 
 #include <Macaroni/ME.h>
 #include <Macaroni/Exception.h>
+#include <Macaroni/StringException.h>
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
-class AnnotationValueTypeException : public Macaroni::Exception 
+class AnnotationValueTypeException : public Macaroni::StringException 
 {
 public:
 	AnnotationValueTypeException(std::string message)
-		: Macaroni::Exception(message.c_str()) {}
+		: Macaroni::StringException(message.c_str()) {}
 };
 
 END_NAMESPACE2

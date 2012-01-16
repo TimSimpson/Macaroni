@@ -20,6 +20,7 @@
 #include <Macaroni/Exception.h>
 #include "../Library.h"
 #include "../Node.h"
+#include <Macaroni/StringException.h>
 #include <Macaroni/Model/Project/Target.h>
 #include <Macaroni/Model/Project/TargetPtr.h>
 
@@ -58,7 +59,7 @@ LibraryPtr Scope::GetLibrary() const
 	if (!target) {
 		return LibraryPtr(library);
 	} else {
-		throw Macaroni::Exception("Deprecated- use 'OwnedBy' instead.");
+		throw Macaroni::StringException("Deprecated- use 'OwnedBy' instead.");
 	}
 }
 

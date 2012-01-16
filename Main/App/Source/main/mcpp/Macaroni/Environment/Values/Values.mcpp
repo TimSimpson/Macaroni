@@ -1,0 +1,571 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+~import BOOST_FOREACH;
+~import boost::format;
+~import Macaroni::InternalSource;
+~import boost::intrusive_ptr;
+~import std::map;
+~import Macaroni::Exceptions::SimpleException;
+~import lua_State;
+~import Macaroni::Exceptions::SimpleStringException;
+~import std::string;
+~import std::stringstream;
+~import boost::variant;
+~import std::vector;
+
+~namespace Macaroni::Environment::Values;
+
+class Any {};
+
+typedef intrusive_ptr<Any ~l> AnyPtr;
+
+
+/*
+ * The need seems to arise every so often to create a simple value object
+ * at runtime containing configuration information or some kind of value to
+ * pass between C++ and Lua.
+ * These values are like a JSON object or a Lua Table.
+ * Right now I'm simply creating a string which is parsed by Lua and contains
+ * a table, but in the future I'd like to make this a bit more flexible and
+ * be able to iterate these values from C++ (I may use some JSON library).
+ */
+class Any
+{
+	private int referenceCount;
+
+	/* Prohibit copy construction and assignment. */
+	private Any(const Any & other);
+	private Any & operator = (const Any & other);
+
+	protected Any()
+	:	referenceCount(0)
+	{
+	}
+
+	public virtual ~Any()
+	{
+		destroyChildren();		
+	}
+
+	protected void addReference()
+	{
+		referenceCount ++;
+	}
+
+	protected virtual void destroyChildren() throw()
+	{
+	}
+
+	public int getReferenceCount() const
+	{
+		return referenceCount;
+	}
+
+	public ~global ~friend void intrusive_ptr_add_ref(Any * p)
+	{
+		p->addReference();
+	}
+
+	public ~global ~friend void intrusive_ptr_release(Any * p)
+	{
+		p->referenceCount --;
+		if (p->referenceCount <= 0)
+		{
+			delete p;
+		}
+	}
+
+	/** 
+	 * Pushes the value onto the Lua stack.
+	 * NOTHING ELSE may be pushed other than the marshalled value! 
+	 */
+	public virtual void ToLua(lua_State * L) = 0;
+
+	// Deprecated.
+	//public virtual string ToLuaCode() const = 0;
+
+};
+
+class Bool : public Any
+{
+	~block "h" { public: typedef bool WrappedType; }
+	private bool value;
+
+	public Bool(bool value)
+	:	Any(),
+		value(value)
+	{
+	}
+
+	public bool Get() const
+	{
+		return value;
+	}
+
+	public virtual void ToLua(lua_State * L)
+	{
+		lua_pushboolean(L, value ? 1 : 0);
+	}
+
+	///*public virtual string ToLuaCode() const
+	//{
+	//	return value ? "true" : "false";
+	//}*/
+};
+
+class Double : public Any
+{
+	~block "h" { public: typedef Double WrappedType; }
+	private double value;
+
+	public Double(double value)
+	:	Any(),
+		value(value)
+	{
+	}
+
+	public double Get() const
+	{
+		return value;
+	}
+
+	public virtual void ToLua(lua_State * L)
+	{
+		lua_pushnumber(L, value);
+	}
+
+	///*public virtual string ToLuaCode() const
+	//{
+	//	return str(format("%f") % value);
+	//}*/
+};
+
+class Null : public Any
+{
+	~block "h" { public: typedef void * WrappedType; }
+	public Null()
+	:	Any()
+	{
+	}
+
+	public void * Get() const
+	{
+		return 0;
+	}
+
+	public virtual void ToLua(lua_State * L)
+	{
+		lua_pushnil(L);
+	}
+
+	///*public virtual string ToLuaCode() const
+	//{
+	//	return "nil";
+	//}*/
+};
+
+
+class String : public Any
+{
+	~import Macaroni::Exception::Exceptions;
+	~block "h" { public: typedef std::string WrappedType; }
+	~block "cpp"
+	{
+		MACARONI_SIMPLE_EXCEPTION_DEFINE(StringFormatException,
+			"Could not serialize the string value to a Lua string.");
+	}
+
+	~import Macaroni::Environment::Values::StringFormatException;
+
+	private string value;
+	public String(string value)
+	:	Any(),
+		value(value)
+	{
+	}
+
+	public string Get() const
+	{
+		return value;
+	}
+
+	public static string StringToLuaCode(string value)
+	{
+		if (value.find("]]") == string::npos)
+		{
+			return str(format("[[%s]]") % value);
+		}
+
+		for (int numberOfEqualSigns = 1; numberOfEqualSigns < 256;
+			 numberOfEqualSigns ++)
+		{
+			string equalsString(numberOfEqualSigns, '=');
+			string secondSeperator = str(format("]%s]") % equalsString
+				% value % equalsString);
+			if (value.find(secondSeperator) == string::npos)
+			{
+				return str(format("[%s[%s]%s]") % equalsString
+					% value % equalsString);
+			}
+		}
+		throw StringFormatException(MACARONI_INTERNAL_SOURCE);
+	}
+
+	public virtual void ToLua(lua_State * L)
+	{
+		lua_pushstring(L, value.c_str());
+	}
+
+	///*public virtual string ToLuaCode() const
+	//{
+	//	return StringToLuaCode(value);
+	//}*/
+};
+
+
+class KeyNotFoundException : public SimpleStringException 
+{
+	public KeyNotFoundException(const char * key, InternalSource where)
+		: SimpleStringException(key, where)
+	{
+	}
+
+	public virtual const char * what() const throw()
+	{
+		return "Key not found.";
+	}
+};
+
+class ValueTypeException : public SimpleStringException 
+{
+	public ValueTypeException(const char * key, InternalSource where)
+		: SimpleStringException(key, where)
+	{
+	}
+
+	public virtual const char * what() const throw()
+	{
+		return "Key could not be converted to the correct type.";
+	}
+};
+
+class Table : public Any
+{
+	~import Macaroni::Environment::Values::Any;
+	~import Macaroni::Environment::Values::Bool;
+	~import Macaroni::Environment::Values::Double;
+	~import Macaroni::Exception::Exceptions;
+	//~import Macaroni::Environment::Values::KeyNotFoundException;
+	~import Macaroni::Environment::Values::String;
+	//~import Macaroni::Environment::Values::ValueTypeException;
+	~import boost::variant;
+
+	~block "h-predef" {
+		#include <Macaroni/Environment/Values/KeyNotFoundException.h>
+		#include <Macaroni/Environment/Values/ValueTypeException.h>
+		#include <vector>
+	}
+
+	~block "cpp"
+	{
+		MACARONI_SIMPLE_EXCEPTION_DEFINE(WeirdKeyException,
+			"Key type unknown.");
+
+	}
+
+	map<variant<int, string>, AnyPtr> children;
+
+	public Table()
+	:	Any(),
+		children()
+	{
+	}
+
+	protected virtual void destroyChildren() throw()
+	{
+		///*for (map<variant<int, string>, AnyPtr>::iterator itr = children.begin();
+		//	itr != children.end(); itr ++)
+		//{
+		//	delete itr->second;
+		//}*/
+	}
+
+	/** Copies the keys to the vector. Takes awhile though. */
+	public void CopyKeyList(vector<string> & list)
+	{
+		for (map<variant<int, string>, AnyPtr>::iterator itr = children.begin();
+			 itr != children.end(); itr ++)
+		{
+			const string * key = boost::get<const string>(&(itr->first));
+			if (key != 0)
+			{
+				list.push_back(*key);
+			}
+		}
+	}
+
+	/** Defining these seperately so I can interrogate them in the debugger. */		
+	public inline bool Has(const int & name)
+	{
+		return children.count(name) > 0;
+	}
+
+	public inline bool Has(const string & name)
+	{
+		return children.count(name) > 0;
+	}
+
+	public AnyPtr get(const variant<int, string> & name)
+	{
+		if (children.count(name) > 0)
+		{
+			return children[name];
+		} else {
+			AnyPtr nothing;
+			return nothing;
+		}
+	}
+
+	~block "h"
+	{
+	public:
+		template<class T>
+		typename T * GetAsAnyType(
+			const boost::variant<int, std::string> & name)
+		{
+			AnyPtr ptr = get(name);
+			if (!ptr)
+			{
+				string key;
+				if (const int * i = boost::get<const int>(&name))
+				{
+					key = str(format("%d") % *i);
+				}
+				else
+				{
+					key = *(boost::get<const string>(&name));
+				}
+				throw KeyNotFoundException(key.c_str(), 
+					                       MACARONI_INTERNAL_SOURCE);
+			}
+			Any * any = ptr.get();
+			T * anyS = dynamic_cast<T *>(any);
+			if (anyS == 0)
+			{
+				string key;
+				if (const int * i = boost::get<const int>(&name))
+				{
+					key = str(format("%d") % *i);
+				}
+				else
+				{
+					key = *(boost::get<const string>(&name));
+				}
+				throw ValueTypeException(key.c_str(), 
+					                     MACARONI_INTERNAL_SOURCE);
+			}
+			return anyS;
+		}
+
+	private:
+		template<class T>
+		typename T::WrappedType get_t(
+			const boost::variant<int, std::string> & name)
+		{
+			T * anyS = GetAsAnyType<T>(name);
+///*
+//			AnyPtr ptr = get(name);
+//			if (!ptr)
+//			{
+//				string key;
+//				if (const int * i = boost::get<const int>(&name))
+//				{
+//					key = str(format("%d") % *i);
+//				}
+//				else
+//				{
+//					key = *(boost::get<const string>(&name));
+//				}
+//				throw KeyNotFoundException(key.c_str(), 
+//					                       MACARONI_INTERNAL_SOURCE);
+//			}
+//			Any * any = ptr.get();
+//			T * anyS = dynamic_cast<T *>(any);
+//			if (anyS == 0)
+//			{
+//				string key;
+//				if (const int * i = boost::get<const int>(&name))
+//				{
+//					key = str(format("%d") % *i);
+//				}
+//				else
+//				{
+//					key = *(boost::get<const string>(&name));
+//				}
+//				throw ValueTypeException(key.c_str(), 
+//					                     MACARONI_INTERNAL_SOURCE);
+//			}*/
+			return anyS->Get();
+		}
+
+	public:
+		template<class T>
+		typename T::WrappedType Get(int index)
+		{
+			return get_t<T>(index);
+		}
+		
+		template<class T>
+		typename T::WrappedType Get(std::string index)
+		{
+			return get_t<T>(index);
+		}
+	} // end block "h"
+
+	public AnyPtr Get(int index)
+	{
+		//const variant<int, string> name = index;
+		return get(index);		
+	}
+
+	public AnyPtr Get(string index)
+	{
+		return get(index);		
+	}
+
+	~block "h"
+	{	
+	public:
+		template<class T, class O>
+		void GetVector(
+			const boost::variant<int, std::string> & name,
+			O o)
+		{
+			Table * t = GetAsAnyType<Table>(name);
+			t->ToVector<T, O>(o);			
+		}
+
+
+		/** Transforms this table into a vector if possible (works only if
+		 *  its a Lua array). */
+		template<class T, class O>
+		void ToVector(O o)
+		{
+			for(int index = 1; Has(index); index ++)
+			{
+				//typename T::WrappedType element = get_t<T>(index);
+				//vec.push_back(element);
+				o(get_t<T>(index));
+			}
+		}
+	///*
+	//public:
+	//	template<class T>
+	//	void GetVector(
+	//		std::vector<typename T::WrappedType > & vec, std::string index)
+	//	{
+	//		return getVector<T>(vec, index);
+	//	}
+	//	
+	//	template<class T>
+	//	void GetVector(
+	//		std::vector<typename T::WrappedType > & vec, int index)
+	//	{
+	//		return getVector<T>(vec, index);
+	//	}*/
+	} // end block "h"
+
+	//public void Set(const string & name, bool value)
+	//{
+	//	if (children.count(name) > 0)
+	//	{
+	//		delete children[name];
+	//	}
+	//	children[name] = new Bool(value);
+	//}
+
+	//public void Set(const string & name, double value)
+	//{
+	//	if (children.count(name) > 0)
+	//	{
+	//		delete children[name];
+	//	}
+	//	children[name] = new Double(value);
+	//}
+
+	//public void Set(const string & name, const string & value)
+	//{
+	//	if (children.count(name) > 0)
+	//	{
+	//		delete children[name];
+	//	}
+	//	children[name] = new String(value);
+	//}
+	
+
+	/** Sets the given value to the key name.
+	 *  This also increases the reference count on the Any value pointed to so
+	 *  that when the last intrusive pointer is destroyed, the Any value is not.
+	 *  At that point this table owns the Any value. */
+	public void SetAndGiveReference(const variant<int, string> & name, 
+		                            AnyPtr value)
+	{
+		///*if (children.count(name) > 0)
+		//{
+		//	delete children[name];
+		//}*/
+		children[name] = value;
+	}
+
+	public virtual void ToLua(lua_State * L)
+	{
+		lua_newtable(L);
+		for (map<variant<int, string>, AnyPtr>::const_iterator itr = children.begin();
+			itr != children.end(); itr ++)
+		{			
+			// Push key.
+			if (const int * key = boost::get<int>(&itr->first))
+			{
+				lua_pushnumber(L, *key);
+			}
+			else if (const string * const key = boost::get<string>(&itr->first))
+			{
+				lua_pushstring(L, key->c_str());
+			}
+			else
+			{
+				throw WeirdKeyException(MACARONI_INTERNAL_SOURCE);
+			}
+			itr->second->ToLua(L);  // Push value on stack.
+			lua_settable(L, -3);  // Assign to table.
+			// ^-- Both the value and the key are popped.
+		}
+	}
+
+	///*public virtual string ToLuaCode() const
+	//{
+	//	stringstream code;
+	//	code << "{";
+	//	for (map<string, Any *>::const_iterator itr = children.begin();
+	//		itr != children.end(); itr ++)
+	//	{
+	//		code << "[ " << String::StringToLuaCode(itr->first) 
+	//			 << " ] = " << itr->second->ToLuaCode() << ", ";
+	//	}
+	//	code << "}";
+	//	return code.str();
+	//}*/
+};

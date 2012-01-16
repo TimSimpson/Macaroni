@@ -20,7 +20,7 @@
 #include <lauxlib.h>
 #include <lualib.h>
 #include "ContextLua.h"
-#include "../Exception.h"
+#include <Macaroni/Exception.h>
 #include "../Environment/DebugLog.h"
 #include <boost/foreach.hpp>
 #include <Macaroni/Model/FileNameLuaMetaData.h>

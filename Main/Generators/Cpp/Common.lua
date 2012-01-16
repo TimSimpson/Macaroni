@@ -21,16 +21,16 @@ require "debug";
 require "io";
 
 -- Eventually put this next part in C++.
-Macaroni.Model.TypeNames = 
-{ 
+Macaroni.Model.TypeNames =
+{
     Block = "Block",
-    Class = "Class", 
-    Constructor="Constructor", 
+    Class = "Class",
+    Constructor="Constructor",
     ConstructorOverload="ConstructorOverload",
-    Destructor="Destructor", 
-    Function="Function", 
+    Destructor="Destructor",
+    Function="Function",
     FunctionOverload = "FunctionOverload",
-    Namespace = "Namespace", 
+    Namespace = "Namespace",
     Primitive="Primitive",
     Typedef="Typedef",
     Variable="Variable"
@@ -43,13 +43,13 @@ function nodeDefinedInNamespaceHeader(node)
 		return false;
 	end
 	local t = m.TypeName;
-	return t == Macaroni.Model.TypeNames.Function or 
+	return t == Macaroni.Model.TypeNames.Function or
 		   t == Macaroni.Model.TypeNames.Typedef or
 		   t == Macaroni.Model.TypeNames.Variable;
 end
 
 -- Identical to "assert" but points the error at the calling method.
-function check(condition, errorMsg) 
+function check(condition, errorMsg)
     if (not condition) then
         error(errorMsg, 3);
     end
@@ -61,7 +61,7 @@ Util = {
         check(subClass ~= nil, "Argument 2 (subClass) must not be nil.");
         subClass.__index = function(t, k)
             local v = subClass[k];
-            if (not v) then 
+            if (not v) then
                 v = superClass[k];
             end
             return v;
@@ -69,9 +69,9 @@ Util = {
     end,
 };
 
-NodeHelper = {    
-    
-    worthIteration = function(node) 
+NodeHelper = {
+
+    worthIteration = function(node)
         if (node == nil) then
             error("Nil not allowed for node argument.", 2);
         end
@@ -79,7 +79,7 @@ NodeHelper = {
             -- The HFile means Macaroni isn't needed to generate this.
             log:Write("Node possessing hfile is not worth it:" .. node.FullName)
             return false;
-        end 
+        end
         if (node.Member ~= nil) then
             if (node.Member.TypeName ~= Macaroni.Model.TypeNames.Namespace) then
                 return true;
@@ -98,12 +98,12 @@ NodeHelper = {
 }
 
 Common = {
-    
+
 };
 
 IncludeFiles = {
     -- Given any Node, will create and return the correct include statement.
-    createStatementForNode = function(node) 	
+    createStatementForNode = function(node)
 		local hFilePath = NodeInfoList[node].headerFile
 		if hFilePath ~= nil and hFilePath ~= '' then
 			return '#include ' .. hFilePath  .. '\n';
@@ -118,32 +118,32 @@ IncludeFiles = {
             --return;
         --end
         --local path = nil;
-        --if (node.HFilePath ~= nil) then 
+        --if (node.HFilePath ~= nil) then
             --path = tostring(node.HFilePath);
         --else
             --if (node.AdoptedHome ~= nil) then
                 --return createStatementForNode(node.AdoptedHome);
             --end
             --if (node.Member ~= nil and node.Member.TypeName == Macaroni.Model.TypeNames.Class) then
-                --path = '<' .. node:GetPrettyFullName("/") .. '.h>'; 
-            --elseif (nodeDefinedInNamespaceHeader(node)) then				
+                --path = '<' .. node:GetPrettyFullName("/") .. '.h>';
+            --elseif (nodeDefinedInNamespaceHeader(node)) then
                 --path = '<' .. node.Node:GetPrettyFullName("/") .. '/_.h>';
             --else
 				--path = nil;
-            --end            
-        --end        
+            --end
+        --end
         --if (path ~= nil) then
-			--return ('#include ' .. path .. '\n');        
+			--return ('#include ' .. path .. '\n');
 		--end
     end,
-        
+
     createStatementForNodeAndPutInTable = function(node, rtnTable)
         local include = IncludeFiles.createStatementForNode(node);
         if (include ~= nil) then
-            rtnTable[include] = true;            
+            rtnTable[include] = true;
         end
     end,
-    
+
     -- Given a Node, finds needed include statmenets, but doesn't make one for node itself.
     -- So for example, if you defined a variable "std::string blah" this would create
     -- the includes for <string>, but not for "blah." If you pass this a class,
@@ -151,55 +151,55 @@ IncludeFiles = {
     getStatementsForNodeDependencies = function(node, rtnTable)
         if (node.Member ~= nil) then
             IncludeFiles.getStatementsForNodeMember(node.Member, rtnTable);
-        end        
+        end
     end,
-    
+
     -- Given a function argument list, finds and puts into table any needed include statements
     getStatementsForArgumentList = function(argList, rtnTable)
          for i = 1, #(argList) do
-            IncludeFiles.getStatementsForNodeMember(argList[i], rtnTable);   
+            IncludeFiles.getStatementsForNodeMember(argList[i], rtnTable);
          end
     end,
-    
+
     -- Given array of nodes, finds any needed include statements and places them into table.
     getStatementsForNodeArray = function(nodeList, rtnTable)
          for i = 1, #(nodeList) do
-            IncludeFiles.getStatementsForNodeDependencies(nodeList[i], rtnTable);   
+            IncludeFiles.getStatementsForNodeDependencies(nodeList[i], rtnTable);
          end
     end,
-    
+
     -- Given a member, places any necessary include statements into the provided table.
-    getStatementsForNodeMember = function(member, rtnTable)      
+    getStatementsForNodeMember = function(member, rtnTable)
         if (rtnTable == nil) then
             error("rtnTable may not be nil!", 2);
-        end  
+        end
         if (member.TypeName == Macaroni.Model.TypeNames.Variable) then
             IncludeFiles.getStatementsForType(member.Type, rtnTable);
             --local include = IncludeFiles.createStatementForNode(member.Type.Node);
             --if (include ~= nil) then
-            --    rtnTable[include] = true;            
+            --    rtnTable[include] = true;
             --end
         end
-        if (member.TypeName == Macaroni.Model.TypeNames.Function) then                            
+        if (member.TypeName == Macaroni.Model.TypeNames.Function) then
             IncludeFiles.getStatementsForType(member.ReturnType, rtnTable);
             --local include = IncludeFiles.createStatementForNode(member.ReturnType.Node);
             --if (include ~= nil) then
             --    rtnTable[include] = true;
-            --end            
+            --end
         end
         if (member.TypeName == Macaroni.Model.TypeNames.Function or
-            member.TypeName == Macaroni.Model.TypeNames.Constructor) then      
+            member.TypeName == Macaroni.Model.TypeNames.Constructor) then
             IncludeFiles.getStatementsForArgumentList(member.Arguments, rtnTable);
         end
         if (member.TypeName == Macaroni.Model.TypeNames.Typedef) then
             IncludeFiles.getStatementsForType(member.Type, rtnTable);
         end
     end,
-    
+
     -- Given the type, finds all needed include statements and places into table.
     getStatementsForType = function(type, rtnTable)
         check(type ~= nil, "Type cannot be nil.");
-        check(rtnTable ~= nil, "RtnTable can't be nil.");        
+        check(rtnTable ~= nil, "RtnTable can't be nil.");
         IncludeFiles.createStatementForNodeAndPutInTable(type.Node, rtnTable);
         if (type.TypeArguments ~= nil) then
             for i = 1, #type.TypeArguments do
@@ -211,50 +211,50 @@ IncludeFiles = {
             end
         end
     end,
-    
+
     -- Given a list of nodes returns Nodes which minor nodes depend on.
     getListOfStatementsForNodeList = function(nodeList)
         local map = {};
-        IncludeFiles.getStatementsForNodeArray(nodeList, map);                        
+        IncludeFiles.getStatementsForNodeArray(nodeList, map);
         local rtn = {};
-        for k, v in pairs(map) do            
+        for k, v in pairs(map) do
             rtn[#rtn + 1] = k;
         end
         return rtn;
     end,
-    
-    -- Given a Node, returns a list of Nodes which will need to be included in 
+
+    -- Given a Node, returns a list of Nodes which will need to be included in
     -- the header file.
     getHFileIncludeStatementsForNode = function (node)
         local member = node.Member;
         if (member ~= nil) then
             if (member.TypeName == Macaroni.Model.TypeNames.Class) then
                 -- All fields (variables) must force an import.
-                return IncludeFiles.getListOfStatementsForNodeList(node.Children);                
+                return IncludeFiles.getListOfStatementsForNodeList(node.Children);
             end
-        end 
+        end
         return {};
     end
 }
 
 TypeUtil = {
-    new = function() 
+    new = function()
         local self = {};
         setmetatable(self, { ["__index"] = TypeUtil } );
         --setmetatable(self, TypeUtil);
         return self;
     end,
-    
+
     -- Returns a String with code defining the type.  If attemptShortName is
     -- true, it will not use the full name of the Type node.  If the type is
     -- complex, full names are used regardless.
-    createTypeDefinition = function(self, type, attemptShortName) 
+    createTypeDefinition = function(self, type, attemptShortName)
         check(self ~= nil, "Member method called without instance.");
-        check(type ~= nil, 'Argument 2 "type" can not be null.');    
-        
+        check(type ~= nil, 'Argument 2 "type" can not be null.');
+
         local rtnStr = "";
         if (type == nil) then
-            error("Type argument cannot be nil.", 2);           
+            error("Type argument cannot be nil.", 2);
         end
         if (type.Const) then
             rtnStr = rtnStr .. "const ";
@@ -266,27 +266,27 @@ TypeUtil = {
             if (typeArguments == nil) then
                 rtnStr = rtnStr .. "::" ..type.Node.FullName;
             else
-                local nodeList = self:createPathListFromNode(type.Node);            
+                local nodeList = self:createPathListFromNode(type.Node);
                 for i = 1, #nodeList do
                     local nodePart = nodeList[i];
                     local typeArg = self:searchTypeArgumentListForNode(typeArguments, nodePart);
                     rtnStr = rtnStr .. nodePart.Name;
                     if (typeArg ~= nil) then
-                        rtnStr = rtnStr .. "<";                      
-                        for i = 1, #typeArg.Arguments do                        
+                        rtnStr = rtnStr .. "<";
+                        for i = 1, #typeArg.Arguments do
 							if i > 1 then
 								rtnStr = rtnStr .. ', ';
                             end
-                            rtnStr = rtnStr .. self:createTypeDefinition(typeArg.Arguments[i]);                            
+                            rtnStr = rtnStr .. self:createTypeDefinition(typeArg.Arguments[i]);
                         end
-                        rtnStr = rtnStr .. ">";                     
+                        rtnStr = rtnStr .. ">";
                     end
                     if (i < #nodeList) then
                         rtnStr = rtnStr .. "::";
                     end
-                end            
+                end
             end
-        end        
+        end
         rtnStr = rtnStr .. ' ';
         if (type.Pointer) then
             rtnStr = rtnStr .. "* ";
@@ -296,11 +296,11 @@ TypeUtil = {
         end
         if (type.ConstPointer) then
             rtnStr = rtnStr .. "const ";
-        end    
-        
+        end
+
         return rtnStr;
     end,
-    
+
     -- given node A::B::C, returns array { A, A::B, A::B::C }
     createPathListFromNode = function(self, node)
         check(node ~= nil, "Cannot iterate nil node!");
@@ -309,7 +309,7 @@ TypeUtil = {
         while (not itr.IsRoot) do
             i = i + 1;
             itr = itr.Node;
-        end        
+        end
         local rtn = {}
         local itr2 = node;
         while (not itr2.IsRoot) do
@@ -317,21 +317,26 @@ TypeUtil = {
             i = i - 1;
             itr2 = itr2.Node;
         end
-        return rtn;        
-    end,   
-    
+        return rtn;
+    end,
+
     -- True if the short name of the type's node should be forced.
-    forceShortName = function(self, type, desireShortName) 
+    -- It is forced if its a primitive.
+    -- If it is a nested class or has complex typearguments, it cannot be
+    -- used even if desired.
+    forceShortName = function(self, type, desireShortName)
         if (type.Node.Member ~= nil  and type.Node.Member.TypeName == Macaroni.Model.TypeNames.Primitive) then
             return true;
         end
-        if (desireShortName and 
-            (type.TypeArguments == nil or #type.TypeArguments <= 0)) then
+        if (desireShortName and
+            (type.TypeArguments == nil or #type.TypeArguments <= 0) and
+            (type.Node.Node == nil or
+             type.Node.Node.TypeName ~= Macaroni.Model.TypeNames.Class)) then
             return true;
         end
         return false;
     end,
-    
+
      -- Searches the TypeArgumentList for a TypeArgument with the given node.
     searchTypeArgumentListForNode = function(self, typeArgList, node)
         check(typeArgList ~= nil, "TypeArgument list can't be nil.");
@@ -343,8 +348,8 @@ TypeUtil = {
             end
         end
         return nil;
-    end,   
-        
+    end,
+
 }
 
 --function Generate(context, path)

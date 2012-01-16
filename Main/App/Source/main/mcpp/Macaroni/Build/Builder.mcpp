@@ -625,11 +625,10 @@ class Builder
 			console.WriteLine(pe.GetMessage());
 			return false;
 		}
-		catch(Macaroni::Exception & ex)
+		catch(const Macaroni::Exception & ex)
 		{
-			console.Write("An error occurred parsing Macaroni source files.");
-			console.WriteLine(ex.GetSource());
-			console.WriteLine(ex.GetMessage());
+			console.WriteLine("An error occurred parsing Macaroni source files.");
+			console.WriteLine(ex); 
 			return false;
 		}		
 	}
@@ -667,8 +666,7 @@ class Builder
 			console.Write("An error occurred in ");
 			printOutDependencyStack(dependencyStack);
 			console.WriteLine(".");
-			console.WriteLine(ex.GetSource());
-			console.WriteLine(ex.GetMessage());
+			console.WriteLine(ex);
 			return false;
 		}
 		catch(std::exception & ex)

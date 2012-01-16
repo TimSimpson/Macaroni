@@ -18,13 +18,14 @@
 
 #include "Node.h"
 #include <Macaroni/Model/Context.h>
-#include "../Exception.h"
+#include <Macaroni/Exception.h>
 #include <Macaroni/Model/FileName.h>
 #include "Member.h"
 #include "ModelInconsistencyException.h"
 #include "Reason.h"
 #include <memory>
 #include <sstream>
+#include <Macaroni/StringException.h>
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
@@ -220,7 +221,7 @@ Node * Node::findOrCreate(const std::string & name, const std::string & hFilePat
 			<< "\" in Node \"" << GetFullName() << "\"-"
 			<< "Can not create UnknownScope for name \""
 			<< firstPart << "\"- found type which is ScopeMember, not Node.";
-		throw Macaroni::Exception(ss.str().c_str());
+		throw Macaroni::StringException(ss.str().c_str());
 	}
 
 	if (s == nullptr)

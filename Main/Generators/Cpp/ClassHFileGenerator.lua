@@ -4,11 +4,8 @@ require "Cpp/Common";
 require "Cpp/ClassFileGenerator";
 require "Macaroni.Model.FileName";
 require "Macaroni.Model.Reason";
-FUTURE = true
-if FUTURE then
-	require "Macaroni.Model.Cpp.ClassParent";
-	require "Macaroni.Model.Cpp.ClassParentList";
-end
+require "Macaroni.Model.Cpp.ClassParent";
+require "Macaroni.Model.Cpp.ClassParentList";
 require "Macaroni.Model.Source";
 
 
@@ -55,13 +52,11 @@ ClassHFileGenerator = {
 			self:write(self.libDecl .. " ");
         end
         self:write(self.node.Name .. "\n");
-        if FUTURE then
-			parents = self.node.Member.Parents
-			if #parents > 0 then
-				self:classParents(parents)
-			end
+        parents = self.node.Member.Parents
+		if #parents > 0 then
+			self:classParents(parents)
 		end
-        self:writeAfterTabs("{\n");
+	    self:writeAfterTabs("{\n");
         self:addTabs(1);
     end,
 
@@ -116,6 +111,18 @@ ClassHFileGenerator = {
 				end
 			end
 		end
+    end,
+
+    classPostDefBlocks = function(self)
+        for i = 1, #self.node.Children do
+            local child = self.node.Children[i]
+            if child.TypeName == TypeNames.Block then
+                block = child.Member
+                if block.Id == "h-postdef" then
+                    self:writeBlockCodeBlock(block)
+                end
+            end
+        end
     end,
 
     classPublicGlobals = function(self)
@@ -248,8 +255,10 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         end
 
         self:classBody();
+
         if (not self.isNested) then
             self:write('\n');
+            self:classPostDefBlocks();
             self:namespaceEnd(self.node.Node);
             self:write('\n');
             self:includeGuardFooter();
@@ -379,7 +388,8 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         end
         local typeName = m.TypeName;
         local handlerFunc = nil;
-        if (typeName == TypeNames.Class) then
+        -- Write nested class, but only if the HFilePath is not nil.
+        if (typeName == TypeNames.Class and node.HFilePath == nil) then
 			-- Pass the new generator the same writer as this class.
             gen = ClassHFileGenerator.new({isNested = true, node = node,
                                            targetLibrary=self.targetLibrary,

@@ -1,0 +1,166 @@
+~import Macaroni::IO::FileSet;
+~import Macaroni::IO::FileSetPtr;
+~import boost::format;
+~import boost::intrusive_ptr;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaGlueCode;
+~import Macaroni::Lua::LuaIncludes;
+~import Macaroni::Lua::LuaIndexExtraCode;
+~import Macaroni::Lua::LuaOperator;
+~import std::map;
+~import boost::shared_ptr;
+~import std::string;
+~import Macaroni::Environment::Values::Table;
+~import Macaroni::Environment::Values::TablePtr;
+~import Macaroni::Model::Target;
+~import Macaroni::Model::TargetPtr;
+~import std::vector;
+~import Macaroni::Cpp::UseLightDef;
+
+
+~namespace Macaroni::Model::Project;
+
+
+/** These classes are veneers over vectors and maps. There's a few
+ *  extra functions added, but the main reason to extend these types was to
+ *  more easily add Lua Glue. */
+class FileList{};
+
+typedef shared_ptr<FileList ~l> FileListPtr
+	@LuaClass [ SameAsNode = FileList ]
+	@UseLightDef true
+;
+
+class FileList : public vector<FileSetPtr>
+	@LuaClass [
+		ReferenceType = FileListPtr		
+	]
+	@LuaIndexExtraCode ={
+		if (1 == lua_isnumber(L, 2))
+		{
+			lua_Number key = lua_tonumber(L, 2);
+			if (key < 1 || key > instance->size())
+			{
+				luaL_error(L, "Index out of bounds.");
+			}
+			Macaroni::IO::FileSetLuaMetaData::PutInstanceOnStack(
+				L, instance->operator[](key - 1));
+			return 1;
+		}
+	}
+{	
+	public FileList()
+	{
+	}
+
+	public int Size() const 
+		@LuaOperator "__len"
+	{
+		return this->size();
+	}
+
+	public string ToString() const
+		@LuaOperator "__tostring"
+	{
+		return str(format("FileList, length=%d") % this->size());
+	}
+};
+
+
+
+class Files{};
+
+typedef shared_ptr<Files ~l> FilesPtr
+	@LuaClass [ SameAsNode = Files ]
+	@UseLightDef true
+;
+
+class Files : public map<string, FileListPtr>
+	@LuaClass [
+		ReferenceType = FilesPtr		
+	]
+	@LuaIncludes ={
+		#include <Macaroni/Model/Project/FileListLuaMetaData.h>		
+		#include <Macaroni/Environment/LuaEnvironment.h>
+	}
+	@LuaIndexExtraCode ={
+		string key(luaL_checkstring(L, 2));
+		if (instance->find(key) == instance->end())
+		{
+			string msg = str(format("Index %s not found.") % key);
+			return luaL_error(L, msg.c_str()); 
+		}
+		Macaroni::Model::Project::FileListLuaMetaData::PutInstanceOnStack(
+			L, instance->operator[](key));
+		return 1;		
+	}
+{
+	~import BOOST_FOREACH;
+	~import Macaroni::Model::Project::FileList;
+	~import Macaroni::Model::Project::FileListPtr;
+	~import Macaroni::Environment::Values::Macaroni_IO_FileSet;
+	~import boost::variant;
+
+	public FileListPtr Macaroni()
+	{
+		return this->operator[]("Macaroni");
+	}	
+
+	public void Add(const string name)
+	{
+		if (this->count(name) <= 0) 
+		{
+			FileListPtr newList(new FileList());
+			(*this)[name] = newList;
+		}		
+	}
+
+	public void Add(const string name, FileSetPtr fileSet)
+	{
+		if (this->count(name) <= 0) 
+		{
+			FileListPtr newList(new FileList());
+			(*this)[name] = newList;
+		}
+		(*this)[name]->push_back(fileSet);
+	}
+
+	public static FilesPtr New(Table & table) 
+		@LuaFunction "New"
+		@LuaGlueCode ={
+			Table table;
+			boost::optional<string> key("Library argument 1");
+			Macaroni::Environment::LuaEnvironment::SerializeTable(
+				table, L, 1, key);		
+			FilesPtr lib(Files::New(table));			
+			FilesLuaMetaData::PutInstanceOnStack(L, lib);
+			return 1;
+		}
+	{
+		FilesPtr files(new Files());
+		struct FillArray{
+			FileListPtr list;
+			void operator()(FileSetPtr & fileSet)
+			{
+				list->push_back(fileSet);
+			}
+		};
+		vector<string> keys;
+		table.CopyKeyList(keys);
+		BOOST_FOREACH(const string & key, keys)
+		{
+			FillArray fa;
+			files->Add(key);
+			fa.list = (*files)[key];			
+			table.GetVector<Macaroni_IO_FileSet, FillArray>(key, fa);
+		}
+		return files;
+	}
+
+	public string ToString() const
+		@LuaOperator "__tostring"
+	{
+		return "Files";
+	}
+};

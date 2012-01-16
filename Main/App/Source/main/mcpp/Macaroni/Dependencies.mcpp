@@ -15,6 +15,7 @@ class std::auto_ptr { ~hfile=<memory> };
 class std::string::const_iterator { ~hfile=<string> };
 class std::cin { ~hfile=<iostream> };
 class std::cout { ~hfile=<iostream> };
+class std::exception { ~hfile=<exception> };
 class std::ifstream { ~hfile=<fstream> };
 class std::fstream { ~hfile=<fstream> };
 class std::istream { ~hfile=<iostream> };
@@ -39,6 +40,7 @@ class boost::optional { ~hfile=<boost/optional.hpp> };
 class boost::regex { ~hfile=<boost/regex.hpp> };
 class boost::shared_ptr { ~hfile=<boost/shared_ptr.hpp> };
 class boost::to_lower { ~hfile=<boost/algorithm/string.hpp> };
+class boost::variant { ~hfile=<boost/variant.hpp> };
 
 // Lua
 //class lua_State { ~hfile=<Lua/lua.h> }
@@ -83,9 +85,11 @@ class Macaroni::Build::Cpp::CompilerSettingsPtr { ~hfile=<Macaroni/Build/Cpp/Com
 class Macaroni::Build::Configuration { ~hfile=<Macaroni/Build/Configuration.h> };
 class Macaroni::Build::ConfigurationId { ~hfile=<Macaroni/Build/ConfigurationId.h> };
 class Macaroni::Model::ContextLuaMetaData { ~hfile=<Macaroni/Model/ContextLua.h> };
-class Macaroni::Model::ContextPtr { ~hfile=<Macaroni/Model/ContextPtr.h> };
+class Macaroni::Model::ContextPtr 
+	@LuaClass [ SameAsNode=Macaroni::Model::Context ]
+	{ ~hfile=<Macaroni/Model/ContextPtr.h> };
+
 class Macaroni::Generator::Lua::DynamicGenerator { ~hfile=<Macaroni/Generator/Lua/DynamicGenerator.h> };
-class Macaroni::Exception { ~hfile=<Macaroni/Exception.h> };
 class Macaroni::IO::FileNotFoundException { ~hfile=<Macaroni/IO/FileNotFoundException.h> };
 //class Macaroni::Model::FileName { ~hfile=<Macaroni/Model/FileName.h> }
 //class Macaroni::Model::FileNamePtr { ~hfile=<Macaroni/Model/FileNamePtr.h> }

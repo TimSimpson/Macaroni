@@ -19,15 +19,15 @@
 #include "Class.h"
 #include "Constructor.h"
 #include "Primitive.h"
-#include "../../Exception.h"
+#include <Macaroni/Exception.h>
 #include "../MemberVisitor.h"
-#include "../ModelInconsistencyException.h"
+#include <Macaroni/Model/ModelInconsistencyException.h>
 #include "Namespace.h"
-#include "../Node.h"
+#include <Macaroni/Model/Node.h>
 #include <Macaroni/Model/Reason.h>
-#include "Scope.h"
-#include "ScopeMember.h"
-#include "Variable.h"
+#include <Macaroni/Model/Cpp/Scope.h>
+#include <Macaroni/Model/Cpp/ScopeMember.h>
+#include <Macaroni/Model/Cpp/Variable.h>
 #include <memory>
 #include <sstream>
 

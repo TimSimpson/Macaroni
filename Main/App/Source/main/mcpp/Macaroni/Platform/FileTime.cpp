@@ -19,6 +19,7 @@
 #include <Macaroni/Exception.h>
 #include "FileTime.h"
 #include <sstream>
+#include <Macaroni/StringException.h>
 
 #ifdef MACARONI_COMPILE_TARGET_WINDOWS
 #include <windows.h>
@@ -61,7 +62,7 @@ struct FT
 			DWORD err = ::GetLastError();
 			std::stringstream ss;
 			ss << "Could not open file \"" << p.string() << "\" to get time.";
-			throw Macaroni::Exception(ss.str().c_str());
+			throw Macaroni::StringException(ss.str().c_str());
 		}
 
 		try
@@ -71,7 +72,7 @@ struct FT
 				std::stringstream ss;
 				ss << "Could not get file time for file \"" 
 					<< p.string() << "\" to get time.";
-				throw Macaroni::Exception(ss.str().c_str());
+				throw Macaroni::StringException(ss.str().c_str());
 			}
 		} 
 		catch(std::exception & ex)

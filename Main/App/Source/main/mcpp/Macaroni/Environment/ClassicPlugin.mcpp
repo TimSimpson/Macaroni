@@ -1,6 +1,11 @@
+~import Macaroni::Environment::Values::Any;
+~import Macaroni::Environment::Values::AnyPtr;
 ~import Macaroni::Build::BuildContext;
 ~import Macaroni::Build::BuildContextPtr;
 ~import Macaroni::Generator::DynamicGeneratorRunner;
+~import BOOST_FOREACH;
+~import Macaroni::Exceptions::SimpleException;
+~import boost::format;
 ~import boost::intrusive_ptr;
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Environment::LuaEnvironment;
@@ -10,18 +15,36 @@
 ~import boost::filesystem::path;
 ~import Macaroni::Environment::Plugin;
 ~import Macaroni::Environment::PluginPtr;
+~import Macaroni::Exceptions::SimpleStringException;
 ~import std::string;
+~import Macaroni::StringException;
+~import std::stringstream;
 ~import Macaroni::Model::Project::Target;
+~import Macaroni::Model::Project::TargetLuaMetaData;
 ~import Macaroni::Model::Project::TargetPtr;
 ~import Macaroni::Cpp::UseLightDef;
+~import std::vector;
 
 
 ~namespace Macaroni::Environment;
 
+
 class ClassicPlugin : public Plugin
 {
+	~block "cpp-include"
+	{
+		#include <boost/algorithm/string/predicate.hpp>
+	}
+
     ~block "cpp" { namespace
     {
+		
+		MACARONI_SIMPLE_EXCEPTION_DEFINE(
+			GetMethodFunctionNotFoundException, 
+			"Global function \"GetMethod\" was not found.");
+		MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(
+			MethodNameUnknown,
+			"Could not find method name %s.");
 
         class Runner
         {
@@ -33,35 +56,240 @@ class ClassicPlugin : public Plugin
             :   env(),
                 luaFilePath(luaFilePath)
             {
-                env.SetPackageDirectory(luaFile.branch_path().string());
+                env.SetPackageDirectory(luaFilePath.branch_path().string());
             }
+			
+			static void errorPrepare(lua_State * L) 
+			{
+				// TODO: I don't understand this part to be honest. I copied
+				// it from some old code. I think it has to do with error
+				// handling.
+				lua_pushliteral(L, "debug");
+				lua_gettable(L, LUA_GLOBALSINDEX);
+				lua_pushliteral(L, "traceback");
+				lua_gettable(L, -2);
+			}
 
+			/** Calls the global method "GetMethod" and puts the returned
+			 *  value at the top of the stack. */
+			void getMethod(lua_State * L, const string & method)
+			{
+				setupPcall(L);
+
+				// call Generate(context, rootPath, output);
+				lua_getglobal(L, "GetMethod"); //method.c_str());//"Generate");
+				
+				if (lua_isnil(L, -1))
+				{
+					throw GetMethodFunctionNotFoundException(
+						MACARONI_INTERNAL_SOURCE);
+				}
+				
+				lua_pushstring(L, method.c_str());
+
+				pcall(L, 1, 1);
+
+				if (lua_isnil(L, -1))
+				{
+					throw MethodNameUnknown(method.c_str(),
+						                    MACARONI_INTERNAL_SOURCE);
+				}
+			}
+
+			void parseLuaFile()
+			{
+				env.ParseFile(luaFilePath.string());
+				env.Run();
+			}
+
+			void setupPcall(lua_State * L)
+			{				
+				lua_getglobal(L, "debug");
+				lua_getfield(L, -1, "traceback");
+				lua_remove(L, -2);
+			}
+
+			/** This takes into account that setupPcall was called right before
+			 *  the function was setup. In other words the stack must be:
+			 *  argN
+			 *  ...
+			 *  arg1
+			 *  function
+			 *  (setupPcall())
+			 * The number of things on the stack between setupPcall and 
+			 * function must be counted in the extraJunk parameter.
+			 */
+			void pcall(lua_State * L, int argumentCount, int resultCount, 
+				       int extraJunk = 0)
+			{
+				int debugIndex = 0 - argumentCount - 1 - 1 - extraJunk;
+				int eCode = lua_pcall(L, argumentCount, resultCount,
+                                      debugIndex);
+				if (0 != eCode)
+				{
+					string errorMsg;
+					std::stringstream ss;
+					ss << "Error running Generator \"" 
+					   << luaFilePath.string() << "\":";
+					if (eCode == LUA_ERRERR)
+					{
+						ss << "An error occurred running the error handling "
+							  "function.";
+					}
+					else if (eCode == LUA_ERRMEM)
+					{
+						ss << "Memory allocation error.";
+					}
+					else
+					{
+						if (1 == lua_isnumber(L, -1))
+						{
+							int number = lua_tonumber(L, -1);
+							ss << number;
+						}
+						else if (1 == lua_isstring(L, -1))
+						{
+							ss << lua_tostring(L, -1);
+						}		
+						///*else if (1 == lua_isfunction(L, -1))
+						//{
+						//	int eCode = lua_pcall(L, 0, 1, 0);
+						//	if (0 != eCode)
+						//	{
+						//		ss << "(a function, which gave an error when called)";
+						//	}				
+						//	else 
+						//	{
+						//		lua_getglobal(L, "tostring");
+						//		lua_pushvalue(L, -2);
+						//		int eCode2 = lua_pcall(L, 0, 1, 0);
+						//		if (0 != eCode2)
+						//		{
+						//			ss << "(a function, which returned a value"
+						//				" that was not a string)";
+						//		}
+						//		ss << lua_tostring(L, -1);
+						//	}
+						//}*/
+						else
+						{
+							lua_getglobal(L, "tostring");
+							lua_pushvalue(L, -2);
+							try 
+							{
+								LuaEnvironment::Run(MACARONI_INTERNAL_SOURCE, L, 1, 1);
+								//ss << "tostring=";
+								ss << luaL_checkstring(L, -1);
+							} 
+							catch(const Macaroni::Exception & ex)
+							{								
+								///*try 
+								//{
+								//	lua_getglobal(L, "type");
+								//	lua_pushvalue(L, -2);
+								//	LuaEnvironment::Run(MACARONI_INTERNAL_SOURCE, L, 1, 1);
+								//	lua_getglobal(L, "tostring");
+								//	lua_pushvalue(L, -2);
+								//	ss << "(error getting error message from "
+								//		  "type " 
+								//	   << luaL_checkstring(L, -1) << ")";
+								//}
+								//catch(const Macaroni::Exception & ex)
+								//{
+								//	ss << "(Sorry, there was an error trying to "
+								//       "convert the error object to a string!)";
+								//}			*/					
+								ss << "!!??!! Could not convert the error type"
+									  " to a string.";
+							}	
+						}				
+					}
+					throw Macaroni::StringException(ss.str().c_str());
+
+				}
+			}
+
+
+
+			void runMethod(string method, AnyPtr arguments)
+			{
+				//env.Run();
+				// Put the arguments in a global variable.
+				lua_State * L = env.GetState();						
+				
+				errorPrepare(L);				
+ 
+				getMethod(L, method);
+				lua_pushstring(L, "Run");
+				lua_gettable(L, -2);				
+				// The run function is now at the top of the stack.				
+				arguments->ToLua(L);
+				pcall(L, 1, 0, 1);
+				
+				lua_pop(L, 1); // remove "method" table.
+			}
+
+			void runProperties(AnyPtr props)
+			{
+				props->ToLua(env.GetState());
+				lua_setglobal(env.GetState(), "properties");				
+			}
 
         };
 
     } } // end anonymous namespace and h-block
 
     private AppPathsPtr appPaths;
+	private path luaFilePath;
+	private AnyPtr properties;
 
     public ClassicPlugin(AppPathsPtr appPaths, const string & name)
-    :   plugin(name),
+    :   Plugin(name),
         appPaths(appPaths),
-        env(),
-        luaFilePath(name)
+        luaFilePath(),
+		properties()
     {
-
+		string fileName = boost::algorithm::ends_with(name, ".lua")
+			? name
+			: str(format("%s.lua") % name);
+		luaFilePath = fileName;
+		vector<path> paths = appPaths->GetGeneratorPaths();
+		BOOST_FOREACH(const path & genPath, paths)
+		{
+			path p = genPath / fileName;
+			if (boost::filesystem::exists(p))
+			{
+				luaFilePath = p;
+				break;
+			}
+		}
     }
 
-    public void Run(string action, TargetPtr target
+    public void Run(string action, AnyPtr arguments
                     /* Some kind of work context */)
     {
-        DynamicGeneratorRunner runner(appPaths);
+
+		Runner runner(luaFilePath);
+		runner.runProperties(properties);
+		runner.parseLuaFile();
+		runner.runMethod(action, arguments);
+        /*DynamicGeneratorRunner runner(appPaths);
         path generatorFilePath(action);
         BuildContextPtr buildContext(appPaths, target, );
         runner.RunDynamicGenerator(generatorFilePath,)
         RunDynamicGenerator(const path & generatorFilePath,
                                     BuildContextPtr buildContext,
                                     const string & methodName,
-                                    const string & arguments)
+                                    const string & arguments)*/
     }
+
+	public void SetGlobalProperties(AnyPtr properties)
+	{
+		this->properties = properties;
+	}
+
+	public virtual string ToString()
+	{
+		return str(format("Lua source file: %s") % luaFilePath);
+	}
 };

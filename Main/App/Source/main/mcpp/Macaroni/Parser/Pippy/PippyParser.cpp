@@ -32,7 +32,7 @@
 #include "../../Model/Cpp/CppContext.h"
 #include "../../Model/Cpp/Destructor.h"
 #include "../../Model/Cpp/DestructorPtr.h"
-#include "../../Exception.h"
+#include <Macaroni/Exception.h>
 #include <Macaroni/Model/FileName.h>
 #include "../../Model/Cpp/Function.h"
 #include <Macaroni/Model/Cpp/FunctionOverload.h>
@@ -47,6 +47,7 @@
 #include "../../Model/Cpp/Primitive.h"
 #include <Macaroni/Model/Reason.h>
 #include <Macaroni/Model/Source.h>
+#include <Macaroni/StringException.h>
 #include <Macaroni/Model/Project/Target.h>
 #include <Macaroni/Model/Project/TargetPtr.h>
 #include "../../Model/Type.h"
@@ -104,6 +105,7 @@ using Macaroni::Model::Reason;
 using Macaroni::Model::ReasonPtr;
 using Macaroni::Model::Source;
 using Macaroni::Model::SourcePtr;
+using Macaroni::StringException;
 using Macaroni::Model::Project::Target;
 using Macaroni::Model::Project::TargetPtr;
 using Macaroni::Model::Type;
@@ -1470,7 +1472,7 @@ public:
 		const int maxBlocks = 1024;
 		if (!node)
 		{
-			throw Macaroni::Exception("This function does not accept a null node.");
+			throw Macaroni::StringException("This function does not accept a null node.");
 		}
 		for(int index = 0; index < maxBlocks; index ++)
 		{

@@ -22,13 +22,16 @@
 #include <Macaroni/Platform/FileTime.h>
 #include <Macaroni/IO/FileSet.h>
 #include <Macaroni/IO/FileSetIterator.h>
-#include "../Exception.h"
+#include <boost/format.hpp>
+#include <Macaroni/Exception.h>
 #include <iostream>
 #include <sstream>
+#include <Macaroni/StringException.h>
 
 using Macaroni::Platform::FileTime;
 using Macaroni::IO::FileSet;
 using Macaroni::IO::FileSetIterator;
+using boost::format;
 
 BEGIN_NAMESPACE2(Macaroni, IO)
 
@@ -77,7 +80,7 @@ void Path::assertPathExistsInRootPath()
 		ss << rootPath.string();
 		ss << ".";
 		std::string msg(ss.str());
-		throw Macaroni::Exception(msg.c_str());
+		throw Macaroni::StringException(msg.c_str());
 	}
 }
 
@@ -89,7 +92,7 @@ void Path::ClearDirectoryContents()
 		ss << "Can't clear directory contents from path \"" << path.string()
 		   << "\" as it does not exist.";
 		std::string msg(ss.str());
-		throw Macaroni::Exception(msg.c_str());
+		throw Macaroni::StringException(msg.c_str());
 	}
 	if (!IsDirectory())
 	{
@@ -97,7 +100,7 @@ void Path::ClearDirectoryContents()
 		ss << "Cannot clear directory contents from path \"" << path.string()
 		   << " as it is not a directory.";
 		std::string msg(ss.str());
-		throw Macaroni::Exception(msg.c_str());
+		throw Macaroni::StringException(msg.c_str());
 	}
 	else
 	{
@@ -318,7 +321,7 @@ PathPtr Path::NewPath(const std::string & name) const
 	boost::filesystem::path newPath(newStr);
 	if (!stringBeginsWith(newPath.string(), this->rootPath.string()))
 	{
-		throw Macaroni::Exception("Illegal directory.");
+		throw Macaroni::StringException("Illegal directory.");
 	}
 	return PathPtr(new Path(this->rootPath, newPath));
 }
@@ -335,7 +338,7 @@ PathPtr Path::NewPathForceSlash(const std::string & name) const
 			<< ".  Must begin with the path "
 			<< this->rootPath.string()
 			<< ".";
-		throw Macaroni::Exception(ss.str().c_str());
+		throw Macaroni::StringException(ss.str().c_str());
 	}
 	return PathPtr(new Path(this->rootPath, newPath));
 }
@@ -368,7 +371,7 @@ std::string Path::GetRelativePath() const
 
 std::string Path::ToString() const
 {
-	return GetRelativePath();
+	return str(format("%s + %s") % GetAbsolutePath() % GetRelativePath());
 }
 
 

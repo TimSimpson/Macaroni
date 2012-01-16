@@ -20,7 +20,8 @@
 #define MACARONI_PLATFORM_WINDOWS_STRINGS_CPP
 
 #include "Strings.h"
-#include "../../Exception.h"
+#include <Macaroni/Exception.h>
+#include <Macaroni/StringException.h>
 #include <windows.h>
 
 BEGIN_NAMESPACE(Macaroni, Platform, Windows)
@@ -41,7 +42,8 @@ WindowsString::WindowsString(const std::string & original)
 	}
 	else
 	{
-		throw Macaroni::Exception("Error converting normal string to Windows string.");
+		throw Macaroni::StringException("Error converting normal string to "
+			                            "Windows string.");
 	}	
 }
 

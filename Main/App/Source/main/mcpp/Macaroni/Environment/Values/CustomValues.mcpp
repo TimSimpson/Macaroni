@@ -1,0 +1,199 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+~import Macaroni::Environment::Values::Any;
+~import Macaroni::Environment::Values::AnyPtr;
+~import BOOST_FOREACH;
+~import boost::format;
+~import Macaroni::InternalSource;
+~import boost::intrusive_ptr;
+~import std::map;
+~import Macaroni::Exceptions::SimpleException;
+~import lua_State;
+~import std::string;
+~import std::stringstream;
+
+~namespace Macaroni::Environment::Values;
+
+
+class Macaroni_Model_Project_Files : public Any
+{
+	~import Macaroni::Model::Project::Files;
+	~import Macaroni::Model::Project::FilesPtr;
+	~import Macaroni::Model::Project::FilesLuaMetaData;
+
+	~block "h" { public: typedef Macaroni::Model::Project::FilesPtr WrappedType; }	
+
+	private FilesPtr value;
+
+	public Macaroni_Model_Project_Files(FilesPtr value)
+	:	Any(),
+		value(value)
+	{
+	}
+
+	public Macaroni_Model_Project_Files(lua_State * L, int index)
+	:	Any(),
+		value(FilesLuaMetaData::GetInstance(L, index))
+	{
+	}
+
+	public FilesPtr Get()
+	{
+		return value;
+	}
+
+	public virtual void ToLua(lua_State * L)
+	{
+		FilesLuaMetaData::PutInstanceOnStack(L, value);
+	}
+
+};
+
+class Macaroni_IO_FileSet : public Any
+{
+	~import Macaroni::IO::FileSet;
+	~import Macaroni::IO::FileSetPtr;
+	~import Macaroni::IO::FileSetLuaMetaData;
+
+	~block "h" { public: typedef Macaroni::IO::FileSetPtr WrappedType; }	
+
+	private FileSetPtr value;
+
+	public Macaroni_IO_FileSet(FileSetPtr value)
+	:	Any(),
+		value(value)
+	{
+	}
+
+	public Macaroni_IO_FileSet(lua_State * L, int index)
+	:	Any(),
+		value(FileSetLuaMetaData::GetInstance(L, index))
+	{
+	}
+
+	public FileSetPtr Get()
+	{
+		return value;
+	}
+
+	public virtual void ToLua(lua_State * L)
+	{
+		FileSetLuaMetaData::PutInstanceOnStack(L, value);
+	}
+
+};
+
+
+class Macaroni_IO_Path : public Any
+{
+	~import Macaroni::IO::Path;
+	~import Macaroni::IO::PathPtr;
+	~import Macaroni::IO::PathLuaMetaData;
+
+	~block "h" { public: typedef Macaroni::IO::Path WrappedType; }
+	private PathPtr value;
+
+	public Macaroni_IO_Path(PathPtr value)
+	:	Any(),
+		value(value)
+	{
+	}
+
+	public Macaroni_IO_Path(lua_State * L, int index)
+	:	Any(),
+		value(PathLuaMetaData::GetInstance(L, index))
+	{
+	}
+
+	public PathPtr Get()
+	{
+		return value;
+	}
+
+	public virtual void ToLua(lua_State * L)
+	{
+		PathLuaMetaData::PutInstanceOnStack(L, value);
+	}
+
+};
+
+class Macaroni_Model_Project_Target : public Any
+{
+	~import Macaroni::Model::Project::Target;
+	~import Macaroni::Model::Project::TargetLuaMetaData;
+	~import Macaroni::Model::Project::TargetPtr;
+
+	~block "h" { public: typedef Macaroni::Model::Project::Target WrappedType; }
+	private TargetPtr value;
+
+	public Macaroni_Model_Project_Target(TargetPtr value)
+	:	Any(),
+		value(value)
+	{
+	}
+
+	public Macaroni_Model_Project_Target(lua_State * L, int index)
+	:	Any(),
+		value(TargetLuaMetaData::GetInstance(L, index))
+	{
+	}
+
+	public TargetPtr Get()
+	{
+		return value;
+	}
+
+	public virtual void ToLua(lua_State * L)
+	{
+		TargetLuaMetaData::PutInstanceOnStack(L, value);
+	}
+
+};
+
+
+
+
+class Any
+{
+	~import  Macaroni::Environment::Values::Macaroni_Model_Project_Files;
+	~import Macaroni::Environment::Values::Macaroni_IO_FileSet;
+	~import Macaroni::Environment::Values::Macaroni_IO_Path;
+	~import Macaroni::Environment::Values::Macaroni_Model_Project_Target;
+
+	public static AnyPtr CreateFromLuaUserData(
+		lua_State * L, string metaTableName, int index
+		)
+	{
+		AnyPtr ptr;
+		if (metaTableName == "Macaroni.Model.Project.Files")
+		{
+			ptr.reset(new Macaroni_Model_Project_Files(L, index));
+		}
+		else if (metaTableName == "Macaroni.IO.FileSet")
+		{
+			ptr.reset(new Macaroni_IO_FileSet(L, index));
+		}
+		else if (metaTableName == "Macaroni.IO.Path")
+		{
+			ptr.reset(new Macaroni_IO_Path(L, index));
+		}
+		else if (metaTableName == "Macaroni.Model.Project.Target") 
+		{
+			ptr.reset(new Macaroni_Model_Project_Target(L, index));
+		}
+		return ptr;
+	}
+};

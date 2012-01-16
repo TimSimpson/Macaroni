@@ -17,11 +17,11 @@
 #define MACARONI_GENERATOR_DYNAMICSCRIPTRUNNER_CPP
 
 #include "DynamicScriptRunner.h"
-#include "../../Model/ContextLua.h"
-#include "../../Exception.h"
-#include "../../Model/LibraryLua.h"
-#include "../../IO/Path.h"
-#include "../../IO/PathLua.h"
+#include <Macaroni/Model/ContextLua.h>
+#include <Macaroni/Exception.h>
+#include <Macaroni/Model/LibraryLua.h>
+#include <Macaroni/IO/Path.h>
+#include <Macaroni/IO/PathLua.h>
 #include <iostream>
 #include <sstream>
 

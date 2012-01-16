@@ -1,0 +1,174 @@
+~import boost::intrusive_ptr;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaGlueCode;
+~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Lua::LuaProperty;
+~import boost::optional;
+~import Macaroni::Model::Project::Config::Variant;
+~import Macaroni::Cpp::UseLightDef;
+
+~namespace Macaroni::Model::Project;
+
+
+class Config {};
+
+typedef intrusive_ptr<Config ~l> ConfigPtr
+	@LuaClass [ SameAsNode = Config ]
+	@UseLightDef true
+;
+
+// Ugh, not having enums in Macaroni really hurts here.
+class Config::Variant	
+{
+	~hfile = <Macaroni/Model/Project/Config.h>
+};
+
+typedef optional<Config::Variant ~l> Config::VariantOption
+	@LuaClass [ 
+		SameAsNode = Config 
+	]
+	@UseLightDef true
+	~hfile = <Macaroni/Model/Project/Config.h>
+;
+
+class ConfigLuaMetaData{};
+
+
+/** 
+ *  A simple map of various values important to plugins that create build
+ *  files. For example, one option specified here is "mode" which can be
+ *  "release" or "debug", and by default is the later. 
+ *  This gets translated to the configuration when generating Visual Studio
+ *  projects, and the <variant>debug when generating Boost Build files.
+ */
+class Config
+	@LuaClass [
+		ReferenceType = ConfigPtr
+	]
+{
+	friend ConfigLuaMetaData;
+
+	~block "h"
+	{
+		public: 
+		enum Variant
+		{
+			DEBUG,
+			RELEASE
+		};
+		typedef boost::optional<Variant> VariantOption;
+	}	
+
+	private int referenceCount;
+	private VariantOption variant;
+
+	public Config()
+	: variant(boost::none)
+	{
+	}	
+
+	protected static VariantOption LuaDebugProperty()
+		@LuaProperty "DEBUG"
+	{
+		return VariantOption(DEBUG);
+	}
+
+	public VariantOption GetVariant() const
+		@LuaProperty "Variant"
+	{
+		return variant;
+	}
+
+	public ~global ~friend void intrusive_ptr_add_ref(Config * p)
+	{
+		p->referenceCount ++;
+	}
+
+	public ~global ~friend void intrusive_ptr_release(Config * p)
+	{
+		p->referenceCount --;
+		if (p->referenceCount <= 0)
+		{
+			delete p;
+		}
+	}
+
+	public static Config New(Config & config)
+		@LuaFunction "New"
+		@LuaGlueCode ={
+			luaL_checktype(L, 1, LUA_TTABLE);
+			ConfigPtr config(new Config());
+			lua_pushvalue(L, 1);
+			lua_pushnil(L);
+			while(lua_next(L, -2) != 0)
+			{
+				// Call new index to set the property.
+				string key(luaL_checkstring(L, -2));
+				ConfigLuaMetaData::NewIndex(L, config, key, -1);
+				lua_pop(L, 1); // remove value, keep key for next iteration.
+			}
+			lua_pop(L, 1); // pop off table.
+			ConfigLuaMetaData::PutInstanceOnStack(L, config);
+			return 1;
+		}
+	{
+		return Config(config);
+	}
+
+	protected static VariantOption LuaReleaseProperty()
+		@LuaProperty "RELEASE"
+	{
+		return VariantOption(RELEASE);
+	}
+
+	public void SetVariant(VariantOption newValue)
+		@LuaProperty "Variant"
+		@LuaGlueCode ={
+			Config::VariantOption & option = 
+				GetInstanceOfVariantOption(L, nextStackIndex);
+			instance->SetVariant(option);
+		}
+	{
+		variant = newValue;
+	}
+};
+
+class ConfigLuaMetaData
+{
+	~import lua_State;
+	~import luaL_Reg;
+	~import std::string;
+	~import std::stringstream;
+
+	static Config::VariantOption GetInstanceOfVariantOption(lua_State * L, 
+		                                                    int index)
+	{
+		if (1 == lua_isnil(L, index))
+		{			
+			return boost::none;
+		}
+		string value = luaL_checkstring(L, index);
+		if (value == "RELEASE")
+		{
+			return Config::VariantOption(Config::RELEASE);
+		}
+		else
+		{
+			return Config::VariantOption(Config::DEBUG);
+		}
+	}
+
+	static void PutInstanceOnStack(lua_State * L, 
+		                           Config::VariantOption variant)
+	{
+		if (variant == Config::RELEASE)
+		{
+			lua_pushstring(L, "RELEASE");
+		}
+		else
+		{
+			lua_pushstring(L, "DEBUG");
+		}
+	}
+};

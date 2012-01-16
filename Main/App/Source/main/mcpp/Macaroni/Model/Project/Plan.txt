@@ -327,6 +327,75 @@ bjam:Run("Generate", lib, buildContext, {
 })
 
 
+_______________________________________________________________________________
+                         Macaroni Dependencies
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+A dependency is summoned with:
+local regex = context:LoadProject("Macaroni", "Boost-regex", "1.46.1");
+
+This loads the file Macaroni/Boost-regex/1.46.1/project-final.lua.
+project-final.lua is the same as a project file, but is written usually by
+Macaroni versus by a user. It recreates the project file but without the steps
+to build- instead it just marks where things are.
+
+Project prebuilt targets are also specified here.
+
+A header only library just means the headers at a certain spot should be in the
+include path.
+lib = project:HeaderOnlyLibrary(
+    "lib",
+    {}, -- dependencies
+    { Path.New("blah") } -- list of paths
+    )
+
+A prebuilt library file can be added with an absolute file path like so:
+lib = project:PrebuiltLibrary(
+    "lib",
+    { dependencies = {},
+      file = "C:\Something\blah.dll"
+    })
+
+Or via a name that the linker can find:
+lib = project:PrebuiltLibrary(
+    "lib",
+    { dependencies = {},
+      name = "math"
+    })
+
+This gets messy with targets. To support Boost Build (and the features it
+provides) its necessary to support configs.
+
+lib = project:PrebuiltLibrary(
+    "lib"
+)
+lib:AddConfig(
+    Config({variant=Config.Debug, thread=single, platform=...}),
+    { include={ paths... } ,
+      file = { }
+      }
+)
+
+Config is an object that is just a simple map of values. All of these are
+optional. The individual plugins read variants related to a target to figure out
+how to write that target. For instance, if the library has a single variant with
+nothing in it thats a name, the Boost Build plugin will write it as:
+
+lib lib : : <name>math ;
+
+But all variants are written. Macaroni isn't smart enough to realize when
+someone has defined a target with the same variant twice.
+
+
+
+lib:AddBinary(
+    { config = Config(yadda yadda),
+      include = { "C:\gfgfgf"},
+      file = {}
+)
+
+
 
 _______________________________________________________________________________
                          Macaroni Project Tasks
@@ -345,6 +414,11 @@ class Task {
 These are created and thrown into a bit of code that sorts them out before
 running them.
 
+
+Task({dependsOn=""},
+function ()
+    do something here
+end)
 _______________________________________________________________________________
                             ANNOTATIONS
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -362,6 +436,30 @@ Macaroni.Environment - A decorator for a Context which gives it neat abilities.
 Eventually all work happens here.
 At start up, it reads the file project.lua in the root directory. It then goes
 into a Lua REPL if interactive mode is specified.
+
+
+
+
+
+_______________________________________________________________________________
+                            To-do January 14th, 2012
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+
+To-Do Today
+* Give Target a TargetFiles Sources property.
+* Create Artifact class, which owns a Source
+* Add Binary class - nah, scratch that, give Artifact an optional Config!
+  This is an Artifact with a Config (maybe call this BinaryConfig?)
+  Owned by a Target which has a list of these. Each one has a Config associated with it.
+  Anything post build goes into a Binary that hangs off of Target.
+  Think of it this way: Target is everything you need to build. Binary is what you need afterwards.
+
+* Implement context:LoadProject
+  Reads another project file, and returns the "project" global variable from that environment.
+
+
 
 
 

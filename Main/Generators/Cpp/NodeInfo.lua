@@ -25,85 +25,85 @@ local TypeNames = Macaroni.Model.TypeNames;
 
 -- Stores quick lookup info about Nodes.
 NodeInfo = {
-	-- This information is difficult enough that it should live inside Macaroni 
-	-- native code.  It defines things about the node needed for C++ 
+	-- This information is difficult enough that it should live inside Macaroni
+	-- native code.  It defines things about the node needed for C++
 	-- generation, such as where the header file lives, what the "light"
-	-- definition (a forward reference) looks like, what the heavy one 
-	-- (an #include statement) looks like, etc.	
-	
+	-- definition (a forward reference) looks like, what the heavy one
+	-- (an #include statement) looks like, etc.
+
 	dependencies = nil,
     headerFile = nil,
     heavyDef = nil,
     lightDef = nil,
     using = nil,
-    
-    new = function(node)    
-        check(node ~= nil, "Node cannot be nil!");      
+
+    new = function(node)
+        check(node ~= nil, "Node cannot be nil!");
         local self = {}
-        setmetatable(self, {["__index"]=NodeInfo});       
-        self.node = node;         
-        self.dependencies = self:createDependencyList(self.node);		
+        setmetatable(self, {["__index"]=NodeInfo});
+        self.node = node;
+        self.dependencies = self:createDependencyList(self.node);
         self.headerFile = self:createHeaderFile(self.node);
         self.heavyDef = self:createHeavyDef(self.node);
         self.lightDef = self:createLightDef(self.node);
         self.using = self:createUsingStatement(self.node);
         return self;
-    end,    
-    
+    end,
+
     beginNs =  function(self, namespaceNode)
         check(namespaceNode ~= nil, "namespaceNode cannot be nil.");
         local fs = namespaceNode.FullName;
         local rtn = "";
         if not namespaceNode.IsRoot then
-			local names = Macaroni.Model.Node.SplitComplexName(fs);        
+			local names = Macaroni.Model.Node.SplitComplexName(fs);
 			for i = 1, #names do
 				rtn = rtn .. "namespace " .. names[i] .. " { ";
 			end
 			rtn = rtn .. "\n";
 		end
         return rtn;
-    end,    
-    
+    end,
+
     -- Only in 0.1.0.20
     createDependencyList = function(self, node)
-        -- Functions and variables don't currently get these because their 
+        -- Functions and variables don't currently get these because their
         -- info is too dependent on context.
         check(self ~= nil, "Member function called without self.");
         check(node ~= nil, "Node cannot be nil.");
         local list = DependencyList.new();
         list:addDependenciesForNode(node);
         return list;
-    end,       
-    
+    end,
+
     createHeaderFile = function(self, node)
         check(self ~= nil, "Member function called without self.");
-        check(node ~= nil, "Argument 2, 'node', cannot be nil.");               
-        if (node.Member ~= nil and 
+        check(node ~= nil, "Argument 2, 'node', cannot be nil.");
+        if (node.Member ~= nil and
             (node.Member.TypeName == Macaroni.Model.TypeNames.Primitive
              or node.Member.TypeName == "AnnotationDefinition")
             ) then
             return "";
         end
         local path = nil;
-        if (node.HFilePath ~= nil) then 
+        if (node.HFilePath ~= nil) then
             return tostring(node.HFilePath);
         else
             if (node.AdoptedHome ~= nil) then
                 return self:createHeaderFile(node.AdoptedHome);
             elseif self:isUnderClass(node) then
 				return self:createHeaderFile(node.Node);
-            elseif (node.Member ~= nil) then            
+            elseif (node.Member ~= nil) then
 				if (node.Member.TypeName == Macaroni.Model.TypeNames.Class or
-				    node.Member.TypeName == Macaroni.Model.TypeNames.Typedef) 
+				    node.Member.TypeName == Macaroni.Model.TypeNames.Typedef)
 				    then
-					return '<' .. node:GetPrettyFullName("/") .. '.h>';             
+					return '<' .. node:GetPrettyFullName("/") .. '.h>';
 				end
 			end
-            return '<' .. node.Node:GetPrettyFullName("/") .. '/_.h>';            
+            return '<' .. node.Node:GetPrettyFullName("/") .. '/_.h>';
         end
-        return "";        
+        return "";
     end,
-    
+
     -- Creates the heavy definition- the include statement.
     createHeavyDef = function(self, node)
         check(self ~= nil, "Member function called without self.");
@@ -112,33 +112,33 @@ NodeInfo = {
         if (headerFilePath == "") then
             return "";
         else
-            return ('#include ' .. headerFilePath .. '\n');      
-        end       
-    end,       
-    
+            return ('#include ' .. headerFilePath .. '\n');
+        end
+    end,
+
     endNs = function(self, namespaceNode)
         check(namespaceNode ~= nil, "namespaceNode cannot be nil.");
         local rtn = "";
         if not namespaceNode.IsRoot then
-			local names = Macaroni.Model.Node.SplitComplexName(namespaceNode.FullName);        
+			local names = Macaroni.Model.Node.SplitComplexName(namespaceNode.FullName);
 			for i = 1, #names do
 				rtn = rtn .. "} ";
 			end
 			rtn = rtn .. "// End " .. namespaceNode.FullName;
 			rtn = rtn .. "\n";
 		end
-		return rtn;		
-    end,   
-    
+		return rtn;
+    end,
+
     -- Creates the light definition, in the form of a String. Includes newlines.
-    createLightDef = function(self, node)    
+    createLightDef = function(self, node)
         check(self ~= nil, "Member method called without self.");
-        check(node ~= nil, "Argument one must be node.");  
+        check(node ~= nil, "Argument one must be node.");
         if (node.IsRoot) then
 			return ""; -- Ignore
-        end      
+        end
         if (node.HFilePath ~= nil) then
-			local attr = node.Annotations["Macaroni::Cpp::UseLightDef"];			
+			local attr = node.Annotations["Macaroni::Cpp::UseLightDef"];
 			if (attr ~= nil) then
 				if not attr.IsBool then
 					error("The node " .. node.FullName .. " annotation value "
@@ -147,19 +147,19 @@ NodeInfo = {
 				if (attr.ValueAsBool) then
 					ignore = false;
 				end
-			end	
+			end
 			if ignore then
 				-- For header files are forced to use this... :(
 				return self:createHeavyDef(node);
 			end
         end
         local generateWarning = true;
-        if (node.Member ~= nil) then            
+        if (node.Member ~= nil) then
             if (node.Member.TypeName == TypeNames.Class) then
 				local rtn = '';
 				if not self:isUnderClass(node) then
 					rtn = self:beginNs(node.Node);
-					rtn = rtn ..  'class ' .. node.Name .. ';\n';   
+					rtn = rtn ..  'class ' .. node.Name .. ';\n';
 					rtn = rtn .. self:endNs(node.Node);
 				else
 					rtn = "/* ~< I don't know how to make a light definition "
@@ -172,36 +172,41 @@ NodeInfo = {
 				return self:createHeavyDef(node);
                 --local typeUtil = TypeUtil.new();
                 --local rtn = self:beginNs(node.Node);
-                --rtn = rtn ..  'typedef ' .. 
+                --rtn = rtn ..  'typedef ' ..
                             --typeUtil:createTypeDefinition(node.Member.Type, false) ..
-                            --' ' .. node.Name .. ';';   
+                            --' ' .. node.Name .. ';';
                 --rtn = rtn .. self:endNs(node.Node);
-                --return rtn;               
-            end            
+                --return rtn;
+            end
         end
-        return "// ~ <(I don't know how to generate definition for " .. node.FullName .. ".)\n"; 
+        return "// ~ <(I don't know how to generate definition for " .. node.FullName .. ".)\n";
     end,
-    
+
     -- Creates using statement.
     createUsingStatement = function(self, node)
         check(self ~= nil, "Member method called without self.");
-        check(node ~= nil, "Argument one must be node.");        
+        check(node ~= nil, "Argument one must be node.");
         if (node.IsRoot or node.Node.IsRoot) then
             return ""; -- Ignore
         end
         local generateWarning = true;
-        if (node.Member ~= nil) then            
+        if (node.Member ~= nil) then
             if (node.Member.TypeName == TypeNames.Class
                 or node.Member.TypeName == TypeNames.Typedef) then
-                local rtn = 'using ' .. node.FullName .. ';\n';   
+                if (node.Node ~= nil and node.Node.TypeName == TypeNames.Class)
+                then
+                    return "// ~ <(Skipping using statement for nested class "
+                        .. node.FullName .. ".)\n";
+                end
+                local rtn = 'using ' .. node.FullName .. ';\n';
                 return rtn;
             elseif (node.Member.TypeName == TypeNames.Primitive) then
                 return ""; -- Ignore
-            end            
+            end
         end
-        return "// ~ <(I don't know how to generate a using statement for " .. node.FullName .. ".) \n";        
+        return "// ~ <(I don't know how to generate a using statement for " .. node.FullName .. ".) \n";
     end,
-    
+
     isUnderClass = function(self, node)
 		local parent = node.Node;
 		if (parent ~= nil and parent.Member ~= nil) then
@@ -210,48 +215,48 @@ NodeInfo = {
 			end
         end
     end,
-    
+
     useLightDef = function(self, node)
-		-- Gives an answer as to whether the light def can be used for this 
-		-- node. If there's no header file, we have no choice- we HAVE to use 
+		-- Gives an answer as to whether the light def can be used for this
+		-- node. If there's no header file, we have no choice- we HAVE to use
 		-- it, becuase we're generating it anyway and there's no reason not to.
 		-- If we have a header file but "UseLightDef" is defined, we should
 		-- use the light def anyway.
 		if node.HFilePath == nil then
 			return true;
 		end
-		local attr = node.Annotations["Macaroni::Cpp::UseLightDef"];			
+		local attr = node.Annotations["Macaroni::Cpp::UseLightDef"];
 		if (attr ~= nil) then
 			if not attr.IsBool then
 				error("The node " .. node.FullName .. " annotation value "
 					  .. "UseLightDef must be a boolean.");
 			end
 			return attr.ValueAsBool;
-		end	
+		end
 		return false;
     end,
-    
+
 };
 
 NodeInfoList = {
     instance = nil;
-    
-    new = function()    
+
+    new = function()
         local self = {}
-        setmetatable(self, NodeInfoList);       
+        setmetatable(self, NodeInfoList);
         self.nodes = {};
-        setmetatable(self.nodes, { __mode="k" }); 
+        setmetatable(self.nodes, { __mode="k" });
         -- fyi: "__mode"=="kv" will make the values weak as well; a good idea if this ends up hogging memory.
         return self;
-    end, 
-    
+    end,
+
     get = function()
         if NodeInfoList.instance == nil then
             NodeInfoList.instance = NodeInfoList.new();
         end
         return NodeInfoList.instance;
     end,
-    
+
     __index = function(self, key)
         check(key ~= nil, "Node cannot be nil!");
         local keyName = key.FullName;
@@ -262,7 +267,7 @@ NodeInfoList = {
         end
         return rtn;
     end,
-    
+
 };
 
 NodeInfoList = NodeInfoList.new();

@@ -22,7 +22,7 @@
 	#include <lualib.h>
 //MARIO }
 #include "AnnotationTableLua.h"
-#include "../Exception.h"
+#include <Macaroni/Exception.h>
 #include "../Environment/DebugLog.h"
 #include "ElementLua.h"
 #include <Macaroni/Model/FileNameLuaMetaData.h>

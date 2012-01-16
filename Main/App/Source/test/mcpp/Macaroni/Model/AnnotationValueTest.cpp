@@ -17,18 +17,18 @@
 #define BOOST_TEST_MODULE AnnotationValueTest
 #include <boost/test/unit_test.hpp>
 
-#include "AnnotationTable.h"
-#include "AnnotationValue.h"
-#include "AnnotationValueTypeException.h"
-#include "Axiom.h"
-#include "Context.h"
+#include <Macaroni/Model/AnnotationTable.h>
+#include <Macaroni/Model/AnnotationValue.h>
+#include <Macaroni/Model/AnnotationValueTypeException.h>
+#include <Macaroni/Model/Axiom.h>
+#include <Macaroni/Model/Context.h>
 #include <Macaroni/Model/FileName.h>
 #include <Macaroni/Parser/Macaroni/MacaroniAxioms.h>
-#include "Member.h"
-#include "ModelInconsistencyException.h"
-#include "Node.h"
-#include "Reason.h"
-#include "Source.h"
+#include <Macaroni/Model/Member.h>
+#include <Macaroni/Model/ModelInconsistencyException.h>
+#include <Macaroni/Model/Node.h>
+#include <Macaroni/Model/Reason.h>
+#include <Macaroni/Model/Source.h>
 
 using Macaroni::Model::AnnotationTable;
 using Macaroni::Model::AnnotationTablePtr;
@@ -62,20 +62,20 @@ static ReasonPtr createReason()
 BOOST_AUTO_TEST_SUITE(AnnotationValueSuite)
 
 BOOST_AUTO_TEST_CASE(Bool)
-{	
+{
 	ContextPtr context(new Context("%ROOT%"));
 	NodePtr boolAttrNode = context->GetRoot()->FindOrCreate(
 		"Macaroni::Test::Annotations::Bool");
 	BOOST_CHECK_MESSAGE(!boolAttrNode->GetElement(), "Annotation def is empty.");
 
 	AnnotationValue value(boolAttrNode, true, createReason());
-	
-	BOOST_CHECK_EQUAL(value.GetName(), boolAttrNode);//"boolAnnotation");	
+
+	BOOST_CHECK_EQUAL(value.GetName(), boolAttrNode);//"boolAnnotation");
 	BOOST_CHECK_MESSAGE(boolAttrNode->GetElement(), "Annotation def is not empty.");
 	BOOST_CHECK_EQUAL(boolAttrNode->GetElement()->GetTypeName(), "AnnotationDefinition");
-	BOOST_CHECK_EQUAL(value.GetTypeString(), "bool");	
+	BOOST_CHECK_EQUAL(value.GetTypeString(), "bool");
 	BOOST_CHECK_MESSAGE(value.IsBool(), "Should look like bool.");
-	BOOST_CHECK_MESSAGE(!value.IsNode(), "Should not look like a node.");		
+	BOOST_CHECK_MESSAGE(!value.IsNode(), "Should not look like a node.");
 	BOOST_CHECK_MESSAGE(!value.IsNumber(), "Should not look like a number.");
 	BOOST_CHECK_MESSAGE(!value.IsString(), "Should not look like a string.");
 
@@ -94,13 +94,13 @@ BOOST_AUTO_TEST_CASE(Node)
 		"Macaroni::Test::Annotations::Node");
 	NodePtr node = context->GetRoot()->FindOrCreate(
 		"SmilingNowButYoullFindOut::UseYouUp");
-	
+
 	AnnotationValue value(nodeAttrDefinition, node, createReason());
 
 	BOOST_CHECK_EQUAL(value.GetName(), nodeAttrDefinition);
 	BOOST_CHECK_EQUAL(value.GetTypeString(), "node");
 	BOOST_CHECK_MESSAGE(!value.IsBool(), "Should not look like bool.");
-	BOOST_CHECK_MESSAGE(value.IsNode(), "Should look like a node.");		
+	BOOST_CHECK_MESSAGE(value.IsNode(), "Should look like a node.");
 	BOOST_CHECK_MESSAGE(!value.IsNumber(), "Should not look like a number.");
 	BOOST_CHECK_MESSAGE(!value.IsString(), "Should not look like a string.");
 
@@ -120,12 +120,12 @@ BOOST_AUTO_TEST_CASE(Number)
 	const double number = 3945.13;
 	AnnotationValue value(numberAttrDefinition, number, createReason());
 
-	BOOST_CHECK_EQUAL(value.GetName(), numberAttrDefinition);	
+	BOOST_CHECK_EQUAL(value.GetName(), numberAttrDefinition);
 	BOOST_CHECK_EQUAL(value.GetTypeString(), "number");
 	BOOST_CHECK_MESSAGE(!value.IsBool(), "Should not look like bool.");
-	BOOST_CHECK_MESSAGE(!value.IsNode(), "Should not look like a node.");		
+	BOOST_CHECK_MESSAGE(!value.IsNode(), "Should not look like a node.");
 	BOOST_CHECK_MESSAGE(value.IsNumber(), "Should look like a number.");
-	BOOST_CHECK_MESSAGE(!value.IsString(), "Should not look like a string.");	
+	BOOST_CHECK_MESSAGE(!value.IsString(), "Should not look like a string.");
 
 	BOOST_CHECK_EQUAL(value.GetValueAsNumber(), number);
 
@@ -146,9 +146,9 @@ BOOST_AUTO_TEST_CASE(String)
 	BOOST_CHECK_EQUAL(value.GetName(), stringAttrDefinition);
 	BOOST_CHECK_EQUAL(value.GetTypeString(), "string");
 	BOOST_CHECK_MESSAGE(!value.IsBool(), "Should not look like bool.");
-	BOOST_CHECK_MESSAGE(!value.IsNode(), "Should not look like a node.");		
+	BOOST_CHECK_MESSAGE(!value.IsNode(), "Should not look like a node.");
 	BOOST_CHECK_MESSAGE(!value.IsNumber(), "Should not look like a number.");
-	BOOST_CHECK_MESSAGE(value.IsString(), "Should look like a string.");	
+	BOOST_CHECK_MESSAGE(value.IsString(), "Should look like a string.");
 
 	BOOST_CHECK_EQUAL(value.GetValueAsString(), "Hello");
 
@@ -165,16 +165,16 @@ BOOST_AUTO_TEST_CASE(Table)
 		"Macaroni::Test::Annotations::Table");
 
 	AnnotationValue value(tableAttrDefinition, createReason());
-	
-	AnnotationTablePtr table = value.GetValueAsTable();	
+
+	AnnotationTablePtr table = value.GetValueAsTable();
 
 	BOOST_CHECK_EQUAL(value.GetName(), tableAttrDefinition);
 	BOOST_CHECK_EQUAL(value.GetTypeString(), "table");
 	BOOST_CHECK_MESSAGE(!value.IsBool(), "Should not look like bool.");
-	BOOST_CHECK_MESSAGE(!value.IsNode(), "Should not look like a node.");		
+	BOOST_CHECK_MESSAGE(!value.IsNode(), "Should not look like a node.");
 	BOOST_CHECK_MESSAGE(!value.IsNumber(), "Should not look like a number.");
-	BOOST_CHECK_MESSAGE(!value.IsString(), "Should not look like a string.");	
-	BOOST_CHECK_MESSAGE(value.IsTable(), "Should look like a tabke.");	
+	BOOST_CHECK_MESSAGE(!value.IsString(), "Should not look like a string.");
+	BOOST_CHECK_MESSAGE(value.IsTable(), "Should look like a tabke.");
 
 	BOOST_CHECK_EQUAL(value.GetValueAsTable(), table);
 
@@ -190,9 +190,9 @@ BOOST_AUTO_TEST_CASE(Table_AddingNode)
 	NodePtr tableAttrDefinition = context->GetRoot()->FindOrCreate(
 		"Macaroni::Test::Annotations::Table");
 
-	AnnotationValue tableValue(tableAttrDefinition, createReason());	
+	AnnotationValue tableValue(tableAttrDefinition, createReason());
 	AnnotationTablePtr table = tableValue.GetValueAsTable();
-	
+
 	NodePtr nodeToAdd = context->GetRoot()->FindOrCreate("TychfoerInc::Blarg::Bear");
 
 	AnnotationValuePtr nodeValue = table->Add("BearType", nodeToAdd, createReason());
@@ -209,9 +209,9 @@ BOOST_AUTO_TEST_CASE(Table_AddingNumber)
 	NodePtr tableAttrDefinition = context->GetRoot()->FindOrCreate(
 		"Macaroni::Test::Annotations::Table");
 
-	AnnotationValue tableValue(tableAttrDefinition, createReason());	
+	AnnotationValue tableValue(tableAttrDefinition, createReason());
 	AnnotationTablePtr table = tableValue.GetValueAsTable();
-	
+
 	double number = 3442894378.56;
 
 	AnnotationValuePtr numberValue = table->Add("NumberOfBears", number, createReason());
@@ -228,9 +228,9 @@ BOOST_AUTO_TEST_CASE(Table_AddingString)
 	NodePtr tableAttrDefinition = context->GetRoot()->FindOrCreate(
 		"Macaroni::Test::Annotations::Table");
 
-	AnnotationValue tableValue(tableAttrDefinition, createReason());	
+	AnnotationValue tableValue(tableAttrDefinition, createReason());
 	AnnotationTablePtr table = tableValue.GetValueAsTable();
-	
+
 	AnnotationValuePtr stringValue = table->Add("blah", std::string("dghfdjfs"), createReason());
 
 	BOOST_CHECK_EQUAL(tableValue.GetValueAsTable()->GetByName("blah")->GetValueAsString(), "dghfdjfs");
@@ -245,14 +245,14 @@ BOOST_AUTO_TEST_CASE(Table_AddingTable)
 	NodePtr tableAttrDefinition = context->GetRoot()->FindOrCreate(
 		"Macaroni::Test::Annotations::Table");
 
-	AnnotationValue tableValue(tableAttrDefinition, createReason());	
+	AnnotationValue tableValue(tableAttrDefinition, createReason());
 	AnnotationTablePtr table = tableValue.GetValueAsTable();
-	
+
 	AnnotationValuePtr nestedTableValue = table->Add("Options", createReason());
 	AnnotationTablePtr nestedTable = nestedTableValue->GetValueAsTable();
 
 	BOOST_CHECK_EQUAL(table->Get(0), nestedTableValue);
-	BOOST_CHECK_EQUAL(tableValue.GetValueAsTable()->GetByName("Options")->GetValueAsTable(), nestedTable);	
+	BOOST_CHECK_EQUAL(tableValue.GetValueAsTable()->GetByName("Options")->GetValueAsTable(), nestedTable);
 	BOOST_CHECK_EQUAL(nestedTableValue->GetName()->GetFullName(), "Macaroni::Test::Annotations::Table::Options");
 	BOOST_CHECK_EQUAL(nestedTableValue->GetValueAsTable(), nestedTable);
 }
@@ -264,7 +264,7 @@ BOOST_AUTO_TEST_CASE(When_Contradicting_A_Previous_Definition)
 	NodePtr attrName = context->GetRoot()->FindOrCreate(
 		"Macaroni::Test::Annotations::Something");
 
-	BOOST_CHECK_EQUAL(createReason()->ToString(), 
+	BOOST_CHECK_EQUAL(createReason()->ToString(),
 		"TestFake.cpp, line 1, column 37: MacaroniAxioms.Annotation.Definition.Implicit");
 	AnnotationValue value(attrName, std::string("Hello"), createReason());
 	AnnotationValue value2(attrName, std::string("This will work as well..."), createReason());

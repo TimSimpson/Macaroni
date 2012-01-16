@@ -20,9 +20,10 @@
 #include "Process.h"
 #include <boost/foreach.hpp>
 #include <Macaroni/Platform/EnvironmentVariables.h>
-#include "../Exception.h"
+#include <Macaroni/Exception.h>
 #include <memory>
 #include <sstream>
+#include <Macaroni/StringException.h>
 #include "../Platform/Windows/Strings.h"
 
 #ifdef MACARONI_COMPILE_TARGET_WINDOWS
@@ -71,7 +72,7 @@ void Process::mixinPathEnvVariables(EnvironmentVariables & vars)
 		
 	if (pathEv == nullptr)
 	{
-		throw Macaroni::Exception("Could not get the Path environment variable!");
+		throw Macaroni::StringException("Could not get the Path environment variable!");
 	}
 	std::stringstream ss;
 	ss << pathEv->GetValue();

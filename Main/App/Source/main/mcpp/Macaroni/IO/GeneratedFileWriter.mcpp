@@ -27,6 +27,7 @@
 ~import boost::filesystem::path;
 ~import boost::shared_ptr;
 ~import std::string;
+~import Macaroni::StringException;
 ~import std::stringstream;
 
 namespace Macaroni::IO 
@@ -68,7 +69,7 @@ class GeneratedFileWriter
 				stringstream msg;
                 msg << "Cannot create GeneratedFileWriter for " << filePath.string()
 					<< ": the file exists and it is non-regular.";
-				throw Macaroni::Exception(msg.str().c_str());
+				throw Macaroni::StringException(msg.str().c_str());
 			}
 			writer = ostreamptr(new stringstream());
 			directToFile = false;

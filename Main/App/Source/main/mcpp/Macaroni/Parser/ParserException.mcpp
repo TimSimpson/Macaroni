@@ -15,6 +15,8 @@
  */
 ~import Macaroni::Exception;
 ~import boost::format;
+~import Macaroni::InternalSource;
+~import boost::optional;
 ~import Macaroni::Parser::ParserExceptionPtr;
 ~import Macaroni::Model::SourcePtr;
 ~import std::string;
@@ -26,29 +28,26 @@
 /** Any exception which occurs within the Parser. */
 class ParserException : public Exception
 {
-	private string msg;
+	optional<InternalSource> internalSource;
+	private string msg;	
 	private SourcePtr source;
-	private string throwLocation;
-	private string whatString;
-
-	~block "h"
-	{
-		public:
-		ParserException(Macaroni::Model::SourcePtr source,
-			            const std::string & msg,
-			            const std::string & throwLocation = "");
+	private string whatString;	
+	
+	~block "h" {
+	public: ParserException(
+		Macaroni::Model::SourcePtr source, 
+		const std::string & msg,
+		boost::optional<Macaroni::InternalSource> internalSource=boost::none);
 	}
 
-	~block "cpp"
-	{
+	~block "cpp" {
 		ParserException::ParserException(SourcePtr source, const string & msg,
-			            const string & throwLocation)
-		:   Exception(source->ToString(), msg),
-		    msg(msg),
-		    source(source),
-		    throwLocation(throwLocation),
+							optional<InternalSource> internalSource)
+		:   internalSource(internalSource),
+			msg(msg),
+			source(source),
 			whatString(str(format("%s : %s") % source->ToString() % msg))
-		{
+		{	
 		}
 	}
 
@@ -56,24 +55,28 @@ class ParserException : public Exception
 	{
 	}
 
+	/** Returns the SourcePtr (which is richer than InternalSource). */
 	public SourcePtr GetSource() const
 	{
 		return source;
 	}
 
+	/** Just the exception message without the source. */
 	public const char * GetMessage() const
 	{
 		return msg.c_str();
 	}
 
-	public const char * GetThrowLocation() const
-	{
-		return throwLocation.c_str();
-	}
-
+	/** Gives the source (in Macaroni code parsed at runtime) plus the message. 
+	 */
 	public virtual const char * what() const throw()
 	{
 		return whatString.c_str();
+	}
+
+	public virtual optional<InternalSource> where() const throw()
+	{
+		return internalSource;
 	}
 
 };

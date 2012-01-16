@@ -18,15 +18,17 @@
 
 #include "DynamicGenerator.h"
 #include "../../Model/ContextLua.h"
-#include "../../Exception.h"
+#include <Macaroni/Exception.h>
 #include <boost/foreach.hpp>
 #include <Macaroni/Build/BuildContextPtr.h>
 #include <Macaroni/Build/BuildContext.h>
+#include <Macaroni/InternalSource.h>
 #include "../../Model/LibraryLua.h"
 #include "../../IO/Path.h"
 #include "../../IO/PathLua.h"
 #include <iostream>
 #include <sstream>
+#include <Macaroni/StringException.h>
 
 using Macaroni::Model::ContextLuaMetaData;
 using Macaroni::Build::BuildContext;
@@ -170,13 +172,13 @@ std::string DynamicGenerator::Run(const std::string & methodName)
 		{
 			lua_getglobal(L, "tostring");
 			lua_pushvalue(L, -2);
-			LuaEnvironment::Run(__FILE__, __LINE__, L, 1, 1);
+			LuaEnvironment::Run(MACARONI_INTERNAL_SOURCE, L, 1, 1);
 			ss << luaL_checkstring(L, -1);
 			ss << "?!!?!?x!!!";
 		}
 		
 		//std::cerr << ss.str() << std::endl;
-		throw Macaroni::Exception(ss.str().c_str());
+		throw Macaroni::StringException(ss.str().c_str());
 	}
 
 	if (lua_isnil(L, -1))
@@ -196,7 +198,7 @@ std::string DynamicGenerator::Run(const std::string & methodName)
 			<< luaFilePath.string() << ", method "
 			<< methodName 
 			<< ").";
-		throw Macaroni::Exception(msg.str().c_str());
+		throw Macaroni::StringException(msg.str().c_str());
 	}
 }
 

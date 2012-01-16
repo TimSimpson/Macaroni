@@ -20,7 +20,7 @@
 #include <Macaroni/Model/Context.h>
 //#include "../Generator/Cpp/CppSourceGenerator.h"
 #include "../Generator/DebugEnumerator.h"
-#include "../Exception.h"
+#include <Macaroni/Exception.h>
 #include <Macaroni/Model/FileName.h>
 #include <Macaroni/IO/FileSet.h>
 #include <Macaroni/IO/FileSetIterator.h>
@@ -34,6 +34,7 @@
 #include <Macaroni/Generator/DynamicGeneratorRunner.h>
 #include <Macaroni/IO/Path.h>
 #include <Macaroni/Model/Source.h>
+#include <Macaroni/StringException.h>
 #include <Macaroni/Environment/StringPair.h>
 
 using Macaroni::Model::Context;
@@ -103,7 +104,7 @@ void MCompiler::readFile(std::stringstream & contents, const std::string & fileP
 	{
 		std::stringstream ss;
 		ss << "Could not open file " << filePath << "!";
-		throw Macaroni::Exception(ss.str().c_str());
+		throw Macaroni::StringException(ss.str().c_str());
 	}
 	std::string line;
 	while(! file.eof())

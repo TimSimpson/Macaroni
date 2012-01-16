@@ -20,14 +20,15 @@
 #include "Destructor.h"
 #include "FunctionOverload.h"
 #include "Primitive.h"
-#include "../../Exception.h"
-#include "../MemberVisitor.h"
+#include <Macaroni/Exception.h>
+#include <Macaroni/Model/MemberVisitor.h>
 #include "../ModelInconsistencyException.h"
 #include "Namespace.h"
-#include "../Node.h"
+#include <Macaroni/Model/Node.h>
 #include <Macaroni/Model/Reason.h>
 #include "Scope.h"
 #include "ScopeMember.h"
+#include <Macaroni/StringException.h>
 #include "Variable.h"
 #include <memory>
 #include <sstream>
@@ -93,7 +94,7 @@ FunctionOverloadPtr Destructor::GetFunctionOverload()
 	FunctionOverloadPtr fol = nodePtr->GetElement<FunctionOverloadPtr>();
 	if (!fol)
 	{
-		throw Macaroni::Exception("Tried to grab the destructors "
+		throw Macaroni::StringException("Tried to grab the destructors "
 			"FunctionOverload, but somehow it was a different member.");
 	}
 	return fol;

@@ -1,0 +1,129 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+~import std::cout;
+~import std::exception;
+~import Macaroni::Exception;
+~import Macaroni::InternalSource;
+~import boost::optional;
+~import std::string;
+~import std::stringstream;
+
+~namespace Macaroni;
+
+
+/** A very simple Exception class which stores the source of the exception
+ * as well as the exception message as std::strings.
+ *
+ * Because using std::string in an exception is a bad practice this class is
+ * now deprecated.
+ */
+class StringException : public Exception
+{
+	private string message;
+	private optional<InternalSource> source;
+
+	public StringException(const char * message)
+	:	message(message),
+		source(boost::none)
+	{
+		#ifndef _DEBUG
+			std::cout << "THROWN EXCEPTION:" << message << std::endl;
+		#endif
+	}
+
+	public StringException(const string & message)
+	:	message(message),
+		source(boost::none)
+	{
+		#ifndef _DEBUG
+			std::cout << "THROWN EXCEPTION:" << message << std::endl;
+		#endif
+	}
+
+	public StringException(const char * message, InternalSource source)
+	:	message(message),
+		source(source)
+	{
+		#ifndef _DEBUG
+			std::cout << "THROWN EXCEPTION at "
+				<< source.get().FileName << " ("
+				<< source.get().Line << ") :" << message << std::endl;
+		#endif
+	}
+
+	public StringException(const std::string & message, InternalSource source)
+	:	message(message),
+		source(source)
+	{
+		#ifndef _DEBUG
+			std::cout << "THROWN EXCEPTION at "
+				<< source.get().FileName << " ("
+				<< source.get().Line << ") :" << message << std::endl;
+		#endif
+	}
+
+	public StringException(StringException const & other) // Copy ctor
+	:	message(other.message),
+		source(other.source)
+	{
+		#ifndef _DEBUG
+		//	std::cout << "THROWN EXCEPTION at " << source << ":" << message << std::endl;
+		#endif
+	}
+
+	// Copy assignment.
+	public StringException & operator =(const StringException & other)
+	{
+		this->message = other.message;
+		this->source = other.source;
+		return *this;
+	}
+
+	public virtual ~StringException() throw()
+	{
+	}
+
+	public virtual const char* what() const throw()
+    {
+		return message.c_str();
+    }
+
+    public virtual boost::optional<InternalSource> where() const throw()
+    {
+    	return source;
+    }
+
+	~block "cpp"
+	{
+		// This is kind of weird, to say the least: I'm defining some functions
+		// declared in ME.h here.
+		
+		void ThrowMacaroniException(const char * file, int line, 
+			                        const char * message)
+		{
+			InternalSource source(file, line);
+			throw StringException(message, source);
+		};
+
+		void ThrowMacaroniException(const char * file, int line, 
+			                        const std::string & message)	
+		{
+			InternalSource source(file, line);
+			throw StringException(message, source);
+		};
+	}
+};
+

@@ -42,11 +42,19 @@
 	#include <lualib.h>
 //MARIO }
 #include "Environment/DebugLog.h"
+#include <Macaroni/Exception.h>
 
 LUAGLUE_STARTNAMESPACE
 
 #define METATABLENAME LUAGLUE_CLASSFULLLUANAME
 #define GLOBALTABLENAME LUAGLUE_CLASSFULLLUANAME
+#define LUA_GLUE_TRY try {
+#define LUA_GLUE_CATCH } catch(const Macaroni::Exception & ex){ \
+		return luaL_error(L, ex.message().c_str()); \
+	} catch(const std::exception & ex){ \
+		return luaL_error(L, ex.what()); \
+	}  
+
 
 #ifdef LUAGLUE_CREATEMETATABLE
 	namespace {

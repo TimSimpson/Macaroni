@@ -85,7 +85,10 @@ using Macaroni::Model::SourceLuaMetaData;
 		}
 		catch(Macaroni::Parser::ParserException & pe)
 		{
-			Macaroni::Parser::ParserException * copy = new Macaroni::Parser::ParserException(pe.GetSource(), pe.GetMessage());
+			Macaroni::Parser::ParserException * copy = 
+				new Macaroni::Parser::ParserException(pe.GetSource(), 
+													  pe.GetMessage(), 
+													  boost::none);
 
 			ParserExceptionPtr newPtr(copy);
 			ParserExceptionLuaMetaData::Throw(L, newPtr, 1); // DOES NOT RETURN

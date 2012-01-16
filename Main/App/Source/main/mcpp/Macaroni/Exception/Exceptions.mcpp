@@ -1,0 +1,168 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+~import std::exception;
+~import Macaroni::Exception;
+~import boost::format;
+~import Macaroni::InternalSource;
+~import boost::optional;
+~import std::string;
+~import std::stringstream;
+~import Macaroni::StringException;
+
+~namespace Macaroni::Exceptions;
+
+
+/** Useful base type for exceptions which have a static message. */
+class SimpleException : public Macaroni::Exception
+{
+	protected optional<InternalSource> source;
+
+	public SimpleException()
+	: source(boost::none)
+	{
+	}
+
+	public SimpleException(InternalSource where)
+	: source(where)
+	{
+	}
+
+	public SimpleException(optional<InternalSource> where)
+	: source(where)
+	{
+	}
+
+	public virtual const char * what() const throw() = 0;
+
+	public virtual optional<InternalSource> where() const throw()
+	{
+		return source;
+	}
+
+	~block "h-postdef"
+	{
+		/* Quickly defines an exception type with one message. This should only
+		 * be used in implementation files. */
+		#define MACARONI_SIMPLE_EXCEPTION_DEFINE(typeName, message) \
+			class typeName : public Macaroni::Exceptions::SimpleException { \
+				public: typeName(Macaroni::InternalSource where) \
+					: Macaroni::Exceptions::SimpleException(where) {} \
+				public: virtual const char * what() const throw() \
+				{ return message ; } \
+			}; 
+	} 
+};
+
+
+/** This class has a single int value. A boost format message can be specified
+ *  by subclasses to print out the integer. */
+class SimpleIntException : public SimpleException
+{
+	private int value;
+
+	public SimpleIntException(int value)
+	: SimpleException(), value(value)
+	{
+	}
+
+	public SimpleIntException(int value, InternalSource where)
+	: SimpleException(where), value(value)
+	{
+	}
+
+	public virtual string message() const
+	{
+		return str(format(what()) % value);
+	}
+
+	~block "h-postdef"
+	{
+	/* Quickly defines an exception type with one message. This should only
+	 * be used in implementation files. */
+	#define MACARONI_SIMPLE_INT_EXCEPTION_DEFINE(typeName, message) \
+		class typeName : public Macaroni::Exceptions::SimpleIntException { \
+			public: typeName(int value, Macaroni::InternalSource where) \
+				: Macaroni::Exceptions::SimpleIntException(value, where) {} \
+			public: virtual const char * what() const throw() \
+			{ return message ; } \
+		}; 
+	} 
+};
+
+
+/** This class has a single int value. A boost format message can be specified
+ *  by subclasses to print out the integer. */
+class SimpleStringException : public SimpleException
+{		
+	~block "h" {
+		private : static const int CHAR_LENGTH = 256; 
+		private : char value[CHAR_LENGTH];
+	}
+
+	public SimpleStringException(const char * value)
+	: SimpleException()
+	{
+		this->value[0] = '\0';
+		strncpy(this->value, value, CHAR_LENGTH);
+	}
+
+	public SimpleStringException(const char * value, InternalSource where)
+	: SimpleException(where)
+	{
+		this->value[0] = '\0';
+		strncpy(this->value, value, CHAR_LENGTH);
+	}
+
+	public SimpleStringException(const SimpleStringException & other)
+	: SimpleException(other.where())
+	{
+		this->value[0] = '\0';
+		strncpy(this->value, other.value, CHAR_LENGTH);
+	}
+
+	public SimpleStringException & operator = (
+		const SimpleStringException & other) 
+	{
+		if (&other != this)
+		{
+			this->value[0] = '\0';
+			strncpy(this->value, other.value, CHAR_LENGTH);
+		}		
+		return *this;
+	}
+
+	public virtual string message() const
+	{
+		return str(format(what()) % value);
+	}
+
+	~block "h-postdef"
+	{
+	/* Quickly defines an exception type with one message. This should only
+	 * be used in implementation files. */
+	#define MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(typeName, message) \
+		class typeName : public Macaroni::Exceptions::SimpleStringException { \
+			public: typeName(const char * value, Macaroni::InternalSource where) \
+				: Macaroni::Exceptions::SimpleStringException(value, where) {} \
+			public: virtual const char * what() const throw() \
+			{ return message ; } \
+		}; 
+	} 
+};
+
+
+
+

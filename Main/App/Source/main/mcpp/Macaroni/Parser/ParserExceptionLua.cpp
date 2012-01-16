@@ -62,7 +62,10 @@ using Macaroni::Model::SourceLuaMetaData;
 		std::stringstream ss;
 		ss << "Description:" << ptr->GetMessage();
 		ss << " ParsedSource:" << ptr->GetSource()->ToString();
-		ss << " Thrown from:" << ptr->GetThrowLocation();
+		if (ptr->where()) {
+			ss << " Thrown from file " << ptr->where().get().FileName 
+			   << ", line " << ptr->where().get().Line << ".";
+		}
 		lua_pushstring(L, ss.str().c_str());
 		return 1;
 	}
@@ -82,7 +85,7 @@ using Macaroni::Model::SourceLuaMetaData;
 	{
 		luaL_where(L, level);
 		ParserExceptionPtr newInstance(
-				new ParserException(ptr->GetSource(), ptr->GetMessage(), lua_tostring(L, -1))
+			new ParserException(ptr->GetSource(), ptr->GetMessage(), boost::none)
 			);
 		ParserExceptionLuaMetaData::PutInstanceOnStack(L, newInstance);
 		lua_error(L);

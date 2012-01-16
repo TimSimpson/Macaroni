@@ -18,6 +18,7 @@
 ~import Macaroni::Exception;
 ~import Macaroni::Platform::Windows::NonWindowsString;
 ~import std::string;
+~import Macaroni::StringException;
 ~import std::stringstream;
 ~import Macaroni::Environment::StringPair;
 ~import boost::to_lower;
@@ -45,7 +46,7 @@ class EnvironmentVariables
 		{
 			if (orig == NULL)
 			{
-				throw Macaroni::Exception("Could not grab environment strings.");
+				throw Macaroni::StringException("Could not grab environment strings.");
 			}
 
 			LPTSTR blockAsLpstr = (LPTSTR) orig;

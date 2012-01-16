@@ -33,6 +33,7 @@
 ~import Macaroni::Environment::LuaEnvironment;
 ~import Macaroni::Model::NodePtr;
 ~import boost::filesystem::path;
+~import Macaroni::IO::Paths;
 ~import Macaroni::Environment::PluginFactory;
 ~import Macaroni::Environment::PluginFactoryLuaMetaData;
 ~import Macaroni::Environment::PluginFactoryPtr;
@@ -93,7 +94,8 @@ class Macaroni::Environment::Environment
 		output->WriteLine("Opening internal modules...");
 		luaEnvironment.OpenAllLuaModules();
 		output->WriteLine("");
-
+		
+		runInitScript();
 
 		ContextLuaMetaData::PutInstanceOnStack(luaEnvironment.GetState(),
 		                                       context);
@@ -145,7 +147,7 @@ class Macaroni::Environment::Environment
 	public inline LuaEnvironment & GetLuaEnvironment()
 	{
 		return luaEnvironment;
-	}
+	}	
 
 	~hidden bool maccy(string line)
 		@ReplCommand[
@@ -193,14 +195,14 @@ class Macaroni::Environment::Environment
 					luaEnvironment.ParseString("REPL", line.c_str());
 				} catch(const Macaroni::Exception & me) {
 					output->WriteLine(format("Error parsing : %s")
-					                  % me.what());
+					                  % me.message());
 				}
 				try
 				{
 					luaEnvironment.Run();
 				} catch(const Macaroni::Exception & me) {
 					output->WriteLine(format("Error running Lua : %s")
-					                  % me.what());
+					                  % me.message());
 				}
 			}
 		}
@@ -219,6 +221,25 @@ class Macaroni::Environment::Environment
 		}
 	}
 
+	~hidden void runInitScript()
+	{
+		path userPath(Paths::GetUserPath());
+		path initLuaPath = userPath / "init.lua";
+		if (!boost::filesystem::exists(initLuaPath))
+		{
+			output->WriteLine(format("Could not find init.lua at %s.") 
+				              % initLuaPath.string());
+			luaEnvironment.ParseString("init.lua", "properties = {}");
+			luaEnvironment.Run();
+		}
+		else
+		{
+			output->WriteLine(format("Running %s...") % initLuaPath.string());
+			luaEnvironment.ParseFile(initLuaPath.string());
+			luaEnvironment.Run();
+		}
+	}
+
 	public bool RunProject(path projectFilePath)
 	{
 		if (!boost::filesystem::exists(projectFilePath))
@@ -232,7 +253,7 @@ class Macaroni::Environment::Environment
 			luaEnvironment.ParseFile(filePath);
 			luaEnvironment.Run();
 		} catch(const Macaroni::Exception & me) {
-			output->WriteLine(me.what());
+			output->WriteLine(me.message());
 			return false;
 		}			
 		return true;

@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+~import Macaroni::Model::Project::Artifact;
+~import Macaroni::Model::Project::ArtifactPtr;
 ~import Macaroni::Model::Context;
 ~import Macaroni::Model::ContextPtr;
 ~import boost::format;
 ~import Macaroni::Model::Element;
 ~import Macaroni::Model::Project::Group;
+~import Macaroni::Model::Project::GroupPtr;
 ~import boost::intrusive_ptr;
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaFunction;
@@ -29,8 +32,10 @@
 ~import Macaroni::Model::Project::ProjectVersionPtr;
 ~import Macaroni::Model::Reason;
 ~import std::string;
+~import Macaroni::Model::Project::Files;
 ~import Macaroni::Cpp::UseLightDef;
 ~import std::vector;
+~import Macaroni::Model::Project::Utils;
 
 ~namespace Macaroni::Model::Project;
 
@@ -58,13 +63,31 @@ class Target
 	private Target * parent;
 	private ProjectVersion * const projectVersion;
 	protected vector<Target *> requirements;
+	protected FilesPtr sources;
+
+	~block "cpp"
+	{
+		typedef Macaroni::Model::Project::Artifact ArtifactT;
+	}
 
 	protected Target(ProjectVersion * projectVersion, const string & name)
 	:   dependencies(),
 	    name(name),
 	    parent(0),
 		projectVersion(projectVersion),
-		requirements()
+		requirements(),
+		sources(new Files())
+	{
+	}
+
+	protected Target(ProjectVersion * projectVersion, const string & name,
+		             FilesPtr sources)
+	:   dependencies(),
+	    name(name),
+	    parent(0),
+		projectVersion(projectVersion),
+		requirements(),
+		sources(sources)
 	{
 	}
 
@@ -73,9 +96,27 @@ class Target
 			    && name == target.name);
 	}
 
+	public ArtifactPtr Artifact(string name)
+		@LuaFunction "Artifact"
+	{
+		ArtifactPtr ptr(new ArtifactT(this, name));
+		return ptr;
+	}
+
 	public ContextPtr GetContext() const
+		@LuaProperty "Context"
 	{
 		return projectVersion->GetProject()->GetGroup()->GetContext();
+	}
+
+	/** Returns a version of this ID which can be used as a C identifier.
+	 * The point isn't to make a pretty name but just one that maps uniquely.
+	 */
+	public string GetCId() const
+		@LuaFunction "GetCId"
+	{
+		return str(format("%s___%s") % projectVersion->GetCId() 
+			                         % Utils::CreateCId(name));
 	}
 
 	/* This includes anything which gets included or must be run before this
@@ -94,7 +135,7 @@ class Target
 	}
 
 	public inline const string & GetName() const
-		@LuaProperty "name"
+		@LuaProperty "Name"
 	{		return name;
 	}
 
@@ -120,6 +161,12 @@ class Target
 		return requirements;
 	}
 
+	public FilesPtr GetSources()
+		@LuaProperty "Sources"
+	{
+		return sources;
+	}
+
 	public ~global ~friend void intrusive_ptr_add_ref(Target * p)
 	{
 		intrusive_ptr_add_ref(p->projectVersion);
@@ -128,7 +175,7 @@ class Target
 	public ~global ~friend void intrusive_ptr_release(Target * p)
 	{
 		intrusive_ptr_release(p->projectVersion);
-	}
+	}	
 
 	public string ToString() const
 		@LuaOperator "__tostring"

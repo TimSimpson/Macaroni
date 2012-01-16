@@ -29,10 +29,14 @@
 #include "Node.h"
 #include "NodeLua.h"
 #include <Macaroni/Model/ReasonLuaMetaData.h>
+#include <Macaroni/Model/Cpp/Scope.h>
 #include <sstream>
 #include "Cpp/Typedef.h"
 #include "Cpp/TypedefLua.h"
 #include "Cpp/VariableLua.h"
+#include <Macaroni/Model/Project/Target.h>
+#include <Macaroni/Model/Project/TargetPtr.h>
+#include <Macaroni/Model/Project/TargetLuaMetaData.h>
 
 #define LUAGLUE_STARTNAMESPACE BEGIN_NAMESPACE2(Macaroni, Model)
 #define LUAGLUE_ENDNAMESPACE	END_NAMESPACE2
@@ -50,11 +54,35 @@
 	//Macaroni::Model::Cpp::TypedefLuaMetaData::OpenInLua(L);
 #define LUAGLUE_CREATEMETATABLE YESPLEASE
 
+
 #include "../LuaGlue.hpp"
+
+	static int ownedBy(lua_State * L)
+	{
+		LUA_GLUE_TRY
+		ElementPtr ptr = getInstance(L);
+		
+		Cpp::Scope * scope;
+		if ((scope = dynamic_cast<Cpp::Scope *>(ptr.get())) != nullptr)
+		{		
+			Macaroni::Model::Project::TargetPtr target =
+				Macaroni::Model::Project::TargetLuaMetaData::GetInstance(L, 2);
+			bool result = scope->OwnedBy(target);
+			lua_pushboolean(L, result ? 1 : 0);
+			return 1;
+		}
+		else
+		{
+			return luaL_error(L, "Argument 1 was not a LibraryElement.");
+		}
+		LUA_GLUE_CATCH
+	}
 
 	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr, 
 									  const std::string & index)
 	{		
+		LUA_GLUE_TRY
+
 		if (index == "Access")
 		{
 			Cpp::ScopeMemberPtr smPtr = boost::dynamic_pointer_cast<Cpp::ScopeMember>(ptr);
@@ -79,6 +107,15 @@
 		{
 			NodeLuaMetaData::PutInstanceOnStack(L, ptr->GetNode());
 			return 1;
+		}
+		else if (index == "OwnedBy")
+		{
+			Cpp::Scope * scope;
+			if ((scope = dynamic_cast<Cpp::Scope *>(ptr.get())) != nullptr)
+			{
+				lua_pushcfunction(L, ownedBy);
+				return 1;
+			}
 		}
 		else if (index == "ReasonCreated")
 		{
@@ -173,6 +210,8 @@
 
 		lua_pushnil(L);			
 		return 1;
+
+		LUA_GLUE_CATCH
 	}
 	
 

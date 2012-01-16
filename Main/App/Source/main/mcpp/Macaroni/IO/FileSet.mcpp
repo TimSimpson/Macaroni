@@ -1,5 +1,6 @@
 ~import boost::filesystem::directory_iterator;
 ~import Macaroni::Exception;
+~import boost::format;
 ~import boost::intrusive_ptr;
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaFunction;
@@ -12,6 +13,7 @@
 ~import boost::filesystem::path;
 ~import boost::regex;
 ~import std::string;
+~import Macaroni::StringException;
 ~import std::vector;
 ~import Macaroni::Cpp::UseLightDef;
 
@@ -156,6 +158,12 @@ class FileSet
 		}
 	}
 
+	public string ToString() const
+		@LuaOperator "__tostring"
+	{
+		return str(format("%s %s") % this->GetRoot() % this->GetRegex());
+	}
+
 	/** Ensures that the path conforms to the given regular expression.
 	 * Does not check to see that path is inside of root- this is used
 	 * instead by the Iterator. */
@@ -212,7 +220,7 @@ class FileSetIterator
 		}
 		if (finished())
 		{
-			throw Macaroni::Exception("FileSet iterator is finished.");
+			throw Macaroni::StringException("FileSet iterator is finished.");
 		}
 		directory_iterator & itr = stack.back();
 		boost::filesystem::path path = *itr;
@@ -259,7 +267,7 @@ class FileSetIterator
 		}
 		if (finished())
 		{
-			throw Macaroni::Exception("Index out of bounds.");
+			throw Macaroni::StringException("Index out of bounds.");
 		}
 		iterate(false);
 		return *this;
