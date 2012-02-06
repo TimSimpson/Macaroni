@@ -9,33 +9,33 @@
 
 // Plain old Lua Object
 
-namespace Macaroni::Tests::Lua 
+namespace Macaroni::Tests::Lua
 {
 	class Polo {};
-	
+
 	typedef intrusive_ptr<Polo> PoloPtr
 		@LuaClass [ SameAsNode = Polo ]
 	;
 
 	class Polo
-	  @LuaClass 
+	  @LuaClass
 	  [
 	    ReferenceType = PoloPtr,
 	  ]
 	{
-		
+
 
 		private string name;
 		private int refCount;
-		
+
 		public Polo()
-		: name(""), 
+		: name(""),
 		  refCount(0)
-		{		
+		{
 		}
-		
+
 		public const string & GetName() const
-		@LuaFunction
+		@LuaFunction "GetName"
 		@LuaProperty ={Name}
 		{
 			if (name == "Suzy")
@@ -46,19 +46,19 @@ namespace Macaroni::Tests::Lua
 					"bubb.");
 			}
 			return name;
-		}			
-		
+		}
+
 		public inline int GetReferenceCount() const
-		@LuaFunction
+		@LuaFunction "GetReferenceCount"
 		{
 			return refCount;
-		}		
-		
+		}
+
 		public ~friend ~global void intrusive_ptr_add_ref(Polo * p)
 		{
 			p->refCount ++;
 		}
-		
+
 		//friend intrusive_ptr_add_ref;
 
 		public ~friend ~global void intrusive_ptr_release(Polo * p)
@@ -66,19 +66,19 @@ namespace Macaroni::Tests::Lua
 			p->refCount --;
 			if (p->refCount <= 0)
 			{
-				delete p;	
-			}			
+				delete p;
+			}
 		}
-	
+
 		// friend intrusive_ptr_release;
-			
+
 		public void NonLuaFunction(string & something)
 		{
 			something = "This should not be called from Lua...";
 		}
-		
+
 		public void SetName(const string & newName)
-		@LuaFunction
+		@LuaFunction "SetName"
 		@LuaProperty "Name"
 		{
 			if (newName == "Sue")
@@ -87,19 +87,19 @@ namespace Macaroni::Tests::Lua
 			}
 			this->name = newName;
 		}
-		
+
 		public static string PointlessStaticFunctionGet(const PoloPtr & ptr)
-		@LuaFunction
+		@LuaFunction "PointlessStaticFunctionGet"
 		{
-			return ptr->GetName();	
-		}	
-		
-		public static void PointlessStaticFunctionSet(const PoloPtr & ptr, 
+			return ptr->GetName();
+		}
+
+		public static void PointlessStaticFunctionSet(const PoloPtr & ptr,
 		                                              string name)
-		@LuaFunction
+		@LuaFunction "PointlessStaticFunctionSet"
 		{
-			ptr->SetName(name);	
-		}	
+			ptr->SetName(name);
+		}
 	};
-	
+
 } //end ns

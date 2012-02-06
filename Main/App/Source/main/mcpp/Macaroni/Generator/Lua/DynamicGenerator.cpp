@@ -28,6 +28,7 @@
 #include "../../IO/PathLua.h"
 #include <iostream>
 #include <sstream>
+#include <Macaroni/Exceptions/SimpleStringException.h>
 #include <Macaroni/StringException.h>
 
 using Macaroni::Model::ContextLuaMetaData;
@@ -95,7 +96,10 @@ DynamicGenerator::DynamicGenerator
 DynamicGenerator::~DynamicGenerator()
 {
 }
-	
+
+MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(DynamicGeneratorRunException,
+										"Error running Generator: %s");
+
 std::string DynamicGenerator::Run(const std::string & methodName)
 {
 	env.Run();
@@ -157,7 +161,7 @@ std::string DynamicGenerator::Run(const std::string & methodName)
 	if (eCode != 0)
 	{	
 		std::stringstream ss;
-		ss << "Error running Generator \"" << luaFilePath.string() << "\":";
+		//ss << "Error running Generator \"" << luaFilePath.string() << "\":";
 		if (lua_isstring(L, -1) == 1) 
 		{
 			ss << luaL_checkstring(L, -1);	
@@ -178,7 +182,8 @@ std::string DynamicGenerator::Run(const std::string & methodName)
 		}
 		
 		//std::cerr << ss.str() << std::endl;
-		throw Macaroni::StringException(ss.str().c_str());
+		throw DynamicGeneratorRunException(ss.str().c_str(), 
+			MACARONI_INTERNAL_SOURCE);
 	}
 
 	if (lua_isnil(L, -1))

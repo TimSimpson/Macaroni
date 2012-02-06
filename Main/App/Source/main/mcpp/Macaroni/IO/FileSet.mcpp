@@ -4,6 +4,8 @@
 ~import boost::intrusive_ptr;
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaIncludes;
+~import Macaroni::Lua::LuaIndexExtraCode;
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
 ~import nullptr;
@@ -20,130 +22,93 @@
 ~namespace Macaroni::IO;
 
 class FileSet {};
-class FileSetIterator {};
+class RegexFileSetIterator {};
 
 ~import Macaroni::IO::FileSet;
-~import Macaroni::IO::FileSetIterator;
-
+~import Macaroni::IO::RegexFileSetIterator;
+~import Macaroni::IO::RelativeFileSet;
 
 typedef intrusive_ptr<FileSet ~l> FileSetPtr
 	@LuaClass [ SameAsNode = FileSet ]
 	@UseLightDef true;
 
 /**
- * A collection of files.
- * It usually is constructed by iterating from a givne root directory and
- * including all files which match a pattern.
- * Note that the build environment can include patterns to exclude.
- * Also...
- * this class is... um... "inspired" by Ant's FileSet class.
- * http://ant.apache.org/manual/CoreTypes/fileset.html
+ * A collection of file paths which may or may not be relative to some root
+ * path.
  */
 class FileSet
 	@LuaClass [
 		ReferenceType = FileSetPtr
 	]
+	@LuaIncludes ={		
+		#include <Macaroni/IO/RegexFileSetLuaMetaData.h>
+	}
+	@LuaIndexExtraCode ={
+		string index_0(luaL_checkstring(L, 2));
+		FileSet * fs = instance.get();		
+		RegexFileSetPtr rfs = boost::dynamic_pointer_cast<RegexFileSet>(
+			instance);
+		if (rfs)
+		{
+			int result = RegexFileSetLuaMetaData::Index(L, rfs, index_0);
+			if (result > 0) 
+			{
+				return result;
+			}
+		}
+		// Let the generated code do the rest.
+	}
 {
-	friend FileSetIterator;
+	~import Macaroni::IO::RegexFileSet;
 
 	private int refCount;
-	private regex regExp;
-	private path root;
 
-	/**
-	 * Constructs a file set by iterating from the rootPath.
-	 */
-	public FileSet(const path & rootPath)
-	:	refCount(0),
-	    regExp("."),
-		root(rootPath)
+	public FileSet()
+	: refCount(0)
 	{
 	}
 
-	public FileSet(const path & rootPath, regex regExp)
-	:	refCount(0),
-	    regExp(regExp),
-		root(rootPath)
-	{
-	}
+	public virtual ~FileSet() {}
 
-	public FileSet(const path & rootPath, const char * regExToMatch)
-	:	refCount(0),
-	    regExp(regExToMatch),
-		root(rootPath)
-	{
-	}
-
-	public FileSet(const path & rootPath, string regExToMatch)
-	:	refCount(0),
-	    regExp(regExToMatch),
-		root(rootPath)
-	{
-	}
-
-	public FileSet(const FileSet & other)
-	:	regExp(other.regExp),
-		root(other.root)
-	{
-	}
-
-	public void operator=(const FileSet & other)
-		@LuaOperator "__eq"
-	{
-		this->regExp = other.regExp;
-		this->root = other.root;
-	}
-
-
-	public FileSetIterator Begin() const
-	{
-		return FileSetIterator(this);
-	}
-
-	public static FileSetPtr Create(const string & pathStr,
-		                            const string & regex)
-		@LuaFunction "Create"
+	/** Creates a set of files given by a Regex applied to some path. 
+	 *  Every file in the set will be relative to the path argument. */
+	public static FileSetPtr CreateRegex(const string & pathStr,
+		                                 const string & regex)
+		@LuaFunction "CreateRegex"
 	{
 		path p(pathStr);
-		FileSetPtr ptr(new FileSet(p, regex));
+		FileSetPtr ptr(new RegexFileSet(p, regex));
 		return ptr;
 	}
 
-	public FileSetIterator End() const
+	/** Creates a set of files given by a regex applied to some relative path. 
+	 *  Every file in the set will be relative to the root path of the 
+	 *  relative path argument. */
+	public static FileSetPtr CreateRelative(PathPtr relativePath,
+		                                    const string & regex)
+		@LuaFunction "CreateRelative"
 	{
-		return FileSetIterator(nullptr);
-	}
-
-
-	public PathListPtr GetPaths() const
-		@LuaFunction "GetPaths"
-	{
-		PathListPtr rtnList(new PathList());
-		for(FileSetIterator itr = Begin(); itr != End(); ++ itr)
-		{
-			PathPtr p(new Path(root, *itr));
-			rtnList->push_back(p);
-		}
-		return rtnList;
-	}
-
-	public PathPtr GetPath() const
-		@LuaProperty "Path"
-	{
-		PathPtr ptr(new Path(root));
+		FileSetPtr ptr(new RelativeFileSet(*relativePath, regex.c_str()));
 		return ptr;
 	}
+	
+	/** Returns the paths as a list, not an iterator. This is mainly
+	 *  useful from Lua code. */
+	public virtual PathListPtr GetPaths() const
+		@LuaFunction "GetPaths" = 0;
 
-	public path GetRoot() const
-	{
-		return root;
-	}
+	/////** If this FileSet is relative to some central directory, this returns a
+	//// *  relative Path showing the connection.
+	//// *  Example: If a user specifies a directory for iteration, such as 
+	//// *  "src/code", then this would return a relative path where the root was
+	//// *  "./" and the path was "./src/code". This is used in certain plugins. */
+	////public virtual PathPtr GetRelativePath() const
+	////	@LuaProperty "RelativePath" = 0;
 
-	public std::string GetRegex() const
-		@LuaProperty "Regex"
-	{
-		return regExp.str();
-	}
+	/** Gets the core path used for this FileSet (or nil). 
+	 *  This is only useful for FileSets which have a core path. */
+	public virtual PathPtr GetRootPath() const
+		@LuaProperty "RootPath" = 0;
 
 	public ~global ~friend void intrusive_ptr_add_ref(FileSet * const p)
 	{
@@ -157,173 +122,18 @@ class FileSet
 			delete p;
 		}
 	}
+	
+	/** True if this FileSet was created with a relative path.
+	 *  If false, "RootPath" for this will be an absolute. Otherwise, RootPath
+	 *  will itself be a relative path which has its own root path.
+	 *  All files in this collection will be relative to RootPath, but the root
+	 *  of RootPath will point to some other directory that originated this
+	 *  collection. */
+	public virtual bool IsRelativePath() const
+		@LuaProperty "IsRelativePath" = 0;
 
-	public string ToString() const
-		@LuaOperator "__tostring"
-	{
-		return str(format("%s %s") % this->GetRoot() % this->GetRegex());
-	}
+	public virtual string ToString() const
+		@LuaOperator "__tostring" = 0;
+}
 
-	/** Ensures that the path conforms to the given regular expression.
-	 * Does not check to see that path is inside of root- this is used
-	 * instead by the Iterator. */
-	//bool testPath(boost::filesystem::path & path);
-	protected bool testPath(const string & str) const
-	{
-		return boost::regex_search(str, this->regExp);
-	}
-
-}; // End FileSet class
-
-
-class FileSetIterator
-{
-	friend FileSet;
-
-	/**
-	 * Special case- needed if this FileSet represents a single file.
-	 */
-	private bool iterateSingleFile;
-
-	private vector<boost::filesystem::directory_iterator> stack;
-
-	private FileSetIterator(const FileSet * parent)
-		: fileSet(parent), iterateSingleFile(false), stack()
-	{
-		if (fileSet != nullptr)
-		{
-			if (is_directory(fileSet->root))
-			{
-				stack.push_back(directory_iterator(fileSet->root));
-				iterate(true);
-			}
-			else
-			{
-				std::string path(fileSet->root.string());
-				if (fileSet->testPath(path))
-				{
-					iterateSingleFile = true;
-				}
-				else
-				{
-					fileSet = nullptr;
-				}
-			}
-		}
-	}
-
-	public path operator*()
-	{
-		if (iterateSingleFile)
-		{
-			return fileSet->root;
-		}
-		if (finished())
-		{
-			throw Macaroni::StringException("FileSet iterator is finished.");
-		}
-		directory_iterator & itr = stack.back();
-		boost::filesystem::path path = *itr;
-		return path;
-	}
-
-	public bool operator==(const FileSetIterator& other) const
-	{
-		if (&other == this)
-		{
-			return true;
-		}
-		if (this->fileSet == nullptr || other.fileSet == nullptr)
-		{
-			return this->fileSet == other.fileSet;
-		}
-		if (other.stack.size() != this->stack.size())
-		{
-			return false;
-		}
-		for(size_t i = 0; i < stack.size(); i ++)
-		{
-			if (other.stack[i] != stack[i])
-			{
-				return false;
-			}
-		}
-		return true;
-	}
-
-	public inline bool operator!=(const FileSetIterator& other) const
-	{
-		return !(operator==(other));
-	}
-
-	public FileSetIterator operator++()
-	{
-		using boost::filesystem::is_directory;
-		if (iterateSingleFile)
-		{
-			iterateSingleFile = false;
-			fileSet = nullptr;
-			return *this;
-		}
-		if (finished())
-		{
-			throw Macaroni::StringException("Index out of bounds.");
-		}
-		iterate(false);
-		return *this;
-	}
-
-	private bool finished()
-	{
-		if (fileSet == nullptr)
-		{
-			MACARONI_ASSERT(stack.size() < 1,
-				"Stack size < 1, yet fileset  null.");
-			return true;
-		}
-		return false;
-	}
-
-	private const FileSet * fileSet;
-
-	/**
-	 * Internal method to iterate through directories recursively.
-	 */
-	private void iterate(bool freshItr)
-	{
-		using boost::filesystem::is_directory;
-		directory_iterator end_itr;
-		while(stack.size() > 0)
-		{
-			directory_iterator & itr = stack.back();
-
-			if (!freshItr)
-			{
-				itr ++;
-			}
-			freshItr = false;
-
-			if (itr == end_itr)
-			{
-				stack.pop_back();
-			}
-			else if (is_directory(itr->status()))
-			{
-				stack.push_back(directory_iterator(*itr));
-				freshItr = true;
-				continue;
-			}
-			else if (true)
-			{
-				if (fileSet->testPath((*itr).path().string()))//boost::regex_search((*itr).string(), fileSet->regExp))
-				{
-					return;
-				}
-			}
-		}
-		fileSet = nullptr;
-		return;
-	}
-
-}; // End Iterator class
 

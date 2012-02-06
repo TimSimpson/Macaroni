@@ -83,8 +83,15 @@ NodeFileGenerator = {
             handlerFunc = self.parseClass;
 		elseif (typeName == TypeNames.Typedef) then
             handlerFunc = self.parseTypedef;
+        elseif (typeName == TypeNames.Function) then
+            -- A type or namespace will handle these.
+            return;
+        elseif (typeName == TypeNames.Variable) then
+            -- A type or namespace will handle these.
+            return;
         else
-	    error("I don't think the code should be here...")
+	       error("I don't think the code should be here..."
+                 .. node.FullName)
         end
 
         if (handlerFunc ~= nil) then

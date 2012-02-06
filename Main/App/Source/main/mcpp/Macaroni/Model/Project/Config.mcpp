@@ -41,6 +41,15 @@ class ConfigLuaMetaData{};
  *  "release" or "debug", and by default is the later. 
  *  This gets translated to the configuration when generating Visual Studio
  *  projects, and the <variant>debug when generating Boost Build files.
+ *
+ *  To comparing one Config against another produces iinteger scores. Negative 
+ *  numbers mean different, positive mean equal (different from CompareTo).
+ *  higher numbers means more different.
+ *  When two configs are compared, each value in one is tested against the
+ *  value in the other. If two values are not equal, but one is optional,
+ *  no points are added, otherwise one is subtracted.
+ *  Typically when Configs are searched, everything with a non-negative score 
+ *  matching a Config will be used.
  */
 class Config
 	@LuaClass [
@@ -67,6 +76,32 @@ class Config
 	: variant(boost::none)
 	{
 	}	
+
+	public bool IsMatch(ConfigPtr other)
+		@LuaFunction "IsMatch"
+	{
+		if (!other)
+		{
+			return false;
+		}
+		return IsMatch(*other);
+	}
+
+	/** True if the given config is a match for this one.
+	 *  For example, if this has Variant = boost::none, the other config
+	 *  will match regardless of its value.
+	 *  However, if it is set, other must be equal. */
+	public bool IsMatch(const Config & other)
+	{
+		if (this->variant && other.variant)
+		{
+			if (this->variant.get() != other.variant.get())
+			{
+				return false;
+			}
+		}
+		return true;
+	}
 
 	protected static VariantOption LuaDebugProperty()
 		@LuaProperty "DEBUG"

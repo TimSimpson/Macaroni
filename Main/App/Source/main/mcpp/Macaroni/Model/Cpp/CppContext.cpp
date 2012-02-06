@@ -43,7 +43,7 @@ void CppContext::CreateCppNodes(ContextPtr context)
 {
 	if (context->GetRoot()->GetElement() == nullptr)
 	{
-		FileNamePtr file = FileName::Create(std::string("Cpp Parser"));
+		FileNamePtr file = FileName::CreateNonPhysical(std::string("Cpp Parser"));
 		SourcePtr src = Source::Create(file, 0, 0);
 		Namespace::Create(context->GetRootLibrary(),
 			              context->GetRoot(), 
@@ -77,7 +77,7 @@ void CppContext::CreateCppNodes(ContextPtr context)
 
 void CppContext::addPrimitive(NodePtr & node, const char * name)
 {
-	static FileNamePtr file = FileName::Create(std::string("Cpp Parser"));
+	static FileNamePtr file = FileName::CreateNonPhysical("Cpp Parser");
 	static SourcePtr src = Source::Create(file, 0, 0);
 
 	NodePtr primitive = node->FindOrCreate(name);

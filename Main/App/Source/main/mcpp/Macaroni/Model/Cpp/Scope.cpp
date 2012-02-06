@@ -51,6 +51,7 @@ Scope::Scope(Target * target, Node * node, const char * typeName, ReasonPtr reas
  library(0),
  target(target)
 {
+	target->AddElement(this);
 }
 
 
@@ -73,18 +74,41 @@ NodePtr Scope::GetMember(int index) const
 	return getNode()->GetChild(index);
 }
 
+TargetPtr Scope::GetOwner() const
+{
+	if (!target) 
+	{
+		return Element::GetOwner();
+	}
+	return target;
+}
+
 bool Scope::OwnedBy(Macaroni::Model::Project::TargetPtr target) const {
-	if (!target) {
+	if (!target) 
+	{
 		return false;
 	}
-	if (*target == *(this->target)) {
+	if (*target == *(this->target)) 
+	{
 		return true;
 	}
-	TargetPtr parent = this->target->GetParent();
-	if (!!parent && *target == *parent) {
-		return true;
+	return this->target->OwnedBy(target.get());		
+}
+
+void Scope::SwitchOwner(Macaroni::Model::Project::TargetPtr newTarget)
+{	
+	if (0 != target)
+	{
+		Target & from = *target;
+		Target & to = *newTarget;
+		this->target = newTarget.get();
+		Target::SwitchOwner(*this, from, to);
 	}
-	return false;
+	else
+	{
+		this->target = newTarget.get();
+		target->AddElement(this);
+	}
 }
 
 END_NAMESPACE

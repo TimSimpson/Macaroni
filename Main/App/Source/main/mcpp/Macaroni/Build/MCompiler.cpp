@@ -23,7 +23,6 @@
 #include <Macaroni/Exception.h>
 #include <Macaroni/Model/FileName.h>
 #include <Macaroni/IO/FileSet.h>
-#include <Macaroni/IO/FileSetIterator.h>
 #include <Macaroni/Build/BuildContext.h>
 #include "../Model/LibraryPtr.h"
 #include <memory>
@@ -33,6 +32,8 @@
 #include "../Parser/Pippy/PippyParser.h"
 #include <Macaroni/Generator/DynamicGeneratorRunner.h>
 #include <Macaroni/IO/Path.h>
+#include <Macaroni/IO/RegexFileSet.h>
+#include <Macaroni/IO/RegexFileSetIterator.h>
 #include <Macaroni/Model/Source.h>
 #include <Macaroni/StringException.h>
 #include <Macaroni/Environment/StringPair.h>
@@ -47,7 +48,6 @@ using Macaroni::Exception;
 using Macaroni::Model::FileName;
 using Macaroni::Model::FileNamePtr;
 using Macaroni::IO::FileSet;
-using Macaroni::IO::FileSetIterator;
 #include <fstream>
 #include <iostream>
 using Macaroni::Build::BuildContext;
@@ -60,6 +60,8 @@ using boost::filesystem::path;
 using Macaroni::IO::Path;
 using Macaroni::IO::PathPtr;
 using Macaroni::Parser::Pippy::PippyParser;
+using Macaroni::IO::RegexFileSet;
+using Macaroni::IO::RegexFileSetIterator;
 using Macaroni::Model::Source;
 using Macaroni::Model::SourcePtr;
 #include <string>
@@ -75,7 +77,7 @@ class MCompiler
 public:
 	MCompiler(const Macaroni::AppPathsPtr & appPaths);
 	/** Iteratres all input files, parsing each one into the given context. */
-	bool BuildModel(LibraryPtr library, const std::vector<FileSet> & filePath);
+	bool BuildModel(LibraryPtr library, const std::vector<RegexFileSet> & filePath);
 	void Compile(LibraryPtr library,
 				 const MCompilerOptions & options);
 
@@ -85,8 +87,8 @@ private:
 	/** Reads from the model to generates output files. */
 	bool generateFiles(LibraryPtr library, path output, const MCompilerOptions & options);
 	/** Parses the file and stores it into the Model context. */
-	void parseFile(LibraryPtr library, path filePath);
-	bool parseFileSet(LibraryPtr library, FileSet files);
+	void parseFile(LibraryPtr library, Macaroni::IO::Path filePath);
+	bool parseFileSet(LibraryPtr library, RegexFileSet files);
 	/** Reads the contents of a file into the contents stringstream. */
 	void readFile(std::stringstream & contents, const std::string & filePath);
 };
@@ -115,22 +117,23 @@ void MCompiler::readFile(std::stringstream & contents, const std::string & fileP
 	file.close();
 }
 
-void MCompiler::parseFile(LibraryPtr library, path filePath)
+void MCompiler::parseFile(LibraryPtr library, Macaroni::IO::Path filePath)
 {
 	std::stringstream fileContents;
-	readFile(fileContents, filePath.string());
+	readFile(fileContents, filePath.GetAbsolutePath());
 
-	FileNamePtr fileName = FileName::Create(filePath.string());
+	FileNamePtr fileName = FileName::Create(filePath);
 	SourcePtr source = Source::Create(fileName, 1, 1);
 	PippyParser parser;
 	parser.Read(library, source, fileContents.str());
 }
 
-bool MCompiler::BuildModel(LibraryPtr library, const std::vector<FileSet> & inputFiles)
+bool MCompiler::BuildModel(LibraryPtr library, 
+						   const std::vector<RegexFileSet> & inputFiles)
 {
 	for (unsigned int i = 0; i < inputFiles.size(); i ++)
 	{
-		const FileSet & files = inputFiles[i];
+		const RegexFileSet & files = inputFiles[i];
 		if (!parseFileSet(library, files))
 		{
 			return false;
@@ -180,16 +183,17 @@ void MCompiler::Compile(LibraryPtr library, const MCompilerOptions & options)
 
 }
 
-bool MCompiler::parseFileSet(LibraryPtr library, const FileSet inputFiles)
+bool MCompiler::parseFileSet(LibraryPtr library, const RegexFileSet inputFiles)
 {
-	FileSetIterator itr = inputFiles.Begin();
-	FileSetIterator end = inputFiles.End();
+	RegexFileSetIterator itr = inputFiles.Begin();
+	RegexFileSetIterator end = inputFiles.End();
 	for(; itr != end; ++ itr)
 	{
 		path p = *itr;
 		/*try
 		{*/
-			parseFile(library, p);
+		Macaroni::IO::Path relativePath(inputFiles.GetRoot(), p);
+			parseFile(library, relativePath);
 		/*}
 		catch(ParserException pe)
 		{

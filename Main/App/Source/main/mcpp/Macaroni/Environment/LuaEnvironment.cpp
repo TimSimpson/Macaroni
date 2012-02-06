@@ -322,19 +322,22 @@ void LuaEnvironment::Run(int results)
 	LuaEnvironment::Run(MACARONI_INTERNAL_SOURCE, this->state, 0, results);
 }
 
+MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(LuaRunException,
+	"Error running Lua: %s")
+
 void LuaEnvironment::Run(const Macaroni::InternalSource & source, 
 				         lua_State * L, int args, int results)
 {
 	int eCode = lua_pcall(L, args, results, 0);
 	if (eCode != 0)
 	{	
-		std::stringstream ss;
-		ss << "Error running Lua (invoked at file " 
-			<< source.FileName << ", line " << source.Line << ")"; 
+		const char * msg;
+		//ss << "Error running Lua (invoked at file " 
+		//	<< source.FileName << ", line " << source.Line << ")"; 
 		if (lua_isstring(L, -1)) 
 		{
-			ss << ":";
-			ss << luaL_checkstring(L, -1);
+			//ss << ":";
+			msg = luaL_checkstring(L, -1);
 		}
 		else
 		{
@@ -342,15 +345,14 @@ void LuaEnvironment::Run(const Macaroni::InternalSource & source,
 			lua_pushvalue(L, -2);
 			if (lua_pcall(L, 1, 1, 0) != 0)
 			{
-				ss << ". Unfortunately no string was attached to this error "
+				msg = "(! <~ Unfortunately no string was attached to this error "
 					  "and an attempt to convert the error value to a string "
-					  "failed.";
+					  "failed.)";
 			} else {
-				ss << ":" << luaL_checkstring(L, -1);
-			}
-			
+				msg = luaL_checkstring(L, -1);
+			}			
 		}
-		throw Macaroni::StringException(ss.str().c_str(), source);
+		throw LuaRunException(msg, source);
 	}	
 }
 

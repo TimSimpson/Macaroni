@@ -47,6 +47,7 @@
 ~import Macaroni::IO::PathPtr;
 ~import Macaroni::IO::Paths;
 ~import Macaroni::Environment::Process;
+~import Macaroni::IO::RegexFileSet;
 ~import boost::shared_ptr;
 ~import Macaroni::Model::Source;
 ~import std::string;
@@ -730,8 +731,9 @@ class Builder
 		const std::vector<MACARONI_VE_CONST std::string> src = sourceManifest->GetMSource();
 		BOOST_FOREACH(const string & dir, src)
 		{
-			std::vector<FileSet> input;
-			input.push_back(FileSet(boost::filesystem::path(dir), "\\.m(cpp|h)?$"));
+			std::vector<RegexFileSet> input;
+			input.push_back(RegexFileSet(boost::filesystem::path(dir), 
+				                         "\\.m(cpp|h)?$"));
 			compiler.BuildModel(sourceLibrary, input);
 		}
 	}

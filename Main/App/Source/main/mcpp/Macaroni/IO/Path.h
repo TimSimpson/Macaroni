@@ -44,12 +44,15 @@ typedef boost::shared_ptr<PathList> PathListPtr;
 class Path
 {
 public:
-	Path(const std::string & absolutePath);
-	Path(boost::filesystem::path rootPath);
-	Path(boost::filesystem::path rootPath, const char * path);
+	explicit Path(const std::string & absolutePath);
+	explicit Path(const boost::filesystem::path & rootPath);
+	Path(const boost::filesystem::path & rootPath, const char * path);
 	Path(const Path & other); 
-	Path(boost::filesystem::path rootPath, boost::filesystem::path path);
+	Path(const boost::filesystem::path & rootPath, 
+		 const boost::filesystem::path & path);
 	
+	bool operator==(const Path & other) const;
+
 	/** Deletes all files and directories within this directory. 
 	 *  Throws an exception if this is a file or doesn't exist.
 	 *  Boost throws an error if the path is empty as well. */
@@ -81,6 +84,8 @@ public:
 	/** Creates a new instance with the given path as the root path. */
 	PathPtr CreateWithDifferentRootPath(const PathPtr & path);
 	
+	PathPtr DifferentSuffix(const std::string & suffix);
+
 	bool Exists() const;
 
 	std::string GetAbsolutePath() const;
@@ -90,12 +95,17 @@ public:
 	 * TODO: Change name as it sucks, as stated above.
 	 */
 	std::string GetAbsolutePathForceSlash() const;
-
+	
 	/** Grabs the filename, i.e. everything after the directory. 
 	 *  Throws if this is not a regular file. */
 	std::string GetFileName() const;	
 	
 	PathPtr GetParentPath() const;
+
+	inline boost::filesystem::path GetPath() const
+	{
+		return this->path;
+	}
 
 	PathListPtr GetPaths() const;
 
@@ -103,6 +113,16 @@ public:
 	PathListPtr GetPaths(const std::string & matchingPattern) const;
 
 	std::string GetRelativePath() const;
+
+	/** The relative path, but forward slashes are used even on Windows and
+	 *  any leading slashes are removed (i.e. "\blah\blah.h" becomes 
+	 *  "blah/blah.h"). */
+	std::string GetRelativePathNormalized() const;
+
+	inline boost::filesystem::path GetRootPath() const
+	{
+		return this->rootPath;
+	}
 
 	/** Creates a string to get us from the relative path back to root. */
 	std::string GetStringBackToRoot() const;
@@ -124,10 +144,13 @@ public:
 	/** Creates a new path but forces a slash to appear. */
 	PathPtr NewPathForceSlash(const std::string & name) const;
 
+	/** Turns a string with Windows slashes to forward slashes. */
+	static std::string NormalizePathString(std::string & name);
+
 	/** Renames the file using only the relative part of the file path (in 
 	    other words, the root path stays the same). */
 	void RenameRelative(const std::string & relativePath);
-
+	
 	/** The path in String form. */
 	std::string ToString() const;
 		

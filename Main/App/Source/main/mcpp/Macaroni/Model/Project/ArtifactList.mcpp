@@ -1,0 +1,66 @@
+~import Macaroni::Model::Project::Artifact;
+~import Macaroni::Model::Project::ArtifactPtr;
+~import boost::format;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaIndexExtraCode;
+~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Lua::LuaProperty;
+~import boost::shared_ptr;
+~import std::string;
+~import std::vector;
+~import Macaroni::Cpp::UseLightDef;
+
+~namespace Macaroni::Model::Project;
+
+
+/** These classes are veneers over vectors and maps. There's a few
+ *  extra functions added, but the main reason to extend these types was to
+ *  more easily add Lua Glue. */
+class ArtifactList{};
+
+typedef shared_ptr<ArtifactList ~l> ArtifactListPtr
+	@LuaClass [ SameAsNode = ArtifactList ]
+	@UseLightDef true
+;
+
+class ArtifactList : public vector<ArtifactPtr>
+	@LuaClass [
+		ReferenceType = ArtifactListPtr		
+	]
+	@LuaIndexExtraCode ={
+		if (1 == lua_isnumber(L, 2))
+		{
+			lua_Number key = lua_tonumber(L, 2);
+			if (key < 1 || key > instance->size())
+			{
+				luaL_error(L, "Index out of bounds.");
+			}
+			Macaroni::Model::Project::ArtifactLuaMetaData::PutInstanceOnStack(
+				L, instance->operator[](key - 1));
+			return 1;
+		}
+	}
+{	
+	public ArtifactList()
+	{
+	}
+
+	public void Add(ArtifactPtr artifact)
+		@LuaFunction "Add"
+	{
+		this->push_back(artifact);
+	}
+
+	public int Size() const 
+		@LuaOperator "__len"
+	{
+		return this->size();
+	}
+
+	public string ToString() const
+		@LuaOperator "__tostring"
+	{
+		return str(format("ArtifactList, length=%d") % this->size());
+	}
+};

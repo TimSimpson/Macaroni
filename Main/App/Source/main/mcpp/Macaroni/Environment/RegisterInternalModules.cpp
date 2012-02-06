@@ -71,6 +71,7 @@ static const struct luaL_Reg libs[] = {
 	{"Macaroni.Parser.Parser", Parser::ParserLuaMetaData::OpenInLua},
 	{"Macaroni.Parser.ParserException", Parser::ParserExceptionLuaMetaData::OpenInLua},
 	{"Macaroni.IO.Path", IO::PathLuaMetaData::OpenInLua},
+	{"Macaroni.IO.PathList", IO::PathListLuaMetaData::OpenInLua},
 //	{"Macaroni.Parser.Cpp.CppParser", Parser::Cpp::CppParserLuaMetaData::OpenInLua},
 	{"Macaroni.Parser.Pippy.PippyParser", Parser::Pippy::PippyParserLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Type", Macaroni::Model::TypeLuaMetaData::OpenInLua},

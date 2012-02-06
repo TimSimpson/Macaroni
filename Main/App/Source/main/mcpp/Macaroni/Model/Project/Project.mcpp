@@ -86,6 +86,18 @@ class Macaroni::Model::Project::Project
 		versions.push_back(newVersion);
 	}
 
+	public ProjectVersionPtr FindVersion(const std::string & version)
+		@LuaFunction "FindVersion"
+	{
+		using Macaroni::Model::Project::ProjectVersion;
+		BOOST_FOREACH(ProjectVersion * v, versions) {
+			if (v->GetVersion() == version) {
+				return v;
+			}
+		}
+		return ProjectVersionPtr();
+	}
+
 	/** Returns a version of this ID which can be used as a C identifier.
 	 * The point isn't to make a pretty name but just one that maps uniquely.
 	 */
@@ -124,14 +136,18 @@ class Macaroni::Model::Project::Project
 	{
 		return str(format("%s, Project=\"%s\"")
 		           % group->ToString() % name);
-	}
+	}	
 
 	public ProjectVersionPtr Version(const std::string & version)
 		@LuaFunction "Version"
 	{
 		using Macaroni::Model::Project::ProjectVersion;
-		ProjectVersionPtr projectVersion(new ProjectVersion(this, version));
-		addVersion(projectVersion.get());
+		ProjectVersionPtr projectVersion = FindVersion(version);
+		if (!projectVersion)
+		{
+			projectVersion.reset(new ProjectVersion(this, version));
+			addVersion(projectVersion.get());
+		}
 		return projectVersion;
 	}
 };

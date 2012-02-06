@@ -1,0 +1,72 @@
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Lua::LuaProperty;
+~import Macaroni::IO::Path;
+~import Macaroni::IO::PathPtr;
+~import Macaroni::Model::Project::ProjectVersion;
+~import Macaroni::Model::Project::ProjectVersionPtr;
+~import Macaroni::Exceptions::SimpleException;
+~import std::string;
+~import Macaroni::Model::Project::Target;
+~import Macaroni::Model::Project::TargetPtr;
+
+
+~namespace Macaroni::Model::Project;
+
+
+/**
+ * A C++ implementation file.
+ */
+class UnitTarget : public Target
+	@LuaClass [
+		ReferenceType = TargetPtr
+	]
+{
+	private PathPtr cppFile;
+	private string name;
+
+	~block "cpp"
+	{
+		MACARONI_SIMPLE_EXCEPTION_DEFINE(NameCannotBeEmptyException,
+			"Argument \"name\" cannot be empty.");
+		MACARONI_SIMPLE_EXCEPTION_DEFINE(PathAlreadySetException,
+			"The path property was already set!");
+	}
+
+	private UnitTarget(Target * parent, const string & name)
+	:  Target(parent->GetProjectVersion().get(), name),
+	   cppFile(),
+	   name(name)
+	{
+		if (name == "")
+		{
+			throw NameCannotBeEmptyException(MACARONI_INTERNAL_SOURCE);
+		}
+		this->setParent(parent);
+		parent->AddDependency(this);
+	}
+
+	public static UnitTarget * Create(TargetPtr parent, const string & name)
+		@LuaFunction "Create"
+	{
+		// The parent will handle the memory so this isn't a leak.
+		return new UnitTarget(parent.get(), name);
+	}
+
+	/** The CPP file. */
+	public PathPtr GetCppFile() const
+	{
+		return cppFile;
+	}
+
+	public void SetCppFile(PathPtr value)
+	{
+		if (cppFile)
+		{
+			throw PathAlreadySetException(MACARONI_INTERNAL_SOURCE);
+		}
+		cppFile = value;
+	}
+
+};

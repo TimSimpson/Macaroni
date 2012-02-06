@@ -28,7 +28,7 @@
 
 struct lua_State;
 
-#define PATHSMETATABLENAME "Macaroni.IO.Path.PathList"
+#define PATHSMETATABLENAME "Macaroni.IO.PathList"
 
 #define LUAGLUE_STARTNAMESPACE BEGIN_NAMESPACE2(Macaroni, IO)
 #define LUAGLUE_ENDNAMESPACE	END_NAMESPACE2
@@ -39,8 +39,9 @@ struct lua_State;
 #define LUAGLUE_REGISTRATIONCLASSNAME PathLuaMetaData
 #define LUAGLUE_HELPERCLASS PathsLuaFunctions
 #define LUAGLUE_OPENOTHERMODULES  \
-		luaL_newmetatable(L, "Macaroni.IO.Path.PathList"); \
-		luaL_register(L, nullptr, PathsProperty_MetaTableMethods);
+		luaL_newmetatable(L, "Macaroni.IO.PathList"); \
+		luaL_register(L, nullptr, PathsProperty_MetaTableMethods); \
+		luaL_register(L, "Macaroni.IO.PathList", PathsProperty_GlobalTableMethods);
 
 //#define LUAGLUE_OPENOTHERMODULES /*Macaroni::Generator::Output::PathLuaMetaData::OpenInLua(L); \
 //		luaL_newmetatable(L, "Macaroni.Generator.Output.Path.PathList"); \
@@ -53,7 +54,7 @@ BEGIN_NAMESPACE2(Macaroni, IO)
 
 namespace {
 
-	PathListPtr getPathListPtrFromStack(lua_State * L, int index)
+	PathListPtr & getPathListPtrFromStack(lua_State * L, int index)
 	{
 		PathListPtr * ptrToPtr = (PathListPtr *) luaL_checkudata(L, index, PATHSMETATABLENAME);
 		PathListPtr & ptr = dynamic_cast<PathListPtr &>(*ptrToPtr);
@@ -94,6 +95,27 @@ namespace {
 		return 1;
 	}
 
+	int paths__newindex(lua_State * L)
+	{
+		PathListPtr paths = getPathListPtrFromStack(L, 1);
+		unsigned int index = luaL_checkinteger(L, 2);
+		// Remember that lua is indexed by 1.
+		if (index > (paths->size() + 1) || index < 1)
+		{
+			return luaL_error(L, "Index out of bounds.");
+		}
+		PathPtr newPath = PathLuaMetaData::GetInstance(L, 3);
+		if (index == (paths->size() + 1))
+		{
+			paths->push_back(newPath);
+		}
+		else 
+		{
+			(*paths)[index - 1] = newPath; 
+		}
+		return 0;
+	}
+
 
 	static int paths__len(lua_State * L)
 	{
@@ -109,12 +131,26 @@ namespace {
 		return 1;
 	}
 
+	static int paths__new(lua_State * L)
+	{
+		PathListPtr paths(new PathList());
+		pushPathListPtrOntoStack(L, paths);
+		return 1;
+	}
+
 	static const struct luaL_Reg PathsProperty_MetaTableMethods[]=
 	{
 		{"__gc", paths__gc},
 		{"__index", paths__index},
 		{"__len", paths__len},
+		{"__newindex", paths__newindex},
 		{"__tostring", paths__tostring},
+		{nullptr, nullptr}
+	};
+
+	static const struct luaL_Reg PathsProperty_GlobalTableMethods[]=
+	{
+		{"New", paths__new},
 		{nullptr, nullptr}
 	};
 } // end anon namespace
@@ -239,6 +275,11 @@ END_NAMESPACE2
 			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::createWithDifferentRootPath);
 			return 1;
 		}
+		else if (index == "DifferentSuffix")
+		{
+			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::differentSuffix);
+			return 1;
+		}
 		else if (index == "Exists")
 		{	bool exists = ptr->Exists();
 			lua_pushboolean(L, exists);
@@ -329,11 +370,33 @@ END_NAMESPACE2
 		CATCH
 	}
 
+	static int differentSuffix(lua_State * L)
+	{
+		TRY
+			PathPtr ptr = getInstance(L);
+			std::string suffix = luaL_checkstring(L, 2);
+			PathPtr result = ptr->DifferentSuffix(suffix);
+			PathLuaMetaData::PutInstanceOnStack(L, result);
+			return 1;
+		CATCH
+	}
+
 	static int newInstance(lua_State * L)
 	{
 		TRY
 			std::string absolutePath(luaL_checkstring(L, 1));
-			PathPtr newPath(new Path(absolutePath));
+			PathPtr newPath;
+			if (lua_gettop(L) < 2)
+			{
+				newPath.reset(new Path(absolutePath));	
+			}
+			else
+			{
+				std::string relativePath(luaL_checkstring(L, 2));
+				boost::filesystem::path p1 = absolutePath;
+				boost::filesystem::path p2 = relativePath;
+				newPath.reset(new Path(p1, p2));	
+			}
 			LUAGLUE_REGISTRATIONCLASSNAME::PutInstanceOnStack(L, newPath);
 			return 1;
 		CATCH

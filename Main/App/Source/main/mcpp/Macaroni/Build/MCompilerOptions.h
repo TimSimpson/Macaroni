@@ -18,7 +18,7 @@
 
 #include <Macaroni/ME.h>
 #include <boost/filesystem/operations.hpp>
-#include <Macaroni/IO/FileSet.h>
+#include <Macaroni/IO/RegexFileSet.h>
 #include <string>
 #include <vector>
 
@@ -29,7 +29,7 @@ class MCompilerOptions
 {
 public:
 	//TODO: Remove the generators which goto this as an argument.
-	MCompilerOptions(const std::vector<Macaroni::IO::FileSet> & input,
+	MCompilerOptions(const std::vector<Macaroni::IO::RegexFileSet> & input,
 					 const boost::filesystem::path & output,
 					 const std::vector<MACARONI_VE_CONST std::string> generators);
 
@@ -40,7 +40,7 @@ public:
 		return generators;
 	}
 
-	inline const std::vector<Macaroni::IO::FileSet> & GetInput() const
+	inline const std::vector<Macaroni::IO::RegexFileSet> & GetInput() const
 	{
 		return input;
 	}
@@ -53,7 +53,7 @@ public:
 
 private:
 	const std::vector<MACARONI_VE_CONST std::string> generators;
-	std::vector<Macaroni::IO::FileSet> input;
+	std::vector<Macaroni::IO::RegexFileSet> input;
 	boost::filesystem::path output;
 };
 

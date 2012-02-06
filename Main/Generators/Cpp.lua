@@ -54,7 +54,7 @@ end
 function Generate(library, path)
     log = log.Init("Cpp");
     log.Write = function(self, msg)
-          -- print("[CPP]:" .. msg);
+          --print("[CPP]:" .. msg);
     end;
     if BoostConfigIsAvailable(library.Context) then
         lcg = LibraryConfigGenerator.new(library);
@@ -83,7 +83,18 @@ end
 
 function GetMethod(name)
     if name == "Generate" then
-        return {
+        return
+        {
+            Describe = function(args)
+                args.output.WriteLine("Generate C++ code for target "
+                                      .. tostring(args.target)
+                                      .. "to the directory "
+                                      .. tostring(args.path) .. ".");
+            end,
+            Install = function(args)
+                -- By default, Macaroni itself will copy all artifacts
+                -- and source to the destination directory "Source".
+            end,
             Run = function(args)
                 -- print("")
                 -- print("TARGET=" .. tostring(args.target));
@@ -91,7 +102,8 @@ function GetMethod(name)
                 -- print("PATH.NewPath=" .. tostring(args.path.NewPath));
 
                 Generate(args.target, args.path)
-            end }
+            end
+        }
     end
     return nil;
 end

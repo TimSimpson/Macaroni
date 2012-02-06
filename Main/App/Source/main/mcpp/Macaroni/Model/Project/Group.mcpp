@@ -100,12 +100,29 @@ class Group
 		projects.push_back(project);
 	}
 
+	/** Returns the project or an empty ptr if it doesn't exist. */
+	public ProjectPtr FindProject(const std::string & name)
+		@LuaFunction "FindProject"
+	{
+		using Macaroni::Model::Project::Project;
+		BOOST_FOREACH(Macaroni::Model::Project::Project * p, projects) {
+			if (p->GetName() == name) {
+				return p;
+			}
+		}
+		return ProjectPtr();
+	}
+
 	public ProjectPtr Project(const std::string & name)
 		@LuaFunction "Project"
 	{
 		using Macaroni::Model::Project::Project;
-		ProjectPtr project(new Project(this, name));
-		addProject(project.get());
+		ProjectPtr project = FindProject(name);
+		if (!project)
+		{
+			project.reset(new Project(this, name));
+			addProject(project.get());			
+		}
 		return project;
 	}
 

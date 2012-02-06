@@ -20,18 +20,18 @@
 #include <boost/filesystem/convenience.hpp>
 #include <boost/foreach.hpp>
 #include <Macaroni/Platform/FileTime.h>
-#include <Macaroni/IO/FileSet.h>
-#include <Macaroni/IO/FileSetIterator.h>
 #include <boost/format.hpp>
 #include <Macaroni/Exception.h>
 #include <iostream>
+#include <Macaroni/IO/RegexFileSet.h>
+#include <Macaroni/IO/RegexFileSetIterator.h>
 #include <sstream>
 #include <Macaroni/StringException.h>
 
 using Macaroni::Platform::FileTime;
-using Macaroni::IO::FileSet;
-using Macaroni::IO::FileSetIterator;
 using boost::format;
+using Macaroni::IO::RegexFileSet;
+using Macaroni::IO::RegexFileSetIterator;
 
 BEGIN_NAMESPACE2(Macaroni, IO)
 
@@ -46,12 +46,12 @@ Path::Path(const std::string & absolutePath)
 {
 }
 
-Path::Path(boost::filesystem::path rootPath)
+Path::Path(const boost::filesystem::path & rootPath)
 :path(rootPath), rootPath(rootPath)
 {
 }
 
-Path::Path(boost::filesystem::path rootPath, const char * path)
+Path::Path(const boost::filesystem::path & rootPath, const char * path)
 :path(path), rootPath(rootPath)
 {
 	assertPathExistsInRootPath();
@@ -63,10 +63,16 @@ Path::Path(const Path & other)
 	assertPathExistsInRootPath();
 }
 
-Path::Path(boost::filesystem::path rootPath, boost::filesystem::path path)
+Path::Path(const boost::filesystem::path & rootPath, 
+		   const boost::filesystem::path & path)
 :path(path), rootPath(rootPath)
 {
 	assertPathExistsInRootPath();
+}
+
+bool Path::operator==(const Path & other) const
+{
+	return path == other.path && rootPath == other.rootPath;
 }
 
 void Path::assertPathExistsInRootPath()
@@ -187,6 +193,15 @@ PathPtr Path::CreateWithDifferentRootPath(const PathPtr & otherPath)
 	return path;
 }
 
+PathPtr Path::DifferentSuffix(const std::string & suffix)
+{
+	std::stringstream ss;
+	ss << boost::filesystem::system_complete(path).stem().string() << suffix;
+	boost::filesystem::path p = path.parent_path() / ss.str();
+	PathPtr newPath(new Path(this->rootPath, p));
+	return newPath;
+}
+
 bool Path::Exists() const
 {
 	return boost::filesystem::exists(this->path);
@@ -199,31 +214,7 @@ std::string Path::GetAbsolutePath() const
 
 std::string Path::GetAbsolutePathForceSlash() const
 {
-	//const char seperator = boost::filesystem::path_alt_separator<boost::filesystem::path>::value;
-	//TODO: The line above worked in 1.42.0 but doesn't in 1.45.0.  Find
-	// an actual way to do this.
-	const char seperator = '\\';
-	if (!(seperator == '/'))
-	{
-		std::string original = GetAbsolutePath();
-		std::stringstream ss;
-		BOOST_FOREACH(char c, original)
-		{
-			if (c == seperator)
-			{
-				ss << "/";
-			}
-			else
-			{
-				ss << c;
-			}
-		}
-		return ss.str();
-	}
-	else
-	{
-		return GetAbsolutePath();
-	}
+	return NormalizePathString(GetAbsolutePath());
 }
 
 std::string Path::GetFileName() const
@@ -254,8 +245,8 @@ PathListPtr Path::GetPaths(const std::string & matchingPattern) const
 {
 	PathListPtr rtnList(new PathList());
 
-	FileSet files(this->path, matchingPattern);
-	for(FileSetIterator itr = files.Begin(); itr != files.End(); ++ itr)
+	RegexFileSet files(this->path, matchingPattern);
+	for(RegexFileSetIterator itr = files.Begin(); itr != files.End(); ++ itr)
 	{
 		PathPtr p(new Path(this->rootPath, *itr));
 		rtnList->push_back(p);
@@ -299,6 +290,10 @@ bool Path::IsDirectory() const
 
 bool Path::IsFileOlderThan(const std::string & filePath) const
 {
+	if (filePath.size() < 1)
+	{
+		throw Macaroni::StringException("Argument \"filePath\" cannot be empty.");
+	}
 	if (!this->Exists())
 	{
 		return true; // FoR WHAT BE MORE ANCIENT THAN THE VOID OF
@@ -343,6 +338,34 @@ PathPtr Path::NewPathForceSlash(const std::string & name) const
 	return PathPtr(new Path(this->rootPath, newPath));
 }
 
+std::string Path::NormalizePathString(std::string & original)
+{
+	//const char seperator = boost::filesystem::path_alt_separator<boost::filesystem::path>::value;
+	//TODO: The line above worked in 1.42.0 but doesn't in 1.45.0.  Find
+	// an actual way to do this.
+	const char seperator = '\\';
+	if (!(seperator == '/'))
+	{
+		std::stringstream ss;
+		BOOST_FOREACH(char c, original)
+		{
+			if (c == seperator)
+			{
+				ss << "/";
+			}
+			else
+			{
+				ss << c;
+			}
+		}
+		return ss.str();
+	}
+	else
+	{
+		return original;
+	}
+}
+
 void Path::RenameRelative(const std::string & relativePath)
 {
 	boost::filesystem::path newPath = rootPath / relativePath;
@@ -367,6 +390,21 @@ std::string Path::GetRelativePath() const
 	size_t rootPathSize = rootPathStr.length();
 	std::string relativePath = fullPath.substr(rootPathSize);
 	return relativePath;
+}
+
+std::string Path::GetRelativePathNormalized() const
+{
+	std::string original = NormalizePathString(GetRelativePath());
+	int index = 0;
+	while(original.length() > index && original[index] == '/')
+	{
+		++ index;
+	}
+	if (index > 0)
+	{
+		return original.substr(index);
+	}
+	return original;
 }
 
 std::string Path::ToString() const

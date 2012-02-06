@@ -23,7 +23,7 @@ function generate()
     print "Greetings from the manifest of the LUA test.\n\n"
     print("Lua 5.1.4 source path is " .. properties.lua["5.1.4"].source)
     print("Boost crap is at " .. properties.boost["1.46.1"].include)
-    run("LuaGlue", { luaImportCode =[[ 
+    run("LuaGlue", { luaImportCode =[[
 	#include <lauxlib.h>
 	#include <lualib.h>
 ]] });
@@ -39,42 +39,42 @@ function generate()
     --end
 end
 
-jamArgs = 
-{ 	
+jamArgs =
+{
 	ExcludePattern = "Main.cpp Test.cpp .svn",
 	ExtraTargets = [[
 	    # Same old problem! Can't load the boost test stuff as a shared library.
-	    
-		#lib boost_unit_test_framework : 
-		#	: <name>boost_unit_test_framework 
-		 # 	<search>"]] .. properties.boost.current["path"] 
+
+		#lib boost_unit_test_framework :
+		#	: <name>boost_unit_test_framework
+		 # 	<search>"]] .. properties.boost.current["path"]
 	    	      .. [[/stage/lib"
 	    #	      ;
-		
-		
+
+
 	 	#alias test_dependencies
-	#    	: "]] .. properties.boost.current["path"] 
-	   	      .. [[/libs/test/build//boost_unit_test_framework" 	    	  
+	#    	: "]] .. properties.boost.current["path"]
+	   	      .. [[/libs/test/build//boost_unit_test_framework"
 	  #      :
-	   # 	;	    	
-	    	
+	   # 	;
+
 		#unit-test test
-		#    : # boost_unit_test_framework 
+		#    : # boost_unit_test_framework
 		#    test_dependencies
 		#    #library
-		#      
-		#      ../Source/Test.cpp	
-		#      : <search>"]] .. properties.boost.current["path"] 
-	   	      .. [[/stage/lib"	    
+		#
+		#      ../Source/Test.cpp
+		#      : <search>"]] .. properties.boost.current["path"]
+	   	      .. [[/stage/lib"
 		#    ;
-		
+
 		#unit-test test
-		#    : library		      
+		#    : library
 		#      test_dependencies
-		#      ../Source/Test.cpp			      
+		#      ../Source/Test.cpp
 		#    ;
-		
-	  	exe Main 
+
+	  	exe Main
 	  		:	library #library_sources
 	  			#library_dependencies
 	  			../Source/Main.cpp
@@ -83,24 +83,24 @@ jamArgs =
 	  Shared = True,
 	  Tests = {"Test.cpp"}
 	};
-		
+
 function build()
 	require "Macaroni.IO.Path"
 	Path = Macaroni.IO.Path;
 	filePath = Path.New(manifestDirectory):NewPathForceSlash("LuaTest.vcproj")
-	
+
 	print("__FILE__ == " .. tostring(filePath))
-	run("Vcpp/Vcpp", {
-		    ProjectFile=filePath.AbsolutePath,
-			ProjectGUID="FD133633-4AB0-4068-BDD9-A2A343751345",
-			RootNamespace="Macaroni::Tests::Lua",
-			PlatformNames={"Win32"}
-		})
-	
+	-- run("Vcpp/Vcpp", {
+	-- 	    ProjectFile=filePath.AbsolutePath,
+	-- 		ProjectGUID="FD133633-4AB0-4068-BDD9-A2A343751345",
+	-- 		RootNamespace="Macaroni::Tests::Lua",
+	-- 		PlatformNames={"Win32"}
+	-- 	})
+
 	run("BoostBuild", jamArgs)
 end
 
---function test()	
+--function test()
 --	run("BoostBuild", { CmdLine="test"} );
 --end
 

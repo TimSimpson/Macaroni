@@ -14,6 +14,12 @@
  * limitations under the License.
  */
 ~import Macaroni::AppPathsPtr;
+~import Macaroni::Model::Project::Artifact;
+~import Macaroni::Model::Project::ArtifactPtr;
+~import Macaroni::Model::Project::ArtifactList;
+~import Macaroni::Model::Project::ArtifactListPtr;
+~import Macaroni::Model::Project::Config;
+~import Macaroni::Model::Project::ConfigPtr;
 ~import BOOST_FOREACH;
 ~import boost::format;
 ~import Macaroni::Model::Element;
@@ -25,16 +31,26 @@
 ~import Macaroni::Lua::LuaFunction;
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
+~import Macaroni::Model::Project::MacaroniCodeTarget;
 ~import Macaroni::Build::MCompiler;
 ~import Macaroni::Model::NodePtr;
+~import boost::filesystem::path;
+~import Macaroni::IO::PathList;
+~import Macaroni::IO::PathListPtr;
+~import Macaroni::IO::Path;
+~import Macaroni::IO::PathPtr;
 ~import Macaroni::Model::Project::ProjectVersion;
 ~import Macaroni::Model::Project::ProjectVersionPtr;
 ~import Macaroni::Model::Reason;
+~import Macaroni::IO::RegexFileSet;
+~import Macaroni::IO::RegexFileSetPtr;
 ~import Macaroni::Model::Project::Target;
 ~import Macaroni::Model::Project::Files;
 ~import Macaroni::Model::Project::FilesPtr;
 ~import Macaroni::Model::Project::FileList;
 ~import Macaroni::Model::Project::FileListPtr;
+~import Macaroni::IO::SimpleFileSet;
+~import Macaroni::IO::SimpleFileSetPtr;
 ~import Macaroni::Model::Project::TargetFileSweeper;
 ~import Macaroni::Model::Project::TargetPtr;
 ~import std::string;
@@ -49,54 +65,144 @@
 class LibraryTarget {};
 
 typedef intrusive_ptr<LibraryTarget ~l> LibraryTargetPtr
-		// @LuaClass [ SameAsNode = LibraryTarget ]
+		@LuaClass [ SameAsNode = LibraryTarget ]
 		@UseLightDef true;
 
-class LibraryTarget : public Macaroni::Model::Project::Target
-{
+class LibraryTarget : public virtual Macaroni::Model::Project::Target,
+		              public virtual MacaroniCodeTarget
 	@LuaClass [
-		ReferenceType = TargetPtr
+		ReferenceType = LibraryTargetPtr
 	]
+{
+	~import Macaroni::Model::Project::LibraryTargetLuaMetaData;
+
+	protected ArtifactListPtr artifacts;
+	protected PathListPtr headers;
+	protected PathListPtr macaroniCode;
 
 	private LibraryTarget(ProjectVersion * projectVersion,
 		            const string & name)
-	:   Target(projectVersion, name)
-	{
-		GetSources()->Add("Macaroni");
+	:   Target(projectVersion, name),
+		MacaroniCodeTarget(),
+	    artifacts(new ArtifactList()),
+		headers(new PathList()),
+		macaroniCode(new PathList())
+	{		
+		//GetSources()->Add("Macaroni");
 	}
 
-	private LibraryTarget(ProjectVersion * projectVersion,
-		            const string & name, FilesPtr sources)
-	:   Target(projectVersion, name, sources)
-	{
-		GetSources()->Add("Macaroni");
-	}
+	////private LibraryTarget(ProjectVersion * projectVersion,
+	////	            const string & name, FilesPtr sources)
+	////:   Target(projectVersion, name, sources),
+	////    artifacts(new ArtifactList()),
+	////	headers(new PathList())
+	////{
+	////	//GetSources()->Add("Macaroni");
+	////}
 
+	///*public virtual ArtifactPtr AddArtifact(const string & name, ConfigPtr config)		
+	//{
+	//	ArtifactPtr ptr(new ArtifactT(this, name));
+	//	return ptr;
+	//}	*/
+
+	public virtual void AddMacaroniFile(const Path & p)
+	{
+		PathPtr ptr(new Path(p));
+		macaroniCode->push_back(ptr);
+	}
 
 	public static LibraryTargetPtr Create(
 		ProjectVersion * projectVersion,
 		const string & name,
 		const vector<Macaroni::Model::Project::TargetPtr> & dependencies,
-		FilesPtr sources
+		PathListPtr headers,
+		PathListPtr sources
 		)
 	{
-		LibraryTargetPtr lib(new LibraryTarget(projectVersion, name, sources));
+		LibraryTargetPtr lib(new LibraryTarget(projectVersion, name));
 		BOOST_FOREACH(TargetPtr target, dependencies) {
 			lib->dependencies.push_back(target.get());
 		}
 
-		sources->Add("Macaroni");
-
-		TargetPtr ptr(lib.get());
-		TargetFileSweeper sweeper(ptr);
-		BOOST_FOREACH(FileSetPtr fs, *(sources->Macaroni())) {
-			if (!!fs) {
-				sweeper.ParseFileSet(*(fs.get()));
-				//lib->GetSources()->Macaroni()->push_back(fs);
-			}
+		BOOST_FOREACH(PathPtr p, *headers)
+		{
+			lib->headers->push_back(p);
 		}
 
+		TargetFileSweeper sweeper(lib);
+		BOOST_FOREACH(PathPtr p, *sources)
+		{
+			lib->headers->push_back(p);			
+		}
+
+		sweeper.RecursivelyParseDirectory(*sources);
+		//sources->Add("Macaroni");
+		////sources->Add("Headers");
+		////BOOST_FOREACH(FileSetPtr fs, *(sources["Headers"])) 
+		////{
+		////	lib->headers->push_back(fs->GetRootPath());
+		////}
+
+		////TargetPtr ptr(lib.get());
+		////TargetFileSweeper sweeper(ptr);
+		////BOOST_FOREACH(FileSetPtr fs, *(sources->Macaroni())) {
+		////	if (!!fs) {
+		////		sweeper.ParseFileSet(*(fs.get()));
+		////		//lib->GetSources()->Macaroni()->push_back(fs);
+		////	}
+		////}
+
 		return lib;
+	}
+
+	public virtual  ArtifactListPtr FindArtifacts(
+		const string & name, ConfigPtr config)
+	{
+		ArtifactListPtr results;
+		BOOST_FOREACH(ArtifactPtr artifact, *artifacts)
+		{
+			if (artifact->GetName() == name)
+			{
+				if (!config || config->IsMatch(artifact->GetConfig()))
+				{
+					results->push_back(ArtifactPtr(artifact));
+				}
+			}
+		}
+		return results;
+	}
+
+	public virtual ArtifactListPtr GetArtifacts()
+		@LuaProperty "Artifacts"
+	{		
+		return artifacts;
+	}
+
+	public virtual PathListPtr GetHeaders()
+		@LuaProperty "Headers"
+	{
+		return headers;
+	}
+
+	public virtual PathListPtr GetMacaroniCode()
+		@LuaProperty "MacaroniCode"
+	{
+		return headers;
+	}
+
+
+	protected virtual int LuaIndex(lua_State * L, const string & name)
+	{
+		LibraryTargetPtr me(this);
+		return LibraryTargetLuaMetaData::Index(L, me, name);
+		/*
+		if (name == "Headers")
+		{
+			FileListLuaMetaData::PutInstanceOnStack(L, this->GetHeaders());
+			return 1;
+		}
+		return 0;*/
 	}
 
 	void readFile(std::stringstream & contents, const std::string & filePath)

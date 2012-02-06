@@ -1,0 +1,12 @@
+~import Macaroni::IO::Path;
+~import Macaroni::Model::Project::Target;
+~import Macaroni::Model::Project::TargetPtr;
+
+
+~namespace Macaroni::Model::Project;
+
+
+class MacaroniCodeTarget
+{
+	public virtual void AddMacaroniFile(const Path & p) = 0;
+}

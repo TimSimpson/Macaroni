@@ -3,6 +3,8 @@
 ~import Macaroni::Model::Node;
 ~import Macaroni::Model::NodePtr;
 ~import Macaroni::Model::ReasonPtr;
+~import Macaroni::Model::Project::Target;
+~import Macaroni::Model::Project::TargetPtr;
 
 
 ~namespace Macaroni::Model;
@@ -41,6 +43,11 @@ class Element
 			"Reason created must be set by base class.");
 	}
 
+	public bool operator==(const Element & other) const
+	{
+		return this == &other;
+	}
+
 	public ~global ~friend void intrusive_ptr_add_ref(Element * p)
 	{
 		intrusive_ptr_add_ref(p->node);
@@ -49,7 +56,7 @@ class Element
 	public ~global ~friend void intrusive_ptr_release(Element * p)
 	{
 		intrusive_ptr_release(p->node);
-	}
+	}	
 
 	public NodePtr GetNode() const
 	{
@@ -61,9 +68,66 @@ class Element
 		return node;
 	}
 
+	/** Gets the adopted home of this Element, or just the parent. */
+	public Element * GetAdoptedParent() const
+	{
+		if (0 != node)
+		{
+			Node * const adoptedHome = node->adoptedHome;
+			if (0 != adoptedHome)
+			{
+				return adoptedHome->element;
+			}
+			Node * const parentNode = node->getNode();
+			if (0 != parentNode)
+			{
+				return parentNode->element;
+			}
+		}
+	}
+
+	/** Finds the target which owns this Element. If no target owns this 
+	 *  element, recursively checks all parents. */
+	public virtual TargetPtr GetOwner() const
+	{
+		Element * parent = this->GetAdoptedParent();
+		if (0 != parent)
+		{
+			return parent->GetOwner();
+		}
+		return TargetPtr(); // By default, there is no owner.
+	}
+
+	/** Gets the parent of this Element's Element, or nullptr if nothing. */
+	public Element * GetParent() const
+	{
+		if (0 != node)
+		{
+			Node * parentNode = node->getNode();
+			if (0 != parentNode)
+			{
+				return parentNode->element;
+			}
+		}
+	}
+
 	public ReasonPtr GetReasonCreated() const
 	{
 		return reasonCreated;
+	}
+
+	public virtual const char * GetTypeName() const = 0;
+
+	/** Returns true if this Elements's target is in the given target or a 
+	 *  child of the given target. */
+	public virtual bool OwnedBy(TargetPtr target) const
+	{
+		Element * parent = this->GetAdoptedParent();
+		if (0 != parent)
+		{
+			return parent->OwnedBy(target);
+		}
+		return false;
 	}
 
 	protected void setReasonCreation(const ReasonPtr reason)
@@ -71,5 +135,15 @@ class Element
 		this->reasonCreated = reason;
 	}
 
-	public virtual const char * GetTypeName() const = 0;
+	/** Switches the owner to something else. Will throw an exception if the
+	 *  new target is not related to the old one. */
+	public virtual void SwitchOwner(TargetPtr target)
+	{
+		TargetPtr owner = GetOwner();
+		if (owner)
+		{
+			Target::SwitchOwner(*this, *owner, *target);
+		}
+	}
+	
 };

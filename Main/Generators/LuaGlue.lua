@@ -567,16 +567,17 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 		--  To do that, it'd need to check arguments and resolve the overload
 		--  at runtime!
 		--
-
 		check(self ~= nil, 'Argument "self" missing!');
 		check(methodOverloadNode ~= nil, 'Argument "methodNode" missing!');
 		check(methodOverloadNode.Member ~= nil, 'Argument "methodNode" has no Member defined!');
 		check(methodOverloadNode.Member.TypeName == "FunctionOverload", 'Argument "methodNode" must have Member defined as FunctionOverload.');
+		check(methodName == nil or type(methodName) == "string",
+		      "Argument 'methodName' must be nil or string.")
 		local annotation = methodOverloadNode.Annotations[self.LuaFunction];
-
 		local node = methodOverloadNode.Node.Node;
 		check(node ~= nil, "The methodNode had no parent?! How can that be?!");
 		local rtn = {}
+		--annotation.ValueAsString
 		local methodName = methodName or
 		                   methodOverloadNode.Annotations[self.LuaFunction]
 		                   .ValueAsString or
@@ -593,6 +594,7 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 		else
 			t[#t + 1] = glueAnn.ValueAsString;
 		end
+
 		t[#t + 1] = "LUA_GLUE_CATCH";
 		t[#t + 1] = "}";
 		rtn.text = table.concat(t, "\n\t");
@@ -788,7 +790,6 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 		self:checkArgumentIsNodeGeneratorType("args", args);
 
 		local t = { }
-
 		local funcs = self:findAllFunctionsInNode(args.originalNode);
 		local opOverloads = self:findAllOperatorsInNode(args.originalNode);
 		t[#t + 1] = "struct " .. args.helperName .. "";
@@ -1009,6 +1010,7 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 			-- Writes the list of methods and strings which are used as the
 			-- meta table.
 			local funcs = self.parent:findAllFunctionsInNode(self.originalNode, true);
+
 			for i = 1, #funcs do
 				local fNode = funcs[i]
 				local tableEntry = '{"' .. fNode.Node.Name .. '", '

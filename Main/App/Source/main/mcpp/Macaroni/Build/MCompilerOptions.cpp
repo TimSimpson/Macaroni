@@ -18,11 +18,11 @@
 
 #include "MCompilerOptions.h"
 
-using Macaroni::IO::FileSet;
+using Macaroni::IO::RegexFileSet;
 
 namespace Macaroni { namespace Build {
 
-MCompilerOptions::MCompilerOptions(const std::vector<FileSet> & input, 
+MCompilerOptions::MCompilerOptions(const std::vector<RegexFileSet> & input, 
 				                   const boost::filesystem::path & output,
 								   const std::vector<MACARONI_VE_CONST std::string> generators)
 :input(input),

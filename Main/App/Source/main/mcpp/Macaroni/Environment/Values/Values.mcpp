@@ -245,7 +245,7 @@ class KeyNotFoundException : public SimpleStringException
 
 	public virtual const char * what() const throw()
 	{
-		return "Key not found.";
+		return "Key %s not found.";
 	}
 };
 
@@ -328,6 +328,7 @@ class Table : public Any
 		return children.count(name) > 0;
 	}
 
+	/** Fetches an item from the table as an AnyPtr. */
 	public AnyPtr get(const variant<int, string> & name)
 	{
 		if (children.count(name) > 0)
@@ -342,6 +343,10 @@ class Table : public Any
 	~block "h"
 	{
 	public:
+
+		/** This is like "get", but will instead return a (naked) pointer to a
+		 *  subclass of Any to eliminate the need for casting. It also throws
+		 *  exceptions if anything goes wrong. */
 		template<class T>
 		typename T * GetAsAnyType(
 			const boost::variant<int, std::string> & name)
@@ -381,6 +386,10 @@ class Table : public Any
 		}
 
 	private:
+		/* This is like "get" but instead of returning an AnyPtr, returns
+		 * the actual wrapped value type which Any contains. It does this
+		 * by first casting to the Any subclass and then fetching the stored
+		 * value. It throws if the casts are not possible. */
 		template<class T>
 		typename T::WrappedType get_t(
 			const boost::variant<int, std::string> & name)
@@ -460,7 +469,8 @@ class Table : public Any
 
 
 		/** Transforms this table into a vector if possible (works only if
-		 *  its a Lua array). */
+		 *  its a Lua array).  T must be a subclass of Any. O is a functor 
+		 *  which is called and passed the value type wrapped by T. */
 		template<class T, class O>
 		void ToVector(O o)
 		{

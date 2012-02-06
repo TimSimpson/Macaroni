@@ -183,7 +183,7 @@ class TextIterator
 	public static void IsTests()
 	{
 		std::string ok("12ComplexWord");
-		FileNamePtr file = FileName::Create(std::string("Blah.mcpp"));
+		FileNamePtr file = FileName::CreateNonPhysical("Blah.mcpp");
 		SourcePtr src = Source::Create(file, 1, 1);
 		TextIterator itr(ok.begin(), ok.end(), src);
 

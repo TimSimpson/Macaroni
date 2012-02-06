@@ -1,8 +1,10 @@
+~import boost::format;
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaFunction;
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
 ~import boost::intrusive_ptr;
+~import Macaroni::Exception;
 ~import Macaroni::Cpp::UseLightDef;
 
 ~namespace Macaroni::Environment;
@@ -43,6 +45,38 @@ class Output
 	/* Finishes a Output. */
 	public virtual void End()
 		@LuaFunction "End" = 0;
+
+	public virtual void Error(const char * msg) const
+		@LuaFunction "Error"
+	{
+		Write(str(format("ERROR!: %s") % msg));
+	}
+
+	public virtual void Error(const std::string & msg) const
+	{
+		Error(msg.c_str());
+	}
+
+	public virtual void ErrorLine(const char * msg) const
+		@LuaFunction "ErrorLine"
+	{
+		WriteLine(str(format("ERROR!: %s") % msg));
+	}
+
+	public virtual void ErrorLine(const std::string & msg) const		
+	{
+		ErrorLine(msg.c_str());
+	}
+
+	public virtual void ErrorLine(const Macaroni::Exception & ex) const
+	{
+		ErrorLine(ex.message());
+	}
+
+	public virtual void ErrorLine(const std::exception & ex) const
+	{
+		ErrorLine(ex.what());
+	}
 
 	/** If true is returned, the reference will be destroyed. */
 	protected virtual bool releaseReference() = 0;

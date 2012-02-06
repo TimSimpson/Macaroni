@@ -23,18 +23,28 @@
 #include "ScopeMember.h"
 #include "../Type.h"
 #include "Typedef.h"
+#include <Macaroni/Model/Project/Target.h>
+#include <Macaroni/Model/Project/TargetPtr.h>
 
 using Macaroni::Model::Member;
 using Macaroni::Model::Node;
 using Macaroni::Model::Reason;
 using Macaroni::Model::ReasonPtr;
+using Macaroni::Model::Project::Target;
+using Macaroni::Model::Project::TargetPtr;
 using Macaroni::Model::Type;
 using Macaroni::Model::TypePtr;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-Typedef::Typedef(Node * node, ReasonPtr reason, TypePtr type)
-:ScopeMember(node, "Typedef", reason), type(type)
+Typedef::Typedef(Library * library, Node * node, ReasonPtr reason, 
+				 TypePtr type)
+:Scope(library, node, "Typedef", reason), type(type)
+{
+}
+
+Typedef::Typedef(Target * target, Node * node, ReasonPtr reason, TypePtr type)
+:Scope(target, node, "Typedef", reason), type(type)
 {
 }
 
@@ -48,9 +58,16 @@ bool Typedef::canBeChildOf(const Member * other) const
 }
 
 
-TypedefPtr Typedef::Create(NodePtr home, ReasonPtr reason, TypePtr type)
+TypedefPtr Typedef::Create(LibraryPtr library, NodePtr home, ReasonPtr reason, 
+						   TypePtr type)
 {
-	return TypedefPtr(new Typedef(home.get(), reason, type));
+	return TypedefPtr(new Typedef(library.get(), home.get(), reason, type));
+}
+
+TypedefPtr Typedef::Create(TargetPtr target, NodePtr home, ReasonPtr reason, 
+						   TypePtr type)
+{
+	return TypedefPtr(new Typedef(target.get(), home.get(), reason, type));
 }
 
 TypePtr Typedef::GetType() const

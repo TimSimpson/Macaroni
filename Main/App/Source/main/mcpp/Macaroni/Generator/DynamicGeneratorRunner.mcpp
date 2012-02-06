@@ -29,6 +29,8 @@
 ~import Macaroni::IO::Path;
 ~import Macaroni::IO::PathPtr;
 ~import Macaroni::IO::Paths;
+~import Macaroni::IO::RegexFileSet;
+~import Macaroni::IO::RegexFileSetIterator;
 ~import std::string;
 ~import Macaroni::Environment::StringPair;
 ~import std::vector;
@@ -101,13 +103,13 @@ class DynamicGeneratorRunner
 		return path("");
 	}
 
-	public path ResolveGeneratorPathOLD(const vector<FileSet> & srcDirs,
+	public path ResolveGeneratorPathOLD(const vector<RegexFileSet> & srcDirs,
 							  const string & guess)
 	{
 		std::vector<std::string> dirs;
 		for (unsigned int i = 0; i < srcDirs.size(); i ++)
 		{
-			const FileSet & localDir = srcDirs[i];
+			const RegexFileSet & localDir = srcDirs[i];
 			dirs.push_back(localDir.GetRoot().string());
 		}
 		return ResolveGeneratorPath(dirs, guess);
@@ -143,10 +145,10 @@ class DynamicGeneratorRunner
 		finalFilePath << exePath << "Generators/";
 
 		path generatorPath(finalFilePath.str());
-		FileSet generators(generatorPath);
+		RegexFileSet generators(generatorPath);
 
-		FileSetIterator end = generators.End();
-		for(FileSetIterator itr = generators.Begin(); itr != end; ++ itr)
+		RegexFileSetIterator end = generators.End();
+		for(RegexFileSetIterator itr = generators.Begin(); itr != end; ++ itr)
 		{
 			path p = *itr;
 			std::cout << p.string() << "\n";

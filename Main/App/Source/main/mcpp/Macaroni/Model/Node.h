@@ -28,6 +28,7 @@
 #include "ReasonPtr.h"
 #include <vector>
 
+
 BEGIN_NAMESPACE2(Macaroni, Model)
 
 class Namespace;
@@ -42,6 +43,8 @@ friend void intrusive_ptr_release(Node * p);
 
 public:		
 	
+	bool operator==(const Node & other) const;
+
 	/** Creates a node with the given prefix and some number
 	 * attached to it. */
 	NodePtr CreateNextInSequence(const std::string & prefix);
@@ -149,6 +152,15 @@ public:
 	//TO-DO: Rename to "getParent" or something.
 	NodePtr GetNode() const;
 
+	/** Returns true if the element of this node matches the given type. 
+	 *  The type-safe C++ alternative to GetTypeName. */
+	template<typename T>
+	bool HasElementOfType()
+	{
+		T * tPtr = dynamic_cast<T *>(getElement());
+		return 0 != tPtr;
+	}
+
 	/** Allows you to check the type name of a Node's Member without having to 
 	 * first check if the Node has a member. If there is no Member, "" is 
 	 * returned. Useful for Lua methods. */
@@ -226,7 +238,7 @@ private:
 	 * be stored for organization purposes.  For example, if you have an 
 	 * overloaded operator it might be better to store it in the same H file
 	 * as the class even though that's not really it's scope.  Can be null. */
-	NodePtr adoptedHome;
+	Node * adoptedHome;
 
 	AnnotationTable annotations;
 
@@ -244,7 +256,7 @@ private:
 
 	//TO-DO: Rename to "parent"
 	Node * scope;
-	
+		
 };
 
 END_NAMESPACE2

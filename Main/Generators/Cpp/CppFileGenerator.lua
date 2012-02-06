@@ -13,12 +13,12 @@ CppFileGenerator = {
 		if (library == nil) then
 			error("No library argument given.");
 		end
-        self = {}        
+        self = {}
         setmetatable(self, CppFileGenerator);
         self.targetLibrary = library;
         CppFileGenerator.__index = function(t, k)
             local v = CppFileGenerator[k];
-            if (not v) then 
+            if (not v) then
                 v = NodeFileGenerator[k];
             end
             return v;
@@ -26,17 +26,20 @@ CppFileGenerator = {
         self.libDecl = LibraryDecl(self.targetLibrary);
         return self;
     end,
-    
+
     attemptShortName = true,
-    
+
     createClassGenerator = function (self, node, path)
 		log:Write('CPP File Gen createClassGenerator 1');
         local reason = node.Member.ReasonCreated;
-        local srcFile = tostring(reason.Source.FileName);        
+        local srcFile = tostring(reason.Source.FileName);
         local filePath = path:NewPath(".cpp");
+        if MACARONI_VERSION ~= "0.1.0.23" then
+            node.Element.Owner:SetCppFile(filePath);
+        end
         log:Write('CPP File Gen createClassGenerator 2');
-        --if (filePath:IsFileOlderThan(srcFile)) then            
-            local cg = ClassCppFileGenerator.new{node = node, 
+        --if (filePath:IsFileOlderThan(srcFile)) then
+            local cg = ClassCppFileGenerator.new{node = node,
 				targetLibrary = self.targetLibrary, path = filePath};
             log:Write('CPP File Gen createClassGenerator 3');
             return cg;
@@ -45,10 +48,10 @@ CppFileGenerator = {
         --    log:Write('File for ' .. tostring(node) ..' is up to date, skipping.');
         --    return { parse = function() end };
         --end
-    end, 
-    
+    end,
+
     parseTypedef = function (self, node, path)
 		-- Do nothing
     end,
-    
+
 }; -- end CppFileGenerator

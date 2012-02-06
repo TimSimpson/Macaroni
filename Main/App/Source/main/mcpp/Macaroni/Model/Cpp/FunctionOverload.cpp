@@ -23,6 +23,7 @@
 #include <Macaroni/Model/Cpp/Variable.h>
 
 using Macaroni::Model::ModelInconsistencyException;
+using Macaroni::Model::Project::TargetPtr;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 

@@ -16,6 +16,7 @@
 
 ~import Macaroni::AppPaths;
 ~import Macaroni::AppPathsPtr;
+//~import Macaroni::Environment::Values::AnyPtr;
 ~import BOOST_FOREACH;
 ~import Macaroni::Model::Context;
 ~import Macaroni::Model::ContextLuaMetaData;
@@ -37,6 +38,10 @@
 ~import Macaroni::Environment::PluginFactory;
 ~import Macaroni::Environment::PluginFactoryLuaMetaData;
 ~import Macaroni::Environment::PluginFactoryPtr;
+~import Macaroni::Model::Project::ProjectVersionId;
+~import Macaroni::Model::Project::ProjectVersion;
+~import Macaroni::Model::Project::ProjectVersionLuaMetaData;
+~import Macaroni::Model::Project::ProjectVersionPtr;
 ~import Macaroni::Model::Reason;
 ~import Macaroni::Environment::ReplCommand;
 ~import std::string;
@@ -51,7 +56,22 @@ class Macaroni::Environment::Environment
  */
 {
 	~block "h-predef" {
+		#include <boost/algorithm/string.hpp>
 		#include <Macaroni/Environment/PluginFactory.h>
+	}
+
+	~block "cpp"
+	{
+		MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(LoadProjectException,
+			"Error parsing the definition file for project %s.");
+
+		MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(LoadProjectException2,
+			"After running the project definition file, project %s was "
+			"still undefined, meaning the definition file is incorrect.");
+
+		MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(ProjectNotFoundException,
+			"Could not find a file for project %s.");
+		
 	}
 
 	private AppPathsPtr appPaths;
@@ -61,6 +81,7 @@ class Macaroni::Environment::Environment
 	private OutputPtr output;
 	private PluginFactoryPtr pluginFactory;
 	private bool quitRepl;
+	private path workingDirectory;
 
 	public Environment(AppPathsPtr appPaths, ContextPtr context,
 		               InputPtr input, OutputPtr output)
@@ -70,7 +91,8 @@ class Macaroni::Environment::Environment
 	  luaEnvironment(),
 	  output(output),
 	  pluginFactory(new PluginFactory(appPaths)),
-	  quitRepl(false)
+	  quitRepl(false),
+	  workingDirectory("./")
 	{
 		output->WriteLine("Creating new Environment with the following "
 		                  "AppPaths:");
@@ -94,20 +116,40 @@ class Macaroni::Environment::Environment
 		output->WriteLine("Opening internal modules...");
 		luaEnvironment.OpenAllLuaModules();
 		output->WriteLine("");
-		
-		runInitScript();
 
-		ContextLuaMetaData::PutInstanceOnStack(luaEnvironment.GetState(),
-		                                       context);
-		lua_setglobal(luaEnvironment.GetState(), "context");
-
+		// Insert the output global variable first, since the following two 
+		// scripts may need it.
 		OutputLuaMetaData::PutInstanceOnStack(luaEnvironment.GetState(),
 		                                      output);
 		lua_setglobal(luaEnvironment.GetState(), "output");
 		
+		// Run "project-init.lua" which has helper functions.
+		runProjectInitScript();
+
+		// Run "init.lua" which resides in the user directory.
+		runInitScript();
+
+		// Insert our global variables: context, output, plugins, and load.
+		
+		ContextLuaMetaData::PutInstanceOnStack(luaEnvironment.GetState(),
+		                                       context);
+		lua_setglobal(luaEnvironment.GetState(), "context");		
+		
 		PluginFactoryLuaMetaData::PutInstanceOnStack(luaEnvironment.GetState(), 
 													 pluginFactory);
 		lua_setglobal(luaEnvironment.GetState(), "plugins");
+
+		// The load function is a closue, with *this* instances as user data.
+		// Its ok to do that since this instance owns the Lua state, so the
+		// function will only be called while it exists.
+		lua_pushlightuserdata(luaEnvironment.GetState(), (void *) this);
+		lua_pushcclosure(luaEnvironment.GetState(), LoadProjectLua, 1);
+		lua_setglobal(luaEnvironment.GetState(), "load");
+
+		lua_pushlightuserdata(luaEnvironment.GetState(), (void *) this);
+		lua_pushcclosure(luaEnvironment.GetState(), getWorkingDirectoryLua, 1);
+		lua_setglobal(luaEnvironment.GetState(), "getWorkingDirectory");
+
 	}
 
 	~hidden bool exit(string line)
@@ -120,6 +162,20 @@ class Macaroni::Environment::Environment
 		return true;
 	}
 
+	///** Creates a file set relative to the local directory. */
+	//public FileSetPtr Files(const string & localPath, optional<string> regEx)
+	//{
+	//	path p = this->workingDirectory / path;
+	//	if (regEx) 
+	//	{
+	//		FileSetPtr ptr(new FileSet(p, regEx));
+	//		return ptr;
+	//	} else {
+	//		FileSetPtr ptr(new FileSet(p, regEx));
+	//		return ptr;
+	//	}
+	//}
+	
 	/* Finds any file named "project.lua" in the current directory or any
 	 * directory it can find by iterating downward. */
 	public static optional<path> FindDefaultProject()
@@ -149,6 +205,71 @@ class Macaroni::Environment::Environment
 		return luaEnvironment;
 	}	
 
+	~hidden static int getWorkingDirectoryLua(lua_State * L)
+	{
+		void * uv1 = lua_touserdata(L, lua_upvalueindex(1));
+		Environment * me = static_cast<Environment *>(uv1);
+		lua_pushstring(L, me->workingDirectory.string().c_str());
+		return 1;
+	}
+
+	/////** Grabs a global variable from the Lua Environment. */
+	////public AnyPtr GrabGlobal(const string & name) const
+	////{
+	////	lua_getglobal(luaEnvironment, name.c_str());
+	////	AnyPtr rtn = LuaEnvironment::SerializeValue(luaEnvironment, -1, name);
+	////	lua_pop(luaEnvironment, 1);
+	////	return rtn;
+	////}	
+
+	~hidden static int LoadProjectLua(lua_State * L)
+	{
+		void * uv1 = lua_touserdata(L, lua_upvalueindex(1));
+		Environment * me = static_cast<Environment *>(uv1);
+		ProjectVersionId id(luaL_checkstring(L, 1), luaL_checkstring(L, 2),
+			                luaL_checkstring(L, 3));
+		try
+		{
+			ProjectVersionPtr pv = me->LoadProject(id);
+			ProjectVersionLuaMetaData::PutInstanceOnStack(L, pv);
+			return 1;
+		} catch(const Exception & ex) {
+			return luaL_error(L, ex.message().c_str());
+		} catch(const std::exception & ex) {
+			return luaL_error(L, ex.what());
+		}		
+	}
+
+	public ProjectVersionPtr LoadProject(const ProjectVersionId & pv)
+	{
+		Environment seperateEnv(appPaths, context, input, output);
+		if (!seperateEnv.RunProject(pv))
+		{
+			throw LoadProjectException(pv.ToString().c_str(),
+				                       MACARONI_INTERNAL_SOURCE);
+		}
+		/*
+		AnyPtr anyPtr = seperateEnv.GrabGlobal("project");
+		Any * any = anyPtr.get();
+		Macaroni_Model_Project_ProjectVersion * pvAny 
+			= dynamic_cast<Macaroni_Model_Project_ProjectVersion *>(any);
+		if (pvAny)
+		{
+			return pvAny->Get();			
+		}
+		else
+		{			
+			throw LoadProjectException2(pv.ToString());
+		}*/
+		ProjectVersionPtr result = context->FindProjectVersion(pv);
+		if (!result)
+		{
+			throw LoadProjectException2(pv.ToString().c_str(),
+				                        MACARONI_INTERNAL_SOURCE);
+		}
+		return result;
+	}
+
 	~hidden bool maccy(string line)
 		@ReplCommand[
 			Name = "~",
@@ -171,7 +292,7 @@ class Macaroni::Environment::Environment
 			Summary = "Print working directory."
 		]
 	{
-		output->WriteLine(appPaths->GetWorkingDirectory().string());
+		output->WriteLine(this->workingDirectory.string());
 		return true;
 	}
 
@@ -227,8 +348,8 @@ class Macaroni::Environment::Environment
 		path initLuaPath = userPath / "init.lua";
 		if (!boost::filesystem::exists(initLuaPath))
 		{
-			output->WriteLine(format("Could not find init.lua at %s.") 
-				              % initLuaPath.string());
+			output->ErrorLine(str(format("Could not find init.lua at %s.") 
+				              % initLuaPath.string()));
 			luaEnvironment.ParseString("init.lua", "properties = {}");
 			luaEnvironment.Run();
 		}
@@ -236,6 +357,45 @@ class Macaroni::Environment::Environment
 		{
 			output->WriteLine(format("Running %s...") % initLuaPath.string());
 			luaEnvironment.ParseFile(initLuaPath.string());
+			luaEnvironment.Run();
+		}
+	}		
+
+	public bool RunProject(const ProjectVersionId & pv)
+	{
+		optional<path> projectFilePath = appPaths->FindFinalProjectFile(pv);
+		if (projectFilePath)
+		{
+			return RunProject(projectFilePath.get());
+		}
+		else
+		{
+			throw ProjectNotFoundException(pv.ToString().c_str(),
+				                           MACARONI_INTERNAL_SOURCE);
+		}
+	}
+
+	~hidden void runProjectInitScript()
+	{
+		optional<path> pInitDir = appPaths->FindFinalProjectDirectory(
+			ProjectVersionId("Macaroni", "Project-Lua", "0"));
+		if (!pInitDir)
+		{
+			output->ErrorLine("Could not open project "
+				"Macaroni / Project-Lua / 0! Project system may be unusable.");
+			return;
+		}
+		else
+		{
+			path projectInit = pInitDir.get() / "src/project-init.lua";
+			if (!boost::filesystem::exists(projectInit))
+			{
+				output->ErrorLine(str(format("Could not find project-init.lua "
+					" at %s.") % projectInit.string()));
+				return;
+			}
+			output->WriteLine(format("Running %s...") % projectInit.string());
+			luaEnvironment.ParseFile(projectInit.string());
 			luaEnvironment.Run();
 		}
 	}
@@ -246,6 +406,8 @@ class Macaroni::Environment::Environment
 		{
 			throw FileNotFoundException(projectFilePath.string());
 		}
+		this->workingDirectory = projectFilePath;
+		this->workingDirectory.remove_leaf();
 		string filePath = projectFilePath.string();
 		output->WriteLine(format("Parsing file %s...") % filePath);
 		try
@@ -259,23 +421,23 @@ class Macaroni::Environment::Environment
 		return true;
 	}
 
-	~hidden bool setDirectory(string line)
-		@ReplCommand[
-			Name = "~cd",
-			Summary = "Change working directory."
-		]
-	{
-		string newDir = line.substr(3, line.size() - 3);
-		path p(newDir);
-		appPaths->SetWorkingDirectory(p);
-		std::vector<std::string> paths;
-		paths.push_back(appPaths->GetWorkingDirectory().string());
-		BOOST_FOREACH(path gp, appPaths->GetGeneratorPaths()) {
-			paths.push_back(gp.string());
-		}
-		luaEnvironment.SetPackageDirectory(paths);
-		return true;
-	}
+	///*~hidden bool setDirectory(string line)
+	//	@ReplCommand[
+	//		Name = "~cd",
+	//		Summary = "Change working directory."
+	//	]
+	//{
+	//	string newDir = line.substr(3, line.size() - 3);
+	//	path p(newDir);
+	//	appPaths->SetWorkingDirectory(p);
+	//	std::vector<std::string> paths;
+	//	paths.push_back(appPaths->GetWorkingDirectory().string());
+	//	BOOST_FOREACH(path gp, appPaths->GetGeneratorPaths()) {
+	//		paths.push_back(gp.string());
+	//	}
+	//	luaEnvironment.SetPackageDirectory(paths);
+	//	return true;
+	//}*/
 
 	~hidden bool showHelp(string line)
 		@ReplCommand[

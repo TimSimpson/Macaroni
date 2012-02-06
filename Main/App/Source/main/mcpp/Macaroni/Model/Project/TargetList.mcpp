@@ -1,0 +1,55 @@
+~import boost::format;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaIncludes;
+~import Macaroni::Lua::LuaIndexExtraCode;
+~import Macaroni::Lua::LuaOperator;
+//~import Macaroni::Core::SmartPointee;
+//~import boost::intrusive_ptr;
+~import Macaroni::Model::Project::TargetPtr;
+~import boost::shared_ptr;
+~import std::string;
+~import Macaroni::Cpp::UseLightDef;
+
+
+~namespace Macaroni::Model::Project;
+
+
+class TargetList {};
+
+typedef shared_ptr<TargetList> TargetListPtr
+	@LuaClass [ SameAsNode = TargetList ]
+	@UseLightDef true;
+
+class TargetList //: public SmartPointee
+	@LuaClass [
+		ReferenceType = TargetListPtr
+	]
+	@LuaIncludes = {
+		#include <Macaroni/Model/Project/Target.h>
+	}
+	@LuaIndexExtraCode ={
+		const int key = luaL_checknumber(L, 2);
+		if (key > 0 && key <= instance->GetCount())
+		{
+			TargetLuaMetaData::PutInstanceOnStack(L, 
+				                                  instance->GetItem(key - 1));			
+		}
+		else
+		{
+			lua_pushnil(L);
+		}
+		return 1;	
+	}
+{
+	public virtual int GetCount() const
+		@LuaOperator "__len"
+		= 0;
+
+	public virtual TargetPtr GetItem(int index) const = 0;
+
+	public virtual string ToString() const
+		@LuaOperator "__tostring"
+	{
+		return str(format("TargetList, size %d") % GetCount());
+	}
+};

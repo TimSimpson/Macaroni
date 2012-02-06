@@ -400,27 +400,30 @@ int _runScript(lua_State * L)
 		catch (const Macaroni::Exception & ex)
 		{
 			std::stringstream ss;
-			ss << "An error occurred running the generator at " 
-				<< scriptPath << ". ";
-			if (ex.where())
+			ss << "Error in " 
+				<< scriptPath << ":";
+			/*if (ex.where())
 			{
 				ss << "C exception thrown from " << ex.where().get().FileName 
 				   << ", line " << ex.where().get().Line << ". ";
-			}
-			
-			ss << "Message: " << ex.what();
-			luaL_error(L, ss.str().c_str());	
+			}*/			
+			ss << ex.message();
+			return luaL_error(L, ss.str().c_str());	
 		}		
 		catch (const std::exception & ex)
 		{
-			luaL_error(L, ex.what());	
+			std::stringstream ss;
+			ss << "Error in " 
+				<< scriptPath << ":";
+			ss << ex.what();
+			return luaL_error(L, ss.str().c_str());	
 		}		
 	}
 	else
 	{
 		std::stringstream ss;
 		ss << "Could not find generator " << scriptName << ".";		
-		luaL_error(L, ss.str().c_str());
+		return luaL_error(L, ss.str().c_str());
 	}
 	return 0;
 }
@@ -605,8 +608,16 @@ Manifest::RunResultPtr Manifest::RunTarget(const Console & console, BuildContext
 		result->Success = true; //false;
 		return result;
 	}
-	LuaEnvironment::Run(MACARONI_INTERNAL_SOURCE, L, 0, 1);
-	result->Success = true;
+	try {
+		LuaEnvironment::Run(MACARONI_INTERNAL_SOURCE, L, 0, 1);
+		result->Success = true;
+	} catch(const Macaroni::Exception & mex) {
+		console.ErrorLine(mex);
+		result->Success = false;
+	} catch(const std::exception & ex) {
+		console.ErrorLine(ex);
+		result->Success = false;
+	}	
 	return result;
 	/*int success = lua_pcall(L, 0, 1, 0);
 	if (success != 0) 

@@ -38,11 +38,15 @@ public:
 
 	NodePtr GetMember(int index) const;
 
+	virtual Macaroni::Model::Project::TargetPtr GetOwner() const;
+
 	virtual const char * GetTypeName() const = 0;
 
 	/** Returns true if this Scope's target is the given target or a child of
 	 *  the given target. */
 	virtual bool OwnedBy(Macaroni::Model::Project::TargetPtr target) const;
+
+	virtual void SwitchOwner(Macaroni::Model::Project::TargetPtr target);
 
 protected:
 	Scope(Library * library, Node * scope, const char * typeName, ReasonPtr reason);

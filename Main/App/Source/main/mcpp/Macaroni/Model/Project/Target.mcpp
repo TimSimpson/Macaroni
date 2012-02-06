@@ -15,23 +15,37 @@
  */
 ~import Macaroni::Model::Project::Artifact;
 ~import Macaroni::Model::Project::ArtifactPtr;
+~import Macaroni::Model::Project::ArtifactList;
+~import Macaroni::Model::Project::ArtifactListPtr;
+~import BOOST_FOREACH;
+~import Macaroni::Model::Project::Config;
+~import Macaroni::Model::Project::ConfigPtr;
 ~import Macaroni::Model::Context;
 ~import Macaroni::Model::ContextPtr;
 ~import boost::format;
 ~import Macaroni::Model::Element;
+~import Macaroni::Core::SmartPointee::Finalizer;
 ~import Macaroni::Model::Project::Group;
 ~import Macaroni::Model::Project::GroupPtr;
 ~import boost::intrusive_ptr;
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaGlueCode;
+~import Macaroni::Lua::LuaIncludes;
+~import Macaroni::Lua::LuaIndexExtraCode;
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
 ~import Macaroni::Model::NodePtr;
+~import boost::optional;
 ~import Macaroni::Model::Project::Project;
 ~import Macaroni::Model::Project::ProjectVersion;
 ~import Macaroni::Model::Project::ProjectVersionPtr;
 ~import Macaroni::Model::Reason;
+~import Macaroni::Exceptions::SimpleException;
 ~import std::string;
+~import Macaroni::Model::Project::TargetList;
+~import Macaroni::Model::Project::TargetListPtr;
+~import Macaroni::Model::Project::TargetLuaMetaData;
 ~import Macaroni::Model::Project::Files;
 ~import Macaroni::Cpp::UseLightDef;
 ~import std::vector;
@@ -55,40 +69,74 @@ class Target
 	@LuaClass [
 		ReferenceType = TargetPtr
 	]
+	@LuaIncludes ={
+		#include <Macaroni/Model/Project/TargetLuaExtra.h>		
+	}
+	@LuaIndexExtraCode ={
+		const string index_0(luaL_checkstring(L, 2));
+		int result = TargetLuaExtra::index(L, instance.get(), index_0);
+		if (result > 0)
+		{
+			return result;
+		}
+	}
 {
 	friend ProjectVersion;
+	friend TargetLuaMetaData;
 
 	protected vector<Target *> dependencies;
-	private const string name;
+	protected vector<Element *> elements;
+	private const string name;	
 	private Target * parent;
 	private ProjectVersion * const projectVersion;
 	protected vector<Target *> requirements;
-	protected FilesPtr sources;
+	//protected FilesPtr sources;
 
 	~block "cpp"
 	{
 		typedef Macaroni::Model::Project::Artifact ArtifactT;
+
+		MACARONI_SIMPLE_EXCEPTION_DEFINE(DependencyAlreadyPresentException,
+			"Attempted to add a dependency twice.");
+
+		MACARONI_SIMPLE_EXCEPTION_DEFINE(ElementAlreadyAddedException,
+			"Element was already added.");
+
+		MACARONI_SIMPLE_EXCEPTION_DEFINE(ElementNotOwnedException,
+			"Attempted to add an element to this target's collection but the " 
+			"element is not owned by this target.");
+		
+		MACARONI_SIMPLE_EXCEPTION_DEFINE(InvalidTargetOperationException,
+			"The requested method is not available on this Target.");
+
+		MACARONI_SIMPLE_EXCEPTION_DEFINE(UnrelatedElementSwitchException,
+			"An element may only switch its target to a different target with "
+			"the same ProjectVersion.");		
 	}
 
 	protected Target(ProjectVersion * projectVersion, const string & name)
 	:   dependencies(),
-	    name(name),
+		elements(),
+	    name(name),		
 	    parent(0),
 		projectVersion(projectVersion),
-		requirements(),
-		sources(new Files())
+		requirements()
+		//sources(new Files())
 	{
+		projectVersion->AddTarget(this);
 	}
 
 	protected Target(ProjectVersion * projectVersion, const string & name,
 		             FilesPtr sources)
 	:   dependencies(),
-	    name(name),
+		elements(),
+	    name(name),		
 	    parent(0),
 		projectVersion(projectVersion),
-		requirements(),
-		sources(sources)
+		requirements()
+		//sources(sources)
 	{
+		projectVersion->AddTarget(this);
 	}
 
 	public bool operator==(const Target & target) const {
@@ -96,12 +144,81 @@ class Target
 			    && name == target.name);
 	}
 
-	public ArtifactPtr Artifact(string name)
-		@LuaFunction "Artifact"
+	public virtual ArtifactPtr AddArtifact(const string & name, ConfigPtr config)
+		@LuaFunction "AddArtifact"
+		@LuaGlueCode ={ 		
+			TargetPtr & instance = TargetLuaMetaData::GetInstance(L, 1);
+			const std::string arg1(luaL_checkstring(L, 2));
+			ConfigPtr arg2;
+			if (1 != lua_isnil(L, 3) && lua_gettop(L) >= 3)
+			{
+				arg2 = ConfigLuaMetaData::GetInstance(L, 3);
+			} 			
+			ArtifactPtr rtn = instance->AddArtifact(arg1, arg2);
+			ArtifactLuaMetaData::PutInstanceOnStack(L, rtn);
+			return 1;
+		}
 	{
-		ArtifactPtr ptr(new ArtifactT(this, name));
+		throw InvalidTargetOperationException(MACARONI_INTERNAL_SOURCE);
+	}
+
+	public void AddDependency(Target * dependency)
+	{
+		BOOST_FOREACH(Macaroni::Model::Project::Target * t, dependencies) {
+			if (t->GetName() == this->GetName()) {
+				throw DependencyAlreadyPresentException(
+					MACARONI_INTERNAL_SOURCE);
+			}
+		}
+		dependencies.push_back(dependency);
+	}
+
+	/** Establishes this target as the owner of the element. */
+	public void AddElement(Element * element)
+	{
+		if (element->GetOwner() && element->GetOwner().get() != this)
+		{
+			throw ElementNotOwnedException(MACARONI_INTERNAL_SOURCE);
+		}
+		BOOST_FOREACH(Element * e, elements) {
+			if ((*e) == (*element)) {
+				throw ElementAlreadyAddedException(MACARONI_INTERNAL_SOURCE);
+			}
+		}
+		elements.push_back(element);
+	}	
+
+	public virtual ArtifactListPtr FindArtifacts(const string & name)		
+	{
+		return FindArtifacts(name, ConfigPtr());
+	}
+
+	/** Returns a list of elements owned by this Target. */
+	public void CreateElementList(std::vector<ElementPtr> & elementList)
+	{
+		BOOST_FOREACH(Element * e, elements)
+		{
+			elementList.push_back(ElementPtr(e));
+		}
+	}
+
+	//TODO: If dealing with lists of artifacts gets too complex maybe put that
+	//in its own class.
+	public virtual  ArtifactListPtr FindArtifacts(
+		const string & name, ConfigPtr config)
+		@LuaFunction "FindArtifacts"
+	{
+		ArtifactListPtr ptr(new ArtifactList());
+		return ptr;		
+	}
+
+	public virtual ArtifactListPtr GetArtifacts()
+		@LuaProperty "Artifacts"
+	{
+		ArtifactListPtr ptr(new ArtifactList());
 		return ptr;
 	}
+
 
 	public ContextPtr GetContext() const
 		@LuaProperty "Context"
@@ -122,10 +239,12 @@ class Target
 	/* This includes anything which gets included or must be run before this
 	 * target. For example, in a Library, needed DLLs as well as every single
 	 * TranslationUnit is a dependency. */
-	public virtual const vector<Target *> & GetDependencies() const
+	public virtual const TargetListPtr GetDependencies()
+		@LuaProperty "Dependencies"
 	{
-		return dependencies;
-	}
+		TargetListPtr ptr(new InnerTargetList(this, &dependencies));
+		return ptr;
+	}	
 
 	public ProjectVersionPtr GetProjectVersion() const
 		@LuaProperty "ProjectVersion"
@@ -139,9 +258,11 @@ class Target
 	{		return name;
 	}
 
-	public TargetPtr GetParent() const {
+	public TargetPtr GetParent() const 
+		@LuaProperty "Parent"
+	{
 		return TargetPtr(parent);
-	}
+	}	
 
 	/** Requirements are targets that this target does not need on its own but
 	 *  anything which depends on this target is going to need.
@@ -161,12 +282,12 @@ class Target
 		return requirements;
 	}
 
-	public FilesPtr GetSources()
+	public virtual FilesPtr GetSources()
 		@LuaProperty "Sources"
 	{
-		return sources;
+		throw InvalidTargetOperationException(MACARONI_INTERNAL_SOURCE);
 	}
-
+	
 	public ~global ~friend void intrusive_ptr_add_ref(Target * p)
 	{
 		intrusive_ptr_add_ref(p->projectVersion);
@@ -177,12 +298,135 @@ class Target
 		intrusive_ptr_release(p->projectVersion);
 	}	
 
+	public virtual int LuaIndex(lua_State * L, const string & name)
+	{
+		return 0;
+	}
+
+	/** Returns true if this target is owned by the given target. */
+	public virtual bool OwnedBy(Target * target)
+	{
+		return (0!= target && this->parent == target);
+	}
+
+	public virtual bool OwnedBy(TargetPtr target)
+		@LuaFunction "OwnedBy"
+	{
+		return OwnedBy(target.get());
+	}
+
+	private void removeElement(Element & element)
+	{
+		typedef std::vector<Element *>::iterator Itr;
+		for (Itr itr = elements.begin(); itr != elements.end(); ++itr)
+		{
+			if ((*(*itr)) == element)
+			{
+				elements.erase(itr);
+				break;
+			}
+		}
+	}
+
+	protected void setParent(Target * parent) 
+	{
+		this->parent = parent;
+	}
+
+	public static bool SwitchOwner(Element & element, Target & from, Target & to)
+	{
+		if (from.projectVersion != to.projectVersion)
+		{
+			throw UnrelatedElementSwitchException(MACARONI_INTERNAL_SOURCE);
+		}
+		from.removeElement(element);
+		to.AddElement(&element);
+	}
+
 	public string ToString() const
 		@LuaOperator "__tostring"
 	{
 		return str(format("%s, Target=\"%s\"")
 		           % projectVersion->ToString() % name);
 	}
+
+	class InnerTargetList : public TargetList
+	{		
+		private Target * parent;
+		private vector<Target *> * vec;
+		
+		public InnerTargetList(Target * parent, vector<Target *> * vec)
+		:   parent(parent), vec(vec)
+		{
+			intrusive_ptr_add_ref(parent);
+		}
+
+		public ~InnerTargetList()
+		{
+			intrusive_ptr_release(p->parent);
+		}
+
+		//public virtual void AddReference()
+		//{
+		//	intrusive_ptr_add_ref(parent);
+		//}
+
+		public virtual int GetCount() const
+		{
+			return vec.size();
+		}
+		
+		public virtual TargetPtr GetItem(int index) const
+		{
+			Target * t = vec[index];
+			TargetPtr ptr(t);
+			return ptr;
+		}
+
+		//public static void RemoveRef(InnerTargetList * p)
+		//{
+		//	intrusive_ptr_release(p->parent);
+		//}
+		//
+		//public virtual optional<Finalizer> RemoveReference()
+		//{
+		//	optional<SmartPointee::Finalizer> f(&RemoveRef);
+		//	return f;		
+	    //}
+
+	};
+	//TODO: Get Macaroni to fully generate inner classes... ugh!
+	~block "cpp"
+	{
+		Target::InnerTargetList::InnerTargetList(Target * parent, 
+			vector<Target *> * vec)
+		:   parent(parent), vec(vec)
+		{
+			intrusive_ptr_add_ref(parent);
+		}
+
+		Target::InnerTargetList::~InnerTargetList()
+		{
+			intrusive_ptr_release(parent);
+		}
+
+		//public virtual void AddReference()
+		//{
+		//	intrusive_ptr_add_ref(parent);
+		//}
+
+		int Target::InnerTargetList::GetCount() const
+		{
+			return vec->size();
+		}
+		
+		TargetPtr Target::InnerTargetList::GetItem(int index) const
+		{
+			Target * t = (*vec)[index];
+			TargetPtr ptr(t);
+			return ptr;
+		}
+	} //cpp
 };
 
 /*

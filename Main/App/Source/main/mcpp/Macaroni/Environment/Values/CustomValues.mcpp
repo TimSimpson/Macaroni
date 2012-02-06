@@ -103,7 +103,7 @@ class Macaroni_IO_Path : public Any
 	~import Macaroni::IO::PathPtr;
 	~import Macaroni::IO::PathLuaMetaData;
 
-	~block "h" { public: typedef Macaroni::IO::Path WrappedType; }
+	~block "h" { public: typedef Macaroni::IO::PathPtr WrappedType; }
 	private PathPtr value;
 
 	public Macaroni_IO_Path(PathPtr value)
@@ -130,13 +130,94 @@ class Macaroni_IO_Path : public Any
 
 };
 
+class Macaroni_IO_PathList : public Any
+{
+	~import Macaroni::IO::PathList;
+	~import Macaroni::IO::PathListPtr;
+	~import Macaroni::IO::PathListLuaMetaData;
+	~import Macaroni::Exceptions::SimpleException;
+
+	~block "h" { public: typedef Macaroni::IO::PathListPtr WrappedType; }
+	private PathListPtr value;	
+
+	~block "cpp"
+	{
+		MACARONI_SIMPLE_EXCEPTION_DEFINE(PathListLuaTypeException,
+			"Could not serialize the index to a PathList.");
+	}
+
+	public Macaroni_IO_PathList(PathListPtr value)
+	:	Any(),
+		value(value)
+	{
+	}
+
+	public Macaroni_IO_PathList(lua_State * L, int index)
+	:	Any(),
+		value()
+	{
+		if (!PathListLuaMetaData::IsType(L, index))
+		{
+			throw PathListLuaTypeException(MACARONI_INTERNAL_SOURCE);
+		}
+		PathListPtr list = PathListLuaMetaData::GetInstance(L, index);
+		value = list;
+	}
+
+	public PathListPtr Get()
+	{
+		return value;
+	}
+
+	public virtual void ToLua(lua_State * L)
+	{
+		PathListLuaMetaData::PutInstanceOnStack(L, value);
+	}
+
+};
+
+
+class Macaroni_Model_Project_ProjectVersion : public Any
+{
+	~import Macaroni::Model::Project::ProjectVersion;
+	~import Macaroni::Model::Project::ProjectVersionLuaMetaData;
+	~import Macaroni::Model::Project::ProjectVersionPtr;
+
+	~block "h" { public: 
+	             typedef Macaroni::Model::Project::ProjectVersionPtr WrappedType; }
+	private ProjectVersionPtr value;
+
+	public Macaroni_Model_Project_ProjectVersion(ProjectVersionPtr value)
+	:	Any(),
+		value(value)
+	{
+	}
+
+	public Macaroni_Model_Project_ProjectVersion(lua_State * L, int index)
+	:	Any(),
+		value(ProjectVersionLuaMetaData::GetInstance(L, index))
+	{
+	}
+
+	public ProjectVersionPtr Get()
+	{
+		return value;
+	}
+
+	public virtual void ToLua(lua_State * L)
+	{
+		ProjectVersionLuaMetaData::PutInstanceOnStack(L, value);
+	}
+
+};
+
 class Macaroni_Model_Project_Target : public Any
 {
 	~import Macaroni::Model::Project::Target;
 	~import Macaroni::Model::Project::TargetLuaMetaData;
 	~import Macaroni::Model::Project::TargetPtr;
 
-	~block "h" { public: typedef Macaroni::Model::Project::Target WrappedType; }
+	~block "h" { public: typedef Macaroni::Model::Project::TargetPtr WrappedType; }
 	private TargetPtr value;
 
 	public Macaroni_Model_Project_Target(TargetPtr value)
@@ -171,6 +252,7 @@ class Any
 	~import  Macaroni::Environment::Values::Macaroni_Model_Project_Files;
 	~import Macaroni::Environment::Values::Macaroni_IO_FileSet;
 	~import Macaroni::Environment::Values::Macaroni_IO_Path;
+	~import Macaroni::Environment::Values::Macaroni_IO_PathList;
 	~import Macaroni::Environment::Values::Macaroni_Model_Project_Target;
 
 	public static AnyPtr CreateFromLuaUserData(
@@ -189,6 +271,10 @@ class Any
 		else if (metaTableName == "Macaroni.IO.Path")
 		{
 			ptr.reset(new Macaroni_IO_Path(L, index));
+		}
+		else if (metaTableName == "Macaroni.IO.PathList")
+		{
+			ptr.reset(new Macaroni_IO_PathList(L, index));
 		}
 		else if (metaTableName == "Macaroni.Model.Project.Target") 
 		{

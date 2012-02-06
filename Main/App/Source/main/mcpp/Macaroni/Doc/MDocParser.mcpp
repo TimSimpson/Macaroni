@@ -474,14 +474,14 @@ class MDocParser
 	
 	private static void readFileIntoString(PathPtr input, std::string & output, SourcePtr & sourcePtr)
 	{
-		std::string inputAsStr = input->GetAbsolutePath();
-		sourcePtr = Source::Create(FileName::Create(inputAsStr), 1, 1);
+		//std::string inputAsStr = input->GetAbsolutePath();
+		sourcePtr = Source::Create(FileName::Create(*input), 1, 1);
 		std::stringstream contents;
-		std::ifstream file(inputAsStr.c_str());
+		std::ifstream file(input->GetAbsolutePath().c_str());
 		if (!file.is_open())
 		{
 			std::stringstream ss;
-			ss << "Could not open file " << inputAsStr << "!";
+			ss << "Could not open file " << input->GetAbsolutePath() << "!";
 			throw Macaroni::StringException(ss.str().c_str());
 		}	
 		std::string line;

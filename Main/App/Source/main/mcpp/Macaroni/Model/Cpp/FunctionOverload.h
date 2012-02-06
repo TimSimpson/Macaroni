@@ -23,6 +23,7 @@
 #include "../ReasonPtr.h"
 #include "ScopeMember.h"
 #include "../SourcePtr.h"
+#include <Macaroni/Model/Project/TargetPtr.h>
 #include "../Type.h"
 #include "VariablePtr.h"
 
@@ -111,7 +112,7 @@ public:
 	{
 		return isVirtual;
 	}
-
+	
 	/** Attaches code to this function. If code was already attached, throws a
 	 * ModelInconsistencyException. 
 	 * If codeBlockAddRedirect is true, it will modify the generated source so

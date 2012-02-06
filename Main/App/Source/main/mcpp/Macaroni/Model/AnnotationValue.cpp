@@ -153,7 +153,7 @@ bool AnnotationValue::GetValueAsBool() const
 	{
 		std::stringstream ss;
 		ss << "Attempted to access " << GetTypeString() 
-			<< " attribute as a bool.";
+			<< " annotation as a bool.";
 		throw AnnotationValueTypeException(ss.str());
 	}
 	return boost::get<bool>(value);
@@ -165,7 +165,7 @@ NodePtr AnnotationValue::GetValueAsNode() const
 	{
 		std::stringstream ss;
 		ss << "Attempted to access " << GetTypeString() 
-			<< " attribute as a node.";
+			<< " annotation as a node.";
 		throw AnnotationValueTypeException(ss.str());
 	}
 	Node & node = boost::get<Node &>(value);
@@ -178,7 +178,7 @@ double AnnotationValue::GetValueAsNumber() const
 	{
 		std::stringstream ss;
 		ss << "Attempted to access " << GetTypeString() 
-			<< " attribute as a number.";
+			<< " annotation as a number.";
 		throw AnnotationValueTypeException(ss.str());
 	}
 	return boost::get<double>(value);
@@ -190,7 +190,7 @@ std::string AnnotationValue::GetValueAsString() const
 	{
 		std::stringstream ss;
 		ss << "Attempted to access " << GetTypeString() 
-			<< " attribute as a string.";
+			<< " annotation as a string.";
 		throw AnnotationValueTypeException(ss.str());
 	}
 	return boost::get<std::string>(value);
@@ -202,7 +202,7 @@ AnnotationTablePtr AnnotationValue::GetValueAsTable() const
 	{
 		std::stringstream ss;
 		ss << "Attempted to access " << GetTypeString() 
-			<< " attribute as a table.";
+			<< " annotation as a table.";
 		throw AnnotationValueTypeException(ss.str());
 	}
 	AnnotationTableInternalPtr table = boost::get<AnnotationTableInternalPtr>(value);

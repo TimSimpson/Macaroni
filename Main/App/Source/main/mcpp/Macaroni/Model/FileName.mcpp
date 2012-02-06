@@ -18,6 +18,7 @@
 ~import Macaroni::Lua::LuaFunction;
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
+~import Macaroni::IO::Path;
 ~import std::string;
 ~import Macaroni::Cpp::UseLightDef;
 
@@ -33,15 +34,24 @@ typedef boost::intrusive_ptr<FileName> FileNamePtr
 /** Represents any file name which could be the Source of Model information. */
 class FileName
 	@LuaClass [ ReferenceType = FileNamePtr ]
-{
-
-	private string name;
+{	
+	private Path path;
+	private const bool real;
 	private int referenceCount;
 
-	protected FileName(const string & name)
-	:	name(name),
-		referenceCount(0)
+	~block "h"
 	{
+		protected:
+			FileName(const Macaroni::IO::Path & path, bool real=true);
+	}
+	~block "cpp"
+	{
+		FileName::FileName(const Path & path, bool real)
+		:	path(path),
+			real(true),
+			referenceCount(0)
+		{
+		}
 	}
 
 	protected ~FileName()
@@ -51,27 +61,39 @@ class FileName
 	public bool operator==(const FileName & other) const
 		@LuaOperator "__eq"
 	{
-		return this->name == other.name;
+		return this->path == other.path;
 	}
-
-	public static FileNamePtr Create(const string & name)
+ 
+	public static FileNamePtr Create(const Path & path)
 		@LuaFunction "Create"
 	{
-		return FileNamePtr(new FileName(name));
+		return FileNamePtr(new FileName(path));
+	}
+
+	public static FileNamePtr Create(const string & root, const string & rel)
+	{
+		return Create(Path(root, rel));
+	}
+
+	public static FileNamePtr CreateNonPhysical(const string & path)
+		@LuaFunction "CreateNonPhysical"
+	{
+		return FileNamePtr(new FileName(Path(path), false));
 	}
 
 	public const string & GetName() const
 		@LuaProperty "Name"
 		@LuaOperator "__tostring"
 	{
-		return name;
+		return path.GetRelativePathNormalized();
 	}
 
 	public string GetOsName() const
 		@LuaProperty "OsName"
 	{
-		boost::filesystem::path p(GetName());
-		return p.string();
+		//boost::filesystem::path p(GetName());
+		//return p.string();
+		return path.GetAbsolutePathForceSlash();
 	}
 
 	public int GetReferenceCount() const
@@ -94,6 +116,10 @@ class FileName
 		}
 	}
 
+	public bool IsPhysical() const
+	{
+		return real;
+	}
 };
 
 }

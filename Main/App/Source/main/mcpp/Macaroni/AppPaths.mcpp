@@ -18,10 +18,12 @@
 ~import BOOST_FOREACH;
 ~import Macaroni::IO::FileNotFoundException;
 ~import Macaroni::Build::LibraryId;
-~import boost::filesystem::path;
+~import boost::optional;
 ~import nullptr;
+~import boost::filesystem::path;
 ~import Macaroni::IO::Path;
 ~import Macaroni::IO::Paths;
+~import Macaroni::Model::Project::ProjectVersionId;
 ~import boost::shared_ptr;
 ~import std::string;
 ~import std::stringstream;
@@ -71,9 +73,53 @@ class AppPaths
 		vector<path> lPaths;
 		path exePath = Paths::GetExeDirectoryPath();
 		lPaths.push_back(exePath / "Libraries");
-		path userPath = Paths::GetUserPath();
-		lPaths.push_back(userPath / "Libraries");
+		lPaths.push_back(userLibraryPath());
 		return lPaths;
+	}	
+
+	/** Finds the directory of the project. */
+	public optional<path> FindFinalProjectDirectory(const ProjectVersionId & pv) 
+		const
+	{
+		optional<path> p = FindFinalProjectFile(pv);
+		if (p)
+		{
+			p.get().remove_leaf();
+		}
+		return p;
+	}
+
+	/** Finds the real path with a given file, or makes one up. */
+	public path FindOrCreateFinalProjectFile(const ProjectVersionId & pv) const
+	{
+		optional<path> actualPath = FindFinalProjectFile(pv);
+		if (actualPath)
+		{
+			return actualPath.get();
+		}
+		else
+		{
+			return userLibraryPath() / pv.Group / pv.Name / pv.Version 
+				   / "project-final.lua";
+		}
+	}
+
+	/** Finds the path to an installed project file, if one exists. */	
+	public optional<path> FindFinalProjectFile(const ProjectVersionId & pv) const
+	{
+		boost::filesystem::path rp = pv.Group;
+		rp = rp / pv.Name / pv.Version / "project-final.lua";
+
+		BOOST_FOREACH(const boost::filesystem::path & path,
+					  libraryRepoPaths)
+		{
+			boost::filesystem::path guess = path / rp;
+			if (boost::filesystem::exists(guess) && boost::filesystem::is_regular_file(guess))
+			{
+				return guess;
+			}
+		}
+		return boost::none;
 	}
 
 	public path FindFinalManifestFile(const LibraryId & id) const
@@ -130,6 +176,13 @@ class AppPaths
 	public void SetWorkingDirectory(const path & value)
 	{
 		workingDirectory = value;
+	}
+
+	~hidden static path userLibraryPath()
+	{
+		path p = Paths::GetUserPath();
+		p = p / "Libraries";
+		return p;
 	}
 };
 

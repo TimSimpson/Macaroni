@@ -62,7 +62,7 @@ namespace
 } // End anon namespace
 
 Node::Node(Context & context, const std::string & name)
-: adoptedHome(), 
+: adoptedHome(0), 
 annotations(context),
 context(&context), 
 hFilePath(), hFilePathReason(),
@@ -71,7 +71,7 @@ element(nullptr), name(name), scope(nullptr)
 }
 
 Node::Node(Node * scope, const std::string & name)
-: adoptedHome(), 
+: adoptedHome(0), 
 annotations(*(scope->context)),
 context(scope->context), 
 hFilePath(), hFilePathReason(),
@@ -88,6 +88,10 @@ Node::~Node()
 	}
 }
 
+bool Node::operator==(const Node & other) const
+{
+	return (this == &other); // || this->GetFullName() == other.GetFullName();
+}
 
 //Class * Node::createClass(const std::string & simpleName)
 //{	
@@ -403,7 +407,7 @@ void Node::ParseComplexName(NodePtr searchRoot, const std::string & complexName,
 
 void Node::SetAdoptedHome(NodePtr node)
 {
-	this->adoptedHome = node;
+	this->adoptedHome = node.get();
 }
 
 void Node::setElement(Element * const value, const ReasonPtr reasonCreated)
@@ -427,7 +431,7 @@ void Node::SetHFilePath(ReasonPtr why, FileNamePtr file)
 {
 	if (!!this->hFilePath)
 	{
-		if (file->GetName() == this->hFilePath->GetName())
+		if (*file == *(this->hFilePath))
 		{
 			return; // Ignore if identical
 		}

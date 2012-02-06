@@ -13,6 +13,8 @@ assert(project.Project.Group.Name, "Macaroni.Examples")
 
 -- Define our dependencies.
 -- Normally we'd pull this from an external file.
+-- load("Macaroni", "Boost-headers", "1.46.1")
+
 boost_headers = context:
     Group("Macaroni"):Project("Boost-headers"):Version("1.46.1")
 assert(boost_headers:GetTarget("lib") == nil)
@@ -26,13 +28,14 @@ assert(boost_headers:GetTarget("lib") == nil)
 boost_props = properties.boost["1.46.1"]
 boost_headers_lib = boost_headers:Library{
   name = "lib",
-  sources = Files.New{
-      IncludePath = { FileSet.Create(boost_props.include, "") }
-  }
+  headers = pathList{boost_props.include},
+  sources = pathList{},
 }
-assert(boost_headers:GetTarget("lib"), boost_headers_lib)
-assert(tostring(boost_headers_lib.IncludePath[1])
-        == properties.boost["1.46.1"].include)
+print(boost_headers:GetTarget("lib"))
+print(boost_headers_lib)
+assert(boost_headers:GetTarget("lib"):GetCId() == boost_headers_lib:GetCId())
+--assert(tostring(boost_headers_libpro.IncludePath[1])
+--        == properties.boost["1.46.1"].include)
 --assert(tostring(boost_headers_lib.MacaroniSource[1].Path)
 --        == "src/deps/boost_1.46.1")
 -- assert(boost_headers_lib.MacaroniSource[1].Regex == ".mcpp$")
@@ -66,9 +69,9 @@ lib = project:Library(
         -- Important note: When the library sees a ProjectVersion as a
         -- dependency, it automatically uses a target named "lib".
         -- dependencies = {boost_regex_lib, boost_headers},
-        sources = Files.New{
-          Macaroni = { FileSet.Create("src/main/mcpp", ".mcpp$") }
-        }
+        headers = pathList{"src/main/mcpp"},
+        sources = pathList{"src/main/mcpp", ".mcpp$"}
+
     }
 )
 assert(lib.ProjectVersion, project)
@@ -81,13 +84,13 @@ assert(lib.Sources.Macaroni[1].Regex, ".mcpp$")
 bjam = plugins:Get("bjam")
 cpp = plugins:Get("Cpp")
 
-output = Path.New("target")
+local output = Path.New("target")
 
 cpp:Run("Generate", { target=lib, path=output })
 
 
 
-
+assert(context.Root:Find("Cat") ~= nil);
 --project:ParseFiles(name = )
 
 -- cpp:Run("Generate", { blah={a=3}, number=5,

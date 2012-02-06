@@ -1,0 +1,99 @@
+~import BOOST_FOREACH;
+~import boost::filesystem::directory_iterator;
+~import Macaroni::Exception;
+~import boost::format;
+~import boost::intrusive_ptr;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Lua::LuaProperty;
+~import nullptr;
+~import Macaroni::IO::Path;
+~import Macaroni::IO::PathListPtr;
+~import Macaroni::IO::PathPtr;
+~import boost::filesystem::path;
+~import boost::regex;
+~import std::string;
+~import Macaroni::StringException;
+~import std::vector;
+~import Macaroni::Cpp::UseLightDef;
+
+~namespace Macaroni::IO;
+
+
+class SimpleFileSet {};
+
+typedef intrusive_ptr<SimpleFileSet ~l> SimpleFileSetPtr
+	@LuaClass [ SameAsNode = SimpleFileSet ]
+	@UseLightDef true;
+
+/**
+ * A list of file paths, relative to some root path.
+ */
+class SimpleFileSet : public FileSet
+	@LuaClass [
+		ReferenceType = SimpleFileSetPtr
+	]
+{	
+	private vector<path> paths;
+	private path root; 	
+
+	/**
+	 * Constructs a file set by iterating from the rootPath.
+	 */
+	public SimpleFileSet(const path & rootPath)
+	:	FileSet(),
+	    root(rootPath)
+	{
+	}	
+
+	public void AddPath(const path & p) 
+	{
+		paths.push_back(p);
+	}
+
+	public int GetCount() const
+	{
+		return paths.size();
+	}
+
+	public virtual PathListPtr GetPaths() const
+		@LuaFunction "GetPaths"
+	{
+		PathListPtr rtnList(new PathList());
+		BOOST_FOREACH(const path & p, paths)
+		{
+			PathPtr ptr(new Path(root, p));
+			rtnList->push_back(ptr);
+		}
+		return rtnList;
+	}	
+
+
+	public const path & GetRoot() const
+	{
+		return root;
+	}
+
+	/** Gets the core path used for this FileSet (or nil). 
+	 *  This is only useful for FileSets which have a core path. */
+	public virtual PathPtr GetRootPath() const
+		@LuaProperty "RootPath"
+	{
+		PathPtr ptr(new Path(GetRoot()));
+		return ptr;
+	}	
+
+	public virtual bool IsRelativePath() const
+	{
+		return true;
+	}
+
+	public virtual string ToString() const
+		@LuaOperator "__tostring"
+	{
+		return str(format("size=%d, root=%s") % this->GetCount() 
+			       % this->GetRoot());
+	}
+	
+}; // End FileSet class

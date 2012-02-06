@@ -1,0 +1,110 @@
+~import BOOST_FOREACH;
+~import Macaroni::Model::Element;
+~import Macaroni::Model::ElementLuaMetaData;
+~import Macaroni::Model::Project::LibraryTarget;
+~import Macaroni::Model::Project::LibraryTargetLuaMetaData;
+~import lua_State;
+~import Macaroni::IO::Path;
+~import Macaroni::IO::PathLuaMetaData;
+~import Macaroni::IO::PathPtr;
+~import std::string;
+~import Macaroni::Model::Project::Target;
+~import Macaroni::Model::Project::TargetLuaMetaData;
+~import Macaroni::Model::Project::TargetPtr;
+~import Macaroni::Model::Project::UnitTarget;
+~import Macaroni::Model::Project::UnitTargetPtr;
+~import Macaroni::Model::Project::UnitTargetLuaMetaData;
+~import std::vector;
+
+~namespace Macaroni::Model::Project;
+
+
+class TargetLuaExtra
+{
+	~block "cpp-include"
+	{
+		#include <lua.h>
+		#include <lauxlib.h>
+		#include <lualib.h>
+	}
+	public static int CreateElementList(lua_State * L)
+	{
+		TargetPtr instance = TargetLuaMetaData::GetInstance(L, 1);
+		std::vector<ElementPtr> elements;
+		instance->CreateElementList(elements);
+		lua_newtable(L);
+		int index = 1;
+		BOOST_FOREACH(ElementPtr & e, elements)
+		{
+			lua_pushinteger(L, index);
+			ElementLuaMetaData::PutInstanceOnStack(L, e);
+			lua_rawset(L, -3);
+			++ index;
+		}
+		return 1;
+	}	
+
+	public static int index(lua_State * L, Target * target, 
+		                    const string & index)
+	{
+		LibraryTarget * library = dynamic_cast<LibraryTarget *>(target);
+		if (0 != library)
+		{
+			LibraryTargetPtr lPtr(library);
+			const int result = LibraryTargetLuaMetaData::Index(L, lPtr, index);
+			if (result > 0) {
+				return result;
+			}
+		}
+
+		if (index == "CreateElementList")
+		{
+			lua_pushcfunction(L, CreateElementList);
+			return 1;
+		}
+		UnitTarget * unitTarget = dynamic_cast<UnitTarget *>(target);
+		if (0 != unitTarget)
+		{
+			if (index == "CppFile")
+			{
+				PathLuaMetaData::PutInstanceOnStack(L, unitTarget->GetCppFile());
+				return 1;
+			}
+			if (index == "SetCppFile")
+			{
+				lua_pushcfunction(L, SetCppFile);
+				return 1;
+			}
+		}
+
+		if (index == "Unit")
+		{
+			lua_pushcfunction(L, Unit);
+			return 1;
+		}
+
+		return 0;
+	}
+
+	public static int SetCppFile(lua_State * L)
+	{
+		TargetPtr instance = TargetLuaMetaData::GetInstance(L, 1);
+		UnitTarget * unitTarget = dynamic_cast<UnitTarget *>(instance.get());
+		if (0 == unitTarget)
+		{
+			return luaL_error(L, "Expected a UnitTarget.");
+		}
+		PathPtr path = PathLuaMetaData::GetInstance(L, 2);
+		unitTarget->SetCppFile(path);
+		return 0;
+	}
+
+	public static int Unit(lua_State * L)
+	{
+		TargetPtr instance = TargetLuaMetaData::GetInstance(L, 1);
+		string name(luaL_checkstring(L, 2));
+		TargetPtr ptr(UnitTarget::Create(instance, name));
+		TargetLuaMetaData::PutInstanceOnStack(L, ptr);
+		return 1;
+	}
+};

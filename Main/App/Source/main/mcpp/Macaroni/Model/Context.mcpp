@@ -28,6 +28,11 @@
 ~import Macaroni::Model::NodePtr;
 ~import boost::optional;
 ~import boost::filesystem::path;
+~import Macaroni::Model::Project::Project;
+~import Macaroni::Model::Project::ProjectPtr;
+~import Macaroni::Model::Project::ProjectVersion;
+~import Macaroni::Model::Project::ProjectVersionId;
+~import Macaroni::Model::Project::ProjectVersionPtr;
 ~import std::string;
 
 
@@ -127,6 +132,24 @@ class Context
 		return rtn;
 	}
 
+	public ProjectVersionPtr FindProjectVersion(const ProjectVersionId & id)
+	{
+		GroupPtr g = groups->Find(id.Group);
+		if (g)
+		{
+			ProjectPtr p = g->FindProject(id.Name);
+			if (p)
+			{
+				ProjectVersionPtr pv = p->FindVersion(id.Version);
+				if (pv)
+				{
+					return pv;
+				}
+			}
+		}
+		return ProjectVersionPtr();
+	}
+
 	public int GetReferenceCount() const
 	{
 		return referenceCount;
@@ -152,7 +175,7 @@ class Context
 	public NodePtr Node(string name)
 	{
 		return root->FindOrCreate(name);
-	}
+	}	
 
 	private void onAddReference()
 	{

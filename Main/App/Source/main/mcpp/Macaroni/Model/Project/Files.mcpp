@@ -54,6 +54,12 @@ class FileList : public vector<FileSetPtr>
 	{
 	}
 
+	public void Add(FileSetPtr fileSet)
+		@LuaFunction "Add"
+	{
+		this->push_back(fileSet);
+	}
+
 	public int Size() const 
 		@LuaOperator "__len"
 	{
@@ -87,9 +93,11 @@ class Files : public map<string, FileListPtr>
 	@LuaIndexExtraCode ={
 		string key(luaL_checkstring(L, 2));
 		if (instance->find(key) == instance->end())
-		{
-			string msg = str(format("Index %s not found.") % key);
-			return luaL_error(L, msg.c_str()); 
+		{			
+			//string msg = str(format("Index %s not found.") % key);
+			//return luaL_error(L, msg.c_str()); 
+			lua_pushnil(L);
+			return 1;
 		}
 		Macaroni::Model::Project::FileListLuaMetaData::PutInstanceOnStack(
 			L, instance->operator[](key));

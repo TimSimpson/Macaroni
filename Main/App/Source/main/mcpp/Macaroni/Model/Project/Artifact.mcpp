@@ -1,11 +1,13 @@
 ~import Macaroni::Model::Project::Config;
 ~import Macaroni::Model::Project::ConfigPtr;
-~import Macaroni::Model::Project::Files;
-~import Macaroni::Model::Project::FilesPtr;
+~import Macaroni::Model::Project::FileList;
+~import Macaroni::Model::Project::FileListPtr;
+~import Macaroni::IO::FileSet;
 ~import boost::intrusive_ptr;
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
+~import boost::optional;
 ~import std::string;
 ~import Macaroni::Model::Project::Target;
 ~import Macaroni::Cpp::UseLightDef;
@@ -32,12 +34,23 @@ class Artifact
 	]
 {
 	private ConfigPtr config;
-	private FilesPtr files;
+	private FileListPtr files;
 	private string name;
 	private Target * const target;
 
+	
 	public Artifact(Target * target, const string & name)
-	:	name(name),
+	:	config(),
+		files(new FileList()),
+	    name(name),
+		target(target)
+	{
+	}
+
+	public Artifact(Target * target, const string & name, ConfigPtr config)
+	:	config(config),
+		files(new FileList()),
+	    name(name),
 		target(target)
 	{
 	}
@@ -48,10 +61,16 @@ class Artifact
 		return config;
 	}
 
-	public FilesPtr GetFiles()
+	public FileListPtr GetFiles()
 		@LuaProperty "Files"
 	{
 		return files;
+	}
+
+	public const string & GetName() const
+		@LuaProperty "Name"
+	{
+		return name;
 	}
 
 	public TargetPtr GetTarget() 

@@ -1,6 +1,15 @@
+~import std::vector;
 
 class Hi {
     public const char * Greeting() const {
         return "How are you doing?";
     }
 };
+
+
+/*class Stack
+{
+    private vector<int> stuff;
+
+    public void push(int value);
+};*/

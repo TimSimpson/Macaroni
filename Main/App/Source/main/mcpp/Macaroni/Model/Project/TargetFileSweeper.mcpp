@@ -23,10 +23,16 @@
 ~import Macaroni::IO::FileSetIterator;
 ~import Macaroni::Model::Library;
 ~import Macaroni::Model::LibraryPtr;
+~import Macaroni::Model::Project::MacaroniCodeTarget;
 ~import Macaroni::Parser::ParserPtr;
 ~import Macaroni::Parser::Pippy::PippyParser;
 ~import boost::filesystem::path;
+~import Macaroni::IO::Path;
+~import Macaroni::IO::PathPtr;
+~import Macaroni::IO::PathList;
 ~import boost::regex;
+~import Macaroni::IO::RegexFileSet;
+~import Macaroni::IO::RegexFileSetIterator;
 ~import Macaroni::Model::Source;
 ~import Macaroni::Model::SourcePtr;
 ~import std::string;
@@ -34,6 +40,7 @@
 ~import std::stringstream;
 ~import Macaroni::Model::Project::Target;
 ~import Macaroni::Model::Project::TargetPtr;
+~import Macaroni::Model::Project::UnitTarget;
 
 ~namespace Macaroni::Model::Project;
 
@@ -46,7 +53,7 @@ class TargetFileSweeper
 		namespace {
 			regex cppRegex("\\.c($|pp$|c$)");
 			regex hppRegex("\\.h($|pp$)");
-			regex mcppRegex("\\.mcpp$");
+			regex mcppRegex("\\.m(h|cpp)$");
 
 		}
 	}
@@ -56,36 +63,63 @@ class TargetFileSweeper
 	{
 	}
 
-	public void ParseFile(const path & file) {
-		string str = file.string();
+	public void RecursivelyParseDirectory(const PathList & pList)
+	{
+		BOOST_FOREACH(PathPtr p, pList)
+		{
+			RegexFileSet rfs(p->GetPath(), "\\.(h(|pp)|m(cpp|h)|c(|c|pp))$");
+			ParseFileSet(rfs);
+		}
+	}
+
+	public void ParseFile(const path & file) 
+	{
+		Path p(file);
+		ParseFile(p);
+	}
+
+	public void ParseFile(const Path & file) 
+	{
+		string str = file.GetAbsolutePath();
 		if (boost::regex_search(str, mcppRegex)) {
 			ParseMacaroniFile(file);
 		} else {
 			// TODO: If its ".cpp", ".c", or ".cc" create a TranslationUnit
 			// target as the child of the given target.
 			if (boost::regex_search(str, cppRegex)) {
-
+				//PATH MUST BE AN ACTUAL RELATIVE PATH OR OH NOES WILL HAPPENS!!
+				PathPtr p(new Path(file));
+				UnitTarget::Create(target, p->GetRelativePathNormalized())
+					->SetCppFile(p);
 			} else if (boost::regex_search(str, hppRegex)) {
 
 			}
 		}
 	}
 
-	public void ParseFileSet(const FileSet & fileSet) {
-		FileSetIterator itr = fileSet.Begin();
-		FileSetIterator end = fileSet.End();
+	public void ParseFileSet(const RegexFileSet & fileSet) 
+	{
+		RegexFileSetIterator itr = fileSet.Begin();
+		RegexFileSetIterator end = fileSet.End();
 		for(; itr != end; ++ itr)
 		{
 			path p = *itr;
-			ParseFile(p);
+			Path relativePath(fileSet.GetRoot(), p);
+			ParseFile(relativePath);
 		}
 	}
 
-	public void ParseMacaroniFile(const path & filePath) {
+	public void ParseMacaroniFile(const Path & filePath) {
+		MacaroniCodeTarget * mct = 
+			dynamic_cast<MacaroniCodeTarget *>(target.get());
+		if (0 != mct) 
+		{
+			mct->AddMacaroniFile(filePath);
+		}
 		std::stringstream fileContents;
-		readFile(fileContents, filePath.string());
+		readFile(fileContents, filePath.GetAbsolutePath());
 
-		FileNamePtr fileName = FileName::Create(filePath.string());
+		FileNamePtr fileName = FileName::Create(filePath);
 		SourcePtr source = Source::Create(fileName, 1, 1);
 		PippyParser parser;
 		parser.Read(target, source, fileContents.str());

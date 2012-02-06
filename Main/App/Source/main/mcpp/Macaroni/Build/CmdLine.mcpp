@@ -39,6 +39,7 @@
 ~import boost::optional;
 ~import Macaroni::IO::Paths;
 ~import boost::filesystem::path;
+~import Macaroni::IO::RegexFileSet;
 ~import std::string;
 ~import std::stringstream;
 ~import std::vector;
@@ -175,8 +176,9 @@ class CmdLine
 			try
 			{
 				const std::vector<MACARONI_VE_CONST std::string> generators;
-				std::vector<FileSet> input;
-				input.push_back(FileSet(boost::filesystem::path(inputPath), "\\.mcpp$"));
+				std::vector<RegexFileSet> input;
+				input.push_back(RegexFileSet(boost::filesystem::path(inputPath), 
+					"\\.mcpp$"));
 				MCompilerOptions options(input,
 										 boost::filesystem::path(outputPath),
 										 generators);

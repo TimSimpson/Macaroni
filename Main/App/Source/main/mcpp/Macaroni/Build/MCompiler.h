@@ -22,6 +22,7 @@
 #include "../Model/ContextPtr.h"
 #include <Macaroni/IO/FileSet.h>
 #include "../Model/LibraryPtr.h"
+#include <Macaroni/IO/RegexFileSet.h>
 #include <vector>
 
 namespace Macaroni { namespace Build {
@@ -31,7 +32,8 @@ class MCompiler
 public:
 	MCompiler(const Macaroni::AppPathsPtr & appPaths);
 
-	bool BuildModel(Macaroni::Model::LibraryPtr library, const std::vector<Macaroni::IO::FileSet> & inputFiles);
+	bool BuildModel(Macaroni::Model::LibraryPtr library, 
+		const std::vector<Macaroni::IO::RegexFileSet> & inputFiles);
 
 	void Compile(Macaroni::Model::LibraryPtr library,
 		         const MCompilerOptions & options);

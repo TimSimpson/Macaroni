@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+~import Macaroni::Model::Project::Artifact;
+~import Macaroni::Model::Project::ArtifactPtr;
+~import Macaroni::Model::Element;
+~import Macaroni::Exception;
 ~import boost::format;
 ~import BOOST_FOREACH;
 ~import Macaroni::Model::Project::Files;
 ~import Macaroni::Model::Project::FilesPtr;
 ~import Macaroni::IO::FileSet;
 ~import Macaroni::IO::FileSetPtr;
-~import Macaroni::Environment::Values::Macaroni_IO_FileSet;
-~import Macaroni::Model::Element;
-~import Macaroni::Exception;
+~import Macaroni::Model::Project::Group;
 ~import boost::intrusive_ptr;
 ~import Macaroni::Model::Project::LibraryTarget;
 ~import Macaroni::Model::Project::LibraryTargetPtr;
@@ -32,8 +34,13 @@
 ~import Macaroni::Lua::LuaIncludes;
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
-~import  Macaroni::Environment::Values::Macaroni_Model_Project_Files;
+~import Macaroni::Environment::Values::Macaroni_IO_FileSet;
+~import Macaroni::Environment::Values::Macaroni_IO_PathList;
+~import Macaroni::Environment::Values::Macaroni_Model_Project_Files;
+~import Macaroni::Environment::Values::Macaroni_Model_Project_Target;
 ~import Macaroni::Model::NodePtr;
+~import Macaroni::IO::PathList;
+~import Macaroni::IO::PathListPtr;
 ~import Macaroni::Model::Project::Project;
 ~import Macaroni::Model::Project::ProjectPtr;
 ~import Macaroni::Model::Reason;
@@ -48,6 +55,22 @@
 ~import Macaroni::Model::Project::Utils;
 ~import std::vector;
 
+
+class Macaroni::Model::Project::ProjectVersionId {
+	public string Group;
+	public string Name;
+	public string Version;
+
+	public ProjectVersionId(string group, string name, string version)
+	:	Group(group), Name(name), Version(version)
+	{
+	}	
+
+	public string ToString() const
+	{
+		return str(format("%s / %s / %s") % Group % Name % Version);
+	}
+};
 
 class Macaroni::Model::Project::ProjectVersion {};
 
@@ -67,6 +90,7 @@ class Macaroni::Model::Project::ProjectVersion
 		#include <Macaroni/Environment/Values/Table.h>
 	}
 {
+	~import Macaroni::Model::Project::ProjectVersionId;
 	friend Macaroni::Model::Project::Project;
 
 	private Macaroni::Model::Project::Project * const project;
@@ -91,9 +115,9 @@ class Macaroni::Model::Project::ProjectVersion
 	public bool operator==(const ProjectVersion & other) const {
 		return (*project == *other.project
 			    && version == other.version);
-	}
+	}	
 
-	private void addTarget(Target * target) {
+	public void AddTarget(Target * target) {
 		BOOST_FOREACH(Macaroni::Model::Project::Target * t, targets) {
 			if (t->GetName() == target->GetName()) {
 				throw Macaroni::StringException("Target already added.");
@@ -168,70 +192,75 @@ class Macaroni::Model::Project::ProjectVersion
 		}
 	{
 		string name = table.Get<String>("name");
-		FilesPtr sources = table.Get<Macaroni_Model_Project_Files>("sources");
-		//Table & source = 
-		//	*(table.GetAsAnyType<Table>("sources"));
-		//FilesPtr sources = Files::New(source);
-
-		vector<TargetPtr> dependencies;
-///*
-//		FilesPtr sources(new Files());
-//		vector<boost::variant<int, string> > sourceKeys;
-//		table.CopyKeyList(sourceKeys);
-//
-//		struct FillArray{
-//			FileListPtr list;
-//			operator()(FileSetPtr & fileSet)
-//			{
-//				list->push_back(fileSet);
-//			}
-//		};
-//
-//		BOOST_FOREACH(boost::variant<int, string> & sourceKey, sourceKeys)
-//		{
-//			FileListPtr newList(new FileList());
-//			(*sources)["Macaroni"] = newList;
-//			FillArray fa;
-//			fa.list = newList;
-//			table.ToVector<Macaroni_IO_FileSet, FillArray>(fa);
-//		}*/
-		/*
-		vector<FileSetPtr> sources;
-		if (table.Has("sources")) 
+		//FilesPtr sources = table.Get<Macaroni_Model_Project_Files>("sources");
+		PathListPtr headers;
+		if (table.Has("headers"))
 		{
-			table.GetVector<Macaroni_IO_FileSet>(
-				sources, "sources");
+			headers = table.Get<Macaroni_IO_PathList>("headers");
 		}
-		vector<FileSetPtr> headers;
-		if (table.Has("headers")) 
+		else
 		{
-			table.GetVector<Macaroni_IO_FileSet>(
-				sources, "sources");
-		}*/
+			headers.reset(new PathList());
+		}
+		PathListPtr sources = table.Get<Macaroni_IO_PathList>("sources");
+		
+		
+		vector<TargetPtr> dependencies;
+
+		if (table.Has("dependencies"))
+		{
+			struct Func
+			{
+				vector<TargetPtr> & dependencies;
+				
+				Func(vector<TargetPtr> & dependencies)
+				: dependencies(dependencies) 
+				{
+				}
+
+				void operator ()(TargetPtr target) 
+				{
+					dependencies.push_back(target);
+				}
+			};
+			Func f(dependencies);
+			table.ToVector<Macaroni_Model_Project_Target, Func>(f);
+		}
+		
 		LibraryTargetPtr lib = LibraryTarget::Create(
-			this, name, dependencies, sources);
-		addTarget(lib.get());
+			this, name, dependencies, headers, sources);
+		//addTarget(lib.get());
 		return lib;
 	}
 	
-	public LibraryTargetPtr Library(
-		string name,
-		const vector<TargetPtr> & dependencies,
-		FilesPtr sources
-	)
-	{
-		LibraryTargetPtr lib = LibraryTarget::Create(this, name, dependencies, sources);
-		addTarget(lib.get());
-		return lib;
-	}
+	///*public LibraryTargetPtr Library(
+	//	string name,
+	//	const vector<TargetPtr> & dependencies,
+	//	FilesPtr sources
+	//)
+	//{
+	//	LibraryTargetPtr lib = LibraryTarget::Create(this, name, dependencies, sources);
+	//	addTarget(lib.get());
+	//	return lib;
+	//}*/
 
 	public TargetPtr Target(const std::string & name)
 		@LuaFunction "Target"
 	{
 		using Macaroni::Model::Project::Target;
-		TargetPtr target(new Target(this, name));
-		addTarget(target.get());
+		TargetPtr target = GetTarget(name);
+		if (!target)
+		{
+			target.reset(new Target(this, name));
+			//addTarget(target.get());
+		}
 		return target;
+	}
+
+	ProjectVersionId ToId() const
+	{
+		return ProjectVersionId(this->GetProject()->GetGroup()->GetName(),
+			this->GetProject()->GetName(), this->GetVersion());
 	}
 
 	public string ToString() const

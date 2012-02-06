@@ -114,23 +114,26 @@ class SimpleStringException : public SimpleException
 
 	public SimpleStringException(const char * value)
 	: SimpleException()
-	{
-		this->value[0] = '\0';
-		strncpy(this->value, value, CHAR_LENGTH);
+	{		
+		size_t len = strnlen(value, CHAR_LENGTH);
+		strncpy(this->value, value, len);
+		this->value[len] = '\0';
 	}
 
 	public SimpleStringException(const char * value, InternalSource where)
 	: SimpleException(where)
 	{
-		this->value[0] = '\0';
-		strncpy(this->value, value, CHAR_LENGTH);
+		size_t len = strnlen(value, CHAR_LENGTH);
+		strncpy(this->value, value, len);
+		this->value[len] = '\0';
 	}
 
 	public SimpleStringException(const SimpleStringException & other)
 	: SimpleException(other.where())
 	{
-		this->value[0] = '\0';
-		strncpy(this->value, other.value, CHAR_LENGTH);
+		size_t len = strnlen(value, CHAR_LENGTH);
+		strncpy(this->value, other.value, len);
+		this->value[len] = '\0';
 	}
 
 	public SimpleStringException & operator = (
@@ -138,8 +141,9 @@ class SimpleStringException : public SimpleException
 	{
 		if (&other != this)
 		{
-			this->value[0] = '\0';
+			size_t len = strnlen(other.value, CHAR_LENGTH);
 			strncpy(this->value, other.value, CHAR_LENGTH);
+			this->value[len] = '\0';
 		}		
 		return *this;
 	}

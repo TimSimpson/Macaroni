@@ -54,9 +54,11 @@
 #include "../../Model/TypeArgument.h"
 #include <Macaroni/Model/TypeModifiers.h>
 #include "../../Model/Cpp/TypeDef.h"
+#include "../../Model/Cpp/TypeInfo.h"
+#include <Macaroni/Model/Project/UnitTarget.h>
 #include "../../Model/Cpp/Variable.h"
 #include "../../Model/Cpp/VariableAssignment.h"
-#include "../../Model/Cpp/TypeInfo.h"
+
 
 //#include "PippyParser.spirit"
 #include <sstream>
@@ -120,6 +122,7 @@ using Macaroni::Model::TypeList;
 using Macaroni::Model::TypeListPtr;
 using Macaroni::Model::TypeModifiers;
 using Macaroni::Model::TypePtr;
+using Macaroni::Model::Project::UnitTarget;
 using Macaroni::Model::Cpp::Variable;
 using Macaroni::Model::Cpp::VariableAssignment;
 
@@ -252,7 +255,7 @@ public:
 	static void IsTests()
 	{
 		std::string ok("12ComplexWord");
-		FileNamePtr file = FileName::Create(std::string("Blah.mcpp"));
+		FileNamePtr file = FileName::CreateNonPhysical("Blah.mcpp");
 		SourcePtr src = Source::Create(file, 1, 1);
 		Iterator itr(ok.begin(), ok.end(), src);
 
@@ -360,7 +363,7 @@ static Iterator createTestItr(const char * msgChars)
 		MACARONI_THROW("Cannot pass nullptr to createTestItr.")
 	}
 	unsafeStaticNightmareString = std::string(msgChars);
-	FileNamePtr file = FileName::Create(std::string("Blah.mcpp"));
+	FileNamePtr file = FileName::CreateNonPhysical("Blah.mcpp");
 	SourcePtr src = Source::Create(file, 1, 1);
 	Iterator p(unsafeStaticNightmareString.begin(),
 			   unsafeStaticNightmareString.end(),
@@ -375,18 +378,20 @@ class ParserFunctions
 private:
 	ContextPtr context;
 	NodePtr currentScope;
+	TargetPtr currentTarget;
+	TargetPtr defaultTarget;
 	std::string hFilesForNewNodes;
 	NodeListPtr importedNodes;
-	LibraryPtr library;
-	TargetPtr target;
+	LibraryPtr library;	
 public:
 
 	ParserFunctions(ContextPtr context, LibraryPtr library, TargetPtr target)
 		:context(context),
 		 currentScope(context->GetRoot()),
+		 currentTarget(),
+		 defaultTarget(target),
 		 importedNodes(new NodeList()),
-		 library(library),
-		 target(target)
+		 library(library)	 
 	{
 		MACARONI_ASSERT(!!CppContext::GetPrimitives(context),
 			"Cpp nodes must be found to parse successfully.");
@@ -395,7 +400,7 @@ public:
 		{
 			importedNodes->push_back(primitiveRoot->GetChild(i));
 		}
-	}
+	}	
 
 	/** Attempts to consume whatever access it can, returning
 	 * "Access_NotSpecified" if it finds nothing. */
@@ -714,15 +719,16 @@ public:
 		NodePtr oldScope = currentScope;
 		currentScope = currentScope->FindOrCreate(name, hFilesForNewNodes);
 		ClassPtr newClass;
-		if (!this->target) {
-			// OLD WAY
+		TargetPtr tHome = deduceTargetHome(currentScope);
+		if (!tHome) {
+			// OLD WAY			
 			newClass =
 			Class::Create(library, currentScope, access, importedNodes,
 				Reason::Create(CppAxioms::ClassCreation(), newItr.GetSource()));
 		} else {
-			// OLD WAY
+			// NEW WAY			
 			newClass =
-			Class::Create(this->target, currentScope, access, importedNodes,
+			Class::Create(tHome, currentScope, access, importedNodes,
 				Reason::Create(CppAxioms::ClassCreation(), newItr.GetSource()));
 		}
 
@@ -1492,6 +1498,43 @@ public:
 		throw ParserException(itr.GetSource(), ss.str());
 	}
 
+	/** Determines where an element should live. 
+	 *  If target was not passed in, an empty ptr is returned and "library"
+	 *  should be used instead.
+	 *  Otherwise, if target was passed in but the current target has been
+	 *  changed manually (using "~target" or something like that) then the
+	 *  current target is used. If the target has not been changed manually
+	 *  then a new UnitTarget is created for each unique element. */
+	TargetPtr deduceTargetHome(NodePtr & node)
+	{
+		if (!defaultTarget)
+		{
+			return TargetPtr();
+		}
+		return defaultTarget;
+		//
+		/*
+		// If the target has been manually overridden use that.
+		if (currentTarget)
+		{
+			return currentTarget;		
+		}
+		// Default choice resolution.		
+		if (node->GetNode()->HasElementOfType<Macaroni::Model::Cpp::Class>())
+		{
+			// 1. If the parent node is a class, then always use its target.
+			return node->GetNode()->GetElement()->GetOwner();
+		}
+		else
+		{
+			// 2. Create a UnitTarget for the node with the default target
+			//    as its home.
+			TargetPtr rtnPtr(
+				UnitTarget::Create(defaultTarget, node->GetFullName()));
+			return rtnPtr;
+		}*/
+	}
+
 	bool Directives(Iterator & itr)
 	{
 		Iterator newItr = itr;
@@ -1914,7 +1957,7 @@ public:
 			throw ParserException(itr.GetSource(),
 				Messages::Get("CppParser.Directive.HFileFilePathExpected"));
 		}
-		FileNamePtr fileName = FileName::Create(filePath);
+		FileNamePtr fileName = FileName::Create("", filePath);
 		ReasonPtr reason = Reason::Create(CppAxioms::SetExistingHFilePath(), itr.GetSource());
 		this->currentScope->SetHFilePath(reason, fileName);
 		return true;
@@ -2003,13 +2046,14 @@ public:
 		{
 			if (!ns->GetElement())
 			{
-				if (!this->target) {
+				TargetPtr tHome = deduceTargetHome(ns);
+				if (!tHome) {
 					// OLD WAY
 					Namespace::Create(this->library, ns,
 						Reason::Create(CppAxioms::NamespaceCreation(),
 						               newItr.GetSource()));
 				} else {
-					Namespace::Create(this->target, ns,
+					Namespace::Create(tHome, ns,
 						Reason::Create(CppAxioms::NamespaceCreation(),
 						               newItr.GetSource()));
 				}
@@ -2470,9 +2514,19 @@ public:
 
 		NodePtr typedefNode = currentScope->FindOrCreate(name);
 
-		Typedef::Create(typedefNode,
-			Reason::Create(CppAxioms::TypedefCreation(), newItr.GetSource()),
-			type);
+		TargetPtr tHome = deduceTargetHome(typedefNode);
+		if (!tHome) {
+			// OLD WAY
+			Typedef::Create(this->library, typedefNode,
+				Reason::Create(CppAxioms::TypedefCreation(), newItr.GetSource()),
+				type);
+		} else {
+			// NEW WAY
+			Typedef::Create(tHome, typedefNode,
+				Reason::Create(CppAxioms::TypedefCreation(), newItr.GetSource()),
+				type);
+		}
+		
 
 		ConsumeWhitespace(newItr);
 

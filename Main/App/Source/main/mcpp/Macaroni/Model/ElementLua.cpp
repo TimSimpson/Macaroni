@@ -60,23 +60,44 @@
 	static int ownedBy(lua_State * L)
 	{
 		LUA_GLUE_TRY
-		ElementPtr ptr = getInstance(L);
-		
-		Cpp::Scope * scope;
-		if ((scope = dynamic_cast<Cpp::Scope *>(ptr.get())) != nullptr)
-		{		
+		ElementPtr element = getInstance(L);
+		if (Macaroni::Model::Project::TargetLuaMetaData::IsType(L, 2))
+		{
 			Macaroni::Model::Project::TargetPtr target =
 				Macaroni::Model::Project::TargetLuaMetaData::GetInstance(L, 2);
-			bool result = scope->OwnedBy(target);
+			bool result = element->OwnedBy(target);
 			lua_pushboolean(L, result ? 1 : 0);
+			return 1;	
+		}
+		else if (LibraryLuaMetaData::IsType(L, 2))
+		{
+			// The Lua generators used to work by checking member.Library to
+			// see if it was equal to the target Library.
+			// Now there is the superior "OwnedBy" method that accepts a target,
+			// not an old-style Library, but to keep compatability with the
+			// manifest system this function can be given a Library in 
+			// Lua Glue and will check if its equal to the Library owned by the
+			// element, if any.
+			LibraryPtr lib = LibraryLuaMetaData::GetInstance(L, 2);
+			LibraryElement * lm;
+			if ((lm = dynamic_cast<LibraryElement *>(element.get())) != nullptr)
+			{
+				LibraryPtr otherLib = lm->GetLibrary();
+				const bool result = lib->GetId() == otherLib->GetId();
+				lua_pushboolean(L, result ? 1 : 0);
+				return 1;
+			}
+			lua_pushboolean(L, 0);
 			return 1;
 		}
 		else
 		{
-			return luaL_error(L, "Argument 1 was not a LibraryElement.");
+			luaL_error(L, "Expected a Target or (old-style) Library for "
+				          "argument 2.");
 		}
+		
 		LUA_GLUE_CATCH
-	}
+	}	
 
 	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr, 
 									  const std::string & index)
@@ -110,16 +131,23 @@
 		}
 		else if (index == "OwnedBy")
 		{
-			Cpp::Scope * scope;
-			if ((scope = dynamic_cast<Cpp::Scope *>(ptr.get())) != nullptr)
-			{
-				lua_pushcfunction(L, ownedBy);
-				return 1;
-			}
+			lua_pushcfunction(L, ownedBy);
+			return 1;
+		}
+		else if (index == "Owner")
+		{
+			Macaroni::Model::Project::TargetLuaMetaData::PutInstanceOnStack(
+				L, ptr->GetOwner());
+			return 1;
 		}
 		else if (index == "ReasonCreated")
 		{
 			ReasonLuaMetaData::PutInstanceOnStack(L, ptr->GetReasonCreated());
+			return 1;
+		}
+		else if (index == "SwitchOwner")
+		{
+			lua_pushcfunction(L, switchOwner);
 			return 1;
 		}
 		else if (index == "TypeName")
@@ -214,6 +242,16 @@
 		LUA_GLUE_CATCH
 	}
 	
+	static int switchOwner(lua_State * L)
+	{
+		LUA_GLUE_TRY
+			ElementPtr element = getInstance(L);
+		Macaroni::Model::Project::TargetPtr newTarget = 
+			Macaroni::Model::Project::TargetLuaMetaData::GetInstance(L, 2);
+		element->SwitchOwner(newTarget);
+		return 0;
+		LUA_GLUE_CATCH
+	}
 
 	static int __tostring(lua_State * L)
 	{

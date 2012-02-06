@@ -17,8 +17,6 @@
 ~import Macaroni::InternalSource;
 ~import boost::optional;
 ~import std::string;
-~import std::stringstream;
-~import Macaroni::StringException;
 
 ~namespace Macaroni;
 
