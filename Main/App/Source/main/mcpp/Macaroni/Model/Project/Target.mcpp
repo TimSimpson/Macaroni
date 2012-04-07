@@ -139,7 +139,9 @@ class Target
 		projectVersion->AddTarget(this);
 	}
 
-	public bool operator==(const Target & target) const {
+	public bool operator==(const Target & target) const 
+		@LuaOperator "__eq" 
+	{
 		return (*projectVersion == *target.projectVersion
 			    && name == target.name);
 	}

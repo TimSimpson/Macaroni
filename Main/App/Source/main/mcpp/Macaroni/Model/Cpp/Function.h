@@ -74,6 +74,8 @@ public:
 	// * ModelInconsistencyException. */
 	//void SetCodeBlock(std::string & code, SourcePtr startOfCode);
 
+	virtual bool RequiresCppFile() const;
+
 	virtual void Visit(MemberVisitor * visitor) const;
 
 protected:

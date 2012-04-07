@@ -112,6 +112,8 @@ public:
 	{
 		return isVirtual;
 	}
+
+	virtual bool RequiresCppFile() const;
 	
 	/** Attaches code to this function. If code was already attached, throws a
 	 * ModelInconsistencyException. 

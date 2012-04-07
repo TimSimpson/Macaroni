@@ -4,31 +4,38 @@ require "Cpp/Common";
 local UnitTarget = Macaroni.Model.Project.UnitTarget;
 local TypeNames = Macaroni.Model.TypeNames;
 
-
+-- Parses NodeSpace for a library.
+-- Each element that does not have an For each element which deserves one
+-- has a new Unit target created for it with the name of the element Node.
+-- Later the units will be generated.
 
 
 Generator =
 {
-    findOrCreateTarget = function(self, element)
+    findOrCreateTarget = function(self, path, element)
         local parentNode = element.Node.Node;
         if (parentNode ~= nil and parentNode.TypeName == TypeNames.Class) then
             -- If this is nested in a class, lets forget about it.
             return parentNode.Element.Owner
         end
-        local t = self.defaultTarget:Unit(element.Node.FullName);
+        local t = self.defaultTarget:Unit(element.Node.FullName, true);
+        local fileName = element.Node:GetPrettyFullName("/")
+        t:SetHFileAsUnknownRelativePath(fileName .. ".hpp")
+        t:SetCppFileAsUnknownRelativePath(fileName .. ".cpp")
         print(t)
         return t;
     end,
 
-    parseElement = function(self, element)
+    parseElement = function(self, path, element)
         if self:shouldHaveTarget(element) then
-            local newTarget = self:findOrCreateTarget(element)
+            local newTarget = self:findOrCreateTarget(path, element)
             element:SwitchOwner(newTarget);
         end
     end,
 
+
     shouldHaveTarget = function(self, element)
-        if (element.Node.HFilePath ~= nil) then
+        if (element.Node.HFilePath ~= nil or (not element.RequiresCppFile)) then
             return false;
         end
         return true;
@@ -43,7 +50,7 @@ function Generate(libTarget, path)
     local elements = libTarget:CreateElementList();
     for i=1, #elements do
         local element = elements[i]
-        generator:parseElement(element)
+        generator:parseElement(path, element)
     end
 end
 

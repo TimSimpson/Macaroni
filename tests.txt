@@ -1,35 +1,224 @@
 I believe a universal model to represent the majority of test frameworks or structures is achievable.
 
-Let's say a test function is "fn", and has an input and output.
+First I want to go over how existing frameworks operate. To do this I'm going to create a diagram of code flows.
 
+-> means that the result of one function is passed to another only if successful.
+> means that the result of a function is copied to the original input.
+A new line means code is called regardless.
 
-First, xUnit:
-  
+So here:
+A -> B -> C
+
+The result of A (which has no input) is passed to B, then b's result is passed to C.
+If A fails B and C is not called, if B fails C is not called.
+Here:
+
+A -> B -> C >
+       -> D
+
+This is similar, however the result of B is passed to C, and then passed to D regardless of it C works.
+If C does work, > means that C copies its value to its own input, meaning effectively C passes its output to D.
+
+-?> means the order is randomized, so for:
+
+A -> B ?-> C >
+       ?-> D >
+       ?-> E >
+
+After B, C, D, or E may be called in any order.
+
+Finally, (blah)-> means the function is only called if "blah" succeeds. So:
+
+A -> B -> C >
+       -> D >
+       (C)?-> E >
+
+Means that C runs, then no matter what D runs, after which E runs but only if C ran successfully.
+
+xUnit:
+
+Here's a simple xUnit class:
+
   class SomeTest
       def setUp
       def tearDown
       def test1
       def test2
       def test3
-      
+
 xUnit style frameworks always create one instance of the test class and pass them to each test method, like this:
 
-  setUp(void) : SomeTest -> test1(SomeTest) : SomeTest -> tearDown(SomeTest)
-  setUp(void) : SomeTest -> test2(SomeTest) : SomeTest -> tearDown(SomeTest)
-  setUp(void) : SomeTest -> test3(SomeTest) : SomeTest -> tearDown(SomeTest)
-      
+  new SomeTest() -> setUp -> test1 >
+                          -> tearDown
+  new SomeTest() -> setUp -> test2 >
+                          -> tearDown
+  new SomeTest() -> setUp -> test3 >
+                          -> tearDown
+
   Here, there are three test routes. Each one runs the test function "setUp" and returns as its result an instance of
  "SomeTest" which is the argument to every test method.
-  More exactly, if the languages could provide that SomeTest was never modified by any of the test methods, calling
-  setUp multiple times would be unnecessary. It is done to get around the potential risk of mutability in the test methods.
-  In reality, the test routes are like this:
-  
-  setUp(void) : SomeTest ->
-    test1(const SomeTest)
-    test2(const SomeTest)
-    test3(const SomeTest),
-    tearDown(SomeTest)
-    
-    
- 
- TestNG 
+ Culturally xUnit tests are not supposed to care that the instance can be modified between the test methods and tear down.
+ In fact the purpose of creating a new instance between each test is to ensure they do not affect each other. If they could gaurantee immutability in the test class instance during the methods this would be unnecessary and the flow could look like this:
+
+  [ Not real ]
+
+  new SomeTest() -> setUp ?-> test1
+                          ?-> test2
+                          ?-> test3
+                          -> tearDown
+
+Advanced State:
+Beyond this, most xUnit frameworks idiomatically use static variables for "higher level" (i.e. higher than unit) tests when test class instances may need to share some state amongst each other.
+
+In some frameworks (such as Python unittest) ordering is set lexically and not randomized, which means chaining values can occur. However, there is no way to create tests which are functionally dependent on each other, so even if two test classes are logically dependent and the first one fails, the second one will still run (in which case all methods fail).
+
+If all the methods in a test class were simplified to a single function here's what some suites might look like.
+
+AllGlobalState ?-> SomeTestClass1 >
+               ?-> SomeTestClass2 >
+               ?-> SomeTestClass3 >
+etc...
+
+To facilitate more explicit ordering xUnit variants often have method "fixtures" which are like setUp but operate at a higher level and thus change global state. If these fixtures fail the methods will not run.
+
+AllGlobalState -> someSetupFixtureMethod >
+               ?-> SomeTestClass1 >
+               ?-> SomeTestClass2 >
+               ?-> SomeTestClass3 >
+
+Depending on the specific framework, the fixture may not be the same as a test function itself.
+
+Also this ignores that in practice sometimes classes may depend on each other. For example, SomeTestClass2 may test and set global state needed for SomeTestClass3, however there are two problems. Many xUnit frameworks are randomized making it impossible to write this. Others, such as JUnit, have "undefined" order which means it will run the same way each time on one machine, but on another machine or configuration use a different order. Finally, certain frameworks such as Python unittest and Nose allow lexical ordering which allows order, but will still run code when dependencies fail (meaning SomeTestClass3 will run and fail even after SomeTestClass2 has run and failed).
+
+Another issue is that "fixtures" in some variants are not treated like test functions, meaning assertions in fixtures may be poorly reported.
+
+It is a cultural idiom that the fixture sets the global state, and the test methods simply read from this state. However there is no way to enforce this.
+
+
+
+TestNG
+
+Test NG is a godsend among test frameworks as it recognizes the need for occassional ordering or dependencies between
+tests other than just setUp / tearDown.
+
+In Test NG, a class instance is created and each method annotated with @Test is called.
+@BeforeClass methods run first, while @BeforeMethods run before each method:
+
+class SomeTest
+  @BeforeClass
+  def setUpAll
+  @BeforeMethod
+  def setUp
+  @Test
+  def test1
+  @Test
+  def test2
+  @Test
+  def test3
+  @AfterMethod
+  def tearDown
+  @AfterClass
+  def tearDownAll
+
+However, its a bit more illustrative to view it as passing the instance to various stand alone functions
+all of which accept an instance of of the class as an argument and return the class:
+
+  new SomeTest() -> setUpAll ?-> setUp -> test1 >
+                                       -> tearDown >
+                             ?-> setUp -> test2 >
+                                       -> tearDown >
+                             ?-> setUp -> test3 >
+                                       -> tearDown >
+                             -> tearDownAll
+
+In this case no immutable instance or copy is passed. Every method gets the same
+copy. If the xUnit style is desired, an instance of a different object can be
+created and assigned to the SomeTest instance in the @BeforeMethod function and
+destroyed in the @AfterMethod function.
+
+Advanced State:
+
+TestNG explicitly recognizes the reality that test methods are often dependent on each other, and that a first class test is preferable to a fixture which assumes the code works and may lead to a lack of testing on setup procedures.
+
+It allows users to declare dependencies on test functions. If the dependency function fails, its dependents are skipped.
+
+So in the example above, if test3 dependended on test2 it would look like this:
+
+  new SomeTest() -> setUpAll ?-> setUp -> test1 >
+                                       -> tearDown >
+                             ?-> setUp -> test2 >
+                                       -> tearDown (test2)?-> test3 >
+                                                           -> tearDown >
+                             -> tearDownAll
+
+As the diagram shows if test2 fails test3 still runs.
+
+However, dependencies can also work between different classes. The only reason for this is if global state is changed. Here's an example:
+
+AllGlobalState -> SomeTestClass1 -> SomeTestClass2 >
+               -> SomeTestClass3 >
+
+While the problems with a lack of explicit ordering from xUnit are gone, issues relating to global state are still there.
+
+
+
+Generalizing Everything
+
+As the examples show, in both frameworks the smallest unit of a test suite is a test function.
+
+Though both frameworks use void return types and empty argument lists, really it is easier to think of the functions like this:
+
+def test(input: TestType) : TestType
+
+The input and output types are identical, but if instead we allowed them to be anything it could be useful:
+
+def test(InputType1, InputType2, InputType3...) : OutputType
+
+Additionally, all test functions have two properties determining order:
+
+dependsOn = A list of test functions that must run successfully for this to run.
+before / after = Test functions that run after and before this one run, but whose success don't matter (probably only one of these need to be stored in the actual representation).
+
+It is possible then that dependsOn could be eliminated if types were used, though this might overwhelm most languages.
+
+Using this model, here's a simple xUnit test, with the kind of immutability always desired by the culture of xUnit:
+
+SomeTest setUp();
+void test1(const SomeTest );
+void test2(const SomeTest);
+void test3(const SomeTest);
+
+(Actually, const isn't even needed thanks to copy constructors.)
+And here's a more typical example where multiple values must be made:
+
+SomeTest setUp();
+SomeTestM test1(const SomeTest);
+SomeTestM test2(const SomeTest);
+SomeTestM test3(const SomeTest);
+void tearDown(SomeTestM);
+
+However I'm not sure tearDown should be supported; I don't see any need for it except for manipulating a resource or doing something else necessary only for global state. Sure its useful to have code thats called after each method, but why should that code *need* to be called if the method fails? Otherwise its just to change global state somehow. If this isn't to throw C++ RAII can handle it.
+
+
+Now for the more complicated TestNG example, but without setUp or tearDown:
+
+SomeTest setUpAll();
+
+void test1(SomeTest & test @dependsOnMutate("setUpAll"));
+
+SomethingElse test2(SomeTest & test @dependsOn("setUpAll"));
+
+void test3(SomeTest & test @dependsOn("setUpAll"),
+           SomethingElse & sElse @dependsOn("test2"));
+
+void test4(SomeTest & test @dependsOnMutate("test1"),
+
+@after(["test1", "test2", "test3"])
+void tearDownAll(SomeTest & @dependsOn("setUpAll"))
+
+Here "dependsOn" uses an annotation on the argument and specifies the source. The source can be a value left behind from an earlier call. For instance here "setUpAll" will only be called once, but "tearDownAll" can use its output as input since it is saved.
+
+"dependsOnMutate" means that the test function will be changing the given value and that value must persist. So test1 may actually change the value of the SomeTest instance.
+
+test3 depends on test2 and the setUpAll instance. test4 depends on setUpAll from test1.
+

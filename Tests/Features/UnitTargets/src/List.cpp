@@ -1,7 +1,7 @@
 #include "List.h"
+#include "Dog.h"
 
-
-std::string List::GetCount() const {
+int List::GetCount() const {
     return items.size();
 }
 

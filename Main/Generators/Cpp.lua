@@ -17,9 +17,11 @@ require "Cpp/Common";
 require "Cpp/CppFileGenerator";
 require "Cpp/HFileGenerator";
 require "Cpp/LibraryConfigGenerator";
+require "Cpp/UnitFileGenerator";
 require "Macaroni.Model.Library";
 require "Log";
 require "Macaroni.IO.Path";
+
 if MACARONI_VERSION ~= "0.1.0.23" then
     require "Macaroni.Model.Project.Target";
 end
@@ -54,20 +56,28 @@ end
 function Generate(library, path)
     log = log.Init("Cpp");
     log.Write = function(self, msg)
-          --print("[CPP]:" .. msg);
+          print("[CPP]:" .. msg);
     end;
+    -- Write a centralized header file which can set macros for build options.
     if BoostConfigIsAvailable(library.Context) then
         lcg = LibraryConfigGenerator.new(library);
         lcg:writeFile(path);
     end
-    log:Write("Generating H Files_.\n");
-    local hGen = HFileGenerator.new(library);
-    log:Write("Adonde esta? " .. tostring(library) .. " !");
-    hGen:iterateNodes(library.Context.Root.Children, path);
-    log:Write("Generating Cpp Files\n");
-    local cppGen = CppFileGenerator.new(library);
-    cppGen:iterateNodes(library.Context.Root.Children, path);
-    log:Write("End of Cpp.lua\n");
+    -- Legacy mode: Iterate nodes and write files.
+    if MACARONI_VERSION == "0.1.0.23" then
+        log:Write("Generating H Files_.\n");
+        local hGen = HFileGenerator.new(library);
+        log:Write("Adonde esta? " .. tostring(library) .. " !");
+        hGen:iterateNodes(library.Context.Root.Children, path);
+        log:Write("Generating Cpp Files\n");
+        local cppGen = CppFileGenerator.new(library);
+        cppGen:iterateNodes(library.Context.Root.Children, path);
+        log:Write("End of Cpp.lua\n");
+    else
+    -- New mode- Assume units have been created. Write files per unit.
+        local ufGen = UnitFileGenerator.new(library);
+        ufGen:iterateUnits(library, path);
+    end
 end
 
 

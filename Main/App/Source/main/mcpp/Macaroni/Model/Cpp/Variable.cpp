@@ -122,6 +122,11 @@ void intrusive_ptr_release(Variable * p)
 	intrusive_ptr_release((ScopeMember *)p);
 }
 
+bool Variable::RequiresCppFile() const
+{
+	return IsStatic();
+}
+
 void Variable::Visit(MemberVisitor * visitor) const
 {
 	visitor->VisitVariable(*this);

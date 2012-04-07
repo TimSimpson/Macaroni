@@ -26,6 +26,7 @@ require "Macaroni.Model.Type";
 require "Macaroni.Model.Cpp.Variable";
 require "Cpp/NodeInfo";
 require "Log";
+require "Plugin"
 
 Axiom = Macaroni.Model.Axiom;
 Block = Macaroni.Model.Axiom;
@@ -383,3 +384,28 @@ function Generate(library, path, arguments)
 end
 
 
+function validateArgs(self)
+	Plugin.Check(self.target ~= nil, "Missing argument 'target'.")
+    Plugin.Check(self.path ~= nil, "Missing argument 'path'.")
+end
+
+
+function GetMethod(name)
+    if name == "Generate" then
+        return
+        {
+            Describe = function(args)
+                validateArgs(args);
+                args.output.WriteLine("Write HTML describing the target "
+                                      .. tostring(args.target)
+                                      .. " to the directory "
+                                      .. tostring(args.path) .. ".");
+            end,
+            Run = function(args)
+                validateArgs(args);
+                Generate(args.target, args.path, args)
+            end
+        }
+    end
+    return nil;
+end

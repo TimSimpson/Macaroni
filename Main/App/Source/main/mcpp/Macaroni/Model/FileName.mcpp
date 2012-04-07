@@ -81,7 +81,7 @@ class FileName
 		return FileNamePtr(new FileName(Path(path), false));
 	}
 
-	public const string & GetName() const
+	public string GetName() const
 		@LuaProperty "Name"
 		@LuaOperator "__tostring"
 	{

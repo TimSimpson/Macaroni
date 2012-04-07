@@ -165,6 +165,11 @@ void intrusive_ptr_release(FunctionOverload * p)
 	intrusive_ptr_release((ScopeMember *)p);
 }
 
+bool FunctionOverload::RequiresCppFile() const
+{
+	return HasCodeBlock() && (!IsInline());
+}
+
 void FunctionOverload::SetCodeBlock(std::string & code, SourcePtr startOfCode, 
 									bool codeBlockAddRedirect)
 {

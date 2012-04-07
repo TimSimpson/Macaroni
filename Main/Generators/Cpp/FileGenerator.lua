@@ -24,13 +24,13 @@ FileGenerator = {
     addTabs = function(self, tabCount)
         self.tabs = self.tabs + tabCount;
     end,
-        
+
     getNodeAlias = function(self, node) -- The Alias of a Node for this kind of file.
         return node.FullName;
-    end,    
-    
-    includeGuardFooter = function(self)        
-        self:write("#endif // end of " .. self:getGuardName());    
+    end,
+
+    includeGuardFooter = function(self)
+        self:write("#endif // end of " .. self:getGuardName());
     end,
 
     includeGuardHeader = function(self)
@@ -38,31 +38,31 @@ FileGenerator = {
         check(self.writer ~= nil, "The 'writer' field was set to nil. :(");
         local guardName = self:getGuardName();
         self:write("#ifndef " .. guardName .. "\n");
-        self:write("#define " .. guardName .. "\n");       
+        self:write("#define " .. guardName .. "\n");
     end,
-    
-      
+
+
     isNodeGlobal = function(self, node)
-    	return (node.Node ~= self.node);        
+    	return (node.Node ~= self.node);
     end,
-    
+
     isFunctionOverloadNodeGlobal = function(self, node)
-    	return (node.Node.Node ~= self.node);        
+    	return (node.Node.Node ~= self.node);
 	end,
-    
+
     -- Iterates members of the list. Use access to filter which ones.
     iterateMembers = function(self, nodeChildren, access, insertIntoNamespaces)
 		if insertIntoNamespaces == nil then
 			insertIntoNamespaces = false
-		end		
+		end
         for i=1, #nodeChildren do
-            local node = nodeChildren[i];            
+            local node = nodeChildren[i];
             if (node.Member ~= nil) then
 				local memberType = node.Member.TypeName
                 if (access == nil or node.Member.Access == access) then
                     self:parseMember(node, insertIntoNamespaces);
-                elseif (node.Member.Access == nil) then					
-					if (memberType == "Function" or memberType == "Constructor" 
+                elseif (node.Member.Access == nil) then
+					if (memberType == "Function" or memberType == "Constructor"
 						or memberType == "Destructor") then
 						self:iterateMembers(node.Children, access)
 					else
@@ -71,17 +71,17 @@ FileGenerator = {
                 end
             end
         end
-    end,       
-    
+    end,
+
     -- Unlike the other method, this will open up and break out of namespaces
     -- before each definition.
     iterateGlobalMembers = function(self, nodeChildren, access)
 		self:iterateMembers(nodeChildren, access, true);
     end,
-    
+
     namespaceBegin = function(self, namespaceNode)
         check(namespaceNode ~= nil, "namespaceNode cannot be nil.");
-        if not namespaceNode.IsRoot then			
+        if not namespaceNode.IsRoot then
 			--self:write(NodeHelper.namespaceBegin(namespaceNode));
 			local fs = namespaceNode.FullName;
 			local names = Node.SplitComplexName(fs);
@@ -90,8 +90,8 @@ FileGenerator = {
 			end
 			self:write("\n");
 		end
-    end,    
-    
+    end,
+
     namespaceEnd = function(self, namespaceNode)
         check(namespaceNode ~= nil, "namespaceNode cannot be nil.");
         if not namespaceNode.IsRoot then
@@ -104,9 +104,9 @@ FileGenerator = {
 			self:write("\n");
 		end
     end,
-    
-    parseMember = nil,  
-    
+
+    parseMember = nil,
+
     --["parse" .. TypeNames.Typedef] = function(self, node)
         --self:writeTabs();
         --local typedef = node.Member;
@@ -114,91 +114,96 @@ FileGenerator = {
         --self:writeType(typedef.Type);
         --self:write(node.Name .. ";\n");
     --end,
-    
+
     ["parse" .. TypeNames.Variable] = function(self, node)
         self:writeTabs();
         local variable = node.Member;
         self:writeType(variable.Type);
         self:write(node.Name .. ";\n");
-    end,          
-    
+    end,
+
     write = function(self, text)
         if (type(text) ~= "string") then
             error("String was expected in call to write, but got " .. type(text) .. " instead.", 2);
         end
-        --log:Write("DEBUG:" .. debug.traceback());       
+        --log:Write("DEBUG:" .. debug.traceback());
         self.writer:Write(text);
-    end,    
-    
+    end,
+
     writeVerbose = function(self, text)
 		if CPP_GENERATE_VERBOSE then
 			self:write(text)
-		end		
+		end
     end,
-    
+
     writeAfterTabs = function(self, text)
         self:writeTabs();
         self:write(text);
     end,
-    
+
     writeTabs = function(self)
         for i = 1, self.tabs do
             self:write('\t');
         end
     end,
-    
+
     -- Given the Node of a Function, writes the argument list.
     writeArgumentList = function(self, node)
         local seenOne = false;
         for i = 1, #(node.Children) do
-            local c = node.Children[i];            
+            local c = node.Children[i];
             if (c.Member.TypeName == TypeNames.Variable) then
                 if (seenOne) then
                     self:write(", ");
                 else
                     seenOne = true;
-                end                
+                end
                 self:writeType(c.Member.Type);
                 self:write(" ");
-                self:write(c.Name);               
-            end            
+                self:write(c.Name);
+            end
         end
     end,
-    
+
     writeFileName = function(self, name)
 		name = string.gsub(name, "\\", "/");
 		self:write(name);
-    end,      
-    
+    end,
+
     writeBlockCodeBlock = function(self, member)
 		check(self ~= nil, "Method called without instance.")
 		local code = member.Code;
 		local reason = member.ReasonCreated;
 		local source = reason.Source;
-		local redirect = true;		
+        local redirect = true;
+        --TODO: Put a "redirect" property on Block.
+        if (string.sub(member.Node.Node.Name, -string.len("LuaMetaData"))
+            == "LuaMetaData") then
+            redirect = false;
+        end
 		self:writeCodeBlock(code, source, redirect);
     end,
-  
+
     writeCodeBlock = function(self, code, source, redirect)
         self:writeTabs();
         if redirect then
 			self:write("#line " .. source.Line .. ' "');
 			self:writeFileName(source.FileName.Name);
-			self:write('"' .. "\n"); 
+			self:write('"' .. "\n");
 		else
 			self:write("// This code was generated by ");
 			self:writeFileName(source.FileName.Name);
-			self:write('\n'); 
+			self:write('\n');
 		end
-        
+
         -- Write the code as it was so the #line directive will match up.
         self:write(code .. "\n");
         self:write("#line " .. self.writer.LineNumber + 1 .. ' "');
         self:writeFileName(self.writer.FilePath)
-        self:write('"' .. "\n");        
+        self:write('"' .. "\n");
     end,
-  
-    writeConstructorAssignments = function(self, assignments)        
+
+    writeConstructorAssignments = function(self, assignments)
     	check(self ~= nil, "Method called without instance.")
     	check(assignments ~= nil, "Argument #2 (assignments) must be list.")
         local seenOne = false;
@@ -211,19 +216,19 @@ FileGenerator = {
             else
                 self:write(", ");
             end
-            self:write(assignment.Variable.Name .. "(" 
+            self:write(assignment.Variable.Name .. "("
                        .. assignment.Expression .. ")");
         end
         if (seenOne) then
             self:write("\n");
-            self:writeTabs();    
-        end        
+            self:writeTabs();
+        end
     end,
-    
+
     writeFunctionCodeBlock = function(self, memberWithBlock)
 		check(self ~= nil, "Method called without instance.");
 		check(memberWithBlock.CodeBlock ~= nil, "Member " ..memberWithBlock.Node.FullName.. " does not have code block.");
-		
+
 		local code = memberWithBlock.CodeBlock;
 		local source = memberWithBlock.CodeSource;
 		local redirect = memberWithBlock.CodeBlockShouldAddRedirect;
@@ -231,33 +236,33 @@ FileGenerator = {
 		self:writeTabs();
 		self:write("{\n");
         self:addTabs(1);
-		
+
 		self:writeCodeBlock(code, source, redirect);
-		
-		self:addTabs(-1);       
+
+		self:addTabs(-1);
         self:writeTabs();
         self:write("}\n");
     end,
-    
+
     --[[ Writes a function definition, not including the Class name before the
          function name. ]]--
     writeFunctionDefinition = function(self, foNode, calledFromClassWriter)
     	check(self ~= nil, "Method called without instance.");
     	check(foNode.Member ~= nil, "functionNode must have instance");
-    	check(foNode.Member.TypeName == "Function", "Node must be Function, not " 
-    		  .. tostring(foNode.Member.TypeName));      	 	
-    	for i = 1, #foNode.Children do    		
+    	check(foNode.Member.TypeName == "Function", "Node must be Function, not "
+    		  .. tostring(foNode.Member.TypeName));
+    	for i = 1, #foNode.Children do
     		self:writeFunctionOverloadDefinition(foNode.Children[i], calledFromClassWriter)
     	end
-    	
+
     end,
-    
-    --[[ Writes a function overload definition, not including the Class name 
+
+    --[[ Writes a function overload definition, not including the Class name
          before the function name. ]]--
-    writeFunctionOverloadDefinition = function(self, foNode, 
+    writeFunctionOverloadDefinition = function(self, foNode,
 		calledFromClassWriter, calledForFriendDefinition)
 		-- foNode - the FunctionOverload node
-		-- calledFromClassWriter 
+		-- calledFromClassWriter
 		-- calledForFriendDefinition - If true, then write the entire
 		--     fullName of the Node instead of just the name.
 		calledForFriendDefinition = calledForFriendDefinition or false;
@@ -265,8 +270,8 @@ FileGenerator = {
     	check(foNode ~= nil, "foNode must be a Node, not nil.");
     	check(foNode.Member ~= nil, "functionNode must have instance");
     	check(foNode.Member.TypeName == "FunctionOverload", "Node must be FunctionOverload");
-        -- self:writeTabs();        
-        if foNode.Member.Access.VisibleInLibrary and self.libDecl 
+        -- self:writeTabs();
+        if foNode.Member.Access.VisibleInLibrary and self.libDecl
             and not calledFromClassWriter then
 			self:write(self.libDecl .. " ");
         end
@@ -287,23 +292,23 @@ FileGenerator = {
         self:write(")");
         if (func.Const) then
             self:write(" const");
-        end         
+        end
         if (func.ThrowSpecifier) then
 			self:write(" throw()");
         end
     end,
-        
-    writeType = function(self, type)    
+
+    writeType = function(self, type)
         check(self ~= nil, "Member method called without instance.");
-        check(type ~= nil, 'Argument 2 "type" can not be null.');    
+        check(type ~= nil, 'Argument 2 "type" can not be null.');
         local typeUtil = TypeUtil.new();
         local str = typeUtil:createTypeDefinition(type, self.attemptShortName);
-        self:write(str);        
+        self:write(str);
     end,
-    
+
     writeVariableDefinition = function(self, node, includeInitializer, prefixWithClassName)
         -- self:writeTabs();
-        local variable = node.Member; 
+        local variable = node.Member;
         if (variable.Static) then
             self:write("static ");
         end
@@ -317,6 +322,6 @@ FileGenerator = {
             self:write(' = ');
             self:write(variable.Initializer);
         end
-        self:write(";\n");        
+        self:write(";\n");
     end
 };

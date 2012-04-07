@@ -57,7 +57,17 @@ function generate()
 		#include <lauxlib.h>
 		#include <lualib.h>
 	}
-	]] });
+	]],
+    standardIncludes = [[
+        #include <Macaroni/Exception.h>
+    ]],
+    luaCatchCode=[[ \
+        } catch(const Macaroni::Exception & ex) { \
+            return luaL_error(L, ex.message().c_str()); \
+        } catch(const std::exception & ex) { \
+            return luaL_error(L, ex.what()); \
+        }
+    ]] } );
 	-- print("Creating HTML View...")
 	run("HtmlView");
 	print("Generating C++ code...")

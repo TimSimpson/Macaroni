@@ -14,7 +14,7 @@ class Stack
 
     public void pop()
     {
-        int value =  vec[vec.size() - 1]
+        int value =  vec[vec.size() - 1];
         vec.pop_back();
     }
 

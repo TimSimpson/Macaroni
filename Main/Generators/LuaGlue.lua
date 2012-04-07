@@ -95,10 +95,12 @@ end
 
 LuaGlueGenerator =
 {
-	new = function(rootNode)
+	new = function(rootNode, standardIncludes, luaCatchCode)
 		check(rootNode ~= nil, 'Argument 1, "rootNode", must be specified.');
         local self = {}
         setmetatable(self, {["__index"] = LuaGlueGenerator});
+        self.luaCatchCode = luaCatchCode;
+        self.standardIncludes = standardIncludes;
         self.LuaClass = "Macaroni::Lua::LuaClass";
         self.LuaFunction = "Macaroni::Lua::LuaFunction";
         self.LuaGlueCode = "Macaroni::Lua::LuaGlueCode";
@@ -347,7 +349,12 @@ LuaGlueGenerator =
 				rtn.put = function(var) return "lua_pushinteger(L, " .. var .. ");" end;
 			elseif (node.FullName == self.Creators.boolNode.FullName) then
 				rtn.get = function(var, index)
-					return "bool " .. var .. "((bool) luaL_checkboolean(L, " .. index .. "));";
+					return "if (lua_isboolean(L, " .. index .. [[) == 0) {
+						luaL_error(L, "Expected bool for argument ]]
+							.. index .. [[.");
+						}
+						bool ]] .. var .. [[(lua_toboolean(L, ]] .. index ..
+							[[) != 0);]];
 				end;
 				rtn.put = function(var) return "lua_pushboolean(L, (int)" .. var .. ");" end;
 			else
@@ -984,13 +991,18 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 
 		blockIncludes = function(self)
 			-- Create the block for include statements.
-			local includeCode = self.originalNode.Annotations[
+			local includeCodeAnn = self.originalNode.Annotations[
 				self.parent.LuaIncludes]
+			local includeCode = ""
+			if includeCodeAnn ~= nil then
+				includeCode = includeCodeAnn.ValueAsString
+			end
+			includeCode = self.parent.standardIncludes .. "\n" .. includeCode;
 			if (includeCode ~= nil) then
 				local includeBlockHome = self.metaNode:FindOrCreate(
 					"includeBlock");
 				Block.Create(includeBlockHome, "cpp-include",
-					includeCode.ValueAsString, self.reason);
+					includeCode, self.reason);
 			end
 		end,
 
@@ -1056,7 +1068,7 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 [[
 
 #define LUA_GLUE_TRY try {
-#define LUA_GLUE_CATCH } catch(const std::exception & ex){ return luaL_error(L, ex.what()); }
+#define LUA_GLUE_CATCH ]] .. self.parent.luaCatchCode .. [[
 
 namespace
 {
@@ -1543,7 +1555,13 @@ function Generate(library, path, arguments)
 
 	arguments = arguments or {}
     CurrentLibrary = library;
-    local generator = LuaGlueGenerator.new(library.Context.Root);
+    luaCatchCode = arguments.luaCatchCode or
+    	[[} catch(const std::exception & ex){ \
+    	        return luaL_error(L, ex.what()); \
+    	  }]];
+    standardIncludes = arguments.standardIncludes or "";
+    local generator = LuaGlueGenerator.new(library.Context.Root,
+                                           standardIncludes, luaCatchCode);
     --RootNode:FindOrCreate("Macaroni::Lua::LuaClass");
 
     local classes = generator:findAllAttr(generator.RootNode);

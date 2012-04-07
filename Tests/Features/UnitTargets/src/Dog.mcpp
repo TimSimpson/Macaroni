@@ -1,0 +1,11 @@
+~unit Dog;
+
+class Dog
+{
+     int legs;
+
+     public Dog()
+     : legs(4)
+     {}
+};
+

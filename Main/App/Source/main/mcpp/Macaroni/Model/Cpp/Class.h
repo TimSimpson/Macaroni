@@ -92,6 +92,8 @@ public:
 	/** Returns true if the given member is an instance of Class. */
 	static bool IsInstance(Model::ElementPtr other);
 
+	bool RequiresCppFile() const;
+
 	virtual void Visit(MemberVisitor * visitor) const;
 
 protected:

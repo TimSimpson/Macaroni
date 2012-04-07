@@ -197,6 +197,20 @@ bool Class::IsInstance(ElementPtr other)
 	return (!!classPtr);
 }
 
+bool Class::RequiresCppFile() const
+{
+	Node & node = *GetNode();
+	for (size_t i = 0; i < node.GetChildCount(); i ++) 
+	{
+		Node & child = *(node.GetChild(i));
+		if (child.GetElement()->RequiresCppFile())
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 void Class::Visit(MemberVisitor * visitor) const
 {
 	std::auto_ptr<MemberVisitor> classVisitorDeleter(visitor->VisitClass(*this));

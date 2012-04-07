@@ -89,8 +89,8 @@ class TargetFileSweeper
 			if (boost::regex_search(str, cppRegex)) {
 				//PATH MUST BE AN ACTUAL RELATIVE PATH OR OH NOES WILL HAPPENS!!
 				PathPtr p(new Path(file));
-				UnitTarget::Create(target, p->GetRelativePathNormalized())
-					->SetCppFile(p);
+				UnitTarget::Create(target, false, 
+					             p->GetRelativePathNormalized())->SetCppFile(p);
 			} else if (boost::regex_search(str, hppRegex)) {
 
 			}

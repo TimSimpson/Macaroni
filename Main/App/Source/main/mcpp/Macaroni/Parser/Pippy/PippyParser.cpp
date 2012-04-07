@@ -37,6 +37,7 @@
 #include "../../Model/Cpp/Function.h"
 #include <Macaroni/Model/Cpp/FunctionOverload.h>
 #include "../../Model/Library.h"
+#include <memory>
 #include "../../Environment/Messages.h"
 #include "../../Model/ModelInconsistencyException.h"
 #include "../../Model/Cpp/Namespace.h"
@@ -59,7 +60,6 @@
 #include "../../Model/Cpp/Variable.h"
 #include "../../Model/Cpp/VariableAssignment.h"
 
-
 //#include "PippyParser.spirit"
 #include <sstream>
 #include <string>
@@ -72,6 +72,7 @@ using Macaroni::Model::AnnotationTablePtr;
 using Macaroni::Model::AnnotationValue;
 using Macaroni::Model::AnnotationValueInternalPtr;
 using Macaroni::Model::AnnotationValuePtr;
+using std::auto_ptr;
 using Macaroni::Model::Block;
 using Macaroni::Model::Cpp::Class;
 using Macaroni::Model::Cpp::ClassPtr;
@@ -388,7 +389,7 @@ public:
 	ParserFunctions(ContextPtr context, LibraryPtr library, TargetPtr target)
 		:context(context),
 		 currentScope(context->GetRoot()),
-		 currentTarget(),
+		 currentTarget(target),
 		 defaultTarget(target),
 		 importedNodes(new NodeList()),
 		 library(library)	 
@@ -1507,11 +1508,26 @@ public:
 	 *  then a new UnitTarget is created for each unique element. */
 	TargetPtr deduceTargetHome(NodePtr & node)
 	{
-		if (!defaultTarget)
+		if (currentTarget)
 		{
-			return TargetPtr();
+			return currentTarget;
 		}
-		return defaultTarget;
+		else
+		{		
+			if (defaultTarget)
+			{
+				return defaultTarget;
+				
+			}
+			else
+			{
+				return TargetPtr();
+			}		
+		}
+		// Note: I had code here to create unit targets automatically but
+		// abandoned it in favor of letting a Lua plugin do it to make it 
+		// more flexible.
+
 		//
 		/*
 		// If the target has been manually overridden use that.
@@ -2299,6 +2315,7 @@ public:
 				|| Typedef(itr)
 				|| VariableOrFunction(itr)
 				|| Annotation(itr)
+				|| Unit(itr)
 				)
 		{
 		}
@@ -2544,6 +2561,127 @@ public:
 				Messages::Get("CppParser.Typedef.NoSemicolon"));
 		}
 
+		itr = newItr; // Success! :)
+		return true;
+	}
+
+	bool Unit(Iterator & itr)
+	{
+		Iterator newItr = itr;
+		ConsumeWhitespace(newItr);
+
+		if (!newItr.ConsumeWord("~unit"))
+		{
+			return false;
+		}
+		
+		// We've seen ~unit. There's no going back!
+
+		ConsumeWhitespace(newItr);
+
+		std::string name;
+		std::string defaultRootName;
+		if (newItr.Current() == '\"')
+		{
+			if (!ConsumeStringLiteral(newItr, name))
+			{
+				throw ParserException(newItr.GetSource(),
+					Messages::Get("CppParser.Unit.NoID1"));
+			}
+			defaultRootName = name;
+		}
+		else
+		{
+			if (!ConsumeSimpleName(newItr, name))
+			{
+				throw ParserException(newItr.GetSource(),
+					Messages::Get("CppParser.Unit.NoID1"));
+			}
+			defaultRootName = currentScope->GetPrettyFullName("/") + name;
+		}
+		
+		bool withBraces = true;
+		std::string hFile = defaultRootName + ".hpp";
+		std::string cppFile = defaultRootName + ".cpp";
+		while(true)
+		{		
+			ConsumeWhitespace(newItr);		
+			if (newItr.ConsumeWord("~hfile"))
+			{
+				newItr.ConsumeWhitespace();
+				if (!newItr.ConsumeChar('='))
+				{
+					throw ParserException(newItr.GetSource(),
+						Messages::Get("CppParser.HFileNoEquals.NoID1"));
+				}
+				newItr.ConsumeWhitespace();
+				ConsumeFilePath(newItr, hFile);
+			}
+			else if (newItr.ConsumeWord("~cppfile"))
+			{
+				newItr.ConsumeWhitespace();
+				if (!newItr.ConsumeChar('='))
+				{
+					throw ParserException(newItr.GetSource(),
+						Messages::Get("CppParser.CppFileNoEquals.NoID1"));
+				}
+				newItr.ConsumeWhitespace();
+				ConsumeFilePath(newItr, cppFile);
+			}
+			else if (newItr.ConsumeChar('{'))
+			{
+				withBraces = true;
+				break;
+			}
+			else if (newItr.ConsumeChar(';'))
+			{
+				withBraces = false;
+				break;
+			}
+			else 
+			{
+				throw ParserException(newItr.GetSource(),
+						Messages::Get("CppParser.Unit.NoOpeningBrace",
+						newItr.GetSource()->GetLine()));				
+			}
+		}
+
+		SourcePtr firstBraceSrc = newItr.GetSource();
+
+		// Finally create the new unit target, with the current target
+		// as the parent.
+		auto_ptr<UnitTarget> utp(UnitTarget::Create(currentTarget, true, name));
+		utp->SetHFileAsUnknownRelativePath(hFile);
+		utp->SetCppFileAsUnknownRelativePath(cppFile);
+		
+		TargetPtr oldTarget = currentTarget;
+		currentTarget = utp.get();
+		utp.release();
+	
+
+		ConsumeWhitespace(newItr);
+		ScopeFiller(newItr);
+		ConsumeWhitespace(newItr);
+
+		if (withBraces)
+		{
+			if (!newItr.ConsumeChar('}'))
+			{
+				throw ParserException(newItr.GetSource(),
+					Messages::Get("CppParser.Unit.NoEndingBrace", firstBraceSrc->GetLine()));
+			}
+		}
+		else
+		{
+			if (!newItr.Finished())
+			{
+				throw ParserException(newItr.GetSource(),
+					Messages::Get("CppParser.Unit.StatementEof",
+					newItr.GetSource()->GetLine()));
+			}
+		}
+		// Switch back to the old target.
+		currentTarget = oldTarget;		
 		itr = newItr; // Success! :)
 		return true;
 	}

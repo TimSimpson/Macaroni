@@ -165,6 +165,20 @@ void intrusive_ptr_release(Function * p)
 	intrusive_ptr_release((ScopeMember *)p);
 }
 
+bool Function::RequiresCppFile() const
+{
+	Node & node = *GetNode();
+	for (size_t i = 0; i < node.GetChildCount(); i ++) 
+	{
+		Node & child = *(node.GetChild(i));
+		if (child.GetElement()->RequiresCppFile())
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 //void Function::SetCodeBlock(std::string & code, SourcePtr startOfCode)
 //{
 //	if (codeAttached)

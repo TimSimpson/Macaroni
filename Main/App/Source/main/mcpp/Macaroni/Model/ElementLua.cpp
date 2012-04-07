@@ -145,6 +145,11 @@
 			ReasonLuaMetaData::PutInstanceOnStack(L, ptr->GetReasonCreated());
 			return 1;
 		}
+		else if (index == "RequiresCppFile")
+		{
+			lua_pushboolean(L, ptr->RequiresCppFile());
+			return 1;
+		}
 		else if (index == "SwitchOwner")
 		{
 			lua_pushcfunction(L, switchOwner);

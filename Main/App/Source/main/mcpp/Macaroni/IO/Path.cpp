@@ -75,6 +75,11 @@ bool Path::operator==(const Path & other) const
 	return path == other.path && rootPath == other.rootPath;
 }
 
+bool Path::operator!=(const Path & other) const
+{
+	return path != other.path || rootPath != other.rootPath;
+}
+
 void Path::assertPathExistsInRootPath()
 {
 	if (!stringBeginsWith(this->path.string(), this->rootPath.string()))

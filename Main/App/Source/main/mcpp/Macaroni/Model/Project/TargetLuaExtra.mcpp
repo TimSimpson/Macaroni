@@ -1,6 +1,7 @@
 ~import BOOST_FOREACH;
 ~import Macaroni::Model::Element;
 ~import Macaroni::Model::ElementLuaMetaData;
+~import Macaroni::Exception;
 ~import Macaroni::Model::Project::LibraryTarget;
 ~import Macaroni::Model::Project::LibraryTargetLuaMetaData;
 ~import lua_State;
@@ -16,6 +17,7 @@
 ~import Macaroni::Model::Project::UnitTargetLuaMetaData;
 ~import std::vector;
 
+
 ~namespace Macaroni::Model::Project;
 
 
@@ -27,84 +29,187 @@ class TargetLuaExtra
 		#include <lauxlib.h>
 		#include <lualib.h>
 	}
+
+	~block "cpp"
+	{
+		#define LUA_GLUE_TRY try {
+		#define LUA_GLUE_CATCH  \
+			} catch(const Macaroni::Exception & ex) { \
+				return luaL_error(L, ex.message().c_str()); \
+			} catch(const std::exception & ex) { \
+				return luaL_error(L, ex.what()); \
+			}
+	}
+
 	public static int CreateElementList(lua_State * L)
 	{
-		TargetPtr instance = TargetLuaMetaData::GetInstance(L, 1);
-		std::vector<ElementPtr> elements;
-		instance->CreateElementList(elements);
-		lua_newtable(L);
-		int index = 1;
-		BOOST_FOREACH(ElementPtr & e, elements)
-		{
-			lua_pushinteger(L, index);
-			ElementLuaMetaData::PutInstanceOnStack(L, e);
-			lua_rawset(L, -3);
-			++ index;
-		}
-		return 1;
+		LUA_GLUE_TRY
+			TargetPtr instance = TargetLuaMetaData::GetInstance(L, 1);
+			std::vector<ElementPtr> elements;
+			instance->CreateElementList(elements);
+			lua_newtable(L);
+			int index = 1;
+			BOOST_FOREACH(ElementPtr & e, elements)
+			{
+				lua_pushinteger(L, index);
+				ElementLuaMetaData::PutInstanceOnStack(L, e);
+				lua_rawset(L, -3);
+				++ index;
+			}
+			return 1;
+		LUA_GLUE_CATCH
 	}	
 
 	public static int index(lua_State * L, Target * target, 
 		                    const string & index)
 	{
-		LibraryTarget * library = dynamic_cast<LibraryTarget *>(target);
-		if (0 != library)
-		{
-			LibraryTargetPtr lPtr(library);
-			const int result = LibraryTargetLuaMetaData::Index(L, lPtr, index);
-			if (result > 0) {
-				return result;
-			}
-		}
-
-		if (index == "CreateElementList")
-		{
-			lua_pushcfunction(L, CreateElementList);
-			return 1;
-		}
-		UnitTarget * unitTarget = dynamic_cast<UnitTarget *>(target);
-		if (0 != unitTarget)
-		{
-			if (index == "CppFile")
+		LUA_GLUE_TRY
+			LibraryTarget * library = dynamic_cast<LibraryTarget *>(target);
+			if (0 != library)
 			{
-				PathLuaMetaData::PutInstanceOnStack(L, unitTarget->GetCppFile());
+				LibraryTargetPtr lPtr(library);
+				const int result = LibraryTargetLuaMetaData::Index(L, lPtr, 
+					                                               index);
+				if (result > 0) {
+					return result;
+				}
+			}
+
+			if (index == "CreateElementList")
+			{
+				lua_pushcfunction(L, CreateElementList);
 				return 1;
 			}
-			if (index == "SetCppFile")
+			UnitTarget * unitTarget = dynamic_cast<UnitTarget *>(target);
+			if (0 != unitTarget)
 			{
-				lua_pushcfunction(L, SetCppFile);
+				if (index == "CppFile")
+                {
+                    PathLuaMetaData::PutInstanceOnStack(L, 
+                        unitTarget->GetCppFile());
+                    return 1;
+                }
+				if (index == "Generated")
+				{
+					lua_pushboolean(L, unitTarget->IsGenerated());
+					return 1;
+				}
+				if (index == "HFile")
+				{
+					PathLuaMetaData::PutInstanceOnStack(L, 
+						unitTarget->GetHFile());
+					return 1;
+				}
+                if (index == "SetCppFile")
+                {
+                    lua_pushcfunction(L, SetCppFile);
+                    return 1;
+                }
+				if (index == "SetHFileAsUnknownRelativePath")
+				{
+					lua_pushcfunction(L, SetHFileAsUnknownRelativePath);
+					return 1;
+				}
+                if (index == "SetCppFileAsUnknownRelativePath")
+                {
+                    lua_pushcfunction(L, SetCppFileAsUnknownRelativePath);
+                    return 1;
+                }
+				if (index == "SetCppFileAsUnknownRelativePath")
+				{
+					lua_pushcfunction(L, SetCppFileAsUnknownRelativePath);
+					return 1;
+				}
+				if (index == "SetHFile")
+				{
+					lua_pushcfunction(L, SetHFile);
+					return 1;
+				}
+			}
+
+			if (index == "Unit")
+			{
+				lua_pushcfunction(L, Unit);
 				return 1;
 			}
-		}
 
-		if (index == "Unit")
-		{
-			lua_pushcfunction(L, Unit);
-			return 1;
-		}
-
-		return 0;
+			return 0;
+		LUA_GLUE_CATCH
 	}
 
 	public static int SetCppFile(lua_State * L)
 	{
-		TargetPtr instance = TargetLuaMetaData::GetInstance(L, 1);
-		UnitTarget * unitTarget = dynamic_cast<UnitTarget *>(instance.get());
-		if (0 == unitTarget)
-		{
-			return luaL_error(L, "Expected a UnitTarget.");
-		}
-		PathPtr path = PathLuaMetaData::GetInstance(L, 2);
-		unitTarget->SetCppFile(path);
-		return 0;
+		LUA_GLUE_TRY
+			TargetPtr instance = TargetLuaMetaData::GetInstance(L, 1);
+			UnitTarget * unitTarget = 
+				dynamic_cast<UnitTarget *>(instance.get());
+			if (0 == unitTarget)
+			{
+				return luaL_error(L, "Expected a UnitTarget.");
+			}
+			PathPtr path = PathLuaMetaData::GetInstance(L, 2);
+			unitTarget->SetCppFile(path);
+			return 0;
+		LUA_GLUE_CATCH
+	}
+
+	public static int SetCppFileAsUnknownRelativePath(lua_State * L)
+	{
+		LUA_GLUE_TRY
+			TargetPtr instance = TargetLuaMetaData::GetInstance(L, 1);
+			UnitTarget * unitTarget = 
+				dynamic_cast<UnitTarget *>(instance.get());
+			if (0 == unitTarget)
+			{
+				return luaL_error(L, "Expected a UnitTarget.");
+			}
+			string path = luaL_checkstring(L, 2);
+			unitTarget->SetCppFileAsUnknownRelativePath(path);
+			return 0;
+		LUA_GLUE_CATCH
+	}
+
+	public static int SetHFile(lua_State * L)
+	{
+		LUA_GLUE_TRY
+			TargetPtr instance = TargetLuaMetaData::GetInstance(L, 1);
+			UnitTarget * unitTarget = 
+				dynamic_cast<UnitTarget *>(instance.get());
+			if (0 == unitTarget)
+			{
+				return luaL_error(L, "Expected a UnitTarget.");
+			}
+			PathPtr path = PathLuaMetaData::GetInstance(L, 2);
+			unitTarget->SetHFile(path);
+			return 0;
+		LUA_GLUE_CATCH
+	}
+
+	public static int SetHFileAsUnknownRelativePath(lua_State * L)
+	{
+		LUA_GLUE_TRY
+			TargetPtr instance = TargetLuaMetaData::GetInstance(L, 1);
+			UnitTarget * unitTarget = 
+				dynamic_cast<UnitTarget *>(instance.get());
+			if (0 == unitTarget)
+			{
+				return luaL_error(L, "Expected a UnitTarget.");
+			}
+			string path = luaL_checkstring(L, 2);
+			unitTarget->SetHFileAsUnknownRelativePath(path);
+			return 0;
+		LUA_GLUE_CATCH
 	}
 
 	public static int Unit(lua_State * L)
 	{
-		TargetPtr instance = TargetLuaMetaData::GetInstance(L, 1);
-		string name(luaL_checkstring(L, 2));
-		TargetPtr ptr(UnitTarget::Create(instance, name));
-		TargetLuaMetaData::PutInstanceOnStack(L, ptr);
-		return 1;
+		LUA_GLUE_TRY
+			TargetPtr instance = TargetLuaMetaData::GetInstance(L, 1);
+			bool generated(lua_toboolean(L, 1) != 0);
+			string name(luaL_checkstring(L, 2));
+			TargetPtr ptr(UnitTarget::Create(instance, generated, name));
+			TargetLuaMetaData::PutInstanceOnStack(L, ptr);
+			return 1;
+		LUA_GLUE_CATCH
 	}
 };

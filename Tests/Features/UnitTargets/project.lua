@@ -18,6 +18,7 @@ project = context:Group("Macaroni.Tests")
                        :Version("1.0.0.0");
 
 cppstd = load("Macaroni", "CppStd", "2003"):Target("lib")
+
 lib = project:Library{
     name = "lib",
     -- Important note: When the library sees a ProjectVersion as a
@@ -38,3 +39,12 @@ porg:Run("Generate", {target=lib})
 cpp = plugins:Get("Cpp")
 local outputPath = filePath("target") --ath.New("target")
 cpp:Run("Generate", { target=lib, path=outputPath })
+
+html = plugins:Get("HtmlView")
+html:Run("Generate", { target=lib, path=outputPath})
+
+bjam = plugins:Get("BoostBuild2")
+bjam:Run("Generate", { jamroot=outputPath:NewPath("/jamroot.jam"),
+                       target=lib,
+                       output=output
+})

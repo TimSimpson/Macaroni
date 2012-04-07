@@ -54,6 +54,8 @@ public:
 		return initializer;
 	}
 
+	virtual bool RequiresCppFile() const;
+
 	virtual void Visit(MemberVisitor * visitor) const;
 
 private:

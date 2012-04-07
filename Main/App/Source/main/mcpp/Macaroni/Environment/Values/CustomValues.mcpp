@@ -20,6 +20,7 @@
 ~import Macaroni::InternalSource;
 ~import boost::intrusive_ptr;
 ~import std::map;
+~import Macaroni::Environment::Output;
 ~import Macaroni::Exceptions::SimpleException;
 ~import lua_State;
 ~import std::string;
@@ -92,6 +93,40 @@ class Macaroni_IO_FileSet : public Any
 	public virtual void ToLua(lua_State * L)
 	{
 		FileSetLuaMetaData::PutInstanceOnStack(L, value);
+	}
+
+};
+
+
+class Macaroni_Environment_Output : public Any
+{
+	~import Macaroni::Environment::Output;
+	~import Macaroni::Environment::OutputPtr;
+	~import Macaroni::Environment::OutputLuaMetaData;
+
+	~block "h" { public: typedef Macaroni::Environment::OutputPtr WrappedType; }
+	private OutputPtr value;
+
+	public Macaroni_Environment_Output(OutputPtr value)
+	:	Any(),
+		value(value)
+	{
+	}
+
+	public Macaroni_Environment_Output(lua_State * L, int index)
+	:	Any(),
+		value(OutputLuaMetaData::GetInstance(L, index))
+	{
+	}
+
+	public OutputPtr Get()
+	{
+		return value;
+	}
+
+	public virtual void ToLua(lua_State * L)
+	{
+		OutputLuaMetaData::PutInstanceOnStack(L, value);
 	}
 
 };
@@ -249,8 +284,9 @@ class Macaroni_Model_Project_Target : public Any
 
 class Any
 {
-	~import  Macaroni::Environment::Values::Macaroni_Model_Project_Files;
+	~import Macaroni::Environment::Values::Macaroni_Model_Project_Files;
 	~import Macaroni::Environment::Values::Macaroni_IO_FileSet;
+	~import Macaroni::Environment::Values::Macaroni_Environment_Output;
 	~import Macaroni::Environment::Values::Macaroni_IO_Path;
 	~import Macaroni::Environment::Values::Macaroni_IO_PathList;
 	~import Macaroni::Environment::Values::Macaroni_Model_Project_Target;
@@ -267,6 +303,10 @@ class Any
 		else if (metaTableName == "Macaroni.IO.FileSet")
 		{
 			ptr.reset(new Macaroni_IO_FileSet(L, index));
+		}
+		else if (metaTableName == "Macaroni.Environment.Output")
+		{
+			ptr.reset(new Macaroni_Environment_Output(L, index));			
 		}
 		else if (metaTableName == "Macaroni.IO.Path")
 		{

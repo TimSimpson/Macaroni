@@ -8,10 +8,12 @@
 class List
 {
     private:
-        vector<string> items;
+        std::vector<std::string> items;
 
     public:
-        std::string GetCount() const;
+        int GetCount() const;
 
         std::string GetItem(int index) const;
 };
+
+#endif
