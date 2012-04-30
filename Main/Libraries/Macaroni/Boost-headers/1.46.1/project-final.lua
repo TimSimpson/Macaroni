@@ -13,9 +13,11 @@ boost_props = properties.boost["1.46.1"]
 lib = project:Library
 {
     name="lib",
-    sources = files{
-        Macaroni = { fileSet("Source", ".mh$") }
-    }
+    sources = pathList{"Source", ".mh$"},
 }
-headers = lib:AddArtifact("headers")
-headers.Files:Add(fileSet(boost_props.include, ""));
+--headers = lib:AddArtifact("headers")
+--headers.Files:Add(fileSet(boost_props.include, ""));
+local headers = lib.Headers
+require "Macaroni.IO.Path"
+
+headers[#headers + 1] = Macaroni.IO.Path.New(boost_props.include)

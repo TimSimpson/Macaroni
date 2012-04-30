@@ -167,7 +167,7 @@ class Target
 	public void AddDependency(Target * dependency)
 	{
 		BOOST_FOREACH(Macaroni::Model::Project::Target * t, dependencies) {
-			if (t->GetName() == this->GetName()) {
+			if (t->GetCId() == this->GetCId()) {
 				throw DependencyAlreadyPresentException(
 					MACARONI_INTERNAL_SOURCE);
 			}
@@ -188,7 +188,7 @@ class Target
 			}
 		}
 		elements.push_back(element);
-	}	
+	}		
 
 	public virtual ArtifactListPtr FindArtifacts(const string & name)		
 	{
@@ -288,6 +288,23 @@ class Target
 		@LuaProperty "Sources"
 	{
 		throw InvalidTargetOperationException(MACARONI_INTERNAL_SOURCE);
+	}
+
+	public virtual const char * GetTypeName() const
+		@LuaProperty "TypeName"
+	{
+		return "target";
+	}
+
+	public bool HasDependencyOnProjectName(const string & name) const
+		@LuaFunction "HasDependencyOnProjectName"
+	{
+		BOOST_FOREACH(Macaroni::Model::Project::Target * t, dependencies) {
+			if (t->GetProjectVersion()->GetProject()->GetName() == name) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public ~global ~friend void intrusive_ptr_add_ref(Target * p)

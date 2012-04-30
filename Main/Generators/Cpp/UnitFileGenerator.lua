@@ -1,5 +1,8 @@
 require "Cpp/Common";
 require "Plugin";
+require "Cpp/ClassCppFileGenerator";
+require "Cpp/ClassHFileGenerator";
+require "Cpp/TypedefFileGenerator";
 
 local Access = Macaroni.Model.Cpp.Access;
 local Context = Macaroni.Model.Context;
@@ -12,16 +15,40 @@ local TypeNames = Macaroni.Model.TypeNames;
 -- That isn't quite flexible enough, so the new system is this. It iterates by
 -- unit, building the header and cpp file for each one before proceeding.
 
+FileWriters = {
+    H = {
+        Class = function(library, node, writer)
+            gen = ClassHFileGenerator.new{node = node, targetLibrary=library,
+                                          writer=writer};
+            gen:parse()
+        end,
+        Typedef = function(library, node, writer)
+            TypedefFileGenerator.new{node=node, targetLibrary=library,
+                                     writer=writer};
+        end,
+    },
+    Cpp = {
+        Class = function(library, node, writer)
+            gen = ClassCppFileGenerator.new{node = node, targetLibrary=library,
+                                          writer=writer};
+            gen:parse()
+        end,
+    },
+};
+
 UnitFileGenerator = {
 
-    new = function(library, path)
+    new = function(library)
         if (library == nil) then
             error("No library argument given.");
         end
         args = {}
         setmetatable(args, UnitFileGenerator);
         args.targetLibrary = library;
-        args.rootPath = path;
+        -- if path == nil then
+        --     error("Argument #2, 'path', cannot be nil.")
+        -- end
+        -- args.rootPath = path;
         UnitFileGenerator.__index = function(t, k)
             local v = UnitFileGenerator[k];
             return v;
@@ -29,49 +56,58 @@ UnitFileGenerator = {
         return args;
     end,
 
-    iterateUnits = function (self, library, path)
+    iterateUnits = function (self, library, rootPath)
         for unit in Plugin.IterateChildDependencies(library) do
-            self:writeUnitFiles(unit);
+            self:writeUnitFiles(unit, rootPath);
         end
     end,
 
-    writeUnitFiles = function(self, unit)
+    writeUnitFiles = function(self, unit, rootPath)
         if not unit.Generated then
             log:Write("Skipping unit " .. tostring(unit) .. ".")
             return
         end
         log:Write("Writing unit files for " .. tostring(unit) .. ".")
-        self:writeUnitHppFile(unit)
-        self:writeUnitCppFile(unit)
+        self:writeUnitHppFile(unit, rootPath)
+        self:writeUnitCppFile(unit, rootPath)
     end,
 
-    writeUnitCppFile = function(self, unit)
-        log:Write("Creating cpp file at " .. tostring(unit.CppFile));
-        if (unit.CppFile == nil) then
-            log:Error("Unit " .. tostring(unit) .. " has no CppFile!")
+    writeUnitFile = function(self, unit, rootPath, fileType)
+        local fileProp = fileType .. "File"  -- HFile or CppFile
+        local setFunc = "Set" .. fileType .. "FileRootDirectory"
+
+        -- The unit file will be some kind of relative path with an empty root
+        -- path, such as "", "/Company/Namespace/blah.h".
+        -- This code changes the root path part to the output path sent into
+        -- this function (rootPath), which will be something like
+        -- "C:\MyFiles\MyProject\target".
+        if (unit[fileProp] == nil) then
+            log:Error("Unit " .. tostring(unit) .. " has no " .. fileType
+                      .. "File!")
         end
+        unit[setFunc](unit, rootPath);
 
-        -- TODO: Everything!
-        --local writer = unit.HFile:CreateFile();
-
-        -- self.rootPath:NewPath(unit.Name)
-    end,
-
-    writeUnitHppFile = function(self, unit)
-        log:Write("Creating hpp file at " .. tostring(unit.HFile));
-        if (unit.CppFile == nil) then
-            log:Error("Unit " .. tostring(unit) .. " has no HFile!")
-        end
-        local writer = unit.HFile:CreateFile();
+        log:Write("Creating " .. fileType .. " file at "
+                  .. tostring(unit[fileProp]));
+        local writer = unit[fileProp]:CreateFile();
 
         local elements = unit:CreateElementList()
         for i = 1, #elements do
-            print(tostring(i) .. '=' .. tostring(elements[i]))
+            log:Write(tostring(i) .. '=' .. tostring(elements[i]))
+            local element = elements[i]
+            local node = element.Node
+            local typeName = node.TypeName
+            local func = FileWriters[fileType][typeName]
+            func(self.targetLibrary, node, writer)
         end
-        -- self.rootPath:NewPath(unit.Name)
-        -- Get all elements,
-        -- for each generate by passing the writer to them.
+    end,
 
+    writeUnitCppFile = function(self, unit, rootPath)
+        self:writeUnitFile(unit, rootPath, "Cpp")
+    end,
+
+    writeUnitHppFile = function(self, unit, rootPath)
+        self:writeUnitFile(unit, rootPath, "H")
     end,
 
 

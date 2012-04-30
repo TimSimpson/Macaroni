@@ -23,6 +23,7 @@
 ~import Macaroni::IO::FileSetIterator;
 ~import Macaroni::Model::Library;
 ~import Macaroni::Model::LibraryPtr;
+~import Macaroni::Model::Project::LibraryTarget;
 ~import Macaroni::Model::Project::MacaroniCodeTarget;
 ~import Macaroni::Parser::ParserPtr;
 ~import Macaroni::Parser::Pippy::PippyParser;
@@ -110,8 +111,8 @@ class TargetFileSweeper
 	}
 
 	public void ParseMacaroniFile(const Path & filePath) {
-		MacaroniCodeTarget * mct = 
-			dynamic_cast<MacaroniCodeTarget *>(target.get());
+		LibraryTarget * mct = 
+			dynamic_cast<LibraryTarget *>(target.get());
 		if (0 != mct) 
 		{
 			mct->AddMacaroniFile(filePath);

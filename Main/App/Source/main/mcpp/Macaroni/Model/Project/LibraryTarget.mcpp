@@ -68,8 +68,7 @@ typedef intrusive_ptr<LibraryTarget ~l> LibraryTargetPtr
 		@LuaClass [ SameAsNode = LibraryTarget ]
 		@UseLightDef true;
 
-class LibraryTarget : public virtual Macaroni::Model::Project::Target,
-		              public virtual MacaroniCodeTarget
+class LibraryTarget : public virtual Macaroni::Model::Project::Target
 	@LuaClass [
 		ReferenceType = LibraryTargetPtr
 	]
@@ -80,11 +79,10 @@ class LibraryTarget : public virtual Macaroni::Model::Project::Target,
 	protected PathListPtr headers;
 	protected PathListPtr macaroniCode;
 
-	private LibraryTarget(ProjectVersion * projectVersion,
+	protected LibraryTarget(ProjectVersion * projectVersion,
 		            const string & name)
 	:   Target(projectVersion, name),
-		MacaroniCodeTarget(),
-	    artifacts(new ArtifactList()),
+		artifacts(new ArtifactList()),
 		headers(new PathList()),
 		macaroniCode(new PathList())
 	{		
@@ -121,6 +119,17 @@ class LibraryTarget : public virtual Macaroni::Model::Project::Target,
 		)
 	{
 		LibraryTargetPtr lib(new LibraryTarget(projectVersion, name));
+		initialize(lib, dependencies, headers, sources);
+		return lib;
+	}
+
+	protected static void initialize(
+		LibraryTargetPtr lib,
+		const vector<Macaroni::Model::Project::TargetPtr> & dependencies,
+		PathListPtr headers,
+		PathListPtr sources
+		)
+	{
 		BOOST_FOREACH(TargetPtr target, dependencies) {
 			lib->dependencies.push_back(target.get());
 		}
@@ -131,12 +140,16 @@ class LibraryTarget : public virtual Macaroni::Model::Project::Target,
 		}
 
 		TargetFileSweeper sweeper(lib);
-		BOOST_FOREACH(PathPtr p, *sources)
-		{
-			lib->headers->push_back(p);			
-		}
 
-		sweeper.RecursivelyParseDirectory(*sources);
+		if (sources)
+		{
+			BOOST_FOREACH(PathPtr p, *sources)
+			{
+				lib->headers->push_back(p);			
+			}
+			sweeper.RecursivelyParseDirectory(*sources);
+		}
+		
 		//sources->Add("Macaroni");
 		////sources->Add("Headers");
 		////BOOST_FOREACH(FileSetPtr fs, *(sources["Headers"])) 
@@ -152,8 +165,6 @@ class LibraryTarget : public virtual Macaroni::Model::Project::Target,
 		////		//lib->GetSources()->Macaroni()->push_back(fs);
 		////	}
 		////}
-
-		return lib;
 	}
 
 	public virtual  ArtifactListPtr FindArtifacts(
@@ -190,7 +201,11 @@ class LibraryTarget : public virtual Macaroni::Model::Project::Target,
 	{
 		return headers;
 	}
-
+	
+	public virtual const char * GetTypeName() const
+	{
+		return "lib";
+	}
 
 	protected virtual int LuaIndex(lua_State * L, const string & name)
 	{

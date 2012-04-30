@@ -21,6 +21,7 @@ require "Cpp/UnitFileGenerator";
 require "Macaroni.Model.Library";
 require "Log";
 require "Macaroni.IO.Path";
+require "Plugin"
 
 if MACARONI_VERSION ~= "0.1.0.23" then
     require "Macaroni.Model.Project.Target";
@@ -53,13 +54,46 @@ end
 --debug.traceback = onError
 
 
+-- GLOBAL Log definition.
+log = log.Init("Cpp");
+log.Write = function(self, msg)
+    --print("[CPP]:" .. msg);
+end;
+log.Error = function(self, msg)
+    print("[CPP::!!!!!!!!!!]:" .. msg);
+end;
+
+function Validate(self)
+    Plugin.Check(self.projectVersion ~= nil, "Missing argument 'projectVersion'.")
+    Plugin.Check(self.path ~= nil, "Missing argument 'path'.")
+end
+
+function Generate2(self)
+    -- The newer version used by the project system.
+    Validate(self)
+    if self.defaultLib == nil then
+        for i=1, #self.projectVersion.Targets do
+            local target = self.projectVersion.Targets[i]
+            if target.Name == "lib" then
+                self.defaultLib = target
+            end
+        end
+    end
+    -- Iterate all higher level Targets, generating each one.
+    for lib in Plugin.IterateProjectVersionTargets(self.projectVersion, "lib")
+    do
+        Generate(lib, self.path)
+    end
+    for exe in Plugin.IterateProjectVersionTargets(self.projectVersion, "exe")
+    do
+        Generate(exe, self.path)
+    end
+end
+
+
 function Generate(library, path)
-    log = log.Init("Cpp");
-    log.Write = function(self, msg)
-          print("[CPP]:" .. msg);
-    end;
     -- Write a centralized header file which can set macros for build options.
-    if BoostConfigIsAvailable(library.Context) then
+    if BoostConfigIsAvailable(library) then -- .Context) then
         lcg = LibraryConfigGenerator.new(library);
         lcg:writeFile(path);
     end
@@ -75,8 +109,9 @@ function Generate(library, path)
         log:Write("End of Cpp.lua\n");
     else
     -- New mode- Assume units have been created. Write files per unit.
+        local rootGenPath = Macaroni.IO.Path.New(path.AbsolutePath)
         local ufGen = UnitFileGenerator.new(library);
-        ufGen:iterateUnits(library, path);
+        ufGen:iterateUnits(library, rootGenPath);
     end
 end
 
@@ -111,7 +146,7 @@ function GetMethod(name)
                 -- print("PATH=" .. tostring(args.path));
                 -- print("PATH.NewPath=" .. tostring(args.path.NewPath));
 
-                Generate(args.target, args.path)
+                Generate2(args)
             end
         }
     end

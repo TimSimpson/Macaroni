@@ -93,10 +93,20 @@ class UnitTarget : public Target
 		SetCppFile(ptr);
 	}
 
+	public void SetCppFileRootDirectory(PathPtr path)
+	{
+		cppFile = cppFile->CreateWithDifferentRootPath(path);
+	}
+
 	/** The H file. */
 	public PathPtr GetHFile() const		
 	{
 		return hFile;
+	}
+
+	public virtual const char * GetTypeName() const
+	{
+		return "unit";
 	}
 
 	public void SetHFile(PathPtr value)
@@ -117,5 +127,10 @@ class UnitTarget : public Target
 	{
 		PathPtr ptr(new Path("", value));
 		SetHFile(ptr);
+	}
+
+	public void SetHFileRootDirectory(PathPtr path)
+	{
+		hFile = hFile->CreateWithDifferentRootPath(path);
 	}
 };

@@ -7,7 +7,7 @@ local TypeNames = Macaroni.Model.TypeNames;
 -- Parses NodeSpace for a library.
 -- Each element that does not have an For each element which deserves one
 -- has a new Unit target created for it with the name of the element Node.
--- Later the units will be generated.
+-- Later the units will be generated into C++ source with the Cpp plugin.
 
 
 Generator =
@@ -21,7 +21,9 @@ Generator =
         local t = self.defaultTarget:Unit(element.Node.FullName, true);
         local fileName = element.Node:GetPrettyFullName("/")
         t:SetHFileAsUnknownRelativePath(fileName .. ".hpp")
+        --t:SetHFile(path:NewPathForceSlash(fileName .. ".hpp"))
         t:SetCppFileAsUnknownRelativePath(fileName .. ".cpp")
+        --t:SetCppFile(path:NewPathForceSlash(fileName .. ".cpp"))
         print(t)
         return t;
     end,

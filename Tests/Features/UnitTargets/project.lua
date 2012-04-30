@@ -17,6 +17,7 @@ project = context:Group("Macaroni.Tests")
                        :Project("Features-UnitTargets")
                        :Version("1.0.0.0");
 
+boost  = load("Macaroni", "Boost-headers", "1.46.1"):Target("lib")
 cppstd = load("Macaroni", "CppStd", "2003"):Target("lib")
 
 lib = project:Library{
@@ -24,27 +25,27 @@ lib = project:Library{
     -- Important note: When the library sees a ProjectVersion as a
     -- dependency, it automatically uses a target named "lib".
     -- dependencies = {boost_regex_lib, boost_headers},
-    headers = pathList{"src"},
+    headers = pathList{"src", "target"},
     sources = pathList{"src", ".mcpp$"},
 
     dependencies = {
-        cppstd
+        cppstd,
+        boost
     }
 }
-
 
 porg = plugins:Get("Porg")
 porg:Run("Generate", {target=lib})
 
 cpp = plugins:Get("Cpp")
 local outputPath = filePath("target") --ath.New("target")
-cpp:Run("Generate", { target=lib, path=outputPath })
+cpp:Run("Generate", { projectVersion=project, path=outputPath })
 
 html = plugins:Get("HtmlView")
 html:Run("Generate", { target=lib, path=outputPath})
 
 bjam = plugins:Get("BoostBuild2")
 bjam:Run("Generate", { jamroot=outputPath:NewPath("/jamroot.jam"),
-                       target=lib,
+                       projectVersion=project,
                        output=output
 })

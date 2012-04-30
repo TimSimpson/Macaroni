@@ -50,6 +50,8 @@
 ~import Macaroni::Environment::Values::Table;
 ~import Macaroni::Environment::Values::TablePtr;
 ~import Macaroni::Model::Project::Target;
+~import Macaroni::Model::Project::TargetList;
+~import Macaroni::Model::Project::TargetListPtr;
 ~import Macaroni::Model::Project::TargetPtr;
 ~import Macaroni::Cpp::UseLightDef;
 ~import Macaroni::Model::Project::Utils;
@@ -158,6 +160,18 @@ class Macaroni::Model::Project::ProjectVersion
 		return ptr;
 	}
 
+	~block "cpp"
+	{
+		typedef InnerTargetList<ProjectVersion, ProjectVersionPtr> PVTargetList;
+	}
+
+	public virtual const TargetListPtr GetTargets()
+		@LuaProperty "Targets"
+	{
+		TargetListPtr ptr(new PVTargetList(this, &targets));
+		return ptr;
+	}
+
 	public inline const string & GetVersion() const
 		@LuaProperty "Version"
 	{
@@ -174,6 +188,64 @@ class Macaroni::Model::Project::ProjectVersion
 		Macaroni::Model::Project::ProjectVersion * const p)
 	{
 		intrusive_ptr_release((Macaroni::Model::Project::Project *) p->project);
+	}
+
+	//TODO: This isn't tested or used yet! Maybe just remove it.
+	public LibraryTargetPtr Exe(Table & table)
+		@LuaFunction "Exe"
+		@LuaGlueCode ={
+			ProjectVersionPtr & instance =
+				ProjectVersionLuaMetaData::GetInstance(L, 1);
+			Table table;
+			boost::optional<string> key("Exe argument 2");
+			LuaEnvironment::SerializeTable(table, L, 2, key);
+
+			LibraryTargetPtr lib = instance->Library(table);
+			
+			TargetLuaMetaData::PutInstanceOnStack(L, lib);
+			return 1;
+		}
+	{
+		string name = table.Get<String>("name");
+		//FilesPtr sources = table.Get<Macaroni_Model_Project_Files>("sources");
+		PathListPtr headers;
+		if (table.Has("headers"))
+		{
+			headers = table.Get<Macaroni_IO_PathList>("headers");
+		}
+		else
+		{
+			headers.reset(new PathList());
+		}
+		PathListPtr sources = table.Get<Macaroni_IO_PathList>("sources");
+		
+		
+		vector<TargetPtr> dependencies;
+
+		if (table.Has("dependencies"))
+		{
+			struct Func
+			{
+				vector<TargetPtr> & dependencies;
+				
+				Func(vector<TargetPtr> & dependencies)
+				: dependencies(dependencies) 
+				{
+				}
+
+				void operator ()(TargetPtr target) 
+				{
+					dependencies.push_back(target);
+				}
+			};
+			Func f(dependencies);
+			table.ToVector<Macaroni_Model_Project_Target, Func>(f);
+		}
+		
+		LibraryTargetPtr lib = LibraryTarget::Create(
+			this, name, dependencies, headers, sources);
+		//addTarget(lib.get());
+		return lib;
 	}
 
 	public LibraryTargetPtr Library(Table & table)
@@ -224,7 +296,8 @@ class Macaroni::Model::Project::ProjectVersion
 				}
 			};
 			Func f(dependencies);
-			table.ToVector<Macaroni_Model_Project_Target, Func>(f);
+			table.GetVector<Macaroni_Model_Project_Target, Func>(
+				"dependencies", f);
 		}
 		
 		LibraryTargetPtr lib = LibraryTarget::Create(
@@ -255,7 +328,7 @@ class Macaroni::Model::Project::ProjectVersion
 			//addTarget(target.get());
 		}
 		return target;
-	}
+	}	
 
 	ProjectVersionId ToId() const
 	{
@@ -269,6 +342,7 @@ class Macaroni::Model::Project::ProjectVersion
 		return str(format("%s, Version=\"%s\"")
 		           % project->ToString() % version);
 	}
+
 };
 
 //TODO: There is a bug that keeps Macaroni from working if the namespace

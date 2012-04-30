@@ -1,0 +1,19 @@
+~unit StackDriver
+    ~type=exe
+;
+
+~import std::cout;
+~import Example::Containers::Stack;
+
+class StackDriver
+{
+     public ~global void main(const char * args, int argc)
+     {
+        std::cout << "Stack Driver";
+        Stack stack;
+        stack.push(1);
+        stack.push(2);
+        stack.push(3);
+        std::cout << "Stack pop=" << stack.pop();
+     }
+};

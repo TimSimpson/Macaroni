@@ -6,14 +6,14 @@ local Node = Macaroni.Model.Node;
 local TypeNames = Macaroni.Model.TypeNames;
 
 UnitNodeFileGenerator = {
-    iterateNodes = function (self, nodeChildren, path)
+    iterateNodes = function (self, nodeChildren, writer)
         for i = 1, #(nodeChildren) do
             n = nodeChildren[i];
-            self:parseNode(n, path);
+            self:parseNode(n, writer);
         end
     end,
 
-    createNamespaceFileGenerator = function (self, node, path)
+    createNamespaceFileGenerator = function (self, node, writer)
         return nil;
     end,
 
@@ -25,28 +25,28 @@ UnitNodeFileGenerator = {
         end
     end,
 
-    parseClass = function (self, node, path)
+    parseClass = function (self, node, writer)
         assert(node.Member.TypeName == TypeNames.Class);
         log:Write("Time to parse class.");
-        local cg = self:createClassGenerator(node, path);
+        local cg = self:createClassGenerator(node, writer);
         log:Write("PFSF!");
         cg:parse();
         log:Write("Oh, that was a sweet parse!");
     end,
 
-    parseNamespace = function (self, node, path)
+    parseNamespace = function (self, node, writer)
         if (node.Member == nil or node.Member.TypeName ~= TypeNames.Namespace) then
             error("node argument must be namespace.", 2);
         end
-        path:CreateDirectory();
-        local ng = self:createNamespaceFileGenerator(node, path);
+        writer:CreateDirectory();
+        local ng = self:createNamespaceFileGenerator(node, writer);
         if (ng ~= nil and ng:hasEntriesInLibrary(self.targetLibrary)) then
             ng:parse();
         end
-        self:iterateNodes(node.Children, path);
+        self:iterateNodes(node.Children, writer);
     end,
 
-    parseNode = function (self, node, path)
+    parseNode = function (self, node, writer)
         log:Write("~~~ " .. node.FullName);
         if (not NodeHelper.worthIteration(node)) then
             log:Write(" Skipped.\n");
@@ -70,8 +70,8 @@ UnitNodeFileGenerator = {
         end
 
         log:Write("       " .. typeName);
-        log:Write("path = " .. tostring(path));
-        local newPath = path:NewPath("/" .. node.Name);
+        log:Write("writer = " .. tostring(writer));
+        local newPath = writer:NewPath("/" .. node.Name);
 
         --if (newPath.IsDirectory) then
         --    newPath.CreateDirectory();
@@ -102,15 +102,17 @@ UnitNodeFileGenerator = {
         log:Write(" ^-- Conclude parse.");
     end,
 
-    parseTypedef = function (self, node, path)
+    parseTypedef = function (self, node, writer)
+        log:Error("Not implemented.")
+        error("Not implemented (yet)")
         if (node.Member == nil or node.Member.TypeName ~= TypeNames.Typedef) then
             error("node argument must be typedef.", 2);
         end
-        -- path:CreateDirectory();
-        local ng = self:createTypedefFileGenerator(node, path);
+        -- writer:CreateDirectory();
+        local ng = self:createTypedefFileGenerator(node, writer);
         if (ng ~= nil and ng:hasEntriesInLibrary(self.targetLibrary)) then
             ng:parse();
         end
-        self:iterateNodes(node.Children, path);
+        self:iterateNodes(node.Children, writer);
     end,
 };

@@ -7,5 +7,10 @@ class Dog
      public Dog()
      : legs(4)
      {}
+
+     public int GetLegs() const
+     {
+         return legs;
+     }
 };
 

@@ -26,6 +26,7 @@ Plugin =
 
     IterateFiles = function(files)
         -- Iterate headers for a target using for.
+        Plugin.Check(files ~= nil, "Argument 'files' cannot be nil.")
         local i = 0
         return function ()
             i = i + 1
@@ -36,17 +37,12 @@ Plugin =
     end,
 
     IterateDependencies = function(target)
-        local i = 0
-        local deps = target.Dependencies;
-        return function ()
-            i = i + 1
-            if i <= #deps then
-                return deps[i]
-            end
-        end
+        -- Iterator for a Target's dependencies. Usable by for.
+        return Plugin.IterateTargetList(target.Dependencies)
     end,
 
     IterateChildDependencies = function(target)
+        -- Iterator for the child / dependencies of a Target. Usable by for.
         itr = Plugin.IterateDependencies(target)
         return function()
             while true do
@@ -56,5 +52,33 @@ Plugin =
                 end
             end
         end
-    end
+    end,
+
+    IterateProjectVersionTargets = function(projectVersion, type)
+        -- Iterator for Targets owned by a ProjectVersion.
+        return Plugin.IterateTargetList(projectVersion.Targets, type)
+    end,
+
+    IterateTargetList = function(targetList, type)
+        -- An iterator for a TargetList, usable by for.
+        local i = 0
+        if type == nil then
+            return function ()
+                i = i + 1
+                if i <= #targetList then
+                    return targetList[i]
+                end
+            end
+        else
+            return function()
+                i = i + 1
+                while i <= #targetList and targetList[i].TypeName ~= type do
+                    i = i + 1
+                end
+                if i <= #targetList then
+                    return targetList[i]
+                end
+            end
+        end
+    end,
 }

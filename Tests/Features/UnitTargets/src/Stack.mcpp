@@ -12,10 +12,11 @@ class Stack
     {
     }
 
-    public void pop()
+    public int pop()
     {
         int value =  vec[vec.size() - 1];
         vec.pop_back();
+        return value;
     }
 
     public void push(int value)

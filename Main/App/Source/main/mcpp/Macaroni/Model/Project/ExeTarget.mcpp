@@ -1,0 +1,70 @@
+~import boost::intrusive_ptr;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Lua::LuaProperty;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaGlueCode;
+~import Macaroni::Lua::LuaIncludes;
+~import Macaroni::Lua::LuaIndexExtraCode;
+~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Lua::LuaProperty;
+~import Macaroni::Model::Project::LibraryTarget;
+~import Macaroni::Model::Project::LibraryTargetPtr;
+~import Macaroni::IO::PathListPtr;
+~import Macaroni::Model::Project::ProjectVersion;
+~import std::string;
+~import Macaroni::Model::Project::TargetPtr;
+~import Macaroni::Cpp::UseLightDef;
+~import std::vector;
+
+~namespace Macaroni::Model::Project;
+
+class ExeTarget {};
+
+typedef intrusive_ptr<ExeTarget ~l> ExeTargetPtr
+	@LuaClass [ SameAsNode = LibraryTarget ]
+	@UseLightDef true;
+
+class ExeTarget : public virtual LibraryTarget
+	@LuaClass [
+		ReferenceType = ExeTargetPtr
+	]
+{
+
+	private ExeTarget(ProjectVersion * projectVersion, const string & name)
+	:	LibraryTarget(projectVersion, name), Target(projectVersion, name)
+	{
+	}
+
+	public static ExeTargetPtr Create(
+		LibraryTargetPtr lib,
+		const string & name,		
+		PathListPtr sources
+		)
+	{
+		ProjectVersion * proj = lib->GetProjectVersion().get();
+		vector<TargetPtr> deps;
+		deps.push_back(lib);
+		return Create(proj, name, deps, lib->GetHeaders(), sources);
+	}
+
+	public static ExeTargetPtr Create(
+		ProjectVersion * projectVersion,
+		const string & name,
+		const vector<TargetPtr> & dependencies,
+		PathListPtr headers,
+		PathListPtr sources
+		)
+	{
+		ExeTargetPtr exe(new ExeTarget(projectVersion, name));
+		initialize(exe, dependencies, headers, sources);
+		return exe;
+	}
+
+	public virtual const char * GetTypeName() const
+	{
+		return "exe";
+	}
+}

@@ -17,13 +17,14 @@ function GetMethod(name)
         {
             Describe = function(args)
                 validateArgs(args);
-                args.output.WriteLine("Create Boost Build file for target "
-                                      .. tostring(args.target)
+                args.output.WriteLine("Create Boost Build file for project "
+                                      .. tostring(args.projectVersion)
                                       .. "to the directory "
                                       .. tostring(args.path) .. ".");
             end,
             Run = function(args)
                 validateArgs(args);
+                Initialize(args);
                 Generate(args)
             end
         }
@@ -39,16 +40,53 @@ end
 --
 -------------------------------------------------------------------------------
 
+function Initialize(self)
+    if self.defaultLib == nil then
+        for i=1, #self.projectVersion.Targets do
+            local target = self.projectVersion.Targets[i]
+            if target.Name == "lib" then
+                self.defaultLib = target
+            end
+        end
+    end
+    self.libTargetDeps = {}
+end
+
 function Generate(self)
     validateArgs(self)
     writeBoostFile(self)
 end
 
 function validateArgs(self)
-    Plugin.Check(self.target ~= nil, "Missing argument 'target'.")
+    Plugin.Check(self.projectVersion ~= nil, "Missing argument 'projectVersion'.")
     Plugin.Check(self.jamroot ~= nil, "Missing argument 'jamroot'.")
     Plugin.Check(self.output ~= nil, "Missing argument 'output'.")
     self.Log = self.Log or Plugin.CreateFakeLog()
+end
+
+function getDepName(target)
+    if target.TypeName == "unit" then
+        if target.CppFile ~= nil then
+            return "MACARONI_UNIT_TARGET_" .. target:GetCId();
+        else
+            return nil
+        end
+    end
+    if target.TypeName == "lib" then
+        return "MACARONI_LIB_TARGET_" .. target:GetCId();
+    end
+end
+
+function allDependencies(target)
+    -- Returns a string with all a targets deps seperated by spaces.
+    local t = {};
+    for target in Plugin.IterateDependencies(target) do
+        local dep = getDepName(target)
+        if dep ~= nil then
+            t[#t + 1] = dep
+        end
+    end
+    return table.concat(t, "\n        ");
 end
 
 function allChildTargets(libTarget)
@@ -62,12 +100,15 @@ function allChildTargets(libTarget)
     return table.concat(t, "\n        ");
 end
 
-function dependencyProperties(target)
+function dependencyProperties(self, target)
     -- Creates a string with every dependency of this target listed as a
     -- property.
     local t = {};
     for dep in Plugin.IterateDependencies(target) do
         t[#t + 1] = "<dependency>" .. dep:GetCId()
+    end
+    if target.Parent ~= nil then
+        t[#t + 1] = getLibraryProperties(self, target.Parent)
     end
 
     return table.concat(t, "\n        ");
@@ -78,27 +119,79 @@ function includePaths(target)
     -- for all necessary headers.
     local t = {};
     for header in Plugin.IterateFiles(target.Headers) do
-        t[#t + 1] = "<include>\"" .. header.AbsolutePath .. "\""
+        t[#t + 1] = "<include>\"" .. header.AbsolutePathForceSlash .. "\""
     end
     return table.concat(t, "\n        ");
 end
 
-function writeUnitTargets(writer, libTarget)
-    -- Finds all dependencies which are children of libtarget and writes
-    -- a target for each one.
-    for target in Plugin.IterateChildDependencies(libTarget) do
+function includeDepPaths(target)
+    local t = {};
+    for depTarget in Plugin.IterateDependencies(target) do
+        t[#t + 1] = "# " .. tostring(depTarget)
+        if depTarget.Headers ~= nil then
+            t[#t + 1] = includePaths(depTarget)
+        else
+            t[#t + 1] = "# ..."
+        end
+    end
+    return table.concat(t, "\n        ");
+end
+
+function writeExeTarget(self, writer, lib)
+    writer:WriteLine("# " .. lib.Name);
+    writer:WriteLine("exe " .. lib:GetCId());
+    writer:WriteLine("    :   # Sources:");
+    writer:WriteLine(allDependencies(lib));
+    writer:WriteLine("    :   # TODO: May need to set some compiler flags here.");
+    writer:WriteLine("    ;");
+end
+
+function writeExeTargets(self, writer)
+    for target in Plugin.IterateProjectVersionTargets(self.projectVersion,
+                                                      "exe")
+    do
+        writeExeTarget(self, writer, target)
+    end
+end
+
+function writeLibTarget(self, writer, lib)
+    writer:WriteLine("# " .. lib.Name);
+    writer:WriteLine("lib MACARONI_LIB_TARGET_" .. lib:GetCId());
+    writer:WriteLine("    :   # Sources:");
+    writer:WriteLine(allChildTargets(lib));
+    writer:WriteLine("    :   # TODO: May need to set some compiler flags here.");
+    writer:WriteLine("    ;");
+end
+
+function writeLibTargets(self, writer)
+    for target in Plugin.IterateProjectVersionTargets(self.projectVersion,
+                                                      "lib")
+    do
+        writeLibTarget(self, writer, target)
+    end
+end
+
+function writeUnitTargets(self, writer) -- , libTarget)
+    -- Writes the info for every unit target in the project.
+    --for target in Plugin.IterateChildDependencies(libTarget) do
+    for target in Plugin.IterateProjectVersionTargets(self.projectVersion,
+                                                      "unit")
+    do
         local cppFile = target.CppFile
         if cppFile ~= nil then
             writer:WriteLine("# " .. target.Name);
             writer:WriteLine("obj MACARONI_UNIT_TARGET_" .. target:GetCId() .. "\n"
                 .. "    :   \"" .. target.CppFile.AbsolutePathForceSlash
                 .. "\"\n"
-                .. "    :   " .. dependencyProperties(target)  .. "\n"
+                .. "    :   " .. dependencyProperties(self, target)  .. "\n"
                 .. ";");
         end
     end
     local explained = false
-    for target in Plugin.IterateChildDependencies(libTarget) do
+    --for target in Plugin.IterateChildDependencies(libTarget) do
+    for target in Plugin.IterateProjectVersionTargets(self.projectVersion,
+                                                      "unit")
+    do
         local cppFile = target.CppFile
         if cppFile == nil then
             if not explained then
@@ -111,6 +204,30 @@ function writeUnitTargets(writer, libTarget)
     end
 end
 
+function createLibraryProperties(libTarget)
+    -- Figures out all the junk that should appear for a library target in
+    -- the dependencies.
+    local value = [[# When linking dynamically, define the following flag:
+        <link>shared:<define>]] .. LibraryDynLink(libTarget) .. [[=1 ]]
+        .. '\n      # Default LibraryProject Headers        ';
+        -- The include paths can go here, but its easiest to just add them
+        -- as project requirements.
+        --
+        --.. includePaths(libTarget) .. '\n' .. includeDepPaths(libTarget)
+    return value
+end
+
+
+function getLibraryProperties(self, libTarget)
+    -- Looks up the dependencies for a library target, or creates and caches it.
+    local value = self.libTargetDeps[libTarget.Name]
+    if value == nil then
+        value = createLibraryProperties(libTarget)
+        self.libTargetDeps[libTarget.Name] = value
+    end
+    return value
+end
+
 function writeBoostFile(self)
     log:Write("Creating Boost.Build file at " ..
               self.jamroot.AbsolutePathForceSlash .. ".");
@@ -120,44 +237,60 @@ function writeBoostFile(self)
 
     writer:WriteLine([[
 # Generated by Macaroni.
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # ~~ Library Info ~~
-# Group   : ]] .. self.target.ProjectVersion.Project.Group.Name .. '\n' ..[[
-# Name    : ]] .. self.target.ProjectVersion.Project.Name .. '\n' .. [[
-# Version : ]] .. self.target.ProjectVersion.Version .. '\n' .. [[
+# Group   : ]] .. self.projectVersion.Project.Group.Name .. '\n' ..[[
+# Name    : ]] .. self.projectVersion.Project.Name .. '\n' .. [[
+# Version : ]] .. self.projectVersion.Version .. '\n' .. [[
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 import boost ;
 import path ;
 using testing ;
 
+]]);
+    if self.defaultLib ~= nil then
+        writer:WriteLine("# Default Project Library : "
+                          .. self.defaultLib.Name .. '\n');
+    else
+        writer:WriteLine("#Note: Use the defaultLib argument to make this "
+                         .. "project usable as a dependency.");
+    end
+
+    if self.defaultLib ~= nil then
+        writer:WriteLine([[
+
 project ]] ..
-'\n    ' .. self.target:GetCId() ..
+'\n    ' .. self.projectVersion:GetCId() ..
 '\n' .. [[
-    :   usage-requirements ]] .. '\n' ..
-[[      # When linking dynamically, define the following flag:
-        <link>shared:<define>]] .. LibraryDynLink(self.target) .. [[=1 ]] ..
-'\n        ' .. includePaths(self.target) .. [[
+    :   requirements ]] .. '\n' ..   -- not sure if this should
+                                     -- be "usage-requirements"
+    includePaths(self.defaultLib) .. '\n'
+    .. includeDepPaths(self.defaultLib) .. '\n' ..
+[[
     ;
 
 alias library_dependencies
     :    ;
 
 ]]);
+    else
+        writer:WriteLine([[
+#Note: Use the defaultLib argument to make this project usable as a dependency.
+        ]]);
+    end  -- end if defaultLib ~= nil
 
-    writeUnitTargets(writer, self.target);
+    writer:WriteLine("\n# Units\n# -----\n")
 
-    writer:WriteLine([[
-alias library_sources
-    :   ]] .. allChildTargets(self.target) .. [[
-        ;
+    writeUnitTargets(self, writer); -- self.target);
 
+    writer:WriteLine("\n# Libraries\n# ---------\n")
 
-lib MACARONI_LIB_TARGET_]] ..  self.target:GetCId() .. [[
-    :   library_sources
-    :   # TODO: May need to set some compiler flags here.
-    ;
+    writeLibTargets(self, writer);
 
+    writer:WriteLine("\n# Executables\n# ---------\n")
 
-]])
+    writeExeTargets(self, writer);
 
     writer:Close();
 end
@@ -195,29 +328,6 @@ function initializeExtraArgs(args)
     return args;
 end
 
-function Build(library, sources, outputPath, installPath, extraArgs)
-    log.Init("BoostBuild");
-    local excludePattern;
-    local args = initializeExtraArgs(extraArgs);
-    createJamroot(library, sources, outputPath, args.excludePattern,
-                  args.extraTargets, args.libraryRequirements, args.tests);
-
-    local cmdLine = "bjam "
-    if extraArgs.Link ~= nil then
-        cmdLine = cmdLine .. "link=" .. extraArgs.Link;
-    end
-    if (extraArgs.CmdLine ~= nil) then
-        cmdLine = cmdLine .. " " .. extraArgs.CmdLine
-    end
-    cmdLine = cmdLine .. " " ..  outputPath.AbsolutePathForceSlash
-    print(cmdLine)
-    local rtnCode = os.execute(cmdLine)
-    log:Write("BJAM return code = " .. rtnCode .. ".")
-    if (rtnCode ~= 0) then
-        error("Call to Boost.Build failed.")
-        return false;
-    end
-end
 
 function Test(library, sources, outputPath, installPath, extraArgs)
     log.Init("BoostBuild");
@@ -246,172 +356,6 @@ function findFilePath(sources, file)
     return nil;
 end
 
-function createJamroot(library, sources, outputPath, excludePattern,
-                       extraTargets, libraryRequirements, tests)
-    local buildjam = outputPath:NewPath("/jamroot.jam");
-    log:Write("Creating Boost.Build file at " .. buildjam.AbsolutePathForceSlash .. ".");
-
-    local writer = buildjam:CreateFile();
-
-    local forAllSourcesWrite = function(text)
-        -- Because this gets generated to the output path, a relative path will
-        -- work.
-         -- writer:Write(text('./')); -- outputPath.AbsolutePathForceSlash));
-        -- ^- Actually, NO, you can't do this, thanks to yet another undocumented
-        -- "feature" of Boost.Build.  If you use "path.glob-tree" with a
-        -- relative path being the source directory, will first off the code
-        -- above is wrong because it generates ".//" which means Boost just
-        -- ignores it.  But when I changed it to "./" suddenly Boost started
-        -- trying to include targets from the calling project (this occured
-        -- when trying to use Lua as a dependency with a generated Jamroot)!
-        -- So instead you have to use the vanilla "glob-tree" to avoid
-        -- this unexplained behavior.  Of course, maybe this means *ANY* use
-        -- of "path.glob-tree" is doomed to failure if its in a project that
-        -- is being referenced by another project! Wonderful!!
-        -- Spend hours figuring this out.
-        for i = 1, #sources do
-            local source = sources[i];
-            writer:Write(text(source.AbsolutePathForceSlash));
-        end
-    end;
-
-    local pDeps = createDependencyList(library);
-
-    writer:Write([[
-# Generated by Macaroni.
-# ~~ Library Info ~~
-# Group   : ]] .. library.Group .. "\n" .. [[
-# Name    : ]] .. library.Name .. "\n" .. [[
-# Version : ]] .. library.Version .. "\n" .. [[
-
-import boost ;
-import path ;
-using testing ;
-
-]]);
-
-    for k, v in pairs(pDeps) do
-        writer:Write("use-project /" .. v.name .. [[ : "]] .. v.jamDir .. [[" ; ]] .. "\n");
-    end
-    -- log:WriteDependencyProjectIncludes(writer, library);
-    writer:Write([[
-project ]] .. createProjectName(library) .. "\n" .. [[
-    :   usage-requirements
-        <link>shared:<define>]] .. LibraryDynLink(library) .. [[=1
-        <link>static:<define>]] .. createProjectDef(library) .. [[_STATIC_LINK=1  # <-- This is stupid and doesn't do anything right now. ^_^
-]]);
-    writer:Write("\t\t<include>./ \n");
-    forAllSourcesWrite(function(src) return "\t\t" .. [[<include>"]] .. src .. [["]] .. " \n"; end);
-
-    local boostProps = boostSystemProperties();
-    if (boostProps ~= nil) then
-        writer:Write("\t\t" .. [[<include>"]] .. boostProps.include .. [["]] .. " \n");
-    end
-
-    for k, v in pairs(pDeps) do
-        writer:Write("\t\t<dependency>/" .. v.name .. "//library\n");
-    end
-
-    writer:Write([[
-    ;
-
-alias library_dependencies
-    :   ]]);
-    for k, v in pairs(pDeps) do
-        writer:Write("/" .. v.name .. "//library\n\t\t");
-    end
-    writer:Write([[ ;
-
-alias library_sources
-    :   ]]);
-    writer:Write("[ glob-tree *.c : " .. excludePattern .. " ]\n\t\t"
-                .. "[ glob-tree *.cpp : " .. excludePattern .. " ]\n\t\t");
-    forAllSourcesWrite(function(src) return
-        [[[ path.glob-tree "]] .. src .. [[/" : *.c : ]] .. excludePattern .. " ]\n\t\t" ..
-        [[[ path.glob-tree "]] .. src .. [[/" : *.cpp : ]] .. excludePattern .. " ]\n\t\t";
-        end);
-    --for k, v in pairs(library.Dependencies) do
-    --  local jamDir = dependencyJamDir(v);
-    --  if (jamDir ~= nil) then
-    --      writer:Write([["]] .. jamDir.AbsolutePathForceSlash .. [[//libSources" ]]);
-    --  end
-    --end
-    -- writer:Write(" : ");
-    -- writer:Write([[ <include>./ ]]);
-    --forAllSourcesWrite(function(src) return [[
-    --  <include>"]] .. src .. [["
-    --  ]]; end);
-    writer:Write(";\n" .. [[
-
-lib ]] .. LibraryMetaTarget(library) .. [[
-    :   library_dependencies
-        library_sources
-    :   <link>shared:<define>]] .. LibraryDynLink(library) .. [[=1
-        ]] .. libraryRequirements .. [[
-    :   # '_' ?!
-    :   ]]);
-    first = true
-    for k, v in pairs(pDeps) do
-        if first then
-            first = false
-        else
-            writer:Write("      ");
-        end
-        writer:Write("<link>shared:<library>\"" .. v.jamDir .. "\"//library \n");
-    end
-    writer:Write([[
-    ;
-
-alias library : ]] .. LibraryMetaTarget(library) .. [[  ;
-
-alias test_dependencies
-            : "]] .. properties.boost.current["path"]
-                  .. [[/libs/test/build//boost_unit_test_framework"
-            :
-            ;
-
-# Tests]] .. '\n');
-
-    --Have to hack this because right now tests cannot be passed as an array. :(
-    for i, v in ipairs(tests) do
-        local testFilePath = findFilePath(sources, v);
-        if testFilePath == nil then
-            error([[The test file ]] .. v
-                  .. [[ could not be found in any of the sources.]]);
-        end
-        writer:Write([[
-        unit-test __test]] .. tostring(i) .. '\n' .. [[
-            : library
-              test_dependencies
-              "]] .. testFilePath .. [["
-            ;
-        ]]);
-    end
-
-    writer:Write([[
-
-# Extra targets specified in Macaroni manifest:]] .. "\n");
-    -- I don't think I should put this junk in there anymore...
-    --for k, v in pairs(library.Dependencies) do
-    --  if (dependencyJamDir(v) ~= nil) then
-    --      writer:Write([[<use>/]] .. createProjectName(v) .. [[//library ]]);
-    --  end
-    --end
-    --writer:Write([[
-    --: ]]);
-    --for k, v in pairs(library.Dependencies) do
-    --  if (dependencyJamDir(v) ~= nil) then
-    --      writer:Write([[<library>/]] .. createProjectName(v) .. [[//library ]]);
-    --  end
-    --end
-    --writer:Write([[
-    --;
-    --]]);
-    writer:Write(extraTargets);
-    writer:Close();
-
-end
-
 function createProjectDef(library)
     return "MACARONI_LIB_" .. createProjectName(library);
 end
@@ -438,39 +382,6 @@ function dependencyJamDir(d)
     return nil;
 end
 
-function Install(library, sourcePaths, outputPath, installPath, extraArgs)
-    log.Init("BoostBuild");
-    -- Create a Jam file which simply points to the source files.
-    -- Copy all C++ source to the folder.
-    local dstPath = installPath:NewPathForceSlash("Cpp");
-    local patterns = {[[\.c(pp)?$]], [[\.h(pp)?$]]}
-    local paths = sourcePaths
-    for k,pattern in ipairs(patterns) do
-        for i = 0, #sourcePaths do
-            local path;
-            if (i == 0) then
-                path = outputPath;
-            else
-                path = sourcePaths[i];
-            end
-            copyCppSource(pattern, path, dstPath);
-        end
-    end
-
-
-    --local iJam = dstPath:NewPathForceSlash('jamroot.jam');
-    --local writer = iJam:CreateFile();
-    --writer:Write([[
-    --# Generated by Macaroni
-    --
-    --]]);
-    --writer:Close();
-    local args = initializeExtraArgs(extraArgs);
-    createJamroot(library, {}, dstPath, args.excludePattern, args.extraTargets,
-                  args.libraryRequirements, {});
-
-    return nil; --{ mario = "One good game." };
-end
 
 -- Copy all .C, .CPP, .H and .HPP files to dir.=
 function copyCppSource(regEx, src, dst)

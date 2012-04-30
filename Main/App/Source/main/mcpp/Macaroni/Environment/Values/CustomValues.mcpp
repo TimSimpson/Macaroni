@@ -289,6 +289,7 @@ class Any
 	~import Macaroni::Environment::Values::Macaroni_Environment_Output;
 	~import Macaroni::Environment::Values::Macaroni_IO_Path;
 	~import Macaroni::Environment::Values::Macaroni_IO_PathList;
+	~import Macaroni::Environment::Values::Macaroni_Model_Project_ProjectVersion;
 	~import Macaroni::Environment::Values::Macaroni_Model_Project_Target;
 
 	public static AnyPtr CreateFromLuaUserData(
@@ -315,6 +316,10 @@ class Any
 		else if (metaTableName == "Macaroni.IO.PathList")
 		{
 			ptr.reset(new Macaroni_IO_PathList(L, index));
+		}
+		else if (metaTableName == "Macaroni.Model.Project.ProjectVersion") 
+		{
+			ptr.reset(new Macaroni_Model_Project_ProjectVersion(L, index));
 		}
 		else if (metaTableName == "Macaroni.Model.Project.Target") 
 		{

@@ -1,16 +1,22 @@
 -- Generates the Library Config file.
+require "Plugin"
 
 
 _BoostConfigIsAvailable = nil
 
-BoostConfigIsAvailable = function(context)
-	-- The thinking here is that if anything from boost is defined then the 
+BoostConfigIsAvailable = function(library) -- context)
+	-- The thinking here is that if anything from boost is defined then the
 	-- headers should be on the path and we can safely assume boost/config is
 	-- there.
-	if _BoostConfigIsAvailable == nil then
-		_BoostConfigIsAvailable = (context.Root:Find("boost") ~= nil);
+	if MACARONI_VERSION == "0.1.0.23" then
+		if _BoostConfigIsAvailable == nil then
+			local context = library.Context;
+			_BoostConfigIsAvailable = (context.Root:Find("boost") ~= nil);
+		end
+		return _BoostConfigIsAvailable;
+	else
+		return library:HasDependencyOnProjectName("Boost-headers")
 	end
-	return _BoostConfigIsAvailable;
 end
 
 LibraryConfigFile = function(library)
@@ -25,9 +31,9 @@ end
 
 LibraryDecl = function(library)
 	-- A helper method which returns the Macro to affix to header declarations.
-	if BoostConfigIsAvailable(library.Context) then
+	if BoostConfigIsAvailable(library) then -- .Context) then
 		return "MACARONI_LIB_DECL_" .. library:GetCId();
-	end 
+	end
 	return "";
 end
 
@@ -49,16 +55,16 @@ LibraryConfigGenerator =
 		self.writeFile = LibraryConfigGenerator.writeFile;
 		return self;
 	end,
-	
+
 	writeFile = function(self, path)
 		local libId = self.library:GetCId();
 		self.file = path:NewPath("/" .. LibraryConfigFile(self.library));
 		self.writer = self.file:CreateFile();
-		
+
 		local libDecl = LibraryDecl(self.library);
 		local libDynLink = LibraryDynLink(self.library);
 		local libCreate = LibraryCreate(self.library);
-		
+
 		self.writer:Write(
 [[#ifndef MACARONI_COMPILE_GUARD_Config_]] .. libId .. [[_H
 #define MACARONI_COMPILE_GUARD_Config_]] .. libId .. [[_H
@@ -89,7 +95,7 @@ LibraryConfigGenerator =
 #  define ]] .. libDecl .. [[ BOOST_SYMBOL_IMPORT
 # endif
 #else
-# define ]] .. libDecl .. [[ 
+# define ]] .. libDecl .. "\n" .. [[
 #endif
 
 #endif // end of MACARONI_COMPILE_GUARD_Config_]] .. libId .. [[_H

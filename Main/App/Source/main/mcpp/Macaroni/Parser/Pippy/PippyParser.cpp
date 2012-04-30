@@ -33,6 +33,8 @@
 #include "../../Model/Cpp/Destructor.h"
 #include "../../Model/Cpp/DestructorPtr.h"
 #include <Macaroni/Exception.h>
+#include <Macaroni/Model/Project/ExeTarget.h>
+#include <Macaroni/Model/Project/ExeTargetPtr.h>
 #include <Macaroni/Model/FileName.h>
 #include "../../Model/Cpp/Function.h"
 #include <Macaroni/Model/Cpp/FunctionOverload.h>
@@ -45,6 +47,7 @@
 #include "PippyParser.h"
 #include <Macaroni/Parser/Parser.h>
 #include <Macaroni/Parser/ParserException.h>
+#include <Macaroni/IO/Path.h>
 #include "../../Model/Cpp/Primitive.h"
 #include <Macaroni/Model/Reason.h>
 #include <Macaroni/Model/Source.h>
@@ -87,6 +90,8 @@ using Macaroni::Model::Cpp::CppContext;
 using Macaroni::Model::Cpp::CppContextPtr;
 using Macaroni::Model::Cpp::Destructor;
 using Macaroni::Model::Cpp::DestructorPtr;
+using Macaroni::Model::Project::ExeTarget;
+using Macaroni::Model::Project::ExeTargetPtr;
 using Macaroni::Model::FileName;
 using Macaroni::Model::FileNamePtr;
 using Macaroni::Model::Cpp::Function;
@@ -95,6 +100,8 @@ using Macaroni::Model::Cpp::FunctionOverloadPtr;
 using Macaroni::Model::Cpp::FunctionPtr;
 using Macaroni::Model::Library;
 using Macaroni::Model::LibraryPtr;
+using Macaroni::Model::Project::LibraryTarget;
+using Macaroni::Model::Project::LibraryTargetPtr;
 using Macaroni::Environment::Messages;
 using Macaroni::Model::ModelInconsistencyException;
 using Macaroni::Model::Cpp::Namespace;
@@ -103,6 +110,7 @@ using Macaroni::Model::NodeList;
 using Macaroni::Model::NodeListPtr;
 using Macaroni::Model::NodePtr;
 using Macaroni::Parser::ParserException;
+using Macaroni::IO::PathListPtr;
 using Macaroni::Model::Cpp::Primitive;
 using Macaroni::Model::Reason;
 using Macaroni::Model::ReasonPtr;
@@ -2603,6 +2611,7 @@ public:
 		bool withBraces = true;
 		std::string hFile = defaultRootName + ".hpp";
 		std::string cppFile = defaultRootName + ".cpp";
+		std::string type = "lib";
 		while(true)
 		{		
 			ConsumeWhitespace(newItr);		
@@ -2628,6 +2637,21 @@ public:
 				newItr.ConsumeWhitespace();
 				ConsumeFilePath(newItr, cppFile);
 			}
+			else if (newItr.ConsumeWord("~type"))
+			{
+				newItr.ConsumeWhitespace();
+				if (!newItr.ConsumeChar('='))
+				{
+					throw ParserException(newItr.GetSource(),
+						Messages::Get("CppParser.Unit.TypeNoEquals"));
+				}
+				newItr.ConsumeWhitespace();
+				if (!ConsumeSimpleName(newItr, type))
+				{
+					throw ParserException(newItr.GetSource(),
+						Messages::Get("CppParser.Unit.TypeNoName"));
+				}
+			}
 			else if (newItr.ConsumeChar('{'))
 			{
 				withBraces = true;
@@ -2648,9 +2672,24 @@ public:
 
 		SourcePtr firstBraceSrc = newItr.GetSource();
 
+		TargetPtr useTarget = currentTarget;
+		if (type == "exe")
+		{
+			// Create an exe unit.
+			std::vector<TargetPtr> deps;
+			deps.push_back(currentTarget);
+			LibraryTargetPtr lib = boost::dynamic_pointer_cast<LibraryTarget>(currentTarget);
+			PathListPtr sources;
+			ExeTargetPtr exe = ExeTarget::Create(
+				lib,
+				name,				 
+				sources);
+			useTarget = exe;
+			name = "~unit~" + name;
+		}
 		// Finally create the new unit target, with the current target
 		// as the parent.
-		auto_ptr<UnitTarget> utp(UnitTarget::Create(currentTarget, true, name));
+		auto_ptr<UnitTarget> utp(UnitTarget::Create(useTarget, true, name));
 		utp->SetHFileAsUnknownRelativePath(hFile);
 		utp->SetCppFileAsUnknownRelativePath(cppFile);
 		

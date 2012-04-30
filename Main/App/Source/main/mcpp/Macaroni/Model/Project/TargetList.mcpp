@@ -15,6 +15,12 @@
 
 
 class TargetList {};
+/**
+ * Decorates a vector of Targets in a way that is exposable to Lua as well as
+ * external code that doesn't wish to deal with naked pointers.
+ * Also contains a template useful to classes which store a vector of Target
+ * pointers that can expose an instance of this.
+ */
 
 typedef shared_ptr<TargetList> TargetListPtr
 	@LuaClass [ SameAsNode = TargetList ]
@@ -52,4 +58,43 @@ class TargetList //: public SmartPointee
 	{
 		return str(format("TargetList, size %d") % GetCount());
 	}
+	
+	~block "h-predef"
+	{
+		#include <vector>
+	}
+	~block "h-postdef"
+	{
+		/* Associates a target list held by some object with a smart reference 
+		 * of that object, so that the TargetList can be passed around as
+		 * while keeping the reference count. */
+		template<typename T, typename TPtr>
+		class InnerTargetList : public TargetList
+		{
+		private:
+			TPtr parentPtr;
+			std::vector<Target * > * vec;
+
+		public: 
+			InnerTargetList(T * parent, std::vector<Target *> * vec)
+				: parentPtr(parent), vec(vec)
+			{
+			}
+
+			virtual int GetCount() const
+			{
+				return vec->size();
+			}
+			
+			virtual TargetPtr GetItem(int index) const
+			{
+				Target * t = (*vec)[index];
+				TargetPtr ptr(t);
+				return ptr;
+			}
+		};
+	}
+
 };
+
+class InnerTargetList { ~hfile=<Macaroni/Model/Project/TargetList.h> };

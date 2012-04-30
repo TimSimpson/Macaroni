@@ -1,0 +1,20 @@
+~unit DogDriver
+    ~type=exe
+;
+
+~import std::cout;
+
+class GoDog
+{
+    ~block "h-predef"
+    {
+        #include <Dog.hpp>
+    }
+
+     public ~global void main(const char * args, int argc)
+     {
+        std::cout << "HELLO DOGGY.";
+        Dog dog;
+        std::cout << "Dogs have " << dog.GetLegs() << " leg(s).";
+     }
+};
