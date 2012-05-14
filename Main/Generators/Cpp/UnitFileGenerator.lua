@@ -23,8 +23,9 @@ FileWriters = {
             gen:parse()
         end,
         Typedef = function(library, node, writer)
-            TypedefFileGenerator.new{node=node, targetLibrary=library,
-                                     writer=writer};
+            gen = TypedefFileGenerator.new{node=node, targetLibrary=library,
+                                           writer=writer};
+            gen:parse();
         end,
     },
     Cpp = {
@@ -75,6 +76,7 @@ UnitFileGenerator = {
     writeUnitFile = function(self, unit, rootPath, fileType)
         local fileProp = fileType .. "File"  -- HFile or CppFile
         local setFunc = "Set" .. fileType .. "FileRootDirectory"
+        local requiresFileProp = "Requires" .. fileType .. "File"
 
         -- The unit file will be some kind of relative path with an empty root
         -- path, such as "", "/Company/Namespace/blah.h".
@@ -95,10 +97,17 @@ UnitFileGenerator = {
         for i = 1, #elements do
             log:Write(tostring(i) .. '=' .. tostring(elements[i]))
             local element = elements[i]
-            local node = element.Node
-            local typeName = node.TypeName
-            local func = FileWriters[fileType][typeName]
-            func(self.targetLibrary, node, writer)
+            if element[requiresFileProp] then
+                local node = element.Node
+                local typeName = node.TypeName
+                local func = FileWriters[fileType][typeName]
+                if func == nil then
+                    error("No way to write the element " .. tostring(element)
+                          .. ". fileType=" .. tostring(fileType)
+                          .. ", typeName=" .. tostring(typeName))
+                end
+                func(self.targetLibrary, node, writer)
+            end
         end
     end,
 

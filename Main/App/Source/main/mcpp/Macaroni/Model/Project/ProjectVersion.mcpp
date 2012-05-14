@@ -44,6 +44,7 @@
 ~import Macaroni::Model::Project::Project;
 ~import Macaroni::Model::Project::ProjectPtr;
 ~import Macaroni::Model::Reason;
+~import Macaroni::Exceptions::SimpleStringException;
 ~import std::string;
 ~import Macaroni::Environment::Values::String;
 ~import Macaroni::StringException;
@@ -99,6 +100,12 @@ class Macaroni::Model::Project::ProjectVersion
 	private std::vector<Target *> targets;
 	private const string version;
 
+	~block "cpp"
+	{
+		MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(TargetAlreadyAddedException,
+			"Target %s already added.");
+	}
+
 	private ProjectVersion(Project * project, const string & version)
 	:   project(project),
 	    version(version)
@@ -122,7 +129,8 @@ class Macaroni::Model::Project::ProjectVersion
 	public void AddTarget(Target * target) {
 		BOOST_FOREACH(Macaroni::Model::Project::Target * t, targets) {
 			if (t->GetName() == target->GetName()) {
-				throw Macaroni::StringException("Target already added.");
+				throw TargetAlreadyAddedException(t->GetName().c_str(),
+					MACARONI_INTERNAL_SOURCE);
 			}
 		}
 		targets.push_back(target);
@@ -330,7 +338,7 @@ class Macaroni::Model::Project::ProjectVersion
 		return target;
 	}	
 
-	ProjectVersionId ToId() const
+	public ProjectVersionId ToId() const
 	{
 		return ProjectVersionId(this->GetProject()->GetGroup()->GetName(),
 			this->GetProject()->GetName(), this->GetVersion());

@@ -76,6 +76,8 @@ public:
 
 	virtual bool RequiresCppFile() const;
 
+	virtual bool RequiresHFile() const;
+
 	virtual void Visit(MemberVisitor * visitor) const;
 
 protected:

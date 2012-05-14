@@ -90,6 +90,11 @@ void intrusive_ptr_release(Typedef * p)
 	intrusive_ptr_release((ScopeMember *)p);
 }
 
+bool Typedef::RequiresHFile() const
+{
+	return true;
+}
+
 void Typedef::Visit(MemberVisitor * visitor) const
 {
 	// Ignore! I HATE THIS IDEA! 

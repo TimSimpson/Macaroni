@@ -127,6 +127,11 @@ bool Variable::RequiresCppFile() const
 	return IsStatic();
 }
 
+bool Variable::RequiresHFile() const
+{
+	return getAccess().VisibleInHeader();
+}
+
 void Variable::Visit(MemberVisitor * visitor) const
 {
 	visitor->VisitVariable(*this);

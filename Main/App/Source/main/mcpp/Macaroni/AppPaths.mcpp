@@ -89,6 +89,19 @@ class AppPaths
 		return p;
 	}
 
+	/** Finds or creates the directory of the project. */
+	public path FindOrCreateFinalProjectDirectory(
+		const ProjectVersionId & pv) 
+		const
+	{
+		optional<path> p = FindFinalProjectDirectory(pv);
+		if (p)
+		{
+			return p.get();
+		}
+		return userLibraryPath() / pv.Group / pv.Name / pv.Version ;
+	}
+
 	/** Finds the real path with a given file, or makes one up. */
 	public path FindOrCreateFinalProjectFile(const ProjectVersionId & pv) const
 	{

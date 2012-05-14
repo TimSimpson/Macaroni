@@ -150,6 +150,11 @@
 			lua_pushboolean(L, ptr->RequiresCppFile());
 			return 1;
 		}
+		else if (index == "RequiresHFile")
+		{
+			lua_pushboolean(L, ptr->RequiresHFile());
+			return 1;
+		}
 		else if (index == "SwitchOwner")
 		{
 			lua_pushcfunction(L, switchOwner);

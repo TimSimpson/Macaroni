@@ -211,6 +211,11 @@ bool Class::RequiresCppFile() const
 	return false;
 }
 
+bool Class::RequiresHFile() const
+{
+	return getAccess().VisibleInHeader();
+}
+
 void Class::Visit(MemberVisitor * visitor) const
 {
 	std::auto_ptr<MemberVisitor> classVisitorDeleter(visitor->VisitClass(*this));

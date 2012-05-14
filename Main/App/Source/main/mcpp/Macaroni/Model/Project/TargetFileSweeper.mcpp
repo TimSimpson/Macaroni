@@ -34,10 +34,11 @@
 ~import boost::regex;
 ~import Macaroni::IO::RegexFileSet;
 ~import Macaroni::IO::RegexFileSetIterator;
+~import Macaroni::SimpleStringException;
 ~import Macaroni::Model::Source;
 ~import Macaroni::Model::SourcePtr;
 ~import std::string;
-~import Macaroni::StringException;
+~import Macaroni::Exceptions::SimpleStringException;
 ~import std::stringstream;
 ~import Macaroni::Model::Project::Target;
 ~import Macaroni::Model::Project::TargetPtr;
@@ -56,7 +57,18 @@ class TargetFileSweeper
 			regex hppRegex("\\.h($|pp$)");
 			regex mcppRegex("\\.m(h|cpp)$");
 
+			MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(
+				CouldNotReadFileException, 
+				"Could not read file %s!");
+
+			MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(
+				FileMustBeRelativePathException, 
+				"ParseFile must receive a relative path to correctly create "
+				"a new unit. The given path only has a root path, while the "
+				"path argument is empty (value was %s).");
 		}
+
+
 	}
 
 	public TargetFileSweeper(TargetPtr target)
@@ -68,8 +80,16 @@ class TargetFileSweeper
 	{
 		BOOST_FOREACH(PathPtr p, pList)
 		{
-			RegexFileSet rfs(p->GetPath(), "\\.(h(|pp)|m(cpp|h)|c(|c|pp))$");
-			ParseFileSet(rfs);
+			if (p->IsDirectory())
+			{
+				RegexFileSet rfs(p->GetPath(), 
+					             "\\.(h(|pp)|m(cpp|h)|c(|c|pp))$");
+				ParseFileSet(rfs);
+			}
+			else
+			{
+				ParseFile(*p.get());
+			}
 		}
 	}
 
@@ -89,6 +109,11 @@ class TargetFileSweeper
 			// target as the child of the given target.
 			if (boost::regex_search(str, cppRegex)) {
 				//PATH MUST BE AN ACTUAL RELATIVE PATH OR OH NOES WILL HAPPENS!!
+				if (file.GetRelativePathNormalized().length() == 0)
+				{
+					throw FileMustBeRelativePathException(str.c_str(), 
+						MACARONI_INTERNAL_SOURCE);
+				}
 				PathPtr p(new Path(file));
 				UnitTarget::Create(target, false, 
 					             p->GetRelativePathNormalized())->SetCppFile(p);
@@ -132,9 +157,8 @@ class TargetFileSweeper
 		ifstream file(filePath.c_str());
 		if (!file.is_open())
 		{
-			std::stringstream ss;
-			ss << "Could not open file " << filePath << "!";
-			throw Macaroni::StringException(ss.str().c_str());
+			throw CouldNotReadFileException(filePath.c_str(), 
+				MACARONI_INTERNAL_SOURCE);
 		}
 		string line;
 		while(! file.eof())

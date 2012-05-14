@@ -170,6 +170,11 @@ bool FunctionOverload::RequiresCppFile() const
 	return HasCodeBlock() && (!IsInline());
 }
 
+bool FunctionOverload::RequiresHFile() const
+{
+	return getAccess().VisibleInHeader();
+}
+
 void FunctionOverload::SetCodeBlock(std::string & code, SourcePtr startOfCode, 
 									bool codeBlockAddRedirect)
 {

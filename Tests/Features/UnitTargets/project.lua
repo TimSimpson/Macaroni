@@ -34,6 +34,10 @@ lib = project:Library{
     }
 }
 
+-- This would work, except that PlainCTest.cpp is already added above.
+-- local src = Macaroni.IO.Path.New("src")
+-- lib:AddTest("PlainCTest", src:NewPathForceSlash("PlainCTest.cpp"))
+
 porg = plugins:Get("Porg")
 porg:Run("Generate", {target=lib})
 
@@ -49,3 +53,5 @@ bjam:Run("Generate", { jamroot=outputPath:NewPath("/jamroot.jam"),
                        projectVersion=project,
                        output=output
 })
+
+print(getInstallPath(project))

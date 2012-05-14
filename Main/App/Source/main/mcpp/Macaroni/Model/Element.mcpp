@@ -139,6 +139,15 @@ class Element
 		return false;
 	}
 
+	/** True if a h file is necessary to define this.
+	 *  For example, undefined functions (such as unimplemented copy 
+	 *  constructors) return false for this, as do most things besides
+	 *  functions, variables, and types which encapsulate them. */
+	public virtual bool RequiresHFile() const
+	{
+		return false;
+	}
+
 	protected void setReasonCreation(const ReasonPtr reason)
 	{
 		this->reasonCreated = reason;

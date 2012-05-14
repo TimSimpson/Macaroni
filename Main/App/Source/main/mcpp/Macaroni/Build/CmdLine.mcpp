@@ -233,7 +233,14 @@ class CmdLine
 		}
 		else
 		{
-			return runProject(true);
+			bool success = runProject(false);
+			if (success)
+			{
+				if (install)
+				{
+
+				}
+			}
 			//runDefault();
 		}
 	}
@@ -472,6 +479,22 @@ class CmdLine
 		if (withRepl) {
 			return env.Repl();
 		} else {
+			if (clean)
+			{
+				env.RunCommand("clean();");
+			}
+			if (generate)
+			{
+				env.RunCommand("generate();");
+			}
+			if (build)
+			{
+				env.RunCommand("build();");
+			}
+			if (install)
+			{
+				env.RunCommand("install();");
+			}
 			return true;
 		}
 	}

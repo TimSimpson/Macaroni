@@ -47,6 +47,8 @@ public:
 
 	virtual const char * GetTypeName() const;
 
+	virtual bool RequiresHFile() const;
+
 	virtual void Visit(Macaroni::Model::MemberVisitor * visitor) const;
 
 protected:

@@ -137,11 +137,11 @@ function includeDepPaths(target)
     return table.concat(t, "\n        ");
 end
 
-function writeExeTarget(self, writer, lib)
-    writer:WriteLine("# " .. lib.Name);
-    writer:WriteLine("exe " .. lib:GetCId());
+function writeExeTarget(self, writer, target)
+    writer:WriteLine("# " .. target.Name);
+    writer:WriteLine("exe " .. target:GetCId());
     writer:WriteLine("    :   # Sources:");
-    writer:WriteLine(allDependencies(lib));
+    writer:WriteLine(allDependencies(target));
     writer:WriteLine("    :   # TODO: May need to set some compiler flags here.");
     writer:WriteLine("    ;");
 end
@@ -168,6 +168,23 @@ function writeLibTargets(self, writer)
                                                       "lib")
     do
         writeLibTarget(self, writer, target)
+    end
+end
+
+function writeTestTarget(self, writer, lib)
+    writer:WriteLine("# " .. lib.Name);
+    writer:WriteLine("unit-test " .. lib:GetCId());
+    writer:WriteLine("    :   # Sources:");
+    writer:WriteLine(allDependencies(lib));
+    writer:WriteLine("    :   # TODO: May need to set some compiler flags here.");
+    writer:WriteLine("    ;");
+end
+
+function writeTestTargets(self, writer)
+    for target in Plugin.IterateProjectVersionTargets(self.projectVersion,
+                                                      "test")
+    do
+        writeTestTarget(self, writer, target)
     end
 end
 
@@ -287,6 +304,10 @@ alias library_dependencies
     writer:WriteLine("\n# Libraries\n# ---------\n")
 
     writeLibTargets(self, writer);
+
+    writer:WriteLine("\n# Tests\n# ---------\n")
+
+    writeTestTargets(self, writer);
 
     writer:WriteLine("\n# Executables\n# ---------\n")
 

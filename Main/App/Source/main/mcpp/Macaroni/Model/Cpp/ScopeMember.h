@@ -56,6 +56,11 @@ protected:
 
 	void operator=(const ScopeMember & other);	
 
+	inline const Access & getAccess() const
+	{
+		return access;
+	}
+
 private:
 	Access access;
 	const bool isStatic;

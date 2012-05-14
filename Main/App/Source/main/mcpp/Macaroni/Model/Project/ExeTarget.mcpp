@@ -33,38 +33,62 @@ class ExeTarget : public virtual LibraryTarget
 	]
 {
 
-	private ExeTarget(ProjectVersion * projectVersion, const string & name)
-	:	LibraryTarget(projectVersion, name), Target(projectVersion, name)
+	private const string subType;
+
+	protected ExeTarget(ProjectVersion * projectVersion, const string & name,
+		const string & subType)
+	:	LibraryTarget(projectVersion, name), Target(projectVersion, name),
+		subType(subType)
 	{
 	}
 
 	public static ExeTargetPtr Create(
 		LibraryTargetPtr lib,
-		const string & name,		
+		const string & name,
+		const string & subType,
 		PathListPtr sources
 		)
 	{
 		ProjectVersion * proj = lib->GetProjectVersion().get();
 		vector<TargetPtr> deps;
 		deps.push_back(lib);
-		return Create(proj, name, deps, lib->GetHeaders(), sources);
+		return Create(proj, name, subType, deps, lib->GetHeaders(), sources);
 	}
 
 	public static ExeTargetPtr Create(
 		ProjectVersion * projectVersion,
 		const string & name,
+		const string & subType,
 		const vector<TargetPtr> & dependencies,
 		PathListPtr headers,
 		PathListPtr sources
 		)
 	{
-		ExeTargetPtr exe(new ExeTarget(projectVersion, name));
+		ExeTargetPtr exe(new ExeTarget(projectVersion, name, subType));
 		initialize(exe, dependencies, headers, sources);
 		return exe;
 	}
 
+	public static ExeTargetPtr CreateExe(
+		LibraryTargetPtr lib,
+		const string & name,
+		PathListPtr sources
+		)
+	{
+		return Create(lib, name, "exe", sources);
+	}
+
+	public static ExeTargetPtr CreateTest(
+		LibraryTargetPtr lib,
+		const string & name,
+		PathListPtr sources
+		)
+	{
+		return Create(lib, name, "test", sources);
+	}
+
 	public virtual const char * GetTypeName() const
 	{
-		return "exe";
+		return subType.c_str();
 	}
 }

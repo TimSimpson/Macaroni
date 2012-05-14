@@ -114,6 +114,8 @@ public:
 	}
 
 	virtual bool RequiresCppFile() const;
+
+	virtual bool RequiresHFile() const;
 	
 	/** Attaches code to this function. If code was already attached, throws a
 	 * ModelInconsistencyException. 

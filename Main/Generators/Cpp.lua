@@ -84,6 +84,10 @@ function Generate2(self)
     do
         Generate(lib, self.path)
     end
+    for exe in Plugin.IterateProjectVersionTargets(self.projectVersion, "test")
+    do
+        Generate(exe, self.path)
+    end
     for exe in Plugin.IterateProjectVersionTargets(self.projectVersion, "exe")
     do
         Generate(exe, self.path)

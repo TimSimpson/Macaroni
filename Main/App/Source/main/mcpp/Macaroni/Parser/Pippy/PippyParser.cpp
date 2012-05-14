@@ -2673,7 +2673,7 @@ public:
 		SourcePtr firstBraceSrc = newItr.GetSource();
 
 		TargetPtr useTarget = currentTarget;
-		if (type == "exe")
+		if (type == "exe" || type == "test")
 		{
 			// Create an exe unit.
 			std::vector<TargetPtr> deps;
@@ -2682,7 +2682,8 @@ public:
 			PathListPtr sources;
 			ExeTargetPtr exe = ExeTarget::Create(
 				lib,
-				name,				 
+				name,
+				type,
 				sources);
 			useTarget = exe;
 			name = "~unit~" + name;

@@ -20,11 +20,11 @@ Generator =
         end
         local t = self.defaultTarget:Unit(element.Node.FullName, true);
         local fileName = element.Node:GetPrettyFullName("/")
-        t:SetHFileAsUnknownRelativePath(fileName .. ".hpp")
+        t:SetHFileAsUnknownRelativePath(fileName .. ".h")
         --t:SetHFile(path:NewPathForceSlash(fileName .. ".hpp"))
         t:SetCppFileAsUnknownRelativePath(fileName .. ".cpp")
         --t:SetCppFile(path:NewPathForceSlash(fileName .. ".cpp"))
-        print(t)
+        --print(t)
         return t;
     end,
 
@@ -37,7 +37,8 @@ Generator =
 
 
     shouldHaveTarget = function(self, element)
-        if (element.Node.HFilePath ~= nil or (not element.RequiresCppFile)) then
+        --if (element.Node.HFilePath ~= nil or (not element.RequiresCppFile)) then
+        if (element.Node.HFilePath ~= nil) then
             return false;
         end
         return true;

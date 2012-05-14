@@ -179,6 +179,20 @@ bool Function::RequiresCppFile() const
 	return false;
 }
 
+bool Function::RequiresHFile() const
+{
+	Node & node = *GetNode();
+	for (size_t i = 0; i < node.GetChildCount(); i ++) 
+	{
+		Node & child = *(node.GetChild(i));
+		if (child.GetElement()->RequiresHFile())
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 //void Function::SetCodeBlock(std::string & code, SourcePtr startOfCode)
 //{
 //	if (codeAttached)

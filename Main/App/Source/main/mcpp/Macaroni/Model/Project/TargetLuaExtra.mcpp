@@ -2,11 +2,14 @@
 ~import Macaroni::Model::Element;
 ~import Macaroni::Model::ElementLuaMetaData;
 ~import Macaroni::Exception;
+~import Macaroni::Model::Project::ExeTarget;
 ~import Macaroni::Model::Project::LibraryTarget;
 ~import Macaroni::Model::Project::LibraryTargetLuaMetaData;
 ~import lua_State;
 ~import Macaroni::IO::Path;
+~import Macaroni::IO::PathListLuaMetaData;
 ~import Macaroni::IO::PathLuaMetaData;
+~import Macaroni::IO::PathListPtr;
 ~import Macaroni::IO::PathPtr;
 ~import std::string;
 ~import Macaroni::Model::Project::Target;
@@ -60,6 +63,41 @@ class TargetLuaExtra
 		LUA_GLUE_CATCH
 	}	
 
+	public static int AddExe(lua_State * L)
+	{
+		return AddExeOrTest(L, "exe");
+	}
+
+	public static int AddTest(lua_State * L)
+	{
+		return AddExeOrTest(L, "test");
+	}
+
+	public static int AddExeOrTest(lua_State * L, const char * typeName)
+	{
+		LUA_GLUE_TRY
+			TargetPtr target = TargetLuaMetaData::GetInstance(L, 1);
+			LibraryTarget * library = 
+				dynamic_cast<LibraryTarget *>(target.get());
+			LibraryTargetPtr lPtr(library);
+			string name = luaL_checkstring(L, 2);
+			PathListPtr sources;
+			if (Macaroni::IO::PathListLuaMetaData::IsType(L, 3))
+			{
+				sources = Macaroni::IO::PathListLuaMetaData
+					::GetInstance(L, 3);				
+			}
+			else
+			{
+				PathPtr path = Macaroni::IO::PathLuaMetaData::GetInstance(L, 3);
+				sources.reset(new Macaroni::IO::PathList());
+				sources->push_back(path);
+			}
+			ExeTarget::Create(lPtr, name, typeName, sources);
+			return 0;
+		LUA_GLUE_CATCH
+	}
+
 	public static int index(lua_State * L, Target * target, 
 		                    const string & index)
 	{
@@ -72,6 +110,16 @@ class TargetLuaExtra
 					                                               index);
 				if (result > 0) {
 					return result;
+				}
+				if (index == "AddExe")
+				{
+					lua_pushcfunction(L, AddExe);
+                    return 1;
+				}
+				else if (index == "AddTest")
+				{
+					lua_pushcfunction(L, AddTest);
+                    return 1;
 				}
 			}
 
