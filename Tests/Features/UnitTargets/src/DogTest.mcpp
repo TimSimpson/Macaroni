@@ -2,7 +2,9 @@
     ~type=test
 ;
 
+//TODO:
 ~import std::cout;
+~import Dog;
 
 ~block "cpp"
 {

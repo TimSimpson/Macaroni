@@ -11,10 +11,10 @@ using SomeLibB::Bar;
 BOOST_AUTO_TEST_SUITE(SomeAppTest)
 
 BOOST_AUTO_TEST_CASE(SomeApp)
-{	
-	Bar bar(25);
-	Foo foo(bar);
-	BOOST_CHECK_EQUAL(25, foo.GetNumber()) ;
+{
+    Bar bar(25);
+    Foo foo(bar);
+    BOOST_CHECK_EQUAL(25, foo.GetNumber()) ;
 }
 
 BOOST_AUTO_TEST_SUITE_END()

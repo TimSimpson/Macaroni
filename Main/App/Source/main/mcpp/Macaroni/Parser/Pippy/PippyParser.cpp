@@ -693,8 +693,19 @@ public:
 				Messages::Get("CppParser.CodeBlock.Expected"));
 		}
 		NodePtr blockHome = createNextBlockNode(currentScope, itr);
-		Block::Create(blockHome, id, code,
-			Reason::Create(CppAxioms::BlockCreation(), codeStart));
+		
+		TargetPtr tHome;		
+		boost::optional<NodeListPtr> imports = boost::none;
+		if (!blockHome->GetNode() ||
+			!blockHome->GetNode()->HasElementOfType<Macaroni::Model::Cpp::Class>())
+		{
+			imports = importedNodes;
+			tHome = deduceTargetHome(currentScope);
+		}
+		// NOTE! tHome *can* be null here!
+		Block::Create(tHome, blockHome, id, code,
+			Reason::Create(CppAxioms::BlockCreation(), codeStart), 
+			imports);
 		return true;
 	}
 
@@ -2609,7 +2620,7 @@ public:
 		}
 		
 		bool withBraces = true;
-		std::string hFile = defaultRootName + ".hpp";
+		std::string hFile = defaultRootName + ".h";
 		std::string cppFile = defaultRootName + ".cpp";
 		std::string type = "lib";
 		while(true)

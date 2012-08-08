@@ -140,10 +140,6 @@ function GetMethod(name)
                                       .. "to the directory "
                                       .. tostring(args.path) .. ".");
             end,
-            Install = function(args)
-                -- By default, Macaroni itself will copy all artifacts
-                -- and source to the destination directory "Source".
-            end,
             Run = function(args)
                 -- print("")
                 -- print("TARGET=" .. tostring(args.target));
@@ -151,6 +147,37 @@ function GetMethod(name)
                 -- print("PATH.NewPath=" .. tostring(args.path.NewPath));
 
                 Generate2(args)
+            end
+        }
+    end
+    if name == "Install" then
+        return
+        {
+            Describe = function(args)
+                args.output.WriteLine("Save all C++ source code for "
+                                      .. tostring(args.projectVersion)
+                                      .. "to {library install path}/Source.")
+            end,
+            Run = function(args)
+                print("USING TARGET=" .. tostring(args.projectVersion))
+                local projectVersion = args.projectVersion
+                local path = findOrCreateInstallPath(args.projectVersion)
+                local dst = path:NewPathForceSlash("Source")
+                    :CreateWithCurrentAsRoot();
+                local Path = Macaroni.IO.Path;
+                print("Destination:" .. tostring(dst))
+                print("Copying Sources:")
+                for i=1, #args.paths do
+                    local src = args.paths[i]:CreateWithCurrentAsRoot();
+                    print("\t" .. tostring(i) .. "=" ..tostring(src))
+                    Path.CopyDirectoryContents(src, dst)
+                end
+                -- print("")
+                -- print("TARGET=" .. tostring(args.target));
+                -- print("PATH=" .. tostring(args.path));
+                -- print("PATH.NewPath=" .. tostring(args.path.NewPath));
+
+                --Generate2(args)
             end
         }
     end

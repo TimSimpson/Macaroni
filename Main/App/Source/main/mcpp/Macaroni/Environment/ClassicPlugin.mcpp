@@ -13,8 +13,14 @@
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
 ~import boost::filesystem::path;
+~import Macaroni::IO::Path;
+~import Macaroni::IO::PathLuaMetaData;
+~import Macaroni::IO::PathPtr;
 ~import Macaroni::Environment::Plugin;
 ~import Macaroni::Environment::PluginPtr;
+~import Macaroni::Model::Project::ProjectVersion;
+~import Macaroni::Model::Project::ProjectVersionPtr;
+~import Macaroni::Model::Project::ProjectVersionLuaMetaData;
 ~import Macaroni::Exceptions::SimpleStringException;
 ~import std::string;
 ~import Macaroni::StringException;
@@ -58,8 +64,21 @@ class ClassicPlugin : public Plugin
             {
 				env.OpenAllLuaModules();
                 env.SetPackageDirectory(luaFilePath.branch_path().string());
-            }
+            }			
+
+			void addAppPaths(AppPathsPtr appPaths)
+			{
+				lua_State * L = env.GetState();
+				lua_pushlightuserdata(L, (void *) appPaths.get());
+				lua_pushcclosure(L, findOrCreateInstallPath, 1);
+				lua_setglobal(L, "findOrCreateInstallPath");
+			}
 			
+			LuaEnvironment & getEnv()
+			{
+				return env;
+			}
+
 			static void errorPrepare(lua_State * L) 
 			{
 				// TODO: I don't understand this part to be honest. I copied
@@ -69,6 +88,17 @@ class ClassicPlugin : public Plugin
 				lua_gettable(L, LUA_GLOBALSINDEX);
 				lua_pushliteral(L, "traceback");
 				lua_gettable(L, -2);
+			}
+
+			static int findOrCreateInstallPath(lua_State * L)
+			{
+				void * uv1 = lua_touserdata(L, lua_upvalueindex(1));
+				AppPaths * appPaths = static_cast<AppPaths *>(uv1);
+				ProjectVersionPtr pv = ProjectVersionLuaMetaData::GetInstance(L, 1);
+				path p = appPaths->FindOrCreateFinalProjectDirectory(pv->ToId());
+				PathPtr pathPtr(new Path(p));
+				PathLuaMetaData::PutInstanceOnStack(L, pathPtr);
+				return 1;
 			}
 
 			/** Calls the global method "GetMethod" and puts the returned
@@ -264,7 +294,7 @@ class ClassicPlugin : public Plugin
 				break;
 			}
 		}
-    }
+    }	
 
     public void Run(string action, AnyPtr arguments
                     /* Some kind of work context */)
@@ -272,6 +302,7 @@ class ClassicPlugin : public Plugin
 
 		Runner runner(luaFilePath);
 		runner.runProperties(properties);
+		runner.addAppPaths(appPaths);
 		runner.parseLuaFile();
 		runner.runMethod(action, arguments);
         /*DynamicGeneratorRunner runner(appPaths);

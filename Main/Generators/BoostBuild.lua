@@ -48,7 +48,10 @@ function Build(library, sources, outputPath, installPath, extraArgs)
 
 	local cmdLine = "bjam "
 	if extraArgs.Link ~= nil then
-		cmdLine = cmdLine .. "link=" .. extraArgs.Link;
+		cmdLine = cmdLine .. "link=" .. extraArgs.Link .. " ";
+	end
+	if extraArgs.Threading ~= nil then
+		cmdLine = cmdLine .. "threading=" .. extraArgs.Threading .. " ";
 	end
 	if (extraArgs.CmdLine ~= nil) then
 		cmdLine = cmdLine .. " " .. extraArgs.CmdLine

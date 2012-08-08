@@ -41,6 +41,30 @@ Plugin =
         return Plugin.IterateTargetList(target.Dependencies)
     end,
 
+    IterateDependencyProjects = function(target)
+        -- Gets all Projects a target might depend on.
+        local projects = {}
+        local myProjectId = target.ProjectVersion:GetCId()
+        for depTarget in Plugin.IterateTargetList(target.Dependencies) do
+            if depTarget.ProjectVersion:GetCId() ~= myProjectId then
+                projects[depTarget.ProjectVersion] = true
+            end
+        end
+        local rtn = {}
+        for k, v in pairs(projects) do
+            rtn[#rtn + 1] = k
+        end
+        local index = 0
+        return function()
+            index = index + 1
+            if index > #rtn then
+                return nil
+            else
+                return rtn[index]
+            end
+        end
+    end,
+
     IterateChildDependencies = function(target)
         -- Iterator for the child / dependencies of a Target. Usable by for.
         itr = Plugin.IterateDependencies(target)

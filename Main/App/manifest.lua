@@ -42,8 +42,8 @@ output = "GeneratedSource"
 -- Don't trust Macaroni's own dependencies for these, not yet at least.
 --dependency { group="Macaroni", name="Boost", version="1.39.0-0" }
 --dependency { group="Macaroni", name="CppStd", version="1.0.0.0" }
-dependency {group="Macaroni", name="Boost-filesystem", version="1.46.1"}
-dependency {group="Macaroni", name="Boost-regex", version="1.46.1"}
+dependency {group="Macaroni", name="Boost-filesystem", version="1.49"}
+dependency {group="Macaroni", name="Boost-regex", version="1.49"}
 dependency {group="Macaroni", name="Lua", version="5.1.4"}
 
 function generate()
@@ -127,6 +127,7 @@ jamArgs =
         ;
 	  ]],
 	  Link="static",
+      Threading="multi",
 	  -- Alas, not yet...
 	  -- Tests =
 	  -- {
@@ -171,7 +172,8 @@ function build()
     };
     run("VCpp/VCpp10", proj)
 
-	run("BoostBuild", jamArgs)
+	--run("BoostBuild", jamArgs)
+    run("JamGenerator")
 end
 
 function test()

@@ -32,6 +32,9 @@ void intrusive_ptr_release(Node * p);
 typedef std::vector<NodePtr> NodeList;
 typedef boost::shared_ptr<NodeList> NodeListPtr;
 
+typedef std::vector<Node *> NakedNodeList;
+typedef boost::shared_ptr<NakedNodeList> NakedNodeListPtr;
+
 END_NAMESPACE2
 
 #endif

@@ -8,7 +8,7 @@ class GoDog
 {
     ~block "h-predef"
     {
-        #include <Dog.hpp>
+        #include <Dog.h>
     }
 
      public ~global void main(const char * args, int argc)

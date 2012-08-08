@@ -1,5 +1,5 @@
 #include <List.h>
-#include <Dog.hpp>
+#include <Dog.h>
 
 int List::GetCount() const {
     return items.size();

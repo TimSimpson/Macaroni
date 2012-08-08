@@ -16,7 +16,7 @@
 #ifndef MACARONI_MODEL_CPP_CLASS_CPP
 #define MACARONI_MODEL_CPP_CLASS_CPP
 
-
+#include <boost/foreach.hpp>
 #include "Class.h"
 #include "Function.h"
 #include <Macaroni/Exception.h>
@@ -204,6 +204,15 @@ bool Class::RequiresCppFile() const
 	{
 		Node & child = *(node.GetChild(i));
 		if (child.GetElement()->RequiresCppFile())
+		{
+			return true;
+		}
+	}
+
+	NodeListPtr globals = this->GetGlobalNodes();
+	BOOST_FOREACH(NodePtr & node, *globals)
+	{
+		if (node->GetElement()->RequiresCppFile())
 		{
 			return true;
 		}

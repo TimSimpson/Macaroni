@@ -35,6 +35,7 @@
 ~import Macaroni::Lua::LuaIndexExtraCode;
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
+~import Macaroni::Model::Node;
 ~import Macaroni::Model::NodePtr;
 ~import boost::optional;
 ~import Macaroni::Model::Project::Project;
@@ -42,6 +43,7 @@
 ~import Macaroni::Model::Project::ProjectVersionPtr;
 ~import Macaroni::Model::Reason;
 ~import Macaroni::Exceptions::SimpleException;
+~import Macaroni::Exceptions::SimpleStringException;
 ~import std::string;
 ~import Macaroni::Model::Project::TargetList;
 ~import Macaroni::Model::Project::TargetListPtr;
@@ -102,9 +104,8 @@ class Target
 		MACARONI_SIMPLE_EXCEPTION_DEFINE(ElementAlreadyAddedException,
 			"Element was already added.");
 
-		MACARONI_SIMPLE_EXCEPTION_DEFINE(ElementNotOwnedException,
-			"Attempted to add an element to this target's collection but the " 
-			"element is not owned by this target.");
+		MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(ElementNotOwnedException, 
+			"%s");
 		
 		MACARONI_SIMPLE_EXCEPTION_DEFINE(InvalidTargetOperationException,
 			"The requested method is not available on this Target.");
@@ -180,7 +181,10 @@ class Target
 	{
 		if (element->GetOwner() && element->GetOwner().get() != this)
 		{
-			throw ElementNotOwnedException(MACARONI_INTERNAL_SOURCE);
+			string msg = str(format("Element %s is already owned by target %s, so "
+				"cannot assign to target %s.") % element->GetNode()->GetFullName()
+				% element->GetOwner()->ToString() % this->ToString());
+			throw ElementNotOwnedException(msg.c_str(), MACARONI_INTERNAL_SOURCE);
 		}
 		BOOST_FOREACH(Element * e, elements) {
 			if ((*e) == (*element)) {

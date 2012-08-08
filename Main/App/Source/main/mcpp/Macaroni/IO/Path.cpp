@@ -127,6 +127,13 @@ void Path::CopyDirectoryContents(boost::filesystem::path & bSrc,
 }
 
 void Path::CopyDirectoryContents(Path & src,
+								 Path & dst)
+{
+	boost::filesystem::path p_dst(dst.GetAbsolutePath());
+	CopyDirectoryContents(src, p_dst);
+}
+
+void Path::CopyDirectoryContents(Path & src,
 								 boost::filesystem::path & bDst)
 {
 	PathListPtr paths = src.GetPaths();

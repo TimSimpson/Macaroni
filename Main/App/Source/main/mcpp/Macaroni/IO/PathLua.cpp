@@ -360,6 +360,16 @@ END_NAMESPACE2
 		CATCH
 	}
 
+	static int copyDirectoryContents(lua_State * L)
+	{
+		TRY
+			PathPtr src = PathLuaMetaData::GetInstance(L, 1);
+			PathPtr dst = PathLuaMetaData::GetInstance(L, 2);
+			Path::CopyDirectoryContents(*src, *dst);
+			return 0;
+		CATCH
+	}
+
 	static int createFile(lua_State * L)
 	{
 		TRY
@@ -446,8 +456,9 @@ END_NAMESPACE2
 
 	#define LUAGLUE_ADDITIONALMETATABLEMETHODS \
 		{"__tostring", LUAGLUE_HELPERCLASS::__tostring},
-
+	
 	#define LUAGLUE_ADDITIONALTABLEMETHODS \
+		{"CopyDirectoryContents", LUAGLUE_HELPERCLASS::copyDirectoryContents}, \
 		{"New", LUAGLUE_HELPERCLASS::newInstance},
 
 #include "../LuaGlue2.hpp"

@@ -34,11 +34,11 @@ namespace
 
 	static const char OPERATORS[][35] = {
 		"new[]", "new", "delete[]", "delete",
-		"[]", "->", "==", "!=", ">=", "<=", "&&", "||", 
+		"[]", "->", "==", "!=", ">=", "<=", "&&", "||",
 		"++", "--", "+=", "-=", "*=", "/=", "<<", ">>",
-		"+", "-", "*", "/", "%", "^", 
+		"+", "-", "*", "/", "%", "^",
 		"|", "&", "&", "~", "<", ">", "!", "=",
-		nullptr
+		0
 	};
 
 	const char * findOperatorName(const std::string & name)
@@ -51,7 +51,7 @@ namespace
 		for (int i = 0; OPERATORS[i] != nullptr; i ++)
 		{
 			const char * operatorName = OPERATORS[i];
-			if (suffix == operatorName) 
+			if (suffix == operatorName)
 			{
 				return operatorName;
 			}
@@ -62,21 +62,21 @@ namespace
 } // End anon namespace
 
 Node::Node(Context & context, const std::string & name)
-: adoptedHome(0), 
+: adoptedHome(0),
 annotations(context),
-context(&context), 
+context(&context),
 hFilePath(), hFilePathReason(),
 element(nullptr), name(name), scope(nullptr)
-{	
+{
 }
 
 Node::Node(Node * scope, const std::string & name)
-: adoptedHome(0), 
+: adoptedHome(0),
 annotations(*(scope->context)),
-context(scope->context), 
+context(scope->context),
 hFilePath(), hFilePathReason(),
 element(nullptr), name(name), scope(scope)
-{	
+{
 
 }
 
@@ -94,7 +94,7 @@ bool Node::operator==(const Node & other) const
 }
 
 //Class * Node::createClass(const std::string & simpleName)
-//{	
+//{
 //	std::auto_ptr<Class> newInstance(new Class(this, simpleName));
 //	this->addScopeMember(newInstance.get());
 //	return newInstance.release();
@@ -250,7 +250,7 @@ Node * Node::findOrCreate(const std::string & name, const std::string & hFilePat
 //	SplitComplexName(complexName, names);
 //	for(unsigned int i = 0; i < names.size(); i ++)
 //	{
-//		Node = 
+//		Node =
 //	}
 //}
 
@@ -271,7 +271,7 @@ std::string Node::GetFullName() const
 	if (this->scope != nullptr && this->scope->IsNameVisible())
 	{
 		ss << this->scope->GetFullName();
-		ss << "::";		
+		ss << "::";
 	}	// do not include root node.
 	ss << this->name;
 	return ss.str();
@@ -283,7 +283,7 @@ std::string Node::GetPrettyFullName(const char * seperator) const
 	if (this->scope != nullptr && this->scope->IsNameVisible())
 	{
 		ss << this->scope->GetPrettyFullName(seperator);
-		ss << seperator;		
+		ss << seperator;
 	}	// do not include root node.
 	if (this->IsNameVisible())
 	{
@@ -331,7 +331,7 @@ Node * Node::getNode() const
 std::string Node::GetOperatorName() const
 {
 	const char * operatorName = findOperatorName(name);
-	if (operatorName == nullptr) 
+	if (operatorName == nullptr)
 	{
 		std::stringstream ss;
 		ss << "\"" << name << "\" is not an operator.";
@@ -394,13 +394,13 @@ void Node::ParseComplexName(NodePtr searchRoot, const std::string & complexName,
 	const unsigned int index = complexName.find_last_of("::");
 	if (index == std::string::npos) // Not found
 	{
-		resultNode = searchRoot;		
+		resultNode = searchRoot;
 		resultSimpleName = complexName;
 	}
 	else
 	{
 		std::string additionalNodeName;
-		SplitNodeAndMemberName(complexName, additionalNodeName, resultSimpleName);		
+		SplitNodeAndMemberName(complexName, additionalNodeName, resultSimpleName);
 		resultNode = searchRoot->FindOrCreate(additionalNodeName);
 	}
 }
@@ -415,12 +415,12 @@ void Node::setElement(Element * const value, const ReasonPtr reasonCreated)
 	if (this->element != nullptr)
 	{
 		std::stringstream ss;
-		ss << "Member for node " << GetFullName() 
+		ss << "Member for node " << GetFullName()
 			<< " is already a(n) " << element->GetTypeName() << " and cannot "
 			"morph into a(n) " << this->element->GetTypeName() << ".";
 		throw ModelInconsistencyException(element->GetReasonCreated(),
 			reasonCreated,
-			ss.str());	
+			ss.str());
 	}
 	this->element = value;
 	this->element->node = this;

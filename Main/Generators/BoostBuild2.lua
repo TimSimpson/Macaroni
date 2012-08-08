@@ -12,7 +12,6 @@ Target = Macaroni.Model.Project.Target;
 
 function GetMethod(name)
     if name == "Generate" then
-        print("HI")
         return
         {
             Describe = function(args)
@@ -26,6 +25,42 @@ function GetMethod(name)
                 validateArgs(args);
                 Initialize(args);
                 Generate(args)
+            end
+        }
+    elseif name == "Install" then
+        return
+        {
+            Describe = function(args)
+                validateArgs(args);
+                args.output.WriteLine("Create Boost Build file for project "
+                                      .. tostring(args.projectVersion)
+                                      .. "to the directory "
+                                      .. tostring(args.path) .. ".");
+            end,
+            Run = function(args)
+                local path = findOrCreateInstallPath(args.projectVersion)
+                --TODO: Make the h files get included, somehow.
+                -- This next part copies all C++ files.
+                local self = args;
+                local dst = path:NewPathForceSlash("Source")
+                print("INSTALLING TO PATH " .. tostring(dst))
+                for target in Plugin.IterateProjectVersionTargets(
+                    self.projectVersion, "unit")
+                do
+                    local cppFile = target.CppFile
+                    local hFile = target.HFile
+                    print(tostring(target))
+                    print("\t" .. tostring(cppFile))
+                    print("\t" .. tostring(hFile))
+                    cppFile:CopyToDifferentRootPath(dst)
+                    if hFile ~= nil then
+                        hFile:CopyToDifferentRootPath(dst)
+                    end
+                end
+                --TODO: Create a jamroot.jam file in the installation directory
+                -- using only these targets. Pass in the install location into
+                -- the existing jamroot.jam creation functions and have them
+                -- modify any path they write out to match this.
             end
         }
     end
@@ -64,24 +99,32 @@ function validateArgs(self)
     self.Log = self.Log or Plugin.CreateFakeLog()
 end
 
-function getDepName(target)
+function getProjectName(projectVersion)
+    return "MACARONI_PROJECT_" .. projectVersion:GetCId();
+end
+
+function getDepName(self, target)
+    local prefix = ""
+    if target.ProjectVersion:GetCId() ~= self.projectVersion:GetCId() then
+        prefix = "/" .. getProjectName(target.ProjectVersion) .. "//"
+    end
     if target.TypeName == "unit" then
         if target.CppFile ~= nil then
-            return "MACARONI_UNIT_TARGET_" .. target:GetCId();
+            return prefix .. "MACARONI_UNIT_TARGET_" .. target:GetCId();
         else
             return nil
         end
     end
     if target.TypeName == "lib" then
-        return "MACARONI_LIB_TARGET_" .. target:GetCId();
+        return prefix .. "MACARONI_LIB_TARGET_" .. target:GetCId();
     end
 end
 
-function allDependencies(target)
+function allDependencies(self, target)
     -- Returns a string with all a targets deps seperated by spaces.
     local t = {};
     for target in Plugin.IterateDependencies(target) do
-        local dep = getDepName(target)
+        local dep = getDepName(self, target);
         if dep ~= nil then
             t[#t + 1] = dep
         end
@@ -89,13 +132,47 @@ function allDependencies(target)
     return table.concat(t, "\n        ");
 end
 
-function allChildTargets(libTarget)
+function allDependenciesWithJamSupport(self, target)
+    -- Returns a string with all a targets with jam support seperated by spaces
+    local t = {};
+    local myPid = target.ProjectVersion:GetCId();
+    for target in Plugin.IterateDependencies(target) do
+        local pid = target.ProjectVersion:GetCId();
+        if target.TypeName == 'unit' or
+           self.jamSupport[pid] or pid == myPid then
+            local dep = getDepName(self, target);
+            if dep ~= nil then
+                t[#t + 1] = dep
+            end
+        else
+            t[#t + 1] = "# NO DEP FOR YOU! " .. tostring(target)
+        end
+    end
+    return table.concat(t, "\n        ");
+end
+
+function allChildTargets(self, libTarget)
     -- Returns a string with all child targets of a lib seperated by spaces.
     local t = {};
     for target in Plugin.IterateChildDependencies(libTarget) do
         if target.CppFile ~= nil then
-            t[#t + 1] = "MACARONI_UNIT_TARGET_" .. target:GetCId()
+            t[#t + 1] = getDepName(self, target)  -- "MACARONI_UNIT_TARGET_" .. target:GetCId()
         end
+    end
+    return table.concat(t, "\n        ");
+end
+
+function allTargets(self, libTarget)
+    -- Returns a string with all dependent targets of a lib seperated by spaces.
+    local t = {};
+    for target in Plugin.IterateDependencies(libTarget) do
+        local dep = getDepName(self, target)
+        if dep ~= nil then
+            t[#t + 1] = dep
+        end
+        -- if target.CppFile ~= nil then
+        --     t[#t + 1] = getDepName(self, target)  -- "MACARONI_UNIT_TARGET_" .. target:GetCId()
+        -- end
     end
     return table.concat(t, "\n        ");
 end
@@ -124,11 +201,15 @@ function includePaths(target)
     return table.concat(t, "\n        ");
 end
 
-function includeDepPaths(target)
+function includeDepPaths(self, target)
     local t = {};
     for depTarget in Plugin.IterateDependencies(target) do
         t[#t + 1] = "# " .. tostring(depTarget)
-        if depTarget.Headers ~= nil then
+        if depTarget.TypeName == 'lib' and
+           self.jamSupport[depTarget.ProjectVersion:GetCId()] then
+            local dep = getDepName(self, depTarget);
+            t[#t + 1] = "<library>" .. dep .. " "
+        elseif depTarget.Headers ~= nil then
             t[#t + 1] = includePaths(depTarget)
         else
             t[#t + 1] = "# ..."
@@ -141,9 +222,13 @@ function writeExeTarget(self, writer, target)
     writer:WriteLine("# " .. target.Name);
     writer:WriteLine("exe " .. target:GetCId());
     writer:WriteLine("    :   # Sources:");
-    writer:WriteLine(allDependencies(target));
+    writer:WriteLine(allDependenciesWithJamSupport(self, target));
     writer:WriteLine("    :   # TODO: May need to set some compiler flags here.");
     writer:WriteLine("    ;");
+    writer:WriteLine([[
+install exe : ]] .. target:GetCId() .. '\n' .. [[
+    : <install-dependencies>on <install-type>EXE
+             <install-type>LIB ; ]]);
 end
 
 function writeExeTargets(self, writer)
@@ -158,7 +243,7 @@ function writeLibTarget(self, writer, lib)
     writer:WriteLine("# " .. lib.Name);
     writer:WriteLine("lib MACARONI_LIB_TARGET_" .. lib:GetCId());
     writer:WriteLine("    :   # Sources:");
-    writer:WriteLine(allChildTargets(lib));
+    writer:WriteLine(allDependenciesWithJamSupport(self, lib));
     writer:WriteLine("    :   # TODO: May need to set some compiler flags here.");
     writer:WriteLine("    ;");
 end
@@ -175,7 +260,7 @@ function writeTestTarget(self, writer, lib)
     writer:WriteLine("# " .. lib.Name);
     writer:WriteLine("unit-test " .. lib:GetCId());
     writer:WriteLine("    :   # Sources:");
-    writer:WriteLine(allDependencies(lib));
+    writer:WriteLine(allDependencies(self, lib));
     writer:WriteLine("    :   # TODO: May need to set some compiler flags here.");
     writer:WriteLine("    ;");
 end
@@ -266,6 +351,9 @@ import path ;
 using testing ;
 
 ]]);
+
+    writeUseStatements(self, writer);
+
     if self.defaultLib ~= nil then
         writer:WriteLine("# Default Project Library : "
                           .. self.defaultLib.Name .. '\n');
@@ -283,7 +371,12 @@ project ]] ..
     :   requirements ]] .. '\n' ..   -- not sure if this should
                                      -- be "usage-requirements"
     includePaths(self.defaultLib) .. '\n'
-    .. includeDepPaths(self.defaultLib) .. '\n' ..
+    .. includeDepPaths(self, self.defaultLib) .. '\n' ..
+[[  :   usage-requirements ]] .. '\n' ..   -- not sure if this should
+                                     -- be "usage-requirements"
+    includePaths(self.defaultLib) .. '\n'
+    .. includeDepPaths(self, self.defaultLib) .. '\n' ..
+    createLibraryProperties(self.defaultLib) .. '\n' ..
 [[
     ;
 
@@ -395,9 +488,9 @@ function dependencyJamDir(d)
     local success, path = pcall(d.FindInstallPath, d);
     if (success and path ~= nil) then
         local pathText = path.AbsolutePathForceSlash;
-        local jamroot = path:NewPathForceSlash('Cpp/jamroot.jam');
+        local jamroot = path:NewPathForceSlash('target/jamroot.jam');
         if (jamroot.Exists) then
-            return path:NewPathForceSlash('Cpp');
+            return path:NewPathForceSlash('target');
         end
     end
     return nil;
@@ -418,6 +511,35 @@ function copyCppSource(regEx, src, dst)
             -- iterateDir(regEx, child, dst);
         end
     end
+end
+
+function writeUseStatements(self, writer)
+    self.jamSupport = {}
+    for target in Plugin.IterateProjectVersionTargets(self.projectVersion,
+                                                      "lib") do
+        local t = {};
+        print(Plugin.IterateDependencyProjects)
+        for depProject in Plugin.IterateDependencyProjects(target) do
+            --TODO: Find some way to stick the location of the jamroot onto
+            -- the target itself so this hardcoded path nonsense can be
+            -- avoided.
+            local jamDir = findOrCreateInstallPath(depProject)
+                :NewPathForceSlash("/target")
+            self.jamSupport[depProject:GetCId()] = jamDir.Exists
+            if jamDir.Exists then
+                local jamroot = jamDir:NewPathForceSlash("/jamroot.jam")
+                if jamroot.Exists then
+                    writer:WriteLine([[
+use-project /]] .. getProjectName(depProject) .. '\n' .. [[
+        : "]] .. jamDir.GetAbsolutePathForceSlash .. '"\n' .. [[
+        ;]]);
+                else
+                    writer:WriteLine("# No jamroot.jam : " .. tostring(depProject))
+                end
+            end
+        end
+    end
+
 end
 
 function Prepare(library, sourcePaths, outputPath, installPath, extraArgs)

@@ -19,7 +19,9 @@
 #include "../ME.h"
 #include "BlockPtr.h"
 #include "Member.h"
+#include <boost/optional.hpp>
 #include <string>
+#include <Macaroni/Model/Project/TargetPtr.h>
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
@@ -32,9 +34,11 @@ class Block : public Member
 friend void intrusive_ptr_add_ref(Block * p);
 friend void intrusive_ptr_release(Block * p);
 public:
-	static BlockPtr Create(NodePtr host, const std::string & id, 
+	static BlockPtr Create(Macaroni::Model::Project::TargetPtr target,
+		                   NodePtr host, const std::string & id, 
 						   const std::string & block, 
-						   const ReasonPtr reasonCreated);
+						   const ReasonPtr reasonCreate,
+					boost::optional<NodeListPtr> importedNodes=boost::none);
 
 	bool canBeChildOf(const Member *) const;
 
@@ -47,9 +51,21 @@ public:
 	{
 		return id;
 	}
+	
+	NodeListPtr GetImportedNodes() const;
+
+	Macaroni::Model::Project::TargetPtr GetOwner() const;
+
+	virtual bool RequiresCppFile() const;
+
+	virtual bool RequiresHFile() const;
 
 private:
-	Block(Node * host, const std::string & id, const std::string & code, const ReasonPtr reasonCreated);
+	Block(Macaroni::Model::Project::Target * target, Node * host, 
+		  const std::string & id, const std::string & code, 
+		  const ReasonPtr reasonCreated,
+		  boost::optional<NodeListPtr> importedNodes);
+
 	~Block();
 	
 	std::string code;	
@@ -57,6 +73,10 @@ private:
 	virtual const char * GetTypeName() const;
 
 	std::string id;
+
+	NakedNodeList imports;
+
+	Macaroni::Model::Project::Target * target;
 
 	virtual void Visit(MemberVisitor * visitor) const;
 

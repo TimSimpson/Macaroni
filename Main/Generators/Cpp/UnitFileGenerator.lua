@@ -3,6 +3,7 @@ require "Plugin";
 require "Cpp/ClassCppFileGenerator";
 require "Cpp/ClassHFileGenerator";
 require "Cpp/TypedefFileGenerator";
+require "Cpp/UnitBlockGenerator";
 
 local Access = Macaroni.Model.Cpp.Access;
 local Context = Macaroni.Model.Context;
@@ -17,6 +18,10 @@ local TypeNames = Macaroni.Model.TypeNames;
 
 FileWriters = {
     H = {
+        Block = function(library, node, writer)
+            UnitBlockGenerator.Write{node = node, writer=writer}
+        end,
+
         Class = function(library, node, writer)
             gen = ClassHFileGenerator.new{node = node, targetLibrary=library,
                                           writer=writer};
@@ -29,6 +34,10 @@ FileWriters = {
         end,
     },
     Cpp = {
+        Block = function(library, node, writer)
+            UnitBlockGenerator.Write{node = node, writer=writer}
+        end,
+
         Class = function(library, node, writer)
             gen = ClassCppFileGenerator.new{node = node, targetLibrary=library,
                                           writer=writer};

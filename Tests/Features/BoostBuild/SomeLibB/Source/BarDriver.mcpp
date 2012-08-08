@@ -1,0 +1,16 @@
+~unit BarDriver
+    ~type=exe
+;
+
+~import std::cout;
+~import SomeLibB::Bar;
+
+class BarDriver
+{
+     public ~global void main(const char * args, int argc)
+     {
+        std::cout << "Bar Driver";
+        Bar bar(2);
+        std::cout << "Value initially is " << bar.GetNumber();
+     }
+};

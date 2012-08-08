@@ -17,11 +17,19 @@
 #define MACARONI_MODEL_BLOCK_CPP
 
 #include "Block.h"
+#include <boost/foreach.hpp>
 #include "MemberPtr.h"
 #include "Member.h"
 #include "ModelInconsistencyException.h"
 #include "Node.h"
+#include <boost/optional.hpp>
 #include <sstream>
+#include <Macaroni/Model/Project/Target.h>
+
+using boost::optional;
+using Macaroni::Model::Project::Target;
+using Macaroni::Model::Project::TargetPtr;
+
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
@@ -36,11 +44,28 @@ void intrusive_ptr_release(Block * p)
 }
 
 
-Block::Block(Node * host, const std::string & id, const std::string & code, const ReasonPtr reasonCreated)
+Block::Block(Target * target, Node * host, const std::string & id, 
+			 const std::string & code, const ReasonPtr reasonCreated,
+			 optional<NodeListPtr> importedNodes)
 :	Member(host, "Block", reasonCreated),
 	code(code),	
-	id(id)
+	id(id),
+	imports(),
+	target(target)
 {
+	// Target usually isn't needed unless this is a ~block placed
+	// directly within a unit. Blocks inside larger nodes like 
+	if (nullptr != target)
+	{
+		target->AddElement(this);
+	}
+	if (importedNodes)
+	{
+		BOOST_FOREACH(NodePtr & node, *(importedNodes.get()))
+		{
+			imports.push_back(node.get());
+		}
+	}
 }
 
 Block::~Block()
@@ -52,8 +77,9 @@ bool Block::canBeChildOf(const Member *) const
 	return true;
 }
 
-BlockPtr Block::Create(NodePtr host, const std::string & id, 
-					   const std::string & block, const ReasonPtr reasonCreated)
+BlockPtr Block::Create(TargetPtr target, NodePtr host, const std::string & id, 
+					   const std::string & block, const ReasonPtr reasonCreated,
+					   optional<NodeListPtr> importedNodes)
 {
 	ElementPtr existingMember = host->GetElement();
 	if (!!existingMember)
@@ -76,7 +102,25 @@ BlockPtr Block::Create(NodePtr host, const std::string & id,
 		throw Model::ModelInconsistencyException(existingMember->GetReasonCreated(),
 									 			 reasonCreated, ss.str());
 	}
-	return BlockPtr(new Block(host.get(), id, block, reasonCreated));
+	return BlockPtr(new Block(target.get(), host.get(), id, block, reasonCreated, importedNodes));
+}
+
+NodeListPtr Block::GetImportedNodes() const
+{
+	NodeListPtr rtnList(new NodeList());
+	BOOST_FOREACH(Node * node, imports)
+	{
+		rtnList->push_back(NodePtr(node));
+	}
+	return rtnList;
+}
+TargetPtr Block::GetOwner() const
+{
+	if (!target) 
+	{
+		return Element::GetOwner();
+	}
+	return target;
 }
 
 const char * Block::GetTypeName() const
@@ -84,6 +128,23 @@ const char * Block::GetTypeName() const
 	return "Block";
 }
 	
+bool Block::RequiresCppFile() const
+{
+	// cpp or cpp-include necessitate a cpp file.
+	if (id.size() < 3)
+	{
+		return false;
+	}
+	std::string sub = id.substr(0, 3);
+	return sub == "cpp";
+}
+
+bool Block::RequiresHFile() const
+{
+	// h, h-predef, or h-postdef all necessitate an h file.
+	return id.size() > 0 && id[0] == 'h';
+}
+
 void Block::Visit(MemberVisitor * visitor) const
 {
 	// do nothing.

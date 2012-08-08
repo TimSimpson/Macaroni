@@ -39,19 +39,82 @@ lib = project:Library{
 -- lib:AddTest("PlainCTest", src:NewPathForceSlash("PlainCTest.cpp"))
 
 porg = plugins:Get("Porg")
+cpp = plugins:Get("Cpp")
+html = plugins:Get("HtmlView")
+bjam = plugins:Get("BoostBuild2")
+
+
+targetDir = Macaroni.IO.Path.New("target")
+
+-- This *needs* to run every single time, no matter what.
 porg:Run("Generate", {target=lib})
 
-cpp = plugins:Get("Cpp")
-local outputPath = filePath("target") --ath.New("target")
-cpp:Run("Generate", { projectVersion=project, path=outputPath })
+function clean()
+    targetDir:ClearDirectoryContents();
+end
 
-html = plugins:Get("HtmlView")
-html:Run("Generate", { target=lib, path=outputPath})
+generated = false
+built = false
+installed = false
 
-bjam = plugins:Get("BoostBuild2")
-bjam:Run("Generate", { jamroot=outputPath:NewPath("/jamroot.jam"),
+function generate()
+  if generated then return end
+  local outputPath = filePath("target") --ath.New("target")
+  cpp:Run("Generate", { projectVersion=project, path=outputPath })
+  html:Run("Generate", { target=lib, path=outputPath})
+  bjam:Run("Generate", { jamroot=outputPath:NewPath("/jamroot.jam"),
                        projectVersion=project,
                        output=output
-})
+  })
+  generated = true
+end
 
-print(getInstallPath(project))
+function build()
+  if built then return end
+  generate()
+  os.execute("bjam " .. properties.bjam_options .. " target")
+  built = true
+end
+
+function install()
+  if installed then return end
+  sinstall(project, filePath("./"))
+  installed = true
+
+
+  -- So, here's a laugh: what you see below are half-completed attempts at
+  -- feeling out what the proper way to do this would look like.
+  -- Before the sloppy and easy way was found.
+  --[[
+
+
+  generate()
+  --cpp:Run("Install", { projectVersion=project, paths=pathList{"src", "target"}})
+  -- Somehow, go through library, copy all unit files correctly, and create
+  -- new jamroot.jam file with library.
+  ----bjam:Run("Install", { projectVersion=project } );--{ libraries={lib,} })
+  installer = install(project, {lib});
+  installer:install({lib});
+
+  -- From Lua, an installer is its own object which contains the following:
+  --   FinalProject - a ProjectVersion which is independent of what is being
+  --                  installed, i.e. it is *NOT* the "project" varaible above.
+  --   OutputPath   - The install directory.
+
+  bjam:Run("Install", {installer = installer})
+  -- This will take the installer, from which it will extract the
+  -- projectVersion from the "project" variable, then it will use the
+  -- "OutputPath" variable and make a new directory called bjam and put
+  -- everything there.
+
+
+  -- Creates the final install path
+  -- Goes through all targets and saves unit targets with cpp and h files
+  -- to "Source" directory.
+  -- Writes installer file.
+  -- project:Install{{targets={lib}, plugins={bjam}};
+  --   Targets may have a special way they get installed.
+  --   Plugins need to save whatever they generate, so for example bjam needs
+  --   to save its own stuff.
+  ]]--
+end

@@ -24,6 +24,8 @@
 #include "NodeListLua.h"
 #include <Macaroni/Model/ReasonLuaMetaData.h>
 #include <Macaroni/Model/SourceLuaMetaData.h>
+#include <Macaroni/Model/Project/Target.h>
+#include <Macaroni/Model/Project/TargetLuaMetaData.h>
 #include "TypeLua.h"
 
 #include <lua.h>
@@ -49,7 +51,8 @@ namespace
 			std::string id(luaL_checkstring(L, 2));
 			std::string block(luaL_checkstring(L, 3));
 			ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 4);
-			BlockPtr newBlock = Block::Create(home, id, block, reason);
+			Macaroni::Model::Project::TargetPtr nullTarget;
+			BlockPtr newBlock = Block::Create(nullTarget, home, id, block, reason);
 			ElementPtr rtnValue = boost::dynamic_pointer_cast<Element>(newBlock);
 			ElementLuaMetaData::PutInstanceOnStack(L, rtnValue);
 			return 1;
@@ -86,6 +89,12 @@ int BlockLuaMetaData::Index(lua_State * L, const BlockPtr & ptr,
 		lua_pushstring(L, ptr->GetId().c_str());
 		return 1;
 	}		
+	else if (index == "ImportedNodes")
+	{
+		NodeListPtr list = ptr->GetImportedNodes();
+		NodeListLuaMetaData::PutInstanceOnStack(L, list);
+		return 1;
+	}
 	return 0;
 }
 

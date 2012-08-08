@@ -67,7 +67,7 @@ class Macaroni::Model::Project::ProjectVersionId {
 	public ProjectVersionId(string group, string name, string version)
 	:	Group(group), Name(name), Version(version)
 	{
-	}	
+	}
 
 	public string ToString() const
 	{
@@ -96,6 +96,7 @@ class Macaroni::Model::Project::ProjectVersion
 	~import Macaroni::Model::Project::ProjectVersionId;
 	friend Macaroni::Model::Project::Project;
 
+	private unsigned int fileParseCount;
 	private Macaroni::Model::Project::Project * const project;
 	private std::vector<Target *> targets;
 	private const string version;
@@ -107,7 +108,8 @@ class Macaroni::Model::Project::ProjectVersion
 	}
 
 	private ProjectVersion(Project * project, const string & version)
-	:   project(project),
+	:   fileParseCount(0),
+	    project(project),
 	    version(version)
 	{
 	}
@@ -124,7 +126,7 @@ class Macaroni::Model::Project::ProjectVersion
 	public bool operator==(const ProjectVersion & other) const {
 		return (*project == *other.project
 			    && version == other.version);
-	}	
+	}
 
 	public void AddTarget(Target * target) {
 		BOOST_FOREACH(Macaroni::Model::Project::Target * t, targets) {
@@ -142,8 +144,15 @@ class Macaroni::Model::Project::ProjectVersion
 	public string GetCId() const
 		@LuaFunction "GetCId"
 	{
-		return str(format("%s___%s") % project->GetCId() 
+		return str(format("%s___%s") % project->GetCId()
 			                         % Utils::CreateCId(version));
+	}
+
+	/** The number of times the project definition file for this project
+	 *  version has been parsed. */
+	public unsigned int GetFileParseCount() const
+	{
+		return fileParseCount;
 	}
 
 	public Macaroni::Model::Project::ProjectPtr GetProject() const
@@ -184,7 +193,12 @@ class Macaroni::Model::Project::ProjectVersion
 		@LuaProperty "Version"
 	{
 		return version;
-	}	
+	}
+
+	public void IncrementFileParseCount()
+	{
+		fileParseCount ++;
+	}
 
 	public ~global ~friend void intrusive_ptr_add_ref(
 		Macaroni::Model::Project::ProjectVersion * const p)
@@ -209,7 +223,7 @@ class Macaroni::Model::Project::ProjectVersion
 			LuaEnvironment::SerializeTable(table, L, 2, key);
 
 			LibraryTargetPtr lib = instance->Library(table);
-			
+
 			TargetLuaMetaData::PutInstanceOnStack(L, lib);
 			return 1;
 		}
@@ -226,8 +240,8 @@ class Macaroni::Model::Project::ProjectVersion
 			headers.reset(new PathList());
 		}
 		PathListPtr sources = table.Get<Macaroni_IO_PathList>("sources");
-		
-		
+
+
 		vector<TargetPtr> dependencies;
 
 		if (table.Has("dependencies"))
@@ -235,13 +249,13 @@ class Macaroni::Model::Project::ProjectVersion
 			struct Func
 			{
 				vector<TargetPtr> & dependencies;
-				
+
 				Func(vector<TargetPtr> & dependencies)
-				: dependencies(dependencies) 
+				: dependencies(dependencies)
 				{
 				}
 
-				void operator ()(TargetPtr target) 
+				void operator ()(TargetPtr target)
 				{
 					dependencies.push_back(target);
 				}
@@ -249,12 +263,50 @@ class Macaroni::Model::Project::ProjectVersion
 			Func f(dependencies);
 			table.ToVector<Macaroni_Model_Project_Target, Func>(f);
 		}
-		
+
 		LibraryTargetPtr lib = LibraryTarget::Create(
 			this, name, dependencies, headers, sources);
 		//addTarget(lib.get());
 		return lib;
 	}
+
+	/*
+	public void Install(Table & table)
+		@LuaFunction "Install"
+		@LuaGlueCode ={
+			ProjectVersionPtr & instance =
+				ProjectVersionLuaMetaData::GetInstance(L, 1);
+			Table table;
+			boost::optional<string> key("Install argument 2");
+			LuaEnvironment::SerializeTable(table, L, 2, key);
+			instance->Install(table);
+			return 0;
+		}
+	{
+		vector<TargetPtr> targets;
+		struct Func
+		{
+			vector<TargetPtr> & targets;
+
+			Func(vector<TargetPtr> & targets)
+			: dependencies(targets)
+			{
+			}
+
+			void operator ()(TargetPtr target)
+			{
+				targets.push_back(target);
+			}
+		};
+		Func f(targets);
+		table.GetVector<Macaroni_Model_Project_Target, Func>(
+			"targets", f);
+	}
+
+	public void Install(vector<TargetPtr> & targets)
+	{
+
+	}*/
 
 	public LibraryTargetPtr Library(Table & table)
 		@LuaFunction "Library"
@@ -266,7 +318,7 @@ class Macaroni::Model::Project::ProjectVersion
 			LuaEnvironment::SerializeTable(table, L, 2, key);
 
 			LibraryTargetPtr lib = instance->Library(table);
-			
+
 			TargetLuaMetaData::PutInstanceOnStack(L, lib);
 			return 1;
 		}
@@ -283,8 +335,8 @@ class Macaroni::Model::Project::ProjectVersion
 			headers.reset(new PathList());
 		}
 		PathListPtr sources = table.Get<Macaroni_IO_PathList>("sources");
-		
-		
+
+
 		vector<TargetPtr> dependencies;
 
 		if (table.Has("dependencies"))
@@ -292,13 +344,13 @@ class Macaroni::Model::Project::ProjectVersion
 			struct Func
 			{
 				vector<TargetPtr> & dependencies;
-				
+
 				Func(vector<TargetPtr> & dependencies)
-				: dependencies(dependencies) 
+				: dependencies(dependencies)
 				{
 				}
 
-				void operator ()(TargetPtr target) 
+				void operator ()(TargetPtr target)
 				{
 					dependencies.push_back(target);
 				}
@@ -307,13 +359,13 @@ class Macaroni::Model::Project::ProjectVersion
 			table.GetVector<Macaroni_Model_Project_Target, Func>(
 				"dependencies", f);
 		}
-		
+
 		LibraryTargetPtr lib = LibraryTarget::Create(
 			this, name, dependencies, headers, sources);
 		//addTarget(lib.get());
 		return lib;
 	}
-	
+
 	///*public LibraryTargetPtr Library(
 	//	string name,
 	//	const vector<TargetPtr> & dependencies,
@@ -336,7 +388,7 @@ class Macaroni::Model::Project::ProjectVersion
 			//addTarget(target.get());
 		}
 		return target;
-	}	
+	}
 
 	public ProjectVersionId ToId() const
 	{
