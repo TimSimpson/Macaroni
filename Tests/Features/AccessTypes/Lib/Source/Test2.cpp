@@ -5,5 +5,7 @@
 BOOST_AUTO_TEST_CASE(MyTestCase)
 {
 	Something s = Something::Create(5, 7);
-	s.SetX(5);
+    //TODO: Somehow use the Boost Build "run-fail" rule to make sure this
+    //fails to compile.
+	//s.SetX(5);
 }

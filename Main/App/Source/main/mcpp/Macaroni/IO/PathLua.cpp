@@ -109,9 +109,9 @@ namespace {
 		{
 			paths->push_back(newPath);
 		}
-		else 
+		else
 		{
-			(*paths)[index - 1] = newPath; 
+			(*paths)[index - 1] = newPath;
 		}
 		return 0;
 	}
@@ -297,6 +297,12 @@ END_NAMESPACE2
 			lua_pushstring(L, fileName.c_str());
 			return 1;
 		}
+		else if (index == "FileNameWithoutExtension")
+		{
+			std::string fileName = ptr->GetFileNameWithoutExtension();
+			lua_pushstring(L, fileName.c_str());
+			return 1;
+		}
 		else if (index == "GetPaths")
 		{
 			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::getPaths);
@@ -398,14 +404,14 @@ END_NAMESPACE2
 			PathPtr newPath;
 			if (lua_gettop(L) < 2)
 			{
-				newPath.reset(new Path(absolutePath));	
+				newPath.reset(new Path(absolutePath));
 			}
 			else
 			{
 				std::string relativePath(luaL_checkstring(L, 2));
 				boost::filesystem::path p1 = absolutePath;
 				boost::filesystem::path p2 = relativePath;
-				newPath.reset(new Path(p1, p2));	
+				newPath.reset(new Path(p1, p2));
 			}
 			LUAGLUE_REGISTRATIONCLASSNAME::PutInstanceOnStack(L, newPath);
 			return 1;
@@ -456,7 +462,7 @@ END_NAMESPACE2
 
 	#define LUAGLUE_ADDITIONALMETATABLEMETHODS \
 		{"__tostring", LUAGLUE_HELPERCLASS::__tostring},
-	
+
 	#define LUAGLUE_ADDITIONALTABLEMETHODS \
 		{"CopyDirectoryContents", LUAGLUE_HELPERCLASS::copyDirectoryContents}, \
 		{"New", LUAGLUE_HELPERCLASS::newInstance},

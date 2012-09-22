@@ -35,12 +35,14 @@ else
 end
 require "Macaroni.Model.Node";
 require "Macaroni.Model.NodeList";
+require "Macaroni.IO.Path";
 require "Macaroni.Model.Reason";
 require "Macaroni.Model.Source";
 require "Macaroni.Model.Type";
 require "Macaroni.Model.Cpp.Variable";
 require "Cpp/NodeInfo";
 require "Log";
+require "Plugin"
 
 Access = Macaroni.Model.Cpp.Access;
 Axiom = Macaroni.Model.Axiom;
@@ -56,6 +58,7 @@ else
 	Member = Macaroni.Model.Element;
 end
 NodeList = Macaroni.Model.NodeList;
+Path = Macaroni.IO.Path;
 Reason = Macaroni.Model.Reason;
 Source = Macaroni.Model.Source;
 Type = Macaroni.Model.Type;
@@ -114,7 +117,11 @@ LuaGlueGenerator =
         self.LuaPropGetNode = self.RootNode:FindOrCreate("Macaroni::Lua::LuaPropGet");
         self.LuaPropSetNode = self.RootNode:FindOrCreate("Macaroni::Lua::LuaPropSet");
         self.Creators = self:CreatorsClass();
-        self.CurrentFileName = FileName.Create("LuaGlue.lua");
+        if MACARONI_VERSION == "0.1.0.23" then
+        	self.CurrentFileName = FileName.Create("LuaGlue.lua");
+        else
+        	self.CurrentFileName = FileName.Create(Path.New("LuaGlue.lua"));
+        end
         self.lua_StateNode = self.RootNode:Find("lua_State");
         if (self.lua_StateNode == nil) then
 			error('To use this generator, node "lua_State" must not be hollow.', 2);
@@ -1520,11 +1527,31 @@ LuaModulesRegisterFile = function(library)
 	return "LuaModulesRegister_" .. library:GetCId() .. ".h"
 end
 
+function GetMethod(name)
+	if name == "Generate" then
+		return
+		{
+			Describe = function(args)
+				args.output.WriteLine("Generate Lua glue for target "
+					                  .. tostring(args.target) .. ".")
+			end,
+			Run = function(args)
+				Plugin.Check(args.outputPath ~= nil, 'Missing outputPath arg.');
+				Plugin.Check(args.target ~= nil, 'Missing argument "target".');
+				extraArgs = {
+					luaImportCode = args.luaImportCode or "",
+				}
+				Generate(args.target, args.outputPath, extraArgs);
+			end
+		}
+	end
+end
+
 function Generate(library, path, arguments)
 	log.Init("LuaGlue");
 	log = {
 		Write = function(self, msg)
-			-- print("[LUA]:" .. msg);
+			--print("[LUA]:" .. msg);
 		end
 	}
 	log:Write("Entered Generate");

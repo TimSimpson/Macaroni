@@ -48,9 +48,24 @@ class Context
 		ReferenceType = Macaroni::Model::ContextPtr,
 	]
 {
+/*	~block "cpp"
+	{
+		MACARONI_SIMPLE_EXCEPTION_DEFINE(BadProjectFileSet,
+			"Attempted to mark a path as belonging to a project file,"
+			" but this path already belongs to another project.");
+	}*/
+	/*typedef map<string, ProjectVersionId> ProjectFileMemory;
+	~block "h"
+	{
+		// A bug in Macaroni necessitates this. :(
+		typedef std::map<std::string,
+			Macaroni::Model::Project::ProjectVersionId>
+			ProjectFileMemory;
+	}*/
 	private GroupList * groups;
 	private bool hasBeenDeleted;
 	private std::vector<Library *> libraries;
+	//private ProjectFileMemory parsedProjectFiles;
 	private int referenceCount;
 	private Node ~l * root;
 
@@ -172,10 +187,42 @@ class Context
 		return groups->FindOrCreate(name);
 	}
 
+	/*public optional<ProjectVersionId> CanBeginProjectFileParse(const path & path)
+	{
+		string absolutePath = boost::filesystem::system_complete(path).string();
+		ProjectFileMemory::iterator itr = parsedProjectFiles.find(absolutePath);
+		if (parsedProjectFiles.end() == itr)
+		{
+			parsedProjectFiles[absolutePath] = ProjectVersionId::PlaceHolder();
+			optional<ProjectVersionId> rtnVal;
+			return rtnVal;
+		}
+		else
+		{
+			optional<ProjectVersionId> rtnVal(parsedProjectFiles[absolutePath]);
+			return rtnVal;
+		}
+	}*/
+
+	/*public void MarkParsedProjectFile(const path & path,
+		                              const ProjectVersionId & pvId)
+	{
+		string absolutePath = boost::filesystem::system_complete(path).string();
+		if (parsedProjectFiles.find(absolutePath) != parsedProjectFiles.end())
+		{
+			const ProjectVersionId & id = parsedProjectFiles[absolutePath];
+			if (id != ProjectVersionId::PlaceHolder() && id != pvId)
+			{
+				throw BadProjectFileSet(MACARONI_INTERNAL_SOURCE);
+			}
+		}
+		parsedProjectFiles[absolutePath] = pvId;
+	}*/
+
 	public NodePtr Node(string name)
 	{
 		return root->FindOrCreate(name);
-	}	
+	}
 
 	private void onAddReference()
 	{

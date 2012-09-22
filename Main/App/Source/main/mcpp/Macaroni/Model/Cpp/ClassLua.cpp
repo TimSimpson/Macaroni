@@ -24,6 +24,9 @@
 #include "../NodeLua.h"
 #include "../NodeListLua.h"
 #include <Macaroni/Model/ReasonLuaMetaData.h>
+ #include <Macaroni/Model/Project/Target.h>
+ #include <Macaroni/Model/Project/TargetPtr.h>
+#include <Macaroni/Model/Project/TargetLuaMetaData.h>
 #include "TypeInfoLua.h"
 #include "VariableLua.h"
 
@@ -45,7 +48,7 @@ struct lua_State;
 #define LUAGLUE_REGISTRATIONCLASSNAME ClassLuaMetaData
 #define LUAGLUE_HELPERCLASS ClassLuaFunctions
 #define LUAGLUE_OPENOTHERMODULES // Macaroni::Model::NodeLuaMetaData::OpenInLua(L);
-#define LUAGLUE_CREATEMETATABLE 
+#define LUAGLUE_CREATEMETATABLE
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
@@ -73,12 +76,24 @@ END_NAMESPACE
 		using Macaroni::Model::Reason;
 		using Macaroni::Model::ReasonLuaMetaData;
 		using Macaroni::Model::ReasonPtr;
+		using Macaroni::Model::Project::TargetPtr;
+		using Macaroni::Model::Project::TargetLuaMetaData;
 
-		if (!LibraryLuaMetaData::IsType(L, 1)) 
-		{			
-			luaL_error(L, "Expected Library for argument 1.");
+		LibraryPtr library;
+		TargetPtr target;
+		if (LibraryLuaMetaData::IsType(L, 1))
+		{
+			library = LibraryLuaMetaData::GetInstance(L, 1);
 		}
-		LibraryPtr library = LibraryLuaMetaData::GetInstance(L, 1);
+		else if (TargetLuaMetaData::IsType(L, 1))
+		{
+			target = TargetLuaMetaData::GetInstance(L, 1);
+		}
+		else
+		{
+			luaL_error(L, "Expected Target for argument 1.");
+		}
+
 
 		if (!NodeLuaMetaData::IsType(L, 2))
 		{
@@ -99,21 +114,28 @@ END_NAMESPACE
 		NodeListPtr imports = NodeListLuaMetaData::GetInstance(L, 4);
 
 		if (!ReasonLuaMetaData::IsType(L, 5))
-		{			
+		{
 			luaL_error(L, "Expected Reason for argument 5.");
 		}
 		ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 5);
-		
-		ClassPtr newInstance = Class::Create(library, node, access, 
-			                                 imports, reason); 
+
+		ClassPtr newInstance;
+		if (target)
+		{
+			newInstance = Class::Create(target, node, access, imports, reason);
+		}
+		else
+		{
+			newInstance = Class::Create(library, node, access, imports, reason);
+		}
 		ElementPtr memberPtr = boost::dynamic_pointer_cast<Element>(newInstance);
 		ElementLuaMetaData::PutInstanceOnStack(L, memberPtr);
 		return 1;
 	}
 
-	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr, 
+	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr,
 									  const std::string & index)
-	{ 
+	{
 		if (index == "FriendNodes")
 		{
 			NodeListPtr list = ptr->GetFriendNodes();
@@ -134,7 +156,7 @@ END_NAMESPACE
 			ClassParentListPtr list = ptr->GetParents();
 			ClassParentListLuaMetaData::PutInstanceOnStack(L, list);
 		}
-		else 
+		else
 		{
 			lua_pushnil(L);
 		}
@@ -143,16 +165,16 @@ END_NAMESPACE
 		{
 			createLUAGLUE_CLASSREFNAMEUserData(L, ptr);
 			luaL_getmetatable(L, PROPERTIES_METATABLENAME_ARGUMENTS);
-			lua_setmetatable(L, -2); 
+			lua_setmetatable(L, -2);
 			return 1;
 		}
 		else if (index == "ReturnType")
 		{
 			createLUAGLUE_CLASSREFNAMEUserData(L, ptr);
 			luaL_getmetatable(L, PROPERTIES_METATABLENAME_RETURNTYPE);
-			lua_setmetatable(L, -2); 
+			lua_setmetatable(L, -2);
 			return 1;
-		}*/		
+		}*/
 		return 1;
 	}
 
@@ -160,13 +182,13 @@ END_NAMESPACE
 	{
 		lua_pushstring(L, "Class");
 		return 1;
-	}	
+	}
 
 	#define LUAGLUE_ADDITIONALMETATABLEMETHODS \
 		/*{"__tostring", LUAGLUE_HELPERCLASS::__tostring}, */
 
 	#define LUAGLUE_ADDITIONALTABLEMETHODS \
-		{"Create", LUAGLUE_HELPERCLASS::Create},		
+		{"Create", LUAGLUE_HELPERCLASS::Create},
 
 #include "../../LuaGlue2.hpp"
 

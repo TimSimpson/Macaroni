@@ -6,11 +6,15 @@
 ~import Macaroni::Model::Project::LibraryTarget;
 ~import Macaroni::Model::Project::LibraryTargetLuaMetaData;
 ~import lua_State;
+~import boost::optional;
 ~import Macaroni::IO::Path;
 ~import Macaroni::IO::PathListLuaMetaData;
 ~import Macaroni::IO::PathLuaMetaData;
 ~import Macaroni::IO::PathListPtr;
 ~import Macaroni::IO::PathPtr;
+~import Macaroni::Model::Project::Resource;
+~import Macaroni::Model::Project::ResourceLuaMetaData;
+~import Macaroni::Model::Project::ResourcePtr;
 ~import std::string;
 ~import Macaroni::Model::Project::Target;
 ~import Macaroni::Model::Project::TargetLuaMetaData;
@@ -61,7 +65,7 @@ class TargetLuaExtra
 			}
 			return 1;
 		LUA_GLUE_CATCH
-	}	
+	}
 
 	public static int AddExe(lua_State * L)
 	{
@@ -73,11 +77,21 @@ class TargetLuaExtra
 		return AddExeOrTest(L, "test");
 	}
 
+/*	public static int Append(lua_State * L)
+	{
+		LUA_GLUE_TRY
+			TargetPtr target = TargetLuaMetaData::GetInstance(L, 1);
+			LibraryTarget * library =
+				dynamic_cast<LibraryTarget *>(target.get());
+			Lireturn AddExeOrTest(L, "test");
+		LUA_GLUE_CATCH
+	}	*/
+
 	public static int AddExeOrTest(lua_State * L, const char * typeName)
 	{
 		LUA_GLUE_TRY
 			TargetPtr target = TargetLuaMetaData::GetInstance(L, 1);
-			LibraryTarget * library = 
+			LibraryTarget * library =
 				dynamic_cast<LibraryTarget *>(target.get());
 			LibraryTargetPtr lPtr(library);
 			string name = luaL_checkstring(L, 2);
@@ -85,7 +99,7 @@ class TargetLuaExtra
 			if (Macaroni::IO::PathListLuaMetaData::IsType(L, 3))
 			{
 				sources = Macaroni::IO::PathListLuaMetaData
-					::GetInstance(L, 3);				
+					::GetInstance(L, 3);
 			}
 			else
 			{
@@ -98,15 +112,30 @@ class TargetLuaExtra
 		LUA_GLUE_CATCH
 	}
 
-	public static int index(lua_State * L, Target * target, 
+	public static int index(lua_State * L, Target * target,
 		                    const string & index)
 	{
+		//TODO: Yep, this sucks! There's a better method to do this involving
+		// inheritance, I'm just being lazy here. Pure crappolla, no excuses!
 		LUA_GLUE_TRY
+			if (index == "ShortName")
+			{
+				optional<string> sn = target->GetShortName();
+				if (sn)
+				{
+					lua_pushstring(L, sn.get().c_str());
+				}
+				else
+				{
+					lua_pushnil(L);
+				}
+				return 1;
+			}
 			LibraryTarget * library = dynamic_cast<LibraryTarget *>(target);
 			if (0 != library)
 			{
 				LibraryTargetPtr lPtr(library);
-				const int result = LibraryTargetLuaMetaData::Index(L, lPtr, 
+				const int result = LibraryTargetLuaMetaData::Index(L, lPtr,
 					                                               index);
 				if (result > 0) {
 					return result;
@@ -121,6 +150,21 @@ class TargetLuaExtra
 					lua_pushcfunction(L, AddTest);
                     return 1;
 				}
+				/*else if (index == "Append")
+				{
+					lua_pushcfunction(L, Append);
+					return 1;
+				}*/
+			}
+
+			Resource * resource = dynamic_cast<Resource *>(target);
+			if (0 != resource)
+			{
+				ResourcePtr ptr(resource);
+				const int result = ResourceLuaMetaData::Index(L, ptr, index);
+				if (result > 0) {
+					return result;
+				}
 			}
 
 			if (index == "CreateElementList")
@@ -133,7 +177,7 @@ class TargetLuaExtra
 			{
 				if (index == "CppFile")
                 {
-                    PathLuaMetaData::PutInstanceOnStack(L, 
+                    PathLuaMetaData::PutInstanceOnStack(L,
                         unitTarget->GetCppFile());
                     return 1;
                 }
@@ -144,7 +188,7 @@ class TargetLuaExtra
 				}
 				if (index == "HFile")
 				{
-					PathLuaMetaData::PutInstanceOnStack(L, 
+					PathLuaMetaData::PutInstanceOnStack(L,
 						unitTarget->GetHFile());
 					return 1;
 				}
@@ -199,7 +243,7 @@ class TargetLuaExtra
 	{
 		LUA_GLUE_TRY
 			TargetPtr instance = TargetLuaMetaData::GetInstance(L, 1);
-			UnitTarget * unitTarget = 
+			UnitTarget * unitTarget =
 				dynamic_cast<UnitTarget *>(instance.get());
 			if (0 == unitTarget)
 			{
@@ -215,7 +259,7 @@ class TargetLuaExtra
 	{
 		LUA_GLUE_TRY
 			TargetPtr instance = TargetLuaMetaData::GetInstance(L, 1);
-			UnitTarget * unitTarget = 
+			UnitTarget * unitTarget =
 				dynamic_cast<UnitTarget *>(instance.get());
 			if (0 == unitTarget)
 			{
@@ -231,7 +275,7 @@ class TargetLuaExtra
 	{
 		LUA_GLUE_TRY
 			TargetPtr instance = TargetLuaMetaData::GetInstance(L, 1);
-			UnitTarget * unitTarget = 
+			UnitTarget * unitTarget =
 				dynamic_cast<UnitTarget *>(instance.get());
 			if (0 == unitTarget)
 			{
@@ -247,7 +291,7 @@ class TargetLuaExtra
 	{
 		LUA_GLUE_TRY
 			TargetPtr instance = TargetLuaMetaData::GetInstance(L, 1);
-			UnitTarget * unitTarget = 
+			UnitTarget * unitTarget =
 				dynamic_cast<UnitTarget *>(instance.get());
 			if (0 == unitTarget)
 			{
@@ -263,7 +307,7 @@ class TargetLuaExtra
 	{
 		LUA_GLUE_TRY
 			TargetPtr instance = TargetLuaMetaData::GetInstance(L, 1);
-			UnitTarget * unitTarget = 
+			UnitTarget * unitTarget =
 				dynamic_cast<UnitTarget *>(instance.get());
 			if (0 == unitTarget)
 			{
@@ -279,7 +323,7 @@ class TargetLuaExtra
 	{
 		LUA_GLUE_TRY
 			TargetPtr instance = TargetLuaMetaData::GetInstance(L, 1);
-			UnitTarget * unitTarget = 
+			UnitTarget * unitTarget =
 				dynamic_cast<UnitTarget *>(instance.get());
 			if (0 == unitTarget)
 			{

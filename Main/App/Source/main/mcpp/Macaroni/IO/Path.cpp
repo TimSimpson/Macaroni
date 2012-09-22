@@ -63,7 +63,7 @@ Path::Path(const Path & other)
 	assertPathExistsInRootPath();
 }
 
-Path::Path(const boost::filesystem::path & rootPath, 
+Path::Path(const boost::filesystem::path & rootPath,
 		   const boost::filesystem::path & path)
 :path(path), rootPath(rootPath)
 {
@@ -240,6 +240,11 @@ std::string Path::GetFileName() const
 		throw Macaroni::Exception(ss.str().c_str());
 	}*/
 	return path.filename().string();
+}
+
+std::string Path::GetFileNameWithoutExtension() const
+{
+	return path.filename().stem().string();
 }
 
 PathPtr Path::GetParentPath() const

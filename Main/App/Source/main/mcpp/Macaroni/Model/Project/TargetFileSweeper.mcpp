@@ -25,12 +25,14 @@
 ~import Macaroni::Model::LibraryPtr;
 ~import Macaroni::Model::Project::LibraryTarget;
 ~import Macaroni::Model::Project::MacaroniCodeTarget;
+~import boost::optional;
 ~import Macaroni::Parser::ParserPtr;
 ~import Macaroni::Parser::Pippy::PippyParser;
 ~import boost::filesystem::path;
 ~import Macaroni::IO::Path;
 ~import Macaroni::IO::PathPtr;
 ~import Macaroni::IO::PathList;
+~import Macaroni::IO::PathListPtr;
 ~import boost::regex;
 ~import Macaroni::IO::RegexFileSet;
 ~import Macaroni::IO::RegexFileSetIterator;
@@ -58,11 +60,11 @@ class TargetFileSweeper
 			regex mcppRegex("\\.m(h|cpp)$");
 
 			MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(
-				CouldNotReadFileException, 
+				CouldNotReadFileException,
 				"Could not read file %s!");
 
 			MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(
-				FileMustBeRelativePathException, 
+				FileMustBeRelativePathException,
 				"ParseFile must receive a relative path to correctly create "
 				"a new unit. The given path only has a root path, while the "
 				"path argument is empty (value was %s).");
@@ -76,31 +78,70 @@ class TargetFileSweeper
 	{
 	}
 
+	//TODO: Get rid of all of these once Macaroni supports default parameters.
+
+	public void ParseFile(const path & file)
+	{
+		const PathListPtr empty;
+		ParseFile(file, empty);
+	}
+
+	public void ParseFile(const Path & file)
+	{
+		const PathListPtr empty;
+		ParseFile(file, empty);
+	}
+
 	public void RecursivelyParseDirectory(const PathList & pList)
+	{
+		const PathListPtr empty;
+		RecursivelyParseDirectory(pList, empty);
+	}
+
+	public void ParseFileSet(const RegexFileSet & fileSet)
+	{
+		const PathListPtr empty;
+		ParseFileSet(fileSet, empty);
+	}
+
+	// End stupid default parameter style functions.
+
+	public void RecursivelyParseDirectory(const PathList & pList,
+		                                  const PathListPtr & excludeFiles)
 	{
 		BOOST_FOREACH(PathPtr p, pList)
 		{
 			if (p->IsDirectory())
 			{
-				RegexFileSet rfs(p->GetPath(), 
+				RegexFileSet rfs(p->GetPath(),
 					             "\\.(h(|pp)|m(cpp|h)|c(|c|pp))$");
-				ParseFileSet(rfs);
+				ParseFileSet(rfs, excludeFiles);
 			}
 			else
 			{
-				ParseFile(*p.get());
+				ParseFile(*p.get(), excludeFiles);
 			}
 		}
 	}
 
-	public void ParseFile(const path & file) 
+	public void ParseFile(const path & file, const PathListPtr & excludeFiles)
 	{
 		Path p(file);
-		ParseFile(p);
+		ParseFile(p, excludeFiles);
 	}
 
-	public void ParseFile(const Path & file) 
+	public void ParseFile(const Path & file, const PathListPtr & excludeFiles)
 	{
+		if (excludeFiles)
+		{
+			BOOST_FOREACH(PathPtr & path, *excludeFiles)
+			{
+				if (file.GetAbsolutePath() == path->GetAbsolutePath())
+				{
+					return; // Skip.
+				}
+			}
+		}
 		string str = file.GetAbsolutePath();
 		if (boost::regex_search(str, mcppRegex)) {
 			ParseMacaroniFile(file);
@@ -111,11 +152,11 @@ class TargetFileSweeper
 				//PATH MUST BE AN ACTUAL RELATIVE PATH OR OH NOES WILL HAPPENS!!
 				if (file.GetRelativePathNormalized().length() == 0)
 				{
-					throw FileMustBeRelativePathException(str.c_str(), 
+					throw FileMustBeRelativePathException(str.c_str(),
 						MACARONI_INTERNAL_SOURCE);
 				}
 				PathPtr p(new Path(file));
-				UnitTarget::Create(target, false, 
+				UnitTarget::Create(target, false,
 					             p->GetRelativePathNormalized())->SetCppFile(p);
 			} else if (boost::regex_search(str, hppRegex)) {
 
@@ -123,7 +164,8 @@ class TargetFileSweeper
 		}
 	}
 
-	public void ParseFileSet(const RegexFileSet & fileSet) 
+	public void ParseFileSet(const RegexFileSet & fileSet,
+		                     const PathListPtr & excludeFiles)
 	{
 		RegexFileSetIterator itr = fileSet.Begin();
 		RegexFileSetIterator end = fileSet.End();
@@ -131,14 +173,14 @@ class TargetFileSweeper
 		{
 			path p = *itr;
 			Path relativePath(fileSet.GetRoot(), p);
-			ParseFile(relativePath);
+			ParseFile(relativePath, excludeFiles);
 		}
 	}
 
 	public void ParseMacaroniFile(const Path & filePath) {
-		LibraryTarget * mct = 
+		LibraryTarget * mct =
 			dynamic_cast<LibraryTarget *>(target.get());
-		if (0 != mct) 
+		if (0 != mct)
 		{
 			mct->AddMacaroniFile(filePath);
 		}
@@ -157,7 +199,7 @@ class TargetFileSweeper
 		ifstream file(filePath.c_str());
 		if (!file.is_open())
 		{
-			throw CouldNotReadFileException(filePath.c_str(), 
+			throw CouldNotReadFileException(filePath.c_str(),
 				MACARONI_INTERNAL_SOURCE);
 		}
 		string line;

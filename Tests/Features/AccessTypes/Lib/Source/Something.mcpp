@@ -3,14 +3,14 @@ class Something
 {
 	private int x;
 	private int y;
-	
-	// Private constructors mean something, so they should be kept in the 
+
+	// Private constructors mean something, so they should be kept in the
 	// header.
 	private Something()
 	{
-		
-	}	
-		
+
+	}
+
 	public static Something Create(int x, int y)
 	{
 		Something s;
@@ -18,25 +18,25 @@ class Something
 		s.SetY(y);
 		return s;
 	}
-	
+
 	public int GetX() const
 	{
-		return this->x;	
+		return this->x;
 	}
-	
+
 	public int GetY() const
 	{
-		return this->y;	
+		return this->y;
 	}
-	
+
 	~hidden void SetX(int value)
 	{
 		this->x = value;
 	}
-	
+
 	~hidden void SetY(int value)
 	{
 		this->y = value;
 	}
 
-}
+};

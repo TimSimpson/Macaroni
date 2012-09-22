@@ -391,7 +391,7 @@ private:
 	TargetPtr defaultTarget;
 	std::string hFilesForNewNodes;
 	NodeListPtr importedNodes;
-	LibraryPtr library;	
+	LibraryPtr library;
 public:
 
 	ParserFunctions(ContextPtr context, LibraryPtr library, TargetPtr target)
@@ -400,7 +400,7 @@ public:
 		 currentTarget(target),
 		 defaultTarget(target),
 		 importedNodes(new NodeList()),
-		 library(library)	 
+		 library(library)
 	{
 		MACARONI_ASSERT(!!CppContext::GetPrimitives(context),
 			"Cpp nodes must be found to parse successfully.");
@@ -409,7 +409,7 @@ public:
 		{
 			importedNodes->push_back(primitiveRoot->GetChild(i));
 		}
-	}	
+	}
 
 	/** Attempts to consume whatever access it can, returning
 	 * "Access_NotSpecified" if it finds nothing. */
@@ -421,7 +421,15 @@ public:
 		AccessPtr access = Access::NotSpecified();
 		if (itr.ConsumeWord("~hidden"))
 		{
-			access = Access::Hidden();
+			itr.ConsumeWhitespace();
+			if (itr.ConsumeWord("public"))
+			{
+				access = Access::HiddenPublic();
+			}
+			else
+			{
+				access = Access::Hidden();
+			}
 		}
 		// TODO: The "~internal" keyword idea is going to be a lot harder than
 		// I first thought.  In MSVC++ a class's members must all be exported
@@ -693,8 +701,8 @@ public:
 				Messages::Get("CppParser.CodeBlock.Expected"));
 		}
 		NodePtr blockHome = createNextBlockNode(currentScope, itr);
-		
-		TargetPtr tHome;		
+
+		TargetPtr tHome;
 		boost::optional<NodeListPtr> imports = boost::none;
 		if (!blockHome->GetNode() ||
 			!blockHome->GetNode()->HasElementOfType<Macaroni::Model::Cpp::Class>())
@@ -704,7 +712,7 @@ public:
 		}
 		// NOTE! tHome *can* be null here!
 		Block::Create(tHome, blockHome, id, code,
-			Reason::Create(CppAxioms::BlockCreation(), codeStart), 
+			Reason::Create(CppAxioms::BlockCreation(), codeStart),
 			imports);
 		return true;
 	}
@@ -741,12 +749,12 @@ public:
 		ClassPtr newClass;
 		TargetPtr tHome = deduceTargetHome(currentScope);
 		if (!tHome) {
-			// OLD WAY			
+			// OLD WAY
 			newClass =
 			Class::Create(library, currentScope, access, importedNodes,
 				Reason::Create(CppAxioms::ClassCreation(), newItr.GetSource()));
 		} else {
-			// NEW WAY			
+			// NEW WAY
 			newClass =
 			Class::Create(tHome, currentScope, access, importedNodes,
 				Reason::Create(CppAxioms::ClassCreation(), newItr.GetSource()));
@@ -1518,7 +1526,7 @@ public:
 		throw ParserException(itr.GetSource(), ss.str());
 	}
 
-	/** Determines where an element should live. 
+	/** Determines where an element should live.
 	 *  If target was not passed in, an empty ptr is returned and "library"
 	 *  should be used instead.
 	 *  Otherwise, if target was passed in but the current target has been
@@ -1532,19 +1540,19 @@ public:
 			return currentTarget;
 		}
 		else
-		{		
+		{
 			if (defaultTarget)
 			{
 				return defaultTarget;
-				
+
 			}
 			else
 			{
 				return TargetPtr();
-			}		
+			}
 		}
 		// Note: I had code here to create unit targets automatically but
-		// abandoned it in favor of letting a Lua plugin do it to make it 
+		// abandoned it in favor of letting a Lua plugin do it to make it
 		// more flexible.
 
 		//
@@ -1552,9 +1560,9 @@ public:
 		// If the target has been manually overridden use that.
 		if (currentTarget)
 		{
-			return currentTarget;		
+			return currentTarget;
 		}
-		// Default choice resolution.		
+		// Default choice resolution.
 		if (node->GetNode()->HasElementOfType<Macaroni::Model::Cpp::Class>())
 		{
 			// 1. If the parent node is a class, then always use its target.
@@ -2562,7 +2570,7 @@ public:
 				Reason::Create(CppAxioms::TypedefCreation(), newItr.GetSource()),
 				type);
 		}
-		
+
 
 		ConsumeWhitespace(newItr);
 
@@ -2593,7 +2601,7 @@ public:
 		{
 			return false;
 		}
-		
+
 		// We've seen ~unit. There's no going back!
 
 		ConsumeWhitespace(newItr);
@@ -2618,14 +2626,14 @@ public:
 			}
 			defaultRootName = currentScope->GetPrettyFullName("/") + name;
 		}
-		
+
 		bool withBraces = true;
 		std::string hFile = defaultRootName + ".h";
 		std::string cppFile = defaultRootName + ".cpp";
 		std::string type = "lib";
 		while(true)
-		{		
-			ConsumeWhitespace(newItr);		
+		{
+			ConsumeWhitespace(newItr);
 			if (newItr.ConsumeWord("~hfile"))
 			{
 				newItr.ConsumeWhitespace();
@@ -2673,18 +2681,18 @@ public:
 				withBraces = false;
 				break;
 			}
-			else 
+			else
 			{
 				throw ParserException(newItr.GetSource(),
 						Messages::Get("CppParser.Unit.NoOpeningBrace",
-						newItr.GetSource()->GetLine()));				
+						newItr.GetSource()->GetLine()));
 			}
 		}
 
 		SourcePtr firstBraceSrc = newItr.GetSource();
 
 		TargetPtr useTarget = currentTarget;
-		if (type == "exe" || type == "test")
+		if (type == "exe" || type == "test" || type == "win32")
 		{
 			// Create an exe unit.
 			std::vector<TargetPtr> deps;
@@ -2704,11 +2712,11 @@ public:
 		auto_ptr<UnitTarget> utp(UnitTarget::Create(useTarget, true, name));
 		utp->SetHFileAsUnknownRelativePath(hFile);
 		utp->SetCppFileAsUnknownRelativePath(cppFile);
-		
+
 		TargetPtr oldTarget = currentTarget;
 		currentTarget = utp.get();
 		utp.release();
-	
+
 
 		ConsumeWhitespace(newItr);
 		ScopeFiller(newItr);
@@ -2732,7 +2740,7 @@ public:
 			}
 		}
 		// Switch back to the old target.
-		currentTarget = oldTarget;		
+		currentTarget = oldTarget;
 		itr = newItr; // Success! :)
 		return true;
 	}

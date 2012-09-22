@@ -21,22 +21,22 @@
 ~import std::string;
 ~import std::stringstream;
 
-namespace Macaroni::Model::Cpp 
+namespace Macaroni::Model::Cpp
 {
 
 class Access {}
 
-typedef shared_ptr<Access> AccessPtr	
-	@LuaClass [ SameAsNode = Access ]	
-	~hfile=<Macaroni/Model/Cpp/AccessPtr.h>	
+typedef shared_ptr<Access> AccessPtr
+	@LuaClass [ SameAsNode = Access ]
+	~hfile=<Macaroni/Model/Cpp/AccessPtr.h>
 ;
 
 class Access
-	@LuaClass 
+	@LuaClass
 	[
 		ReferenceType = Macaroni::Model::Cpp::AccessPtr,
 	]
-{			
+{
 
 	~block "h"
 	{
@@ -45,8 +45,9 @@ class Access
 			Access_Internal,
 			Access_InternalProtected,
 			Access_Hidden,
+			Access_HiddenPublic,
 			Access_Private,
-			Access_Protected,	
+			Access_Protected,
 			Access_Public,
 			Access_NotSpecified
 		};
@@ -63,9 +64,9 @@ class Access
 		: data(data)
 		{
 		}
-		
+
 	}
-	
+
 
 	public bool operator== (const Access & other) const
 		@LuaOperator ""
@@ -91,6 +92,7 @@ class Access
 			return "protected";
 		case Access_Internal:
 		case Access_Public:
+		case Access_HiddenPublic:
 			return "public";
 		case Access_NotSpecified:
 			return "private /* Not Specified */";
@@ -99,7 +101,7 @@ class Access
 			ss << "Invalid enum value:" << data;
 			MACARONI_THROW(ss.str().c_str());
 			return nullptr;
-		}		
+		}
 	}
 
 	/** True if this will be visible to consumers of a DLL. */
@@ -111,16 +113,17 @@ class Access
 		case Access_Internal:
 		case Access_InternalProtected:
 		case Access_Hidden:
+		case Access_HiddenPublic:
 		case Access_Private:
 		case Access_NotSpecified:
 			return false;
 		case Access_Protected:
-		case Access_Public:				
+		case Access_Public:
 			return true;
 		default:
 			MACARONI_THROW("Invalid enum value!");
 			return false;
-		}		
+		}
 	}
 
 	/** True if this does appear in the header file. */
@@ -137,11 +140,12 @@ class Access
 		case Access_NotSpecified:
 			return true;
 		case Access_Hidden:
+		case Access_HiddenPublic:
 			return false;
 		default:
 			MACARONI_THROW("Invalid enum value!");
 			return false;
-		}		
+		}
 	}
 
 	/** Like public, but not exported when used as a library. */
@@ -166,6 +170,12 @@ class Access
 		@LuaProperty "Hidden"
 	{
 		AccessPtr ptr(new Access(Access_Hidden));
+		return ptr;
+	}
+
+	public static AccessPtr HiddenPublic()
+	{
+		AccessPtr ptr(new Access(Access_HiddenPublic));
 		return ptr;
 	}
 
@@ -207,6 +217,8 @@ class Access
 			return "~inner protected";
 		case Access_Hidden:
 			return "~hidden";
+		case Access_HiddenPublic:
+			return "~hidden public";
 		case Access_Private:
 			return "private";
 		case Access_Protected:
@@ -220,8 +232,8 @@ class Access
 			ss << "Invalid enum value:" << data;
 			MACARONI_THROW(ss.str().c_str());
 			return false;
-		}		
+		}
 	}
-}; 
+};
 
-} // End Macaroni::Model::Cpp 
+} // End Macaroni::Model::Cpp

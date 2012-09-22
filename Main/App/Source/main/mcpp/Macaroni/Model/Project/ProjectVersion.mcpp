@@ -39,11 +39,14 @@
 ~import Macaroni::Environment::Values::Macaroni_Model_Project_Files;
 ~import Macaroni::Environment::Values::Macaroni_Model_Project_Target;
 ~import Macaroni::Model::NodePtr;
+~import boost::optional;
 ~import Macaroni::IO::PathList;
 ~import Macaroni::IO::PathListPtr;
 ~import Macaroni::Model::Project::Project;
 ~import Macaroni::Model::Project::ProjectPtr;
 ~import Macaroni::Model::Reason;
+~import Macaroni::Model::Project::Resource;
+~import Macaroni::Model::Project::ResourcePtrc;
 ~import Macaroni::Exceptions::SimpleStringException;
 ~import std::string;
 ~import Macaroni::Environment::Values::String;
@@ -63,10 +66,64 @@ class Macaroni::Model::Project::ProjectVersionId {
 	public string Group;
 	public string Name;
 	public string Version;
+	private int num;
 
-	public ProjectVersionId(string group, string name, string version)
-	:	Group(group), Name(name), Version(version)
+	~block "cpp"
 	{
+		static int CURRENT = 0;
+	}
+
+	public ProjectVersionId(const string & group,
+		                    const string & name,
+		                    const string & version)
+	:	Group(group), Name(name), Version(version), num(CURRENT++)
+	{
+	}
+
+	public ProjectVersionId()
+	:	Group("~0~"), Name("~0~"), Version("~0~"), num(CURRENT++)
+	{
+	}
+
+	public ProjectVersionId(const ProjectVersionId & other)
+	:	Group(other.Group), Name(other.Name), Version(other.Version),
+	    num(CURRENT++)
+	{
+	}
+
+	public ProjectVersionId & operator=(const ProjectVersionId & other)
+	{
+		Group = other.Group;
+		Name = other.Name;
+		Version = other.Version;
+		return *this;
+	}
+
+	public ~ProjectVersionId()
+	{
+		int five = 5;
+		five = num;
+	}
+
+	public static ProjectVersionId PlaceHolder()
+	{
+		return ProjectVersionId("~0~", "~0~", "~0~");
+	}
+
+	public bool operator ! () const
+	{
+		return this->operator==(PlaceHolder());
+	}
+
+	public bool operator == (const ProjectVersionId & other) const
+	{
+		return other.Group == this->Group && other.Name == this->Name
+		       && other.Version == this->Version;
+	}
+
+	public bool operator != (const ProjectVersionId & other) const
+	{
+		return ! this->operator==(other);
 	}
 
 	public string ToString() const
@@ -90,6 +147,8 @@ class Macaroni::Model::Project::ProjectVersion
 		#include <Macaroni/Environment/Values/Any.h>
 		#include <Macaroni/Environment/Values/AnyPtr.h>
 		#include <Macaroni/Model/Project/Files.h>
+		#include <Macaroni/Model/Project/Resource.h>
+		#include <Macaroni/Model/Project/ResourcePtr.h>
 		#include <Macaroni/Environment/Values/Table.h>
 	}
 {
@@ -155,6 +214,20 @@ class Macaroni::Model::Project::ProjectVersion
 		return fileParseCount;
 	}
 
+	/** Convience method to pluck group name off ProjectVersion. */
+	public string GetGroup() const
+		@LuaProperty "Group"
+	{
+		return this->GetProject()->GetGroup()->GetName();
+	}
+
+	/** Convience method to pluck name off ProjectVersion. */
+	public string GetName() const
+		@LuaProperty "Name"
+	{
+		return this->GetProject()->GetName();
+	}
+
 	public Macaroni::Model::Project::ProjectPtr GetProject() const
 		@LuaProperty "Project"
 	{
@@ -175,6 +248,27 @@ class Macaroni::Model::Project::ProjectVersion
 		}
 		TargetPtr ptr;
 		return ptr;
+	}
+
+	~block "h"
+	{
+		public: template<typename T>
+		T GetTargetOfType(const std::string & name)
+		{
+			TargetPtr target = this->GetTarget(name);
+			if (target)
+			{
+				T::element_type * typedPtr =
+					dynamic_cast<T::element_type *>(target.get());
+				if (0 != typedPtr)
+				{
+					T typedSmartPtr(typedPtr);
+					return typedSmartPtr;
+				}
+			}
+			T empty;
+			return empty;
+		}
 	}
 
 	~block "cpp"
@@ -241,7 +335,6 @@ class Macaroni::Model::Project::ProjectVersion
 		}
 		PathListPtr sources = table.Get<Macaroni_IO_PathList>("sources");
 
-
 		vector<TargetPtr> dependencies;
 
 		if (table.Has("dependencies"))
@@ -264,8 +357,15 @@ class Macaroni::Model::Project::ProjectVersion
 			table.ToVector<Macaroni_Model_Project_Target, Func>(f);
 		}
 
+		optional<string> shortName;
+		if (table.Has("shortName"))
+		{
+			shortName = table.Get<String>("shortName");
+		}
+
+		PathListPtr excludeFiles;
 		LibraryTargetPtr lib = LibraryTarget::Create(
-			this, name, dependencies, headers, sources);
+			this, name, shortName, dependencies, headers, sources, excludeFiles);
 		//addTarget(lib.get());
 		return lib;
 	}
@@ -336,6 +436,11 @@ class Macaroni::Model::Project::ProjectVersion
 		}
 		PathListPtr sources = table.Get<Macaroni_IO_PathList>("sources");
 
+		PathListPtr excludeFiles;
+		if (table.Has("excludeFiles"))
+		{
+			excludeFiles = table.Get<Macaroni_IO_PathList>("excludeFiles");
+		}
 
 		vector<TargetPtr> dependencies;
 
@@ -360,8 +465,14 @@ class Macaroni::Model::Project::ProjectVersion
 				"dependencies", f);
 		}
 
+		optional<string> shortName;
+		if (table.Has("shortName"))
+		{
+			shortName = table.Get<String>("shortName");
+		}
+
 		LibraryTargetPtr lib = LibraryTarget::Create(
-			this, name, dependencies, headers, sources);
+			this, name, shortName, dependencies, headers, sources, excludeFiles);
 		//addTarget(lib.get());
 		return lib;
 	}
@@ -377,6 +488,45 @@ class Macaroni::Model::Project::ProjectVersion
 	//	return lib;
 	//}*/
 
+	public ResourcePtr Resource(Table & table)
+		@LuaFunction "Resource"
+		@LuaGlueCode ={
+			ProjectVersionPtr & instance =
+				ProjectVersionLuaMetaData::GetInstance(L, 1);
+			Table table;
+			boost::optional<string> key("Resource argument 2");
+			LuaEnvironment::SerializeTable(table, L, 2, key);
+
+			ResourcePtr lib = instance->Resource(table);
+
+			ResourceLuaMetaData::PutInstanceOnStack(L, lib);
+			return 1;
+		}
+	{
+		string name = table.Get<String>("name");
+		string type = table.Get<String>("type");
+		//FilesPtr sources = table.Get<Macaroni_Model_Project_Files>("sources");
+		PathListPtr files;
+		if (table.Has("files"))
+		{
+			files = table.Get<Macaroni_IO_PathList>("files");
+		}
+		else
+		{
+			files.reset(new PathList());
+		}
+		ResourcePtr resource = this->Resource(name, type, files);
+		return resource;
+	}
+
+	public ResourcePtr Resource(string name, string type, PathListPtr files)
+	{
+		optional<string> nothing = boost::none;
+		ResourcePtr resource = Resource::Create(this, name, nothing,
+			                                    type, files);
+		return resource;
+	}
+
 	public TargetPtr Target(const std::string & name)
 		@LuaFunction "Target"
 	{
@@ -384,7 +534,7 @@ class Macaroni::Model::Project::ProjectVersion
 		TargetPtr target = GetTarget(name);
 		if (!target)
 		{
-			target.reset(new Target(this, name));
+			target.reset(new Target(this, name, boost::none));
 			//addTarget(target.get());
 		}
 		return target;

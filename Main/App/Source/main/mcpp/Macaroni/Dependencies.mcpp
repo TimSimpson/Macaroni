@@ -22,6 +22,7 @@ class std::istream { ~hfile=<iostream> };
 class std::map { ~hfile=<map> };
 class std::ofstream { ~hfile=<iostream> };
 class std::ostream { ~hfile=<iostream> };
+class std::set { ~hfile=<set> };
 class std::stringstream { ~hfile=<sstream> };
 class std::string { ~hfile=<string> };
 class std::vector { ~hfile=<vector> };
@@ -85,7 +86,7 @@ class Macaroni::Build::Cpp::CompilerSettingsPtr { ~hfile=<Macaroni/Build/Cpp/Com
 class Macaroni::Build::Configuration { ~hfile=<Macaroni/Build/Configuration.h> };
 class Macaroni::Build::ConfigurationId { ~hfile=<Macaroni/Build/ConfigurationId.h> };
 class Macaroni::Model::ContextLuaMetaData { ~hfile=<Macaroni/Model/ContextLua.h> };
-class Macaroni::Model::ContextPtr 
+class Macaroni::Model::ContextPtr
 	@LuaClass [ SameAsNode=Macaroni::Model::Context ]
 	{ ~hfile=<Macaroni/Model/ContextPtr.h> };
 

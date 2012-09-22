@@ -1,5 +1,7 @@
 namespace boost
 {
+    class BOOST_FOREACH { ~hfile=<boost/foreach.hpp> };
     class intrusive_ptr { ~hfile=<boost/intrusive_ptr.hpp> };
-    class shared_ptr { ~hfile=<boost/shared_ptr.hpp> };
+    class format { ~hfile=<boost/format.hpp> };
+    class shared_ptr { ~hfile=<boost/shared_ptr.hpp> };    
 }

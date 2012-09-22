@@ -43,7 +43,8 @@ BEGIN_NAMESPACE2(Macaroni, Environment)
 
 
 LuaEnvironment::LuaEnvironment(lua_State * L)
-:input(nullptr), iOwnLuaState(L == nullptr), state(nullptr)
+: input(nullptr), iOwnLuaState(L == nullptr), packageDirectories(),
+  state(nullptr)
 {
 	if (L == nullptr)
 	{
@@ -51,7 +52,7 @@ LuaEnvironment::LuaEnvironment(lua_State * L)
 		luaL_openlibs(state);
 		registerInternalLuaModules();
 	}
-	else 
+	else
 	{
 		state = L;
 	}
@@ -61,13 +62,19 @@ LuaEnvironment::~LuaEnvironment()
 {
 	if (iOwnLuaState)
 	{
-		lua_close(state);		
+		lua_close(state);
 	}
 	if (input != nullptr)
 	{
 		input->close();
 		delete input;
 	}
+}
+
+void LuaEnvironment::AddPackageDirectory(const std::string & path)
+{
+	packageDirectories.push_back(path);
+	setPackagePath();
 }
 
 void LuaEnvironment::BLARGOS()
@@ -77,7 +84,7 @@ void LuaEnvironment::BLARGOS()
 	//if (lua_isnil(L, -1) != 1)
 	//{
 	//	return 0; // Already loaded, DO NOT WASTE TIME DUMMY.
-	//}			
+	//}
 }
 
 void LuaEnvironment::CreateNewTableFromStringPairs(lua_State * L, std::vector<StringPair> & pairs)
@@ -118,7 +125,7 @@ void LuaEnvironment::GetFromGlobalVarOrDefault(std::string & rtnValue, const cha
 		else
 		{
 			std::stringstream ss;
-			ss << "The value with name " 
+			ss << "The value with name "
 				<< name << " was expected to be nil or a string, but it was "
 				"something else.";
 			MACARONI_FAIL(ss.str().c_str());
@@ -128,7 +135,7 @@ void LuaEnvironment::GetFromGlobalVarOrDefault(std::string & rtnValue, const cha
 	{
 		rtnValue = std::string(dflt);
 	}
-	lua_pop(state, 1);	
+	lua_pop(state, 1);
 }
 
 std::vector<StringPair> LuaEnvironment::GetStringPairsFromGlobalTable(const char * tableName)
@@ -154,18 +161,18 @@ std::vector<StringPair> LuaEnvironment::GetStringPairsFromTable()
 std::vector<StringPair> LuaEnvironment::GetStringPairsFromTable(lua_State * L, bool errorIfNotStrings)
 {
 	std::vector<StringPair> bag;
-	
+
 	lua_pushnil(L); // first key
 	const int tableIndex = -2;
 	while(lua_next(L, tableIndex)  != 0)
 	{
-		StringPair entry;		
+		StringPair entry;
 		if (lua_isstring(L, -2))
 		{
 			entry.Name = lua_tolstring(L, -2, NULL);
 			if (lua_isstring(L, -1))
 			{
-				entry.Value = lua_tolstring(L, -1, NULL);				
+				entry.Value = lua_tolstring(L, -1, NULL);
 				bag.push_back(entry);
 			}
 			else if (errorIfNotStrings)
@@ -178,7 +185,7 @@ std::vector<StringPair> LuaEnvironment::GetStringPairsFromTable(lua_State * L, b
 		}
 		lua_pop(L, 1); // pops off value, saves key
 	}
-	
+
 	return bag;
 }
 
@@ -197,7 +204,7 @@ std::vector<std::string> LuaEnvironment::GetVectorFromCurrentTable(
 	lua_gettable(state, -2); // get table
 	if (lua_istable(state, -1))
 	{
-		vec = GetVectorFromTable();		
+		vec = GetVectorFromTable();
 	}
 
 	lua_pop(state, 1);
@@ -221,8 +228,8 @@ std::vector<std::string> LuaEnvironment::GetVectorFromGlobalTable(const char * t
 
 std::vector<std::string> LuaEnvironment::GetVectorFromTable()
 {
-	std::vector<std::string> vec;	
-	
+	std::vector<std::string> vec;
+
 	lua_pushnil(state); // first key
 	const int tableIndex = -2;
 	while(lua_next(state, tableIndex)  != 0)
@@ -234,7 +241,7 @@ std::vector<std::string> LuaEnvironment::GetVectorFromTable()
 		}
 		lua_pop(state, 1); // pops off value, saves key
 	}
-	
+
 	return vec;
 }
 
@@ -247,27 +254,27 @@ const char * LuaEnvironment::loadFile(lua_State * L, void * data, size_t * size)
 {
 	static char block[512];
 	LuaEnvironment * object = (LuaEnvironment *) data;
-	std::ifstream * input = object->input;		
+	std::ifstream * input = object->input;
 	if (input->eof())
 	{
 		*size =0;
 		return nullptr;
-	}			
-	input->read(block, 512);	
+	}
+	input->read(block, 512);
 	*size = input->gcount();
-		
-	return block;		
+
+	return block;
 }
 
 const char * LuaEnvironment::loadString(lua_State * L, void * data, size_t * size)
-{	
+{
 	const char * src = (const char *) data;
 	*size = strnlen(src, 2^16);
 	return src;
 }
 
 void LuaEnvironment::ParseFile(std::string filePath)
-{	
+{
 	input = new std::ifstream(filePath.c_str(), std::ios::binary);
 	if (!input->is_open())
 	{
@@ -279,14 +286,14 @@ void LuaEnvironment::ParseFile(std::string filePath)
 	{
 		std::string line;
 		lua_Reader reader = loadFile;
-		// limit file name to 45 characters in case a stack trace 
+		// limit file name to 45 characters in case a stack trace
 		// truncates it.
 		std::string shortName = filePath.size() < 43 ? filePath
 			: filePath.substr(filePath.size() - 43);
 		int eCode = lua_load(this->state,reader, ((void *)this), shortName.c_str());
 
 		if (eCode != 0)
-		{	
+		{
 			std::stringstream ss;
 			ss << "Error while loading Lua file \"";
 			ss << filePath << "\" : ";
@@ -294,7 +301,7 @@ void LuaEnvironment::ParseFile(std::string filePath)
 			//std::cerr << ss.str() <<  std::endl;
 			Macaroni::ThrowMacaroniException(filePath.c_str(), 0, ss.str().c_str());
 		}
-		input->close();			
+		input->close();
 	}
 }
 
@@ -305,7 +312,7 @@ void LuaEnvironment::ParseString(const char * chunkName, const char * code)
 	int eCode = luaL_loadbuffer(this->state, code, strnlen(code, 80 * 10000), chunkName);
 		//|| lua_pcall(L, 0, 0, 0);
 	if (eCode != 0)
-	{	
+	{
 		std::stringstream ss;
 		ss << "Error while loading Lua string with chunkName \""
 			<< chunkName << "\" containing the following code: "
@@ -325,16 +332,16 @@ void LuaEnvironment::Run(int results)
 MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(LuaRunException,
 	"Error running Lua: %s")
 
-void LuaEnvironment::Run(const Macaroni::InternalSource & source, 
+void LuaEnvironment::Run(const Macaroni::InternalSource & source,
 				         lua_State * L, int args, int results)
 {
 	int eCode = lua_pcall(L, args, results, 0);
 	if (eCode != 0)
-	{	
+	{
 		const char * msg;
-		//ss << "Error running Lua (invoked at file " 
-		//	<< source.FileName << ", line " << source.Line << ")"; 
-		if (lua_isstring(L, -1)) 
+		//ss << "Error running Lua (invoked at file "
+		//	<< source.FileName << ", line " << source.Line << ")";
+		if (lua_isstring(L, -1))
 		{
 			//ss << ":";
 			msg = luaL_checkstring(L, -1);
@@ -350,18 +357,18 @@ void LuaEnvironment::Run(const Macaroni::InternalSource & source,
 					  "failed.)";
 			} else {
 				msg = luaL_checkstring(L, -1);
-			}			
+			}
 		}
 		throw LuaRunException(msg, source);
-	}	
+	}
 }
 
 ////void LuaEnvironment::Run(const Macaroni::InternalSource & source,
 ////						 lua_State * L,
-////						 LuaEnvironment::FunctionSetup & setup, 
+////						 LuaEnvironment::FunctionSetup & setup,
 ////						 int results)
 ////{
-////	// Put debug and traceback into the stack. When we make the call we want 
+////	// Put debug and traceback into the stack. When we make the call we want
 ////	// this to handle any errors.
 ////	lua_pushliteral(L, "debug");
 ////	lua_gettable(L, LUA_GLOBALSINDEX);
@@ -372,11 +379,11 @@ void LuaEnvironment::Run(const Macaroni::InternalSource & source,
 ////	const int debugIndex = 0 - argCount - 2;
 ////	int eCode = lua_pcall(L, argCount, results, debugIndex);
 ////	if (eCode != 0)
-////	{	
+////	{
 ////		std::stringstream ss;
-////		ss << "Error running Lua (invoked at file " 
-////			<< file << ", line " << lineNumber << ")"; 
-////		if (lua_isstring(L, -1)) 
+////		ss << "Error running Lua (invoked at file "
+////			<< file << ", line " << lineNumber << ")";
+////		if (lua_isstring(L, -1))
 ////		{
 ////			ss << ":";
 ////			ss << luaL_checkstring(L, -1);
@@ -396,19 +403,19 @@ void LuaEnvironment::Run(const Macaroni::InternalSource & source,
 ////
 ////		}
 ////		throw Macaroni::StringException(source, ss.str().c_str());
-////	}	
+////	}
 ////}
 
-void LuaEnvironment::SerializeField(std::stringstream & cereal, int depth, 
-									int fieldIndex) 
+void LuaEnvironment::SerializeField(std::stringstream & cereal, int depth,
+									int fieldIndex)
 {
 	LuaEnvironment::SerializeField(this->state, cereal, depth, fieldIndex);
 }
 
-void LuaEnvironment::SerializeField(lua_State * state, 
-									std::stringstream & cereal, int depth, 
-									int fieldIndex) 
-{	
+void LuaEnvironment::SerializeField(lua_State * state,
+									std::stringstream & cereal, int depth,
+									int fieldIndex)
+{
 	if (lua_isnumber(state, fieldIndex))
 	{
 		double d = lua_tonumber(state, fieldIndex);
@@ -429,7 +436,7 @@ void LuaEnvironment::SerializeField(lua_State * state,
 	}
 	else if (lua_isstring(state, fieldIndex)) // MUST BE LAST IN LIST!
 	{
-		// lua_isstring returns true if its a string or a number. This causes 
+		// lua_isstring returns true if its a string or a number. This causes
 		// what in many cases might be a key value to be changed into a string
 		// and messed up the table iteration code (lua_next warns explicitly
 		// not to change the type of the key, but I had no idea until now that
@@ -440,20 +447,20 @@ void LuaEnvironment::SerializeField(lua_State * state,
 		cereal << value;
 		cereal << "]====]";
 	}
-	else 
+	else
 	{
 		std::stringstream msg;
 		msg << "Element within table had a value whose type cannot be "
-			<< "handled by the serialize function. " 
+			<< "handled by the serialize function. "
 			<< "Current data is as follows: " << cereal;
-		throw Macaroni::StringException(msg.str().c_str());	
+		throw Macaroni::StringException(msg.str().c_str());
 	}
 }
 
-void LuaEnvironment::serializeString(lua_State * state, 
-									 std::stringstream & cereal, 
+void LuaEnvironment::serializeString(lua_State * state,
+									 std::stringstream & cereal,
 									 std::string str)
-{	
+{
 	BOOST_FOREACH(char ch, str)
 	{
 		if (ch == '\"')
@@ -464,7 +471,7 @@ void LuaEnvironment::serializeString(lua_State * state,
 		{
 			cereal << "\\\\";
 		}
-		else 
+		else
 		{
 			cereal << ch;
 		}
@@ -476,7 +483,7 @@ void LuaEnvironment::SerializeTable(lua_State * L, std::stringstream & ss)
 	LuaEnvironment::serializeTable(L, ss, 0);
 }
 
-void LuaEnvironment::SerializeTable(std::stringstream & ss, 
+void LuaEnvironment::SerializeTable(std::stringstream & ss,
 									const std::string & tableName)
 {
 	lua_getglobal(state, tableName.c_str());
@@ -491,15 +498,15 @@ void LuaEnvironment::SerializeTable(std::stringstream & ss,
 
 
 /** Expects table to be at -1 on the stack. */
-void LuaEnvironment::serializeTable(lua_State * state, 
-									std::stringstream & cereal, int depth) 
+void LuaEnvironment::serializeTable(lua_State * state,
+									std::stringstream & cereal, int depth)
 {
 	if (!lua_istable(state, -1))
-	{		
+	{
 		throw Macaroni::StringException(
 			"Expected table to be at top of stack for invocation of "
 			"serializeTable function.");
-	}	
+	}
 	cereal << "{ " << std::endl;
 	lua_pushnil(state); // first key
 	const int tableIndex = -2;
@@ -513,7 +520,7 @@ void LuaEnvironment::serializeTable(lua_State * state,
 		//{
 		//	std::stringstream msg;
 		//	msg << "Element within table had a key which was not a string. "
-		//		<< "Serialize function cannot handle this.  The current " 
+		//		<< "Serialize function cannot handle this.  The current "
 		//		<< "serialized data is as follows: " << cereal;
 		//	throw Macaroni::Exception(msg.str().c_str());
 		//}
@@ -528,23 +535,23 @@ void LuaEnvironment::serializeTable(lua_State * state,
 		}
 		SerializeField(state, cereal, depth, -2);
 		// std::string keyName(lua_tostring(state, -2));
-		//serializeString(state, cereal, keyName);		
+		//serializeString(state, cereal, keyName);
 		cereal << " ]";
 		cereal << " = ";
-		SerializeField(state, cereal, depth, -1);	
+		SerializeField(state, cereal, depth, -1);
 		cereal << ", ";
 		cereal << std::endl;
-		lua_pop(state, 1); // pops off value, saves key		
+		lua_pop(state, 1); // pops off value, saves key
 	}
 	for (int i = 0; i < depth - 1; i ++)
 	{
 		cereal << "\t";
 	}
-	cereal << "}";	
+	cereal << "}";
 }
 
 MACARONI_SIMPLE_EXCEPTION_DEFINE(
-	RegistryTableKeyNotString, 
+	RegistryTableKeyNotString,
 	"A registry table value matched the meta table, but its key was not a "
 	"string.");
 
@@ -554,9 +561,9 @@ Values::AnyPtr LuaEnvironment::SerializeValue(lua_State * state, int index,
 {
 	Values::AnyPtr rtn;
 	if (lua_isnumber(state, index))
-	{		
+	{
 		double d = lua_tonumber(state, index);
-		rtn.reset(new Values::Double(d));		
+		rtn.reset(new Values::Double(d));
 	}
 	else if (lua_isboolean(state, index))
 	{
@@ -575,7 +582,7 @@ Values::AnyPtr LuaEnvironment::SerializeValue(lua_State * state, int index,
 	}
 	else if (lua_isstring(state, index)) // MUST BE LAST IN LIST!
 	{
-		// lua_isstring returns true if its a string or a number. This causes 
+		// lua_isstring returns true if its a string or a number. This causes
 		// what in many cases might be a key value to be changed into a string
 		// and messed up the table iteration code (lua_next warns explicitly
 		// not to change the type of the key, but I had no idea until now that
@@ -590,13 +597,13 @@ Values::AnyPtr LuaEnvironment::SerializeValue(lua_State * state, int index,
 		if (lua_getmetatable(state, index))
 		{
 			// Now, go through the Lua registry and see if it matches anything.
-			lua_pushvalue(state, LUA_REGISTRYINDEX);			
+			lua_pushvalue(state, LUA_REGISTRYINDEX);
 			// for each key, value in pairs(registry_table)
-			lua_pushnil(state); // first	
+			lua_pushnil(state); // first
 			while(0 != lua_next(state, -2))
-			{					
+			{
 				const int valueIndex = -1;
-				const int keyIndex = -2;				
+				const int keyIndex = -2;
 				const int registryTableIndex = -3;
 				const int metaTableIndex = -4;
 				if (1 == lua_equal(state, valueIndex, metaTableIndex))
@@ -615,28 +622,28 @@ Values::AnyPtr LuaEnvironment::SerializeValue(lua_State * state, int index,
 			if (metaTableName)
 			{
 				const string & name = metaTableName.get();
-				rtn = Values::Any::CreateFromLuaUserData(state, 
+				rtn = Values::Any::CreateFromLuaUserData(state,
 					metaTableName.get(), index);
 			}
 		}
-		if (!rtn) 
+		if (!rtn)
 		{
 			std::stringstream msg;
 			msg << "Element within table had a value whose type cannot be "
 				<< "handled by the serialize function. ";
 			if (metaTableName)
 			{
-				msg << "Meta table name seems to be: " << metaTableName.get() 
+				msg << "Meta table name seems to be: " << metaTableName.get()
 					<< " ";
 			}
 			if (key)
 			{
 				msg << "The value was at key: " << key.get();
-			}					
-			throw Macaroni::StringException(msg.str().c_str());	
-		}		
+			}
+			throw Macaroni::StringException(msg.str().c_str());
+		}
 	}
-	else 
+	else
 	{
 		std::stringstream msg;
 		msg << "Element within table had a value whose type cannot be "
@@ -644,8 +651,8 @@ Values::AnyPtr LuaEnvironment::SerializeValue(lua_State * state, int index,
 		if (key)
 		{
 			msg << "The value was at key: " << key.get();
-		}			
-		throw Macaroni::StringException(msg.str().c_str());	
+		}
+		throw Macaroni::StringException(msg.str().c_str());
 	}
 	return rtn;
 }
@@ -665,11 +672,11 @@ MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(
 	"field: %s");
 
 void LuaEnvironment::SerializeTable(
-	Values::Table & table, lua_State * state, int index, 
+	Values::Table & table, lua_State * state, int index,
 	optional<string> currentKey)
 {
 	if (!lua_istable(state, index))
-	{		
+	{
 		throw TableNotFoundException(index, MACARONI_INTERNAL_SOURCE);
 	}
 	lua_pushvalue(state, index);
@@ -677,12 +684,12 @@ void LuaEnvironment::SerializeTable(
 	lua_pushnil(state); // first key
 	const int tableIndex = -2;
 	while(lua_next(state, tableIndex)  != 0)
-	{		
+	{
 		// key is at -2, (do NOT use lua_tolstring)
 		if (lua_isnumber(state, -2))
 		{
 			int keyName = (int) lua_tonumber(state, -2);
-			string whatKey = currentKey 
+			string whatKey = currentKey
 				? str(format("%s.%d") % currentKey.get() % keyName)
 				: str(format("%d") % keyName);
 			Values::AnyPtr field = SerializeValue(state, -1, whatKey);
@@ -691,8 +698,8 @@ void LuaEnvironment::SerializeTable(
 		else if (lua_isstring(state, -2))
 		{
 			string keyName = lua_tostring(state, -2);
-			string whatKey = currentKey 
-				? str(format("%s.%s") % currentKey.get() % keyName) 
+			string whatKey = currentKey
+				? str(format("%s.%s") % currentKey.get() % keyName)
 				: keyName;
 			Values::AnyPtr field = SerializeValue(state, -1, whatKey);
 			table.SetAndGiveReference(keyName, field);
@@ -700,37 +707,42 @@ void LuaEnvironment::SerializeTable(
 		else
 		{
 			throw KeyNotStringException(
-				currentKey ? currentKey.get().c_str() : "unknown", 
+				currentKey ? currentKey.get().c_str() : "unknown",
 				MACARONI_INTERNAL_SOURCE);
 		}
-		lua_pop(state, 1); // pops off value, saves key		
+		lua_pop(state, 1); // pops off value, saves key
 	}
 	// Pop off the table.
 	lua_pop(state, 1);
 }
 
-
-
-
+//packageDirectories
 void LuaEnvironment::SetPackageDirectory(const std::vector<std::string> & paths)
 {
-	lua_getglobal(GetState(), "package");
-	lua_pushstring(GetState(), "path");
-	std::stringstream ss;
-	BOOST_FOREACH(const std::string & path, paths)
-	{
-		ss << path << "/?.lua;";
-	}	
-	lua_pushstring(GetState(), ss.str().c_str());
-	lua_settable(GetState(), -3);
-	lua_pop(GetState(), 1);
+	packageDirectories = paths;
+	setPackagePath();
 }
 
 void LuaEnvironment::SetPackageDirectory(const std::string & path)
 {
 	std::vector<std::string> vec;
 	vec.push_back(path);
-	SetPackageDirectory(vec);
+	packageDirectories = vec;
+	setPackagePath();
+}
+
+void LuaEnvironment::setPackagePath()
+{
+	lua_getglobal(GetState(), "package");
+	lua_pushstring(GetState(), "path");
+	std::stringstream ss;
+	BOOST_FOREACH(const std::string & path, packageDirectories)
+	{
+		ss << path << "/?.lua;";
+	}
+	lua_pushstring(GetState(), ss.str().c_str());
+	lua_settable(GetState(), -3);
+	lua_pop(GetState(), 1);
 }
 
 END_NAMESPACE2

@@ -3,7 +3,7 @@
 import boost ;
 import path ;
 
-use-project /boost : "F:/Tools/boost_1_46_1" ;
+use-project /boost : "C:/Users/Tim/Tools/Local/Boost/boost_1_46_1" ;
 
 alias library
 	: /boost//headers

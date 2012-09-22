@@ -1,0 +1,152 @@
+warning: No toolsets are configured.
+warning: Configuring default toolset "msvc".
+warning: If the default is wrong, your build may not work correctly.
+warning: Use the "toolset=xxxxx" option to override our guess.
+warning: For more configuration options, please consult
+warning: http://boost.org/boost-build2/doc/html/bbv2/advanced/configuration.html
+common.mkdir GeneratedSource\bin
+
+        if not exist "GeneratedSource\bin\\" mkdir "GeneratedSource\bin"
+    
+common.mkdir GeneratedSource\bin\msvc
+
+        if not exist "GeneratedSource\bin\msvc\\" mkdir "GeneratedSource\bin\msvc"
+    
+common.mkdir GeneratedSource\bin\msvc\debug
+
+        if not exist "GeneratedSource\bin\msvc\debug\\" mkdir "GeneratedSource\bin\msvc\debug"
+    
+common.mkdir GeneratedSource\bin\msvc\debug\threading-multi
+
+        if not exist "GeneratedSource\bin\msvc\debug\threading-multi\\" mkdir "GeneratedSource\bin\msvc\debug\threading-multi"
+    
+
+file GeneratedSource\bin\msvc\debug\threading-multi\1093748135.obj.rsp
+"C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Tests\Features\AccessTypes\App\Source\Test.cpp"
+ -Fo"GeneratedSource\bin\msvc\debug\threading-multi\1093748135.obj"
+    -TP
+ /Z7
+ /Od
+ /Ob0
+ /W3
+ /GR
+ /MDd
+ /Zc:forScope
+ /Zc:wchar_t
+ /wd4675
+ /EHs
+ -c
+ 
+-DMACARONI_LIB_DYN_LINK_Macaroni___Macaroni_46_Tests_46_Features_46_AccessTypes_46_App____48__46_1_46_0_46_24___Test=1
+ 
+-DMACARONI_LIB_DYN_LINK_Macaroni___Macaroni_46_Tests_46_Features_46_AccessTypes_46_Lib____48__46_1_46_0_46_24___lib=1
+ 
+"-IC:\Users\Tim\Tools\Local\Boost\boost_1_49_0"
+ 
+"-IC:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Libraries\Macaroni\Boost-headers\1.49\.mh$"
+ 
+"-IC:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Libraries\Macaroni\Boost-headers\1.49\Source"
+ 
+"-IC:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Libraries\Macaroni\CppStd\2003\.mh$"
+ 
+"-IC:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Libraries\Macaroni\CppStd\2003\Source"
+ 
+"-IC:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Tests\Features\AccessTypes\App\GeneratedSource"
+ 
+"-IC:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Tests\Features\AccessTypes\App\Source"
+ 
+"-IC:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Tests\Features\AccessTypes\Lib\Source"
+ 
+"-IC:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Tests\Features\AccessTypes\Lib\target"
+
+compile-c-c++ GeneratedSource\bin\msvc\debug\threading-multi\1093748135.obj
+
+    call "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\vcvarsall.bat" x86 >nul
+cl /Zm800 -nologo @"GeneratedSource\bin\msvc\debug\threading-multi\1093748135.obj.rsp" 
+
+Test.cpp
+
+file GeneratedSource\bin\msvc\debug\threading-multi\1919220092.obj.rsp
+"C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Tests\Features\AccessTypes\App\GeneratedSource\SomethingElse.cpp"
+ -Fo"GeneratedSource\bin\msvc\debug\threading-multi\1919220092.obj"
+    -TP
+ /Z7
+ /Od
+ /Ob0
+ /W3
+ /GR
+ /MDd
+ /Zc:forScope
+ /Zc:wchar_t
+ /wd4675
+ /EHs
+ -c
+ 
+-DMACARONI_LIB_DYN_LINK_Macaroni___Macaroni_46_Tests_46_Features_46_AccessTypes_46_App____48__46_1_46_0_46_24___lib=1
+ 
+-DMACARONI_LIB_DYN_LINK_Macaroni___Macaroni_46_Tests_46_Features_46_AccessTypes_46_Lib____48__46_1_46_0_46_24___lib=1
+ 
+"-IC:\Users\Tim\Tools\Local\Boost\boost_1_49_0"
+ 
+"-IC:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Libraries\Macaroni\Boost-headers\1.49\.mh$"
+ 
+"-IC:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Libraries\Macaroni\Boost-headers\1.49\Source"
+ 
+"-IC:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Libraries\Macaroni\CppStd\2003\.mh$"
+ 
+"-IC:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Libraries\Macaroni\CppStd\2003\Source"
+ 
+"-IC:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Tests\Features\AccessTypes\App\GeneratedSource"
+ 
+"-IC:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Tests\Features\AccessTypes\App\Source"
+ 
+"-IC:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Tests\Features\AccessTypes\Lib\Source"
+ 
+"-IC:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Tests\Features\AccessTypes\Lib\target"
+
+compile-c-c++ GeneratedSource\bin\msvc\debug\threading-multi\1919220092.obj
+
+    call "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\vcvarsall.bat" x86 >nul
+cl /Zm800 -nologo @"GeneratedSource\bin\msvc\debug\threading-multi\1919220092.obj.rsp" 
+
+SomethingElse.cpp
+
+file GeneratedSource\bin\msvc\debug\threading-multi\AccessTypesApp.dll.rsp
+
+"C:\Users\Tim\Macaroni\Libraries\Macaroni\Macaroni.Tests.Features.AccessTypes.Lib\0.1.0.24\target\bin\msvc\debug\threading-multi\AccessTypesLib.lib"
+ 
+"GeneratedSource\bin\msvc\debug\threading-multi\1919220092.obj"
+ 
+"C:\Users\Tim\Macaroni\Libraries\Macaroni\Macaroni.Tests.Features.AccessTypes.Lib\0.1.0.24\target\bin\msvc\debug\threading-multi\AccessTypesLib.lib"
+    
+msvc.link.dll GeneratedSource\bin\msvc\debug\threading-multi\AccessTypesApp.dll
+
+        call "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\vcvarsall.bat" x86 >nul
+link /NOLOGO /INCREMENTAL:NO /DLL /DEBUG /MACHINE:X86 /subsystem:console /out:"GeneratedSource\bin\msvc\debug\threading-multi\AccessTypesApp.dll" /IMPLIB:"GeneratedSource\bin\msvc\debug\threading-multi\AccessTypesApp.lib"    @"GeneratedSource\bin\msvc\debug\threading-multi\AccessTypesApp.dll.rsp"
+        if %ERRORLEVEL% NEQ 0 EXIT %ERRORLEVEL%
+    
+msvc.manifest.dll GeneratedSource\bin\msvc\debug\threading-multi\AccessTypesApp.dll
+        
+        if exist "GeneratedSource\bin\msvc\debug\threading-multi\AccessTypesApp.dll.manifest" (
+            call "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\vcvarsall.bat" x86 >nul
+mt -nologo -manifest "GeneratedSource\bin\msvc\debug\threading-multi\AccessTypesApp.dll.manifest" "-outputresource:GeneratedSource\bin\msvc\debug\threading-multi\AccessTypesApp.dll;2"
+        )
+    
+
+file GeneratedSource\bin\msvc\debug\threading-multi\MACARONI_TEST_TARGET_Test.exe.rsp
+
+"GeneratedSource\bin\msvc\debug\threading-multi\AccessTypesApp.lib"
+ 
+"GeneratedSource\bin\msvc\debug\threading-multi\1093748135.obj"
+ 
+"C:\Users\Tim\Macaroni\Libraries\Macaroni\Macaroni.Tests.Features.AccessTypes.Lib\0.1.0.24\target\bin\msvc\debug\threading-multi\AccessTypesLib.lib"
+    
+msvc.link GeneratedSource\bin\msvc\debug\threading-multi\MACARONI_TEST_TARGET_Test.exe
+
+        call "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\vcvarsall.bat" x86 >nul
+link /NOLOGO /INCREMENTAL:NO /DEBUG /MACHINE:X86 /subsystem:console /out:"GeneratedSource\bin\msvc\debug\threading-multi\MACARONI_TEST_TARGET_Test.exe"   @"GeneratedSource\bin\msvc\debug\threading-multi\MACARONI_TEST_TARGET_Test.exe.rsp"
+        if %ERRORLEVEL% NEQ 0 EXIT %ERRORLEVEL%
+    
+LINK : fatal error LNK1181: cannot open input file 'GeneratedSource\bin\msvc\debug\threading-multi\AccessTypesApp.lib'
+...skipped <pGeneratedSource\bin\msvc\debug\threading-multi>MACARONI_TEST_TARGET_Test.passed for lack of <pGeneratedSource\bin\msvc\debug\threading-multi>MACARONI_TEST_TARGET_Test.exe...
+...failed updating 2 targets...

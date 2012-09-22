@@ -15,19 +15,19 @@ they work as expected.
 ]]
 
 
-function generate()   
+function generate()
 end
 
-function build()   
+function build()
 end
 
-function install()   
+function install()
 end
 
 children =
 {
 	"Lib",
-	"App",		
+	"App",
 }
 
 

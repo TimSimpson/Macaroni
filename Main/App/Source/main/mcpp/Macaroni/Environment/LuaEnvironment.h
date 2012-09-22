@@ -50,6 +50,10 @@ public:
 	LuaEnvironment(lua_State * L = nullptr);
 	~LuaEnvironment();
 
+	/** Adds a package directory that can be found with the "required"
+	 *  keyword. */
+	void AddPackageDirectory(const std::string & path);
+
 	/** Creates a new table in otherL at the top of the stack and populates
 	 * it with the pairs of strings. */
 	static void CreateNewTableFromStringPairs(lua_State * otherL, std::vector<StringPair> & pairs);
@@ -103,7 +107,7 @@ public:
 	static void Run(const Macaroni::InternalSource & source,
 		            lua_State * L, int args, int results);
 
-	/////* Calls a function. The functor must push all of this to the top of the 
+	/////* Calls a function. The functor must push all of this to the top of the
 	//// * stack. */
 	////static void Run(const Macaroni::InternalSource & source,
 	////	            lua_State * L, FunctionSetup & funcSetup, int results);
@@ -132,8 +136,10 @@ public:
 	static void SerializeTable(Values::Table & table, lua_State * L, int index,
 		                    boost::optional<std::string> key=boost::none);
 
+	/** Sets the package directories (clears previous settings). */
 	void SetPackageDirectory(const std::string & path);
 
+	/** Sets a single package directory (clears previous settings). */
 	void SetPackageDirectory(const std::vector<std::string> & paths);
 
 private:
@@ -142,10 +148,12 @@ private:
 	static const char * loadFile(lua_State * L, void * data, size_t *size);
 	static const char * loadString(lua_State * L, void * data, size_t *size);
 	void registerInternalLuaModules();
+	std::vector<std::string> packageDirectories;
 	static void serializeString(lua_State * L, std::stringstream & cereal,
 								std::string str);
 	static void serializeTable(lua_State * L, std::stringstream & cereal,
 							   int depth);
+	void setPackagePath();
 	lua_State * state;
 };
 

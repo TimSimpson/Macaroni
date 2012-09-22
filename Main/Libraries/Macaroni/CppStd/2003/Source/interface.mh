@@ -57,3 +57,4 @@ class ldiv			{ ~hfile=<cstdlib> };
 class size_t		{ ~hfile=<cstdlib> };
 
 class wcslen        { ~hfile=<wchar.h> };
+class wchar_t       { ~hfile=<wchar.h> };

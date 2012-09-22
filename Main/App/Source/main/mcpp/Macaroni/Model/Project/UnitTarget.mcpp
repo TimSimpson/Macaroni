@@ -2,6 +2,7 @@
 ~import Macaroni::Lua::LuaFunction;
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
+~import boost::optional;
 ~import Macaroni::IO::Path;
 ~import Macaroni::IO::PathPtr;
 ~import Macaroni::Model::Project::ProjectVersion;
@@ -15,7 +16,7 @@
 
 ~namespace Macaroni::Model::Project;
 
- 
+
 /**
  * A C++ implementation file.
  */
@@ -39,8 +40,9 @@ class UnitTarget : public Target
 			"The HFile property was already set! Current value=%s");
 	}
 
-	private UnitTarget(Target & parent, bool generated, const string & name)
-	:  Target(parent.GetProjectVersion().get(), name),
+	private UnitTarget(Target & parent, bool generated, const string & name,
+		               optional<string> shortName)
+	:  Target(parent.GetProjectVersion().get(), name, shortName),
 	   cppFile(),
 	   hFile(),
 	   generated(generated),
@@ -54,16 +56,23 @@ class UnitTarget : public Target
 		parent.AddDependency(this);
 	}
 
-	public static UnitTarget * Create(TargetPtr parent, bool generated, 
+	public static UnitTarget * Create(TargetPtr parent, bool generated,
 		                              const string & name)
 		@LuaFunction "Create"
 	{
+		return Create(parent, generated, name, boost::none);
+	}
+
+	public static UnitTarget * Create(TargetPtr parent, bool generated,
+		                              const string & name,
+		                              optional<string> shortName)
+	{
 		// The parent will handle the memory so this isn't a leak.
-		return new UnitTarget(*parent, generated, name);
+		return new UnitTarget(*parent, generated, name, shortName);
 	}
 
 	/** The CPP file. */
-	public PathPtr GetCppFile() const		
+	public PathPtr GetCppFile() const
 	{
 		return cppFile;
 	}
@@ -80,7 +89,7 @@ class UnitTarget : public Target
 			if (*cppFile != *value)
 			{
 				throw CppPathAlreadySetException(
-					cppFile->GetAbsolutePathForceSlash().c_str(), 
+					cppFile->GetAbsolutePathForceSlash().c_str(),
 					MACARONI_INTERNAL_SOURCE);
 			}
 		}
@@ -99,7 +108,7 @@ class UnitTarget : public Target
 	}
 
 	/** The H file. */
-	public PathPtr GetHFile() const		
+	public PathPtr GetHFile() const
 	{
 		return hFile;
 	}
@@ -113,7 +122,7 @@ class UnitTarget : public Target
 	{
 		if (hFile)
 		{
-			if (*hFile != *value) 
+			if (*hFile != *value)
 			{
 				throw HPathAlreadySetException(
 					hFile->GetAbsolutePathForceSlash().c_str(),

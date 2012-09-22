@@ -1,0 +1,12 @@
+
+class SomethingElse
+{
+	// This class exists because if not Boost Build fails.
+    // The .lib file gts created when it sees the export symbols.
+    // Boost then requires this file regardless of whether it was needed
+    // (although honestly why wouldn't it be?)
+    public int DoSomething(int five)
+    {
+        return five + 5;
+    }
+};

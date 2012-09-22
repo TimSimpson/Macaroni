@@ -177,7 +177,7 @@ class CmdLine
 			{
 				const std::vector<MACARONI_VE_CONST std::string> generators;
 				std::vector<RegexFileSet> input;
-				input.push_back(RegexFileSet(boost::filesystem::path(inputPath), 
+				input.push_back(RegexFileSet(boost::filesystem::path(inputPath),
 					"\\.mcpp$"));
 				MCompilerOptions options(input,
 										 boost::filesystem::path(outputPath),
@@ -352,7 +352,7 @@ class CmdLine
 			{
 				path p = next;
 				messagesPath = optional<path>(p);
-				string file = (p / "Messages.txt").string(); 
+				string file = (p / "Messages.txt").string();
 				Messages::Init(file.c_str());
 			}
 		}
@@ -468,7 +468,7 @@ class CmdLine
 		ContextPtr context(new Context("%ROOT%"));
 		Macaroni::Environment::Environment env(createAppPaths(), context,
 		                                       input, output);
-		if (!env.FindDefaultProject()) 
+		if (!env.FindDefaultProject())
 		{
 			output->WriteLine("No project file found, trying to use manifest.");
 			return runManifest();
@@ -485,15 +485,24 @@ class CmdLine
 			}
 			if (generate)
 			{
-				env.RunCommand("generate();");
+				if (!env.RunCommand("generate();"))
+				{
+					return false;
+				}
 			}
 			if (build)
 			{
-				env.RunCommand("build();");
+				if (!env.RunCommand("build();"))
+				{
+					return false;
+				}
 			}
 			if (install)
 			{
-				env.RunCommand("install();");
+				if (!env.RunCommand("install();"))
+				{
+					return false;
+				}
 			}
 			return true;
 		}

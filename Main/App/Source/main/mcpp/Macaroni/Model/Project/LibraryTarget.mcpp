@@ -25,17 +25,22 @@
 ~import Macaroni::Model::Element;
 ~import Macaroni::Exception;
 ~import Macaroni::IO::FileSet;
+~import Macaroni::Environment::Values::Macaroni_IO_FileSet;
 ~import Macaroni::IO::FileSetPtr;
 ~import boost::intrusive_ptr;
 ~import Macaroni::Lua::LuaClass;
+~import Macaroni::Environment::LuaEnvironment;
 ~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaGlueCode;
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
 ~import Macaroni::Model::Project::MacaroniCodeTarget;
 ~import Macaroni::Build::MCompiler;
 ~import Macaroni::Model::NodePtr;
+~import boost::optional;
 ~import boost::filesystem::path;
 ~import Macaroni::IO::PathList;
+~import Macaroni::Environment::Values::Macaroni_IO_PathList;
 ~import Macaroni::IO::PathListPtr;
 ~import Macaroni::IO::Path;
 ~import Macaroni::IO::PathPtr;
@@ -51,7 +56,10 @@
 ~import Macaroni::Model::Project::FileListPtr;
 ~import Macaroni::IO::SimpleFileSet;
 ~import Macaroni::IO::SimpleFileSetPtr;
+~import Macaroni::Environment::Values::Table;
+~import Macaroni::Environment::Values::TablePtr;
 ~import Macaroni::Model::Project::TargetFileSweeper;
+~import Macaroni::Environment::Values::Macaroni_Model_Project_Target;
 ~import Macaroni::Model::Project::TargetPtr;
 ~import std::string;
 ~import Macaroni::StringException;
@@ -80,12 +88,12 @@ class LibraryTarget : public virtual Macaroni::Model::Project::Target
 	protected PathListPtr macaroniCode;
 
 	protected LibraryTarget(ProjectVersion * projectVersion,
-		            const string & name)
-	:   Target(projectVersion, name),
+		            const string & name, optional<string> shortName)
+	:   Target(projectVersion, name, shortName),
 		artifacts(new ArtifactList()),
 		headers(new PathList()),
 		macaroniCode(new PathList())
-	{		
+	{
 		//GetSources()->Add("Macaroni");
 	}
 
@@ -98,7 +106,7 @@ class LibraryTarget : public virtual Macaroni::Model::Project::Target
 	////	//GetSources()->Add("Macaroni");
 	////}
 
-	///*public virtual ArtifactPtr AddArtifact(const string & name, ConfigPtr config)		
+	///*public virtual ArtifactPtr AddArtifact(const string & name, ConfigPtr config)
 	//{
 	//	ArtifactPtr ptr(new ArtifactT(this, name));
 	//	return ptr;
@@ -113,21 +121,96 @@ class LibraryTarget : public virtual Macaroni::Model::Project::Target
 	public static LibraryTargetPtr Create(
 		ProjectVersion * projectVersion,
 		const string & name,
+		optional<string> & shortName,
 		const vector<Macaroni::Model::Project::TargetPtr> & dependencies,
 		PathListPtr headers,
-		PathListPtr sources
+		PathListPtr sources,
+		PathListPtr excludeFiles
 		)
 	{
-		LibraryTargetPtr lib(new LibraryTarget(projectVersion, name));
-		initialize(lib, dependencies, headers, sources);
+		LibraryTargetPtr lib(new LibraryTarget(projectVersion, name, shortName));
+		initialize(lib, dependencies, headers, sources, excludeFiles);
 		return lib;
+	}
+
+	public void Append(
+		const vector<Macaroni::Model::Project::TargetPtr> & dependencies,
+		PathListPtr headers,
+		PathListPtr sources,
+		PathListPtr excludeFiles
+		)
+	{
+		LibraryTargetPtr lib(this);
+		initialize(lib, dependencies, headers, sources, excludeFiles);
+	}
+
+	public void Append(Table & table)
+		@LuaFunction "Append"
+		@LuaGlueCode ={
+			TargetPtr target = TargetLuaMetaData::GetInstance(L, 1);
+			LibraryTarget * library =
+				dynamic_cast<LibraryTarget *>(target.get());
+			if (0 == library)
+			{
+				luaL_error(L, "Expected a LibraryTarget for arg 1.");
+			}
+			LibraryTargetPtr lPtr(library);
+			Table table;
+			boost::optional<string> key("Library argument 2");
+			LuaEnvironment::SerializeTable(table, L, 2, key);
+
+			lPtr->Append(table);
+			return 0;
+		}
+	{
+		PathListPtr headers;
+		if (table.Has("headers"))
+		{
+			headers = table.Get<Macaroni_IO_PathList>("headers");
+		}
+		else
+		{
+			headers.reset(new PathList());
+		}
+		PathListPtr sources = table.Get<Macaroni_IO_PathList>("sources");
+
+		PathListPtr excludeFiles;
+		if (table.Has("excludeFiles"))
+		{
+			excludeFiles = table.Get<Macaroni_IO_PathList>("excludeFiles");
+		}
+
+		vector<TargetPtr> dependencies;
+
+		if (table.Has("dependencies"))
+		{
+			struct Func
+			{
+				vector<TargetPtr> & dependencies;
+
+				Func(vector<TargetPtr> & dependencies)
+				: dependencies(dependencies)
+				{
+				}
+
+				void operator ()(TargetPtr target)
+				{
+					dependencies.push_back(target);
+				}
+			};
+			Func f(dependencies);
+			table.GetVector<Macaroni_Model_Project_Target, Func>(
+				"dependencies", f);
+		}
+		Append(dependencies, headers, sources, excludeFiles);
 	}
 
 	protected static void initialize(
 		LibraryTargetPtr lib,
 		const vector<Macaroni::Model::Project::TargetPtr> & dependencies,
 		PathListPtr headers,
-		PathListPtr sources
+		PathListPtr sources,
+		PathListPtr excludeFiles
 		)
 	{
 		BOOST_FOREACH(TargetPtr target, dependencies) {
@@ -145,14 +228,14 @@ class LibraryTarget : public virtual Macaroni::Model::Project::Target
 		{
 			BOOST_FOREACH(PathPtr p, *sources)
 			{
-				lib->headers->push_back(p);			
+				lib->headers->push_back(p);
 			}
-			sweeper.RecursivelyParseDirectory(*sources);
+			sweeper.RecursivelyParseDirectory(*sources, excludeFiles);
 		}
-		
+
 		//sources->Add("Macaroni");
 		////sources->Add("Headers");
-		////BOOST_FOREACH(FileSetPtr fs, *(sources["Headers"])) 
+		////BOOST_FOREACH(FileSetPtr fs, *(sources["Headers"]))
 		////{
 		////	lib->headers->push_back(fs->GetRootPath());
 		////}
@@ -186,7 +269,7 @@ class LibraryTarget : public virtual Macaroni::Model::Project::Target
 
 	public virtual ArtifactListPtr GetArtifacts()
 		@LuaProperty "Artifacts"
-	{		
+	{
 		return artifacts;
 	}
 
@@ -201,7 +284,7 @@ class LibraryTarget : public virtual Macaroni::Model::Project::Target
 	{
 		return headers;
 	}
-	
+
 	public virtual const char * GetTypeName() const
 	{
 		return "lib";

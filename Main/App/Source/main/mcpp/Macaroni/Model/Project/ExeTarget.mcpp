@@ -12,6 +12,7 @@
 ~import Macaroni::Lua::LuaProperty;
 ~import Macaroni::Model::Project::LibraryTarget;
 ~import Macaroni::Model::Project::LibraryTargetPtr;
+~import boost::optional;
 ~import Macaroni::IO::PathListPtr;
 ~import Macaroni::Model::Project::ProjectVersion;
 ~import std::string;
@@ -36,8 +37,10 @@ class ExeTarget : public virtual LibraryTarget
 	private const string subType;
 
 	protected ExeTarget(ProjectVersion * projectVersion, const string & name,
-		const string & subType)
-	:	LibraryTarget(projectVersion, name), Target(projectVersion, name),
+		                optional<string> & shortName,
+		                const string & subType)
+	:	LibraryTarget(projectVersion, name, shortName),
+	    Target(projectVersion, name, shortName),
 		subType(subType)
 	{
 	}
@@ -52,20 +55,22 @@ class ExeTarget : public virtual LibraryTarget
 		ProjectVersion * proj = lib->GetProjectVersion().get();
 		vector<TargetPtr> deps;
 		deps.push_back(lib);
-		return Create(proj, name, subType, deps, lib->GetHeaders(), sources);
+		return Create(proj, name, boost::none, subType, deps, lib->GetHeaders(), sources);
 	}
 
 	public static ExeTargetPtr Create(
 		ProjectVersion * projectVersion,
 		const string & name,
+		optional<string> shortName,
 		const string & subType,
 		const vector<TargetPtr> & dependencies,
 		PathListPtr headers,
 		PathListPtr sources
 		)
 	{
-		ExeTargetPtr exe(new ExeTarget(projectVersion, name, subType));
-		initialize(exe, dependencies, headers, sources);
+		ExeTargetPtr exe(new ExeTarget(projectVersion, name, shortName, subType));
+		PathListPtr excludeFiles;
+		initialize(exe, dependencies, headers, sources, excludeFiles);
 		return exe;
 	}
 

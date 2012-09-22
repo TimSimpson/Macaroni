@@ -47,15 +47,15 @@ public:
 	explicit Path(const std::string & absolutePath);
 	explicit Path(const boost::filesystem::path & rootPath);
 	Path(const boost::filesystem::path & rootPath, const char * path);
-	Path(const Path & other); 
-	Path(const boost::filesystem::path & rootPath, 
+	Path(const Path & other);
+	Path(const boost::filesystem::path & rootPath,
 		 const boost::filesystem::path & path);
-	
+
 	bool operator==(const Path & other) const;
 
 	bool operator!=(const Path & other) const;
 
-	/** Deletes all files and directories within this directory. 
+	/** Deletes all files and directories within this directory.
 	 *  Throws an exception if this is a file or doesn't exist.
 	 *  Boost throws an error if the path is empty as well. */
 	void ClearDirectoryContents();
@@ -68,26 +68,26 @@ public:
 
 	static void Path::CopyDirectoryContents(Path & src, Path & dst);
 
-	/** An example would be to copy a file from "src/blah/a.txt" to 
+	/** An example would be to copy a file from "src/blah/a.txt" to
 	 * "output/blah/a.txt", where "src" is the original root path and
 	 * "output" is the argument to this function. */
 	void CopyToDifferentRootPath(boost::filesystem::path rootPath,
 								 bool overrideIfExist = false);
-	
+
 	void CopyToDifferentRootPath(const PathPtr & rootPath, bool overrideIfExist = false);
-		
+
 	/** Creates the directory defined by this path, if it doesn't exist. */
 	void CreateDirectory() const;
 
 	/** Opens a file in the current directory for writing. */
-	GeneratedFileWriterPtr CreateFile() const;	
+	GeneratedFileWriterPtr CreateFile() const;
 
 	/** Creates a new instance with the current path as the absolute path. */
 	PathPtr CreateWithCurrentAsRoot() const;
 
 	/** Creates a new instance with the given path as the root path. */
 	PathPtr CreateWithDifferentRootPath(const PathPtr & path);
-	
+
 	PathPtr DifferentSuffix(const std::string & suffix);
 
 	bool Exists() const;
@@ -95,15 +95,18 @@ public:
 	std::string GetAbsolutePath() const;
 
 	/** This name sucks.  What it means is that forward slashes are used even
-	 * on Windows. 
+	 * on Windows.
 	 * TODO: Change name as it sucks, as stated above.
 	 */
 	std::string GetAbsolutePathForceSlash() const;
-	
-	/** Grabs the filename, i.e. everything after the directory. 
+
+	/** Grabs the filename, i.e. everything after the directory.
 	 *  Throws if this is not a regular file. */
-	std::string GetFileName() const;	
-	
+	std::string GetFileName() const;
+
+	/** Grabs the filename without the extension or directory. */
+	std::string GetFileNameWithoutExtension () const;
+
 	PathPtr GetParentPath() const;
 
 	inline boost::filesystem::path GetPath() const
@@ -119,7 +122,7 @@ public:
 	std::string GetRelativePath() const;
 
 	/** The relative path, but forward slashes are used even on Windows and
-	 *  any leading slashes are removed (i.e. "\blah\blah.h" becomes 
+	 *  any leading slashes are removed (i.e. "\blah\blah.h" becomes
 	 *  "blah/blah.h"). */
 	std::string GetRelativePathNormalized() const;
 
@@ -151,14 +154,14 @@ public:
 	/** Turns a string with Windows slashes to forward slashes. */
 	static std::string NormalizePathString(std::string & name);
 
-	/** Renames the file using only the relative part of the file path (in 
+	/** Renames the file using only the relative part of the file path (in
 	    other words, the root path stays the same). */
 	void RenameRelative(const std::string & relativePath);
-	
+
 	/** The path in String form. */
 	std::string ToString() const;
-		
-private:	
+
+private:
 
 	void assertPathExistsInRootPath();
 

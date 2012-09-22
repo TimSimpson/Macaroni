@@ -72,7 +72,7 @@ class Target
 		ReferenceType = TargetPtr
 	]
 	@LuaIncludes ={
-		#include <Macaroni/Model/Project/TargetLuaExtra.h>		
+		#include <Macaroni/Model/Project/TargetLuaExtra.h>
 	}
 	@LuaIndexExtraCode ={
 		const string index_0(luaL_checkstring(L, 2));
@@ -88,10 +88,12 @@ class Target
 
 	protected vector<Target *> dependencies;
 	protected vector<Element *> elements;
-	private const string name;	
+	private const string name;
 	private Target * parent;
 	private ProjectVersion * const projectVersion;
 	protected vector<Target *> requirements;
+	protected optional<string> shortName;
+
 	//protected FilesPtr sources;
 
 	~block "cpp"
@@ -104,44 +106,52 @@ class Target
 		MACARONI_SIMPLE_EXCEPTION_DEFINE(ElementAlreadyAddedException,
 			"Element was already added.");
 
-		MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(ElementNotOwnedException, 
+		MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(ElementNotOwnedException,
 			"%s");
-		
+
 		MACARONI_SIMPLE_EXCEPTION_DEFINE(InvalidTargetOperationException,
 			"The requested method is not available on this Target.");
 
 		MACARONI_SIMPLE_EXCEPTION_DEFINE(UnrelatedElementSwitchException,
 			"An element may only switch its target to a different target with "
-			"the same ProjectVersion.");		
+			"the same ProjectVersion.");
 	}
 
-	protected Target(ProjectVersion * projectVersion, const string & name)
+	protected Target(ProjectVersion * projectVersion, const string & name,
+		             optional<string> shortName)
 	:   dependencies(),
 		elements(),
-	    name(name),		
+	    name(name),
 	    parent(0),
 		projectVersion(projectVersion),
-		requirements()
+		requirements(),
+		shortName(shortName)
 		//sources(new Files())
 	{
 		projectVersion->AddTarget(this);
 	}
 
 	protected Target(ProjectVersion * projectVersion, const string & name,
+		             optional<string> shortName,
 		             FilesPtr sources)
 	:   dependencies(),
 		elements(),
-	    name(name),		
+	    name(name),
 	    parent(0),
 		projectVersion(projectVersion),
-		requirements()
+		requirements(),
+		shortName(shortName)
 		//sources(sources)
 	{
 		projectVersion->AddTarget(this);
 	}
 
-	public bool operator==(const Target & target) const 
-		@LuaOperator "__eq" 
+	public virtual ~Target()
+	{
+	}
+
+	public bool operator==(const Target & target) const
+		@LuaOperator "__eq"
 	{
 		return (*projectVersion == *target.projectVersion
 			    && name == target.name);
@@ -149,14 +159,14 @@ class Target
 
 	public virtual ArtifactPtr AddArtifact(const string & name, ConfigPtr config)
 		@LuaFunction "AddArtifact"
-		@LuaGlueCode ={ 		
+		@LuaGlueCode ={
 			TargetPtr & instance = TargetLuaMetaData::GetInstance(L, 1);
 			const std::string arg1(luaL_checkstring(L, 2));
 			ConfigPtr arg2;
 			if (1 != lua_isnil(L, 3) && lua_gettop(L) >= 3)
 			{
 				arg2 = ConfigLuaMetaData::GetInstance(L, 3);
-			} 			
+			}
 			ArtifactPtr rtn = instance->AddArtifact(arg1, arg2);
 			ArtifactLuaMetaData::PutInstanceOnStack(L, rtn);
 			return 1;
@@ -192,9 +202,9 @@ class Target
 			}
 		}
 		elements.push_back(element);
-	}		
+	}
 
-	public virtual ArtifactListPtr FindArtifacts(const string & name)		
+	public virtual ArtifactListPtr FindArtifacts(const string & name)
 	{
 		return FindArtifacts(name, ConfigPtr());
 	}
@@ -215,7 +225,7 @@ class Target
 		@LuaFunction "FindArtifacts"
 	{
 		ArtifactListPtr ptr(new ArtifactList());
-		return ptr;		
+		return ptr;
 	}
 
 	public virtual ArtifactListPtr GetArtifacts()
@@ -238,8 +248,26 @@ class Target
 	public string GetCId() const
 		@LuaFunction "GetCId"
 	{
-		return str(format("%s___%s") % projectVersion->GetCId() 
+		return str(format("%s___%s") % projectVersion->GetCId()
 			                         % Utils::CreateCId(name));
+	}
+
+	/** Returns a version of this ID which can be used as a C identifier.
+	 * The point isn't to make a pretty name but just one that maps uniquely.
+	 */
+	public string GetShortCId() const
+		@LuaFunction "GetShortCId"
+	{
+		return str(format("%s") % Utils::CreateCId(name));
+	}
+
+	/** Returns the "short" name of a target. A short name is intended to
+	 *  be used in place of the full ID in some contexts, such as when
+	 *  DLLs or EXEs are created.
+	 */
+	public optional<string> GetShortName() const
+	{
+		return shortName;
 	}
 
 	/* This includes anything which gets included or must be run before this
@@ -250,7 +278,7 @@ class Target
 	{
 		TargetListPtr ptr(new InnerTargetList(this, &dependencies));
 		return ptr;
-	}	
+	}
 
 	public ProjectVersionPtr GetProjectVersion() const
 		@LuaProperty "ProjectVersion"
@@ -264,11 +292,11 @@ class Target
 	{		return name;
 	}
 
-	public TargetPtr GetParent() const 
+	public TargetPtr GetParent() const
 		@LuaProperty "Parent"
 	{
 		return TargetPtr(parent);
-	}	
+	}
 
 	/** Requirements are targets that this target does not need on its own but
 	 *  anything which depends on this target is going to need.
@@ -310,7 +338,7 @@ class Target
 		}
 		return false;
 	}
-	
+
 	public ~global ~friend void intrusive_ptr_add_ref(Target * p)
 	{
 		intrusive_ptr_add_ref(p->projectVersion);
@@ -319,7 +347,7 @@ class Target
 	public ~global ~friend void intrusive_ptr_release(Target * p)
 	{
 		intrusive_ptr_release(p->projectVersion);
-	}	
+	}
 
 	public virtual int LuaIndex(lua_State * L, const string & name)
 	{
@@ -351,7 +379,7 @@ class Target
 		}
 	}
 
-	protected void setParent(Target * parent) 
+	protected void setParent(Target * parent)
 	{
 		this->parent = parent;
 	}
@@ -374,10 +402,10 @@ class Target
 	}
 
 	class InnerTargetList : public TargetList
-	{		
+	{
 		private Target * parent;
 		private vector<Target *> * vec;
-		
+
 		public InnerTargetList(Target * parent, vector<Target *> * vec)
 		:   parent(parent), vec(vec)
 		{
@@ -398,7 +426,7 @@ class Target
 		{
 			return vec.size();
 		}
-		
+
 		public virtual TargetPtr GetItem(int index) const
 		{
 			Target * t = vec[index];
@@ -414,14 +442,14 @@ class Target
 		//public virtual optional<Finalizer> RemoveReference()
 		//{
 		//	optional<SmartPointee::Finalizer> f(&RemoveRef);
-		//	return f;		
+		//	return f;
 	    //}
 
 	};
 	//TODO: Get Macaroni to fully generate inner classes... ugh!
 	~block "cpp"
 	{
-		Target::InnerTargetList::InnerTargetList(Target * parent, 
+		Target::InnerTargetList::InnerTargetList(Target * parent,
 			vector<Target *> * vec)
 		:   parent(parent), vec(vec)
 		{
@@ -442,7 +470,7 @@ class Target
 		{
 			return vec->size();
 		}
-		
+
 		TargetPtr Target::InnerTargetList::GetItem(int index) const
 		{
 			Target * t = (*vec)[index];

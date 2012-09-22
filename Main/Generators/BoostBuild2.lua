@@ -1,9 +1,13 @@
+require "string"
+require "Macaroni.Core.Hash";
 require "Macaroni.IO.GeneratedFileWriter";
 require "Macaroni.Model.Library";
 require "Macaroni.IO.Path";
 require "Log"
 require "Cpp/LibraryConfigGenerator";
 require "Plugin"
+
+Hash = Macaroni.Core.Hash
 
 Target = Macaroni.Model.Project.Target;
 
@@ -85,6 +89,7 @@ function Initialize(self)
         end
     end
     self.libTargetDeps = {}
+    self.flags = self.flags or {}
 end
 
 function Generate(self)
@@ -108,16 +113,42 @@ function getDepName(self, target)
     if target.ProjectVersion:GetCId() ~= self.projectVersion:GetCId() then
         prefix = "/" .. getProjectName(target.ProjectVersion) .. "//"
     end
+    -- Boost Build has about a roughly 114 character limit on target names.
+    if target.ShortName ~= nil then
+        return prefix .. target.ShortName
+    end
     if target.TypeName == "unit" then
         if target.CppFile ~= nil then
-            return prefix .. "MACARONI_UNIT_TARGET_" .. target:GetCId();
+            return Hash.GenerateHash(prefix .. "MACARONI_UNIT_TARGET_"
+                .. target:GetCId());
         else
             return nil
         end
     end
     if target.TypeName == "lib" then
-        return prefix .. "MACARONI_LIB_TARGET_" .. target:GetCId();
+        if target.Name == "lib" then
+            local name = prefix .. "MLT_" .. target:GetCId();
+            if string.len(name) > 113 then
+                --output:WriteLine("POO")
+                local msg = "BAD"
+                self.output:WriteLine("WARNING: Target name " .. name ..
+                    " exceeds Boost Build's limit for target names by roughly " ..
+                    tostring(string.len(name) - 113) .. " characters!")
+            else
+                return name
+            end
+        else
+            return target.GetShortCId();
+        end
     end
+    if target.TypeName == "exe" then
+        --return prefix .. "MACARONI_EXE_TARGET_" .. target:GetShortCId();
+        return prefix .. target:GetShortCId();
+    end
+    if target.TypeName == "test" then
+        return prefix .. "MACARONI_TEST_TARGET_" .. target:GetShortCId();
+    end
+    error("Can't create dep name for " .. tostring(target) .. "!")
 end
 
 function allDependencies(self, target)
@@ -220,15 +251,15 @@ end
 
 function writeExeTarget(self, writer, target)
     writer:WriteLine("# " .. target.Name);
-    writer:WriteLine("exe " .. target:GetCId());
+    writer:WriteLine("exe " .. getDepName(self, target));
     writer:WriteLine("    :   # Sources:");
     writer:WriteLine(allDependenciesWithJamSupport(self, target));
-    writer:WriteLine("    :   # TODO: May need to set some compiler flags here.");
+    writer:WriteLine("    :   ");
+    local flags = self.flags[target.Name];
+    if flags ~= nil then
+        writer:WriteLine(flags);
+    end
     writer:WriteLine("    ;");
-    writer:WriteLine([[
-install exe : ]] .. target:GetCId() .. '\n' .. [[
-    : <install-dependencies>on <install-type>EXE
-             <install-type>LIB ; ]]);
 end
 
 function writeExeTargets(self, writer)
@@ -239,12 +270,28 @@ function writeExeTargets(self, writer)
     end
 end
 
+function writeInstalRuleForExes(self, writer)
+    writer:WriteLine([[install exe : ]])
+    for target in Plugin.IterateProjectVersionTargets(self.projectVersion,
+                                                      "exe")
+    do
+        writer:WriteLine(getDepName(self, target));
+    end
+     writer:WriteLine('\n' .. [[
+    : <install-dependencies>on <install-type>EXE
+             <install-type>LIB ; ]]);
+end
+
 function writeLibTarget(self, writer, lib)
     writer:WriteLine("# " .. lib.Name);
-    writer:WriteLine("lib MACARONI_LIB_TARGET_" .. lib:GetCId());
+    writer:WriteLine("lib " .. getDepName(self, lib));
     writer:WriteLine("    :   # Sources:");
     writer:WriteLine(allDependenciesWithJamSupport(self, lib));
-    writer:WriteLine("    :   # TODO: May need to set some compiler flags here.");
+    writer:WriteLine("    :   ");
+    local flags = self.flags[lib.Name];
+    if flags ~= nil then
+        writer:WriteLine(flags);
+    end
     writer:WriteLine("    ;");
 end
 
@@ -258,7 +305,7 @@ end
 
 function writeTestTarget(self, writer, lib)
     writer:WriteLine("# " .. lib.Name);
-    writer:WriteLine("unit-test " .. lib:GetCId());
+    writer:WriteLine("unit-test " .. getDepName(self, lib) );
     writer:WriteLine("    :   # Sources:");
     writer:WriteLine(allDependencies(self, lib));
     writer:WriteLine("    :   # TODO: May need to set some compiler flags here.");
@@ -282,7 +329,7 @@ function writeUnitTargets(self, writer) -- , libTarget)
         local cppFile = target.CppFile
         if cppFile ~= nil then
             writer:WriteLine("# " .. target.Name);
-            writer:WriteLine("obj MACARONI_UNIT_TARGET_" .. target:GetCId() .. "\n"
+            writer:WriteLine("obj " .. getDepName(self, target) ..  "\n"
                 .. "    :   \"" .. target.CppFile.AbsolutePathForceSlash
                 .. "\"\n"
                 .. "    :   " .. dependencyProperties(self, target)  .. "\n"
@@ -301,7 +348,7 @@ function writeUnitTargets(self, writer) -- , libTarget)
                                  .. "due to no cppFile):");
                 explained = true
             end
-            writer:WriteLine("# Skipping " .. target:GetCId())
+            writer:WriteLine("# Skipping " .. target:GetShortCId())
         end
     end
 end
@@ -363,6 +410,7 @@ using testing ;
     end
 
     if self.defaultLib ~= nil then
+        local extraFlags = self.requirements or '';
         writer:WriteLine([[
 
 project ]] ..
@@ -372,6 +420,7 @@ project ]] ..
                                      -- be "usage-requirements"
     includePaths(self.defaultLib) .. '\n'
     .. includeDepPaths(self, self.defaultLib) .. '\n' ..
+    extraFlags .. '\n' ..
 [[  :   usage-requirements ]] .. '\n' ..   -- not sure if this should
                                      -- be "usage-requirements"
     includePaths(self.defaultLib) .. '\n'
@@ -405,6 +454,9 @@ alias library_dependencies
     writer:WriteLine("\n# Executables\n# ---------\n")
 
     writeExeTargets(self, writer);
+
+    writer:WriteLine("\n# Makes the EXEs easier to run\n# ---------\n")
+    writeInstalRuleForExes(self, writer);
 
     writer:Close();
 end

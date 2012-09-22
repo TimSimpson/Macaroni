@@ -1,0 +1,71 @@
+~import boost::intrusive_ptr;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Lua::LuaProperty;
+~import boost::optional;
+~import Macaroni::IO::PathList;
+~import Macaroni::IO::PathListPtr;
+~import std::string;
+~import Macaroni::Model::Project::Target;
+~import Macaroni::Model::Project::TargetPtr;
+~import Macaroni::Cpp::UseLightDef;
+
+~namespace Macaroni::Model::Project;
+
+class Resource {};
+
+typedef intrusive_ptr<Resource ~l> ResourcePtr
+        @LuaClass [ SameAsNode = Resource ]
+        @UseLightDef true;
+
+class Resource : public virtual Macaroni::Model::Project::Target
+    @LuaClass [
+        ReferenceType = ResourcePtr
+    ]
+{
+    ~import Macaroni::Model::Project::ResourceLuaMetaData;
+
+    protected PathListPtr files;
+    protected string type;
+
+    protected Resource(ProjectVersion * projectVersion, const string & name,
+                       optional<string> & shortName,
+                       const string & type)
+    :   Target(projectVersion, name, shortName),
+        files(new PathList()),
+        type(type)
+    {
+    }
+
+    public virtual ~Resource()
+    {
+        int five = 5;
+    }
+
+    public static ResourcePtr Create(
+        ProjectVersion * projectVersion,
+        const string & name,
+        optional<string> & shortName,
+        const string & type,
+        PathListPtr files
+        )
+    {
+        ResourcePtr resource(new Resource(projectVersion, name, shortName, type));
+        resource->files = files;
+        return resource;
+    }
+
+    public virtual PathListPtr GetFiles()
+        @LuaProperty "Files"
+    {
+        return files;
+    }
+
+    protected virtual int LuaIndex(lua_State * L, const string & name)
+    {
+        ResourcePtr me(this);
+        return ResourceLuaMetaData::Index(L, me, name);
+    }
+
+}

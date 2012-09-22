@@ -1,7 +1,0 @@
-
-class SomethingElse
-{
-	// This class exists because if not Boost Build fails.
-	// The generator doesn't handle cases where no files exist and no library
-	// is needed...	
-};

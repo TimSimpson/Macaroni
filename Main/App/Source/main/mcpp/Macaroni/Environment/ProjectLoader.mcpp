@@ -1,0 +1,447 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+~import std::auto_ptr;
+~import Macaroni::AppPaths;
+~import Macaroni::AppPathsPtr;
+//~import Macaroni::Environment::Values::AnyPtr;
+~import BOOST_FOREACH;
+~import Macaroni::Model::Context;
+~import Macaroni::Model::ContextLuaMetaData;
+~import Macaroni::Model::ContextPtr;
+~import Macaroni::Model::Element;
+~import Macaroni::Exception;
+~import Macaroni::IO::FileNotFoundException;
+~import boost::format;
+~import Macaroni::Environment::Input;
+~import Macaroni::Environment::InputPtr;
+~import boost::intrusive_ptr;
+~import std::map;
+~import boost::optional;
+~import Macaroni::Environment::Output;
+~import Macaroni::Environment::OutputLuaMetaData;
+~import Macaroni::Environment::OutputPtr;
+~import boost::optional;
+~import Macaroni::Environment::LuaEnvironment;
+~import Macaroni::Model::NodePtr;
+~import boost::filesystem::path;
+~import Macaroni::IO::Path;
+~import Macaroni::IO::PathPtr;
+~import Macaroni::IO::PathLuaMetaData;
+~import Macaroni::IO::Paths;
+~import Macaroni::Environment::PluginFactory;
+~import Macaroni::Environment::PluginFactoryLuaMetaData;
+~import Macaroni::Environment::PluginFactoryPtr;
+~import Macaroni::Model::Project::ProjectVersionId;
+~import Macaroni::Model::Project::ProjectVersion;
+~import Macaroni::Model::Project::ProjectVersionLuaMetaData;
+~import Macaroni::Model::Project::ProjectVersionPtr;
+~import Macaroni::Model::Reason;
+~import Macaroni::Environment::ReplCommand;
+~import std::string;
+~import Macaroni::Model::Project::Resource;
+~import Macaroni::Model::Project::ResourcePtr;
+
+~import Macaroni::Environment::ProjectEnvironment;
+~import Macaroni::Environment::ProjectEnvironmentPtr;
+
+class Macaroni::Environment::ProjectLoader {};
+
+typedef intrusive_ptr<Macaroni::Environment::ProjectLoader ~l>
+    Macaroni::Environment::ProjectLoaderPtr;
+
+/* Allows an environment to claim ownership of a project. */
+class Macaroni::Environment::ProjectLoaderMarker
+{
+    public virtual void Mark(ProjectEnvironment & env,
+                             ProjectVersionId pvId) = 0;
+};
+
+/**
+ *  Loading projects is tricky; we have to make sure we load each one only
+ *  once, and sometimes that means keeping track not only of loaded project IDs
+ *  but also file paths which have been parsed that created each project.
+ *  We also have to know how to load an installed Project or one that is
+ *  currently being built.
+ *
+ *  This class keeps these things straight.
+ */
+class Macaroni::Environment::ProjectLoader
+{
+    ~block "h-predef" {
+        #include <boost/algorithm/string.hpp>
+        #include <Macaroni/Environment/PluginFactory.h>
+        #include <Macaroni/Environment/ProjectEnvironment.h>
+    }
+
+    typedef map<string, ProjectEnvironmentPtr> ProjectFileMemory;
+    typedef map<ProjectVersionId, path> ProjectFileMemory2;
+
+    ~block "h"
+    {
+        struct ProjectVersionCompare
+        {
+            bool operator() (
+                const Macaroni::Model::Project::ProjectVersionId & a,
+                const Macaroni::Model::Project::ProjectVersionId & b) const;
+        };
+
+        // A bug in Macaroni necessitates this. :(
+        typedef std::map<std::string, ProjectEnvironmentPtr> ProjectFileMemory;
+        typedef std::map<Macaroni::Model::Project::ProjectVersionId,
+                         boost::filesystem::path,
+                         ProjectVersionCompare> ProjectFileMemory2;
+    }
+
+    ~block "cpp"
+    {
+        bool ProjectLoader::ProjectVersionCompare::operator()
+            (const ProjectVersionId & a, const ProjectVersionId & b) const
+        {
+            if (a.Group < b.Group)
+            {
+                return true;
+            }
+            else if (a.Group > b.Group)
+            {
+                return false;
+            }
+            if (a.Name < b.Name)
+            {
+                return true;
+            }
+            else if (a.Name > b.Name)
+            {
+                return false;
+            }
+            if (a.Version < b.Version)
+            {
+                return true;
+            }
+            else if (a.Version > b.Version)
+            {
+                return false;
+            }
+            return false;
+        }
+    }
+
+    ~block "cpp"
+    {
+        MACARONI_SIMPLE_EXCEPTION_DEFINE(BadProjectFileSet,
+            "Attempted to mark a path as belonging to a project file,"
+            " but this path already belongs to another project.");
+
+        MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(LoadProjectException,
+            "Error parsing the definition file for project %s.");
+
+        MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(LoadProjectException2,
+            "After running the project definition file, project %s was "
+            "still undefined, meaning the definition file is incorrect.");
+
+        MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(LoadProjectException3,
+            "The project definition file defined no \"project\" "
+            "variable (%s).");
+
+        MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(LoadProjectException4,
+            "Error parsing the project file %s.");
+
+        MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(ProjectNotFoundException,
+            "Could not find a file for project %s.");
+
+    }
+
+    private AppPathsPtr appPaths;
+    private ContextPtr context;
+    private OutputPtr output;
+    private ProjectFileMemory parsedProjectFiles;
+    private ProjectFileMemory2 pvIdToFilePaths;
+    //private PluginFactoryPtr pluginFactory;
+    private ProjectEnvironmentPtr pEnv;
+    private int referenceCount;
+
+    public ProjectLoader(AppPathsPtr appPaths, ContextPtr context,
+                         OutputPtr output)
+    : appPaths(appPaths),
+      context(context),
+      output(output),
+      parsedProjectFiles(),
+      pvIdToFilePaths(),
+      pEnv(),
+      referenceCount(0)
+    {
+        //pEnv = new ProjectEnvironment(*this, "", "");
+    }
+
+    public AppPathsPtr GetAppPaths()
+    {
+        return appPaths;
+    }
+
+    public inline ContextPtr GetContext()
+    {
+        return context;
+    }
+
+    public OutputPtr GetOutput()
+    {
+        return output;
+    }
+
+    public ProjectEnvironmentPtr GetProjectEnvironment()
+    {
+        //TODO: Remove this, and pass it back in other ways.
+        return pEnv;
+    }
+
+    public ~global ~friend void intrusive_ptr_add_ref(ProjectLoader * p)
+    {
+        p->referenceCount ++;
+    }
+
+    public ~global ~friend void intrusive_ptr_release(ProjectLoader * p)
+    {
+        p->referenceCount --;
+        if (p->referenceCount <= 0) {
+            delete p;
+        }
+    }
+
+    /** Returns true if it would be safe to parse the given project file. */
+    ~hidden ProjectEnvironmentPtr fetchProjectByFilePath(const path & path)
+    {
+        string absolutePath = boost::filesystem::system_complete(path).string();
+        ProjectFileMemory::iterator itr = parsedProjectFiles.find(absolutePath);
+        if (parsedProjectFiles.end() == itr)
+        {
+            ProjectEnvironmentPtr empty;
+            //parsedProjectFiles[absolutePath] = empty;
+            return empty;
+        }
+        else
+        {
+            return parsedProjectFiles[absolutePath];
+        }
+    }
+
+    /** Returns the project environment of a project ID, or nothing. */
+    ~hidden ProjectEnvironmentPtr fetchProjectById(const ProjectVersionId & id)
+    {
+        if (pvIdToFilePaths.count(id) == 0)
+        {
+            ProjectEnvironmentPtr empty;
+            return empty;
+        }
+        return fetchProjectByFilePath(pvIdToFilePaths[id]);
+    }
+
+    public ProjectVersionPtr LoadProjectById(const ProjectVersionId & pv)
+    {
+        LoadProjectEnvironmentById(pv);
+        return context->FindProjectVersion(pv);
+    }
+
+    /**
+     * Loads the project version. Throws if the project isn't found.
+     *
+     * Checks to make sure this ProjectVersionId has not already been loaded.
+     * After that, LoadProject does all the work.
+     */
+    public ProjectEnvironmentPtr LoadProjectEnvironmentById(
+        const ProjectVersionId & pv)
+    {
+        {
+            // Make sure we aren't loading this thing twice!
+            // However, trouble will still brew if somehow this thing
+            // references itself through a cycle.
+            ProjectEnvironmentPtr pEnv = fetchProjectById(pv);
+            if (pEnv)
+            {
+                return pEnv;
+            }
+        }
+        // Find installed project.
+        optional<path> projectFilePath = appPaths->FindFinalProjectFile(pv);
+        if (!projectFilePath)
+        {
+            throw ProjectNotFoundException(pv.ToString().c_str(),
+                                           MACARONI_INTERNAL_SOURCE);
+        }
+
+        optional<ProjectVersionId> opv(pv);
+        return LoadProjectEnvironment(projectFilePath.get(), opv);
+    }
+
+    public ProjectVersionPtr LoadProject(const path & projectPath)
+    {
+        ProjectEnvironmentPtr pEnv = LoadProjectEnvironment(projectPath);
+        return GetContext()->FindProjectVersion(pEnv->GetWorkingProjectId());
+    }
+
+    /**
+     * Loads a project from a specific file.
+     **/
+    public ProjectEnvironmentPtr LoadProjectEnvironment(const path & projectPath)
+    {
+        return LoadProjectEnvironment(projectPath, boost::none);
+    }
+
+    /**
+     * Loads a project from a specific file.
+     * If an expected project version ID is given, it will validate that
+     * said project is defined in the given file.
+     */
+    public ProjectEnvironmentPtr LoadProjectEnvironment(
+        const path & projectPath, optional<ProjectVersionId> expectedPvId)
+    {
+        /** Check if this file was already loaded. */
+        if (!boost::filesystem::exists(projectPath))
+        {
+            throw FileNotFoundException(projectPath.string());
+        }
+
+        ProjectEnvironmentPtr env;
+        try
+        {
+            env = loadProjectEnvironment(projectPath);
+        }
+        catch(const Macaroni::Exception & me)
+        {
+            output->WriteLine(format("Error parsing file %s : %s")
+                              % projectPath.string() % me.message());
+            if (expectedPvId)
+            {
+                throw LoadProjectException(expectedPvId.get().ToString().c_str(),
+                                           MACARONI_INTERNAL_SOURCE);
+            }
+            else
+            {
+                throw LoadProjectException4(projectPath.string().c_str(),
+                                            MACARONI_INTERNAL_SOURCE);
+            }
+        }
+        ProjectVersionId actualPvId = env->GetWorkingProjectId();
+        if (expectedPvId)
+        {
+            if (actualPvId != expectedPvId.get())
+            {
+                output->WriteLine(format(
+                    "Unexpected project found in file %s: %s.")
+                    % projectPath.string() % actualPvId.ToString());
+                throw LoadProjectException2(expectedPvId.get().ToString().c_str(),
+                                            MACARONI_INTERNAL_SOURCE);
+            }
+            ProjectVersionPtr result =
+                context->FindProjectVersion(expectedPvId.get());
+            if (!result)
+            {
+                throw LoadProjectException2(expectedPvId.get().ToString().c_str(),
+                                            MACARONI_INTERNAL_SOURCE);
+            }
+            result->IncrementFileParseCount();
+        }
+        return env;
+    }
+
+    /** Runs the file at the given path and returns the global variable
+     *  "project" defined in the script. */
+    ~hidden ProjectEnvironmentPtr loadProjectEnvironment(path projectFilePath)
+    {
+        {
+            ProjectEnvironmentPtr pEnv =
+                fetchProjectByFilePath(projectFilePath);
+            if (pEnv)
+            {
+                return pEnv;
+            }
+        }
+        path workingDir = projectFilePath;
+        workingDir.remove_leaf();
+        output->WriteLine(format("Parsing file %s...") %
+                          projectFilePath.string());
+
+        struct MarkerImpl : public ProjectLoaderMarker
+        {
+            ProjectLoader & loader;
+
+            MarkerImpl(ProjectLoader & loader)
+            :loader(loader)
+            {}
+
+            virtual void Mark(ProjectEnvironment & env, ProjectVersionId pvId)
+            {
+                loader.storeProjectEnvironment(env);
+            }
+        };
+        auto_ptr<ProjectLoaderMarker> marker(new MarkerImpl(*this));
+
+        {
+            ProjectEnvironmentPtr pEnv;
+            pEnv = new ProjectEnvironment(*this, marker, workingDir,
+                                          projectFilePath);
+            pEnv->Initialize();
+            return pEnv;
+        }
+    }
+
+    /** Call this as the parsing of a project file begins to avoid double
+     *  parsing / fetching files. */
+    ~hidden void storeProjectEnvironment(ProjectEnvironment & env)
+    {
+        string absolutePath = boost::filesystem::system_complete(
+            env.GetWorkingProjectFile()).string();
+        if (parsedProjectFiles.find(absolutePath) != parsedProjectFiles.end())
+        {
+            ProjectEnvironmentPtr oldEnv = parsedProjectFiles[absolutePath];
+            if (oldEnv)
+            {
+                /*if (env->GetWorkingProjectId() == pvId)
+                {
+                    return; // Ignore... do not replace old env.
+                }
+                else
+                */
+                // Always throw if this happens.
+                throw BadProjectFileSet(MACARONI_INTERNAL_SOURCE);
+            }
+        }
+        ProjectEnvironmentPtr pEnv(&env);
+        parsedProjectFiles[absolutePath] = pEnv;
+        pvIdToFilePaths[pEnv->GetWorkingProjectId()] = absolutePath;
+    }
+
+    /*
+     * Runs a non installed project. The big difference between this and
+     * running an installed project is that this method will first run
+     * any parent projects.
+     */
+    public ProjectEnvironmentPtr RunNonInstalledProject(const path filePath)
+    {
+        runUpperProjects(filePath);
+        return LoadProjectEnvironment(filePath);
+    }
+
+    /** Given some project.lua file, loads every project.lua file above it. */
+    ~hidden void runUpperProjects(const path filePath)
+    {
+        path upper = filePath.parent_path() / "../project.lua";
+        if (boost::filesystem::exists(upper))
+        {
+            runUpperProjects(upper); // Run its parent first...
+            LoadProjectEnvironment(upper);
+        }
+    }
+
+};

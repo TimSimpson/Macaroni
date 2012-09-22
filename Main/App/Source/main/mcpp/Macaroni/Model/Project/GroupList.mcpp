@@ -64,11 +64,12 @@ class GroupList
 	public GroupPtr FindOrCreate(string name)
 		@LuaFunction "FindOrCreate"
 	{
-		GroupPtr rtn = Find(name);
-		if (!rtn)
+		GroupPtr existingGroup = Find(name);
+		if (existingGroup)
 		{
-			groups.push_back(new Group(context, this, name));
+			return existingGroup;
 		}
+		groups.push_back(new Group(context, this, name));
 		return GroupPtr(groups.back());
 	}
 

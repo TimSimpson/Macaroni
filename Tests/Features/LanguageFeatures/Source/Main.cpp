@@ -1,5 +1,4 @@
 #include <Fruits/Apple.h>
-#include <BorderTown/AnimalFriends/_.h>
 #include <Macaroni/Tests/Typedefs/Doggy.h>
 #include <iostream>
 #include <sstream>
@@ -14,6 +13,6 @@ int _tmain(int argc, const _TCHAR * argv[])
 	Apple apple;
 	std::cout << apple.FindWormCount("BLAH!");
 
-	
+
 	std::cout << "The End" << std::endl;
 }

@@ -1,0 +1,2 @@
+class lua_State { ~hfile=<lua.h> };
+class luaL_Reg  { ~hfile=<lauxlib.h> };

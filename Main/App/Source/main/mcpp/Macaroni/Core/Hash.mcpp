@@ -1,0 +1,24 @@
+~import boost::hash;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import boost::lexical_cast;
+~import std::string;
+
+~namespace Macaroni::Core;
+
+class Hash {};
+
+class Hash
+    @LuaClass [
+        ReferenceType = Hash
+    ]
+{
+    /** Takes a potentially long string and makes a short one. */
+    public static string GenerateHash(const std::string & original)
+        @LuaFunction "GenerateHash"
+    {
+        hash<string> stringHash;
+        size_t number = stringHash(original);
+        return boost::lexical_cast<string>(number);
+    }
+};

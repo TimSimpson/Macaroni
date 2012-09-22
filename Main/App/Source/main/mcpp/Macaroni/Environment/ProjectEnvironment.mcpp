@@ -1,0 +1,655 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+~import std::auto_ptr;
+~import Macaroni::AppPaths;
+~import Macaroni::AppPathsPtr;
+~import std::auto_ptr;
+//~import Macaroni::Environment::Values::AnyPtr;
+~import BOOST_FOREACH;
+~import Macaroni::Model::Context;
+~import Macaroni::Model::ContextLuaMetaData;
+~import Macaroni::Model::ContextPtr;
+~import Macaroni::Model::Element;
+~import Macaroni::Exception;
+~import Macaroni::IO::FileNotFoundException;
+~import boost::format;
+~import Macaroni::Environment::Input;
+~import Macaroni::Environment::InputPtr;
+~import boost::intrusive_ptr;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Environment::LuaEnvironment;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaProperty;
+~import boost::optional;
+~import Macaroni::Environment::Output;
+~import Macaroni::Environment::OutputLuaMetaData;
+~import Macaroni::Environment::OutputPtr;
+~import boost::optional;
+~import Macaroni::Model::NodePtr;
+~import boost::filesystem::path;
+~import Macaroni::IO::Path;
+~import Macaroni::IO::PathPtr;
+~import Macaroni::IO::PathLuaMetaData;
+~import Macaroni::IO::Paths;
+~import Macaroni::Environment::PluginFactory;
+~import Macaroni::Environment::PluginFactoryLuaMetaData;
+~import Macaroni::Environment::PluginFactoryPtr;
+~import Macaroni::Environment::ProjectLoader;
+~import Macaroni::Environment::ProjectLoaderMarker;
+~import Macaroni::Model::Project::ProjectVersionId;
+~import Macaroni::Model::Project::ProjectVersion;
+~import Macaroni::Model::Project::ProjectVersionLuaMetaData;
+~import Macaroni::Model::Project::ProjectVersionPtr;
+~import Macaroni::Model::Reason;
+~import Macaroni::Environment::ReplCommand;
+~import std::string;
+~import Macaroni::Model::Project::Resource;
+~import Macaroni::Model::Project::ResourcePtr;
+~import Macaroni::Cpp::UseLightDef;
+
+class Macaroni::Environment::ProjectEnvironment {};
+
+typedef intrusive_ptr<Macaroni::Environment::ProjectEnvironment ~l>
+    Macaroni::Environment::ProjectEnvironmentPtr
+        @LuaClass [ SameAsNode = Macaroni::Environment::ProjectEnvironment ]
+        @UseLightDef true ;
+
+~import Macaroni::Environment::ProjectEnvironmentLuaMetaData;
+
+/** Projects are defined in scripts, which also host functions that
+ *  do things like build them. This functionality is rememberd and encapsulated
+ *  by this class. */
+class Macaroni::Environment::ProjectEnvironment
+    @LuaClass [
+        ReferenceType = Macaroni::Environment::ProjectEnvironmentPtr
+    ]
+{
+    ~block "h-predef" {
+        #include <boost/algorithm/string.hpp>
+        #include <Macaroni/Environment/ProjectLoader.h>
+        #include <Macaroni/Environment/PluginFactory.h>
+    }
+
+    ~block "cpp"
+    {
+        MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(ChildProjectFileNotFound,
+            "Did not find subproject: no file found at %s.");
+        /*
+        MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(LoadProjectException,
+            "Error parsing the definition file for project %s.");
+
+        MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(LoadProjectException2,
+            "After running the project definition file, project %s was "
+            "still undefined, meaning the definition file is incorrect.");
+
+        MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(LoadProjectException3,
+            "The project definition file defined no \"project\" "
+            "variable (%s).");
+
+        MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(LoadProjectException4,
+            "Error parsing the project file %s.");
+        */
+        MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(NoScriptsFoundInProject,
+            "No scripts were found for project %s.");
+
+        MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(ProjectNotFoundException2,
+            "Could not find a file for project %s.");
+
+        MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(ProjectNotGivenException,
+            "The project file %s did not define a global 'project' var.");
+    }
+
+    private ProjectLoader & loader;
+    private LuaEnvironment luaEnvironment;
+    private auto_ptr<ProjectLoaderMarker> marker;
+    private PluginFactoryPtr pluginFactory;
+    private int referenceCount;
+    // The working directory. This is always the project file's directory.
+    private path workingDirectory;
+    // The file current being parsed.
+    private path workingProjectFile;
+    // The known project ID. This isn't known until the file is "locked"
+    // down, which means something happens in the script that forces the
+    // user to have defined the project, or the script finishes parsing.
+    // Before that it is simply the ProjectVersionId place holder.
+    private ProjectVersionId workingProjectId;
+
+
+    public ProjectEnvironment(
+        ProjectLoader & loader,
+        auto_ptr<ProjectLoaderMarker> marker,
+        path workingDirectory,
+        path projectFile
+        )
+    : loader(loader),
+      luaEnvironment(),
+      marker(marker),
+      pluginFactory(new PluginFactory(loader.GetAppPaths())),
+      referenceCount(0),
+      workingDirectory(workingDirectory),
+      workingProjectFile(projectFile),
+      workingProjectId()
+    {
+       initializeLuaEnvironment();
+    }
+
+    public ProjectVersionPtr GetProjectVersion() const
+        @LuaProperty "ProjectVersion"
+    {
+        return loader.GetContext()->FindProjectVersion(GetWorkingProjectId());
+    }
+
+    /** Public properties. */
+    public const path & GetWorkingProjectFile() const
+    {
+        return workingProjectFile;
+    }
+
+    public const ProjectVersionId & GetWorkingProjectId() const
+    {
+        return workingProjectId;
+    }
+
+    public inline LuaEnvironment & getLuaEnvironment()
+    {
+        return luaEnvironment;
+    }
+
+//TODO:...
+/*    ~block "cpp"
+    {
+        #define REGISTER_FUNC(luaName, cppName) \
+            lua_pushlightuserdata(luaEnvironment.GetState(), (void *) this); \
+            lua_pushcclosure(luaEnvironment.GetState(), cppName, 1); \
+            lua_setglobal(luaEnvironment.GetState(), luaName);
+    }*/
+
+    ~hidden void initializeLuaEnvironment()
+    {
+        luaEnvironment.OpenAllLuaModules();
+        OutputLuaMetaData::PutInstanceOnStack(luaEnvironment.GetState(),
+                                              loader.GetOutput());
+        lua_setglobal(luaEnvironment.GetState(), "output");
+
+        // Run "project-init.lua" which has helper functions.
+        runProjectInitScript();
+
+        // Run "init.lua" which resides in the user directory.
+        runInitScript();
+
+        // Insert our global variables: context, output, plugins, and load.
+
+        ContextLuaMetaData::PutInstanceOnStack(luaEnvironment.GetState(),
+                                               loader.GetContext());
+        lua_setglobal(luaEnvironment.GetState(), "context");
+
+        PluginFactoryLuaMetaData::PutInstanceOnStack(luaEnvironment.GetState(),
+                                                     pluginFactory);
+        lua_setglobal(luaEnvironment.GetState(), "plugins");
+
+        // The load function is a closue, with *this* instances as user data.
+        // Its ok to do that since this instance owns the Lua state, so the
+        // function will only be called while it exists.
+        lua_pushlightuserdata(luaEnvironment.GetState(), (void *) this);
+        lua_pushcclosure(luaEnvironment.GetState(), loadProjectLua, 1);
+        lua_setglobal(luaEnvironment.GetState(), "load");
+
+        lua_pushlightuserdata(luaEnvironment.GetState(), (void *) this);
+        lua_pushcclosure(luaEnvironment.GetState(), getWorkingDirectoryLua, 1);
+        lua_setglobal(luaEnvironment.GetState(), "getWorkingDirectory");
+
+        lua_pushlightuserdata(luaEnvironment.GetState(), (void *) this);
+        lua_pushcclosure(luaEnvironment.GetState(), findInstallPath, 1);
+        lua_setglobal(luaEnvironment.GetState(), "findInstallPath");
+
+        lua_pushlightuserdata(luaEnvironment.GetState(), (void *) this);
+        lua_pushcclosure(luaEnvironment.GetState(), findOrCreateInstallPath, 1);
+        lua_setglobal(luaEnvironment.GetState(), "findOrCreateInstallPath");
+
+        lua_pushlightuserdata(luaEnvironment.GetState(), (void *) this);
+        lua_pushcclosure(luaEnvironment.GetState(), sInstall, 1);
+        lua_setglobal(luaEnvironment.GetState(), "sinstall");
+
+        lua_pushlightuserdata(luaEnvironment.GetState(), (void *) this);
+        lua_pushcclosure(luaEnvironment.GetState(), importLua, 1);
+        lua_setglobal(luaEnvironment.GetState(), "import");
+
+        lua_pushlightuserdata(luaEnvironment.GetState(), (void *) this);
+        lua_pushcclosure(luaEnvironment.GetState(), parseUpperProjectLua, 1);
+        lua_setglobal(luaEnvironment.GetState(), "getUpperProject");
+
+        lua_pushlightuserdata(luaEnvironment.GetState(), (void *) this);
+        lua_pushcclosure(luaEnvironment.GetState(), loadChildProjectLua, 1);
+        lua_setglobal(luaEnvironment.GetState(), "subProject");
+    }
+
+    public ~global ~friend void intrusive_ptr_add_ref(ProjectEnvironment * p)
+    {
+        p->referenceCount ++;
+    }
+
+    public ~global ~friend void intrusive_ptr_release(ProjectEnvironment * p)
+    {
+        p->referenceCount --;
+        if (p->referenceCount <= 0) {
+            delete p;
+        }
+    }
+
+    ~hidden static int findInstallPath(lua_State * L)
+    {
+        void * uv1 = lua_touserdata(L, lua_upvalueindex(1));
+        ProjectEnvironment * me = static_cast<ProjectEnvironment *>(uv1);
+        ProjectVersionPtr pv = ProjectVersionLuaMetaData::GetInstance(L, 1);
+        optional<path> p = me->loader.GetAppPaths()->FindFinalProjectDirectory(pv->ToId());
+        if (!p)
+        {
+            lua_pushnil(L);
+        }
+        else
+        {
+            PathPtr pathPtr(new Path(p.get()));
+            PathLuaMetaData::PutInstanceOnStack(L, pathPtr);
+        }
+        return 1;
+    }
+
+    ~hidden static int findOrCreateInstallPath(lua_State * L)
+    {
+        void * uv1 = lua_touserdata(L, lua_upvalueindex(1));
+        ProjectEnvironment * me = static_cast<ProjectEnvironment *>(uv1);
+        ProjectVersionPtr pv = ProjectVersionLuaMetaData::GetInstance(L, 1);
+        path p = me->loader.GetAppPaths()->FindOrCreateFinalProjectDirectory(pv->ToId());
+        PathPtr pathPtr(new Path(p));
+        PathLuaMetaData::PutInstanceOnStack(L, pathPtr);
+        return 1;
+    }
+
+    ~hidden static int getWorkingDirectoryLua(lua_State * L)
+    {
+        void * uv1 = lua_touserdata(L, lua_upvalueindex(1));
+        ProjectEnvironment * me = static_cast<ProjectEnvironment *>(uv1);
+        lua_pushstring(L, me->workingDirectory.string().c_str());
+        return 1;
+    }
+
+    /** Loads a project, and, if it contains a resource target "scripts", will
+     *  load the files. */
+    ~hidden void import(const ProjectVersionId & id)
+    {
+        //this->LoadProject(id);
+        ProjectVersionPtr pv = this->loader.LoadProjectById(id);
+        ResourcePtr scripts = pv->GetTargetOfType<ResourcePtr>("scripts");
+        if (!scripts)
+        {
+            throw NoScriptsFoundInProject(pv->ToString().c_str(),
+                                          MACARONI_INTERNAL_SOURCE);
+        }
+        optional<path> p = loader.GetAppPaths()->FindFinalProjectDirectory(pv->ToId());
+        if (!p)
+        {
+            throw ProjectNotFoundException2(pv->ToId().ToString().c_str(),
+                                           MACARONI_INTERNAL_SOURCE);
+        }
+        BOOST_FOREACH(PathPtr scriptPath, (*scripts->GetFiles()))
+        {
+            path fullPath = scriptPath->GetAbsolutePath();
+            this->getLuaEnvironment().AddPackageDirectory(fullPath.string());
+        }
+    }
+
+    /** Imports a project and makes it's lua code accessible. */
+    ~hidden static int importLua(lua_State * L)
+    {
+        try
+        {
+            void * uv1 = lua_touserdata(L, lua_upvalueindex(1));
+            ProjectEnvironment * me = static_cast<ProjectEnvironment *>(uv1);
+            ProjectVersionId id(luaL_checkstring(L, 1), luaL_checkstring(L, 2),
+                                luaL_checkstring(L, 3));
+            //me->loader.LoadProject(id);
+            me->import(id);
+            return 0;
+        } catch(const Exception & ex) {
+            return luaL_error(L, ex.message().c_str());
+        } catch(const std::exception & ex) {
+            return luaL_error(L, ex.what());
+        }
+    }
+
+    /**
+     * Actually parses and runs the project file.
+     * When it's finished, it locks down this ProjectEnvironment's
+     * identity.
+     */
+    public ProjectVersionId Initialize()
+    {
+        string filePath = workingProjectFile.string();
+        getLuaEnvironment().ParseFile(filePath);
+        getLuaEnvironment().Run();
+        return lockProject();
+    }
+
+    /** Loads a sub project from this, the parent project. */
+    ~hidden ProjectEnvironmentPtr loadChildProject(const std::string subPath)
+    {
+        // If the child refers back to us, the parent, it will try to load
+        // this exact environment again. Avoid that by locking down our
+        // identity.
+        lockProject();
+        path childProjectPath = workingDirectory / subPath / "project.lua";
+        if (!boost::filesystem::exists(childProjectPath))
+        {
+            throw ChildProjectFileNotFound(childProjectPath.string().c_str(),
+                                           MACARONI_INTERNAL_SOURCE);
+        }
+        return loader.LoadProjectEnvironment(childProjectPath);
+    }
+
+    ~hidden static int loadChildProjectLua(lua_State * L)
+    {
+        try
+        {
+            void * uv1 = lua_touserdata(L, lua_upvalueindex(1));
+            ProjectEnvironment * me = static_cast<ProjectEnvironment *>(uv1);
+            string subPath(luaL_checkstring(L, 1));
+            ProjectEnvironmentPtr pEnv = me->loadChildProject(subPath);
+            ProjectEnvironmentLuaMetaData::PutInstanceOnStack(L, pEnv);
+            return 1;
+        } catch(const Exception & ex) {
+            return luaL_error(L, ex.message().c_str());
+        } catch(const std::exception & ex) {
+            return luaL_error(L, ex.what());
+        }
+    }
+
+    ~hidden static int loadProjectLua(lua_State * L)
+    {
+        void * uv1 = lua_touserdata(L, lua_upvalueindex(1));
+        ProjectEnvironment * me = static_cast<ProjectEnvironment *>(uv1);
+        ProjectVersionId id(luaL_checkstring(L, 1), luaL_checkstring(L, 2),
+                            luaL_checkstring(L, 3));
+        try
+        {
+            ProjectVersionPtr pv = me->loader.LoadProjectById(id);
+            ProjectVersionLuaMetaData::PutInstanceOnStack(L, pv);
+            return 1;
+        } catch(const Exception & ex) {
+            return luaL_error(L, ex.message().c_str());
+        } catch(const std::exception & ex) {
+            return luaL_error(L, ex.what());
+        }
+    }
+
+    /*
+     * Due to the cyclic nature of how parent and child projects may refer
+     * to each other, it can be necessary to lock down the ProjectVersionId
+     * of the file even as it is being parsed.
+     * For example, the "project" var must be used to associate the
+     * ProjectVersionId to the given project file path before sub projects can
+     * be parsed. This helper function does that.
+     */
+    ~hidden ProjectVersionId lockProject()
+    {
+        if (!!GetWorkingProjectId())
+        {
+            // Skip, since we've already locked it.
+            return GetWorkingProjectId();
+        }
+        lua_State * L = getLuaEnvironment().GetState();
+        lua_getglobal(L, "project");
+        if (false == ProjectVersionLuaMetaData::IsType(L, -1))
+        {
+            string fullPath = this->GetWorkingProjectFile().string();
+            throw ProjectNotGivenException(fullPath.c_str(),
+                                           MACARONI_INTERNAL_SOURCE);
+        }
+        ProjectVersionPtr pv = ProjectVersionLuaMetaData::GetInstance(L, -1);
+        lua_pop(L, 1);
+        ProjectVersionId pvId = pv->ToId();
+        workingProjectId = pvId;
+        marker->Mark(*this, pvId);
+        //loader.GetContext()->MarkParsedProjectFile(this->GetWorkingProjectFile(), pvId);
+        // This truly locks it:
+        return pvId;
+    }
+
+    /** Loads a project, and, if it contains a resource target "scripts", will
+     *  load the files. */ /*
+    ~hidden void import(const ProjectVersionId & id)
+    {
+        this->LoadProject(id);
+        ProjectVersionPtr pv = this->LoadProject(id);
+        ResourcePtr scripts = pv->GetTargetOfType<ResourcePtr>("scripts");
+        if (!scripts)
+        {
+            throw NoScriptsFoundInProject(pv->ToString().c_str(),
+                                          MACARONI_INTERNAL_SOURCE);
+        }
+        optional<path> p = appPaths->FindFinalProjectDirectory(pv->ToId());
+        if (!p)
+        {
+            throw ProjectNotFoundException(pv->ToId().ToString().c_str(),
+                                           MACARONI_INTERNAL_SOURCE);
+        }
+        BOOST_FOREACH(PathPtr scriptPath, (*scripts->GetFiles()))
+        {
+            path fullPath = scriptPath->GetAbsolutePath();
+            this->luaEnvironment.AddPackageDirectory(fullPath.string());
+        }
+    }
+
+    /** Imports a project and makes it's lua code accessible. */ /*
+    ~hidden static int importLua(lua_State * L)
+    {
+        try
+        {
+            void * uv1 = lua_touserdata(L, lua_upvalueindex(1));
+            ProjectEnvironment * me = static_cast<ProjectEnvironment *>(uv1);
+            ProjectVersionId id(luaL_checkstring(L, 1), luaL_checkstring(L, 2),
+                                luaL_checkstring(L, 3));
+            me->LoadProject(id);
+            me->import(id);
+            return 0;
+        } catch(const Exception & ex) {
+            return luaL_error(L, ex.message().c_str());
+        } catch(const std::exception & ex) {
+            return luaL_error(L, ex.what());
+        }
+    }*/
+
+    ~hidden ProjectVersionPtr parseUpperProject()
+    {
+        path parentPath = boost::filesystem::system_complete(this->workingDirectory) / "..";
+        path finalPath = parentPath / "project.lua";
+        if (!exists(finalPath))
+        {
+            finalPath = parentPath / "project-final.lua";
+        }
+        return loader.LoadProject(finalPath);
+    }
+
+    ~hidden static int parseUpperProjectLua(lua_State * L)
+    {
+        try
+        {
+            void * uv1 = lua_touserdata(L, lua_upvalueindex(1));
+            ProjectEnvironment * me = static_cast<ProjectEnvironment *>(uv1);
+            ProjectVersionPtr pv = me->parseUpperProject();
+            ProjectVersionLuaMetaData::PutInstanceOnStack(
+                me->getLuaEnvironment().GetState(), pv);
+            return 1;
+        }
+        catch(Exception & ex)
+        {
+            return luaL_error(L, ex.message().c_str());
+        }
+        catch(...)
+        {
+            return luaL_error(L, "Something terrible happened during "
+                                 "getUpperProject.");
+        }
+    }
+
+    public bool RunCommand(const char * cmd, OutputPtr output)
+        @LuaFunction "RunCommand"
+    {
+        try
+        {
+            getLuaEnvironment().ParseString("REPL", cmd);
+        } catch(const Macaroni::Exception & me) {
+            output->WriteLine(format("Error parsing : %s")
+                              % me.message());
+            return false;
+        }
+        try
+        {
+            getLuaEnvironment().Run();
+        } catch(const Macaroni::Exception & me) {
+            output->WriteLine(format("Error running Lua : %s")
+                              % me.message());
+            return false;
+        }
+        return true;
+    }
+
+    /** Runs the "init.lua" script stored in the user's path.
+     *  This has properties in it the user sets on a per-machine basis.
+     *  For instance, the path to the Boost libraries might be stored
+     *  here. */
+    ~hidden void runInitScript()
+    {
+        path userPath(Paths::GetUserPath());
+        path initLuaPath = userPath / "init.lua";
+        if (!boost::filesystem::exists(initLuaPath))
+        {
+            loader.GetOutput()->ErrorLine(str(format("Could not find init.lua at %s.")
+                              % initLuaPath.string()));
+            getLuaEnvironment().ParseString("init.lua", "properties = {}");
+            getLuaEnvironment().Run();
+        }
+        else
+        {
+            loader.GetOutput()->WriteLine(format("Running %s...") % initLuaPath.string());
+            getLuaEnvironment().ParseFile(initLuaPath.string());
+            getLuaEnvironment().Run();
+        }
+    }
+
+    /** Loads a lua file containing special helper functions all projects
+     *  will need. */
+    ~hidden void runProjectInitScript()
+    {
+        optional<path> pInitDir = loader.GetAppPaths()->FindFinalProjectDirectory(
+            ProjectVersionId("Macaroni", "Project-Lua", "0"));
+        if (!pInitDir)
+        {
+            loader.GetOutput()->ErrorLine("Could not open project "
+                "Macaroni / Project-Lua / 0! Project system may be unusable.");
+            return;
+        }
+        else
+        {
+            path projectInit = pInitDir.get() / "src/project-init.lua";
+            if (!boost::filesystem::exists(projectInit))
+            {
+                loader.GetOutput()->ErrorLine(str(format("Could not find project-init.lua "
+                    " at %s.") % projectInit.string()));
+                return;
+            }
+            loader.GetOutput()->WriteLine(format("Running %s...") % projectInit.string());
+            getLuaEnvironment().ParseFile(projectInit.string());
+            getLuaEnvironment().Run();
+        }
+    }
+
+    //TODO: Move to ProjectVersion.
+    public void SInstall(ProjectVersionPtr pv, PathPtr src)
+    {
+        path dst = loader.GetAppPaths()->FindOrCreateFinalProjectDirectory(pv->ToId());
+        string bar(80, '*');
+        loader.GetOutput()->WriteLine(bar);
+        loader.GetOutput()->WriteLine(format("Installing %s") % pv->ToString());
+        loader.GetOutput()->WriteLine(format("%s -> %s") % src->GetAbsolutePath() %
+                              dst.string());
+        loader.GetOutput()->WriteLine(bar);
+        Path dstP(dst);
+        dstP.CreateDirectory();
+        dstP.ClearDirectoryContents();
+		try
+		{
+			Path::CopyDirectoryContents(*src, dstP);
+		} 
+		catch(const Macaroni::Exception & ex)
+		{
+			loader.GetOutput()->WriteLine(ex.message());
+			throw;
+		}
+		catch(...)
+		{
+			loader.GetOutput()->WriteLine("Error copying files!");
+			throw;
+		}        
+        PathPtr finalProjectFile = dstP.NewPathForceSlash("project-final.lua");
+        if (!finalProjectFile->Exists())
+        {
+            PathPtr projectFile = dstP.NewPathForceSlash("project.lua");
+            path a(projectFile->GetAbsolutePath());
+            path b(finalProjectFile->GetAbsolutePath());
+            if (projectFile->Exists())
+            {
+				try
+				{
+					boost::filesystem::copy_file(a, b);
+				} 
+				catch(...)
+				{
+					loader.GetOutput()->WriteLine(format("Error copying file "
+						"%s to %s!") % a.string().c_str() % b.string().c_str());
+					throw;
+				}
+            }
+        }
+    }
+
+    ~hidden static int sInstall(lua_State * L)
+    {
+        try
+        {
+            void * uv1 = lua_touserdata(L, lua_upvalueindex(1));
+            ProjectEnvironment * me = static_cast<ProjectEnvironment *>(uv1);
+
+            ProjectVersionPtr pv = ProjectVersionLuaMetaData::GetInstance(L, 1);
+            PathPtr src = PathLuaMetaData::GetInstance(L, 2);
+            me->SInstall(pv, src);
+
+            return 0;
+        }
+        catch(const Exception & ex)
+        {
+            return luaL_error(L, ex.message().c_str());
+        }
+		catch(const std::exception & ex)
+		{
+			return luaL_error(L, ex.what());
+		}
+        catch(...)
+        {
+            return luaL_error(L,
+                              "Something terrible happened during sInstall.");
+        }
+    }
+};
