@@ -35,14 +35,14 @@ class Namespace;
 
 
 class Node
-{ 
+{
 friend class Context;
 friend class Element;
 friend void intrusive_ptr_add_ref(Node * p);
 friend void intrusive_ptr_release(Node * p);
 
-public:		
-	
+public:
+
 	bool operator==(const Node & other) const;
 
 	/** Creates a node with the given prefix and some number
@@ -57,19 +57,19 @@ public:
 	//NamespacePtr FindOrCreateNamespace(const std::string & name);
 
 	/** Finds of creates an UnknownScopePtr, which is returned as a NodePtr. */
-	NodePtr FindOrCreate(const std::string & name);	
+	NodePtr FindOrCreate(const std::string & name);
 
 	/** Same as above, but also sets the hFilePath if creating a new node. */
-	NodePtr FindOrCreate(const std::string & name, const std::string & hFilePath);	
+	NodePtr FindOrCreate(const std::string & name, const std::string & hFilePath);
 
 	/** Find or creates an UnknownScopePtr, or returns nullptr if a clash. */
 	//UnknownScopePtr FindOrCreateUnknownScope(const std::string & name);
 
 	NodePtr Find(const std::string & complexName);
 
-	//NamespacePtr Find(std::string & name);	
+	//NamespacePtr Find(std::string & name);
 	NodePtr GetAdoptedHome();
-		
+
 	inline AnnotationTable & GetAnnotations()
 	{
 		return annotations;
@@ -79,14 +79,14 @@ public:
 
 	// TODO: This is pitifully sloppy! Information on where the official C++
 	// definition is should probably optionally be attached to its own object
-	// instead of a string.  Please change this into a pointer to such an 
+	// instead of a string.  Please change this into a pointer to such an
 	// object.
 	/** This is set either by a Generator or by the Parser if a non-Macaroni
 	 * element is being introduced. */
 	FileNamePtr GetHFilePath() const;
 
 	std::string GetFullName() const;
-	
+
 	/** Uses the provided char instead of "::". */
 	std::string GetPrettyFullName(const char * seperator) const;
 
@@ -115,21 +115,21 @@ public:
 		return ElementPtr(element);
 	}
 
-	/** Returns an element cast to some pointer type of subclass. If the 
+	/** Returns an element cast to some pointer type of subclass. If the
 	 *  element is not of that type returns an empty pointer. */
 	template<class PtrType> PtrType GetElement()
 	{
-		typedef PtrType::element_type UnderlyingType;
+		typedef typename PtrType::element_type UnderlyingType;
 		ElementPtr element = GetElement();
 		if (!element)
 		{
 			return PtrType();
 		}
-		PtrType rtnValue = 
+		PtrType rtnValue =
 			boost::dynamic_pointer_cast<UnderlyingType>(element);
 		if (!rtnValue)
 		{
-			return PtrType();			
+			return PtrType();
 		}
 		else
 		{
@@ -137,22 +137,11 @@ public:
 		}
 	}
 
-	/** Destroys an object. */
-	//template<class T> void Destroy(T * p) = 0;
-	template<typename T> void Destroy(T * p)
-	{
-		if (p)
-		{
-			p->~T();
-			this->Free(p);
-		}
-	}
-
 
 	//TO-DO: Rename to "getParent" or something.
 	NodePtr GetNode() const;
 
-	/** Returns true if the element of this node matches the given type. 
+	/** Returns true if the element of this node matches the given type.
 	 *  The type-safe C++ alternative to GetTypeName. */
 	template<typename T>
 	bool HasElementOfType()
@@ -161,14 +150,14 @@ public:
 		return 0 != tPtr;
 	}
 
-	/** Allows you to check the type name of a Node's Member without having to 
-	 * first check if the Node has a member. If there is no Member, "" is 
+	/** Allows you to check the type name of a Node's Member without having to
+	 * first check if the Node has a member. If there is no Member, "" is
 	 * returned. Useful for Lua methods. */
 	const char * GetTypeName() const;
 
 	static bool IsComplexName(const std::string & name);
 
-	static bool IsSimpleName(const std::string & name);	
+	static bool IsSimpleName(const std::string & name);
 
 	void ParseComplexName(const std::string & complexName,
 				          NodePtr & resultNode,
@@ -186,9 +175,9 @@ public:
 	static void SplitFirstNameOffComplexName(const std::string & complexName,
 											 std::string & firstPart,
 											 std::string & lastPart);
-																				 
+
 	static void SplitNodeAndMemberName(const std::string & complexName,
-										std::string & scopeName, 
+										std::string & scopeName,
 										std::string & memberName);
 
 	static void SplitComplexName(const std::string & complexName,
@@ -204,7 +193,7 @@ protected:
 
 	//Class * createClass(const std::string & simpleName);
 
-	//Namespace * createNamespace(const std::string & simpleName);	
+	//Namespace * createNamespace(const std::string & simpleName);
 
 	Node * findComplexName(const std::string & name) const;
 
@@ -219,7 +208,7 @@ protected:
 		return children[index];
 	}
 
-	Element * getElement() 
+	Element * getElement()
 	{
 		return element;
 	}
@@ -235,7 +224,7 @@ private:
 	Node(Context & context, const std::string & name);
 
 	/** This refers not to where a node officially lives, but where it might
-	 * be stored for organization purposes.  For example, if you have an 
+	 * be stored for organization purposes.  For example, if you have an
 	 * overloaded operator it might be better to store it in the same H file
 	 * as the class even though that's not really it's scope.  Can be null. */
 	Node * adoptedHome;
@@ -250,13 +239,13 @@ private:
 
 	FileNamePtr hFilePath;
 
-	ReasonPtr hFilePathReason;	
+	ReasonPtr hFilePathReason;
 
 	std::string name;
 
 	//TO-DO: Rename to "parent"
 	Node * scope;
-		
+
 };
 
 END_NAMESPACE2

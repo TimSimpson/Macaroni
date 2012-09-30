@@ -176,7 +176,7 @@ class Macaroni::Model::Type
 };
 class MACARONI_THROW { ~hfile=<Macaroni/ME.h> };
 class Macaroni::Containers::VectorOfConstString { ~hfile=<Macaroni/Containers.h> };
-
+class MACARONI_VE_CONST { ~hfile=<Macaroni/ME.h> };
 
 
 

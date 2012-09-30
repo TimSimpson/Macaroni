@@ -258,8 +258,8 @@ class Macaroni::Model::Project::ProjectVersion
 			TargetPtr target = this->GetTarget(name);
 			if (target)
 			{
-				T::element_type * typedPtr =
-					dynamic_cast<T::element_type *>(target.get());
+				typename T::element_type * typedPtr =
+					dynamic_cast<typename T::element_type *>(target.get());
 				if (0 != typedPtr)
 				{
 					T typedSmartPtr(typedPtr);

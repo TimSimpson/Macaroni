@@ -31,7 +31,15 @@ class GroupList
 {
 	friend Context;
 	private Context * const context;
-	private vector<Group * const> groups;
+	~block "h-predef"
+	{
+		#include <Macaroni/ME.h>
+		#include <vector>
+	}
+	~block "h"
+	{
+		private: std::vector<Group * MACARONI_VE_CONST> groups;
+	}
 
 	protected GroupList(Context * const context)
 	: context(context), groups()
@@ -86,6 +94,6 @@ class GroupList
 	public string ToString() const
 		@LuaOperator "__tostring"
 	{
-		return str(format("GroupList, size=:%d") % groups.size());
+		return boost::str(format("GroupList, size=:%d") % groups.size());
 	}
 };

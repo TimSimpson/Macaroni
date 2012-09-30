@@ -57,7 +57,7 @@ class Any
 
 	public virtual ~Any()
 	{
-		destroyChildren();		
+		destroyChildren();
 	}
 
 	protected void addReference()
@@ -88,9 +88,9 @@ class Any
 		}
 	}
 
-	/** 
+	/**
 	 * Pushes the value onto the Lua stack.
-	 * NOTHING ELSE may be pushed other than the marshalled value! 
+	 * NOTHING ELSE may be pushed other than the marshalled value!
 	 */
 	public virtual void ToLua(lua_State * L) = 0;
 
@@ -236,7 +236,7 @@ class String : public Any
 };
 
 
-class KeyNotFoundException : public SimpleStringException 
+class KeyNotFoundException : public SimpleStringException
 {
 	public KeyNotFoundException(const char * key, InternalSource where)
 		: SimpleStringException(key, where)
@@ -249,7 +249,7 @@ class KeyNotFoundException : public SimpleStringException
 	}
 };
 
-class ValueTypeException : public SimpleStringException 
+class ValueTypeException : public SimpleStringException
 {
 	public ValueTypeException(const char * key, InternalSource where)
 		: SimpleStringException(key, where)
@@ -268,7 +268,9 @@ class Table : public Any
 	~import Macaroni::Environment::Values::Bool;
 	~import Macaroni::Environment::Values::Double;
 	~import Macaroni::Exception::Exceptions;
+	~import boost::format;
 	//~import Macaroni::Environment::Values::KeyNotFoundException;
+	~import std::string;
 	~import Macaroni::Environment::Values::String;
 	//~import Macaroni::Environment::Values::ValueTypeException;
 	~import boost::variant;
@@ -276,6 +278,7 @@ class Table : public Any
 	~block "h-predef" {
 		#include <Macaroni/Environment/Values/KeyNotFoundException.h>
 		#include <Macaroni/Environment/Values/ValueTypeException.h>
+		#include <boost/format.hpp>  // Bug in M
 		#include <vector>
 	}
 
@@ -317,7 +320,7 @@ class Table : public Any
 		}
 	}
 
-	/** Defining these seperately so I can interrogate them in the debugger. */		
+	/** Defining these seperately so I can interrogate them in the debugger. */
 	public inline bool Has(const int & name)
 	{
 		return children.count(name) > 0;
@@ -348,38 +351,38 @@ class Table : public Any
 		 *  subclass of Any to eliminate the need for casting. It also throws
 		 *  exceptions if anything goes wrong. */
 		template<class T>
-		typename T * GetAsAnyType(
+		T * GetAsAnyType(
 			const boost::variant<int, std::string> & name)
 		{
 			AnyPtr ptr = get(name);
 			if (!ptr)
 			{
-				string key;
+				std::string key;
 				if (const int * i = boost::get<const int>(&name))
 				{
-					key = str(format("%d") % *i);
+					key = str(boost::format("%d") % *i);
 				}
 				else
 				{
-					key = *(boost::get<const string>(&name));
+					key = *(boost::get<const std::string>(&name));
 				}
-				throw KeyNotFoundException(key.c_str(), 
+				throw KeyNotFoundException(key.c_str(),
 					                       MACARONI_INTERNAL_SOURCE);
 			}
 			Any * any = ptr.get();
 			T * anyS = dynamic_cast<T *>(any);
 			if (anyS == 0)
 			{
-				string key;
+				std::string key;
 				if (const int * i = boost::get<const int>(&name))
 				{
-					key = str(format("%d") % *i);
+					key = str(boost::format("%d") % *i);
 				}
 				else
 				{
-					key = *(boost::get<const string>(&name));
+					key = *(boost::get<const std::string>(&name));
 				}
-				throw ValueTypeException(key.c_str(), 
+				throw ValueTypeException(key.c_str(),
 					                     MACARONI_INTERNAL_SOURCE);
 			}
 			return anyS;
@@ -408,7 +411,7 @@ class Table : public Any
 //				{
 //					key = *(boost::get<const string>(&name));
 //				}
-//				throw KeyNotFoundException(key.c_str(), 
+//				throw KeyNotFoundException(key.c_str(),
 //					                       MACARONI_INTERNAL_SOURCE);
 //			}
 //			Any * any = ptr.get();
@@ -424,7 +427,7 @@ class Table : public Any
 //				{
 //					key = *(boost::get<const string>(&name));
 //				}
-//				throw ValueTypeException(key.c_str(), 
+//				throw ValueTypeException(key.c_str(),
 //					                     MACARONI_INTERNAL_SOURCE);
 //			}*/
 			return anyS->Get();
@@ -436,7 +439,7 @@ class Table : public Any
 		{
 			return get_t<T>(index);
 		}
-		
+
 		template<class T>
 		typename T::WrappedType Get(std::string index)
 		{
@@ -447,16 +450,16 @@ class Table : public Any
 	public AnyPtr Get(int index)
 	{
 		//const variant<int, string> name = index;
-		return get(index);		
+		return get(index);
 	}
 
 	public AnyPtr Get(string index)
 	{
-		return get(index);		
+		return get(index);
 	}
 
 	~block "h"
-	{	
+	{
 	public:
 		template<class T, class O>
 		void GetVector(
@@ -464,12 +467,12 @@ class Table : public Any
 			O o)
 		{
 			Table * t = GetAsAnyType<Table>(name);
-			t->ToVector<T, O>(o);			
+			t->ToVector<T, O>(o);
 		}
 
 
 		/** Transforms this table into a vector if possible (works only if
-		 *  its a Lua array).  T must be a subclass of Any. O is a functor 
+		 *  its a Lua array).  T must be a subclass of Any. O is a functor
 		 *  which is called and passed the value type wrapped by T. */
 		template<class T, class O>
 		void ToVector(O o)
@@ -481,56 +484,15 @@ class Table : public Any
 				o(get_t<T>(index));
 			}
 		}
-	///*
-	//public:
-	//	template<class T>
-	//	void GetVector(
-	//		std::vector<typename T::WrappedType > & vec, std::string index)
-	//	{
-	//		return getVector<T>(vec, index);
-	//	}
-	//	
-	//	template<class T>
-	//	void GetVector(
-	//		std::vector<typename T::WrappedType > & vec, int index)
-	//	{
-	//		return getVector<T>(vec, index);
-	//	}*/
+
 	} // end block "h"
 
-	//public void Set(const string & name, bool value)
-	//{
-	//	if (children.count(name) > 0)
-	//	{
-	//		delete children[name];
-	//	}
-	//	children[name] = new Bool(value);
-	//}
-
-	//public void Set(const string & name, double value)
-	//{
-	//	if (children.count(name) > 0)
-	//	{
-	//		delete children[name];
-	//	}
-	//	children[name] = new Double(value);
-	//}
-
-	//public void Set(const string & name, const string & value)
-	//{
-	//	if (children.count(name) > 0)
-	//	{
-	//		delete children[name];
-	//	}
-	//	children[name] = new String(value);
-	//}
-	
 
 	/** Sets the given value to the key name.
 	 *  This also increases the reference count on the Any value pointed to so
 	 *  that when the last intrusive pointer is destroyed, the Any value is not.
 	 *  At that point this table owns the Any value. */
-	public void SetAndGiveReference(const variant<int, string> & name, 
+	public void SetAndGiveReference(const variant<int, string> & name,
 		                            AnyPtr value)
 	{
 		///*if (children.count(name) > 0)
@@ -545,7 +507,7 @@ class Table : public Any
 		lua_newtable(L);
 		for (map<variant<int, string>, AnyPtr>::const_iterator itr = children.begin();
 			itr != children.end(); itr ++)
-		{			
+		{
 			// Push key.
 			if (const int * key = boost::get<int>(&itr->first))
 			{
@@ -565,17 +527,4 @@ class Table : public Any
 		}
 	}
 
-	///*public virtual string ToLuaCode() const
-	//{
-	//	stringstream code;
-	//	code << "{";
-	//	for (map<string, Any *>::const_iterator itr = children.begin();
-	//		itr != children.end(); itr ++)
-	//	{
-	//		code << "[ " << String::StringToLuaCode(itr->first) 
-	//			 << " ] = " << itr->second->ToLuaCode() << ", ";
-	//	}
-	//	code << "}";
-	//	return code.str();
-	//}*/
 };

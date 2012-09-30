@@ -53,25 +53,26 @@ class StringException : public Exception
 		#endif
 	}
 
-	public StringException(const char * message, InternalSource source)
+	public StringException(const char * message, const InternalSource & source)
 	:	message(message),
 		source(source)
 	{
 		#ifndef _DEBUG
 			std::cout << "THROWN EXCEPTION at "
-				<< source.get().FileName << " ("
-				<< source.get().Line << ") :" << message << std::endl;
+				<< source.FileName << " ("
+				<< source.Line << ") :" << message << std::endl;
 		#endif
 	}
 
-	public StringException(const std::string & message, InternalSource source)
+	public StringException(const std::string & message,
+		                   const InternalSource & source)
 	:	message(message),
 		source(source)
 	{
 		#ifndef _DEBUG
 			std::cout << "THROWN EXCEPTION at "
-				<< source.get().FileName << " ("
-				<< source.get().Line << ") :" << message << std::endl;
+				<< source.FileName << " ("
+				<< source.Line << ") :" << message << std::endl;
 		#endif
 	}
 
@@ -92,8 +93,13 @@ class StringException : public Exception
 		return *this;
 	}
 
-	public virtual ~StringException() throw()
+	~block "h"
 	{
+		public: virtual ~StringException() BOOST_NOEXCEPT;
+	}
+	~block "cpp"
+	{
+		StringException::~StringException() BOOST_NOEXCEPT {}
 	}
 
 	public virtual const char* what() const throw()
@@ -101,7 +107,7 @@ class StringException : public Exception
 		return message.c_str();
     }
 
-    public virtual boost::optional<InternalSource> where() const throw()
+    public virtual const optional<InternalSource> & where() const throw()
     {
     	return source;
     }
@@ -110,16 +116,16 @@ class StringException : public Exception
 	{
 		// This is kind of weird, to say the least: I'm defining some functions
 		// declared in ME.h here.
-		
-		void ThrowMacaroniException(const char * file, int line, 
+
+		void ThrowMacaroniException(const char * file, int line,
 			                        const char * message)
 		{
 			InternalSource source(file, line);
 			throw StringException(message, source);
 		};
 
-		void ThrowMacaroniException(const char * file, int line, 
-			                        const std::string & message)	
+		void ThrowMacaroniException(const char * file, int line,
+			                        const std::string & message)
 		{
 			InternalSource source(file, line);
 			throw StringException(message, source);

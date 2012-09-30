@@ -41,7 +41,7 @@ friend void intrusive_ptr_add_ref(Library * p);
 friend void intrusive_ptr_release(Library * p);
 
 public:
-	~Library();
+	virtual ~Library();
 
 	virtual inline ContextPtr GetContext() const
 	{

@@ -362,6 +362,9 @@ ClassCppFileGenerator = {
         if (func.Const) then
             self:write(" const");
         end
+        if (func.ThrowSpecifier) then
+            self:write(" throw()");
+        end
         self:write("\n");
 
         --self:writeTabs();

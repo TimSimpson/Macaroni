@@ -28,14 +28,14 @@
 /** Any exception which occurs within the Parser. */
 class ParserException : public Exception
 {
-	optional<InternalSource> internalSource;
-	private string msg;	
+	private optional<InternalSource> internalSource;
+	private string msg;
 	private SourcePtr source;
-	private string whatString;	
-	
+	private string whatString;
+
 	~block "h" {
 	public: ParserException(
-		Macaroni::Model::SourcePtr source, 
+		Macaroni::Model::SourcePtr source,
 		const std::string & msg,
 		boost::optional<Macaroni::InternalSource> internalSource=boost::none);
 	}
@@ -47,12 +47,17 @@ class ParserException : public Exception
 			msg(msg),
 			source(source),
 			whatString(str(format("%s : %s") % source->ToString() % msg))
-		{	
+		{
 		}
 	}
 
-	public virtual ~ParserException() throw()
+	~block "h"
 	{
+		public: virtual ~ParserException() BOOST_NOEXCEPT;
+	}
+	~block "cpp"
+	{
+		ParserException::~ParserException() BOOST_NOEXCEPT {}
 	}
 
 	/** Returns the SourcePtr (which is richer than InternalSource). */
@@ -67,14 +72,14 @@ class ParserException : public Exception
 		return msg.c_str();
 	}
 
-	/** Gives the source (in Macaroni code parsed at runtime) plus the message. 
+	/** Gives the source (in Macaroni code parsed at runtime) plus the message.
 	 */
 	public virtual const char * what() const throw()
 	{
 		return whatString.c_str();
 	}
 
-	public virtual optional<InternalSource> where() const throw()
+	public virtual const optional<InternalSource> & where() const throw()
 	{
 		return internalSource;
 	}

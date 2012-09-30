@@ -13,15 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/* This file defines multiple macros used by Macaroni.
+ * It piggybacks off Boost Config for much of the heavy lifting.
+ */
 #ifndef ME_H
 #define ME_H
 
-// In C++0x (C++ 2009) nullptr will become officially adopted by C++.
-#ifndef nullptr
+#include <boost/config.hpp>
+
+#ifdef BOOST_NO_NULLPTR
 #define nullptr 0
 #endif
 
-#ifdef _WIN32
+#ifdef _WIN32 //Use BOOST_WINDOWS here?
 #ifndef MACARONI_COMPILE_TARGET_WINDOWS
 #define MACARONI_COMPILE_TARGET_WINDOWS
 #endif
@@ -30,11 +34,10 @@
 #endif
 
 // In MSVC and C++0x you can have a vector with const elements.
-// It was a shock to me this isn't really allowed.  I'm not sure if VC++ 
+// It was a shock to me this isn't really allowed.  I'm not sure if VC++
 // actually gets away with this or if it causes hard drives to get formatted but
 // for now I want to keep it in.
 #ifdef MACARONI_COMPILE_TARGET_WINDOWS
-#define MACARONI_VE_CONST_IS_ALLOWED
 //TODO: This may be overkill. I think boost::filesystem defines this somewhere.
 #define MACARONI_DIRECTORY_SEPERATOR "\\"
 #endif
@@ -42,8 +45,9 @@
 #define MACARONI_DIRECTORY_SEPERATOR "/"
 #endif
 
-#ifdef MACARONI_VE_CONST_IS_ALLOWED
+#ifdef BOOST_MSVC // MACARONI_VE_CONST_IS_ALLOWED
 #define MACARONI_VE_CONST const
+#define MACARONI_VE_CONST_IS_ALLOWED
 #else
 #define MACARONI_VE_CONST /**/
 #endif
@@ -51,10 +55,10 @@
 #define BEGIN_NAMESPACE(a, b, c) namespace a{ namespace b{ namespace c{
 #define END_NAMESPACE } } }
 
-#define BEGIN_NAMESPACE2(a, b) namespace a{ namespace b{ 
+#define BEGIN_NAMESPACE2(a, b) namespace a{ namespace b{
 #define END_NAMESPACE2 } }
 
-#define BEGIN_NAMESPACE4(a, b, c, d) namespace a{ namespace b{ namespace c{ namespace d{ 
+#define BEGIN_NAMESPACE4(a, b, c, d) namespace a{ namespace b{ namespace c{ namespace d{
 #define END_NAMESPACE4 } } } }
 
 namespace Macaroni
@@ -66,7 +70,7 @@ void ThrowMacaroniException(const char * file, int line, const char * message);
  * Crashes hard core.  An alternative to the classic exit command, except this
  * can be caught at the absolute lowest level to give some kind of error screen.
  */
-//TODO: Rename or get rid of this. It makes it seem like its intended to end the 
+//TODO: Rename or get rid of this. It makes it seem like its intended to end the
 //app, but thats not what it'll do.
 #define MACARONI_FAIL(m) { Macaroni::ThrowMacaroniException(__FILE__, __LINE__, (m)); }
 

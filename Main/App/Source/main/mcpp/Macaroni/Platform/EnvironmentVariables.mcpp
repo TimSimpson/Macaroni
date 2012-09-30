@@ -28,7 +28,7 @@
 
 namespace Macaroni::Platform {
 
-/** 
+/**
  *  This class handles copying environment variables around. This is used
  *  in Windows to copy the variables from the calling process to the child.
  *  I don't think it is needed in Linux.
@@ -63,13 +63,21 @@ class EnvironmentVariables
 				vars.push_back(EnvironmentVariable(normal));
 				blockAsLpstr += (len + 1);
 			}
-			::FreeEnvironmentStrings((__in LPTCH) orig);
-		} 
-		catch(std::exception & ex) 
-		{	
-			::FreeEnvironmentStrings((__in LPTCH) orig);
+			#ifdef BOOST_MSVC
+				::FreeEnvironmentStrings((__in LPTCH) orig);
+			#else
+				::FreeEnvironmentStrings((LPTCH) orig);
+			#endif
+		}
+		catch(std::exception & ex)
+		{
+			#ifdef BOOST_MSVC
+				::FreeEnvironmentStrings((__in LPTCH) orig);
+			#else
+				::FreeEnvironmentStrings((LPTCH) orig);
+			#endif
 			throw ex;
-		}	
+		}
 
 #endif
 	}
@@ -109,15 +117,15 @@ class EnvironmentVariables
 			//lstrncpy(buffer.get(), blockAsLpstr, len);
 			(buffer.get())[len]='\0';
 			try{
-				NonWindowsString winStr(buffer.get());		
+				NonWindowsString winStr(buffer.get());
 				std::string normal = winStr.get();
 				newVars.push_back(EnvironmentVariable(normal));
 				blockAsLpstr += (len + 1);
 			} catch(std::exception ex) {
 				throw ex;
 			}
-		}	
-		
+		}
+
 
 		for (unsigned int i = 0; i < newVars.size(); i ++)
 		{
@@ -161,7 +169,7 @@ class EnvironmentVariables
 #endif
 		return total;
 	}
-	
+
 	public void Set(StringPair & pair)
 	{
 #ifdef MACARONI_COMPILE_TARGET_WINDOWS

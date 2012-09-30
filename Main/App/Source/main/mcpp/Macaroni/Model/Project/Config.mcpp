@@ -19,14 +19,14 @@ typedef intrusive_ptr<Config ~l> ConfigPtr
 ;
 
 // Ugh, not having enums in Macaroni really hurts here.
-class Config::Variant	
+class Config::Variant
 {
 	~hfile = <Macaroni/Model/Project/Config.h>
 };
 
 typedef optional<Config::Variant ~l> Config::VariantOption
-	@LuaClass [ 
-		SameAsNode = Config 
+	@LuaClass [
+		SameAsNode = Config
 	]
 	@UseLightDef true
 	~hfile = <Macaroni/Model/Project/Config.h>
@@ -35,20 +35,20 @@ typedef optional<Config::Variant ~l> Config::VariantOption
 class ConfigLuaMetaData{};
 
 
-/** 
+/**
  *  A simple map of various values important to plugins that create build
  *  files. For example, one option specified here is "mode" which can be
- *  "release" or "debug", and by default is the later. 
+ *  "release" or "debug", and by default is the later.
  *  This gets translated to the configuration when generating Visual Studio
  *  projects, and the <variant>debug when generating Boost Build files.
  *
- *  To comparing one Config against another produces iinteger scores. Negative 
+ *  To comparing one Config against another produces iinteger scores. Negative
  *  numbers mean different, positive mean equal (different from CompareTo).
  *  higher numbers means more different.
  *  When two configs are compared, each value in one is tested against the
  *  value in the other. If two values are not equal, but one is optional,
  *  no points are added, otherwise one is subtracted.
- *  Typically when Configs are searched, everything with a non-negative score 
+ *  Typically when Configs are searched, everything with a non-negative score
  *  matching a Config will be used.
  */
 class Config
@@ -60,14 +60,14 @@ class Config
 
 	~block "h"
 	{
-		public: 
+		public:
 		enum Variant
 		{
 			DEBUG,
 			RELEASE
 		};
 		typedef boost::optional<Variant> VariantOption;
-	}	
+	}
 
 	private int referenceCount;
 	private VariantOption variant;
@@ -75,7 +75,7 @@ class Config
 	public Config()
 	: variant(boost::none)
 	{
-	}	
+	}
 
 	public bool IsMatch(ConfigPtr other)
 		@LuaFunction "IsMatch"
@@ -160,7 +160,7 @@ class Config
 	public void SetVariant(VariantOption newValue)
 		@LuaProperty "Variant"
 		@LuaGlueCode ={
-			Config::VariantOption & option = 
+			Config::VariantOption option =
 				GetInstanceOfVariantOption(L, nextStackIndex);
 			instance->SetVariant(option);
 		}
@@ -176,11 +176,11 @@ class ConfigLuaMetaData
 	~import std::string;
 	~import std::stringstream;
 
-	static Config::VariantOption GetInstanceOfVariantOption(lua_State * L, 
+	static Config::VariantOption GetInstanceOfVariantOption(lua_State * L,
 		                                                    int index)
 	{
 		if (1 == lua_isnil(L, index))
-		{			
+		{
 			return boost::none;
 		}
 		string value = luaL_checkstring(L, index);
@@ -194,7 +194,7 @@ class ConfigLuaMetaData
 		}
 	}
 
-	static void PutInstanceOnStack(lua_State * L, 
+	static void PutInstanceOnStack(lua_State * L,
 		                           Config::VariantOption variant)
 	{
 		if (variant == Config::RELEASE)

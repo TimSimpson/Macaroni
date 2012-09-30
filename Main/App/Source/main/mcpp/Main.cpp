@@ -79,17 +79,27 @@ int generic_main(std::vector<MACARONI_VE_CONST std::string> & args)
 	}
 	else
 	{
-		/*try
-		{
-		*/	if (cmd.Execute())
+		#ifndef _DEBUG
+			try
 			{
-				returnCode = 0; // success
+		#endif
+				if (cmd.Execute())
+				{
+					returnCode = 0; // success
+				}
+		#ifndef _DEBUG
 			}
-		/*} catch(std::exception & ex)
-		{
-			std::cerr << "An error occurred.\n" << std::endl;
-			std::cerr << ex.what()  << std::endl;
-		}*/
+			catch(Macaroni::Exception & ex)
+			{
+				std::cerr << "An error occurred.\n" << std::endl;
+				std::cerr << ex.message()  << std::endl;
+			}
+			catch(std::exception & ex)
+			{
+				std::cerr << "An error occurred.\n" << std::endl;
+				std::cerr << ex.what()  << std::endl;
+			}
+		#endif
 	}
 	std::cout << std::endl << "Program finished." << std::endl;
 	if (cmd.EndPrompt())

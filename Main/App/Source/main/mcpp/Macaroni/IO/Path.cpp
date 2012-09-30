@@ -226,7 +226,8 @@ std::string Path::GetAbsolutePath() const
 
 std::string Path::GetAbsolutePathForceSlash() const
 {
-	return NormalizePathString(GetAbsolutePath());
+	std::string absPath = GetAbsolutePath();
+	return NormalizePathString(absPath);
 }
 
 std::string Path::GetFileName() const
@@ -411,8 +412,9 @@ std::string Path::GetRelativePath() const
 
 std::string Path::GetRelativePathNormalized() const
 {
-	std::string original = NormalizePathString(GetRelativePath());
-	int index = 0;
+	std::string relPath = GetRelativePath();
+	const std::string original = NormalizePathString(relPath);
+	unsigned int index = 0;
 	while(original.length() > index && original[index] == '/')
 	{
 		++ index;

@@ -44,9 +44,9 @@ class ClassicPlugin : public Plugin
 
     ~block "cpp" { namespace
     {
-		
+
 		MACARONI_SIMPLE_EXCEPTION_DEFINE(
-			GetMethodFunctionNotFoundException, 
+			GetMethodFunctionNotFoundException,
 			"Global function \"GetMethod\" was not found.");
 		MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(
 			MethodNameUnknown,
@@ -64,7 +64,7 @@ class ClassicPlugin : public Plugin
             {
 				env.OpenAllLuaModules();
                 env.SetPackageDirectory(luaFilePath.branch_path().string());
-            }			
+            }
 
 			void addAppPaths(AppPathsPtr appPaths)
 			{
@@ -73,13 +73,13 @@ class ClassicPlugin : public Plugin
 				lua_pushcclosure(L, findOrCreateInstallPath, 1);
 				lua_setglobal(L, "findOrCreateInstallPath");
 			}
-			
+
 			LuaEnvironment & getEnv()
 			{
 				return env;
 			}
 
-			static void errorPrepare(lua_State * L) 
+			static void errorPrepare(lua_State * L)
 			{
 				// TODO: I don't understand this part to be honest. I copied
 				// it from some old code. I think it has to do with error
@@ -109,13 +109,13 @@ class ClassicPlugin : public Plugin
 
 				// call Generate(context, rootPath, output);
 				lua_getglobal(L, "GetMethod"); //method.c_str());//"Generate");
-				
+
 				if (lua_isnil(L, -1))
 				{
 					throw GetMethodFunctionNotFoundException(
 						MACARONI_INTERNAL_SOURCE);
 				}
-				
+
 				lua_pushstring(L, method.c_str());
 
 				pcall(L, 1, 1);
@@ -134,7 +134,7 @@ class ClassicPlugin : public Plugin
 			}
 
 			void setupPcall(lua_State * L)
-			{				
+			{
 				lua_getglobal(L, "debug");
 				lua_getfield(L, -1, "traceback");
 				lua_remove(L, -2);
@@ -147,10 +147,10 @@ class ClassicPlugin : public Plugin
 			 *  arg1
 			 *  function
 			 *  (setupPcall())
-			 * The number of things on the stack between setupPcall and 
+			 * The number of things on the stack between setupPcall and
 			 * function must be counted in the extraJunk parameter.
 			 */
-			void pcall(lua_State * L, int argumentCount, int resultCount, 
+			void pcall(lua_State * L, int argumentCount, int resultCount,
 				       int extraJunk = 0)
 			{
 				int debugIndex = 0 - argumentCount - 1 - 1 - extraJunk;
@@ -160,7 +160,7 @@ class ClassicPlugin : public Plugin
 				{
 					string errorMsg;
 					std::stringstream ss;
-					ss << "Error running Generator \"" 
+					ss << "Error running Generator \""
 					   << luaFilePath.string() << "\":";
 					if (eCode == LUA_ERRERR)
 					{
@@ -181,15 +181,15 @@ class ClassicPlugin : public Plugin
 						else if (1 == lua_isstring(L, -1))
 						{
 							ss << lua_tostring(L, -1);
-						}		
+						}
 						///*else if (1 == lua_isfunction(L, -1))
 						//{
 						//	int eCode = lua_pcall(L, 0, 1, 0);
 						//	if (0 != eCode)
 						//	{
 						//		ss << "(a function, which gave an error when called)";
-						//	}				
-						//	else 
+						//	}
+						//	else
 						//	{
 						//		lua_getglobal(L, "tostring");
 						//		lua_pushvalue(L, -2);
@@ -206,15 +206,15 @@ class ClassicPlugin : public Plugin
 						{
 							lua_getglobal(L, "tostring");
 							lua_pushvalue(L, -2);
-							try 
+							try
 							{
 								LuaEnvironment::Run(MACARONI_INTERNAL_SOURCE, L, 1, 1);
 								//ss << "tostring=";
 								ss << luaL_checkstring(L, -1);
-							} 
+							}
 							catch(const Macaroni::Exception & ex)
-							{								
-								///*try 
+							{
+								///*try
 								//{
 								//	lua_getglobal(L, "type");
 								//	lua_pushvalue(L, -2);
@@ -222,18 +222,18 @@ class ClassicPlugin : public Plugin
 								//	lua_getglobal(L, "tostring");
 								//	lua_pushvalue(L, -2);
 								//	ss << "(error getting error message from "
-								//		  "type " 
+								//		  "type "
 								//	   << luaL_checkstring(L, -1) << ")";
 								//}
 								//catch(const Macaroni::Exception & ex)
 								//{
 								//	ss << "(Sorry, there was an error trying to "
 								//       "convert the error object to a string!)";
-								//}			*/					
-								ss << "!!??!! Could not convert the error type"
+								//}			*/
+								ss << "?! Could not convert the error type"
 									  " to a string.";
-							}	
-						}				
+							}
+						}
 					}
 					throw Macaroni::StringException(ss.str().c_str());
 
@@ -246,24 +246,24 @@ class ClassicPlugin : public Plugin
 			{
 				//env.Run();
 				// Put the arguments in a global variable.
-				lua_State * L = env.GetState();						
-				
-				errorPrepare(L);				
- 
+				lua_State * L = env.GetState();
+
+				errorPrepare(L);
+
 				getMethod(L, method);
 				lua_pushstring(L, "Run");
-				lua_gettable(L, -2);				
-				// The run function is now at the top of the stack.				
+				lua_gettable(L, -2);
+				// The run function is now at the top of the stack.
 				arguments->ToLua(L);
 				pcall(L, 1, 0, 1);
-				
+
 				lua_pop(L, 1); // remove "method" table.
 			}
 
 			void runProperties(AnyPtr props)
 			{
 				props->ToLua(env.GetState());
-				lua_setglobal(env.GetState(), "properties");				
+				lua_setglobal(env.GetState(), "properties");
 			}
 
         };
@@ -294,7 +294,7 @@ class ClassicPlugin : public Plugin
 				break;
 			}
 		}
-    }	
+    }
 
     public void Run(string action, AnyPtr arguments
                     /* Some kind of work context */)

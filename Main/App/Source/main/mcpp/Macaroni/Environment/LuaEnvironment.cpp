@@ -30,6 +30,7 @@
 #include <Macaroni/Environment/Values/Null.h>
 #include <sstream>
 #include <string>
+#include <string.h>
 #include <Macaroni/Environment/Values/String.h>
 #include <Macaroni/StringException.h>
 #include <boost/variant.hpp>
@@ -38,6 +39,14 @@ using boost::format;
 using boost::optional;
 using std::string;
 using std::stringstream;
+
+// MinGW has no strnlen.
+#ifdef BOOST_WINDOWS
+    #ifndef BOOST_MSVC
+        #define strnlen(A, B) strlen(A)
+    #endif
+#endif
+
 
 BEGIN_NAMESPACE2(Macaroni, Environment)
 
@@ -604,7 +613,7 @@ Values::AnyPtr LuaEnvironment::SerializeValue(lua_State * state, int index,
 			{
 				const int valueIndex = -1;
 				const int keyIndex = -2;
-				const int registryTableIndex = -3;
+				// registryTableIndex = -3;
 				const int metaTableIndex = -4;
 				if (1 == lua_equal(state, valueIndex, metaTableIndex))
 				{
@@ -621,7 +630,7 @@ Values::AnyPtr LuaEnvironment::SerializeValue(lua_State * state, int index,
 			lua_pop(state, 2); // pop off registry table reference and meta table.
 			if (metaTableName)
 			{
-				const string & name = metaTableName.get();
+				//const string & name = metaTableName.get();
 				rtn = Values::Any::CreateFromLuaUserData(state,
 					metaTableName.get(), index);
 			}

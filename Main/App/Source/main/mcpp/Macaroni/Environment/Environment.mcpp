@@ -237,13 +237,14 @@ class Macaroni::Environment::Environment
 			input->ReadString(line);
 			if (line == "~quit" || line=="~exit")
 			{
-				return true;
+				quitRepl = true;
 			}
 			else if (!replCommand(line))
 			{
 				RunCommand(line.c_str());
 			}
 		}
+		return true;
 	}
 
 	~hidden bool replCommand(string line);

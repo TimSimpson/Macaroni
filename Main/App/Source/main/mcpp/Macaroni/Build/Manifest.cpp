@@ -73,7 +73,7 @@ void setLibraryId(LibraryId & id, lua_State * L);
 Manifest::Manifest()
 :allowCavatappi(false),
  children(),
- configurations(), 
+ configurations(),
  containsCavatappi(false),
  cppHeadersOutput(),
  cppOutput(""),
@@ -81,7 +81,7 @@ Manifest::Manifest()
  description(""),
  fOutput(""),
  group(""),
- id(), 
+ id(),
  manifestFile(),
  mOutput(""),
  name(""),
@@ -103,7 +103,7 @@ Manifest::Manifest(LibraryId id, std::vector<LibraryId> deps)
  description(""),
  fOutput(""),
  group(id.GetGroup()),
- id(id), 
+ id(id),
  manifestFile(),
  mOutput(""),
  name(id.GetName()),
@@ -113,8 +113,8 @@ Manifest::Manifest(LibraryId id, std::vector<LibraryId> deps)
 {
 }
 
-Manifest::Manifest(const boost::filesystem::path & manifestFile, 
-				   const std::string & properties, 
+Manifest::Manifest(const boost::filesystem::path & manifestFile,
+				   const std::string & properties,
 				   ManifestPtr upperManifest,
 				   const bool allowCavatappi)
 :allowCavatappi(allowCavatappi),
@@ -122,7 +122,7 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile,
  containsCavatappi(false),
  dependencies(),
  description(""),
- id(), 
+ id(),
  luaEnv(),
  manifestFile(manifestFile),
  properties(properties),
@@ -133,8 +133,8 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile,
 	luaEnv.SetPackageDirectory(settingsPath.string());
 
 	// Establish the properties variable.
-	std::stringstream code;	
-	code << "properties = " << properties << ";" << std::endl;	
+	std::stringstream code;
+	code << "properties = " << properties << ";" << std::endl;
 	//std::cerr << "CHUNK" << std::endl;
 	//std::cerr << code.str() << std::endl;
 	// This may be a frowned-upon practice, but this way the entire
@@ -146,11 +146,11 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile,
 
 	lua_State * L = luaEnv.GetState();
 
-	lua_pushstring(L, LATEST_LUA_VALUE);	
+	lua_pushstring(L, LATEST_LUA_VALUE);
 	lua_setglobal(L, "LATEST");
 
-	boost::filesystem::path mDirPath = 
-		boost::filesystem::system_complete(manifestFile).parent_path();	
+	boost::filesystem::path mDirPath =
+		boost::filesystem::system_complete(manifestFile).parent_path();
 	lua_pushstring(L, mDirPath.string().c_str());
 	lua_setglobal(L, "manifestDirectory");
 
@@ -177,14 +177,14 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile,
 	if (!!extraCavatappiInfo)
 	{
 		containsCavatappi = true;
-		if (allowCavatappi) 
+		if (allowCavatappi)
 		{
 			path cavatappiFile = manifestFile.branch_path() / extraCavatappiInfo.get();
 			luaEnv.ParseFile(cavatappiFile.string());
 			luaEnv.Run();
 		}
 	}
-	
+
 
 
 	setLibraryId(id, L);
@@ -193,7 +193,7 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile,
 	manifestDir.remove_filename();
 
 	luaEnv.GetFromGlobalVarOrDefault(description, "description", "");
-	
+
 	Macaroni::Containers::AssignVectorToConstElementVector(
 		luaEnv.GetVectorFromGlobalTable("sources"), mSource);
 ///*
@@ -210,15 +210,15 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile,
 	{
 		mSource[i] = (manifestDir / mSource[i]).string();
 	}
-	
+
 	Macaroni::Containers::AssignVectorToConstElementVector(
 		luaEnv.GetVectorFromGlobalTable("bugs"), bugs);
-	
+
 	Macaroni::Containers::AssignVectorToConstElementVector(
-		luaEnv.GetVectorFromGlobalTable("children"), children);	
+		luaEnv.GetVectorFromGlobalTable("children"), children);
 
 	lua_getglobal(luaEnv.GetState(), "allowChildFailure");
-	if (lua_isboolean(luaEnv.GetState(), -1)) 
+	if (lua_isboolean(luaEnv.GetState(), -1))
 	{
 		allowChildFailure = lua_toboolean(L, -1) == 1;
 	}
@@ -226,7 +226,7 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile,
 	{
 		allowChildFailure = false;
 	}
-	
+
 	lua_getglobal(luaEnv.GetState(), "id");
 	if (!lua_isnil(luaEnv.GetState(), -1))
 	{
@@ -258,7 +258,8 @@ Manifest::Manifest(const boost::filesystem::path & manifestFile,
 
 	configurations = createConfigurations(luaEnv);
 
-	lua_gc(L, LUA_GCCOLLECT, NULL);
+	const int nullData = 0;
+	lua_gc(L, LUA_GCCOLLECT, nullData);
 }
 
 Manifest::~Manifest()
@@ -266,7 +267,8 @@ Manifest::~Manifest()
 	//HACKY BUG FIX CODE...
 	//						... REMOVE??!! (To be continued...)
     this->dependencies.clear();
-    lua_gc(luaEnv.GetState(), LUA_GCCOLLECT, NULL);
+    const int nullData = 0;
+    lua_gc(luaEnv.GetState(), LUA_GCCOLLECT, nullData);
     //luaEnv.~LuaEnvironment();
 }
 
@@ -288,13 +290,13 @@ int _dependency(lua_State * L)
     LibraryId dId;
     lua_getfield(L, 1, "group");
     if (!lua_isnil(L, -1))
-    {		
+    {
         dId.SetGroup(std::string(luaL_checkstring(L, -1)));
     }
     lua_pop(L, 1);
     lua_getfield(L, 1, "name");
     if (!lua_isnil(L, -1))
-    {		
+    {
         dId.SetName(std::string(luaL_checkstring(L, -1)));
     }
     lua_pop(L, 1);
@@ -314,7 +316,7 @@ int _dependency(lua_State * L)
 	//void * ptr2 = lua_touserdata(L, lua_upvalueindex(2));
 	//const std::string & properties = *(reinterpret_cast<std::string *>(ptr2));
 	dependencies->push_back(dId);
-	return 0;	
+	return 0;
 }
 
 int _getUpperLibrary(lua_State * L)
@@ -339,44 +341,44 @@ int _getUpperLibrary(lua_State * L)
 		lua_pushstring(L, "Version");
 		lua_pushstring(L, id.GetVersion().c_str());
 		lua_settable(L, -3);
-	}	
+	}
 	return 1;
 }
 
 int _runScript(lua_State * L)
 {
 	// Collect Up Values
-	void * ptr = lua_touserdata(L, lua_upvalueindex(1));    
+	void * ptr = lua_touserdata(L, lua_upvalueindex(1));
     const std::vector<std::string> * sources =
-        reinterpret_cast<std::vector<std::string> *>(ptr);	
+        reinterpret_cast<std::vector<std::string> *>(ptr);
 	std::string methodName(lua_tostring(L, lua_upvalueindex(2)));
 	void * contextVP = lua_touserdata(L, lua_upvalueindex(3));
 	BuildContextPtr & iCon = *(reinterpret_cast<BuildContextPtr *>(contextVP));
 	void * runListVP = lua_touserdata(L, lua_upvalueindex(4));
-	std::vector<Manifest::RunEntry> & runList = 
+	std::vector<Manifest::RunEntry> & runList =
 		*(reinterpret_cast<std::vector<Manifest::RunEntry> *>(runListVP));
 
 	// Collect Arguments
-	if (lua_gettop(L) < 1 || !lua_isstring(L, 1)) 
+	if (lua_gettop(L) < 1 || !lua_isstring(L, 1))
 	{
 		luaL_error(L, "Expected the name of a Lua script as argument.");
 	}
 	std::string scriptName(std::string(lua_tolstring(L, 1, NULL)));
 	std::string argumentTableString;
-	if (lua_gettop(L) > 1) 
+	if (lua_gettop(L) > 1)
 	{
-		if (!lua_istable(L, 2)) 
+		if (!lua_istable(L, 2))
 		{
 			luaL_error(L, "An optional table filled only with strings is expected as the second argument.");
-		}		
+		}
 		std::stringstream ss;
 		LuaEnvironment::SerializeTable(L, ss);
-		argumentTableString = ss.str();		
+		argumentTableString = ss.str();
 	} else {
 		argumentTableString = "{}";
 	}
-	
-	DynamicGeneratorRunner runner(iCon->GetAppPaths());	
+
+	DynamicGeneratorRunner runner(iCon->GetAppPaths());
 	// Find path to Lua script
 	boost::filesystem::path scriptPath =
 			runner.ResolveGeneratorPath(*sources, scriptName);
@@ -387,8 +389,8 @@ int _runScript(lua_State * L)
 		{
 			//boost::filesystem::path output(iConpath->GetAbsolutePath());
 			std::string returnValue = runner.RunDynamicGenerator(scriptPath,
-				//iCon->GetLibrary(), 
-				//						   iCon->GetOutputDir()->GetAbsolutePath(), 
+				//iCon->GetLibrary(),
+				//						   iCon->GetOutputDir()->GetAbsolutePath(),
 				iCon,
 				methodName,
 				argumentTableString);
@@ -400,29 +402,29 @@ int _runScript(lua_State * L)
 		catch (const Macaroni::Exception & ex)
 		{
 			std::stringstream ss;
-			ss << "Error in " 
+			ss << "Error in "
 				<< scriptPath << ":";
 			/*if (ex.where())
 			{
-				ss << "C exception thrown from " << ex.where().get().FileName 
+				ss << "C exception thrown from " << ex.where().get().FileName
 				   << ", line " << ex.where().get().Line << ". ";
-			}*/			
+			}*/
 			ss << ex.message();
-			return luaL_error(L, ss.str().c_str());	
-		}		
+			return luaL_error(L, ss.str().c_str());
+		}
 		catch (const std::exception & ex)
 		{
 			std::stringstream ss;
-			ss << "Error in " 
+			ss << "Error in "
 				<< scriptPath << ":";
 			ss << ex.what();
-			return luaL_error(L, ss.str().c_str());	
-		}		
+			return luaL_error(L, ss.str().c_str());
+		}
 	}
 	else
 	{
 		std::stringstream ss;
-		ss << "Could not find generator " << scriptName << ".";		
+		ss << "Could not find generator " << scriptName << ".";
 		return luaL_error(L, ss.str().c_str());
 	}
 	return 0;
@@ -566,16 +568,16 @@ Manifest::RunResultPtr Manifest::RunTarget(const Console & console, BuildContext
 
 	LibraryLuaMetaData::OpenInLua(L);
 	PathLuaMetaData::OpenInLua(L);
-	
+
 	RunResultPtr result(new RunResult());
 
-	// Put the library, a table with all source directories, the output 
+	// Put the library, a table with all source directories, the output
 	// directory, and the install directory onto the stack.
 	// THIS IS INSANELY DANGEROUS!
 	// ... BUT I GUESS IT'LL WORK?
 	// I DON'T WANT TO WRAP THIS IN LUA GLUE BECAUSE I'M LAZY.
 	lua_pushlightuserdata(L, &(this->mSource));
-	lua_pushstring(L, generatorMethodName.c_str());	
+	lua_pushstring(L, generatorMethodName.c_str());
 	lua_pushlightuserdata(L, (void *) &iContext);
 	lua_pushlightuserdata(L, (void *) &(result->RunList));
 /*
@@ -584,9 +586,9 @@ Manifest::RunResultPtr Manifest::RunTarget(const Console & console, BuildContext
 	int index = 0;
 	BOOST_FOREACH(const std::string & srcDirectory, this->GetMSource())
 	{
-		PathPtr src = iContext->GetSourceDir()->NewPathForceSlash(srcDirectory); 
+		PathPtr src = iContext->GetSourceDir()->NewPathForceSlash(srcDirectory);
 		// In Lua, : newTable[index + 1] = src
-		std::stringstream ss;		
+		std::stringstream ss;
 		PathLuaMetaData::PutInstanceOnStack(L, src);
 		ss << (index + 1);
 		lua_setfield(L, -2, ss.str().c_str());
@@ -597,10 +599,10 @@ Manifest::RunResultPtr Manifest::RunTarget(const Console & console, BuildContext
 	lua_pushlightuserdata(L, &(this->mSource));
 	*/
 	lua_pushcclosure(L, &_runScript, 4);//4);
-	lua_setglobal(L, "run");	
+	lua_setglobal(L, "run");
 	lua_getfield(L, LUA_GLOBALSINDEX, manifestMethodName.c_str());
 	if (lua_isnil(L, -1))
-	{	
+	{
 		//std::stringstream ss;
 		//ss << "Could not find function \"" << manifestMethodName << "\".";
 		//console.WriteLine(ss.str());
@@ -617,15 +619,15 @@ Manifest::RunResultPtr Manifest::RunTarget(const Console & console, BuildContext
 	} catch(const std::exception & ex) {
 		console.ErrorLine(ex);
 		result->Success = false;
-	}	
+	}
 	return result;
 	/*int success = lua_pcall(L, 0, 1, 0);
-	if (success != 0) 
+	if (success != 0)
 	{
 		return false;
 	}
-	
-	if (lua_isnil(L, -1)) 
+
+	if (lua_isnil(L, -1))
 	{
 		return true;
 	}
@@ -633,7 +635,7 @@ Manifest::RunResultPtr Manifest::RunTarget(const Console & console, BuildContext
 	return rtnValue;*/
 }
 
-void Manifest::SaveAs(const boost::filesystem::path & filePath, 
+void Manifest::SaveAs(const boost::filesystem::path & filePath,
 					  std::vector<std::pair<std::string, std::string> > & runList)
 {
 	using std::endl;
@@ -725,7 +727,7 @@ void Manifest::SaveAs(const boost::filesystem::path & filePath,
 	file.close();
 }
 
-void Manifest::SetBugResult(const std::string & bugName, 
+void Manifest::SetBugResult(const std::string & bugName,
 							LibraryPtr libraryResult,
 							boost::optional<std::string> description)
 {
@@ -739,7 +741,7 @@ void Manifest::SetBugResult(const std::string & bugName,
 		lua_newtable(L);
 		lua_setglobal(L, "bugResults");
 		lua_getglobal(L, "bugResults");
-	} 
+	}
 	//k
 	lua_pushstring(L, bugName.c_str());
 	//v
@@ -756,7 +758,7 @@ void Manifest::SetBugResult(const std::string & bugName,
 	lua_pushstring(L, "success");
 	lua_pushboolean(L, (!!libraryResult && libraryResult->IsInstalled()));
 	lua_settable(L, -3);
-	
+
 	lua_settable(L, -3); //t[k]=v
 	lua_pop(L, 1); // begone, foul table!
 }

@@ -66,7 +66,7 @@ public:
 	static void CopyDirectoryContents(Path & src,
 									  boost::filesystem::path & dst);
 
-	static void Path::CopyDirectoryContents(Path & src, Path & dst);
+	static void CopyDirectoryContents(Path & src, Path & dst);
 
 	/** An example would be to copy a file from "src/blah/a.txt" to
 	 * "output/blah/a.txt", where "src" is the original root path and

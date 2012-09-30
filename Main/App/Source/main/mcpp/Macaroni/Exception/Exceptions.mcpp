@@ -20,6 +20,7 @@
 ~import boost::optional;
 ~import std::string;
 ~import std::stringstream;
+~import strlen;
 ~import Macaroni::StringException;
 
 ~namespace Macaroni::Exceptions;
@@ -45,9 +46,18 @@ class SimpleException : public Macaroni::Exception
 	{
 	}
 
+	~block "h"
+	{
+		public: virtual ~SimpleException() BOOST_NOEXCEPT;
+	}
+	~block "cpp"
+	{
+		SimpleException::~SimpleException() BOOST_NOEXCEPT {}
+	}
+
 	public virtual const char * what() const throw() = 0;
 
-	public virtual optional<InternalSource> where() const throw()
+	public virtual const optional<InternalSource> & where() const throw()
 	{
 		return source;
 	}
@@ -62,8 +72,8 @@ class SimpleException : public Macaroni::Exception
 					: Macaroni::Exceptions::SimpleException(where) {} \
 				public: virtual const char * what() const throw() \
 				{ return message ; } \
-			}; 
-	} 
+			};
+	}
 };
 
 
@@ -83,6 +93,15 @@ class SimpleIntException : public SimpleException
 	{
 	}
 
+	~block "h"
+	{
+		public: virtual ~SimpleIntException() BOOST_NOEXCEPT;
+	}
+	~block "cpp"
+	{
+		SimpleIntException::~SimpleIntException() BOOST_NOEXCEPT {}
+	}
+
 	public virtual string message() const
 	{
 		return str(format(what()) % value);
@@ -98,23 +117,31 @@ class SimpleIntException : public SimpleException
 				: Macaroni::Exceptions::SimpleIntException(value, where) {} \
 			public: virtual const char * what() const throw() \
 			{ return message ; } \
-		}; 
-	} 
+		};
+	}
 };
 
 
 /** This class has a single int value. A boost format message can be specified
  *  by subclasses to print out the integer. */
 class SimpleStringException : public SimpleException
-{		
+{
 	~block "h" {
-		private : static const int CHAR_LENGTH = 256; 
+		private : static const int CHAR_LENGTH = 256;
 		private : char value[CHAR_LENGTH];
+	}
+
+	~block "cpp" {
+		#ifdef BOOST_WINDOWS
+			#ifndef BOOST_MSVC
+				#define strnlen(A,B) strlen(A)
+			#endif
+		#endif
 	}
 
 	public SimpleStringException(const char * value)
 	: SimpleException()
-	{		
+	{
 		size_t len = strnlen(value, CHAR_LENGTH);
 		strncpy(this->value, value, len);
 		this->value[len] = '\0';
@@ -129,7 +156,7 @@ class SimpleStringException : public SimpleException
 	}
 
 	public SimpleStringException(const SimpleStringException & other)
-	: SimpleException(other.where())
+	: SimpleException(other.source)
 	{
 		size_t len = strnlen(value, CHAR_LENGTH);
 		strncpy(this->value, other.value, len);
@@ -137,15 +164,24 @@ class SimpleStringException : public SimpleException
 	}
 
 	public SimpleStringException & operator = (
-		const SimpleStringException & other) 
+		const SimpleStringException & other)
 	{
 		if (&other != this)
 		{
 			size_t len = strnlen(other.value, CHAR_LENGTH);
 			strncpy(this->value, other.value, CHAR_LENGTH);
 			this->value[len] = '\0';
-		}		
+		}
 		return *this;
+	}
+
+	~block "h"
+	{
+		public: virtual ~SimpleStringException() BOOST_NOEXCEPT;
+	}
+	~block "cpp"
+	{
+		SimpleStringException::~SimpleStringException() BOOST_NOEXCEPT {}
 	}
 
 	public virtual string message() const
@@ -163,8 +199,8 @@ class SimpleStringException : public SimpleException
 				: Macaroni::Exceptions::SimpleStringException(value, where) {} \
 			public: virtual const char * what() const throw() \
 			{ return message ; } \
-		}; 
-	} 
+		};
+	}
 };
 
 

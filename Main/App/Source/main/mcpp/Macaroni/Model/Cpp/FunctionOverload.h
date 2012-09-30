@@ -36,31 +36,31 @@ friend void intrusive_ptr_add_ref(FunctionOverload * p);
 friend void intrusive_ptr_release(FunctionOverload * p);
 
 public:
-	static FunctionOverloadPtr Create(NodePtr home, bool isInline, 
-									  const AccessPtr access, 
+	static FunctionOverloadPtr Create(NodePtr home, bool isInline,
+									  const AccessPtr access,
 									  const bool isStatic, bool isVirtual,
-									  const TypePtr rtnType, 
-									  bool constMember, 
+									  const TypePtr rtnType,
+									  bool constMember,
 									  bool throwSpecifier,
 									  Model::ReasonPtr reason);
 
-	static FunctionOverloadPtr Create(FunctionPtr home, bool isInline, 
-									  const AccessPtr access, 
+	static FunctionOverloadPtr Create(FunctionPtr home, bool isInline,
+									  const AccessPtr access,
 									  const bool isStatic, bool isVirtual,
-									  const TypePtr rtnType, 									  
+									  const TypePtr rtnType,
 									  bool constMember, bool throwSpecifier,
 									  Model::ReasonPtr reason);
 
-	static FunctionOverloadPtr Create(Function * home, bool isInline, 
-									  const AccessPtr access, 
-									  const bool isStatic, 
+	static FunctionOverloadPtr Create(Function * home, bool isInline,
+									  const AccessPtr access,
+									  const bool isStatic,
 									  bool isVirtual,
 									  const TypePtr rtnType,
 									  bool constMember, bool throwSpecifier,
 									  Model::ReasonPtr reason);
 
 	virtual ~FunctionOverload();
-	
+
 
 	/** Clears the given list and fills it with the Argument nodes. */
 	Model::NodeListPtr GetArguments() const;
@@ -68,7 +68,7 @@ public:
 	virtual bool DoesDefinitionReference(NodePtr node) const;
 
 	const std::string & GetCodeBlock() const;
-	
+
 	inline bool CodeBlockShouldAddRedirect() const
 	{
 		return codeBlockAddRedirect;
@@ -116,15 +116,15 @@ public:
 	virtual bool RequiresCppFile() const;
 
 	virtual bool RequiresHFile() const;
-	
+
 	/** Attaches code to this function. If code was already attached, throws a
-	 * ModelInconsistencyException. 
+	 * ModelInconsistencyException.
 	 * If codeBlockAddRedirect is true, it will modify the generated source so
 	 * that errors produced in the C++ file will be redirected to the original
 	 * Macaroni source code.
 	 */
-	void SetCodeBlock(std::string & code, SourcePtr startOfCode, 
-		              bool codeBlockAddRedirect);	
+	void SetCodeBlock(std::string & code, SourcePtr startOfCode,
+		              bool codeBlockAddRedirect);
 
 	/** Specifies that this function overload is a "pure virtual function"
 	 *  which means it ends in "= 0". */
@@ -134,19 +134,19 @@ public:
 
 protected:
 	//FunctionOverload(Node home, bool isInline, const Access access, const bool isStatic, const TypePtr rtnType, bool constMember, Model::ReasonPtr reason);
-	
+
 	FunctionOverload(Node * home, Model::ReasonPtr reason, bool isInline, Access access, const bool isStatic, bool isVirtual, const TypePtr rtnTypeInfo, bool constMember, bool throwSpecifier);
 
 	FunctionOverload(Node * home, const char * typeName, Model::ReasonPtr reason, bool isInline, Access access, const bool isStatic, bool isVirtual, const TypePtr rtnTypeInfo, bool constMember, bool throwSpecifier);
 
 	virtual bool canBeChildOf(const Member * other) const;
 
-private:		
+private:
 
 	std::string codeBlock;
 
 	bool codeBlockAddRedirect;
-	
+
 	SourcePtr codeSource;
 
 	bool constMember;
