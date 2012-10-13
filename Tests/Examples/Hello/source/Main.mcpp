@@ -1,0 +1,20 @@
+~unit Main type=exe ;
+
+~import Hello::Geometry::Point;
+~import std::cout;
+~import std::endl;
+
+~block "cpp":=
+
+int main()
+{
+    cout << "Hello world." << endl;
+    Point a(50, 50);
+    Point b(100, 100);
+    Point c = a - b;
+    cout << "A = " << a << endl
+         << "B = " << b << endl
+         << "C = A -B = " << c << endl;
+    cout << "Goodbyte" << endl;
+}
+

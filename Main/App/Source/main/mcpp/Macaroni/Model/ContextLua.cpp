@@ -28,11 +28,17 @@
 #include "LibraryLua.h"
 #include "Node.h"
 #include "NodeLua.h"
+#include <Macaroni/Model/Project/ProjectVersionId.h>
+#include <Macaroni/Model/Project/ProjectVersionLuaMetaData.h>
+#include <Macaroni/Model/Project/ProjectVersion.h>
 #include <sstream>
 
 using Macaroni::Model::Project::Group;
 using Macaroni::Model::Project::GroupPtr;
 using Macaroni::Model::Project::GroupLuaMetaData;
+using Macaroni::Model::Project::ProjectVersionId;
+using Macaroni::Model::Project::ProjectVersionLuaMetaData;
+using Macaroni::Model::Project::ProjectVersionPtr;
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
@@ -103,6 +109,21 @@ struct ContextLuaFunctions
 		return 1;
 		L_END
 	}
+
+	static int findProjectVersion(lua_State * L)
+	{
+		L_BEGIN
+		ContextPtr context = getInstance(L);
+		std::string group(luaL_checkstring(L, 2));
+		std::string name(luaL_checkstring(L, 3));
+		std::string version(luaL_checkstring(L, 4));
+		ProjectVersionId pvId(group, name, version);
+		ProjectVersionPtr pv = context->FindProjectVersion(pvId);
+		ProjectVersionLuaMetaData::PutInstanceOnStack(L, pv);
+		return 1;
+		L_END
+	}
+
 
 	// static int _library(lua_State * L)
 	// {
@@ -194,6 +215,10 @@ struct ContextLuaFunctions
 		else if (index == "FindOrCreateLibrary")
 		{
 			lua_pushcfunction(L, findOrCreateLibrary);
+		}
+		else if (index == "FindProjectVersion")
+		{
+			lua_pushcfunction(L, findProjectVersion);
 		}
 		else if (index == "GetReferenceCount")
 		{

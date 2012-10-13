@@ -1,5 +1,5 @@
 ~unit StackDriver
-    ~type=exe
+    type=exe
 ;
 
 ~import std::cout;

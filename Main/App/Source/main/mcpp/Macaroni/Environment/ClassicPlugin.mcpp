@@ -12,6 +12,7 @@
 ~import Macaroni::Lua::LuaFunction;
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
+~import boost::optional;
 ~import boost::filesystem::path;
 ~import Macaroni::IO::Path;
 ~import Macaroni::IO::PathLuaMetaData;
@@ -70,6 +71,9 @@ class ClassicPlugin : public Plugin
 			{
 				lua_State * L = env.GetState();
 				lua_pushlightuserdata(L, (void *) appPaths.get());
+				lua_pushcclosure(L, findInstallPath, 1);
+				lua_setglobal(L, "findInstallPath");
+				lua_pushlightuserdata(L, (void *) appPaths.get());
 				lua_pushcclosure(L, findOrCreateInstallPath, 1);
 				lua_setglobal(L, "findOrCreateInstallPath");
 			}
@@ -88,6 +92,24 @@ class ClassicPlugin : public Plugin
 				lua_gettable(L, LUA_GLOBALSINDEX);
 				lua_pushliteral(L, "traceback");
 				lua_gettable(L, -2);
+			}
+
+			static int findInstallPath(lua_State * L)
+			{
+				void * uv1 = lua_touserdata(L, lua_upvalueindex(1));
+				AppPaths * appPaths = static_cast<AppPaths *>(uv1);
+				ProjectVersionPtr pv = ProjectVersionLuaMetaData::GetInstance(L, 1);
+				optional<path> p = appPaths->FindFinalProjectDirectory(pv->ToId());
+				if (p)
+				{
+					PathPtr pathPtr(new Path(p.get()));
+					PathLuaMetaData::PutInstanceOnStack(L, pathPtr);
+				}
+				else
+				{
+					lua_pushnil(L);
+				}
+				return 1;
 			}
 
 			static int findOrCreateInstallPath(lua_State * L)

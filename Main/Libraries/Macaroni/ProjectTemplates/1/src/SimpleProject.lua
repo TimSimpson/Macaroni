@@ -108,12 +108,19 @@ function SimpleProject(args)
       if generated then return end
       lPreGenerate()
       local outputPath = filePath(target) --ath.New("target")
-      cpp:Run("Generate", { projectVersion=lProject, path=outputPath })
+      result, msg = pcall(function()
+        cpp:Run("Generate", { projectVersion=lProject, path=outputPath })
+        end)
+      if not result then
+        output:ErrorLine(msg)
+        error(msg)
+      end
       html:Run("Generate", { target=lLib, path=outputPath})
-      bjam:Run("Generate", { jamroot=outputPath:NewPath("/jamroot.jam"),
-                             projectVersion=lProject,
-                             output=output
-      })
+      local bjamFlags = args.bjamFlags or {}
+      bjamFlags.jamroot = outputPath:NewPath("/jamroot.jam")
+      bjamFlags.projectVersion = lProject;
+      bjamFlags.output = output;
+      bjam:Run("Generate", bjamFlags)
       generated = true
     end
 

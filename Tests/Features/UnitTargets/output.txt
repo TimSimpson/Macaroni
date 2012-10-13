@@ -1,0 +1,125 @@
+
+C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Tests\Features\UnitTargets>echo off 
+
+C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Tests\Features\UnitTargets>SET GEN_PATH=C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Cavatappi\..\Generators 
+
+C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Tests\Features\UnitTargets>echo GEN_PATH=C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Cavatappi\..\Generators 
+GEN_PATH=C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Cavatappi\..\Generators
+
+C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Tests\Features\UnitTargets>dir C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Cavatappi\..\Generators 
+ Volume in drive C has no label.
+ Volume Serial Number is 12B9-AB5A
+
+ Directory of C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Generators
+
+06/02/2012  01:22 PM    <DIR>          .
+06/02/2012  01:22 PM    <DIR>          ..
+06/02/2012  01:22 PM             1,216 Archive.lua
+06/02/2012  05:09 PM            11,039 BoostBuild.lua
+06/02/2012  01:22 PM            13,903 BoostBuild2.lua
+06/20/2012  10:10 PM    <DIR>          Cpp
+06/20/2012  09:49 PM             5,289 Cpp.lua
+06/02/2012  01:22 PM            10,496 CppFile.lua
+06/02/2012  01:22 PM               969 Dumb.lua
+06/02/2012  01:22 PM             5,383 Generators.vcproj
+06/02/2012  01:22 PM               333 HFile.lua
+06/02/2012  01:22 PM            11,815 HtmlView.lua
+06/02/2012  01:22 PM               920 InterfaceMh.lua
+06/02/2012  01:22 PM               312 Log.lua
+06/02/2012  01:22 PM    <DIR>          LuaGlue
+06/02/2012  05:06 PM            60,891 LuaGlue.lua
+06/02/2012  01:22 PM            11,385 LuaGlueTest.lua
+06/02/2012  01:22 PM    <DIR>          Macaroni
+06/02/2012  01:22 PM             2,343 Plugin.lua
+06/02/2012  01:22 PM             2,789 Porg.lua
+06/02/2012  01:22 PM             8,495 Site.lua
+06/02/2012  01:22 PM    <DIR>          VCpp
+              16 File(s)        147,578 bytes
+               6 Dir(s)  342,089,146,368 bytes free
+
+C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Tests\Features\UnitTargets>#C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Cavatappi\..\App\Debug\MacaroniVS11.exe generatorPath C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Cavatappi\..\Generators libraryRepoPath C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Cavatappi\..\Libraries messagesPath C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Cavatappi\..\App\Source\main\resources cavatappi clean generate 
+
+C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Tests\Features\UnitTargets>C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Cavatappi\..\App\bin\msvc\debug\link-static\threading-multi\macaroni_p.exe generatorPath C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Cavatappi\..\Generators libraryRepoPath C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Cavatappi\..\Libraries messagesPath C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Cavatappi\..\App\Source\main\resources cavatappi clean generate 
+Macaroni for C++
+Version 0.1.0.24 built at 2012-6-20-23:0:30
+
+Creating new Environment with the following AppPaths:
+Message file : C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Cavatappi\..\App\Source\main\resources
+Library Paths : [C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Cavatappi\..\LibrariesC:\Users\Tim\Macaroni\Libraries]
+Generator Paths : [C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Cavatappi\..\Generators]
+Opening internal modules...
+
+Running C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Cavatappi\..\Libraries\Macaroni\Project-Lua\0\src/project-init.lua...
+Running C:\Users\Tim\Macaroni\init.lua...
+Parsing file project.lua...
+Creating new Environment with the following AppPaths:
+Message file : C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Cavatappi\..\App\Source\main\resources
+Library Paths : [C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Cavatappi\..\LibrariesC:\Users\Tim\Macaroni\Libraries]
+Generator Paths : [C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Cavatappi\..\Generators]
+Opening internal modules...
+
+Running C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Cavatappi\..\Libraries\Macaroni\Project-Lua\0\src/project-init.lua...
+Running C:\Users\Tim\Macaroni\init.lua...
+Parsing file C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Cavatappi\..\Libraries\Macaroni\Boost-headers\1.46.1\project-final.lua...
+Creating new Environment with the following AppPaths:
+Message file : C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Cavatappi\..\App\Source\main\resources
+Library Paths : [C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Cavatappi\..\LibrariesC:\Users\Tim\Macaroni\Libraries]
+Generator Paths : [C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Cavatappi\..\Generators]
+Opening internal modules...
+
+Running C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Cavatappi\..\Libraries\Macaroni\Project-Lua\0\src/project-init.lua...
+Running C:\Users\Tim\Macaroni\init.lua...
+Parsing file C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Cavatappi\..\Libraries\Macaroni\CppStd\2003\project-final.lua...
+[CPP]:Writing unit files for Group="Macaroni.Tests", Project="Features-UnitTargets", Version="1.0.0.0", Target="Dog".
+[CPP]:Creating H file at C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Tests\Features\UnitTargets\target\Dog.hpp + \Dog.hpp
+[CPP]:1=[Class]Dog
+[CPP]:addDependenciesForType int
+[CPP]:addDependenciesForConstructor Dog::$ctor
+[CPP]:addDependenciesForConstructor Dog::$ctor overload # 1
+[CPP]:addDependenciesForType int
+[CPP]:Creating Cpp file at C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Tests\Features\UnitTargets\target\Dog.cpp + \Dog.cpp
+[CPP]:1=[Class]Dog
+[CPP]:Dog . .. . . . . . . .TIME TO ROCK!
+[CPP]:Created new ClassCppFileGenerator
+[CPP]:OH YEAH!
+[CPP]:Dog INCLUDE STATEMENTS! *_*
+[CPP]:Creating private header.
+[CPP]:Class body for Dog.
+[CPP]:Skipping unit Group="Macaroni.Tests", Project="Features-UnitTargets", Version="1.0.0.0", Target="List.cpp".
+[CPP]:Skipping unit Group="Macaroni.Tests", Project="Features-UnitTargets", Version="1.0.0.0", Target="PlainCTest.cpp".
+[CPP]:Writing unit files for Group="Macaroni.Tests", Project="Features-UnitTargets", Version="1.0.0.0", Target="Example::Containers".
+[CPP]:Creating H file at C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Tests\Features\UnitTargets\target\Example\Containers.h + \Example/Containers.h
+[CPP]:1=[Namespace]Example::Containers
+[CPP]:Creating Cpp file at C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Tests\Features\UnitTargets\target\Example\Containers.cpp + \Example/Containers.cpp
+[CPP]:1=[Namespace]Example::Containers
+[CPP]:Writing unit files for Group="Macaroni.Tests", Project="Features-UnitTargets", Version="1.0.0.0", Target="Example".
+[CPP]:Creating H file at C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Tests\Features\UnitTargets\target\Example.h + \Example.h
+[CPP]:1=[Namespace]Example
+[CPP]:Creating Cpp file at C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Tests\Features\UnitTargets\target\Example.cpp + \Example.cpp
+[CPP]:1=[Namespace]Example
+[CPP]:Writing unit files for Group="Macaroni.Tests", Project="Features-UnitTargets", Version="1.0.0.0", Target="Example::Containers::Stack".
+[CPP]:Creating H file at C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Tests\Features\UnitTargets\target\Example\Containers\Stack.h + \Example/Containers/Stack.h
+[CPP]:1=[Class]Example::Containers::Stack
+[CPP]:addDependenciesForType std::vector
+[CPP]:addDependenciesForType int
+[CPP]:addDependenciesForConstructor Example::Containers::Stack::$ctor
+[CPP]:addDependenciesForConstructor Example::Containers::Stack::$ctor overload # 1
+[CPP]:addDependenciesForType int
+[CPP]:addDependenciesForType void
+[CPP]:addDependenciesForType int
+[CPP]:Creating Cpp file at C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Tests\Features\UnitTargets\target\Example\Containers\Stack.cpp + \Example/Containers/Stack.cpp
+[CPP]:1=[Class]Example::Containers::Stack
+[CPP]:Example::Containers::Stack . .. . . . . . . .TIME TO ROCK!
+[CPP]:Created new ClassCppFileGenerator
+[CPP]:OH YEAH!
+[CPP]:Example::Containers::Stack INCLUDE STATEMENTS! *_*
+[CPP]:Creating private header.
+[CPP]:Class body for Example::Containers::Stack.
+[CPP]:Writing unit files for Group="Macaroni.Tests", Project="Features-UnitTargets", Version="1.0.0.0", Target="~unit~DogTest".
+[CPP]:Creating H file at C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Tests\Features\UnitTargets\target\DogTest.hpp + \DogTest.hpp
+[CPP]:1=[Block]~#block0
+[CPP]:Creating Cpp file at C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Tests\Features\UnitTargets\target\DogTest.cpp + \DogTest.cpp
+[CPP]:1=[Block]~#block0
+Error running Lua : Error running Lua: [string "project.lua"]:61: Error running Generator "C:\Users\Tim\Work\Lp3\Projects\Macaroni\Code\trunk\Main\Cavatappi\..\Generators\Cpp.lua":...n\Cavatappi\..\Generators/Cpp/UnitBlockGenerator.lua:11: attempt to call method 'writeBlockCodeBlock' (a nil val
+
+Program finished.

@@ -695,7 +695,8 @@ public:
 		itr.ConsumeWhitespace();
 		std::string code;
 		SourcePtr codeStart;
-		if (!CodeBlock(itr, code, codeStart))
+		bool readToEof = itr.ConsumeWord(":=");
+		if (!CodeBlock(itr, code, codeStart, readToEof))
 		{
 			throw ParserException(itr.GetSource(),
 				Messages::Get("CppParser.CodeBlock.Expected"));
@@ -836,53 +837,67 @@ public:
 	}
 
 	/** Consumes white space, then returns false if '{' not seen.
-	 * If it is, consumes all text until next '}'. */
-	bool CodeBlock(Iterator & itr, std::string & codeBlock, SourcePtr & start)
+	 * If it is, consumes all text until next '}'.
+	 * If readToEof is set, reads till the end of file instead. */
+	bool CodeBlock(Iterator & itr, std::string & codeBlock, SourcePtr & start,
+		           bool readToEof=false)
 	{
 		ConsumeWhitespace(itr);
-		if (!itr.Is('{'))
-		{
-			return false;
-		}
-		itr.Advance(1);
-		start = itr.GetSource();
-
 		std::stringstream ss;
-		int depth = 1;
-		while(depth > 0)
+		if (readToEof)
 		{
-			if (itr.Is('{'))
+			start = itr.GetSource();
+			while (!itr.Finished())
 			{
-				depth ++;
+				ss << itr.Current();
+				itr.Advance(1);
 			}
-			if (itr.Is('}'))
+		}
+		else
+		{
+			if (!itr.Is('{'))
 			{
-				depth --;
-				if (depth <= 0)
-				{
-					itr.Advance(1);
-					break;
-				}
+				return false;
 			}
-			char next = itr.Current();
-			if (next == '\n')
-			{
-				ss << "\n";
-			}
-			else if (next == 9)
-			{
-				ss << "    ";
-			}
-			else if (next <= 32)
-			{
-				ss << ' ';
-			}
-			else
-			{
-				ss << next;
-			}
-			//ss << itr.Current();
 			itr.Advance(1);
+			start = itr.GetSource();
+
+			int depth = 1;
+			while(depth > 0)
+			{
+				if (itr.Is('{'))
+				{
+					depth ++;
+				}
+				if (itr.Is('}'))
+				{
+					depth --;
+					if (depth <= 0)
+					{
+						itr.Advance(1);
+						break;
+					}
+				}
+				char next = itr.Current();
+				if (next == '\n')
+				{
+					ss << "\n";
+				}
+				else if (next == 9)
+				{
+					ss << "    ";
+				}
+				else if (next <= 32)
+				{
+					ss << ' ';
+				}
+				else
+				{
+					ss << next;
+				}
+				//ss << itr.Current();
+				itr.Advance(1);
+			}
 		}
 		// Add code block
 		codeBlock = ss.str();
@@ -2230,7 +2245,8 @@ public:
 			|| itr.ConsumeWord("*=")
 			|| itr.ConsumeWord("/=")
 			|| itr.ConsumeWord("<<")
-			|| itr.ConsumeWord(">>"))
+			|| itr.ConsumeWord(">>")
+			|| itr.ConsumeWord("()"))
 		{
 			consume = 2;
 		}
@@ -2634,7 +2650,7 @@ public:
 		while(true)
 		{
 			ConsumeWhitespace(newItr);
-			if (newItr.ConsumeWord("~hfile"))
+			if (newItr.ConsumeWord("hfile"))
 			{
 				newItr.ConsumeWhitespace();
 				if (!newItr.ConsumeChar('='))
@@ -2645,7 +2661,7 @@ public:
 				newItr.ConsumeWhitespace();
 				ConsumeFilePath(newItr, hFile);
 			}
-			else if (newItr.ConsumeWord("~cppfile"))
+			else if (newItr.ConsumeWord("cppfile"))
 			{
 				newItr.ConsumeWhitespace();
 				if (!newItr.ConsumeChar('='))
@@ -2656,7 +2672,7 @@ public:
 				newItr.ConsumeWhitespace();
 				ConsumeFilePath(newItr, cppFile);
 			}
-			else if (newItr.ConsumeWord("~type"))
+			else if (newItr.ConsumeWord("type"))
 			{
 				newItr.ConsumeWhitespace();
 				if (!newItr.ConsumeChar('='))

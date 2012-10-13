@@ -1,54 +1,59 @@
 <~#include <header.mdoc>~>
 
-<h3>Getting Started with Macaroni</h3>
+
+
+<h2>Getting Started with Macaroni</h2>
 
 <div>
 <i>
 <ul>
-<li>This tutorial is for the Windows version, which is currently the 
+<li>This tutorial is for the Windows version, which is currently the
 only one that works.</li>
-<li>The version number of Macaroni refered to in this tutorial may be out of 
-sync as times in this tutorial as images and some text are not generated with 
-each new build of Macaroni.</li>
 </i></div>
 
+<h4>Macaroni Requirements</h4>
 <p>
-This tutorial will show the quickest path to using Macaroni in the simplest 
-possible way.
-</p><p>
-Macaroni is able to generate source code and call tools to compile and
-test C++ programs. Here we'll show how to do the former.</p>
-<img style="float:right" src="<~#path </../images/WinExplorer.jpg> ~>"/>
+Macaroni currently requires the following:</p>
+<ul>
+<li>The Windows OS. Don't worry, this requirement is going away soon.</li>
+<li><a href="http://www.boost.org/">The Boost C++ Libraries</a>
+</ul>
+
+
+<h4>Download Macaroni</h4>
 <p>
-First, <a href="<~#path "download.html" ~>">download Macaroni from this link</a>. 
-You'll might need to install the MS Visual C++ 2008 Redistributable Package 
-as well if you've never installed Visual Studio.  Anyway, unzip the zip file
-and put the entire directory somewhere nice. For this tutorial
-I'll assume you're unzipping it to "C:\Tools\macaroni-<~= library.Version ~>".
+<a href="<~#path "download.html" ~>">Download Macaroni from this link</a>.
+Unzip the zip file and put the entire directory somewhere nice. For this tutorial
+I'll assume you're unzipping it to
+"C:\Tools\Macaroni\macaroni-<~= project.Version ~>".
 </p>
 
-<h4>Add Macaroni's directory to you %PATH% environment variable.</h4>
-<p>There are a few ways to do this in Windows. My preference it to create a 
-batch file that manipulates the path variable which can be called from a 
-command prompt used for development.</p>
-<p>Create a new file called "devinit.bat" and place the following inside it:</p>
-
-<~lua require "Site" Site.shellToHtml([[
-SET PATH=%PATH%;C:\Tools\macaroni-0.1.0.22
-]]); ~>
-
+<h4>Add Macaroni's directory to your %PATH% environment variable.</h4>
+<p>There are a few ways to do this in Windows. The simplest is to just,
+on a command prompt, write:</p>
+<blockquote>
+SET PATH=%PATH%;C:\Tools\Macaroni\macaroni-<~= project.Version ~>"
+</blockquote>
 <p>
-Now start a command prompt and execute devinit.bat.  Type "macaroni" and the following
-should appear:</p>
+However, doing this all the time is a pain. Setting the PATH variabl globally
+is a mortal sin; better instead to
+<a href="http://border-town.com/blog.php?id=2012-09-30_18_53_21">put it in
+a batch file that is called every time you open a command prompt, which
+manipulates the
+PATH and other environment variables</a>.</p>
+
+<p>Once you're done, try running macaroni from the command line. You
+should see something like this:</p>
 <~lua require "Site" Site.shellToHtml([[
-C:\>cd Tools
-
-C:\Tools>type devinit.bat
-SET PATH=%PATH%;C:\Tools\macaroni-0.1.0.22
-C:\Tools>macaroni
+C:\>macaroni
 Macaroni for C++
-Version 0.1.0.22 built at 2011-7-30-17:25:22
+Version 0.1.0.24 built at 2012-9-30-1:29:23
 
+Creating new Environment with the following AppPaths:
+Message file : C:\Tools\Macaroni\macaroni-0.1.0.24
+Library Paths : [C:\Tools\Macaroni\macaroni-0.1.0.24\LibrariesC:\Documents and Settings\Tim\Macaroni\Libraries]
+Generator Paths : [C:\Tools\Macaroni\macaroni-0.1.0.24\Generators]
+No project file found, trying to use manifest.
 Could not find init.lua at "C:\Documents and Settings\Tim\Macaroni\init.lua".
 THROWN EXCEPTION:Could not open Lua file "manifest.lua".
 
@@ -58,101 +63,216 @@ Could not open Lua file "manifest.lua".
 
 
 Program finished.
-
-C:\Tools>
-
 ]]); ~>
 
 
-<div><b>NOTE: If you see "The system cannot execute the specified program," it means you
-need to first download and install the <a href="<~#path "download.html" ~>">
-Microsoft Visual C++ Redistributable Package</a></b></div>
+<h4>Your First Project</h4>
+
+<!-- TODO: Show simpler way using inputDirectory and outputDirectory. -->
 
 <p>
-If you see the above, good! It means that Macaroni is succesfully installed.
-</p>
-<div style="background-color:#b0c4de;"><table><tr><td><span style="float:left" ><img src="../images/INoUnderstand.gif"/></span>
-What is "init.lua"? If you guessed a script that gets executed every time you invoke 
-Macaroni, you're right! I'll discuss it more in a later tutorial.</td></tr></table>
-</div>
-
-<h4>Coding in Macaroni</h4>
-<p>
-Macaroni starts by reading a file called "manifest.lua" in the current 
-directory which contains information describing the project.
+Create a directory called "Hello." I'll assume it exists at C:\Work\Hello.
 </p>
 <p>
-Create a new directory somewhere (mine's "C:\Work\MacaroniExample") and create
-a file called "manifest.lua" with the following contents:
-</p>
-
+Create a file at the root of this directory called "project.lua", and enter
+the following:</p>
 <~lua
-local manifest = Site.readLibraryFile(
-	{Group="Macaroni.Examples", Name="Hello", Version="1.0.0.0"},
-	"original/manifest.lua", 1, 17);
-Site.luaToHtml(manifest .. [[
-
-
-function generate()
-    run("cpp")
-    run("htmlview")
-end
-]]);
+showFile("Macaroni.Examples", "Hello", "1.0.0.0", "project.lua");
 ~>
-
 <p>
-The manifest file is written in the <a href="http://www.lua.org/">Lua 
-programming language</a>. Lua is a scripting language similar to Javascript 
-which is often embedded in native apps. Macaroni uses it in prolifically.</p>
-<p>Here's a summary of what's going on in the 
-file above:</p>
-<ul>
-<li>
-Macaroni reads this file to figure out the library ID. The ID is stored as a
-Lua table with three values: group, name, and version.
-</li>
-<li>A description can be given to libraries to make them a bit easier to 
-grok. Lua can use the syntax "[[" and "]]" to easily create multiline
-strings.</li>
-<li>"sources" is all of the source directories (relative from the location 
-of "manifest.lua") that Macaroni needs to iterate to find files ending in 
-.mcpp which it will then parse.  It's an array-style table because there could
-be multiple source directories.</li>
-<li>"output" is where Macaroni will output all of its generated source code.</li>
-<li>"dependency" is a function which declares an external dependency for
-this project. In this case, we're telling Macaroni that we'll be using the C++
-standard library as defined in 2003. The group is "Macaroni" to denote that
-the dependency is included with Macaroni and was authored by Macaroni and not,
-say, the C++ standard's committee or some compiler vendor.  Macaroni includes 
-several libraries out of the box that can be used as project dependencies
-like this, such as ones for Boost (it doesn't include the C++ source code-
-more on how this works later).</li>
-</ul>
-<p>
-At the command prompt, enter the directory and execute "macaroni build".
+Here's a walkthrough of what this project is doing.
 </p>
-<~lua require "Site" Site.shellToHtml([==[
-C:\Work\MacaroniExample>macaroni generate
-Macaroni for C++
-Version 0.1.0.22 built at 2011-7-30-17:25:22
-
-Could not find init.lua at "C:\Documents and Settings\Tim\Macaroni\init.lua".
---------------------------------------------------------------------------------
-
-    Hello
---------------------------------------------------------------------------------
-
-~ Creating Macaroni model from source files (.mh, .mcpp). ~
-~ Success!
-
-Program finished.
-]==]); ~>
 <p>
-As you can see everything was successful. Of course this didn't actually do anything...</p>
-<h4>Writing a C++ class in Macaroni</h4>
+First, we "import" the project Macaroni ProjectTemplates, version 1. This
+project is included as part of the Macaroni distribution. This project
+enables by convention style build script definitions. The "import"
+keyword puts any Lua scripts from a project onto the current path so we
+can use the Lua keyword "require" to pull them in.</p>
 <p>
-In the same directory as the "manifest.lua" file create a new directory named "source". 
-Within that, make a new file called "A"
+Next, we require "SimpleProject", which defines the function "SimpleProject"
+(if you're curious as to what this file looks like, feel free to look it
+up at C:\Tools\Macaroni\macaroni-0.1.0.24\Libraries\Macaroni\ProjectTemplates\1\src\SimpleProject.lua).</p>
+<p>
+The SimpleProject then defines the group, project name, and version of the
+current project. This allows us to use it from other Macaroni projects.
+This project will scan the given source directory defined by the argument "src"
+and output any generated files to "target". It will also defines a dependency
+on the project Macaroni CppStd, version 2003, which defines elements of the
+C++ standard library.</p>
+<p>
+On top of defining a project for us, it will create a default library. Macaroni
+will create a default name, but it will usually be very long (this is to avoid
+name clashes) which can cause issues due to Windows file name length
+restrictions. Because of that, it's possible to specify a short name using
+the "libShortName" argument, which becomes the name of the DLL file.</p>
+<p>
+A Macaroni project file can define whatever functions it likes; however,
+only the "clean", "generate", "build", and "install" functions can be invoked
+from the command line. The SimpleProject command creates all four functions
+for us.</p>
+<p>
+Next, create a directory called "source" at the root of the project.
+Add the following to a file "Point.mcpp" to this directory.</p>
+<~lua
+showFile("Macaroni.Examples", "Hello", "1.0.0.0", "source/Point.mcpp");
+~>
+This is a simple standalone class file. Despite the different syntax, it
+should be easy enough to read for anyone familar with C++.</p>
+<p>
+The first thing you'll notice will be the ~import keyword. This replaces
+the C++ #include directive and can refer directly to a fully qualified name.
+Macaroni calls these "Node names" and stores them in "Nodespace". Unlike in
+C++, a node does not have to be defined before it is imported, because
+the Macaroni parser merely stores the fact a class will need a node. The
+C++ code generator which runs later then has to figure out how to include
+or forward declare the type represented by the Node.</p>
+<p>
+To prevent confusion by people learning C++, all new keywords in Macaroni are
+prefixed by a tilde.
+</p>
+<p>With "Hello::Geometry::Point", Macaroni
+simple creates a Node for it but does not fill it in with anything useful
+until it sees the class definition. It is normally <b>not</b> necessary to
+import a node this way before its definition, but is necessitated in this
+case by the ~global function (to be described in a bit).
+</p>
+<p>
+As for std::ostream, Macaroni knows about it after loading the
+project Macaroni CppStd 2003. </p>
 
+<p>Unlike C++,
+access specifiers must go with every member definition (this is not so much a
+choice but an omission- a future version of Macaroni may allow the
+C++ style).</p>
+<p>
+Unlike in C++ multiple namespaces can be defined with a single namespace method.
+It's possible to use braces with namespaces (i.e., "namespace Hello::Geometry
+{ ... }") this code uses the a Macaroni unique version which begins with a
+tilde and ends with a semicolon, and means that all subsequent lines of code
+belong to the given namespace (similar to the Java package keyword).</p>
+<p>
+Another bit of funky syntax is the "~global" modifier on the << operator
+overload. This is a way of defining a global function which lives with a
+class. "Lives with" means its declared in the same header file and defined in
+the same compilation unit as the class.</p>
+<p>
+The parentheses allow the global keyword to specify its own namespace. Here,
+"::" means the root namespace. If the parentheses were omitted, Macaroni
+would have made the function global but put it in the same namespace as the
+Point class (in other words, the Hello::Geometry namespace).
+</p>
+<p>
+Finally, Macaroni allows for such adopted global functions to be named
+friends of a class with the "~friend" modifier. This makes it easy to create
+global functions which are needed by class. For example, here we're able
+to provide compatability with the standard output stream.
+</p>
+Finally, add the following to a file "Main.mcpp" to a directory called "source" at the
+root fo the project.</p>
+<~lua
+showFile("Macaroni.Examples", "Hello", "1.0.0.0", "source/Main.mcpp");
+~>
+<p>
+Some interesting quirks here is that this Macaroni file explicitly tells the
+parser which unit it will live in. A "unit" can be thought of as the header
+file / implementation file pair needed by all files in a C++ project.
+All units are a type of Target, which is a thing that lives inside a Project
+(this will be explained in another tutorial, but you don't necessarily need
+to know it now).</p>
+<p>
+It does this using the "~unit" keyword, which defines the name of the target
+as "Main". The type is then defined as "exe." This means this file will be
+used to create an exe called "Main.exe."</p>
+<p>
+It's important to note that by omitting ~unit keywords, every Macaroni file
+is set to live in a different build target. That's another can of worms, but
+all you need to know is that generally speaking if there is no ~unit keyword
+then all Macaroni code lives in the default library. So in this case,
+we're building a library for our project which included Point.mcpp, plus
+an Exe with the code from Main.mcpp.</p>
+<p>
+The "~block" keyword simply defines a block of pure C++ code. In
+reality, the Macaroni parser doesn't really understand C++ and only knows that
+there's a tree of stuff with blocks of code attached, and this keyword is
+especially blatant about that fact.</p>
+<p>
+~block has a few valid values: "cpp" means put the code in the C++ file, "h"
+means put it in the header files definition, etc. ~blocks are a way to escape
+from Macaroni if you ever need to get around an omission (and since C++ is
+such a vast and rich language, this will happen somewhat frequently).</p>
+<p>
+However, since ~block is used outside of a class definition here, it applies
+to the ~unit itself, meaning this block of code will appear as is the file
+"Main.cpp". The syntax ":=" means that the block contains everything up until
+the end of file.</p>
+<p>
+<h4>Running Generate</h4>
+<p>
+Finally, Generate C++ code by running the following from the command prompt:</p>
+<blockquote>
+C:\Work\Hello>macaroni generate
+</blockquote>
+<p>
+If everything has been set up correctly, Macaroni will create a directory
+named "target" (as defined by the "target" argument of the SimpleProject
+Lua function call) and populate it with C++ code.</p>
+<h4>Building the Project</h4>
+<p>
+If you have an exisiting project, at this point you should be able to figure
+out a way to plug Macaroni into your existing workflow.</p>
+<p>
+However, if you'd like Macaroni to build your code, you'll need to do some
+extra stuff.</p>
+<p>
+First, Macaroni isn't a C++ compiler. However, its possible to write
+Lua plugins which can do just about anything, including call a C++ compiler.</p>
+<p>
+Rather than implementing a plugin for every compiler, Macaroni includes
+plugins for Boost Build. To get it working you'll need to at the very
+least install Boost Build and get "bjam" in your path.
+</p>
+<!-- TODO: Walk through implementing Boost Build. -->
+<p>
+After this happens, building the code should be possible by using
+Macaroni's "build" argument:
+</p>
+<blockquote>
+C:\Work\Hello>macaroni build
+</blockquote>
+<p>
+This will invoke bjam against the "target" directory and build the project.</p>
+<p>
+Note that all build does is run "bjam target" - you could easily do this
+yourself after calling "macaroni generate".  Build is thus just included for
+convience.</p>
+<h4>Tangent on Importing C++ Code</h4>
+<p>
+What if you want to import C++ code that isn't already in a Macaroni
+project? For example, what if you wanted to include "directory_iterator"
+from the Boost FileSystem library? To do so, just add a bit of Macaroni
+code like this to pretty much anywhere in your code base:</p>
+<blockquote>
+class boost::filesystem::directory_iterator {
+&nbsp;&nbsp;&nbsp;&nbsp;~hfile=&lt;boost/filesystem/operations.hpp&gt;
+};
+</blockquote>
+<p>
+As you can see, this tells Macaroni about a class named "directory_iteratory"
+living in the namespace "boost::filesystem." Now, directory_iterator may or
+may not be a class, but this doesn't matter because Macaroni won't
+generate any code for it anyway. When it sees "~hfile", it knows from then
+on that directory_iterator is a Node that's already taken care of and
+will do nothing other than insert an #include statement for it at the top
+of any classes you define which use it.</p>
+<p>
+For example, you could use BOOST_FOREACH like this:</p>
+<blockquote>
+class BOOST_FOREACH { ~hfile=&lt;boost/foreach.hpp&gt; };
+</blockquote>
 
+<h4>Conclusion</h4>
+<p>
+That's it! This tutorial has covered a lot of ground, but hopefully left
+you at a point
+where you can begin using Macaroni for your own projects.</p>
 <~#include <footer.mdoc> ~>

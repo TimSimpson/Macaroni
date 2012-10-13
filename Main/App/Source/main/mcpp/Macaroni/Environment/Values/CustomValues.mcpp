@@ -29,13 +29,47 @@
 ~namespace Macaroni::Environment::Values;
 
 
+class Macaroni_Model_Context : public Any
+{
+	~import Macaroni::Model::Context;
+	~import Macaroni::Model::ContextPtr;
+	~import Macaroni::Model::ContextLuaMetaData;
+
+	~block "h" { public: typedef Macaroni::Model::ContextPtr WrappedType; }
+
+	private ContextPtr value;
+
+	public Macaroni_Model_Context(ContextPtr value)
+	:	Any(),
+		value(value)
+	{
+	}
+
+	public Macaroni_Model_Context(lua_State * L, int index)
+	:	Any(),
+		value(ContextLuaMetaData::GetInstance(L, index))
+	{
+	}
+
+	public ContextPtr Get()
+	{
+		return value;
+	}
+
+	public virtual void ToLua(lua_State * L)
+	{
+		ContextLuaMetaData::PutInstanceOnStack(L, value);
+	}
+
+};
+
 class Macaroni_Model_Project_Files : public Any
 {
 	~import Macaroni::Model::Project::Files;
 	~import Macaroni::Model::Project::FilesPtr;
 	~import Macaroni::Model::Project::FilesLuaMetaData;
 
-	~block "h" { public: typedef Macaroni::Model::Project::FilesPtr WrappedType; }	
+	~block "h" { public: typedef Macaroni::Model::Project::FilesPtr WrappedType; }
 
 	private FilesPtr value;
 
@@ -69,7 +103,7 @@ class Macaroni_IO_FileSet : public Any
 	~import Macaroni::IO::FileSetPtr;
 	~import Macaroni::IO::FileSetLuaMetaData;
 
-	~block "h" { public: typedef Macaroni::IO::FileSetPtr WrappedType; }	
+	~block "h" { public: typedef Macaroni::IO::FileSetPtr WrappedType; }
 
 	private FileSetPtr value;
 
@@ -173,7 +207,7 @@ class Macaroni_IO_PathList : public Any
 	~import Macaroni::Exceptions::SimpleException;
 
 	~block "h" { public: typedef Macaroni::IO::PathListPtr WrappedType; }
-	private PathListPtr value;	
+	private PathListPtr value;
 
 	~block "cpp"
 	{
@@ -218,7 +252,7 @@ class Macaroni_Model_Project_ProjectVersion : public Any
 	~import Macaroni::Model::Project::ProjectVersionLuaMetaData;
 	~import Macaroni::Model::Project::ProjectVersionPtr;
 
-	~block "h" { public: 
+	~block "h" { public:
 	             typedef Macaroni::Model::Project::ProjectVersionPtr WrappedType; }
 	private ProjectVersionPtr value;
 
@@ -284,6 +318,7 @@ class Macaroni_Model_Project_Target : public Any
 
 class Any
 {
+	~import Macaroni::Environment::Values::Macaroni_Model_Context;
 	~import Macaroni::Environment::Values::Macaroni_Model_Project_Files;
 	~import Macaroni::Environment::Values::Macaroni_IO_FileSet;
 	~import Macaroni::Environment::Values::Macaroni_Environment_Output;
@@ -297,6 +332,10 @@ class Any
 		)
 	{
 		AnyPtr ptr;
+		if (metaTableName == "Macaroni.Model.Context")
+		{
+			ptr.reset(new Macaroni_Model_Context(L, index));
+		}
 		if (metaTableName == "Macaroni.Model.Project.Files")
 		{
 			ptr.reset(new Macaroni_Model_Project_Files(L, index));
@@ -307,7 +346,7 @@ class Any
 		}
 		else if (metaTableName == "Macaroni.Environment.Output")
 		{
-			ptr.reset(new Macaroni_Environment_Output(L, index));			
+			ptr.reset(new Macaroni_Environment_Output(L, index));
 		}
 		else if (metaTableName == "Macaroni.IO.Path")
 		{
@@ -317,11 +356,11 @@ class Any
 		{
 			ptr.reset(new Macaroni_IO_PathList(L, index));
 		}
-		else if (metaTableName == "Macaroni.Model.Project.ProjectVersion") 
+		else if (metaTableName == "Macaroni.Model.Project.ProjectVersion")
 		{
 			ptr.reset(new Macaroni_Model_Project_ProjectVersion(L, index));
 		}
-		else if (metaTableName == "Macaroni.Model.Project.Target") 
+		else if (metaTableName == "Macaroni.Model.Project.Target")
 		{
 			ptr.reset(new Macaroni_Model_Project_Target(L, index));
 		}

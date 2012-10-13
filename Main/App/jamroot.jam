@@ -63,8 +63,8 @@ alias sources
         <include>"../Dependencies/Lua/Target"
     ;
 
-exe macaroni_p  # In linux it can't create the file because the name is the
-                # same as a directory.
+exe macaroni  # In linux it can't create the file because the name is the
+              # same as a directory.
     :   #[ path.glob-tree ../Source/main/mcpp : *.c ]
         #[ path.glob-tree ../Source/main/mcpp : *.cpp ]
         #[ path.glob-tree ./Macaroni : *.cpp ]
@@ -83,3 +83,10 @@ exe macaroni_p  # In linux it can't create the file because the name is the
         #<define>LUA_BUILD_AS_DLL
     ;
 
+install exe
+    : macaroni
+    : <install-dependencies>on <install-type>EXE
+      <install-type>LIB
+    ;
+
+explicit exe ;
