@@ -25,6 +25,30 @@ FileGenerator = {
         self.tabs = self.tabs + tabCount;
     end,
 
+    classTopBlocks = function(self)
+        for i = 1, #self.node.Children do
+            local child = self.node.Children[i]
+            if child.TypeName == TypeNames.Block then
+                block = child.Member
+                if block.Id == "top" then
+                    self:writeBlockCodeBlock(block)
+                end
+            end
+        end
+    end,
+
+    classBottomBlocks = function(self)
+        for i = 1, #self.node.Children do
+            local child = self.node.Children[i]
+            if child.TypeName == TypeNames.Block then
+                block = child.Member
+                if block.Id == "bottom" then
+                    self:writeBlockCodeBlock(block)
+                end
+            end
+        end
+    end,
+
     getNodeAlias = function(self, node) -- The Alias of a Node for this kind of file.
         return node.FullName;
     end,

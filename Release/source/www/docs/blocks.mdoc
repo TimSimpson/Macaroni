@@ -1,0 +1,96 @@
+<~#include <header.mdoc>~>
+
+
+
+<h2>Blocks</h2>
+
+<p>
+C++ code is incredibly complex before you consider things such as template
+metaprogramming and the preprocessor.
+Figuring out a way to correctly handle any possible combinations
+of C++ constructs in a way that would be universally applicable as well as
+intuitive is beyond the powers of Macaroni.
+</p>
+<p>
+That's OK though because Macaroni includes a way to insert naked C++ code
+when the parser itself is not accomodating enough to do what you might need.</p>
+
+<h4>The ~block keyword.</h4>
+<blockquote>
+Usage:<br/>
+~block "id" { /* code */ }
+</blockquote>
+<p>
+The keyword "~block" tells Macaroni to put a block of text as-is into a
+generated file. ~block should be followed by a string containing the
+short ID of the generated file. This ID only makes sense in the context of
+what's being parsed. For example, if you place a "~block" into a class, then
+you usually want the text to appear in the class's H or CPP file.</p>
+
+<p><b>Caution</b>: The block ID is dependent on the Macaroni source code
+generators, so in principle any "ID" is OK. However, unless you use the IDs
+specified below nothing will get written to the generated source CPP and H
+files.
+</p>
+
+<p>
+This may sound confusing but its actually pretty simple. Here are the possible
+use cases:
+</p>
+
+<h4>Classes</h4>
+<p>Blocks put in classes end up in the class header of implementation file
+depending on the ID. Here's some examples:
+<ul>
+<li><b>h-predef</b> - Appears in the header file, before the class
+                      definition.</li>
+<li><b>h</b> - Appears in the header file, inside the class
+               definition<b>*</b>.</li>
+<li><b>h-postdef</b> - Appears in the header file, after the class
+                       definition.</li>
+<li><b>cpp-include</b> - Appears in the implementation file, after the internal
+                         include statements but before the function
+                         definitions.</li>
+<li><b>cpp</b> - Appears in the implementation file, after the include
+                 statements, and interspersed with the function
+                 definitions<b>*</b>.</li>
+</ul>
+<b>* Note:</b> <p> The placement of "h" and "cpp" blocks depends on the order they
+               are defined in the Macaroni source file.</p>
+
+<p>The following example shows all how all class blocks are applied.</p>
+
+<~lua
+showFile("Macaroni.Examples", "Blocks", "1.0.0.0", "src/Blocks.mcpp");
+~>
+
+<~lua
+showFile("Macaroni.Examples", "Blocks", "1.0.0.0", "target/BlocksExample.h");
+~>
+
+<~lua
+showFile("Macaroni.Examples", "Blocks", "1.0.0.0", "target/BlocksExample.cpp");
+~>
+
+<h4>Units</h4>
+<p>The ~unit keyword explicitly defines a Macaroni source file as belonging
+     to a C++ translation unit which in Macaroni receives its own header
+     and implementation file. The ~block keyword can be used here to make
+     arbitrary C++ code appear in the generated file, which may be
+     easier than writing Macaroni code if macros or other complex constructs
+     are being used. Usually, the "till EOF" syntax should be used here to tell
+     Macaroni the block of code ends at the end of the file.
+     </p>
+<ul>
+<li><b>cpp</b> - Appears in the cpp unit file.</li>
+</ul>
+
+<p>The following example shows how a cpp block is used with ~unit.</p>
+
+<~lua
+showFile("Macaroni.Examples", "Hello", "1.0.0.0", "source/Main.mcpp");
+~>
+<~lua
+showFile("Macaroni.Examples", "Hello", "1.0.0.0", "target/Main.cpp");
+~>
+<~#include <footer.mdoc> ~>

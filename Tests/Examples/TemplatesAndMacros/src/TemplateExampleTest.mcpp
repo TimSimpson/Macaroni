@@ -1,0 +1,69 @@
+~unit TemplateExampleTest type=test;
+~import Base;
+~import BasePtr;
+~import std::cout;
+~import std::endl;
+~block "cpp" :=
+
+#define BOOST_TEST_MODULE TemplateExampleTest
+#include <boost/test/unit_test.hpp>
+
+class A : public Base
+{
+public:
+    void DoSomething()
+    {
+        cout << "Hi." << endl;
+    }
+
+    int GiveMeFive()
+    {
+        return 5;
+    }
+};
+
+class B : public Base
+{
+public:
+    void DoSomething()
+    {
+        cout << "Throw an exception!" << endl;
+    }
+};
+
+BOOST_AUTO_TEST_CASE(PointToDerived)
+{
+    BasePtr a(new A());
+    int something = a.Get<A>().GiveMeFive();
+    BOOST_CHECK_EQUAL(5, something);
+}
+
+BOOST_AUTO_TEST_CASE(ShouldFailWhenPointerIsNull)
+{
+    try
+    {
+        BasePtr nothing(nullptr);
+        nothing.Get<A>().GiveMeFive();
+        BOOST_FAIL("Expected an exception.");
+    }
+    catch(const std::exception & ex)
+    {
+        BOOST_CHECK_EQUAL("The pointer was null!",
+                          ex.what());
+    }
+}
+
+BOOST_AUTO_TEST_CASE(ShouldFailWhenTypesAreDifferent)
+{
+    BasePtr b(new B());
+    try
+    {
+        b.Get<A>().GiveMeFive();
+        BOOST_FAIL("Expected an exception.");
+    }
+    catch(const std::exception & ex)
+    {
+        BOOST_CHECK_EQUAL("Could not convert pointer to the necessary type!",
+                          ex.what());
+    }
+}

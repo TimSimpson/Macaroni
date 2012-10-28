@@ -184,6 +184,7 @@ ClassCppFileGenerator = {
     parse = function(self)
         if (not self.isNested) then
             self:includeGuardHeader();
+            self:classTopBlocks();
             self:write('\n');
 			self:write("// The following configures symbols for export if needed.\n");
 			self:write("#define " .. LibraryCreate(self.targetLibrary) .. "\n");
@@ -203,6 +204,7 @@ ClassCppFileGenerator = {
             self:write('\n');
             self:namespaceEnd(self.node.Node);
             self:write('\n');
+            self:classBottomBlocks();
             self:includeGuardFooter();
         end
     end,

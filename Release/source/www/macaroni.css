@@ -225,17 +225,18 @@ span.lineno { background-color: #f0f0f0; padding: 0 5px 0 5px; }
 pre { line-height: 125%; }
 body .hll { background-color: #49483e }
 /*body  { background: #272822; color: #f8f8f2 }*/
-body .c { color: #75715e } /* Comment */
+/*body .c { color: #75715e } // Comment */
+body .c { color: #f3cf98 } /* Comment */
 body .err { color: #960050; background-color: #1e0010 } /* Error */
 body .k { color: #66d9ef } /* Keyword */
 body .l { color: #ae81ff } /* Literal */
 body .n { color: #f8f8f2 } /* Name */
 body .o { color: #f92672 } /* Operator */
 body .p { color: #f8f8f2 } /* Punctuation */
-body .cm { color: #75715e } /* Comment.Multiline */
-body .cp { color: #75715e } /* Comment.Preproc */
-body .c1 { color: #75715e } /* Comment.Single */
-body .cs { color: #75715e } /* Comment.Special */
+body .cm { color: #f3cf98 } /* Comment.Multiline */
+body .cp { color: #ff38B8 } /* Comment.Preproc */
+body .c1 { color: #f3cf98 } /* Comment.Single */
+body .cs { color: #f3cf98 } /* Comment.Special */
 body .ge { font-style: italic } /* Generic.Emph */
 body .gs { font-weight: bold } /* Generic.Strong */
 body .kc { color: #66d9ef } /* Keyword.Constant */

@@ -212,6 +212,9 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         if (not self.isNested) then
             self:includeGuardHeader();
             self:write('\n');
+            if not self.internalDef then
+                self:classTopBlocks();
+            end
         end
 
         local reason = self.node.Member.ReasonCreated;
@@ -261,6 +264,9 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
             self:classPostDefBlocks();
             self:namespaceEnd(self.node.Node);
             self:write('\n');
+            if not self.internalDef then
+                self:classBottomBlocks();
+            end
             self:includeGuardFooter();
         end
     end,

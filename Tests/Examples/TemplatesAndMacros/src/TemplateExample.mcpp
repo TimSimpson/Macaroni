@@ -1,0 +1,81 @@
+
+class Base
+{
+    public virtual ~Base() {}
+
+    public virtual void DoSomething() = 0;
+};
+
+
+class BasePtr
+{
+    // Macaroni can tell that we're only using pointers to "Base", and won't
+    // put include statements in the CPP file unless we explicitly import it.
+    ~import Base;
+
+    ~block "cpp-include"
+    {
+        #include <exception>
+    }
+
+    ~block "cpp"
+    {
+        #define MAKE_EXCEPTION(name, message) \
+            class name : public std::exception \
+            { \
+                public: const char * what() const throw() \
+                { \
+                    return message; \
+                } \
+            };
+        namespace {
+            MAKE_EXCEPTION(NullPointerException,
+                           "The pointer was null!");
+            MAKE_EXCEPTION(TypeConversionException,
+                           "Could not convert pointer to the necessary type!");
+        }  // end anonymous namespace
+    } // end "cpp" code block.
+
+    private Base * base;
+
+    public BasePtr(Base * b)
+    :   base(b)
+    {}
+
+    public ~BasePtr()
+    {
+        delete base;
+    }
+
+    ~block "h"
+    {
+         public: template<class T> T & Get()
+        {
+            if (nullptr == base)
+            {
+                throwNullException();
+            }
+            T * derivedPointer = dynamic_cast<T *>(base);
+            if (nullptr == derivedPointer)
+            {
+                throwTypeException();
+            }
+            return *derivedPointer;
+        }
+    } // end "h" block
+
+    public void DoSomething()
+    {
+        base->DoSomething();
+    }
+
+    private void throwNullException()
+    {
+        throw NullPointerException();
+    }
+
+    private void throwTypeException()
+    {
+        throw TypeConversionException();
+    }
+};

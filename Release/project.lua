@@ -4,6 +4,7 @@ require "Macaroni.IO.Path"
 --upper = getUpperProject();
 
 load("Macaroni.Examples", "Hello", "1.0.0.0")
+load("Macaroni.Examples", "Blocks", "1.0.0.0")
 load("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", "0.1.0.24")
 load("Macaroni", "Macaroni.Tests.Features.LuaGlue", "0.1.0.24")
 

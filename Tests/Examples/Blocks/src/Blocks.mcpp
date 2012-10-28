@@ -1,0 +1,63 @@
+
+class BlocksExample
+{
+    // This block gets put at the top of both files after the include guard.
+    // This is an ideal spot for compile guards if a class should only work
+    // with some specific configuration.
+    ~block "top"
+    {
+/* DISTRIBUTED BY ACME INC. PLEASE READ LICENSE.TXT FOR TERMS OF USE. */
+    }
+
+    // This gets put at the bottom of both files.
+    ~block "bottom"
+    {
+/* THANK YOU FOR PLAYING! */
+    }
+
+    private int field1;
+
+    // This block gets put after the include statements in both the
+    // header and internal header.
+    ~block "h-predef"
+    {
+        #include <vector>
+    }
+
+    // This gets put inside the class defintion, in the order it was defined.
+    // So this should appear after field1, but before field3.
+    ~block "h"
+    {
+        private: int field2;
+    }
+
+    private int field3;
+
+    // This will get put after the class definition.
+    ~block "h-postdef"
+    {
+        void global_function(BlocksExample & ex);
+    }
+
+    public void Method1()
+    {
+
+    }
+
+    // This gets put into the cpp file, after all the include and using
+    // statements. This will be after the definition of Method1.
+    ~block "cpp"
+    {
+        void global_function(BlocksExample & ex)
+        {
+            // ...
+        }
+    }
+
+    // "cpp-include" gets put after the #include statements for the cpp file,
+    // which happen after the internal header, and before the using statements.
+    ~block "cpp-include"
+    {
+        #include <exception>
+    }
+};
