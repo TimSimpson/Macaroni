@@ -223,7 +223,8 @@ pre.shell
 td.linenos { background-color: #f0f0f0; padding-right: 10px; }
 span.lineno { background-color: #f0f0f0; padding: 0 5px 0 5px; }
 pre { line-height: 125%; }
-body .hll { background-color: #49483e }
+body .code-block-bg { background-color: #060B13 }
+body .hll { background-color: ##1F2329 }
 /*body  { background: #272822; color: #f8f8f2 }*/
 /*body .c { color: #75715e } // Comment */
 body .c { color: #f3cf98 } /* Comment */
@@ -233,10 +234,10 @@ body .l { color: #ae81ff } /* Literal */
 body .n { color: #f8f8f2 } /* Name */
 body .o { color: #f92672 } /* Operator */
 body .p { color: #f8f8f2 } /* Punctuation */
-body .cm { color: #f3cf98 } /* Comment.Multiline */
-body .cp { color: #ff38B8 } /* Comment.Preproc */
-body .c1 { color: #f3cf98 } /* Comment.Single */
-body .cs { color: #f3cf98 } /* Comment.Special */
+body .cm { color: #DBCB16 } /* Comment.Multiline */
+body .cp { color: #EB8AF8 } /* Comment.Preproc */
+body .c1 { color: #DBCB16 } /* Comment.Single */
+body .cs { color: #DBCB16 } /* Comment.Special */
 body .ge { font-style: italic } /* Generic.Emph */
 body .gs { font-weight: bold } /* Generic.Strong */
 body .kc { color: #66d9ef } /* Keyword.Constant */
