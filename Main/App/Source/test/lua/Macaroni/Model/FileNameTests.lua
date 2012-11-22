@@ -14,22 +14,24 @@
 -- limitations under the License.
 --------------------------------------------------------------------------------
 require "Macaroni.Model.FileName";
+require "Macaroni.IO.Path";
 
 local FileName = Macaroni.Model.FileName;
+local Path = Macaroni.IO.Path;
 
 Test.register(
-{	
-    name = "FileName Tests",    
-    tests = {    
+{
+    name = "FileName Tests",
+    tests = {
         ["Creating a file."] = function(this)
-            local file = FileName.Create("blah");
+            local file = FileName.Create(Path.New("", "blah"));
             Test.assertEquals("blah", tostring(file));
         end,
         ["Reference counting"] = function(this)
-            local file = FileName.Create("blah");            
+            local file = FileName.Create(Path.New("blah"));
             Test.assertEquals(1, file.ReferenceCount);
             local file2 = file; --lua makes no copy.
             Test.assertEquals(1, file.ReferenceCount);
         end,
-    }    
+    }
 }); -- End of register call

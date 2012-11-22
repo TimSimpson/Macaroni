@@ -18,58 +18,60 @@ require "Macaroni.Environment.Messages";
 require "Macaroni.Parser.Pippy.PippyParser";
 require "Macaroni.Parser.Parser";
 require "Macaroni.Parser.ParserException";
+require "Macaroni.IO.Path";
 require "Macaroni.Model.Source";
 
 local Context = Macaroni.Model.Context;
 local Messages = Macaroni.Environment.Messages;
+local Path = Macaroni.IO.Path;
 local PippyParser = Macaroni.Parser.Pippy.PippyParser;
 local FileName = Macaroni.Model.FileName;
 local Source = Macaroni.Model.Source;
 
-        
+
 Test.register(
-{	
-name = "PippyParser Tests :: Milestones",    
-tests = {          
-    {   
+{
+name = "PippyParser Tests :: Milestones",
+tests = {
+    {
         name = "Milestone 1- Global vars in Namespace",
         init = function(this)
-            this.parser = PippyParser.Create();     
+            this.parser = PippyParser.Create();
             this.context = Context.New("{ROOT}");
             this.library = this.context:FindOrCreateLibrary("Tests", "Test", "1.0");
-            this.file = FileName.Create("Blah1.mcpp");           
+            this.file = FileName.Create(Path.New("", "Blah1.mcpp"));
             this.root = this.context.Root;
             this.src = Source.Create(this.file, 1, 1);
-            
+
             this.parser:Read(this.library, this.src, [[
                 ~import std::string;
-                
+
                 string hello;
                 string & me;
-                
+
                 namespace Apple
                 {
                     double donuts;
                 }
-            ]]);         
-            this.var = this.root.Children[2].Element;   
+            ]]);
+            this.var = this.root.Children[2].Element;
         end,
         tests = {
             ["Hello."] = function(this)
                 Test.assertEquals(5, #this.root.Children);
-                local hello = this.root.Children[3];                
+                local hello = this.root.Children[3];
                 Test.assertEquals("hello", hello.Name);
                 Test.assertEquals("Variable", hello.Element.TypeName);
                 Test.assertEquals("std::string", hello.Element.Type.Node.FullName);
-            end,            
-            ["donuts"] = function(this)                
+            end,
+            ["donuts"] = function(this)
                 local donuts = this.root.Children[5].Children[1];
                 Test.assertEquals("Apple::donuts", donuts.FullName);
                 Test.assertEquals("Variable", donuts.Element.TypeName);
                 Test.assertEquals("double", donuts.Element.Type.Node.Name);
-            end,            
+            end,
         }
     },
-   
+
 } -- end of tests table ( I skipped some indentation way above here).
 }); -- End of register call

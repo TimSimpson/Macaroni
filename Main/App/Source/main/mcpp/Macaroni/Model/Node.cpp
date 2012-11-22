@@ -22,7 +22,7 @@
 #include <Macaroni/Model/FileName.h>
 #include "Member.h"
 #include "ModelInconsistencyException.h"
-#include "Reason.h"
+#include <Macaroni/Model/Reason.h>
 #include <memory>
 #include <sstream>
 #include <Macaroni/StringException.h>
@@ -478,11 +478,11 @@ void Node::SplitComplexName(const std::string & complexName,
 							std::vector<std::string> & subNames)
 {
 	MACARONI_ASSERT(complexName.length() < 16384, ":p < yeah right");
-	unsigned int currentPos = 0;
+	size_t currentPos = 0;
 	while(currentPos < complexName.length())
 	{
-		const unsigned int index = complexName.find_first_of("::", currentPos);
-		if (index == std::string::npos) // Not found
+		const size_t index = complexName.find_first_of("::", currentPos);
+		if (std::string::npos == index) // Not found
 		{
 			subNames.push_back(complexName.substr(currentPos));
 			currentPos = complexName.length();

@@ -13,31 +13,33 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --------------------------------------------------------------------------------
+require "Macaroni.IO.Path";
 require "Macaroni.Model.Source";
 
 local FileName = Macaroni.Model.FileName;
+local Path = Macaroni.IO.Path;
 local Source = Macaroni.Model.Source;
 
 Test.register(
-{	
-    name = "Source Tests",    
-    tests = {    
+{
+    name = "Source Tests",
+    tests = {
         {
-            name = "Creating a source object.",           
+            name = "Creating a source object.",
             init = function(this)
-                this.file = FileName.Create("blah");
+                this.file = FileName.Create(Path.New("", "blah"));
                 Test.assertEquals(1, this.file.ReferenceCount);
                 this.src = Source.Create(this.file, 27, 1);
-            end,            
+            end,
             tests = {
                 ["Column should return the given column."] = function(this)
-                    Test.assertEquals(1, this.src.Column);          
+                    Test.assertEquals(1, this.src.Column);
                 end,
                 ["FileName should return the given file."] = function(this)
-                    Test.assertEquals(this.file, this.src.FileName);          
+                    Test.assertEquals(this.file, this.src.FileName);
                 end,
                 ["Line should return the given line."] = function(this)
-                    Test.assertEquals(27, this.src.Line);          
+                    Test.assertEquals(27, this.src.Line);
                 end,
                 ["ReferenceCount on the File should have been incremented."] = function(this)
                     Test.assertEquals(2, this.file.ReferenceCount);
@@ -49,6 +51,6 @@ Test.register(
                     Test.assertEquals("blah, line 27, column 1", tostring(this.src));
                 end,
             }
-        }             
-    }    
+        }
+    }
 }); -- End of register call

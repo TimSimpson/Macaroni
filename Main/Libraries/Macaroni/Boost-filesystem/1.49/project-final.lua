@@ -13,7 +13,7 @@ boost_props = properties.boost["1.49"]
 lib = project:Library
 {
     name="lib",
-    sources = pathList{"Source", ".mh$"},
+    sources = pathList{"Source"},
 }
 --headers = lib:AddArtifact("headers")
 --headers.Files:Add(fileSet(boost_props.include, ""));

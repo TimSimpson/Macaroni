@@ -188,8 +188,18 @@ void Path::CreateDirectory() const
 
 GeneratedFileWriterPtr Path::CreateFile() const
 {
-	boost::filesystem::path absolute = boost::filesystem::system_complete(path);
-	return GeneratedFileWriterPtr(new GeneratedFileWriter(absolute));
+	try
+	{
+		boost::filesystem::path absolute = boost::filesystem::system_complete(path);
+		return GeneratedFileWriterPtr(new GeneratedFileWriter(absolute));
+	}
+	catch(...)
+	{
+		std::stringstream ss;
+		ss << "Can't create file : " << path.string();
+		std::string msg(ss.str());
+		throw Macaroni::StringException(msg.c_str());
+	}
 }
 
 PathPtr Path::CreateWithCurrentAsRoot() const
@@ -221,7 +231,33 @@ bool Path::Exists() const
 
 std::string Path::GetAbsolutePath() const
 {
-	return boost::filesystem::system_complete(path).string();
+	#ifdef MACARONI_COMPILE_TARGET_WINDOWS
+		// In Windows, system_complete can be used successfully in most cases.
+		// In Linux there seems to be multiple problems with it.
+		// However, this program (like C++ itself) may often use forward slashes
+		// in Windows. "canonical" throws on forward slashes, in which case
+		// we refer to system_complete, which is what was used everywhere
+		// anyway when Macaroni only ran on Windows.
+		try
+		{
+			return boost::filesystem::canonical(path).string();
+		}
+		catch(...)
+		{
+			try
+			{
+				return boost::filesystem::system_complete(path).string();
+			}
+			catch(...)
+			{
+				std::cerr << "PATH ERROR: File " << path.string()
+			    	      << " has no canonical path." << std::endl;
+				throw;
+			}
+		}
+	#else
+		return boost::filesystem::canonical(path).string();
+	#endif
 }
 
 std::string Path::GetAbsolutePathForceSlash() const

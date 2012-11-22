@@ -19,34 +19,34 @@
 #include "LuaEnvironment.h"
 #include <Macaroni/Model/AnnotationTableLua.h>
 #include <Macaroni/Model/AnnotationValueLua.h>
-#include "../Model/AxiomLua.h"
-#include "../Model/BlockLua.h"
+#include <Macaroni/Model/AxiomLua.h>
+#include <Macaroni/Model/BlockLua.h>
 #include <Macaroni/Model/Cpp/ClassLua.h>
 #include <Macaroni/Model/Cpp/ClassParentListLuaMetaData.h>
-#include "../Model/ContextLua.h"
-//#include "../Model/Document.h"
+#include <Macaroni/Model/ContextLua.h>
+//#include <Macaroni/Model/Document.h>
 #include <Macaroni/Model/ElementLua.h>
-#include "../Model/Cpp/FunctionLua.h"
-#include "../Model/Cpp/FunctionOverloadLua.h"
-#include "../Model/LibraryLua.h"
+#include <Macaroni/Model/Cpp/FunctionLua.h>
+#include <Macaroni/Model/Cpp/FunctionOverloadLua.h>
+#include <Macaroni/Model/LibraryLua.h>
 #include <Macaroni/Doc/MDocParser.h>
-//#include "../Model/MemberLua.h"
-#include "MessagesLua.h"
-//#include "../Model/NamespaceLua.h"
-#include "../Model/NodeListLua.h"
-#include "../Parser/ParserLua.h"
-#include "../Parser/ParserExceptionLua.h"
-#include "../IO/PathLua.h"
-#include "../IO/Paths.h"
-#include "../Parser/Pippy/PippyParserLua.h"
+//#include <Macaroni/Model/MemberLua.h>
+#include <Macaroni/Environment/MessagesLua.h>
+//#include <Macaroni/Model/NamespaceLua.h>
+#include <Macaroni/Model/NodeListLua.h>
+#include <Macaroni/Parser/ParserLua.h>
+#include <Macaroni/Parser/ParserExceptionLua.h>
+#include <Macaroni/IO/PathLua.h>
+#include <Macaroni/IO/Paths.h>
+#include <Macaroni/Parser/Pippy/PippyParserLua.h>
 #include <sstream>
-#include "../Model/TypeLua.h"
-#include "../Model/TypeArgumentListLua.h"
-#include "../Model/TypeArgumentLua.h"
-#include "../Model/Cpp/TypedefLua.h"
-#include "../Model/TypeListLua.h"
-#include "../Model/Cpp/VariableLua.h"
-#include "../Model/Cpp/VariableAssignmentLua.h"
+#include <Macaroni/Model/TypeLua.h>
+#include <Macaroni/Model/TypeArgumentListLua.h>
+#include <Macaroni/Model/TypeArgumentLua.h>
+#include <Macaroni/Model/Cpp/TypedefLua.h>
+#include <Macaroni/Model/TypeListLua.h>
+#include <Macaroni/Model/Cpp/VariableLua.h>
+#include <Macaroni/Model/Cpp/VariableAssignmentLua.h>
 #include <Macaroni/VersionNo.h>
 #include <LuaModulesInclude_Macaroni___Macaroni_46_App.h>
 
@@ -56,17 +56,17 @@ static const struct luaL_Reg libs[] = {
 	{"Macaroni.Environment.Messages", Environment::MessagesLuaMetaData::OpenInLua},
 	{"Macaroni.Model.AnnotationTable", Model::AnnotationTableLuaMetaData::OpenInLua},
 	{"Macaroni.Model.AnnotationValue", Model::AnnotationValueLuaMetaData::OpenInLua},
-	{"Macaroni.Model.Axiom", Model::AxiomLuaMetaData::OpenInLua},	
-	{"Macaroni.Model.Block", Model::BlockLuaMetaData::OpenInLua},	
-	{"Macaroni.Model.Cpp.Class", Model::Cpp::ClassLuaMetaData::OpenInLua},	
-	{"Macaroni.Model.Cpp.ClassParentList", Model::Cpp::ClassParentListLuaMetaData::OpenInLua},	
-	{"Macaroni.Model.Context", Model::ContextLuaMetaData::OpenInLua},	
-	{"Macaroni.Model.Element", Model::ElementLuaMetaData::OpenInLua},	
-	{"Macaroni.Model.Cpp.Function", Model::Cpp::FunctionLuaMetaData::OpenInLua},		
-	{"Macaroni.Model.Cpp.FunctionOverload", Model::Cpp::FunctionOverloadLuaMetaData::OpenInLua},		
-	{"Macaroni.Model.Library", Model::LibraryLuaMetaData::OpenInLua},	
-	{"Macaroni.Doc.MDocParser", Macaroni::Doc::MDocParser::OpenInLua},	
-	//{"Macaroni.Model.Member", Model::MemberLuaMetaData::OpenInLua},	
+	{"Macaroni.Model.Axiom", Model::AxiomLuaMetaData::OpenInLua},
+	{"Macaroni.Model.Block", Model::BlockLuaMetaData::OpenInLua},
+	{"Macaroni.Model.Cpp.Class", Model::Cpp::ClassLuaMetaData::OpenInLua},
+	{"Macaroni.Model.Cpp.ClassParentList", Model::Cpp::ClassParentListLuaMetaData::OpenInLua},
+	{"Macaroni.Model.Context", Model::ContextLuaMetaData::OpenInLua},
+	{"Macaroni.Model.Element", Model::ElementLuaMetaData::OpenInLua},
+	{"Macaroni.Model.Cpp.Function", Model::Cpp::FunctionLuaMetaData::OpenInLua},
+	{"Macaroni.Model.Cpp.FunctionOverload", Model::Cpp::FunctionOverloadLuaMetaData::OpenInLua},
+	{"Macaroni.Model.Library", Model::LibraryLuaMetaData::OpenInLua},
+	{"Macaroni.Doc.MDocParser", Macaroni::Doc::MDocParser::OpenInLua},
+	//{"Macaroni.Model.Member", Model::MemberLuaMetaData::OpenInLua},
 	{"Macaroni.Model.NodeList", Model::NodeListLuaMetaData::OpenInLua},
 	{"Macaroni.Parser.Parser", Parser::ParserLuaMetaData::OpenInLua},
 	{"Macaroni.Parser.ParserException", Parser::ParserExceptionLuaMetaData::OpenInLua},
@@ -104,11 +104,11 @@ void LuaEnvironment::registerInternalLuaModules()
 
 	// Put package table on the stack.
 	lua_getglobal(state, "package");
-	
+
 	// Put the preload table of the package table on the stack.
 	lua_pushstring(state, "preload");
 	lua_gettable(state, -2); // pops key "preload", puts table on stack
-    
+
 	// Registers everything into "package.preload."
 	// This way they are not loaded until lua calls
 	// "require."
@@ -117,8 +117,8 @@ void LuaEnvironment::registerInternalLuaModules()
 	// Override how the default "require" functionality works.
 	// Try to keep true to the spirit of require, just fudge it a little so we
 	// can use it.
-	// First, force require to use the current working path.	
-	std::string directory = Macaroni::IO::Paths::GetExeDirectoryPath();	
+	// First, force require to use the current working path.
+	std::string directory = Macaroni::IO::Paths::GetExeDirectoryPath().string();
 
 	lua_pushstring(state, MACARONI_VERSION_STRING);
 	lua_setglobal(state, "MACARONI_VERSION");
@@ -129,18 +129,18 @@ void LuaEnvironment::registerInternalLuaModules()
 	lua_pushstring(state, directory.c_str());
 	lua_setglobal(state, "package.path");
 
-	std::stringstream ss;	
+	std::stringstream ss;
 	ss << std::string(directory);
 	ss << "\\?.lua";
 	lua_getglobal(state, "package");
 	lua_pushstring(state, ss.str().c_str());
 	lua_setfield(state, -2, "path");
-	
+
 	// blue pill, 73
 	// SET environment variable LUA_PATH to current working directory.
 
-	// Take required function, override it with a function which 
-	// given 
+	// Take required function, override it with a function which
+	// given
 };
 
 END_NAMESPACE2

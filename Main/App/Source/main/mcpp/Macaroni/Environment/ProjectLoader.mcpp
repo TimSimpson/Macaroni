@@ -161,6 +161,7 @@ class Macaroni::Environment::ProjectLoader
         MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(ProjectNotFoundException,
             "Could not find a file for project %s.");
 
+        #define LOG_DEBUG(a) std::cout << a << std::endl;
     }
 
     private AppPathsPtr appPaths;
@@ -222,7 +223,7 @@ class Macaroni::Environment::ProjectLoader
     /** Returns true if it would be safe to parse the given project file. */
     ~hidden ProjectEnvironmentPtr fetchProjectByFilePath(const path & path)
     {
-        string absolutePath = boost::filesystem::system_complete(path).string();
+        string absolutePath = boost::filesystem::canonical(path).string();
         ProjectFileMemory::iterator itr = parsedProjectFiles.find(absolutePath);
         if (parsedProjectFiles.end() == itr)
         {
@@ -298,6 +299,11 @@ class Macaroni::Environment::ProjectLoader
         return LoadProjectEnvironment(projectPath, boost::none);
     }
 
+~block "cpp-include"
+{
+    #include <stdio.h>
+#include <stdlib.h>
+}
     /**
      * Loads a project from a specific file.
      * If an expected project version ID is given, it will validate that
@@ -306,6 +312,7 @@ class Macaroni::Environment::ProjectLoader
     public ProjectEnvironmentPtr LoadProjectEnvironment(
         const path & projectPath, optional<ProjectVersionId> expectedPvId)
     {
+        LOG_DEBUG("LoadProjectEnvironment")
         /** Check if this file was already loaded. */
         if (!boost::filesystem::exists(projectPath))
         {
@@ -400,7 +407,7 @@ class Macaroni::Environment::ProjectLoader
      *  parsing / fetching files. */
     ~hidden void storeProjectEnvironment(ProjectEnvironment & env)
     {
-        string absolutePath = boost::filesystem::system_complete(
+        string absolutePath = boost::filesystem::canonical(
             env.GetWorkingProjectFile()).string();
         if (parsedProjectFiles.find(absolutePath) != parsedProjectFiles.end())
         {
@@ -436,6 +443,7 @@ class Macaroni::Environment::ProjectLoader
     /** Given some project.lua file, loads every project.lua file above it. */
     ~hidden void runUpperProjects(const path filePath)
     {
+        LOG_DEBUG("Run Upper Projects ")
         path upper = filePath.parent_path() / "../project.lua";
         if (boost::filesystem::exists(upper))
         {

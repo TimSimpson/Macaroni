@@ -5,7 +5,7 @@ project = context:Group("Macaroni")
 -- project:Library{
 --     name="lib",
 --     sources = files{
---         Macaroni = { fileSet("Source", ".mh$") }
+--         Macaroni = { fileSet("Source") }
 --     }
 -- }
 
@@ -13,5 +13,5 @@ project = context:Group("Macaroni")
 lib = project:Library
 {
     name="lib",
-    sources = pathList{"Source", ".mh$"}
+    sources = pathList{"Source"}
 }

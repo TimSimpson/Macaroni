@@ -7,7 +7,7 @@ local Node = Macaroni.Model.Node;
 local TypeNames = Macaroni.Model.TypeNames;
 
 ClassFileGenerator = {
-    
+
 };
 
-Util.linkToSubClass(FileGenerator, ClassFileGenerator);  
+Util.linkToSubClass(FileGenerator, ClassFileGenerator);

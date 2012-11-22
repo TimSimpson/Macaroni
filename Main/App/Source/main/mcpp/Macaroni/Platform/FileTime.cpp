@@ -27,6 +27,7 @@
 #endif
 
 #ifdef MACARONI_COMPILE_TARGET_LINUX
+ #include <Macaroni/Exceptions/SimpleStringException.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #endif
@@ -43,7 +44,7 @@ using Macaroni::Platform::Windows::WindowsString;
 struct FT
 {
 	FILETIME access;
-	FILETIME create;	
+	FILETIME create;
 	FILETIME write;
 
 	FT(path p)
@@ -70,11 +71,11 @@ struct FT
 			if (::GetFileTime(h, &access, &create, &write) == 0)
 			{
 				std::stringstream ss;
-				ss << "Could not get file time for file \"" 
+				ss << "Could not get file time for file \""
 					<< p.string() << "\" to get time.";
 				throw Macaroni::StringException(ss.str().c_str());
 			}
-		} 
+		}
 		catch(std::exception & ex)
 		{
 			::CloseHandle(h);
@@ -86,7 +87,7 @@ struct FT
 
 bool FileTime::File1IsOlderThanFile2(boost::filesystem::path & one,
 									  boost::filesystem::path & two)
-{ 
+{
 	FT f1(one);
 	FT f2(two);
 	SYSTEMTIME t1;
@@ -94,7 +95,7 @@ bool FileTime::File1IsOlderThanFile2(boost::filesystem::path & one,
 	::FileTimeToSystemTime(&f1.write, &t1);
 	::FileTimeToSystemTime(&f2.write, &t2);
 
-	if (t1.wYear != t2.wYear) 
+	if (t1.wYear != t2.wYear)
 	{
 		return t1.wYear < t2.wYear;
 	}
@@ -128,21 +129,21 @@ bool FileTime::File1IsOlderThanFile2(boost::filesystem::path & one,
 
 #ifdef MACARONI_COMPILE_TARGET_LINUX
 
+MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(FileStatException,
+	"Error getting modified time (via stat) of file %s.");
+
 time_t modifiedTime(const char * filePath)
 {
 	struct stat fileInfo;
 	if (stat(filePath, &fileInfo) == -1) {
-		std::stringstream ss;
-		ss << "Error getting modified time (via stat) of file \"" 
-		   << filePath << "\".";
-		throw Macaroni::Exception(ss.str().c_str());
+		throw FileStatException(filePath, MACARONI_INTERNAL_SOURCE);
 	}
 	return fileInfo.st_mtime;
 }
 
 bool FileTime::File1IsOlderThanFile2(boost::filesystem::path & one,
 									 boost::filesystem::path & two)
-{ 
+{
 	time_t f1 = modifiedTime(one.string().c_str());
 	time_t f2 = modifiedTime(two.string().c_str());
 	return f1 > f2;

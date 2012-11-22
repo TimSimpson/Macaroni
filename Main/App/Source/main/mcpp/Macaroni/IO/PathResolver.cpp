@@ -17,7 +17,7 @@
 #define MACARONI_IO_PATHRESOLVER_CPP
 
 #include "../ME.h"
-#include "Paths.h"
+#include <Macaroni/IO/Paths.h>
 #include "PathResolver.h"
 #include <sstream>
 
@@ -59,9 +59,9 @@ path PathResolver::FindFile(path relativePath)// throw (FileNotFoundException)
 	}
 
 	std::stringstream ss;
-	ss << "Could not find the given relative path \"" << relativePath 
-	   << "\"; not found at path \"" << local 
-	   << "\", \"" << installRepo 
+	ss << "Could not find the given relative path \"" << relativePath
+	   << "\"; not found at path \"" << local
+	   << "\", \"" << installRepo
 	   << "\", nor at \"" << exeNeighbor << "\".";
 	throw FileNotFoundException(ss.str());
 //	return path();

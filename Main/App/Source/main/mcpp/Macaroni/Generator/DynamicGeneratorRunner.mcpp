@@ -140,11 +140,8 @@ class DynamicGeneratorRunner
 
 	public void RunDynamicGenerators(LibraryPtr library, const path & rootPath)
 	{
-		std::string exePath = Macaroni::IO::Paths::GetExeDirectoryPath();
-		std::stringstream finalFilePath;
-		finalFilePath << exePath << "Generators/";
-
-		path generatorPath(finalFilePath.str());
+		const path exePath = Macaroni::IO::Paths::GetExeDirectoryPath();
+		const path generatorPath = exePath / "Generators";
 		RegexFileSet generators(generatorPath);
 
 		RegexFileSetIterator end = generators.End();

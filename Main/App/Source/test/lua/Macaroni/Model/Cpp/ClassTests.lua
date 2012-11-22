@@ -21,6 +21,7 @@ require "Macaroni.Model.FileName";
 require "Macaroni.Model.Library";
 require "Macaroni.Model.Node";
 require "Macaroni.Model.NodeList";
+require "Macaroni.IO.Path";
 require "Macaroni.Model.Reason";
 require "Macaroni.Model.Source";
 
@@ -32,13 +33,14 @@ local FileName = Macaroni.Model.FileName;
 local Library = Macaroni.Model.Library;
 local Node = Macaroni.Model.Node;
 local NodeList = Macaroni.Model.NodeList;
+local Path = Macaroni.IO.Path;
 local Reason = Macaroni.Model.Reason;
 local Source = Macaroni.Model.Source;
 
 Test.register(
-{	
-name = "Class Tests",    
-tests = {    
+{
+name = "Class Tests",
+tests = {
     {   name = "Creating a class by hand",
         init = function(this)
             this.context = Context.New("{r}");
@@ -51,11 +53,11 @@ tests = {
             this.imports = NodeList.New{};
             this.reason = nil;
             this.axiom = Axiom.LuaCreate("LuaGlue.LuaClassWraps");
-            this.fileName = FileName.Create("MadeUpFile");
+            this.fileName = FileName.Create(Path.New("", "MadeUpFile"));
             this.src = Source.Create(this.fileName, 3, 5);
             this.reason = Reason.Create(this.axiom, this.src);
-            this.newClass = Class.Create(this.library, this.newNode, 
-                                         Access.Public, this.imports, 
+            this.newClass = Class.Create(this.library, this.newNode,
+                                         Access.Public, this.imports,
                                          this.reason);
         end,
         tests = {
@@ -87,9 +89,9 @@ tests = {
             --    local foundNode = this.root:Find("Dog");
             --    local expected = Access.Private;
             --    local actual = foundNode.Access;
-            --    Test.assertEquals(expected, actual); 
+            --    Test.assertEquals(expected, actual);
             --end,
-        }        
+        }
     },   -- end of test 1
 } -- tests
 }); -- End of register call

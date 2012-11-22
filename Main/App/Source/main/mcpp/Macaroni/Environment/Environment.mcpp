@@ -94,6 +94,20 @@ class Macaroni::Environment::Environment
 
 		MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(ProjectNotFoundException,
 			"Could not find a file for project %s.");
+
+		/*optional<path> parentDir(const path & child)
+		{
+			const string::size_type index = child.string().find(
+				boost::filesystem::slash<boost::filesystem::path>::value);
+			if (string::npos == index)
+			{
+				return boost::none;
+			}
+			else
+			{
+				return path(child.string().substr(index + 1));
+			}
+		}*/
 	}
 
 	private AppPathsPtr appPaths;
@@ -178,7 +192,13 @@ class Macaroni::Environment::Environment
 			if (boost::filesystem::exists(file)) {
 				return optional<path>(file);
 			}
-			directory = directory / "../";
+			const path nextDirectory = directory / "../";
+			// Make sure we're not endlessly iterating over "/" in Unix.
+			if (boost::filesystem::equivalent(directory, nextDirectory))
+			{
+				return boost::none;
+			}
+			directory = nextDirectory;
 		}
 		return boost::none;
 	}

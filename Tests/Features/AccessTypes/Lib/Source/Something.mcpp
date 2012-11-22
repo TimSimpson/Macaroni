@@ -1,14 +1,10 @@
-
 class Something
 {
 	private int x;
 	private int y;
 
-	// Private constructors mean something, so they should be kept in the
-	// header.
 	private Something()
 	{
-
 	}
 
 	public static Something Create(int x, int y)

@@ -20,7 +20,7 @@
 #include <Macaroni/Exception.h>
 #include "Cpp/Namespace.h"
 #include "Node.h"
-#include "Reason.h"
+#include <Macaroni/Model/Reason.h>
 #include <sstream>
 #include <Macaroni/StringException.h>
 

@@ -20,7 +20,7 @@
 
 #include <fstream>
 #include <boost/format.hpp>
-#include "../IO/Paths.h"
+#include <Macaroni/IO/Paths.h>
 #include <sstream>
 #include <string>
 

@@ -152,7 +152,6 @@ class Macaroni::IO::PathList
 	{ ~hfile=<Macaroni/IO/Path.h> };
 
 
-class Macaroni::IO::Paths { ~hfile=<Macaroni/IO/Paths.h> };
 class Macaroni::Parser::Pippy::PippyParser { ~hfile=<Macaroni/Parser/Pippy/PippyParser.h> };
 class Macaroni::Environment::Process { ~hfile=<Macaroni/Environment/Process.h> };
 class Macaroni::Environment::StringPair { ~hfile=<Macaroni/Environment/StringPair.h> };

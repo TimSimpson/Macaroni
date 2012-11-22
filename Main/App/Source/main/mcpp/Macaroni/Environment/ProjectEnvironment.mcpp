@@ -110,6 +110,8 @@ class Macaroni::Environment::ProjectEnvironment
 
         MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(ProjectNotGivenException,
             "The project file %s did not define a global 'project' var.");
+
+        #define LOG_DEBUG(a) std::cout << a << std::endl;
     }
 
     private ProjectLoader & loader;
@@ -473,7 +475,7 @@ class Macaroni::Environment::ProjectEnvironment
 
     ~hidden ProjectVersionPtr parseUpperProject()
     {
-        path parentPath = boost::filesystem::system_complete(this->workingDirectory) / "..";
+        path parentPath = boost::filesystem::canonical(this->workingDirectory) / "..";
         path finalPath = parentPath / "project.lua";
         if (!exists(finalPath))
         {
@@ -592,7 +594,7 @@ class Macaroni::Environment::ProjectEnvironment
 		try
 		{
 			Path::CopyDirectoryContents(*src, dstP);
-		} 
+		}
 		catch(const Macaroni::Exception & ex)
 		{
 			loader.GetOutput()->WriteLine(ex.message());
@@ -602,7 +604,7 @@ class Macaroni::Environment::ProjectEnvironment
 		{
 			loader.GetOutput()->WriteLine("Error copying files!");
 			throw;
-		}        
+		}
         PathPtr finalProjectFile = dstP.NewPathForceSlash("project-final.lua");
         if (!finalProjectFile->Exists())
         {
@@ -614,7 +616,7 @@ class Macaroni::Environment::ProjectEnvironment
 				try
 				{
 					boost::filesystem::copy_file(a, b);
-				} 
+				}
 				catch(...)
 				{
 					loader.GetOutput()->WriteLine(format("Error copying file "

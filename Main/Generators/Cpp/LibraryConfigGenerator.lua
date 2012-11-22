@@ -58,7 +58,7 @@ LibraryConfigGenerator =
 
 	writeFile = function(self, path)
 		local libId = self.library:GetCId();
-		self.file = path:NewPath("/" .. LibraryConfigFile(self.library));
+		self.file = path:NewPathForceSlash(LibraryConfigFile(self.library));
 		self.writer = self.file:CreateFile();
 
 		local libDecl = LibraryDecl(self.library);

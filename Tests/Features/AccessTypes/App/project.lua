@@ -18,7 +18,7 @@ SimpleProject{
   src="Source",
   target="GeneratedSource",
   dependencies = {
-    load("Macaroni", "Boost-headers", "1.49"):Target("lib"),
+    load("Macaroni", "Boost-headers", "1.51"):Target("lib"),
     load("Macaroni", "CppStd", "2003"):Target("lib"),
     load(upper.Group, upper.Name .. ".Lib", upper.Version):Target("lib"),
   },

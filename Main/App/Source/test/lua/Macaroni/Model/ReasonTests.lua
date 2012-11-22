@@ -13,40 +13,42 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --------------------------------------------------------------------------------
+require "Macaroni.IO.Path";
 require "Macaroni.Model.Reason";
 require "Macaroni.Model.Source";
 
 local Axiom = Macaroni.Model.Axiom;
 local FileName = Macaroni.Model.FileName;
+local Path = Macaroni.IO.Path;
 local Reason = Macaroni.Model.Reason;
 local Source = Macaroni.Model.Source;
 
 Test.register(
-{	
-    name = "Reason tests.",    
-    tests = {    
+{
+    name = "Reason tests.",
+    tests = {
         {
             name = "Creating a Reason.",
             init = function(this)
-                this.file = FileName.Create("Mino.mcpp");
+                this.file = FileName.Create(Path.New("", "Mino.mcpp"));
                 this.source = Source.Create(this.file, 10, 1);
                 this.axiom = Axiom.LuaCreate("Class keyword discovered at start of line.");
                 this.reason = Reason.Create(this.axiom, this.source);
             end,
-            tests = {            
+            tests = {
                 ["Axiom is what was passed in."] = function(this)
                     local a = this.reason.Axiom;
                     Test.assertEquals(this.axiom, a);
-                end,                
+                end,
                 ["Source is what was passed in."] = function(this)
                     local src = this.reason.Source;
                     Test.assertEquals(this.source, src);
                 end,
                 ["Tostring concats both relevant parts."] = function(this)
-                    Test.assertEquals("Mino.mcpp, line 10, column 1: Class keyword discovered at start of line.", 
+                    Test.assertEquals("Mino.mcpp, line 10, column 1: Class keyword discovered at start of line.",
                                 tostring(this.reason));
-                end,                
+                end,
             }
         }
-    }  -- end of all Reason Tests.  
+    }  -- end of all Reason Tests.
 }); -- End of register call

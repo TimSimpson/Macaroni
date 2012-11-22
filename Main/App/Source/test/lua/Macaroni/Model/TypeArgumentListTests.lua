@@ -21,6 +21,7 @@ require "Macaroni.Model.NodeList";
 require "Macaroni.Parser.Pippy.PippyParser";
 require "Macaroni.Parser.Parser";
 require "Macaroni.Parser.ParserException";
+require "Macaroni.IO.Path";
 require "Macaroni.Model.Source";
 require "Macaroni.Model.Type";
 require "Macaroni.Model.TypeArgument";
@@ -32,6 +33,7 @@ local FileName = Macaroni.Model.FileName;
 local Messages = Macaroni.Environment.Messages;
 local Node = Macaroni.Model.Node;
 local NodeList = Macaroni.Model.NodeList;
+local Path = Macaroni.IO.Path;
 local PippyParser = Macaroni.Parser.Pippy.PippyParser;
 local Source = Macaroni.Model.Source;
 local Type = Macaroni.Model.Type;
@@ -49,7 +51,7 @@ typedef Event<EventId>::Message<std::string, GfxData> GfxEventMessage;
 
 The parser currently can't add template tags to these classes, but that
 doesn't matter since the TypeArguments will work regardless (the premise is if
-such code is generated the authentic C++ compiler will fail it later- 
+such code is generated the authentic C++ compiler will fail it later-
 Macaroni can't check for these without becoming more complicated and requiring
 type information earlier.
 ]]--
@@ -57,29 +59,30 @@ type information earlier.
 local function mixinContext(self)
     self.context = Context.New("{ROOT}");
     self.library = self.context:FindOrCreateLibrary("Tests", "TypeArgumentListTests", "1.0");
-    
-    local parser = PippyParser.Create();         
-    local file = FileName.Create("Blah1.mcpp");           
+
+    local parser = PippyParser.Create();
+    local p = Path.New("Blah1.mcpp")
+    local file = FileName.Create(p);
     local root = self.context.Root;
     local src = Source.Create(file, 1, 1);
-            
-    parser:Read(self.library, src, [[ 
+
+    parser:Read(self.library, src, [[
         namespace std
         {
-            class string{}            
+            class string{}
         }
-        class Vector {}; 
+        class Vector {};
         class Event
         {
             class Message
             {
             }
-        };     
+        };
         class EventId{};
         class AudioData{};
         class GfxData{};
-    ]]);         
-    
+    ]]);
+
     self.vector = self.context.Root:Find("Vector");
     self.vectorType = Type.New(self.vector);
     self.event = self.context.Root:Find("Event");
@@ -97,23 +100,23 @@ local function mixinContext(self)
 end
 
 Test.register(
-{	
-    name = "TypeArgumentList Tests",    
-    tests = {    
+{
+    name = "TypeArgumentList Tests",
+    tests = {
         {
             name = "Creating a TypeArgumentList which is empty.",
-            init = function(self)               
+            init = function(self)
                 self.typeArgList = TypeArgumentList.New{};
             end,
             tests = {
                 ["TypeArgumentList has no elements."] = function(self)
                     Test.assertEquals(0, #(self.typeArgList));
-                end,                
+                end,
             }
         },
         {
             name = "Creating a TypeArgumentList with one element.",
-            init = function(self)                
+            init = function(self)
                 mixinContext(self);
                 local args = TypeList.New{self.stdstringType};
                 self.typeArg_vectorUsesString = TypeArgument.New(self.vector, args);
@@ -124,27 +127,27 @@ Test.register(
                     Test.assertEquals(1, #(self.typeArgList));
                 end,
                 ["TypeArgumentList's element is the thing we created for it."] = function(self)
-                    Test.assertEquals(self.typeArg_vectorUsesString, self.typeArgList[1]);       
+                    Test.assertEquals(self.typeArg_vectorUsesString, self.typeArgList[1]);
                 end,
             }
         },
         {
             name = "Creating a TypeArgumentList with multiple elements.",
             init = function(self)
-                mixinContext(self);                     
+                mixinContext(self);
                 local args = TypeList.New{self.eventIdType};
                 self.typeArg_eventUsesEventId = TypeArgument.New(self.event, args);
                 local args2 = TypeList.New{self.stdstringType, self.gfxDataType};
                 self.typeArg_messageUsesStringAndGfx = TypeArgument.New(self.message, args2);
-                
+
                 self.typeArgList = TypeArgumentList.New{
-                    self.typeArg_eventUsesEventId, 
+                    self.typeArg_eventUsesEventId,
                     self.typeArg_messageUsesStringAndGfx
                 };
             end,
             tests = {
                 ["TypeArgumentList has two elements."] = function(self)
-                    Test.assertEquals(2, #(self.typeArgList));           
+                    Test.assertEquals(2, #(self.typeArgList));
                 end,
                 ["Arguments #1 is that Event takes EventId."] = function(self)
                     local expected = self.typeArg_eventUsesEventId;
@@ -158,5 +161,5 @@ Test.register(
                 end,
             }
         }
-    }    
+    }
 }); -- End of register call

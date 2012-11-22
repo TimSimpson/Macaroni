@@ -1,0 +1,92 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+~import boost::filesystem::path;
+~import std::vector;
+
+~namespace Macaroni::IO;
+
+class Paths
+{
+    ~block "cpp-include"
+    {
+        #ifdef MACARONI_COMPILE_TARGET_WINDOWS
+            #include <tchar.h>
+            #include <windows.h>
+            #include <Macaroni/Platform/Windows/Strings.h>
+
+            #define HOME_DIRECTORY_ENV_VAR_NAME "USERPROFILE"
+
+            using Macaroni::Platform::Windows::NonWindowsString;
+            using Macaroni::Platform::Windows::WindowsString;
+        #endif
+
+        #ifdef MACARONI_COMPILE_TARGET_LINUX
+            #define HOME_DIRECTORY_ENV_VAR_NAME "HOME"
+        #endif
+    }
+
+    /** Certain constants are stored here, such as the reference directory of
+     * Generators or libraries.  Think of this as what you'd find in the
+     * unwritable Program Files directory of Windows. */
+    public static path GetExeDirectoryPath()
+    {
+        path exePath0(GetExePath());
+        path exePath = boost::filesystem::canonical(exePath0);
+        exePath.remove_leaf();
+        return exePath;
+    }
+
+    ~block "cpp"
+    {
+        #ifdef MACARONI_COMPILE_TARGET_LINUX
+            /** This is the saved value of argv[0] in Linux... its super
+             *  dangerous, and super awesome!
+             */
+            extern std::string CURRENT_EXE_PATH;
+        #endif
+    }
+
+    /** The path to the EXE file itself. */
+    public static path GetExePath()
+    {
+        #ifdef MACARONI_COMPILE_TARGET_WINDOWS
+            TCHAR buffer[MAX_PATH + 1];
+            GetModuleFileName(nullptr, buffer, MAX_PATH);
+            NonWindowsString str(buffer);
+            return str.get();
+        #endif
+        #ifdef MACARONI_COMPILE_TARGET_LINUX
+            path argvPath = CURRENT_EXE_PATH;
+            return boost::filesystem::canonical(argvPath);
+        #endif
+    }
+
+    /** The path to a directory which is writable by the user and also in a
+     * known, solid location. Example: C:/Users/SoAndSo/Macaroni. */
+    public static path GetUserPath()
+    {
+        const char * p =  getenv(HOME_DIRECTORY_ENV_VAR_NAME);
+        if (p == nullptr)
+        {
+            MACARONI_THROW("Error getting path to home directory!");
+        }
+        path userProfile = p;
+        path userPath = userProfile / "Macaroni";
+        return userPath;
+    }
+};
+

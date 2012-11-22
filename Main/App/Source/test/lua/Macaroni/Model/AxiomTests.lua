@@ -13,15 +13,14 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --------------------------------------------------------------------------------
-print "HELLO";
 require "Macaroni.Model.Axiom";
 
 local Axiom = Macaroni.Model.Axiom;
 
 Test.register(
-{	
-    name = "Axiom Tests",    
-    tests = {    
+{
+    name = "Axiom Tests",
+    tests = {
         {
             name = "Creating an Axiom in Lua.",
             init = function(this)
@@ -29,9 +28,9 @@ Test.register(
             end,
             tests = {
                 ["Attempting tostring() on Axiom retrieves words."] = function(this)
-                    Test.assertEquals("barf", tostring(this.axiom));           
+                    Test.assertEquals("barf", tostring(this.axiom));
                 end,
             }
         }
-    }    
+    }
 }); -- End of register call

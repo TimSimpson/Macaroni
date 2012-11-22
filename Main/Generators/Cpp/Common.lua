@@ -266,6 +266,8 @@ TypeUtil = {
             if (typeArguments == nil) then
                 rtnStr = rtnStr .. "::" ..type.Node.FullName;
             else
+                --TODO: May need to add initial "::" to ensure correct behavior.
+                -- rtnStr = rtnStr .. "::"
                 local nodeList = self:createPathListFromNode(type.Node);
                 for i = 1, #nodeList do
                     local nodePart = nodeList[i];

@@ -15,7 +15,7 @@
 --------------------------------------------------------------------------------
 require "Macaroni/Test";
 
---[[ 
+--[[
 Requiring C++ modules before LUA files seems to cause some insanely nasty
 memory errors as of 2009-10-03.  I can't determine the source of these
 errors, but they go away when you don't require the C++ modules first.
@@ -28,7 +28,7 @@ move it.
 
 I'm not sure what this could be.  I recently added an extra glue function
 for NodeLists, but aside from that it seems to only be loading things that have
-had Lua glue for awhile now.  
+had Lua glue for awhile now.
 
 Scrary!  I don't know what it could be.
 ]]--
@@ -47,12 +47,12 @@ require "Macaroni/Model/FileNameTests";
 require "Macaroni/Model/NodeTests";
 require "Macaroni/Model/NodeListTests";
 require "Macaroni/Model/ReasonTests";
-require "Macaroni/Model/SourceTests"; 
-require "Macaroni/Model/TypeTests"; 
-require "Macaroni/Model/TypeArgumentTests"; 
+require "Macaroni/Model/SourceTests";
+require "Macaroni/Model/TypeTests";
+require "Macaroni/Model/TypeArgumentTests";
 -- Bug below?
 require "Macaroni/Model/TypeArgumentListTests";  -- suspect
-require "Macaroni/Model/TypeListTests"; 
+require "Macaroni/Model/TypeListTests";
 --require "Macaroni/Parser/Cpp/Tests/Namespaces";
 
 require "Macaroni/Parser/Pippy/Tests/Index"; -- primary suspect
@@ -67,20 +67,20 @@ output = {
         suiteNames[#suiteNames + 1] = testName;
         --print("[" .. testName .. "]\n");
     end,
-    
+
     exitSuite = function(testName)
         if (suiteNames[#suiteNames] ~= testName) then
             error("A suite at some point wasn't exitted correctly.");
         end
         suiteNames[#suiteNames] = nil;
     end,
-    
+
     fail = function(msgArg)
         local msg = nil;
         if (type(msgArg) == "string") then
             msg = msgArg;
         else
-            local status, err = pcall(function() 
+            local status, err = pcall(function()
                 msg = tostring(msgArg);
             end);
             if (not status) then
@@ -90,7 +90,7 @@ output = {
                 msg = "{Error message was nil.}";
             end
         end
-       
+
         -- Lua error msg is in form: filename.lua:line#: error
         -- Change it to VS2008 compatable form: filename.lua(line#): error in blah
         local index1 = string.find(msg, ".lua:", 0, true);
@@ -103,20 +103,20 @@ output = {
             errorMsg = string.sub(msg, index2, #msg);
             prefix = fileName .. "(" .. lineNumber .. ") : error at line " .. lineNumber;
         else
-            prefix = ""; 
-            errorMsg = msg;       
+            prefix = "";
+            errorMsg = msg;
         end
-        local newMsg = prefix 
-            .. " [" 
-            .. output.getFullSuiteName() .. '] "' .. currentTest .. '":' .. errorMsg;                
-        --print("[" .. output.getFullSuiteName() .. '] "' .. currentTest .. '"');        
+        local newMsg = prefix
+            .. " ["
+            .. output.getFullSuiteName() .. '] "' .. currentTest .. '":' .. errorMsg;
+        --print("[" .. output.getFullSuiteName() .. '] "' .. currentTest .. '"');
         --print(msg);
         --print();
         --print("-------------------------------------------------------------------------------");
         --print();
         print(newMsg);
     end,
-    
+
     getFullSuiteName = function()
         local suiteName = "";
         for i=1, #suiteNames do
@@ -124,19 +124,19 @@ output = {
         end
         return suiteName;
     end,
-    
+
     pass = function(str)
         --print(currentSuite .. " [" .. currentTest .. "] ... :)");
     end,
-    
+
     setTest = function(testName)
         currentTest = testName;
-    end,    
+    end,
 };
 
 Test.runAll(output);
 
-print("Reached the end of all tests without dying.  Still alive, I'm still alive...");
+print("Reached the end of all tests without dying. Somehow, I'm still alive...");
 
 print();
 print("Tests   : " .. Test.count);
