@@ -18,21 +18,22 @@
 
 #using boost
 #     : 1.51
-#     : <include>/C:/Users/Tim/Tools/Local/Boost/boost_1_51_0
-#       <library>C:/Users/Tim/Tools/Local/Boost/boost_1_51_0/stage/lib
+#     : <include>/$(BOOST_ROOT)
+#       <library>$(BOOST_ROOT)/stage/lib
 #     ;
 #
 #import boost ;
-#boost.use-project 1.51 ;
+#boost.use-project 1.52 ;
 
 import os ;
 import path ;
 
+local BOOST_ROOT = [ os.environ BOOST_ROOT ] ;
 local BOOST_LIB_SUFFIX = [ os.environ BOOST_LIB_SUFFIX ] ;
 
 project
     :   requirements
-        <include>/C:/Users/Tim/Tools/Local/Boost/boost_1_51_0
+        <include>/$(BOOST_ROOT)
         <include>Source/main/mcpp
         <include>GeneratedSource
         <include>"../Dependencies/Lua/Target"

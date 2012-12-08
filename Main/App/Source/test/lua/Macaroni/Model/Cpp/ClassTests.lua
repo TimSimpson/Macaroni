@@ -18,11 +18,15 @@ require "Macaroni.Model.Axiom";
 require "Macaroni.Model.Cpp.Class";
 require "Macaroni.Model.Context";
 require "Macaroni.Model.FileName";
+require "Macaroni.Model.Project.Group";
 require "Macaroni.Model.Library";
 require "Macaroni.Model.Node";
 require "Macaroni.Model.NodeList";
 require "Macaroni.IO.Path";
 require "Macaroni.Model.Reason";
+require "Macaroni.Model.Project.Project";
+require "Macaroni.Model.Project.ProjectVersion";
+require "Macaroni.Model.Project.Target";
 require "Macaroni.Model.Source";
 
 local Access = Macaroni.Model.Cpp.Access;
@@ -44,7 +48,11 @@ tests = {
     {   name = "Creating a class by hand",
         init = function(this)
             this.context = Context.New("{r}");
-            this.library = this.context.RootLibrary;
+            this.target = this.context:Group("Test_Group")
+                                      :Project("Test_Project")
+                                      :Version("Test_Version")
+                                      :Target("Test_Target");
+            --this.library = this.context.RootLibrary;
             this.root = this.context.Root;
             this.newNode = this.root:Find("Dog");
             Test.assertEquals(nil, this.newNode);
@@ -56,7 +64,7 @@ tests = {
             this.fileName = FileName.Create(Path.New("", "MadeUpFile"));
             this.src = Source.Create(this.fileName, 3, 5);
             this.reason = Reason.Create(this.axiom, this.src);
-            this.newClass = Class.Create(this.library, this.newNode,
+            this.newClass = Class.Create(this.target, this.newNode,
                                          Access.Public, this.imports,
                                          this.reason);
         end,
@@ -72,8 +80,7 @@ tests = {
             end,
             ["The Class can use Element methods such as Library."] = function(this)
                 local class = this.newClass;
-                local library = class.Library;
-                Test.assertEquals(this.library, library);
+                Test.assertEquals(true, class:OwnedBy(this.target));
             end,
             ["The Class can use Element methods such as TypeName."] = function(this)
                 local class = this.newClass;
