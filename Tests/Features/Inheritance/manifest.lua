@@ -10,29 +10,29 @@ id =
 }
 
 description=[[
-Tests the Inheritance functionality of the parser, model, and C++ code 
+Tests the Inheritance functionality of the parser, model, and C++ code
 generator.
 ]]
 
 sources = { "Source" }
 output = "Target"
 
-dependency {group="Macaroni", name="Boost-smart_ptr", version="1.46.1"}
+dependency {group="Macaroni", name="Boost-smart_ptr", version="1.52"}
 dependency {group="Macaroni", name="CppStd", version="2003"}
 
 function generate()
     run("HtmlView");
     run("Cpp");
-    run("InterfaceMh");    
+    run("InterfaceMh");
 end
 
-jamArgs = 
-{ 	
+jamArgs =
+{
 	ExcludePattern = "Main.cpp Test.cpp .svn",
 	Shared = True,
 	Tests = {"Test.cpp"}
 };
-		
+
 function build()
 	run("BoostBuild", jamArgs)
 end

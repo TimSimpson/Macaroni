@@ -18,7 +18,7 @@ SimpleProject{
   src="Source",
   target="target",
   dependencies = {
-    load("Macaroni", "Boost-headers", "1.51"):Target("lib"),
+    load("Macaroni", "Boost-headers", "1.52"):Target("lib"),
     load("Macaroni", "CppStd", "2003"):Target("lib")
   },
   tests={
@@ -26,5 +26,3 @@ SimpleProject{
      "Test2.cpp"
   },
 };
-
-print("\n\nI ARE LOADED!\n\n")

@@ -1,5 +1,6 @@
 TOOLS_ROOT=$HOME/Tools
 export BOOST_ROOT=$TOOLS_ROOT/boost/boost_1_52_0
+LUA_ROOT=$TOOLS_ROOT/lua/lua-5.1.4
 MACARONI_SOURCE=/macaroni
 MACARONI_EXE=$MACARONI_SOURCE/Main/App/bin/gcc-4.7/debug/link-static/threading-multi/macaroni
 
@@ -38,6 +39,14 @@ function install_boost() {
     sudo cp -rf ~/Tools/boost/boost_1_51_0/stage/lib/* /usr/local/lib/
 }
 
+function install_lua() {
+    mkdir -p $TOOLS_ROOT/lua
+    pushd $TOOLS_ROOT/lua
+    wget http://www.lua.org/ftp/lua-5.1.4.tar.gz
+    tar -xvf lua-5.1.4.tar.gz
+    rm $TOOLS_ROOT/lua/lua-5.1.4.tar.gz
+}
+
 function cmd_install() {
     install_gcc
     install_boost
@@ -49,8 +58,6 @@ function cmd_build() {
     export LD_LIBRARY_PATH=$BOOST_ROOT/stage/lib
     export LIBRARY_PATH=$BOOST_ROOT/stage/lib
     export BOOST_LIB_SUFFIX=-gcc47-mt-1_52
-    pwd
-    ls -la
     bjam -d+2 --toolset=gcc cxxflags=-std=gnu++11 link=static threading=multi
 }
 
@@ -67,23 +74,23 @@ properties =
 {
   boost =
   {
-    ['1.51'] =
+    ['1.52'] =
     {
-      include=[[C:/Users/Tim/Tools/Local/Boost/boost_1_51_0]],
-      lib=[[C:/Users/Tim/Tools/Local/Boost/boost_1_51_0/stage/lib]],
-      path=[[C:/Users/Tim/Tools/Local/Boost/boost_1_51_0]],
+      include=[[$BOOST_ROOT]],
+      lib=[[$BOOST_ROOT/stage/lib]],
+      path=[[$BOOST_ROOT]],
     },
   },
   lua =
   {
     ['5.1.4'] =
     {
-      include = [[C:/Users/Tim/Tools/Local/Lua/lua-5.1.4/src]],
-      source = [[C:/Users/Tim/Tools/Local/Lua/lua-5.1.4/src]],
+      include = [[$LUA_ROOT/src]],
+      source = [[$TOOLS_ROOT/lua/src]],
     },
   },
 }
-properties.boost.current = properties.boost['1.51'];
+properties.boost.current = properties.boost['1.52'];
 properties.bjam_options = '-d+2 '
 " > ~/Macaroni/init.lua
 }
@@ -124,6 +131,7 @@ case "$1" in
         "run" ) shift 1; cmd_run $@;;
         "debug" ) shift 1; cmd_debug $@;;
         "install_gcc" ) install_gcc;;
+        "install_lua" ) install_lua;;
     * )
     cmd_help $1
     exit 1

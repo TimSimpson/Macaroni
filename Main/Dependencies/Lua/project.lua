@@ -110,7 +110,7 @@ function generate()
                          output=output,
                          --flags={lib=[[
                          requirements=[[
-                            <link>shared:<define>LUA_BUILD_AS_DLL=1
+                      <target-os>windows<link>shared:<define>LUA_BUILD_AS_DLL=1
                          ]],
   })
 

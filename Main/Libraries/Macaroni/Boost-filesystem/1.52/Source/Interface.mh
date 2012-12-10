@@ -1,0 +1,8 @@
+namespace boost
+{
+    namespace filesystem
+    {
+        class create_directories { ~hfile=<boost/filesystem/convenience.hpp> }
+        class path { ~hfile=<boost/filesystem.hpp> }
+    }
+}

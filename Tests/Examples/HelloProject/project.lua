@@ -16,7 +16,7 @@ assert(project.Project.Group.Name, "Macaroni.Examples")
 -- load("Macaroni", "Boost-headers", "1.46.1")
 
 boost_headers = context:
-    Group("Macaroni"):Project("Boost-headers"):Version("1.46.1")
+    Group("Macaroni"):Project("Boost-headers"):Version("1.52.0")
 assert(boost_headers:GetTarget("lib") == nil)
 -- boost_headers_lib = boost_headers:HeaderOnlyLibrary(
 --     { name = "lib",

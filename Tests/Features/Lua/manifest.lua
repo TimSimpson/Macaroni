@@ -14,7 +14,7 @@ description='Tests the generator "LuaGlue."'
 sources = { "Source" }
 output = "GeneratedSource"
 
-dependency {group="Macaroni", name="Boost-smart_ptr", version="1.46.1"}
+dependency {group="Macaroni", name="Boost-smart_ptr", version="1.52"}
 dependency {group="Macaroni", name="CppStd", version="2003"}
 --dependency {group = "Lua", name = "Lua", version = "5.1.4" }
 dependency {group = "Macaroni", name = "Lua", version = "5.1.4" }
@@ -22,7 +22,7 @@ dependency {group = "Macaroni", name = "Lua", version = "5.1.4" }
 function generate()
     print "Greetings from the manifest of the LUA test.\n\n"
     print("Lua 5.1.4 source path is " .. properties.lua["5.1.4"].source)
-    print("Boost crap is at " .. properties.boost["1.46.1"].include)
+    print("Boost crap is at " .. properties.boost["1.52"].include)
     run("LuaGlue", { luaImportCode =[[
 	#include <lauxlib.h>
 	#include <lualib.h>

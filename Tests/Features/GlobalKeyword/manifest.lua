@@ -14,7 +14,7 @@ description='Tests the ~global keyword in Macaroni.'
 sources = { "Source" }
 output = "GeneratedSource"
 
-dependency {group="Macaroni", name="Boost-smart_ptr", version="1.46.1"}
+dependency {group="Macaroni", name="Boost-smart_ptr", version="1.52"}
 dependency {group="Macaroni", name="CppStd", version="2003"}
 
 function generate()
@@ -22,19 +22,19 @@ function generate()
     run("Cpp");
 end
 
-jamArgs = 
-{ 	
+jamArgs =
+{
 	ExcludePattern = "Test.cpp .svn",
 	ExtraTargets = [[	]],
 	Shared = True,
 	Tests = {"Test.cpp"}
 };
-		
-function build()	
+
+function build()
 	run("BoostBuild", jamArgs)
 end
 
 function install()
-	run("BoostBuild", jamArgs)	
+	run("BoostBuild", jamArgs)
 end
 

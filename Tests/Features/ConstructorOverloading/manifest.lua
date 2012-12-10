@@ -14,33 +14,33 @@ description="Proof of concept which overloads the Constructor of a class in vari
 -- source "Source"
 -- output = "GeneratedSource"
 
-dependency {group="Macaroni", name="Boost-filesystem", version="1.46.1"}
-dependency {group="Macaroni", name="Boost-smart_ptr", version="1.46.1"}
+dependency {group="Macaroni", name="Boost-filesystem", version="1.52"}
+dependency {group="Macaroni", name="Boost-smart_ptr", version="1.52"}
 dependency {group="Macaroni", name="CppStd", version="2003"}
 
 function generate()
     print "A call was made to GENERATE!!!\n\n"
     run("HtmlView");
     run "InterfaceMh"
-    run "Cpp"    
+    run "Cpp"
 end
 
-jamArgs = 
-{ 	
+jamArgs =
+{
 	ExcludePattern = "Main.cpp .svn *Test.cpp",
 	Tests = {"Test.cpp"}
 };
-		
+
 function build()
 	run("BoostBuild", jamArgs)
 end
 
-function test()	
+function test()
 	print("HI")
     -- args = { ExcludePattern=jamArgs.ExcludePattern,
 	--         ExtraTargets=jamArgs.ExtraTargets,
-	--         --CmdLine="test" 
-	--       } 
+	--         --CmdLine="test"
+	--       }
 	run("BoostBuild", jamArgs); -- args);
 end
 

@@ -14,12 +14,12 @@ description="Battery of Tests for Macaroni."
 
 output = "report"
 
-children = 
+children =
 {
 	"Annotations",
 	"AdditionalAccessTypes",
 	"BoostBuild",
-	"ConstructorOverloading",	
+	"ConstructorOverloading",
 	"Destructors",
 	"GlobalKeyword",
 	"Inheritance",
@@ -29,8 +29,8 @@ children =
 	--"OperatorOverloading",
 };
 
-dependency {group="Macaroni", name="Boost-filesystem", version="1.46.1"}
-dependency {group="Macaroni", name="Boost-smart_ptr", version="1.46.1"}
+dependency {group="Macaroni", name="Boost-filesystem", version="1.52"}
+dependency {group="Macaroni", name="Boost-smart_ptr", version="1.52"}
 dependency {group="Macaroni", name="CppStd", version="2003"}
 
 function generate()

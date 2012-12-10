@@ -9,7 +9,7 @@ ParentProject{
   version="0.1.0.24", -- upper.Version,
   children={
     --"Bugs",
-    --"Examples",
+    "Examples",
     "Features",
   }
 }

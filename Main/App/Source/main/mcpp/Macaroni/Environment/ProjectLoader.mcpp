@@ -443,7 +443,6 @@ class Macaroni::Environment::ProjectLoader
     /** Given some project.lua file, loads every project.lua file above it. */
     ~hidden void runUpperProjects(const path filePath)
     {
-        LOG_DEBUG("Run Upper Projects ")
         path upper = filePath.parent_path() / "../project.lua";
         if (boost::filesystem::exists(upper))
         {
