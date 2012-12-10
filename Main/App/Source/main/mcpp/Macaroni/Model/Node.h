@@ -90,7 +90,7 @@ public:
 	/** Uses the provided char instead of "::". */
 	std::string GetPrettyFullName(const char * seperator) const;
 
-	virtual size_t GetChildCount() const;
+	size_t GetChildCount() const;
 
 	const std::string & GetName() const;
 

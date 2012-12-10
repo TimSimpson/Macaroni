@@ -27,6 +27,7 @@
 #include <sstream>
 #include <Macaroni/StringException.h>
 
+
 BEGIN_NAMESPACE2(Macaroni, Model)
 
 namespace
@@ -65,8 +66,9 @@ Node::Node(Context & context, const std::string & name)
 : adoptedHome(0),
 annotations(context),
 context(&context),
+element(nullptr),
 hFilePath(), hFilePathReason(),
-element(nullptr), name(name), scope(nullptr)
+name(name), scope(nullptr)
 {
 }
 
@@ -152,7 +154,7 @@ Node * Node::findComplexName(const std::string & name) const
 		return nullptr;
 	}
 	Node * currentNode = this->findSimpleName(subNames[0]);
-	for(unsigned int i = 1; i < subNames.size() && currentNode != nullptr; i ++)
+	for(size_t i = 1; i < subNames.size() && currentNode != nullptr; i ++)
 	{
 		currentNode = currentNode->findSimpleName(subNames[i]);
 	}
@@ -204,7 +206,7 @@ Node * Node::findOrCreate(const std::string & name, const std::string & hFilePat
 {
 	std::string firstPart;
 	std::string lastPart;
-	const unsigned int index = name.find("::", 0);
+	const size_t index = name.find("::", 0);
 	if (index == std::string::npos)
 	{
 		firstPart = name;
@@ -248,7 +250,7 @@ Node * Node::findOrCreate(const std::string & name, const std::string & hFilePat
 //{
 //	std::vector<std::string> names;
 //	SplitComplexName(complexName, names);
-//	for(unsigned int i = 0; i < names.size(); i ++)
+//	for(size_t i = 0; i < names.size(); i ++)
 //	{
 //		Node =
 //	}
@@ -391,7 +393,7 @@ void Node::ParseComplexName(NodePtr searchRoot, const std::string & complexName,
 {
 	MACARONI_ASSERT(searchRoot != false, "Root Node of search can not be null.");
 
-	const unsigned int index = complexName.find_last_of("::");
+	const size_t index = complexName.find_last_of("::");
 	if (index == std::string::npos) // Not found
 	{
 		resultNode = searchRoot;
@@ -445,7 +447,7 @@ void Node::SplitFirstNameOffComplexName(const std::string & complexName,
 										std::string & firstPart,
 										std::string & lastPart)
 {
-	const unsigned int index = complexName.find_first_of("::");
+	const size_t index = complexName.find_first_of("::");
 	if (index == std::string::npos) // Not found
 	{
 		lastPart = "";
@@ -461,7 +463,7 @@ void Node::SplitFirstNameOffComplexName(const std::string & complexName,
 void Node::SplitNodeAndMemberName(const std::string & complexName,
 								  std::string & scopeName, std::string & memberName)
 {
-	const unsigned int index = complexName.find_last_of("::");
+	const size_t index = complexName.find_last_of("::");
 	if (index == std::string::npos) // Not found
 	{
 		scopeName = "";

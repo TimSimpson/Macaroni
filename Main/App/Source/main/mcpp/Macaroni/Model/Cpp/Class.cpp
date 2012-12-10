@@ -200,7 +200,7 @@ bool Class::IsInstance(ElementPtr other)
 bool Class::RequiresCppFile() const
 {
 	Node & node = *GetNode();
-	for (size_t i = 0; i < node.GetChildCount(); i ++) 
+	for (size_t i = 0; i < node.GetChildCount(); i ++)
 	{
 		Node & child = *(node.GetChild(i));
 		if (child.GetElement()->RequiresCppFile())
@@ -227,41 +227,42 @@ bool Class::RequiresHFile() const
 
 void Class::Visit(MemberVisitor * visitor) const
 {
-	std::auto_ptr<MemberVisitor> classVisitorDeleter(visitor->VisitClass(*this));
-	MemberVisitor * classVisitor = classVisitorDeleter.get();
-	if (classVisitor == visitor)
-	{
-		classVisitorDeleter.release(); // do not let auto_ptr destroy.
-	}
+	//TODO:
+	// std::auto_ptr<MemberVisitor> classVisitorDeleter(visitor->VisitClass(*this));
+	// MemberVisitor * classVisitor = classVisitorDeleter.get();
+	// if (classVisitor == visitor)
+	// {
+	// 	classVisitorDeleter.release(); // do not let auto_ptr destroy.
+	// }
 
-	for(unsigned int i = 0; i < this->GetNode()->GetChildCount(); i ++)
-	{
-		NodePtr child = GetNode()->GetChild(i);
-		if (!!child->GetElement())
-		{
-			MemberPtr memberPtr = boost::dynamic_pointer_cast<Member>(child);
-			memberPtr->Visit(classVisitor);
-		}
-	}
+	// for(unsigned int i = 0; i < this->GetNode()->GetChildCount(); i ++)
+	// {
+	// 	NodePtr child = GetNode()->GetChild(i);
+	// 	if (!!child->GetElement())
+	// 	{
+	// 		MemberPtr memberPtr = boost::dynamic_pointer_cast<Member>(child);
+	// 		memberPtr->Visit(classVisitor);
+	// 	}
+	// }
 
-	classVisitor->VisitClassFooter();
+	// classVisitor->VisitClassFooter();
 
-	for(unsigned int i = 0; i < this->globals->size(); i ++)
-	{
-		NodePtr globalNode = (*(this->globals))[i];
-		FunctionPtr fPtr = globalNode->GetElement<FunctionPtr>();
-		VariablePtr vPtr = globalNode->GetElement<VariablePtr>();
-		if (!!fPtr)
-		{
-			Function & func = *(fPtr.get());
-			classVisitor->VisitAdoptedFunction(func);
-		}
-		else if (!!vPtr)
-		{
-			Variable & var = *(vPtr.get());
-			classVisitor->VisitAdoptedVariable(var);
-		}
-	}
+	// for(unsigned int i = 0; i < this->globals->size(); i ++)
+	// {
+	// 	NodePtr globalNode = (*(this->globals))[i];
+	// 	FunctionPtr fPtr = globalNode->GetElement<FunctionPtr>();
+	// 	VariablePtr vPtr = globalNode->GetElement<VariablePtr>();
+	// 	if (!!fPtr)
+	// 	{
+	// 		Function & func = *(fPtr.get());
+	// 		classVisitor->VisitAdoptedFunction(func);
+	// 	}
+	// 	else if (!!vPtr)
+	// 	{
+	// 		Variable & var = *(vPtr.get());
+	// 		classVisitor->VisitAdoptedVariable(var);
+	// 	}
+	//}
 }
 
 

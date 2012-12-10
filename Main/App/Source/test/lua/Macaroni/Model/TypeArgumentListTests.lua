@@ -88,6 +88,9 @@ local function mixinContext(self)
     self.event = self.context.Root:Find("Event");
     self.eventType = Type.New(self.event);
     self.message = self.context.Root:Find("Event::Message");
+    Test.assertEquals()
+    Test.assertEquals("Event::Message", tostring(self.message))
+
     self.messageType = Type.New(self.message);
     self.eventId  = self.context.Root:Find("EventId");
     self.eventId = Type.New(self.eventId);

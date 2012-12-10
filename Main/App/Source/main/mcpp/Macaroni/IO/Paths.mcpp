@@ -23,6 +23,7 @@ class Paths
 {
     ~block "cpp-include"
     {
+        #include <Macaroni/ME.h>
         #ifdef MACARONI_COMPILE_TARGET_WINDOWS
             #include <tchar.h>
             #include <windows.h>

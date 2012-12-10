@@ -25,7 +25,7 @@ assert(boost_headers:GetTarget("lib") == nil)
 --       macaroniSource = { FileSet.Create("src/deps/boost_1.46.1", ".mcpp$") }
 --       });
 
-boost_props = properties.boost["1.46.1"]
+boost_props = properties.boost["1.52.1"]
 boost_headers_lib = boost_headers:Library{
   name = "lib",
   headers = pathList{boost_props.include},

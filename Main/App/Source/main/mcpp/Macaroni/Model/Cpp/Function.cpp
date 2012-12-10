@@ -43,7 +43,7 @@ Function::Function(Node * home, Model::ReasonPtr reason)
 }
 
 Function::Function(Node * home, const char * typeName, Model::ReasonPtr reason)
-:Member(home, typeName, reason) 
+:Member(home, typeName, reason)
 {
 }
 
@@ -56,7 +56,7 @@ Function::~Function()
 ////	NodePtr child = getNode()->GetChild(index);
 ////	MACARONI_ASSERT(!!child->GetMember(), "Member for function argument set to null.");
 ////	MemberPtr member = child->GetMember();
-////	MACARONI_ASSERT(boost::dynamic_pointer_cast<Variable>(member), 
+////	MACARONI_ASSERT(boost::dynamic_pointer_cast<Variable>(member),
 ////					"Member was not of type variable - code is out of date.");
 ////	return boost::dynamic_pointer_cast<Variable>(member);
 ////}
@@ -68,17 +68,17 @@ Function::~Function()
 
 //NodeListPtr Function::GetArguments() const
 //{
-//	NodeListPtr argList(new NodeList());	
+//	NodeListPtr argList(new NodeList());
 //	NodeListPtr args(new NodeList());
 //	for (unsigned int i = 0; i < getNode()->GetChildCount(); i ++)
 //	{
 //		NodePtr child = getNode()->GetChild(i);
 //		MACARONI_ASSERT(!!child->GetMember(), "Member for function argument set to null.");
 //		MemberPtr member = child->GetMember();
-//		MACARONI_ASSERT(boost::dynamic_pointer_cast<Variable>(member), 
+//		MACARONI_ASSERT(boost::dynamic_pointer_cast<Variable>(member),
 //					"Member was not of type variable - code is out of date.");
 //		argList->push_back(child);
-//	}	
+//	}
 //	return argList;
 //}
 
@@ -96,7 +96,7 @@ FunctionPtr Function::Create(NodePtr host, Model::ReasonPtr reason)
 		return FunctionPtr(fo);
 		///*try
 		//{
-		//	TO-DO add FO		
+		//	TO-DO add FO
 		//}
 		//catch(const std::exception & ex)
 		//{
@@ -118,12 +118,12 @@ FunctionPtr Function::Create(NodePtr host, Model::ReasonPtr reason)
 	//	std::stringstream ss;
 	//	//existingFunc->returnType->DescribeDifferences(rtnType, ss);
 
-	//	ss << "Function was already defined with a conflicting return type. ";	
+	//	ss << "Function was already defined with a conflicting return type. ";
 	//	existingFunc->returnType->DescribeDifferences(rtnType, ss);
-	//	
+	//
 	//	throw ModelInconsistencyException(member->GetReasonCreated(),
 	//										  reason,
-	//										  ss.str());	
+	//										  ss.str());
 	//}
 	// Re-use the previously set variable.
 	return FunctionPtr(boost::dynamic_pointer_cast<Function>(host->GetElement()));
@@ -133,10 +133,9 @@ bool Function::DoesDefinitionReference(NodePtr node) const
 {
 	for (unsigned int i = 0; i < getNode()->GetChildCount(); i ++)
 	{
-		Node * child = getNode()->GetChild(i).get();
-		const FunctionOverload * fo = 
-			dynamic_cast<const FunctionOverload *>(child);
-		if (fo  != nullptr && fo->DoesDefinitionReference(node))
+		FunctionOverloadPtr fo = getNode()->GetChild(i)
+			->GetElement<FunctionOverloadPtr>();
+		if (fo && fo->DoesDefinitionReference(node))
 		{
 			return true;
 		}
@@ -168,7 +167,7 @@ void intrusive_ptr_release(Function * p)
 bool Function::RequiresCppFile() const
 {
 	Node & node = *GetNode();
-	for (size_t i = 0; i < node.GetChildCount(); i ++) 
+	for (size_t i = 0; i < node.GetChildCount(); i ++)
 	{
 		Node & child = *(node.GetChild(i));
 		if (child.GetElement()->RequiresCppFile())
@@ -182,7 +181,7 @@ bool Function::RequiresCppFile() const
 bool Function::RequiresHFile() const
 {
 	Node & node = *GetNode();
-	for (size_t i = 0; i < node.GetChildCount(); i ++) 
+	for (size_t i = 0; i < node.GetChildCount(); i ++)
 	{
 		Node & child = *(node.GetChild(i));
 		if (child.GetElement()->RequiresHFile())
@@ -199,9 +198,9 @@ bool Function::RequiresHFile() const
 //	{
 //		std::stringstream msg;
 //		msg << "Cannot create a code block for function "
-//			<< this->getNode()->GetFullName() 
+//			<< this->getNode()->GetFullName()
 //			<< " because one was already defined at "
-//			<< codeSource->ToString() 
+//			<< codeSource->ToString()
 //			<< ".";
 //		throw ModelInconsistencyException(startOfCode, msg.str());
 //	}
@@ -212,9 +211,10 @@ bool Function::RequiresHFile() const
 
 void Function::Visit(MemberVisitor * visitor) const
 {
-	visitor->VisitFunction(*this);
+	//TODO: Delete!
+	//visitor->VisitFunction(*this);
 }
-	
+
 END_NAMESPACE
 
 #endif
