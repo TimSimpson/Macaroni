@@ -1,3 +1,4 @@
+<~lua title="Motivation" ~>
 <~#include <header.mdoc>~>
 
 <h1>Motivation</h1>
@@ -71,20 +72,20 @@ Macaroni controls both static interfaces does not lead to bugs either). As a res
 
 <p>Example:</p>
 <~lua
-showFile("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", "0.1.0.24",
+showFile("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", "0.1.0.25",
          "Source/Something.mcpp");
 ~>
 
 <p>Header file (notice the omission of SetX and SetY):</p>
 <~lua
-showFile("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", "0.1.0.24",
-         "GeneratedSource/Something.h");
+showFile("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", "0.1.0.25",
+         "target/Something.h");
 ~>
 
 <p>Implementation file (notice the "internal" header has SetX and SetY):</p>
 <~lua
-showFile("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", "0.1.0.24",
-         "GeneratedSource/Something.cpp");
+showFile("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", "0.1.0.25",
+         "target/Something.cpp");
 ~>
 
 <h3>Keep metadata next to code.</h3>
@@ -97,27 +98,27 @@ the annotations. This plugin is used extensively on Macaroni itself.</p>
 <b>Example:</b><br/>
 <p>Macaroni Source File:</p>
 <~lua
-showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", "0.1.0.24",
+showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", "0.1.0.25",
          "Source/PoloName.mcpp");
 ~>
 <p>Generated Header File:</p>
 <~lua
-showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", "0.1.0.24",
+showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", "0.1.0.25",
          "GeneratedSource/Macaroni/Tests/Lua/PoloName.h");
 ~>
 <p>Generated Impl File:</p>
 <~lua
-showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", "0.1.0.24",
+showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", "0.1.0.25",
          "GeneratedSource/Macaroni/Tests/Lua/PoloName.cpp");
 ~>
 <p>Generated Lua Glue Class Header File:</p>
 <~lua
-showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", "0.1.0.24",
+showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", "0.1.0.25",
          "GeneratedSource/Macaroni/Tests/Lua/PoloNameLuaMetaData.h");
 ~>
 <p>Generated Lua Glue Class Impl File:</p>
 <~lua
-showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", "0.1.0.24",
+showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", "0.1.0.25",
          "GeneratedSource/Macaroni/Tests/Lua/PoloNameLuaMetaData.cpp");
 ~>
 
@@ -145,4 +146,5 @@ My goal with Macaroni is to make it easier to write and manage large batches of 
 My wish is for C++ to become fun again and hopefully Macaroni will enable amateur's learning the language to quickly spin up large projects and more easily and correctly reuse their code.</p>
 
 
+<~lua local commentId='motivation'; ~>
 <~#include <footer.mdoc> ~>

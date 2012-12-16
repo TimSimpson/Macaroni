@@ -1,8 +1,69 @@
 require "os"
 require "Macaroni.IO.Path"
 
+
+local newPath = function(subPath)
+    local p = Macaroni.IO.Path.New(getWorkingDirectory())
+    return p:NewPathForceSlash(subPath)
+end
+
+
 --require "Plugin"
 
+-- Useful for consuming a source directory and spitting out a directory of
+-- C++ files.
+-- Arguments:
+--      group - Group of the project.
+--      project - Project name.
+--      version - Project version.
+--      src     [ Optional ] - Location of Macaroni source code.
+--      target  [ Optional ] - Directory to create C++ code.
+--      dependencies [ Optional ] - Projects with Macaroni code to parse.
+
+function GenerateCpp(args)
+    args.dependencies = args.dependencies or {}
+    local src = args.src or "src";
+    local target = args.target or "target";
+
+    local porg = plugins:Get("Porg")
+    local cpp = plugins:Get("Cpp")
+
+    project = context:Group(args.group):Project(args.project)
+                            :Version(args.version)
+    local lLib = project:Library{
+        name="lib",
+        headers=pathList{src, target},
+        sources=pathList{src},
+        dependencies = args.dependencies,
+        excludeFiles = pathList({}),
+    }
+
+    -- Instantly run this to generate physical objects in the model.
+    porg:Run("Generate", {target=lLib})
+
+    local targetDir = newPath(target)
+
+    clean = function()
+        targetDir:ClearDirectoryContents();
+    end
+
+    local generated = false
+
+    generate = function()
+      if generated then return end
+
+      local outputPath = filePath(target)
+      result, msg = pcall(function()
+        cpp:Run("Generate", { projectVersion=project, path=outputPath })
+        end)
+      if not result then
+        output:ErrorLine(msg)
+        error(msg)
+      end
+      generated = true
+    end
+
+end
 
 -- Creates the project and lib vars, along with clean, generate, build, and
 -- install functions.

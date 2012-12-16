@@ -22,8 +22,15 @@ function install_gcc() {
     sudo update-alternatives --set g++ /usr/bin/g++-4.7
     sudo update-alternatives --set gcc /usr/bin/gcc-4.7
     sudo update-alternatives --set cpp-bin /usr/bin/cpp-4.7
+
+    # I think this is needed to compile 32 and 64 bit versions.
+    sudo apt-get install gcc-multilib
 }
 
+function invoke_b2() {
+    ./b2 --toolset=gcc cxxflags=-std=gnu++11 --layout=versioned \
+        --build-type=complete $1 stage
+}
 function install_boost() {
     sudo apt-get install -y python-dev
     set +e
@@ -31,12 +38,14 @@ function install_boost() {
     mkdir $TOOLS_ROOT/boost
     set -e
     cd $TOOLS_ROOT/boost
-    #wget http://sourceforge.net/projects/boost/files/boost/1.52.0/boost_1_52_0.tar.gz/download
-    #tar -xvf download
+    wget http://sourceforge.net/projects/boost/files/boost/1.52.0/boost_1_52_0.tar.gz/download
+    tar -xvf download
     cd $BOOST_ROOT
     ./bootstrap.sh
-    ./b2 --toolset=gcc cxxflags=-std=gnu++11 --layout=versioned --build-type=complete stage
-    sudo cp -rf ~/Tools/boost/boost_1_51_0/stage/lib/* /usr/local/lib/
+    invoke_b2 --with-filesystem
+    invoke_b2 --with-regex
+    invoke_b2 --with-test
+    sudo cp -rf ~/Tools/boost/boost_1_52_0/stage/lib/* /usr/local/lib/
 }
 
 function install_lua() {
@@ -52,13 +61,31 @@ function cmd_install() {
     install_boost
 }
 
-function cmd_build() {
+function init_build() {
     cd $MACARONI_SOURCE/Main/App
     export CPLUS_INCLUDE_PATH=$BOOST_ROOT
     export LD_LIBRARY_PATH=$BOOST_ROOT/stage/lib
     export LIBRARY_PATH=$BOOST_ROOT/stage/lib
     export BOOST_LIB_SUFFIX=-gcc47-mt-1_52
+}
+
+function cmd_build() {
+    init_build
     bjam -d+2 --toolset=gcc cxxflags=-std=gnu++11 link=static threading=multi
+}
+
+function cmd_build_release() {
+    init_build
+    #bjam -d+2 --toolset=gcc cxxflags=-std=gnu++11 link=static threading=multi \
+    #    release
+    bjam -d+2 cflags=-m32  cxxflags=-m32 \
+        address-model=32 --toolset=gcc cxxflags=-std=gnu++11 \
+        link=static threading=multi \
+         architecture=x86 instruction-set=i686
+    bjam -d+2 cflags=-m32  cxxflags=-m32 \
+        address-model=32 --toolset=gcc cxxflags=-std=gnu++11 \
+        link=static threading=multi \
+         architecture=x86 instruction-set=i686 release
 }
 
 function cmd_unit_test() {
@@ -121,6 +148,7 @@ Here are the valid commands, in order they should be run:
     unit-test - Runs the unit tests.
     debug     - Runs Macaroni in debug mode.
     run       - Runs Macaroni normally.
+    build-release - Builds the release version.
 "
 }
 
@@ -132,6 +160,7 @@ case "$1" in
         "debug" ) shift 1; cmd_debug $@;;
         "install_gcc" ) install_gcc;;
         "install_lua" ) install_lua;;
+        "build-release" ) cmd_build_release;;
     * )
     cmd_help $1
     exit 1

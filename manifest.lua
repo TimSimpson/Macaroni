@@ -18,14 +18,14 @@ id =
 {
     group="Macaroni" ,
     name="Macaroni.All",
-    version="0.1.0.24",
+    version="0.1.0.25",
     author="Tim Simpson"
 }
 
-description= [[  
-    Builds the development version of Macaroni named "Cavatappi" before running 
+description= [[
+    Builds the development version of Macaroni named "Cavatappi" before running
     all tests.
-    Rebuilds Macaroni from pure C++ source to ensure it is identical, then 
+    Rebuilds Macaroni from pure C++ source to ensure it is identical, then
     creates the Macaroni website.
 ]]
 
@@ -34,17 +34,17 @@ children =
 {
   "Main",
   --"Generators",
-  --"Libraries"  
+  --"Libraries"
   "Tests",
   "Release",
 };
-        
-function generate()    
-end
-   	
-function build()	
-  
+
+function generate()
 end
 
-function install()	
+function build()
+
+end
+
+function install()
 end
