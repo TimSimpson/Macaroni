@@ -8,7 +8,7 @@
 ~import Macaroni::Lua::LuaFunction;
 ~import Macaroni::Lua::LuaOperator;
 ~import boost::optional;
-~import Macaroni::Model::Project;
+~import Macaroni::Model::Project::Project;
 ~import std::string;
 ~import Macaroni::Cpp::UseLightDef;
 ~import std::vector;

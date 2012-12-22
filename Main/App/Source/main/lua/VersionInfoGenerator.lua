@@ -118,6 +118,18 @@ function Generate(library, path)
     createAbout(path, library)
 end
 
+function GetMethod(name)
+    if name == "Generate" then
+        return
+        {
+            Run = function(args)
+                createVersionNoH(args.path, args.projectVersion)
+                createAbout(args.path, args.projectVersion)
+            end,
+        };
+    end
+end
+
 function createAbout(path, library)
 	local version = library.Version;
 	local file = path:NewPath("/Macaroni/AboutText.h");

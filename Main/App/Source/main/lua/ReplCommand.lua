@@ -58,16 +58,31 @@ findFunctions = function(node)
     return rtn;
 end
 
+function GetMethod(name)
+    if name == "Generate" then
+        return {
+            Run = function(args)
+                G2(args.context)
+            end
+        };
+    end
+end
 
 function Generate(library, path)
-    local root = library.Context.Root;
+    local context = library.Context;
+    G2(context)
+end
+
+function G2(context)
+    local root = context.Root;
     local node = root:Find("Macaroni::Environment::Environment");
     local fns = findFunctions(node)
     print("Repl commands GO!")
 
     -- local newFuncNode= node:FindOrCreate("replCommand");
     -- local axiom = Axiom.LuaCreate("Macaroni::Environment::ReplCommand")
-    local source = Source.Create(FileName.Create("ReplCommand.lua"), 0, 0);
+    local source = Source.Create(FileName.CreateNonPhysical("ReplCommand.lua"),
+                                 0, 0);
     -- local reason = Reason.Create(axiom, source)
     -- local func = Function.Create(newFuncNode, reason);
 

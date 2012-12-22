@@ -16,13 +16,26 @@ local newPath = function(subPath)
     return p:NewPathForceSlash(subPath)
 end
 
+local stopWatch = function(label)
+    local startTime = os.time()
+    return function()
+        local endTime = os.time()
+        print("                                                   " ..
+              label .. " " .. tostring(endTime - startTime));
+        return endTime - startTime
+    end
+end
+
 ---------------------------------------------------------------------------
 -- Plugins
 ---------------------------------------------------------------------------
+local luaGlue = plugins:Get("LuaGlue")
 local porg = plugins:Get("Porg")
 local cpp = plugins:Get("Cpp")
 local html = plugins:Get("HtmlView")
 local bjam = plugins:Get("BoostBuild2")
+local replCommand = plugins:Get("Source/main/lua/ReplCommand")
+local versionInfo = plugins:Get("Source/main/lua/VersionInfoGenerator")
 
 
 ---------------------------------------------------------------------------
@@ -52,20 +65,20 @@ local lib = project:Library{
     shortName = "macaroni-core",
     headers=pathList{src, target},
     sources=pathList{src},
-    dependencies = dependencies,
+    dependencies = core_dependencies,
     excludeFiles = excludeFiles,
 }
 
 -- Add the exe and test targets.
-local exes = {};
+local exes = { "/Main.cpp" };
 local tests = {};
 
 local srcPath = newPath(src)
 function addTargets(paths, func)
-  for i, v in ipairs(paths) do
-    local realPath = srcPath:NewPathForceSlash(v)
-    lib[func](lLib, realPath.FileNameWithoutExtension, realPath);
-  end
+    for i, v in ipairs(paths) do
+        local realPath = srcPath:NewPathForceSlash(v)
+        lib[func](lib, realPath.FileNameWithoutExtension, realPath);
+    end
 end
 addTargets(exes, "AddExe")
 addTargets(tests, "AddTest")
@@ -86,26 +99,95 @@ clean = function()
     targetDir:ClearDirectoryContents();
 end
 
-
-generate = function()
-  if generated then return end
-
-  porg:Run("Generate", {target=lib})
-
-  local outputPath = filePath(target)
-  result, msg = pcall(function()
-    cpp:Run("Generate", { projectVersion=project, path=outputPath })
-    end)
-  if not result then
-    output:ErrorLine(msg)
-    error(msg)
-  end
-  html:Run("Generate", { target=lib, path=outputPath})
-  local bjamFlags = args.bjamFlags or {}
-  bjamFlags.jamroot = outputPath:NewPath("/jamroot.jam")
-  bjamFlags.projectVersion = project;
-  bjamFlags.output = output;
-  bjam:Run("Generate", bjamFlags)
-  generated = true
+local clockRun = function(label, f)
+    local watch = stopWatch(label)
+    f()
+    watch()
 end
 
+  -- generateLua(filePath(target))
+  -- porg:Run("Generate", {target=lib});
+  -- for i=1, #project.Targets do
+  --     print(project.Targets[i])
+  -- end
+
+generated = false
+
+generate = function()
+    local outputPath = filePath(target);
+
+    if generated then return end
+
+    local generateLua = function()
+        luaGlue:Run("Generate", {
+            target=lib,
+            outputPath=outputPath,
+            luaImportCode=[[
+    #include <lauxlib.h>
+    #include <lualib.h>
+            ]]
+            });
+    end
+
+    local generateCpp = function()
+        porg:Run("Generate", {target=lib});
+
+        result, msg = pcall(function()
+            cpp:Run("Generate", { projectVersion=project, path=outputPath})
+            end)
+        if not result then
+            output:ErrorLine(msg)
+            error(msg)
+        end
+    end
+
+    local generateHtml = function()
+        html:Run("Generate", { target=lib, path=outputPath})
+    end
+
+    local generateBjam = function()
+        local bjamFlags = {
+            jamroot = outputPath:NewPath("/jamroot.jam"),
+            projectVersion = project,
+            output = output,
+        }
+        bjam:Run("Generate", bjamFlags)
+    end
+
+    local generateVersionInfo = function()
+        versionInfo:Run("Generate", { projectVersion=project, path=outputPath })
+    end
+
+    local generateReplCommands = function()
+      replCommand:Run("Generate", { context=context })
+    end
+
+    local runAll = function()
+        local watch = stopWatch("GENERATE")
+        clockRun("REPL", generateReplCommands)
+        clockRun("LUA", generateLua)
+        clockRun("HTML", generateHtml)
+        clockRun("C++", generateCpp)
+        clockRun("BOOST BUILD", generateBjam)
+        clockRun("VERSION INFO", generateVersionInfo)
+        generated = true
+        watch()
+    end
+
+    runAll()
+end
+
+
+build = function()
+  if built then
+      generate()
+      local cmd = "bjam " .. properties.bjam_options ..
+                  " " .. targetDir.AbsolutePath .. " "
+      output:WriteLine(cmd)
+      if (os.execute(cmd) ~= 0) then
+          output:ErrorLine("Failure running Boost Build!")
+          error("Failure running Boost Build!")
+      end
+      built = true
+  end
+end

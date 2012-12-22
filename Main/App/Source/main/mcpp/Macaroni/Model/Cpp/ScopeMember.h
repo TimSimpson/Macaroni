@@ -18,11 +18,10 @@
 
 #include "../../ME.h"
 #include <Macaroni/Model/Cpp/Access.h>
-#include <Macaroni/Model/Cpp/_.h>
 #include "../Member.h"
 #include "ScopeMemberPtr.h"
 #include <string>
- 
+
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 /** Concreate data concerning a Node.  In Macaroni, all nodes exist in a Scope
@@ -35,12 +34,12 @@ friend void intrusive_ptr_add_ref(ScopeMember * p);
 friend void intrusive_ptr_release(ScopeMember * p);
 public:
 	virtual ~ScopeMember();
- 
+
 	const std::string & GetName() const;
 
 	AccessPtr GetAccess() const;
 
-	std::string GetFullName() const;	
+	std::string GetFullName() const;
 
 	inline bool IsStatic() const
 	{
@@ -54,7 +53,7 @@ protected:
 
 	ScopeMember(const ScopeMember & other);
 
-	void operator=(const ScopeMember & other);	
+	void operator=(const ScopeMember & other);
 
 	inline const Access & getAccess() const
 	{

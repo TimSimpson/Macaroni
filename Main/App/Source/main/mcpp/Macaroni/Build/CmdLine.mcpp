@@ -234,15 +234,9 @@ class CmdLine
 		else
 		{
 			bool success = runProject(false);
-			if (success)
-			{
-				if (install)
-				{
-
-				}
-			}
-			//runDefault();
+			return success;
 		}
+		return false;
 	}
 
 	private void parseArg(const string & arg, const string & next)

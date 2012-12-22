@@ -16,7 +16,6 @@
 #ifndef MACARONI_BUILD_MCOMPILER_H
 #define MACARONI_BUILD_MCOMPILER_H
 
-#include <Macaroni/_.h>
 #include <Macaroni/AppPaths.h>
 #include "MCompilerOptions.h"
 #include "../Model/ContextPtr.h"
@@ -32,7 +31,7 @@ class MCompiler
 public:
 	MCompiler(const Macaroni::AppPathsPtr & appPaths);
 
-	bool BuildModel(Macaroni::Model::LibraryPtr library, 
+	bool BuildModel(Macaroni::Model::LibraryPtr library,
 		const std::vector<Macaroni::IO::RegexFileSet> & inputFiles);
 
 	void Compile(Macaroni::Model::LibraryPtr library,
