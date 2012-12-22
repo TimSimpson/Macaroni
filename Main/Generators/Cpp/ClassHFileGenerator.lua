@@ -165,8 +165,11 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
 			         and friend.Member.TypeName == TypeNames.Class) then
 			    self:writeAfterTabs("friend class ::" .. friend.FullName .. ";\n");
 			else
-                self:writeAfterTabs("friend /*~<(What is this?!)*/ ::"
-                                    .. friend.FullName .. ";\n");
+                error("While adding friend declaration to " ..
+                      tostring(self.node.FullName) .. ": friend specified was "
+                      .. " a hollow Node (" .. friend.FullName .. ").");
+                --self:writeAfterTabs("friend /*~<(What is this?!)*/ ::"
+                --                    .. friend.FullName .. ";\n");
             end
         end
     end,

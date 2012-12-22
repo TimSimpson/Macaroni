@@ -13,11 +13,11 @@ local TypeNames = Macaroni.Model.TypeNames;
 Generator =
 {
     findOrCreateTarget = function(self, path, element)
-        local parentNode = element.Node.Node;
-        if (parentNode ~= nil and parentNode.TypeName == TypeNames.Class) then
-            -- If this is nested in a class, lets forget about it.
-            return parentNode.Element.Owner
-        end
+        -- local parentNode = element.Node.Node;
+        -- if (parentNode ~= nil and parentNode.TypeName == TypeNames.Class) then
+        --     -- If this is nested in a class, lets forget about it.
+        --     return parentNode.Element.Owner
+        -- end
         local t = self.defaultTarget:Unit(element.Node.FullName, true);
         local fileName = element.Node:GetPrettyFullName("/")
         t:SetHFileAsUnknownRelativePath(fileName .. ".h")
@@ -39,6 +39,14 @@ Generator =
     shouldHaveTarget = function(self, element)
         --if (element.Node.HFilePath ~= nil or (not element.RequiresCppFile)) then
         if (element.Node.HFilePath ~= nil) then
+            return false;
+        end
+        -- Inner classes or typedefs owned by classes should be defined in
+        -- the class generators. Logically they are distinct, but physically
+        -- speaking its all one giant unit.
+        local parentNode = element.Node.Node;
+        if (parentNode ~= nil and parentNode.TypeName == TypeNames.Class) then
+            -- If this is nested in a class, lets forget about it.
             return false;
         end
         return true;

@@ -202,8 +202,8 @@ bool Class::RequiresCppFile() const
 	Node & node = *GetNode();
 	for (size_t i = 0; i < node.GetChildCount(); i ++)
 	{
-		Node & child = *(node.GetChild(i));
-		if (child.GetElement()->RequiresCppFile())
+		ElementPtr childElement = node.GetChild(i)->GetElement();
+		if (childElement && childElement->RequiresCppFile())
 		{
 			return true;
 		}
