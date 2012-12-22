@@ -4,7 +4,7 @@
 
 
 // Primitives (I just fixed this so this line will need to go soon)
-class size_t { ~hfile=<Macaroni/ME.h> };
+//class size_t { ~hfile=<Macaroni/ME.h> };
 
 // C std
 class system { ~hfile=<cstdlib> };

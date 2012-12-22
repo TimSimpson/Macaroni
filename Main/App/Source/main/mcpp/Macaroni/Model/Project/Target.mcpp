@@ -24,6 +24,7 @@
 ~import Macaroni::Model::ContextPtr;
 ~import boost::format;
 ~import Macaroni::Model::Element;
+~import Macaroni::Model::ElementPtr;
 ~import Macaroni::Core::SmartPointee::Finalizer;
 ~import Macaroni::Model::Project::Group;
 ~import Macaroni::Model::Project::GroupPtr;
@@ -210,7 +211,7 @@ class Target
 	}
 
 	/** Returns a list of elements owned by this Target. */
-	public void CreateElementList(std::vector<ElementPtr> & elementList)
+	public void CreateElementList(vector<ElementPtr> & elementList)
 	{
 		BOOST_FOREACH(Element * e, elements)
 		{

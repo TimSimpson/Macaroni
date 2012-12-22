@@ -13,8 +13,8 @@
 ~import std::string;
 ~import Macaroni::Environment::Values::Table;
 ~import Macaroni::Environment::Values::TablePtr;
-~import Macaroni::Model::Target;
-~import Macaroni::Model::TargetPtr;
+~import Macaroni::Model::Project::Target;
+~import Macaroni::Model::Project::TargetPtr;
 ~import std::vector;
 ~import Macaroni::Cpp::UseLightDef;
 

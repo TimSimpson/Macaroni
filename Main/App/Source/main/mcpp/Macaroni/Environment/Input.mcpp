@@ -8,12 +8,14 @@
 
 ~namespace Macaroni::Environment;
 
+class Input {};
+
 typedef boost::intrusive_ptr<Input> InputPtr;
 
 class Input
 {
 	public virtual ~Input()
-	{		
+	{
 	}
 
 	public ~global ~friend void intrusive_ptr_add_ref(Input * p) {
@@ -25,9 +27,9 @@ class Input
 			delete p;
 		}
 	}
-	
-	protected virtual void addReference() = 0;	
-	
+
+	protected virtual void addReference() = 0;
+
 	public virtual void ReadString(string & input) const = 0;
 
 	/** If true is returned, the reference will be destroyed. */
