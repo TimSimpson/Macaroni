@@ -1,12 +1,12 @@
 import("Macaroni", "ProjectTemplates", "1")
 require "SimpleProject"
 
---upper = getUpperProject();
+upper = getUpperProject();
 
 ParentProject{
-  group="Macaroni", -- upper.Group,
-  project="Macaroni.Tests.Features", --upper.Name .. ".AccessTypes",
-  version="0.1.0.25", -- upper.Version,
+  group=upper.Group,
+  project=upper.Name .. ".Features",
+  version=upper.Version,
   children={
     "AccessTypes",
     "Annotations",

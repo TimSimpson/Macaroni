@@ -3,11 +3,6 @@ require "Macaroni.IO.Path"
 
 --upper = getUpperProject();
 
-load("Macaroni.Examples", "Hello", "1.0.0.0")
-load("Macaroni.Examples", "Blocks", "1.0.0.0")
-load("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", "0.1.0.25")
-load("Macaroni", "Macaroni.Tests.Features.LuaGlue", "0.1.0.25")
-
 --dependency {group=upper.Group, name="Macaroni.Tests.Bugs", version=upper.Version}
 --dependency {group="Macaroni.Examples", name="Hello", version="1.0.0.0"}
 
@@ -86,6 +81,11 @@ function createPureCpp()
 end
 
 function build()
+    load("Macaroni.Examples", "Hello", "1.0.0.0")
+    load("Macaroni.Examples", "Blocks", "1.0.0.0")
+    load("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", "0.1.0.25")
+    load("Macaroni", "Macaroni.Tests.Features.LuaGlue", "0.1.0.25")
+
     createDistributionDirectory(
         "gcc-mingw-4.7.2/release", ".exe",
         "target/macaroni-" .. version .. "-windows")

@@ -5,11 +5,11 @@ upper = getUpperProject();
 
 ParentProject{
   group=upper.Group,
-  project=upper.Name .. ".Tests",
+  project=upper.Name .. ".Examples",
   version=upper.Version,
   children={
     --"Bugs",
-    "Examples",
-    "Features",
+    "Blocks",
+    "Hello",
   }
 }
