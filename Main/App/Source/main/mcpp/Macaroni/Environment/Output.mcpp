@@ -11,23 +11,23 @@
 
 class Output {};
 
-typedef boost::intrusive_ptr<Output> OutputPtr 
+typedef boost::intrusive_ptr<Output> OutputPtr
 	~hfile=<Macaroni/Environment/OutputPtr.h>
 	@UseLightDef true
 	@LuaClass [ SameAsNode = Output ]
 ;
 
 class Output
-	@LuaClass [ 
-		ReferenceType = OutputPtr 
+	@LuaClass [
+		ReferenceType = OutputPtr
 	]
 {
 	~block "h-predef" {
-		#include <boost/format.hpp>	
+		#include <boost/format.hpp>
 	}
-	
+
 	public virtual ~Output()
-	{		
+	{
 	}
 
 	public ~global ~friend void intrusive_ptr_add_ref(Output * p) {
@@ -39,7 +39,7 @@ class Output
 			delete p;
 		}
 	}
-	
+
 	protected virtual void addReference() = 0;
 
 	/* Finishes a Output. */
@@ -52,7 +52,7 @@ class Output
 		Write(str(format("ERROR!: %s") % msg));
 	}
 
-	public virtual void Error(const std::string & msg) const
+	public void Error(const std::string & msg) const
 	{
 		Error(msg.c_str());
 	}
@@ -63,17 +63,17 @@ class Output
 		WriteLine(str(format("ERROR!: %s") % msg));
 	}
 
-	public virtual void ErrorLine(const std::string & msg) const		
+	public void ErrorLine(const std::string & msg) const
 	{
 		ErrorLine(msg.c_str());
 	}
 
-	public virtual void ErrorLine(const Macaroni::Exception & ex) const
+	public void ErrorLine(const Macaroni::Exception & ex) const
 	{
 		ErrorLine(ex.message());
 	}
 
-	public virtual void ErrorLine(const std::exception & ex) const
+	public void ErrorLine(const std::exception & ex) const
 	{
 		ErrorLine(ex.what());
 	}
@@ -83,38 +83,38 @@ class Output
 
 	/* Starts a new Output. */
 	public virtual OutputPtr Start(const char * name)
-		@LuaFunction "Start" = 0;	
+		@LuaFunction "Start" = 0;
 
 	public virtual void Write(const char * msg) const
 		@LuaFunction "Write" = 0;
-	
+
 	public void Write(const std::string & msg) const
 	{
-		this->Write((const char *) msg.c_str());	
-	}	
+		this->Write((const char *) msg.c_str());
+	}
 
 	~block "h" {
-		public: 
-		template<class charT, class Traits> 
+		public:
+		template<class charT, class Traits>
 		inline void Write(const boost::basic_format<charT,Traits> & format) {
 			Write((const char *) format.str().c_str());
-		} 
+		}
 	}
-	
+
 	public virtual void WriteLine(const char * msg) const
 		@LuaFunction "WriteLine" = 0;
 
 	public void WriteLine(const std::string & msg) const
 	{
-		this->WriteLine((const char *) msg.c_str());	
+		this->WriteLine((const char *) msg.c_str());
 	}
 
 	~block "h" {
-		public: 
-		template<class charT, class Traits> 
+		public:
+		template<class charT, class Traits>
 		inline void WriteLine(const boost::basic_format<charT,Traits> & format) {
 			WriteLine((const char *) format.str().c_str());
-		} 
+		}
 	}
 
 

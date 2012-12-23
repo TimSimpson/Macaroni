@@ -103,7 +103,8 @@ ClassHFileGenerator = {
 			local child = self.node.Children[i]
 			if child.TypeName == TypeNames.Block then
 				block = child.Member
-				if block.Id == "h-predef" then
+				if block.Id == "h-predef" or
+                   (self.internalDef and block.Id == "h-internal-predef") then
 					self:writeBlockCodeBlock(block)
 					--self:write("// h-predef block: \n");
 					--self:write(block.Code);
@@ -276,7 +277,8 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
 
     ["parse" .. TypeNames.Block] = function(self, node)
         local block = node.Member;
-        if (block.Id == "h") then
+        if (block.Id == "h"
+            or (self.internalDef and block.Id == "h-internal")) then
 			self:writeBlockCodeBlock(block);
         end
     end,

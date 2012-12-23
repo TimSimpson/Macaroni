@@ -25,7 +25,7 @@
 #define nullptr 0
 #endif
 
-#ifdef _WIN32 //Use BOOST_WINDOWS here?
+#ifdef BOOST_WINDOWS
 #ifndef MACARONI_COMPILE_TARGET_WINDOWS
 #define MACARONI_COMPILE_TARGET_WINDOWS
 #endif

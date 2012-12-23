@@ -252,6 +252,13 @@ class Target
 			                         % Utils::CreateCId(name));
 	}
 
+	public string GetVersionFreeCId() const
+		@LuaFunction "GetVersionFreeCId"
+	{
+		return str(format("%s___%s") % projectVersion->GetProject()->GetCId()
+			                         % Utils::CreateCId(name));
+	}
+
 	/** Returns a version of this ID which can be used as a C identifier.
 	 * The point isn't to make a pretty name but just one that maps uniquely.
 	 */

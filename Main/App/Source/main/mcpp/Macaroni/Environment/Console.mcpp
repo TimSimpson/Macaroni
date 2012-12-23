@@ -33,16 +33,89 @@
 
 class Console : public virtual Input, public virtual Output
 {
+	~block "h-internal-predef"
+	{
+		#include <Macaroni/ME.h>
+		#ifdef MACARONI_COMPILE_TARGET_WINDOWS
+			#include <windows.h>
+		#endif
+	}
+
+	~block "h-internal"
+	{
+		#ifdef MACARONI_COMPILE_TARGET_WINDOWS
+
+			struct PlatformConsole
+			{
+				bool ok;
+				::WORD originalColor;
+				HANDLE stdOut;
+
+				PlatformConsole()
+				:	ok(false)
+				{
+					stdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+					if (INVALID_HANDLE_VALUE != stdOut)
+					{
+						CONSOLE_SCREEN_BUFFER_INFO info;
+						if (0 != GetConsoleScreenBufferInfo(stdOut, &info))
+						{
+							originalColor = info.wAttributes;
+							ok = true;
+						}
+					}
+				}
+
+				void SetError()
+				{
+					if (ok)
+					{
+						// It probably is wrong to not write to stderr... but
+						// then why does it feel so right?
+						SetConsoleTextAttribute(stdOut, (WORD) 12);
+					}
+				}
+				void SetNormal()
+				{
+					if (ok)
+					{
+						SetConsoleTextAttribute(stdOut, originalColor);
+					}
+				}
+
+			};
+		#else
+			struct PlatformConsole
+			{
+				void SetError(){}
+				void SetNormal(){}
+			};
+		#endif
+	}
+
+
 	private int indentLevel;
 	private std::string indentString;
 	private bool open;
+	~block "h"
+	{
+		class PlatformConsole;
+		typedef boost::shared_ptr<PlatformConsole> PlatformConsolePtr;
+		PlatformConsolePtr platformConsole;
+	}
 	private int referenceCount;
 
 	public Console(int indentLevel=0)
 	: indentLevel(indentLevel),
 	  indentString(indentLevel, '='),
 	  open(true),
+	  platformConsole(),
 	  referenceCount(0)
+	{
+		platformConsole.reset(new PlatformConsole());
+	}
+
+	public virtual ~Console()
 	{
 	}
 
@@ -54,6 +127,21 @@ class Console : public virtual Input, public virtual Output
 	public virtual void End()
 	{
 		open = false;
+	}
+
+	public virtual void Error(const char * msg) const
+	{
+		platformConsole->SetError();
+		Write(msg);
+		platformConsole->SetNormal();
+	}
+
+
+	public virtual void ErrorLine(const char * msg) const
+	{
+		platformConsole->SetError();
+		WriteLine(msg);
+		platformConsole->SetNormal();
 	}
 
 	public virtual void ReadString(string & input) const

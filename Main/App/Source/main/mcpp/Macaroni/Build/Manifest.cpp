@@ -614,10 +614,10 @@ Manifest::RunResultPtr Manifest::RunTarget(const Console & console, BuildContext
 		LuaEnvironment::Run(MACARONI_INTERNAL_SOURCE, L, 0, 1);
 		result->Success = true;
 	} catch(const Macaroni::Exception & mex) {
-		console.ErrorLine(mex);
+		console.ErrorLine(mex.message().c_str());
 		result->Success = false;
 	} catch(const std::exception & ex) {
-		console.ErrorLine(ex);
+		console.ErrorLine(ex.what());
 		result->Success = false;
 	}
 	return result;
