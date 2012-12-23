@@ -20,8 +20,8 @@ local stopWatch = function(label)
     local startTime = os.time()
     return function()
         local endTime = os.time()
-        print("                                                   " ..
-              label .. " " .. tostring(endTime - startTime));
+        output:WriteLine("                                                 "
+              .. label .. " " .. tostring(endTime - startTime));
         return endTime - startTime
     end
 end
@@ -94,6 +94,8 @@ local installed = false
 
 local targetDir = newPath(target)
 
+generated = false
+built = false
 
 clean = function()
     targetDir:ClearDirectoryContents();
@@ -110,8 +112,6 @@ end
   -- for i=1, #project.Targets do
   --     print(project.Targets[i])
   -- end
-
-generated = false
 
 generate = function()
     local outputPath = filePath(target);
@@ -179,15 +179,21 @@ end
 
 
 build = function()
-  if built then
-      generate()
-      local cmd = "bjam " .. properties.bjam_options ..
-                  " " .. targetDir.AbsolutePath .. " "
+  local callBjam = function()
+      local cmd = "bjam -d+2 -j8 "
+                  .. targetDir.AbsolutePath
+                  .. " link=static"
       output:WriteLine(cmd)
       if (os.execute(cmd) ~= 0) then
           output:ErrorLine("Failure running Boost Build!")
+          output:ErrorLine(cmd)
           error("Failure running Boost Build!")
       end
+  end
+  if not built then
+      generate()
+      callBjam()
       built = true
   end
 end
+

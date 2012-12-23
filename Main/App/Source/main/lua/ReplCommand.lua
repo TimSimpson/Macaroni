@@ -81,8 +81,13 @@ function G2(context)
 
     -- local newFuncNode= node:FindOrCreate("replCommand");
     -- local axiom = Axiom.LuaCreate("Macaroni::Environment::ReplCommand")
-    local source = Source.Create(FileName.CreateNonPhysical("ReplCommand.lua"),
-                                 0, 0);
+    local source = nil;
+    if MACARONI_VERSION == "0.1.0.23" then
+        source = Source.Create(FileName.Create("ReplCommand.lua"), 0, 0);
+    else
+        source = Source.Create(FileName.CreateNonPhysical("ReplCommand.lua"),
+                               0, 0);
+    end
     -- local reason = Reason.Create(axiom, source)
     -- local func = Function.Create(newFuncNode, reason);
 
