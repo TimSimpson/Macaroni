@@ -1175,14 +1175,17 @@ namespace
 			local funcs = self.parent:findAllFunctionsInNode(self.originalNode, false);
 			for i = 1, #funcs do
 				local node = funcs[i];
+				local methodName = node.Annotations[self.parent.LuaFunction]
+				                   .ValueAsString or node.Node.Name;
 				if (first) then
-					t[#t + 1] = 'if (index == "' .. node.Node.Name ..'")';
+					t[#t + 1] = 'if (index == "' .. methodName ..'")';
 					first = false;
 				else
-					t[#t + 1] = 'else if (index == "' .. node.Node.Name ..'")';
+					t[#t + 1] = 'else if (index == "' .. methodName ..'")';
 				end
 				t[#t + 1] = '{';
-				t[#t + 1] = '\tlua_pushcfunction(L, ' .. self.helperName .. '::' .. node.Node.Name .. ');';
+				t[#t + 1] = '\tlua_pushcfunction(L, ' .. self.helperName
+					        .. '::' .. methodName .. ');';
 				t[#t + 1] = '\treturn 1;';
 				t[#t + 1] = '}';
 			end
