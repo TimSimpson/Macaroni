@@ -1,6 +1,6 @@
 TOOLS_ROOT=$HOME/Tools
 export BOOST_ROOT=$TOOLS_ROOT/boost/boost_1_52_0
-LUA_ROOT=$TOOLS_ROOT/lua/lua-5.1.4
+export LUA_ROOT=$TOOLS_ROOT/lua/lua-5.1.4
 MACARONI_SOURCE=/macaroni
 MACARONI_EXE=$MACARONI_SOURCE/Main/App/bin/gcc-4.7/debug/link-static/threading-multi/macaroni
 
@@ -59,6 +59,7 @@ function install_lua() {
 function cmd_install() {
     install_gcc
     install_boost
+    install_lua
 }
 
 function init_build() {
@@ -71,7 +72,8 @@ function init_build() {
 
 function cmd_build() {
     init_build
-    bjam -d+2 --toolset=gcc cxxflags=-std=gnu++11 link=static threading=multi
+    bjam -d+2 --toolset=gcc cxxflags=-std=gnu++11 link=static \
+        threading=multi $@
 }
 
 function cmd_build_release() {
@@ -138,6 +140,16 @@ function cmd_debug() {
     gdb $MACARONI_EXE
 }
 
+function cmd_all_tests() {
+    cmd_unit_test
+    pushd /macaroni/Main/Dependencies/Lua
+    cmd_run clean install
+    popd
+    pushd /macaroni/Tests
+    cmd_run clean install
+    popd
+}
+
 function cmd_help() {
     echo "Unknown command: $1
 
@@ -149,18 +161,20 @@ Here are the valid commands, in order they should be run:
     debug     - Runs Macaroni in debug mode.
     run       - Runs Macaroni normally.
     build-release - Builds the release version.
+    all-tests  - Runs all tests.
 "
 }
 
 case "$1" in
         "install" ) cmd_install;;
-        "build" ) cmd_build;;
+        "build" ) shift 1; cmd_build $@;;
         "unit-test" ) cmd_unit_test;;
         "run" ) shift 1; cmd_run $@;;
         "debug" ) shift 1; cmd_debug $@;;
         "install_gcc" ) install_gcc;;
         "install_lua" ) install_lua;;
         "build-release" ) cmd_build_release;;
+        "all-tests" ) shift 1; cmd_all_tests $@;;
     * )
     cmd_help $1
     exit 1

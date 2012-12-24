@@ -183,22 +183,22 @@ class Output
 	{
 	public:
 		template<typename T>
-		inline void Error(typename T arg) {
+		inline void Error(T arg) {
 			WriteAnything(ERROR, arg, false);
 		}
 
 		template<typename T>
-		inline void ErrorLine(typename T arg) {
+		inline void ErrorLine(T arg) {
 			WriteAnything(ERROR, arg, true);
 		}
 
 		template<typename T>
-		inline void Write(typename T arg) {
+		inline void Write(T arg) {
 			WriteAnything(DEBUG, arg, false);
 		}
 
 		template<typename T>
-		inline void WriteLine(typename T arg) {
+		inline void WriteLine(T arg) {
 			WriteAnything(DEBUG, arg, true);
 		}
 	}

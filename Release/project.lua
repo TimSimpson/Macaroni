@@ -44,7 +44,7 @@ end
 function createDistributionDirectory(jamConfig, ext, dstPath)
     local dstDir = newPath(dstPath);
     createDistributionDirectoryBase(dstDir)
-    newPath("../Main/App/bin/" .. jamConfig
+    newPath("../Main/App/" .. jamConfig
              .. "/link-static/threading-multi"):NewPath("/macaroni" .. ext)
         :CopyToDifferentRootPath(dstDir, true);
     newPath("../Main/App/Source/main/resources"):NewPath("/Messages.txt")
@@ -94,22 +94,22 @@ function build()
     load("Macaroni", "Macaroni.Tests.Features.LuaGlue", version)
 
     createDistributionDirectory(
-        "gcc-mingw-4.7.2/release", ".exe",
+        "GeneratedSource/bin/gcc-mingw-4.7.2/release", ".exe",
         "target/macaroni-" .. version .. "-windows")
     createDistributionDirectory(
-        "gcc-mingw-4.7.2/debug", ".exe",
+        "GeneratedSource/bin/gcc-mingw-4.7.2/debug", ".exe",
         "target/macaroni-" .. version .. "-windows-debug")
     createDistributionDirectory(
-        "gcc-4.7/release", "",
+        "bin/gcc-4.7/release", "",
         "target/macaroni-" .. version .. "-ubuntu-64")
     createDistributionDirectory(
-        "gcc-4.7/debug", "",
+        "bin/gcc-4.7/debug", "",
         "target/macaroni-" .. version .. "-ubuntu-64-debug")
     createDistributionDirectory(
-        "gcc-4.7/debug/address-model-32/architecture-x86/instruction-set-i686", "",
+        "bin/gcc-4.7/debug/address-model-32/architecture-x86/instruction-set-i686", "",
         "target/macaroni-" .. version .. "-ubuntu-32-debug")
     createDistributionDirectory(
-        "gcc-4.7/release/address-model-32/architecture-x86/instruction-set-i686", "",
+        "bin/gcc-4.7/release/address-model-32/architecture-x86/instruction-set-i686", "",
         "target/macaroni-" .. version .. "-ubuntu-32")
 
     createPureCpp();

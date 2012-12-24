@@ -230,7 +230,7 @@ char * copyStringToCharArray(const std::string & src)
 	return array;
 }
 
-bool Process::Run(const Console & console)
+bool Process::Run(Console & console)
 {
 	pid_t child = fork();
 	if (child == -1)
