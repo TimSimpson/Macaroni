@@ -38,13 +38,13 @@ class CppFile
 	{
 		std::string::size_type dotIndex = src.ToString().rfind('.');
 		std::string objRelativePath = src.ToString().substr(0, dotIndex) + ".obj";
-		boost::filesystem::path objFile = outputDirectory / objRelativePath;		
+		boost::filesystem::path objFile = outputDirectory / objRelativePath;
 		obj = Path(outputDirectory, objFile);
 	}
 
-	public bool Compile(CompilerSettings & settings, 
+	public bool Compile(CompilerSettings & settings,
 						vector<string> & configIncludePaths,
-						const Console & console)
+						Console & console)
 	{
 		if (!IsObjectFileOutOfDate())
         {
@@ -68,7 +68,7 @@ class CppFile
 		std::stringstream arg;
 		arg << "/Fo" << obj.GetAbsolutePath();
 		args.push_back(arg.str());
-		
+
 		args.push_back("/c");
 
 		arg.str("");
@@ -85,18 +85,18 @@ class CppFile
 			args.push_back(arg.str());
         }
         for (unsigned int i = 0; i < configIncludePaths.size(); i ++)
-        {	
+        {
 			arg.str("");
             arg << "-I\"" << configIncludePaths[i] << "\"";
 			args.push_back(arg.str());
-        }  
- 
+        }
+
         for (unsigned int i = 0; i < settings.GetPreprocessorDirectives().size(); i ++)
         {
             const StringPair & pair = settings.GetPreprocessorDirectives()[i];
 			args.push_back("/D");
 			arg.str("");
-            arg << "\"" << pair.Name << "\"";  			
+            arg << "\"" << pair.Name << "\"";
             if (!pair.Value.empty())
             {
 				arg.str("");
@@ -106,11 +106,11 @@ class CppFile
         }
 
         optional<path> ce(settings.GetCompilerExe());
-        Process process(ce, args, 
-                        objPath.branch_path(), settings.GetPaths(), 
+        Process process(ce, args,
+                        objPath.branch_path(), settings.GetPaths(),
                         settings.GetEnvironmentVariables());
-        process.Run(console);    
-        
+        process.Run(console);
+
         return ObjectFileExists();
 	}
 
@@ -120,7 +120,7 @@ class CppFile
 		boost::filesystem::create_directories(objPath);
 	}
 
-	public void DeleteObjectFile(const Console & console)
+	public void DeleteObjectFile(Console & console)
 	{
 		console.Write("Deleting ");
 		console.WriteLine(obj.GetAbsolutePath());

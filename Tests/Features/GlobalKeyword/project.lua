@@ -8,6 +8,7 @@ SimpleProject{
   group=upper.Group,
   project=upper.Name .. ".GlobalKeyword",
   version=upper.Version,
+  libShortName="MT_GlobalKeyword",
   src="Source",
   target="GeneratedSource",
   dependencies = {

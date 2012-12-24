@@ -562,7 +562,7 @@ std::string Manifest::GetProperties()
 	return cereal.str();
 }
 
-Manifest::RunResultPtr Manifest::RunTarget(const Console & console, BuildContextPtr iContext, const std::string & manifestMethodName, const std::string & generatorMethodName)
+Manifest::RunResultPtr Manifest::RunTarget(Console & console, BuildContextPtr iContext, const std::string & manifestMethodName, const std::string & generatorMethodName)
 {
 	lua_State * L = luaEnv.GetState();
 

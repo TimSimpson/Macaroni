@@ -47,7 +47,7 @@ namespace Macaroni { namespace Environment {
 //  Common Implementation
 ///////////////////////////////////////////////////////////////////////////////
 
-Process::Process(boost::optional<boost::filesystem::path> & fileName, 
+Process::Process(boost::optional<boost::filesystem::path> & fileName,
 	const std::vector<MACARONI_VE_CONST std::string> & args,
 	boost::filesystem::path workingDirectory,
 	const std::vector<MACARONI_VE_CONST std::string> paths,
@@ -67,9 +67,9 @@ Process::Process(boost::optional<boost::filesystem::path> & fileName,
 
 /** Appends all of the path variables to the PATH environment variable. */
 void Process::mixinPathEnvVariables(EnvironmentVariables & vars)
-{	
+{
 	EnvironmentVariable * pathEv = vars.Get("PATH");
-		
+
 	if (pathEv == nullptr)
 	{
 		throw Macaroni::StringException("Could not get the Path environment variable!");
@@ -86,13 +86,13 @@ void Process::mixinPathEnvVariables(EnvironmentVariables & vars)
 
 	for (unsigned int j = 0; j < envVariables.size(); j ++)
 	{
-		StringPair pair = envVariables[j];		
+		StringPair pair = envVariables[j];
 		vars.Set(pair);
 	}
 }
 
-bool Process::Run(const Console & console)
-{	
+bool Process::Run(Console & console)
+{
 	std::stringstream argStream;
 	BOOST_FOREACH(MACARONI_VE_CONST std::string & arg, args)
 	{
@@ -110,15 +110,15 @@ bool Process::Run(const Console & console)
 
 	EnvironmentVariables vars;
 	mixinPathEnvVariables(vars);
-	
+
 	console.WriteLine(ss.str());
-	
+
 	Macaroni::Platform::Windows::WindowsString wideFileName("");
 	if (!!fileName)
 	{
-		wideFileName = fileName.get().string();	
-	}	
-	
+		wideFileName = fileName.get().string();
+	}
+
 	Macaroni::Platform::Windows::WindowsString wideArgs(concatanatedArgs);
 	Macaroni::Platform::Windows::WindowsString wideWorkingDir(workingDirectory.string());
 
@@ -171,39 +171,39 @@ bool Process::Run(const Console & console)
 					  &processInfo);
 	}
 
-	if (result == FALSE) 
-	{ 
+	if (result == FALSE)
+	{
 		DWORD bug = ::GetLastError();
-		LPVOID lpMsgBuf;	    
+		LPVOID lpMsgBuf;
 		::FormatMessage(
-			FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+			FORMAT_MESSAGE_ALLOCATE_BUFFER |
 			FORMAT_MESSAGE_FROM_SYSTEM |
 			FORMAT_MESSAGE_IGNORE_INSERTS,
 			NULL,
 			bug,
 			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 			(LPTSTR) &lpMsgBuf,
-			0, NULL );		
+			0, NULL );
 		console.WriteLine((LPCTSTR)lpMsgBuf);
-		//MessageBox(NULL, (LPCTSTR)lpDisplayBuf, TEXT("Error"), MB_OK); 
+		//MessageBox(NULL, (LPCTSTR)lpDisplayBuf, TEXT("Error"), MB_OK);
 
-		LocalFree(lpMsgBuf);		
-		
+		LocalFree(lpMsgBuf);
+
 		// BLAH!!
 		console.WriteLine("An error occurred when calling program.");
 	}
-	else 
+	else
 	{
 		//WaitForInputIdle(processInfo.hProcess, 2 * 60 * 1000);
 		WaitForSingleObject(processInfo.hProcess, 2 * 60 * 1000);
 
 	}
 
-				
+
 
 
 	//system(ss.str().c_str());
-	
+
 	return true;
 }
 
@@ -225,34 +225,34 @@ void Process::mixinPathEnvVariables(EnvironmentVariables & vars)
 // Allocates a new char array, copies src there, and returns a pointer to it.
 char * copyStringToCharArray(const std::string & src)
 {
-	char * array = new char[src.length() + 1]; 
+	char * array = new char[src.length() + 1];
 	strncpy(array, src.c_str(), src.length());
 	return array;
 }
 
 bool Process::Run(const Console & console)
-{	
+{
 	pid_t child = fork();
 	if (child == -1)
 	{
 		MACARONI_THROW("Error forking child process!");
 	}
 	else if (child == 0)  // Child
-	{ 		
+	{
 		std::stringstream newPath;
 		newPath << getenv("PATH");
 		BOOST_FOREACH(MACARONI_VE_CONST std::string & path, this->paths)
 		{
-			newPath << path; 
-		}	
+			newPath << path;
+		}
 		setenv("PATH", newPath.str().c_str(), 1);
 
 
 		BOOST_FOREACH(const StringPair & envVar, this->envVariables)
 		{
 			setenv(envVar.Name.c_str(), envVar.Value.c_str(), 1);
-		}	
-		
+		}
+
 		// None of the memory is ever reclaimed, but that doesn't matter
 		// since execv replaces the process image.
 		char **argv = new char* [this->args.size()+2];
@@ -265,12 +265,12 @@ bool Process::Run(const Console & console)
 
 		int result = execv (fileName->string().c_str(), argv);
 		return false;  // <-- Never reached.
-	} 
+	}
 	else
-	{	
+	{
 		int status;
 		pid_t result = waitpid(child, &status, 0);
-		if (result == -1) 
+		if (result == -1)
 		{
 			MACARONI_THROW("Failure waiting for child process.");
 		}
@@ -281,7 +281,7 @@ bool Process::Run(const Console & console)
 		else
 		{
 			return false;
-		}		
+		}
 	}
 }
 

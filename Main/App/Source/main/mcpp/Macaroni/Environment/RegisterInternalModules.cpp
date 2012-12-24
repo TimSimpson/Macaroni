@@ -48,7 +48,7 @@
 #include <Macaroni/Model/Cpp/VariableLua.h>
 #include <Macaroni/Model/Cpp/VariableAssignmentLua.h>
 #include <Macaroni/VersionNo.h>
-#include <LuaModulesInclude_Macaroni___Macaroni_46_Main___lib.h>
+#include <LuaModulesInclude_Macaroni___Macaroni_46_App___lib.h>
 
 BEGIN_NAMESPACE2(Macaroni, Environment)
 
@@ -81,7 +81,7 @@ static const struct luaL_Reg libs[] = {
 	{"Macaroni.Model.TypeList", Macaroni::Model::TypeListLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Cpp.Variable", Macaroni::Model::Cpp::VariableLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Cpp.VariableAssignment", Macaroni::Model::Cpp::VariableAssignmentLuaMetaData::OpenInLua},
-	#include <LuaModulesRegister_Macaroni___Macaroni_46_Main___lib.h>
+	#include <LuaModulesRegister_Macaroni___Macaroni_46_App___lib.h>
 	{nullptr, nullptr} /* sentinel */
 	};
 

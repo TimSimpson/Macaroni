@@ -4,7 +4,7 @@ require "Macaroni.IO.Path"
 
 project = context
     :Group("Macaroni")
-    :Project("Macaroni.Main")
+    :Project("Macaroni.App")
     :Version("0.1.0.26")
 
 
@@ -70,7 +70,7 @@ local lib = project:Library{
 }
 
 -- Add the exe and test targets.
-local exes = { "/Main.cpp" };
+local exes = { };
 local tests = {};
 
 local srcPath = newPath(src)
@@ -166,7 +166,7 @@ generate = function()
         local watch = stopWatch("GENERATE")
         clockRun("REPL", generateReplCommands)
         clockRun("LUA", generateLua)
-        clockRun("HTML", generateHtml)
+        --clockRun("HTML", generateHtml)
         clockRun("C++", generateCpp)
         clockRun("BOOST BUILD", generateBjam)
         clockRun("VERSION INFO", generateVersionInfo)

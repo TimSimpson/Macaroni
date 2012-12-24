@@ -23,6 +23,7 @@
 ~import Macaroni::InternalSource;
 ~import boost::optional;
 ~import Macaroni::Environment::Output;
+~import Macaroni::Environment::Output::LEVEL;
 ~import Macaroni::Environment::OutputPtr;
 ~import Macaroni::Environment::Messages;
 ~import std::string;
@@ -93,7 +94,7 @@ class Console : public virtual Input, public virtual Output
 		#endif
 	}
 
-
+	private bool lastWriteWasNewLine;
 	private int indentLevel;
 	private std::string indentString;
 	private bool open;
@@ -129,19 +130,56 @@ class Console : public virtual Input, public virtual Output
 		open = false;
 	}
 
-	public virtual void Error(const char * msg) const
+	~block "h"
 	{
-		platformConsole->SetError();
-		Write(msg);
-		platformConsole->SetNormal();
+	public:
+		template<typename T>
+		inline void Error(T arg) {
+			Output::Error(arg);
+		}
+
+		template<typename T>
+		inline void ErrorLine(T arg) {
+			Output::ErrorLine(arg);
+		}
+
+		template<typename T>
+		inline void Write(T arg) {
+			Output::Write(arg);
+		}
+
+		template<typename T>
+		inline void WriteLine(T arg) {
+			Output::WriteLine(arg);
+		}
 	}
 
-
-	public virtual void ErrorLine(const char * msg) const
+	protected virtual void WriteAnything(LEVEL level, const char * msg,
+		                                 bool newLine)
 	{
-		platformConsole->SetError();
-		WriteLine(msg);
-		platformConsole->SetNormal();
+		#ifdef MACARONI_COMPILE_TARGET_WINDOWS
+			// Really, Windows? :(
+			#undef ERROR
+		#endif
+
+		if (Output::ERROR == level)
+		{
+			platformConsole->SetError();
+		}
+		if (lastWriteWasNewLine)
+		{
+			std::cout << indentString;
+		}
+		std::cout << msg;
+		if (newLine)
+		{
+			std::cout << std::endl;
+		}
+		lastWriteWasNewLine = newLine;
+		if (Output::ERROR == level)
+		{
+			platformConsole->SetNormal();
+		}
 	}
 
 	public virtual void ReadString(string & input) const
@@ -162,66 +200,14 @@ class Console : public virtual Input, public virtual Output
 		return ptr;
 	}
 
-
-	public virtual void Write(const char * msg) const
-	{
-		cout << indentString << msg;
-	}
-
-	public void Write(const Exception & ex) const
-	{
-		Write(ex.where());
-		cout << " : ";
-		Write(ex.message());
-	}
-
-	public void Write(const std::string & msg) const
-	{
-		cout << indentString << msg;
-	}
-
-	public void Write(const optional<InternalSource> & source) const
-	{
-		if (source)
-		{
-			stringstream msg;
-			msg << source.get().FileName
-				<< ", line " << source.get().Line;
-			WriteLine(msg.str());
-		} else {
-			WriteLine("Source unknown.");
-		}
-	}
-
 	public void WriteMessage(const char * msgKey) const
 	{
 		cout << indentString << Macaroni::Environment::Messages::Get(msgKey);
 	}
-
-	public virtual void WriteLine(const char * msg) const
-	{
-		cout << indentString << msg << std::endl;
-	}
-
+/*
 	public void WriteLine(const wchar_t * msg) const
 	{
 		cout << indentString << msg << std::endl;
-	}
+	}*/
 
-	public void WriteLine(const Exception & ex) const
-	{
-		Write(ex);
-		cout << std::endl;
-	}
-
-	public void WriteLine(const std::string & msg) const
-	{
-		cout << indentString << msg << std::endl;
-	}
-
-	public void WriteLine(const optional<InternalSource> & source) const
-	{
-		Write(source);
-		cout << std::endl;
-	}
 };

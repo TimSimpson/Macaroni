@@ -13,6 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+~unit macaroni
+    type=exe
+;
+
+~block "cpp":=
+
 #include "Macaroni/ME.h"
 #include "Macaroni/Build/CmdLine.h"
 #include "Macaroni/Build/MCompiler.h"

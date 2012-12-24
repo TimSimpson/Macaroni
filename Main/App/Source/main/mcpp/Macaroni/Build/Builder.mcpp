@@ -40,6 +40,7 @@
 ~import Macaroni::Build::ManifestOrganizer;
 ~import Macaroni::Build::MCompiler;
 ~import Macaroni::Build::MCompilerOptions;
+~import Macaroni::Environment::Output;
 ~import boost::optional;
 ~import Macaroni::Parser::ParserException;
 ~import boost::filesystem::path;
@@ -77,9 +78,10 @@ class Builder
 	private VectorOfConstString cppSrcRoots;
 	//private path manifestPath;
 	private MCompiler compiler;
-	private const Console & console;
+	private Console & console;
 	private ContextPtr context;
 	private bool initialized;
+	private Output * output;
 	private string properties;
 
 	public Builder(AppPathsPtr appPaths, ContextPtr context, Console & console)
@@ -88,6 +90,7 @@ class Builder
 		console(console),
 		context(context),
 		initialized(false),
+		output(&console),
 		//library(),//GetName(), manifest->GetVersion())),
 		//manifest(),
 		//manifestPath(manifestPath),
@@ -98,8 +101,8 @@ class Builder
 	public bool Clean(ManifestPtr manifest)
 	{
 		path outputPath = manifest->GetMOutput();
-		console.Write("~ Destroying directory ");
-		console.WriteLine(outputPath.string());
+		output->Write("~ Destroying directory ");
+		output->WriteLine(outputPath.string());
 		boost::filesystem::remove_all(outputPath);
 		return true;
 	}
@@ -178,7 +181,7 @@ class Builder
 		{
 			if (!Init(arguments, manifestPath, manifest, library))
 			{
-				console.WriteLine("An unrecoverable error occured in the initialization phase.");
+				output->WriteLine("An unrecoverable error occured in the initialization phase.");
 				return false;
 			}
 		}
@@ -189,10 +192,10 @@ class Builder
 						 const ManifestPtr manifest,
 						 const LibraryPtr library)
 	{
-		console.WriteLine("--------------------------------------------------------------------------------");
-		console.Write("    ");
-		console.WriteLine(manifest->GetName());
-		console.WriteLine("--------------------------------------------------------------------------------");
+		output->WriteLine("--------------------------------------------------------------------------------");
+		output->Write("    ");
+		output->WriteLine(manifest->GetName());
+		output->WriteLine("--------------------------------------------------------------------------------");
 
 		if (manifest->ContainsCavatappi() && !arguments.CavatappiMode())
 		{
@@ -209,13 +212,13 @@ class Builder
 								  const LibraryPtr library,
 								  const bool forceNewProcess)
 	{
-		console.WriteLine("~~ Invoking Cavatappi...");
+		output->WriteLine("~~ Invoking Cavatappi...");
 		//TODO: Uninstall artifacts from repo
 		if (library->IsInstalled())
 		{
 			if (!Uninstall(library))
 			{
-				console.WriteLine("~ Cannot uninstall library. Will not call Cavatappi.");
+				output->WriteLine("~ Cannot uninstall library. Will not call Cavatappi.");
 				return false;
 			}
 		}
@@ -284,11 +287,11 @@ class Builder
 
 		if (success)
 		{
-			console.WriteLine("~ Success!");
+			output->WriteLine("~ Success!");
 		}
 		else
 		{
-			console.WriteLine("~ Failure  ");
+			output->WriteLine("~ Failure  ");
 		}
 		return success;
 	}
@@ -502,9 +505,9 @@ class Builder
 			}
 			catch(...)
 			{
-				console.Write("An error occurred simply parsing the bug manifest \"");
-				console.Write(bugPath.string());
-				console.WriteLine("\".");
+				output->Write("An error occurred simply parsing the bug manifest \"");
+				output->Write(bugPath.string());
+				output->WriteLine("\".");
 				continue;
 			}
 			createLibraryForManifest(bugManifest, false);
@@ -600,7 +603,7 @@ class Builder
 			BuildContextPtr iCon = createBuildContext(dManifest, dLib);
 			iCon->GetOutputDir()->CreateDirectory();
 			//TODO: Don't really care if this fails.  But it probably shouldn't
-			// print a message to the console.
+			// print a message to the output->
 			Manifest::RunResultPtr result = dManifest->RunTarget(console, iCon, "prepare", "Prepare");
 
 			// Now, add it as a dependency of this library.
@@ -613,7 +616,7 @@ class Builder
 	public bool ParseMacaroniSource(const BuilderArguments & arguments,
 									ManifestPtr manifest, LibraryPtr library)
 	{
-		console.WriteLine("~ Creating Macaroni model from source files (.mh, .mcpp). ~");
+		output->WriteLine("~ Creating Macaroni model from source files (.mh, .mcpp). ~");
 		try
 		{
 			parseManifestSource(arguments, manifest, library);
@@ -621,17 +624,18 @@ class Builder
 		}
 		catch(Macaroni::Parser::ParserException & pe)
 		{
-			console.Write("An error occurred parsing Macaroni source files.");
-			console.WriteLine(pe.GetSource()->ToString());
-			console.WriteLine(pe.GetMessage());
+			output->Write("An error occurred parsing Macaroni source files.");
+			output->WriteLine(pe.GetSource()->ToString());
+			output->WriteLine(pe.GetMessage());
 			return false;
 		}
 		catch(const Macaroni::Exception & ex)
 		{
-			console.WriteLine("An error occurred parsing Macaroni source files.");
-			console.WriteLine(ex); 
+			output->WriteLine("An error occurred parsing Macaroni source files.");
+			output->WriteLine(ex.where());
+			output->WriteLine(ex.message());
 			return false;
-		}		
+		}
 	}
 
 	public bool parseManifest(const BuilderArguments & arguments,
@@ -647,35 +651,36 @@ class Builder
 			//	<< "]], [[" << library->GetName()
 			//	<< "]], [[" << library->GetVersion()
 			//	<< "]]}";
-			//console.WriteLine(ss.str().c_str());*/
+			//output->WriteLine(ss.str().c_str());*/
 			parseDependencies(arguments, dependencyStack, manifest, library);
 			//parseNestedLibraries(dependencyStack, manifest, library);
-			//console.WriteLine("~ Creating Macaroni model from source files (.mh, .mcpp). ~");
+			//output->WriteLine("~ Creating Macaroni model from source files (.mh, .mcpp). ~");
 			//parseManifestSource(manifest, library);
 		}
 				catch(Macaroni::Parser::ParserException & pe)
 		{
-			console.Write("An error occurred parsing Macaroni code while in dependency ");
+			output->Write("An error occurred parsing Macaroni code while in dependency ");
 			printOutDependencyStack(dependencyStack);
-			console.WriteLine(".");
-			console.WriteLine(pe.GetSource()->ToString());
-			console.WriteLine(pe.GetMessage());
+			output->WriteLine(".");
+			output->WriteLine(pe.GetSource()->ToString());
+			output->WriteLine(pe.GetMessage());
 			return false;
 		}
 		catch(Macaroni::Exception & ex)
 		{
-			console.Write("An error occurred in ");
+			output->Error("An error occurred in ");
 			printOutDependencyStack(dependencyStack);
-			console.WriteLine(".");
-			console.WriteLine(ex);
+			output->ErrorLine(".");
+			output->ErrorLine(ex.where());
+			output->ErrorLine(ex.message());
 			return false;
 		}
 		catch(std::exception & ex)
 		{
-			console.Write("An error occurred in ");
+			output->Write("An error occurred in ");
 			printOutDependencyStack(dependencyStack);
-			console.WriteLine(".");
-			console.WriteLine(ex.what());
+			output->WriteLine(".");
+			output->WriteLine(ex.what());
 			return false;
 		}
 		return true;
@@ -707,16 +712,16 @@ class Builder
 		}
 		catch(Macaroni::Exception & ex)
 		{
-			console.WriteLine("An error occurred during Macaroni phase.");
-			console.WriteLine(ex.GetSource());
-			console.WriteLine(ex.GetMessage());
+			output->WriteLine("An error occurred during Macaroni phase.");
+			output->WriteLine(ex.GetSource());
+			output->WriteLine(ex.GetMessage());
 			return false;
 		}
 		catch(Macaroni::Parser::ParserException & pe)
 		{
-			console.WriteLine("Error parsing Macaroni code: ");
-			console.WriteLine(pe.GetSource()->ToString());
-			console.WriteLine(pe.GetMessage());
+			output->WriteLine("Error parsing Macaroni code: ");
+			output->WriteLine(pe.GetSource()->ToString());
+			output->WriteLine(pe.GetMessage());
 			return false;
 		}
 		return true;*/
@@ -732,7 +737,7 @@ class Builder
 		BOOST_FOREACH(const string & dir, src)
 		{
 			std::vector<RegexFileSet> input;
-			input.push_back(RegexFileSet(boost::filesystem::path(dir), 
+			input.push_back(RegexFileSet(boost::filesystem::path(dir),
 				                         "\\.m(cpp|h)?$"));
 			compiler.BuildModel(sourceLibrary, input);
 		}
@@ -759,13 +764,13 @@ class Builder
 			}
 			else
 			{
-				console.Write(" -> ");
+				output->Write(" -> ");
 			}
-			console.Write(id.GetGroup());
-			console.Write("|");
-			console.Write(id.GetName());
-			console.Write("|");
-			console.Write(id.GetVersion());
+			output->Write(id.GetGroup());
+			output->Write("|");
+			output->Write(id.GetName());
+			output->Write("|");
+			output->Write(id.GetVersion());
 		}
 	}
 
@@ -780,7 +785,7 @@ class Builder
 			ss	<< "Could not find init.lua at "
 				<< initLuaPath
 				<< ".";
-			console.WriteLine(ss.str());
+			output->WriteLine(ss.str());
 			return "{}";
 		}
 		else
@@ -804,7 +809,7 @@ class Builder
 	//	std::stringstream ss;
 	//	ss << "Saving generated and non-generated C++ source code to " <<
 	//			cppSourceLocal.string() << ".";
-	//	console.WriteLine(ss.str());
+	//	output->WriteLine(ss.str());
 
 	//	boost::filesystem::create_directories(cppSourceLocal);
 	//	CopyHeaderFiles(cppSourceLocal);
@@ -820,11 +825,11 @@ class Builder
 			stringstream ss;
 			ss << "~ Uninstalling library from \""
 			   << installPath->GetAbsolutePath() << "\"...";
-			console.WriteLine(ss.str());
+			output->WriteLine(ss.str());
 			installPath->ClearDirectoryContents();
 			if (!!installPath)
 			{
-				console.WriteLine("\t...failed to uninstall!");
+				output->WriteLine("\t...failed to uninstall!");
 				return false;
 			}
 		}

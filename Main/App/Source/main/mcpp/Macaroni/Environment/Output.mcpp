@@ -1,10 +1,14 @@
+~import std::exception;
 ~import boost::format;
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaFunction;
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
+~import Macaroni::InternalSource;
 ~import boost::intrusive_ptr;
+~import boost::optional;
 ~import Macaroni::Exception;
+~import std::stringstream;
 ~import Macaroni::Cpp::UseLightDef;
 
 ~namespace Macaroni::Environment;
@@ -26,6 +30,21 @@ class Output
 		#include <boost/format.hpp>
 	}
 
+	~block "h"
+	{
+	public:
+		enum LEVEL {
+			ERROR,       /* Always displays. */
+			WARN,        /* Always displays. */
+			IMPORTANT,   /* Always displays. */
+			INFO,        /* Medium verbosity. */
+			DEBUG        /* High verbosity. */
+		};
+	}
+
+	class LEVEL { ~hfile=<Macaroni/Environment/Output.h> };
+
+
 	public virtual ~Output()
 	{
 	}
@@ -46,24 +65,25 @@ class Output
 	public virtual void End()
 		@LuaFunction "End" = 0;
 
-	public virtual void Error(const char * msg) const
+
+	public virtual void LuaError(const char * msg)
 		@LuaFunction "Error"
 	{
-		Write(str(format("ERROR!: %s") % msg));
+		WriteAnything(ERROR, msg, false);
 	}
 
-	public void Error(const std::string & msg) const
+	/*public void Error(const std::string & msg) const
 	{
 		Error(msg.c_str());
-	}
+	}*/
 
-	public virtual void ErrorLine(const char * msg) const
+	public void LuaErrorLine(const char * msg)
 		@LuaFunction "ErrorLine"
 	{
-		WriteLine(str(format("ERROR!: %s") % msg));
+		WriteAnything(ERROR, msg, true);
 	}
 
-	public void ErrorLine(const std::string & msg) const
+	/*public void ErrorLine(const std::string & msg) const
 	{
 		ErrorLine(msg.c_str());
 	}
@@ -76,7 +96,7 @@ class Output
 	public void ErrorLine(const std::exception & ex) const
 	{
 		ErrorLine(ex.what());
-	}
+	}*/
 
 	/** If true is returned, the reference will be destroyed. */
 	protected virtual bool releaseReference() = 0;
@@ -85,37 +105,101 @@ class Output
 	public virtual OutputPtr Start(const char * name)
 		@LuaFunction "Start" = 0;
 
-	public virtual void Write(const char * msg) const
-		@LuaFunction "Write" = 0;
+	/** This single function is impemented by subclasses. */
+	protected virtual void WriteAnything(LEVEL level, const char * msg,
+		                                 bool newLine) = 0;
 
-	public void Write(const std::string & msg) const
+	/** Pass in various types. */
+	protected virtual void WriteAnything(LEVEL level, const std::string & msg,
+		                                 bool newLine)
 	{
-		this->Write((const char *) msg.c_str());
+		WriteAnything(level, msg.c_str(), newLine);
+	}
+
+	protected virtual void WriteAnything(LEVEL level, const exception & ex,
+		                                 bool newLine)
+	{
+		WriteAnything(level, ex.what(), newLine);
+	}
+
+	protected virtual void WriteAnything(LEVEL level,
+		                                 const Macaroni::Exception & ex,
+		                                 bool newLine)
+	{
+		WriteAnything(level, ex.where(), false);
+		WriteAnything(level, ex.message(), false);
+		WriteAnything(level, "", newLine);
+	}
+
+	protected void WriteAnything(
+		LEVEL level,
+		const optional<InternalSource> & source,
+		bool nl)
+	{
+		if (source)
+		{
+			stringstream msg;
+			msg << source.get().FileName
+				<< ", line " << source.get().Line;
+			WriteAnything(level, msg.str(), nl);
+		} else {
+			WriteAnything(level, "Source unknown.", nl);
+		}
+	}
+
+	protected virtual void WriteAnything(LEVEL level,
+		                                 const wchar_t * msg,
+		                                 bool newLine)
+	{
+		stringstream ss;
+		ss << msg;
+		WriteAnything(level, ss.str().c_str(), newLine);
 	}
 
 	~block "h" {
 		public:
 		template<class charT, class Traits>
-		inline void Write(const boost::basic_format<charT,Traits> & format) {
-			Write((const char *) format.str().c_str());
+		inline void WriteAnything(
+			LEVEL level,
+			const boost::basic_format<charT,Traits> & format,
+			bool newLine) {
+			WriteAnything(level, (const char *) format.str().c_str(), newLine);
 		}
 	}
 
-	public virtual void WriteLine(const char * msg) const
-		@LuaFunction "WriteLine" = 0;
-
-	public void WriteLine(const std::string & msg) const
+	public virtual void LuaWrite(const char * msg)
+		@LuaFunction "Write"
 	{
-		this->WriteLine((const char *) msg.c_str());
+		WriteAnything(DEBUG, msg, false);
 	}
 
-	~block "h" {
-		public:
-		template<class charT, class Traits>
-		inline void WriteLine(const boost::basic_format<charT,Traits> & format) {
-			WriteLine((const char *) format.str().c_str());
+	public virtual void LuaWriteLine(const char * msg)
+		@LuaFunction "WriteLine"
+	{
+		WriteAnything(DEBUG, msg, true);
+	}
+
+	~block "h"
+	{
+	public:
+		template<typename T>
+		inline void Error(typename T arg) {
+			WriteAnything(ERROR, arg, false);
+		}
+
+		template<typename T>
+		inline void ErrorLine(typename T arg) {
+			WriteAnything(ERROR, arg, true);
+		}
+
+		template<typename T>
+		inline void Write(typename T arg) {
+			WriteAnything(DEBUG, arg, false);
+		}
+
+		template<typename T>
+		inline void WriteLine(typename T arg) {
+			WriteAnything(DEBUG, arg, true);
 		}
 	}
-
-
 };

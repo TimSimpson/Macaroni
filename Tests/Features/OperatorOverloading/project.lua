@@ -8,6 +8,7 @@ SimpleProject{
   group=upper.Group,
   project=upper.Name .. ".OperatorOverloading",
   version=upper.Version,
+  libShortName="MT_OperatorOverloading",
   src="Source",
   target="target",
   dependencies = {

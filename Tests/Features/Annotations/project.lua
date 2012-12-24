@@ -8,6 +8,7 @@ SimpleProject{
   group=upper.Group,
   project=upper.Name .. ".Annotations",
   version=upper.Version,
+  libShortName="ME_Annotations",
   src="Source",
   target="GeneratedSource",
   dependencies = {

@@ -513,7 +513,7 @@ class Macaroni::Environment::ProjectEnvironment
         {
             getLuaEnvironment().ParseString("REPL", cmd);
         } catch(const Macaroni::Exception & me) {
-            output->WriteLine(format("Error parsing : %s")
+            output->ErrorLine(format("Error parsing : %s")
                               % me.message());
             return false;
         }
@@ -521,7 +521,7 @@ class Macaroni::Environment::ProjectEnvironment
         {
             getLuaEnvironment().Run();
         } catch(const Macaroni::Exception & me) {
-            output->WriteLine(format("Error running Lua : %s")
+            output->ErrorLine(format("Error running Lua : %s")
                               % me.message());
             return false;
         }
@@ -602,7 +602,7 @@ class Macaroni::Environment::ProjectEnvironment
 		}
 		catch(...)
 		{
-			loader.GetOutput()->WriteLine("Error copying files!");
+			loader.GetOutput()->ErrorLine("Error copying files!");
 			throw;
 		}
         PathPtr finalProjectFile = dstP.NewPathForceSlash("project-final.lua");
@@ -619,7 +619,7 @@ class Macaroni::Environment::ProjectEnvironment
 				}
 				catch(...)
 				{
-					loader.GetOutput()->WriteLine(format("Error copying file "
+					loader.GetOutput()->ErrorLine(format("Error copying file "
 						"%s to %s!") % a.string().c_str() % b.string().c_str());
 					throw;
 				}

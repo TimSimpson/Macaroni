@@ -8,6 +8,7 @@ SimpleProject{
   group=upper.Group,
   project=upper.Name .. ".Destructors",
   version=upper.Version,
+  libShortName="MT_Dtors",
   src="Source",
   target="GeneratedSource",
   dependencies = {

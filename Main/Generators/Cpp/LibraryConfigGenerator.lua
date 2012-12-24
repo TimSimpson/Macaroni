@@ -20,7 +20,11 @@ BoostConfigIsAvailable = function(library) -- context)
 end
 
 LibraryConfigFile = function(library)
-	return "Config_" .. library:GetCId() .. ".h"
+	if MACARONI_VERSION == "0.1.0.23" then
+		return "Config_" .. library:GetCId() .. ".h"
+	else
+		return library.ShortName or library:GetVersionFreeCId();
+	end
 end
 
 LibraryCreate = function(library)

@@ -8,6 +8,7 @@ SimpleProject{
   group=upper.Group,
   project=upper.Name .. ".LanguageFeatures",
   version=upper.Version,
+  libShortName="MT_LanguageFeatures",
   src="Source",
   target="GeneratedSource",
   dependencies = {

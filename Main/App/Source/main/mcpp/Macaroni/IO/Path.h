@@ -58,7 +58,7 @@ public:
 	/** Deletes all files and directories within this directory.
 	 *  Throws an exception if this is a file or doesn't exist.
 	 *  Boost throws an error if the path is empty as well. */
-	void ClearDirectoryContents();
+	void ClearDirectoryContents(bool throw_if_not_exists=false);
 
 	static void CopyDirectoryContents(boost::filesystem::path & src,
 									  boost::filesystem::path & dst);

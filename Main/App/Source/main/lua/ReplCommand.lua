@@ -77,7 +77,6 @@ function G2(context)
     local root = context.Root;
     local node = root:Find("Macaroni::Environment::Environment");
     local fns = findFunctions(node)
-    print("Repl commands GO!")
 
     -- local newFuncNode= node:FindOrCreate("replCommand");
     -- local axiom = Axiom.LuaCreate("Macaroni::Environment::ReplCommand")

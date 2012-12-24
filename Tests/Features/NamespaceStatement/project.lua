@@ -8,6 +8,7 @@ SimpleProject{
   group=upper.Group,
   project=upper.Name .. "NamespaceStatement",
   version=upper.Version,
+  libShortName="MT_Namespace",
   src="src",
   target="target",
   dependencies = {

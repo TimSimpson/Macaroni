@@ -1,7 +1,7 @@
 require "os"
 require "Macaroni.IO.Path"
 
---upper = getUpperProject();
+upper = getUpperProject();
 
 --dependency {group=upper.Group, name="Macaroni.Tests.Bugs", version=upper.Version}
 --dependency {group="Macaroni.Examples", name="Hello", version="1.0.0.0"}
@@ -9,7 +9,7 @@ require "Macaroni.IO.Path"
 sources = { "source/scripts", "source/www" }
 outputPath = "target"
 
-local version = "0.1.0.25"
+local version = upper.Version
 project = context:Group("Macaroni")
                  :Project("Macaroni.Release")
                  :Version(version)
@@ -80,11 +80,18 @@ function createPureCpp()
     copyFiles(newPath("../Main/App/Source/main/pureCppExtraFiles"), dstDir, [[\.(jam|txt)?$]]);
 end
 
+function generate()
+end
+
+built = false
+
 function build()
+    if built then return end
+    built = true
     load("Macaroni.Examples", "Hello", "1.0.0.0")
     load("Macaroni.Examples", "Blocks", "1.0.0.0")
-    load("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", "0.1.0.25")
-    load("Macaroni", "Macaroni.Tests.Features.LuaGlue", "0.1.0.25")
+    load("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", version)
+    load("Macaroni", "Macaroni.Tests.Features.LuaGlue", version)
 
     createDistributionDirectory(
         "gcc-mingw-4.7.2/release", ".exe",
@@ -121,4 +128,8 @@ function build()
          .. tostring(versionDownloads) .. '.');
     print("TODO: Zip up the directory " .. tostring(versionDownloads)
          .. " - it is your release artifact.");
+end
+
+function install()
+    build()
 end

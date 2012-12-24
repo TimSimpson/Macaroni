@@ -45,7 +45,7 @@ typedef boost::shared_ptr<Manifest> ManifestPtr;
 
 
 class Manifest
-{	
+{
 public:
 	typedef std::pair<std::string, std::string> RunEntry;
 
@@ -61,7 +61,7 @@ public:
 
 	Manifest(LibraryId id, std::vector<LibraryId> deps);
 
-	Manifest(const boost::filesystem::path & manifestFile, 
+	Manifest(const boost::filesystem::path & manifestFile,
 			 const std::string & properties,
 			 ManifestPtr upperManifest,
 			 const bool isCavatappi);
@@ -113,7 +113,7 @@ public:
 		return cppHeadersOutput;
 	}
 
-	inline const std::vector<LibraryId> & GetDependencies() 
+	inline const std::vector<LibraryId> & GetDependencies()
 	{
 		return dependencies;
 	}
@@ -163,20 +163,20 @@ public:
 		return version;
 	}
 
-	//bool RunTarget(const Macaroni::Environment::Console & console, 
+	//bool RunTarget(const Macaroni::Environment::Console & console,
 	//			   GeneratorContextPtr generatorContext, const std::string & name);
 
-	RunResultPtr RunTarget(const Macaroni::Environment::Console & console,
-		           BuildContextPtr iContext, 
-				   const std::string & manifestMethodName, 
+	RunResultPtr RunTarget(Macaroni::Environment::Console & console,
+		           BuildContextPtr iContext,
+				   const std::string & manifestMethodName,
 				   const std::string & generatorMethodName);
 
-	void SaveAs(const boost::filesystem::path & filePath,  
+	void SaveAs(const boost::filesystem::path & filePath,
 				std::vector<std::pair<std::string, std::string> > & runList);
 
 	/** Called when a bug in this Manifest's bug list is executed.
 	 *  Argument libraryResult is null if the nothing was installed. */
-	void SetBugResult(const std::string & bugName, 
+	void SetBugResult(const std::string & bugName,
 					  Macaroni::Model::LibraryPtr libraryResult,
 					  boost::optional<std::string> description);
 
@@ -184,7 +184,7 @@ public:
 	{
 		children = value;
 	}
-	
+
 	inline void SetDescription(std::string & value)
 	{
 		description = value;
@@ -198,8 +198,8 @@ public:
 private:
 	const bool allowCavatappi;
 	bool allowChildFailure;
-	std::vector<MACARONI_VE_CONST std::string> bugs;	
-	std::vector<MACARONI_VE_CONST std::string> children;		
+	std::vector<MACARONI_VE_CONST std::string> bugs;
+	std::vector<MACARONI_VE_CONST std::string> children;
 	std::vector<MACARONI_VE_CONST Configuration> configurations;
 	bool containsCavatappi;
 	std::string cppHeadersOutput;
@@ -210,7 +210,7 @@ private:
 	std::string fOutput;
 	//std::vector<std::string> generators;
 	std::string group;
-	LibraryId id;	
+	LibraryId id;
 	Macaroni::Environment::LuaEnvironment luaEnv;
 	boost::filesystem::path manifestFile;
 	std::string mOutput;

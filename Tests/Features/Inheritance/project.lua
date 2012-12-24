@@ -8,6 +8,7 @@ SimpleProject{
   group=upper.Group,
   project=upper.Name .. ".Inheritance",
   version=upper.Version,
+  libShortName="MT_Inheritance",
   src="Source",
   target="GeneratedSource",
   dependencies = {

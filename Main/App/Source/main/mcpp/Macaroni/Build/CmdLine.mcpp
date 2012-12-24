@@ -70,6 +70,7 @@ class CmdLine
 	private string manifestPath;
 	private optional<path> messagesPath;
 	private bool modeM;
+	private Output * output;
 	private string outputPath;
 	private bool repl;
 	private bool saveCppSource;
@@ -94,6 +95,7 @@ class CmdLine
 		manifestPath(""),
 		messagesPath(),
 		modeM(false),
+		output(&console),
 		outputPath(""),
 		repl(false),
 		saveCppSource(false),
@@ -164,15 +166,15 @@ class CmdLine
 	{
 		if (!inputPath.empty() && outputPath.empty())
 		{
-			console.Write("Missing option outputDirectory.");
+			output->Write("Missing option outputDirectory.");
 		}
 		else if (inputPath.empty() && !outputPath.empty())
 		{
-			console.Write("Missing option inputDirectory.");
+			output->Write("Missing option inputDirectory.");
 		}
 		else
 		{
-			console.Write("Executing compiler directly (no manifest).");
+			output->Write("Executing compiler directly (no manifest).");
 			try
 			{
 				const std::vector<MACARONI_VE_CONST std::string> generators;
@@ -187,10 +189,11 @@ class CmdLine
 				LibraryPtr library = context->FindOrCreateLibrary("", "Command Line", "???");
 				compiler.Compile(library, options);
 			}
-			catch(Macaroni::Exception & ex)
+			catch(const Macaroni::Exception & ex)
 			{
-				console.Write("UNHANDLED EXCEPTION:\n");
-				console.WriteLine(ex);
+				output->Error("UNHANDLED EXCEPTION:\n");
+				output->ErrorLine(ex.where());
+				output->ErrorLine(ex.message());
 			}
 		}
 	}
@@ -280,7 +283,7 @@ class CmdLine
 		{
 			if (next.empty())
 			{
-				console.Write("No generator path given following \"generatorPath\" arg.");
+				output->Write("No generator path given following \"generatorPath\" arg.");
 			}
 			else
 			{
@@ -295,7 +298,7 @@ class CmdLine
 		{
 			if (next.empty())
 			{
-				console.Write("No library repo path given following \"libraryRepoPath\" arg.");
+				output->Write("No library repo path given following \"libraryRepoPath\" arg.");
 			}
 			else
 			{
@@ -306,7 +309,7 @@ class CmdLine
 		{
 			if (next.empty())
 			{
-				console.Write("No input specified for luaTests command.");
+				output->Write("No input specified for luaTests command.");
 			}
 			else
 			{
@@ -317,7 +320,7 @@ class CmdLine
 		{
 			if (next.empty())
 			{
-				console.Write("No input directory given following \"-inputDirectory\" arg.");
+				output->Write("No input directory given following \"-inputDirectory\" arg.");
 			}
 			else
 			{
@@ -328,7 +331,7 @@ class CmdLine
 		{
 			if (next.empty())
 			{
-				console.WriteLine("No file given following \"manifest\" arg.");
+				output->WriteLine("No file given following \"manifest\" arg.");
 			}
 			else
 			{
@@ -339,7 +342,7 @@ class CmdLine
 		{
 			if (next.empty())
 			{
-				console.Write("No messages path given following "
+				output->Write("No messages path given following "
 				              "\"messagesPath\" arg.");
 			}
 			else
@@ -358,7 +361,7 @@ class CmdLine
 		{
 			if (next.empty())
 			{
-				console.Write("No output directory given following \"-outputDirectory\" arg.");
+				output->Write("No output directory given following \"-outputDirectory\" arg.");
 			}
 			else
 			{
@@ -394,7 +397,7 @@ class CmdLine
 
 	private void printAboutText()
 	{
-		console.WriteLine(
+		output->WriteLine(
 		#include <Macaroni/AboutText.h>
 			);
 	}
@@ -413,7 +416,7 @@ class CmdLine
 
 	private void runLuaTests()
 	{
-		console.WriteLine("Running arbitrary LUA files.");
+		output->WriteLine("Running arbitrary LUA files.");
 		Macaroni::Environment::LuaEnvironment lua;
 		std::vector<std::string> paths;
 		paths.push_back(luaTestsPath);
@@ -440,9 +443,9 @@ class CmdLine
 		/*const Configuration * mConfig = manifest.GetConfiguration(config);
 		if (mConfig == nullptr)
 		{
-			console.Write("Could not find config \"");
-			console.Write(config);
-			console.Write("\" in manifest.");
+			output->Write("Could not find config \"");
+			output->Write(config);
+			output->Write("\" in manifest.");
 			return;
 		}
 		const Configuration & mRefConfig = *mConfig;*/

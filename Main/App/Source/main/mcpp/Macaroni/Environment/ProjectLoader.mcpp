@@ -313,6 +313,7 @@ class Macaroni::Environment::ProjectLoader
         const path & projectPath, optional<ProjectVersionId> expectedPvId)
     {
         LOG_DEBUG("LoadProjectEnvironment")
+        LOG_DEBUG(projectPath.string().c_str())
         /** Check if this file was already loaded. */
         if (!boost::filesystem::exists(projectPath))
         {
@@ -326,7 +327,7 @@ class Macaroni::Environment::ProjectLoader
         }
         catch(const Macaroni::Exception & me)
         {
-            output->WriteLine(format("Error parsing file %s : %s")
+            output->ErrorLine(format("Error parsing file %s : %s")
                               % projectPath.string() % me.message());
             if (expectedPvId)
             {

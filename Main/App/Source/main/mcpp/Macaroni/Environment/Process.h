@@ -33,12 +33,12 @@ namespace Macaroni { namespace Environment {
 class Process
 {
 public:
-	Process(boost::optional<boost::filesystem::path> & fileName, 
-		    const std::vector<MACARONI_VE_CONST std::string> & args, 
+	Process(boost::optional<boost::filesystem::path> & fileName,
+		    const std::vector<MACARONI_VE_CONST std::string> & args,
 			boost::filesystem::path workingDirectory,
 		    const std::vector<MACARONI_VE_CONST std::string> paths,
 			const std::vector<StringPair> & envVariables);
-	bool Run(const Console & console);
+	bool Run(Console & console);
 private:
 
 	std::vector<MACARONI_VE_CONST std::string> args;

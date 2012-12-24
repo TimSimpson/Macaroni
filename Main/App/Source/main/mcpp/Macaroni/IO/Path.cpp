@@ -95,17 +95,20 @@ void Path::assertPathExistsInRootPath()
 	}
 }
 
-void Path::ClearDirectoryContents()
+void Path::ClearDirectoryContents(bool throw_if_not_exists)
 {
 	if (!Exists())
 	{
-		std::stringstream ss;
-		ss << "Can't clear directory contents from path \"" << path.string()
-		   << "\" as it does not exist.";
-		std::string msg(ss.str());
-		throw Macaroni::StringException(msg.c_str());
+		if (throw_if_not_exists)
+		{
+			std::stringstream ss;
+			ss << "Can't clear directory contents from path \"" << path.string()
+		   	   << "\" as it does not exist.";
+			std::string msg(ss.str());
+			throw Macaroni::StringException(msg.c_str());
+		}
 	}
-	if (!IsDirectory())
+	else if (!IsDirectory())
 	{
 		std::stringstream ss;
 		ss << "Cannot clear directory contents from path \"" << path.string()

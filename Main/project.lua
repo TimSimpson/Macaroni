@@ -4,12 +4,10 @@ require "SimpleProject"
 upper = getUpperProject();
 
 ParentProject{
-  group=upper.Group,
-  project="Macaroni.Tests",
+  group="Macaroni",
+  project="Macaroni.Main",
   version=upper.Version,
   children={
-    --"Bugs",
-    "Examples",
-    "Features",
+   -- "App",
   }
 }
