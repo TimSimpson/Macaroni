@@ -1,6 +1,6 @@
 require "os"
 require "Macaroni.IO.Path"
---upper = getUpperProject();
+
 
 project = context
     :Group("Macaroni")
