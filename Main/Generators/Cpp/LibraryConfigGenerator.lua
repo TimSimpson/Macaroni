@@ -23,7 +23,8 @@ LibraryConfigFile = function(library)
 	if MACARONI_VERSION == "0.1.0.23" then
 		return "Config_" .. library:GetCId() .. ".h"
 	else
-		return library.ShortName or library:GetVersionFreeCId();
+		return "Config_" ..
+			(library.ShortName or library:GetVersionFreeCId()) .. ".h";
 	end
 end
 

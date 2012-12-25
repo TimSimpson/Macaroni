@@ -60,7 +60,7 @@ such file, which you might have noticed being #include'd by the "Point" class
 above.</p>
 
 <~lua
-showFile("Macaroni.Examples", "Hello", "1.0.0.0", "target/Config_Macaroni_46_Examples___Hello____49__46_0_46_0_46_0___lib.h");
+showFile("Macaroni.Examples", "Hello", "1.0.0.0", "target/Config_HelloApp.h");
 ~>
 
 <h3>Easily hide functions for quicker compile times.</h3>
@@ -72,19 +72,19 @@ Macaroni controls both static interfaces does not lead to bugs either). As a res
 
 <p>Example:</p>
 <~lua
-showFile("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", "0.1.0.25",
+showFile("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", "0.1.0.26",
          "Source/Something.mcpp");
 ~>
 
 <p>Header file (notice the omission of SetX and SetY):</p>
 <~lua
-showFile("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", "0.1.0.25",
+showFile("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", "0.1.0.26",
          "target/Something.h");
 ~>
 
 <p>Implementation file (notice the "internal" header has SetX and SetY):</p>
 <~lua
-showFile("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", "0.1.0.25",
+showFile("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", "0.1.0.26",
          "target/Something.cpp");
 ~>
 
@@ -98,27 +98,27 @@ the annotations. This plugin is used extensively on Macaroni itself.</p>
 <b>Example:</b><br/>
 <p>Macaroni Source File:</p>
 <~lua
-showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", "0.1.0.25",
+showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", "0.1.0.26",
          "Source/PoloName.mcpp");
 ~>
 <p>Generated Header File:</p>
 <~lua
-showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", "0.1.0.25",
+showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", "0.1.0.26",
          "GeneratedSource/Macaroni/Tests/Lua/PoloName.h");
 ~>
 <p>Generated Impl File:</p>
 <~lua
-showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", "0.1.0.25",
+showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", "0.1.0.26",
          "GeneratedSource/Macaroni/Tests/Lua/PoloName.cpp");
 ~>
 <p>Generated Lua Glue Class Header File:</p>
 <~lua
-showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", "0.1.0.25",
+showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", "0.1.0.26",
          "GeneratedSource/Macaroni/Tests/Lua/PoloNameLuaMetaData.h");
 ~>
 <p>Generated Lua Glue Class Impl File:</p>
 <~lua
-showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", "0.1.0.25",
+showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", "0.1.0.26",
          "GeneratedSource/Macaroni/Tests/Lua/PoloNameLuaMetaData.cpp");
 ~>
 

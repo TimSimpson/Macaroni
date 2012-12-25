@@ -80,14 +80,14 @@ function cmd_build_release() {
     init_build
     #bjam -d+2 --toolset=gcc cxxflags=-std=gnu++11 link=static threading=multi \
     #    release
-    bjam -d+2 cflags=-m32  cxxflags=-m32 \
-        address-model=32 --toolset=gcc cxxflags=-std=gnu++11 \
+    # bjam -d+2 cflags=-m32  cxxflags=-m32 \
+    #     address-model=32 --toolset=gcc cxxflags=-std=gnu++11 \
+    #     link=static threading=multi \
+    #      architecture=x86 instruction-set=i686
+    bjam -d+2 -j4 cflags=-m32  cxxflags=-m32 \
+        --toolset=gcc cxxflags=-std=gnu++11 \
         link=static threading=multi \
-         architecture=x86 instruction-set=i686
-    bjam -d+2 cflags=-m32  cxxflags=-m32 \
-        address-model=32 --toolset=gcc cxxflags=-std=gnu++11 \
-        link=static threading=multi \
-         architecture=x86 instruction-set=i686 release
+         release $@
 }
 
 function cmd_unit_test() {
@@ -173,7 +173,7 @@ case "$1" in
         "debug" ) shift 1; cmd_debug $@;;
         "install_gcc" ) install_gcc;;
         "install_lua" ) install_lua;;
-        "build-release" ) cmd_build_release;;
+        "build-release" ) shift 1; cmd_build_release $@;;
         "all-tests" ) shift 1; cmd_all_tests $@;;
     * )
     cmd_help $1

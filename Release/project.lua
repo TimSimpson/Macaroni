@@ -94,17 +94,17 @@ function build()
     load("Macaroni", "Macaroni.Tests.Features.LuaGlue", version)
 
     createDistributionDirectory(
-        "GeneratedSource/bin/gcc-mingw-4.7.2/release", ".exe",
+        "bin/gcc-mingw-4.7.2/release", ".exe",
         "target/macaroni-" .. version .. "-windows")
     createDistributionDirectory(
-        "GeneratedSource/bin/gcc-mingw-4.7.2/debug", ".exe",
+        "bin/gcc-mingw-4.7.2/debug", ".exe",
         "target/macaroni-" .. version .. "-windows-debug")
-    createDistributionDirectory(
-        "bin/gcc-4.7/release", "",
-        "target/macaroni-" .. version .. "-ubuntu-64")
-    createDistributionDirectory(
-        "bin/gcc-4.7/debug", "",
-        "target/macaroni-" .. version .. "-ubuntu-64-debug")
+    -- createDistributionDirectory(
+    --     "bin/gcc-4.7/release", "",
+    --     "target/macaroni-" .. version .. "-ubuntu-64")
+    -- createDistributionDirectory(
+    --     "bin/gcc-4.7/debug", "",
+    --     "target/macaroni-" .. version .. "-ubuntu-64-debug")
     createDistributionDirectory(
         "bin/gcc-4.7/debug/address-model-32/architecture-x86/instruction-set-i686", "",
         "target/macaroni-" .. version .. "-ubuntu-32-debug")

@@ -9,5 +9,10 @@ SET GEN_PATH=%CAVATAPPI%\..\Generators
 echo GEN_PATH=%GEN_PATH%
 dir %GEN_PATH%
 REM %CAVATAPPI%\..\App\Debug\MacaroniVS11.exe generatorPath %GEN_PATH% libraryRepoPath %CAVATAPPI%\..\Libraries messagesPath %CAVATAPPI%\..\App\Source\main\resources cavatappi %*
+
+REM %CAVATAPPI%\..\App\GeneratedSource\exe\macaroni.exe generatorPath %GEN_PATH% libraryRepoPath %CAVATAPPI%\..\Libraries messagesPath %CAVATAPPI%\..\App\Source\main\resources cavatappi %*
+
+
+
 REM %CAVATAPPI%\..\App\bin\gcc-mingw-4.7.2\debug\link-static\threading-multi\macaroni.exe generatorPath %GEN_PATH% libraryRepoPath %CAVATAPPI%\..\Libraries messagesPath %CAVATAPPI%\..\App\Source\main\resources cavatappi %*
-%CAVATAPPI%\..\App\GeneratedSource\exe\macaroni.exe generatorPath %GEN_PATH% libraryRepoPath %CAVATAPPI%\..\Libraries messagesPath %CAVATAPPI%\..\App\Source\main\resources cavatappi %*
+%CAVATAPPI%\..\App\bin\msvc-11.0\debug\link-static\threading-multi\macaroni.exe generatorPath %GEN_PATH% libraryRepoPath %CAVATAPPI%\..\Libraries messagesPath %CAVATAPPI%\..\App\Source\main\resources cavatappi %*
