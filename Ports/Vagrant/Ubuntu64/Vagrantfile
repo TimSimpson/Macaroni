@@ -1,6 +1,6 @@
 Vagrant::Config.run do |config|
 
   config.vm.box = "precise64"
-  config.vm.share_folder "source", "/macaroni", "../"
+  config.vm.share_folder "source", "/macaroni", "../../../"
 
 end
