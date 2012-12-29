@@ -71,12 +71,51 @@ function createDistributionDirectory(jamConfig, ext, dstDir, errorHint)
         :CopyToDifferentRootPath(dstDir, true);
 end
 
-function createDistribution(jamConfig, ext, dstPath)
+
+function createDistributionDirectoryAndZip(args)
+    local dstPath = "target/macaroni-" .. version .. args.tag
     local dstDir = newPath(dstPath);
-    createDistributionDirectory(jamConfig, ext, dstDir)
+    createDistributionDirectory(args.binPath, args.ext, dstDir, args.errorHint)
     zipDirectory(dstDir)
 end
 
+
+function createDistributionArgs(args)
+    local distArgs = nil
+    if args.windows then
+        distArgs = {
+                binPath = "gcc-mingw-4.7.2", ext = ".exe", tag = "-windows",
+                errorHint = [[
+    Enter the pure Cpp directory in Windows and execute:
+    bjam -d+2 -j8 --toolset=gcc cxxflags=-std=gnu++11 link=static threading=multi]]
+               }
+    else
+        distArgs = {
+                 binPath = "gcc-4.7", ext = "", tag="-ubuntu",
+                 errorHint = [[
+    In the Ubuntu ]] .. tostring(args.bits) .. [[ VM, execute
+    /vagrant/mbuild build.sh]]
+              }
+    end
+    if args.release then
+        distArgs.binPath = distArgs.binPath .."/release"
+        distArgs.errorHint = distArgs.errorHint .. " release"
+    else
+        distArgs.binPath = distArgs.binPath .. "/debug"
+        distArgs.tag = distArgs.tag .. "-debug"
+    end
+    if args.bits then
+        distArgs.binPath = distArgs.binPath .. "/address-model-"
+                           .. tostring(args.bits)
+        distArgs.tag = distArgs.tag .. "-" .. tostring(args.bits)
+    end
+    return distArgs;
+end
+
+function createDistribution(args)
+    local distArgs = createDistributionArgs(args)
+    createDistributionDirectoryAndZip(distArgs);
+end
 
 function createDistributionDirectoryBase(dstDir)
     copyFiles(newPath("../../Main"):NewPath("/Generators"),
@@ -106,52 +145,8 @@ function build()
     load("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", version)
     load("Macaroni", "Macaroni.Tests.Features.LuaGlue", version)
 
-    createDistribution(
-        "gcc-mingw-4.7.2/release", ".exe",
-        "target/macaroni-" .. version .. "-windows",
-        [[
-        Enter the pure Cpp directory in Windows and execute:
-        $ bjam -d+2 -j8 --toolset=gcc cxxflags=-std=gnu++11 link=static threading=multi release
-        ]])
-    createDistribution(
-        "gcc-mingw-4.7.2/debug", ".exe",
-        "target/macaroni-" .. version .. "-windows-debug",
-        [[
-        Enter the pure Cpp directory in Windows and execute:
-        $ bjam -d+2 -j8 --toolset=gcc cxxflags=-std=gnu++11 link=static threading=multi
-        ]])
-
-    createDistribution(
-        "gcc-4.7/release/address-model-32", "",
-        "target/macaroni-" .. version .. "-ubuntu-32",
-        [[
-        In the Ubuntu 32 VM, execute
-        /vagrant/mbuild build.sh release
-        ]])
-    createDistribution(
-        "gcc-4.7/debug/address-model-32", "",
-        "target/macaroni-" .. version .. "-ubuntu-32-debug",
-        [[
-        In the Ubuntu 32 VM, execute
-        /vagrant/mbuild build.sh
-        ]])
-
-    createDistribution(
-        "gcc-4.7/release/address-model-64", "",
-        "target/macaroni-" .. version .. "-ubuntu-64",
-        [[
-        In the Ubuntu 64 VM, execute
-        /vagrant/mbuild build.sh release
-        ]])
-    createDistribution(
-        "gcc-4.7/debug/address-model-64", "",
-        "target/macaroni-" .. version .. "-ubuntu-64-debug",
-        [[
-        In the Ubuntu 64 VM, execute
-        /vagrant/mbuild build.sh
-        ]])
-
     createPureCpp();
+
     local site = plugins:Get("Site")
     site:Run("build", {
         project=project,
@@ -160,13 +155,13 @@ function build()
         output=output,
         context=context
     });
-    -- local versionDownloads = dir:NewPathForceSlash(
-    --      "target/www/site/downloads/" ..version);
-    -- versionDownloads:CreateDirectory();
-    -- print("TODO: Zip up distirubiton directory and pure CPP directory and place in "
-    --      .. tostring(versionDownloads) .. '.');
-    -- print("TODO: Zip up the directory " .. tostring(versionDownloads)
-    --      .. " - it is your release artifact.");
+
+    createDistribution{windows=true,  release=false };
+    createDistribution{windows=true,  release=true  };
+    createDistribution{windows=false, release=false, bits=32 };
+    createDistribution{windows=false, release=true,  bits=32 };
+    createDistribution{windows=false, release=false, bits=64 };
+    createDistribution{windows=false, release=true,  bits=64 };
 end
 
 function install()
