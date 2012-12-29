@@ -4,9 +4,9 @@
     #error this file is not editable by Visual C++
 #endif //APSTUDIO_INVOKED
 
-//Argh, the below line works in Boost.Build but not VS2008.
-/// #include <Macaroni/VersionNo.h>
-#include "../../../GeneratedSource/Macaroni/VersionNo.h"
+
+#include <Macaroni/VersionNo.h>
+
 
 #define FILEVER        MACARONI_VERSION
 #define PRODUCTVER     MACARONI_VERSION

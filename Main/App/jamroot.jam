@@ -14,9 +14,6 @@
 ## limitations under the License.
 ################################################################################
 
-#TODO: This file has become just a way to build Macaroni w/o Macaroni
-#      (on Linux in a VM). Move it somewhere else.
-
 # Root jam file for "pure" C++ version of Macaroni
 
 #using boost

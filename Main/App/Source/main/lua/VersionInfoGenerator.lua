@@ -89,6 +89,11 @@ FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE,
 ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 ]]
+    return about;
+end
+
+function aboutTextCString(version)
+    local about = aboutText(version);
 	local aboutT = string.gsub("~ " .. about, "\"", "\\\"")
 	local aboutT = string.gsub(aboutT, "\n", "\\n\"\n\"~ ");
 	return [[
@@ -115,7 +120,8 @@ function Generate(library, path)
     local commaVersion = string.gsub(library.Version, "%.", "\,");
     local version = library.Version;
     createVersionNoH(path, library)
-    createAbout(path, library)
+    createAboutTextH(path, library)
+    createAboutTxt(path, library)
 end
 
 function GetMethod(name)
@@ -124,17 +130,25 @@ function GetMethod(name)
         {
             Run = function(args)
                 createVersionNoH(args.path, args.projectVersion)
-                createAbout(args.path, args.projectVersion)
+                createAboutTextH(args.path, args.projectVersion)
+                createAboutTxt(args.path, args.projectVersion)
             end,
         };
     end
 end
 
-function createAbout(path, library)
+function createAboutTxt(path, library)
+    local version = library.Version;
+    local file = path:NewPathForceSlash("LICENSE.txt");
+    local writer = file:CreateFile();
+    writer:Write(aboutText(version));
+end
+
+function createAboutTextH(path, library)
 	local version = library.Version;
 	local file = path:NewPath("/Macaroni/AboutText.h");
     local writer = file:CreateFile();
-	writer:Write(aboutText(version));
+	writer:Write(aboutTextCString(version));
 end
 
 function createVersionNoH(path, library)

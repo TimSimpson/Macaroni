@@ -16,6 +16,10 @@ local newPath = function(subPath)
     return p:NewPathForceSlash(subPath)
 end
 
+local newRootPath = function(subPath)
+    return newPath(subPath):CreateWithCurrentAsRoot()
+end
+
 local stopWatch = function(label)
     local startTime = os.time()
     return function()
@@ -25,6 +29,28 @@ local stopWatch = function(label)
         return endTime - startTime
     end
 end
+
+local copyFiles = function(src, dst, regex)
+    local filePaths = src:GetPaths(regex)
+    for i = 1, #filePaths do
+        local fp = filePaths[i];
+        fp:CopyToDifferentRootPath(dst, true);
+        -- print(tostring(fp));
+    end
+end
+
+local copyCppFiles = function(src, dst)
+    copyFiles(src, dst, [[\.(c|cpp|h|hpp)?$]]);
+end
+
+function copyJamFiles(src, dst)
+    copyFiles(src, dst, [[\.jam?$]]);
+end
+
+function copyResourceFiles(src, dst)
+    copyFiles(src, dst, [[\.(ico|rc|rc2|h)?$]]);
+end
+
 
 ---------------------------------------------------------------------------
 -- Plugins
@@ -190,9 +216,24 @@ build = function()
           error("Failure running Boost Build!")
       end
   end
+
+  local createPureCpp = function()
+      -- Creates a directory with the pure C++ source.
+      local dstDir = newRootPath("PureCpp");
+      copyCppFiles(newRootPath("../Dependencies/Lua/target"), dstDir);
+      copyCppFiles(newRootPath("Source/main/mcpp"), dstDir);
+      copyResourceFiles(newRootPath("Source/main/resources"), dstDir);
+      copyCppFiles(newRootPath("GeneratedSource"), dstDir);
+      copyFiles(newRootPath("Source/main/pureCppExtraFiles"), dstDir,
+                [[\.(jam|txt)?$]]);
+      -- copy license
+      newRootPath("GeneratedSource"):NewPathForceSlash("LICENSE.txt")
+        :CopyToDifferentRootPath(dstDir, true);
+  end
   if not built then
       generate()
       callBjam()
+      createPureCpp()
       built = true
   end
 end

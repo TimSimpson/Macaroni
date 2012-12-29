@@ -12,31 +12,54 @@
 ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 ## See the License for the specific language governing permissions and
 ## limitations under the License.
+##
 ################################################################################
 
-# Root jam file for "pure" C++ version of Macaroni
+################################################################################
+#
+#   This is a pure C++ source distribution of Macaroni, and for
+#   convience includes third party components.
+#   See LICENSE.txt for details.
+#
+#
+#   INSTRUCTIONS:
+#
+#		Install the Boost libraries, and Boost Build.
+#
+#       To "use" the correct version of the Boost libraries, you'll need
+#       to configure Boost Build by adding a file named "user-config.jam"
+#       to your home directory. Put this somewhere in the contents:
+#
+#            using boost
+#              : 1.52
+#              : <include>C:/Tools/Boost/boost_1_52_0
+#                <library>C:/Tools/Boost/boost_1_52_0/stage/lib
+#              ;
+#
+#
+################################################################################
 
 import boost ;
-boost.use-project 1.46.1 ;
+boost.use-project 1.52 ;
 
 alias sources
 	:	[ glob-tree *.c	: .svn ]
-		[ glob-tree *.cpp	
-		 : 
-		  .svn *Test.cpp *Tests.cpp Main.cpp 
-		  lua.cpp lu.cpp.cpp  # <-- Don't know where this comes from.
+		[ glob-tree *.cpp
+		 :
+		  *Test.cpp *Tests.cpp Macaroni.cpp
+		  lua.cpp lu.cpp.cpp luac.cpp
 		  ]
 		/boost//filesystem
-		/boost//regex			
+		/boost//regex
 		/boost//system
-	:	<include>./	
+	:	<include>./
 	;
 
-exe macaroni_p  # In linux it can't create the file because the name is the 
-                # same as a directory.
+exe macaroni_p  # In linux it can't create the file "macaroni" (without the p)
+                # because the name is the same as a directory.
 	:	sources
-		Main.cpp
-		Macaroni.rc	
+		Macaroni.cpp
+		Macaroni.rc
 	:
 		<include>./
 		<target-os>linux:<define>MACARONI_COMPILE_TARGET_LINUX

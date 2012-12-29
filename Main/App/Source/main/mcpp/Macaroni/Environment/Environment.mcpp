@@ -226,12 +226,15 @@ class Macaroni::Environment::Environment
 			Summary = "Who is justice?"
 		]
 	{
-		output->WriteLine("");
-		output->WriteLine("           ~'o'~");
-		output->WriteLine("           \\___/");
-		output->WriteLine("");
-		output->WriteLine("             ^");
-        output->WriteLine("      ( I AM JUSTICE! )");
+output->WriteLine("    _____________________    ");
+output->WriteLine("   /                     \\   ");
+output->WriteLine("  |   I AM JUSTICE!!!!    |  ");
+output->WriteLine("   \\_______________  ____/   ");
+output->WriteLine("     ....          \\|   _    ");
+output->WriteLine("     ( '' \"\"\"....__.  __ )-)( ");
+output->WriteLine("    (_. (____''' ___=)'_)_(/_)_ ");
+output->WriteLine("       (________""   \\(--(----- / ");
+output->WriteLine("                     \\________/  ");
         output->WriteLine("");
 		return true;
 	}
