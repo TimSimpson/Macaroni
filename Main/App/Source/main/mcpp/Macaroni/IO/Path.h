@@ -68,6 +68,10 @@ public:
 
 	static void CopyDirectoryContents(Path & src, Path & dst);
 
+	/** Copies the file at path to somewhere else. */
+	void CopyTo(boost::filesystem::path newPath,
+		        bool overrideIfExist = false);
+
 	/** An example would be to copy a file from "src/blah/a.txt" to
 	 * "output/blah/a.txt", where "src" is the original root path and
 	 * "output" is the argument to this function. */

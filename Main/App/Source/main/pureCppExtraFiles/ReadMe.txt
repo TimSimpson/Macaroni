@@ -1,12 +1,18 @@
-                              
-                              Macaroni for C++
-                               How to Compile
+ Macaroni for C++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This is a pure C++ source distribution of Macaroni, and for convenience
+includes third party dependency code.
+
+See LICENSE.txt for details.
+
+
 
 
 ********************************************************************************
-       Ubuntu 
+       Ubuntu
 ********************************************************************************
-      
+
 Make sure you have the Boost libraries installed.  You'll also need the file
 "site-config.jam" to be in your home directory.
 

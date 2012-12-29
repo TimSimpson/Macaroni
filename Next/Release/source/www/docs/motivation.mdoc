@@ -72,19 +72,19 @@ Macaroni controls both static interfaces does not lead to bugs either). As a res
 
 <p>Example:</p>
 <~lua
-showFile("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", "0.1.0.26",
+showFile("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", project.Version,
          "Source/Something.mcpp");
 ~>
 
 <p>Header file (notice the omission of SetX and SetY):</p>
 <~lua
-showFile("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", "0.1.0.26",
+showFile("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", project.Version,
          "target/Something.h");
 ~>
 
 <p>Implementation file (notice the "internal" header has SetX and SetY):</p>
 <~lua
-showFile("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", "0.1.0.26",
+showFile("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", project.Version,
          "target/Something.cpp");
 ~>
 
@@ -98,27 +98,27 @@ the annotations. This plugin is used extensively on Macaroni itself.</p>
 <b>Example:</b><br/>
 <p>Macaroni Source File:</p>
 <~lua
-showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", "0.1.0.26",
+showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", project.Version,
          "Source/PoloName.mcpp");
 ~>
 <p>Generated Header File:</p>
 <~lua
-showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", "0.1.0.26",
+showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", project.Version,
          "GeneratedSource/Macaroni/Tests/Lua/PoloName.h");
 ~>
 <p>Generated Impl File:</p>
 <~lua
-showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", "0.1.0.26",
+showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", project.Version,
          "GeneratedSource/Macaroni/Tests/Lua/PoloName.cpp");
 ~>
 <p>Generated Lua Glue Class Header File:</p>
 <~lua
-showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", "0.1.0.26",
+showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", project.Version,
          "GeneratedSource/Macaroni/Tests/Lua/PoloNameLuaMetaData.h");
 ~>
 <p>Generated Lua Glue Class Impl File:</p>
 <~lua
-showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", "0.1.0.26",
+showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", project.Version,
          "GeneratedSource/Macaroni/Tests/Lua/PoloNameLuaMetaData.cpp");
 ~>
 

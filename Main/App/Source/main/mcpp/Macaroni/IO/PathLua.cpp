@@ -162,17 +162,32 @@ END_NAMESPACE2
 
 #include "../LuaGlue.hpp"
 
+	static int copyTo(lua_State * L)
+	{
+		TRY
+			PathPtr me = getInstance(L, 1);
+			PathPtr rootPath = getInstance(L, 2);
+			bool overwrite = false;
+			if (lua_isboolean(L, 3))
+			{
+				overwrite = (lua_toboolean(L, 3) == 1);
+			}
+			me->CopyTo(rootPath->GetPath(), overwrite);
+			return 0;
+		CATCH
+	}
+
 	static int copyToDifferentRootPath(lua_State * L)
 	{
 		TRY
 			PathPtr me = getInstance(L, 1);
 			PathPtr rootPath = getInstance(L, 2);
-			bool ovride = false;
+			bool overwrite = false;
 			if (lua_isboolean(L, 3))
 			{
-				ovride = (lua_toboolean(L, 3) == 1);
+				overwrite = (lua_toboolean(L, 3) == 1);
 			}
-			me->CopyToDifferentRootPath(rootPath, ovride);
+			me->CopyToDifferentRootPath(rootPath, overwrite);
 			return 0;
 		CATCH
 	}
@@ -243,6 +258,11 @@ END_NAMESPACE2
 		{
 			std::string absPath = ptr->GetAbsolutePathForceSlash();
 			lua_pushstring(L, absPath.c_str());
+			return 1;
+		}
+		else if (index == "CopyTo")
+		{
+			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::copyTo);
 			return 1;
 		}
 		else if (index == "CopyToDifferentRootPath")

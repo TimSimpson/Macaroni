@@ -154,6 +154,18 @@ void Path::CopyDirectoryContents(Path & src,
 	}
 }
 
+void Path::CopyTo(boost::filesystem::path newPath, bool overrideIfExist)
+{
+	if (boost::filesystem::exists(newPath))
+	{
+		if (overrideIfExist)
+		{
+			boost::filesystem::remove(newPath);
+		}
+	}
+	boost::filesystem::copy_file(this->path, newPath);
+}
+
 void Path::CopyToDifferentRootPath(boost::filesystem::path newRootPath,
 								   bool overrideIfExist)
 {

@@ -1,6 +1,7 @@
 require "os"
 require "Macaroni.IO.Path"
 
+
 upper = getUpperProject();
 
 --dependency {group=upper.Group, name="Macaroni.Tests.Bugs", version=upper.Version}
@@ -25,10 +26,15 @@ function copyCppFiles(src, dst)
 end
 
 function copyFiles(src, dst, regex)
+    -- Copy all files from the src directory into the dst directory
+    -- if they match regex.
     local filePaths = src:GetPaths(regex)
     for i = 1, #filePaths do
         local fp = filePaths[i];
-        fp:CopyToDifferentRootPath(dst, true);
+        local copy = true;
+        if copy then
+            fp:CopyToDifferentRootPath(dst, true);
+        end
         -- print(tostring(fp));
     end
 end
@@ -41,43 +47,50 @@ function copyResourceFiles(src, dst)
     copyFiles(src, dst, [[\.(ico|rc|rc2|h)?$]]);
 end
 
-function createDistributionDirectory(jamConfig, ext, dstPath)
-    local dstDir = newPath(dstPath);
+function zipDirectory(dstPath)
+    local scriptPath = newPath("source/scripts/zip_it.py")
+    cmd = "python "
+        .. " " .. scriptPath.AbsolutePath
+        .. " " .. dstPath.AbsolutePath
+        .. " " .. dstPath.AbsolutePath;
+    os.execute(cmd)
+end
+
+function createDistributionDirectory(jamConfig, ext, dstDir, errorHint)
+    local macaroniBinary = newPath(
+        "../../Main/App/PureCpp/bin/" .. jamConfig
+         .. "/link-static/threading-multi"):NewPath("/macaroni_p" .. ext)
+    if not macaroniBinary.Exists then
+        output:ErrorLine("Missing file " .. macaroniBinary.AbsolutePath .. "!")
+        output:ErrorLine("Hint:" .. errorHint)
+        error("Missing Macaroni binary.")
+    end
     createDistributionDirectoryBase(dstDir)
-    newPath("../Main/App/" .. jamConfig
-             .. "/link-static/threading-multi"):NewPath("/macaroni" .. ext)
-        :CopyToDifferentRootPath(dstDir, true);
-    newPath("../Main/App/Source/main/resources"):NewPath("/Messages.txt")
+    macaroniBinary:CopyTo(dstDir:NewPathForceSlash("macaroni" .. ext), true);
+    newPath("../../Main/App/Source/main/resources"):NewPath("/Messages.txt")
         :CopyToDifferentRootPath(dstDir, true);
 end
 
--- function createReleaseDistributionDirectory()
---     createDistributionDirectory("release", "target/macaroni-" .. version)
--- end
--- function createDebugDistributionDirectory()
---     createDistributionDirectory("debug",
---                                 "target/macaroni-" .. version .. "-debug")
---     -- local dstDir = newPath("target/macaroni-" .. version .. "-debug");
---     -- createDistributionDirectoryBase(dstDir)
---     -- newPath("../Main/App/GeneratedSource/release/debug"):NewPath("/macaroni.exe")
---     --     :CopyToDifferentRootPath(dstDir, true);
---     -- newPath("../Main/App/GeneratedSource/release/debug"):NewPath("/messages.txt")
---     --     :CopyToDifferentRootPath(dstDir, true);
--- end
+function createDistribution(jamConfig, ext, dstPath)
+    local dstDir = newPath(dstPath);
+    createDistributionDirectory(jamConfig, ext, dstDir)
+    zipDirectory(dstDir)
+end
+
 
 function createDistributionDirectoryBase(dstDir)
-    copyFiles(newPath("../Main"):NewPath("/Generators"), dstDir, [[\.lua?$]]);
-    copyFiles(newPath("../Main"):NewPath("/Libraries"), dstDir, [[\.(jam|lua|mh)?$]]);
+    copyFiles(newPath("../../Main"):NewPath("/Generators"),
+              dstDir, [[\.lua?$]]);
+    copyFiles(newPath("../../Main"):NewPath("/Libraries"),
+              dstDir, [[\.(jam|lua|mh)?$]]);
 end
 
 
 function createPureCpp()
     local dstDir = newPath("target/macaroni-" .. version .. "-pureCpp");
-    copyCppFiles(newPath("../Main/Dependencies/Lua/target"), dstDir);
-    copyCppFiles(newPath("../Main/App/Source/main/mcpp"), dstDir);
-    copyResourceFiles(newPath("../Main/App/Source/main/resources"), dstDir);
-    copyCppFiles(newPath("../Main/App/GeneratedSource"), dstDir);
-    copyFiles(newPath("../Main/App/Source/main/pureCppExtraFiles"), dstDir, [[\.(jam|txt)?$]]);
+    copyFiles(newPath("../../Main/App/PureCpp"), dstDir,
+            [[\.(jam|h|cpp|ico|txt|rc|rc2)?$]], "bin")
+    zipDirectory(dstDir);
 end
 
 function generate()
@@ -93,24 +106,50 @@ function build()
     load("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", version)
     load("Macaroni", "Macaroni.Tests.Features.LuaGlue", version)
 
-    createDistributionDirectory(
-        "bin/gcc-mingw-4.7.2/release", ".exe",
-        "target/macaroni-" .. version .. "-windows")
-    createDistributionDirectory(
-        "bin/gcc-mingw-4.7.2/debug", ".exe",
-        "target/macaroni-" .. version .. "-windows-debug")
-    -- createDistributionDirectory(
-    --     "bin/gcc-4.7/release", "",
-    --     "target/macaroni-" .. version .. "-ubuntu-64")
-    -- createDistributionDirectory(
-    --     "bin/gcc-4.7/debug", "",
-    --     "target/macaroni-" .. version .. "-ubuntu-64-debug")
-    createDistributionDirectory(
-        "bin/gcc-4.7/debug/address-model-32/architecture-x86/instruction-set-i686", "",
-        "target/macaroni-" .. version .. "-ubuntu-32-debug")
-    createDistributionDirectory(
-        "bin/gcc-4.7/release/address-model-32/architecture-x86/instruction-set-i686", "",
-        "target/macaroni-" .. version .. "-ubuntu-32")
+    createDistribution(
+        "gcc-mingw-4.7.2/release", ".exe",
+        "target/macaroni-" .. version .. "-windows",
+        [[
+        Enter the pure Cpp directory in Windows and execute:
+        $ bjam -d+2 -j8 --toolset=gcc cxxflags=-std=gnu++11 link=static threading=multi release
+        ]])
+    createDistribution(
+        "gcc-mingw-4.7.2/debug", ".exe",
+        "target/macaroni-" .. version .. "-windows-debug",
+        [[
+        Enter the pure Cpp directory in Windows and execute:
+        $ bjam -d+2 -j8 --toolset=gcc cxxflags=-std=gnu++11 link=static threading=multi
+        ]])
+
+    createDistribution(
+        "gcc-4.7/release/address-model-32", "",
+        "target/macaroni-" .. version .. "-ubuntu-32",
+        [[
+        In the Ubuntu 32 VM, execute
+        /vagrant/mbuild build.sh release
+        ]])
+    createDistribution(
+        "gcc-4.7/debug/address-model-32", "",
+        "target/macaroni-" .. version .. "-ubuntu-32-debug",
+        [[
+        In the Ubuntu 32 VM, execute
+        /vagrant/mbuild build.sh
+        ]])
+
+    createDistribution(
+        "gcc-4.7/release/address-model-64", "",
+        "target/macaroni-" .. version .. "-ubuntu-64",
+        [[
+        In the Ubuntu 64 VM, execute
+        /vagrant/mbuild build.sh release
+        ]])
+    createDistribution(
+        "gcc-4.7/debug/address-model-64", "",
+        "target/macaroni-" .. version .. "-ubuntu-64-debug",
+        [[
+        In the Ubuntu 64 VM, execute
+        /vagrant/mbuild build.sh
+        ]])
 
     createPureCpp();
     local site = plugins:Get("Site")
@@ -121,13 +160,13 @@ function build()
         output=output,
         context=context
     });
-    local versionDownloads = dir:NewPathForceSlash(
-         "target/www/site/downloads/" ..version);
-    versionDownloads:CreateDirectory();
-    print("TODO: Zip up distirubiton directory and pure CPP directory and place in "
-         .. tostring(versionDownloads) .. '.');
-    print("TODO: Zip up the directory " .. tostring(versionDownloads)
-         .. " - it is your release artifact.");
+    -- local versionDownloads = dir:NewPathForceSlash(
+    --      "target/www/site/downloads/" ..version);
+    -- versionDownloads:CreateDirectory();
+    -- print("TODO: Zip up distirubiton directory and pure CPP directory and place in "
+    --      .. tostring(versionDownloads) .. '.');
+    -- print("TODO: Zip up the directory " .. tostring(versionDownloads)
+    --      .. " - it is your release artifact.");
 end
 
 function install()

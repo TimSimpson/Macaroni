@@ -27,15 +27,15 @@
 #		Install the Boost libraries, and Boost Build.
 #
 #       To "use" the correct version of the Boost libraries, you'll need
-#       to configure Boost Build by adding a file named "user-config.jam"
+#       to configure Boost Build by adding a file named "site-config.jam"
 #       to your home directory. Put this somewhere in the contents:
 #
 #            using boost
 #              : 1.52
-#              : <include>C:/Tools/Boost/boost_1_52_0
-#                <library>C:/Tools/Boost/boost_1_52_0/stage/lib
 #              ;
 #
+#       Next, make sure the environment variable "BOOST_ROOT" contains
+#       the path to the Boost source code.
 #
 ################################################################################
 

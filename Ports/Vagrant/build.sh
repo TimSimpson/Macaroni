@@ -1,9 +1,17 @@
+#!/bin/bash
+if [ "$CPU_BITS" == "" ]
+then
+    echo "Error - CPU_BITS not set."
+    exit 5
+fi
+
+set -e
+
 TOOLS_ROOT=$HOME/Tools
 export BOOST_ROOT=$TOOLS_ROOT/boost/boost_1_52_0
 export LUA_ROOT=$TOOLS_ROOT/lua/lua-5.1.4
 MACARONI_SOURCE=/macaroni
-MACARONI_EXE=$MACARONI_SOURCE/Main/App/bin/gcc-4.7/debug/link-static/threading-multi/macaroni
-
+MACARONI_EXE=$MACARONI_SOURCE/Main/App/PureCpp/bin/gcc-4.7/debug/address-model-$CPU_BITS/link-static/threading-multi/macaroni_p
 export PATH=$PATH:$BOOST_ROOT
 export PATH=$PATH:$BOOST_ROOT/stage/lib
 
@@ -59,35 +67,43 @@ function install_lua() {
 function cmd_install() {
     install_gcc
     install_boost
-    install_lua
+    ## install_lua
 }
+
+function create_user_config() {
+    echo "
+using boost
+    :   1.52
+    :  # <include>$BOOST_ROOT
+       # <library>$BOOST_ROOT/stage/lib
+    ;
+" > ~/user-config.jam
+}
+
 
 function init_build() {
-    cd $MACARONI_SOURCE/Main/App
-    export CPLUS_INCLUDE_PATH=$BOOST_ROOT
-    export LD_LIBRARY_PATH=$BOOST_ROOT/stage/lib
-    export LIBRARY_PATH=$BOOST_ROOT/stage/lib
-    export BOOST_LIB_SUFFIX=-gcc47-mt-1_52
+    create_user_config
+    cd $MACARONI_SOURCE/Main/App/PureCpp
+    # export CPLUS_INCLUDE_PATH=$BOOST_ROOT
+    # export LD_LIBRARY_PATH=$BOOST_ROOT/stage/lib
+    # export LIBRARY_PATH=$BOOST_ROOT/stage/lib
+    # export BOOST_LIB_SUFFIX=-gcc47-mt-1_52
 }
 
-function cmd_build() {
+function _build() {
     init_build
-    bjam -d+2 --toolset=gcc cxxflags=-std=gnu++11 link=static \
-        threading=multi $@
+    bjam -d+2 \
+        address-model=$CPU_BITS \
+        --toolset=gcc cxxflags=-std=gnu++11 link=static \
+        threading=multi $_EXTRA_BUILD_OPTIONS $@
+}
+function cmd_build() {
+    _build $@
 }
 
 function cmd_build_release() {
-    init_build
-    #bjam -d+2 --toolset=gcc cxxflags=-std=gnu++11 link=static threading=multi \
-    #    release
-    # bjam -d+2 cflags=-m32  cxxflags=-m32 \
-    #     address-model=32 --toolset=gcc cxxflags=-std=gnu++11 \
-    #     link=static threading=multi \
-    #      architecture=x86 instruction-set=i686
-    bjam -d+2 -j4 cflags=-m32  cxxflags=-m32 \
-        --toolset=gcc cxxflags=-std=gnu++11 \
-        link=static threading=multi \
-         release $@
+    _EXTRA_BUILD_OPTIONS=release
+    _build $@
 }
 
 function cmd_unit_test() {
