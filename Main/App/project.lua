@@ -70,7 +70,7 @@ local versionInfo = plugins:Get("Source/main/lua/VersionInfoGenerator")
 local core_dependencies={
     load("Macaroni", "Boost-headers", "1.52"):Target("lib"),
     load("Macaroni", "Boost-filesystem", "1.52"):Target("lib"),
-    --load("Macaroni", "Boost-regex", "1.52"):Target("lib"),
+    load("Macaroni", "Boost-regex", "1.52"):Target("lib"),
     load("Macaroni", "CppStd", "2003"):Target("lib"),
     load("Macaroni", "Lua", "5.1.4"):Target("lib"),
 };
@@ -206,7 +206,7 @@ end
 
 build = function()
   local callBjam = function()
-      local cmd = "bjam -d+2 -j8 "
+      local cmd = "bjam -d+2 --toolset=gcc cxxflags=-std=gnu++11 "
                   .. targetDir.AbsolutePath
                   .. " link=static"
       output:WriteLine(cmd)

@@ -44,7 +44,7 @@ class RegexFileSet : public FileSet
 
 	private int refCount;
 	private regex regExp;
-	private path root; 
+	private path root;
 
 	/**
 	 * Constructs a file set by iterating from the rootPath.
@@ -106,12 +106,12 @@ class RegexFileSet : public FileSet
 		return ptr;
 	}*/
 
-	
+
 
 	public RegexFileSetIterator End() const
 	{
 		return RegexFileSetIterator(nullptr);
-	}	
+	}
 
 	public PathListPtr GetPaths() const
 		@LuaFunction "GetPaths"
@@ -123,11 +123,11 @@ class RegexFileSet : public FileSet
 			rtnList->push_back(p);
 		}
 		return rtnList;
-	}	
+	}
 
 	/////** If this FileSet is relative to some central directory, this returns a
 	//// *  relative Path showing the connection.
-	//// *  Example: If a user specifies a directory for iteration, such as 
+	//// *  Example: If a user specifies a directory for iteration, such as
 	//// *  "src/code", then this would return a relative path where the root was
 	//// *  "./" and the path was "./src/code". This is used in certain plugins. */
 	////public virtual PathPtr GetRelativePath() const
@@ -140,20 +140,20 @@ class RegexFileSet : public FileSet
 		return root;
 	}
 
-	/** Gets the core path used for this FileSet (or nil). 
+	/** Gets the core path used for this FileSet (or nil).
 	 *  This is only useful for FileSets which have a core path. */
 	public virtual PathPtr GetRootPath() const
 		@LuaProperty "RootPath"
 	{
 		PathPtr ptr(new Path(GetRoot()));
 		return ptr;
-	}	
+	}
 
 	public std::string GetRegex() const
 		@LuaProperty "Regex"
 	{
 		return regExp.str();
-	}	
+	}
 
 	public virtual bool IsRelativePath() const
 		@LuaProperty "IsRelativePath"
@@ -176,7 +176,7 @@ class RegexFileSet : public FileSet
 		return boost::regex_search(str, this->regExp);
 	}
 
-	
+
 	//// Teach BOOST_FOREACH how to use this.
 	//inline ~global RegexFileSetIterator range_begin(RegexFileSet & fs)
 	//{
@@ -197,11 +197,11 @@ class RegexFileSet : public FileSet
 	//{
 	//	return fs.End();
 	//}
-	
+
 }; // End FileSet class
 
 
-///** Simpler than the RegexFileSet, this is just a single root path and then 
+///** Simpler than the RegexFileSet, this is just a single root path and then
 // *  a list of relative paths from that path. */
 //class IndividualFileSet : FileSet
 //{
@@ -209,7 +209,7 @@ class RegexFileSet : public FileSet
 //	private vector<path> files;
 //	// Some root directory to which everything else is relative.
 //	private path root;
-//	
+//
 //}
 
 /** Like a file set, but the root path is itself relative to some other file. */
@@ -234,10 +234,12 @@ class RelativeFileSet : public RegexFileSet
 	{
 		return true;
 	}
-}
+};
 
 class RegexFileSetIterator
 {
+	~import Macaroni::IO::RegexFileSet;
+
 	friend RegexFileSet;
 
 	/**
@@ -250,7 +252,7 @@ class RegexFileSetIterator
 	private vector<boost::filesystem::directory_iterator> stack;
 
 	private RegexFileSetIterator(const RegexFileSet * parent)
-		: fileSet(parent), iterateSingleFile(false), stack()
+		: iterateSingleFile(false), fileSet(parent), stack()
 	{
 		if (fileSet != nullptr)
 		{
@@ -344,7 +346,7 @@ class RegexFileSetIterator
 			return true;
 		}
 		return false;
-	}	
+	}
 
 	/**
 	 * Internal method to iterate through directories recursively.

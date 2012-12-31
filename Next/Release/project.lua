@@ -132,20 +132,16 @@ function createPureCpp()
     zipDirectory(dstDir);
 end
 
-function generate()
-end
-
-built = false
-
-function build()
-    if built then return end
-    built = true
+function loadWebSiteExamples()
+    -- Loads projects which are referenced by the web site.
     load("Macaroni.Examples", "Hello", "1.0.0.0")
     load("Macaroni.Examples", "Blocks", "1.0.0.0")
     load("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", version)
     load("Macaroni", "Macaroni.Tests.Features.LuaGlue", version)
+end
 
-    createPureCpp();
+function buildWebSite()
+    loadWebSiteExamples();
 
     local site = plugins:Get("Site")
     site:Run("build", {
@@ -155,6 +151,20 @@ function build()
         output=output,
         context=context
     });
+end
+
+function generate()
+end
+
+built = false
+
+function build()
+    if built then return end
+    built = true
+
+    createPureCpp();
+
+    buildWebSite()
 
     createDistribution{windows=true,  release=false };
     createDistribution{windows=true,  release=true  };

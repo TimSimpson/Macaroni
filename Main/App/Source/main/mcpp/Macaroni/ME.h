@@ -22,18 +22,22 @@
 #include <boost/config.hpp>
 
 #ifdef BOOST_NO_NULLPTR
-#define nullptr 0
+	#define nullptr 0
 #endif
 
 #ifdef BOOST_WINDOWS
-#ifndef MACARONI_COMPILE_TARGET_WINDOWS
-#define MACARONI_COMPILE_TARGET_WINDOWS
-#endif
+	#ifndef MACARONI_COMPILE_TARGET_WINDOWS
+		#define MACARONI_COMPILE_TARGET_WINDOWS
+	#endif
 #else
-//Use MACARONI_COMPILE_TARGET_LINUX if compiling on Linux
+
+	#ifndef MACARONI_COMPILE_TARGET_LINUX
+		#define MACARONI_COMPILE_TARGET_LINUX
+	#endif
 #endif
 
 // In MSVC and C++0x you can have a vector with const elements.
+
 // It was a shock to me this isn't really allowed.  I'm not sure if VC++
 // actually gets away with this or if it causes hard drives to get formatted but
 // for now I want to keep it in.

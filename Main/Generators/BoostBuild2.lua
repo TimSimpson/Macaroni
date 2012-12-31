@@ -108,16 +108,11 @@ function getProjectName(projectVersion)
     return "MACARONI_PROJECT_" .. projectVersion:GetCId();
 end
 
+
 function getDepName(self, target)
     local prefix = ""
-    if target.ProjectVersion:GetCId() ~= self.projectVersion:GetCId() then
-        prefix = "/" .. getProjectName(target.ProjectVersion) .. "//"
-    end
-    -- Boost Build has about a roughly 114 character limit on target names.
-    if target.ShortName ~= nil then
-        return prefix .. target.ShortName
-    end
-    if target.TypeName == "unit" then
+
+    function getDepUnitName(target)
         if target.CppFile ~= nil then
             return Hash.GenerateHash(prefix .. "MACARONI_UNIT_TARGET_"
                 .. target:GetCId());
@@ -125,11 +120,18 @@ function getDepName(self, target)
             return nil
         end
     end
-    if target.TypeName == "lib" then
+
+    function getDepLibName(target)
+        if isBoostDepProject(target.ProjectVersion) then
+            -- This is a hideous hack.
+            --TODO: Get some kind of annotation on libraries to make this cleaner.
+            --      In general, this would become some custom Boost Build behavior.
+            local boostSuffix = string.sub(target.ProjectVersion.Name, 7)
+            return "/boost//" .. boostSuffix ;
+        end
         if target.Name == "lib" then
             local name = prefix .. "MLT_" .. target:GetCId();
             if string.len(name) > 113 then
-                --output:WriteLine("POO")
                 local msg = "BAD"
                 self.output:WriteLine("WARNING: Target name " .. name ..
                     " exceeds Boost Build's limit for target names by roughly " ..
@@ -140,6 +142,21 @@ function getDepName(self, target)
         else
             return target.GetShortCId();
         end
+    end
+
+
+    if target.ProjectVersion:GetCId() ~= self.projectVersion:GetCId() then
+        prefix = "/" .. getProjectName(target.ProjectVersion) .. "//"
+    end
+    -- Boost Build has about a roughly 114 character limit on target names.
+    if target.ShortName ~= nil then
+        return prefix .. target.ShortName
+    end
+    if target.TypeName == "unit" then
+        return getDepUnitName(target)
+    end
+    if target.TypeName == "lib" then
+        return getDepLibName(target)
     end
     if target.TypeName == "exe" then
         --return prefix .. "MACARONI_EXE_TARGET_" .. target:GetShortCId();
@@ -565,6 +582,66 @@ function copyCppSource(regEx, src, dst)
     end
 end
 
+function isBoostDepProject(depProject)
+    --TODO: Get some kind of annotation feature onto Libraries to eliminate
+    --      this hack.
+    local pName = depProject.Name
+    return "Boost" == string.sub(pName, 1, 5)
+end
+
+function writeUseStatementForGenericBBProject(self, writer, depProject)
+    --TODO: Find some way to stick the location of the jamroot onto
+    -- the target itself so this hardcoded path nonsense can be
+    -- avoided.
+    local jamDir = findOrCreateInstallPath(depProject)
+        :NewPathForceSlash("/target")
+    self.jamSupport[depProject:GetCId()] = jamDir.Exists
+    if jamDir.Exists then
+        local jamroot = jamDir:NewPathForceSlash("/jamroot.jam")
+        if jamroot.Exists then
+            writer:WriteLine("    use-project /" .. getProjectName(depProject)
+                .. '\n' .. "        : "
+                .. jamDir.GetAbsolutePathForceSlash .. "\n        ; ");
+            return true;
+        else
+            writer:WriteLine("# No jamroot.jam : " .. tostring(depProject))
+        end
+    end
+    return false;
+end
+
+function writeUseStatementForBoost(self, writer, depProject)
+    if not isBoostDepProject(depProject) then
+        return false;
+    end
+    self.jamSupport[depProject:GetCId()] = true;
+    if self.BoostUseVersion ~= nil then
+        if self.BoostUseVersion == depProject.Version then
+            writer:WriteLine("    # see boost.use-project above ")
+            return true;
+        else
+            error("Can't mix Boost versions! Version " .. self.BoostUseVersion
+                  .. " was already in use, but an attempt was made to use "
+                  .. " a different version for " .. tostring(depProject) .. ".");
+        end
+    end
+    writer:WriteLine("    boost.use-project " .. depProject.Version .. " ;");
+    self.BoostUseVersion = depProject.Version;
+    return true;
+end
+
+function writeUseStatementForUnknownProject(self, writer, depProject)
+    writer:WriteLine("    #~<( I don't know how to 'use' this dependency. )");
+end
+
+function writeUseStatement(self, writer, depProject)
+    -- Determine the correct way to use a dependency project and write it.
+    writer:WriteLine("# " .. tostring(depProject))
+    return writeUseStatementForBoost(self, writer, depProject) or
+        writeUseStatementForGenericBBProject(self, writer, depProject) or
+        writeUseStatementForUnknownProject(self, writer, depProject);
+end
+
 function writeUseStatements(self, writer)
     self.jamSupport = {}
     for target in Plugin.IterateProjectVersionTargets(self.projectVersion,
@@ -572,23 +649,7 @@ function writeUseStatements(self, writer)
         local t = {};
         print(Plugin.IterateDependencyProjects)
         for depProject in Plugin.IterateDependencyProjects(target) do
-            --TODO: Find some way to stick the location of the jamroot onto
-            -- the target itself so this hardcoded path nonsense can be
-            -- avoided.
-            local jamDir = findOrCreateInstallPath(depProject)
-                :NewPathForceSlash("/target")
-            self.jamSupport[depProject:GetCId()] = jamDir.Exists
-            if jamDir.Exists then
-                local jamroot = jamDir:NewPathForceSlash("/jamroot.jam")
-                if jamroot.Exists then
-                    writer:WriteLine([[
-use-project /]] .. getProjectName(depProject) .. '\n' .. [[
-        : "]] .. jamDir.GetAbsolutePathForceSlash .. '"\n' .. [[
-        ;]]);
-                else
-                    writer:WriteLine("# No jamroot.jam : " .. tostring(depProject))
-                end
-            end
+            writeUseStatement(self, writer, depProject)
         end
     end
 
