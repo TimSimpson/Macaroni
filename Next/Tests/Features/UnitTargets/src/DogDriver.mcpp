@@ -11,10 +11,11 @@ class GoDog
         #include <Dog.h>
     }
 
-     public ~global void main(const char * args, int argc)
+     public ~global int main(const char * args, int argc)
      {
         std::cout << "HELLO DOGGY.";
         Dog dog;
         std::cout << "Dogs have " << dog.GetLegs() << " leg(s).";
+	return 0;
      }
 };

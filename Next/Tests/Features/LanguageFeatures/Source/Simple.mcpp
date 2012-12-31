@@ -10,7 +10,8 @@ void SayHello(const string & greetingMessage)
 	cin << greetingMessage;
 }
 
-void main()
+int main()
 {
 	SayHello(string("I am MACARONI."));
+	return 0;
 }

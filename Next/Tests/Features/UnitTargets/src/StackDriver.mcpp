@@ -7,7 +7,7 @@
 
 class StackDriver
 {
-     public ~global void main(const char * args, int argc)
+     public ~global int main(const char * args, int argc)
      {
         std::cout << "Stack Driver";
         Stack stack;
@@ -15,5 +15,6 @@ class StackDriver
         stack.push(2);
         stack.push(3);
         std::cout << "Stack pop=" << stack.pop();
+        return 0;
      }
 };
