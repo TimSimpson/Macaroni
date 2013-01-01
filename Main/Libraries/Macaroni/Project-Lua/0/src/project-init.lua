@@ -29,6 +29,15 @@ local FileSet = Macaroni.IO.FileSet;
 local Path = Macaroni.IO.Path;
 local PathList = Macaroni.IO.PathList;
 
+loadBoostLib = function(name)
+    -- Short hand for loading a Boost Library.
+    if not properties.boost or not properties.boost.version then
+        error("Can't loadBoostLib - properties.boost.version not set in init.lua.");
+    end
+    return load("Macaroni", "Boost-" .. name, properties.boost.version)
+           :Target("lib");
+end
+
 filePath = function(relP, path2)
     -- Returns a Path relative to the working directory.
     if path2 ~= nil then

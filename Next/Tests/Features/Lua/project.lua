@@ -6,7 +6,7 @@ print(upper)
 
 local luaGlue = plugins:Get("LuaGlue");
 
-SimpleProject{
+SimpleBoostProject{
   group=upper.Group,
   project=upper.Name .. ".LuaGlue",
   version=upper.Version,
@@ -14,8 +14,6 @@ SimpleProject{
   src="Source",
   target="GeneratedSource",
   dependencies = {
-    load("Macaroni", "Boost-headers", "1.52"):Target("lib"),
-    load("Macaroni", "CppStd", "2003"):Target("lib"),
     load("Macaroni", "Lua", "5.1.4"):Target("lib"),
   },
   exes={

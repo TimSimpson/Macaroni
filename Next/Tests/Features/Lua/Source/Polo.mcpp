@@ -11,6 +11,25 @@
 
 namespace Macaroni::Tests::Lua
 {
+	class PoloException : public exception
+	{
+		public virtual const char * what() const throw()
+		{
+			return  "Wait, I didn't notice when you set it "
+					"originally, but now I realize that Suzy is a variant of "
+					"Sue.  Get ready for one freakin' mother of an exception, "
+					"bubb.";
+		}
+	};
+
+	class SueNameException : public exception
+	{
+		public virtual const char * what() const throw()
+		{
+			return  "No! Not Sue, I hate that name.";
+		}
+	};
+
 	class Polo {};
 
 	typedef intrusive_ptr<Polo> PoloPtr
@@ -23,8 +42,8 @@ namespace Macaroni::Tests::Lua
 	    ReferenceType = PoloPtr,
 	  ]
 	{
-
-
+		~import Macaroni::Tests::Lua::PoloException;
+		~import Macaroni::Tests::Lua::SueNameException;
 		private string name;
 		private int refCount;
 
@@ -40,10 +59,7 @@ namespace Macaroni::Tests::Lua
 		{
 			if (name == "Suzy")
 			{
-				throw exception("Wait, I didn't notice when you set it "
-					"originally, but now I realize that Suzy is a variant of "
-					"Sue.  Get ready for one freakin' mother of an exception, "
-					"bubb.");
+				throw PoloException();
 			}
 			return name;
 		}
@@ -83,7 +99,7 @@ namespace Macaroni::Tests::Lua
 		{
 			if (newName == "Sue")
 			{
-				throw exception("No! Not Sue, I hate that name.");
+				throw SueNameException();
 			}
 			this->name = newName;
 		}

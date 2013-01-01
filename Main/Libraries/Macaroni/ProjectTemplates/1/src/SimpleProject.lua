@@ -255,6 +255,42 @@ function SimpleProject(args)
 end
 
 
+function SimpleBoostProject(args)
+    local newArgs = {}
+    for k, v in pairs(args) do
+        newArgs[k] = v
+    end
+
+    local createDepList = function(listA, listB)
+        local newList = {}
+        local addToList = function(otherList)
+            if otherList then
+                for i=1, #otherList do
+                    newList[#newList + 1] = otherList[i]
+                end
+            end
+        end
+        addToList(listA);
+        addToList(listB);
+        return newList;
+    end
+    newArgs.dependencies = createDepList(
+            {
+                load("Macaroni", "CppStd", "2003"):Target("lib"),
+                loadBoostLib("headers"),
+            },
+            args.dependencies
+        );
+    newArgs.testDependencies = createDepList(
+            {
+                loadBoostLib("unit_test_framework"),
+                loadBoostLib("test_exec_monitor"),
+            },
+            args.testDependencies
+        );
+    return SimpleProject(newArgs);
+end
+
 function ParentProject(args)
     project = context:Group(args.group):Project(args.project)
                      :Version(args.version)
