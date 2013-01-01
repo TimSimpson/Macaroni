@@ -25,4 +25,8 @@ SimpleProject{
      "Test.cpp",
      "Test2.cpp"
   },
+  testDependencies = {
+    load("Macaroni", "Boost-unit_test_framework", "1.52"):Target("lib"),
+    load("Macaroni", "Boost-test_exec_monitor", "1.52"):Target("lib"),
+  },
 };

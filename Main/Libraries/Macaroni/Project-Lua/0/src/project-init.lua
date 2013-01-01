@@ -47,12 +47,22 @@ end
 
 files = Files.New
 
-pathList = function(array)
+local createPathList = function(array, elementTransformer)
     local rtnValue = PathList.New()
     for i = 1, #array do
-        rtnValue[#rtnValue + 1] = filePath(array[i]);
+        local element = array[i]
+        if elementTransformer then
+            element = elementTransformer(element)
+        end
+        rtnValue[#rtnValue + 1] = element;
     end
     return rtnValue;
 end
 
+pathList = function(array)
+    return createPathList(array, filePath);
+end
 
+pathList2 = function(array)
+    return createPathList(array)
+end

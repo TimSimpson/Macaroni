@@ -1032,8 +1032,15 @@ this operator manually by putting a string in the LuaOperator annotation.]]);
 
 			for i = 1, #funcs do
 				local fNode = funcs[i]
-				local tableEntry = '{"' .. fNode.Node.Name .. '", '
-					.. self.helperName .. "::" .. fNode.Node.Name .. '}';
+				local annotation = fNode.Annotations[self.parent.LuaFunction]
+				local functionName = nil;
+				if annotation ~= nil then
+					functionName = annotation.ValueAsString
+				else
+					functionName = fNode.Node.Name
+				end
+				local tableEntry = '{"' .. functionName .. '", '
+					.. self.helperName .. "::" .. functionName .. '}';
 				staticText[#staticText + 1] = tableEntry;
 			end
 			local extraMetaMethods = {};

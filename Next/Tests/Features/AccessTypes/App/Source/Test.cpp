@@ -1,6 +1,6 @@
 #define BOOST_TEST_MODULE MyTest
 #include <boost/test/unit_test.hpp>
-#include <something.h>
+#include <Something.h>
 
 BOOST_AUTO_TEST_CASE(MyTestCase)
 {

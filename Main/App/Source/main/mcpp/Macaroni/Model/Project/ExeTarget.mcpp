@@ -1,5 +1,7 @@
+~import BOOST_FOREACH;
 ~import boost::intrusive_ptr;
 ~import Macaroni::Lua::LuaClass;
+~import Macaroni::Environment::LuaEnvironment;
 ~import Macaroni::Lua::LuaFunction;
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
@@ -13,9 +15,20 @@
 ~import Macaroni::Model::Project::LibraryTarget;
 ~import Macaroni::Model::Project::LibraryTargetPtr;
 ~import boost::optional;
+~import Macaroni::IO::PathList;
+~import Macaroni::IO::PathListPtr;
+~import Macaroni::IO::PathPtr;
+~import Macaroni::Environment::Values::Macaroni_IO_PathList;
 ~import Macaroni::IO::PathListPtr;
 ~import Macaroni::Model::Project::ProjectVersion;
 ~import std::string;
+~import Macaroni::Environment::Values::String;
+~import Macaroni::Environment::Values::Table;
+~import Macaroni::Environment::Values::TablePtr;
+~import Macaroni::Environment::Values::Macaroni_Model_Project_Target;
+~import Macaroni::Environment::Values::Macaroni_Model_Project_ProjectVersion;
+~import Macaroni::Model::Project::TargetList;
+~import Macaroni::Model::Project::TargetListPtr;
 ~import Macaroni::Model::Project::TargetPtr;
 ~import Macaroni::Cpp::UseLightDef;
 ~import std::vector;
@@ -74,6 +87,94 @@ class ExeTarget : public virtual LibraryTarget
 		return exe;
 	}
 
+	public static TargetPtr Create2(Table & table)
+		@LuaFunction "Create"
+		@LuaGlueCode ={
+			Table table;
+			boost::optional<string> key("Create argument 1");
+			LuaEnvironment::SerializeTable(table, L, 1, key);
+
+			TargetPtr target = ExeTarget::Create2(table);
+
+			TargetLuaMetaData::PutInstanceOnStack(L, target);
+			return 1;
+		}
+	{
+		ProjectVersionPtr projectVersion =
+			table.Get<Macaroni_Model_Project_ProjectVersion>("projectVersion");
+		const string name = table.Get<String>("name");
+		const string subType = table.Get<String>("subType");
+		optional<string> shortName = boost::none;
+		if (table.Has("shortName"))
+		{
+			shortName = table.Get<String>("shortName");
+		}
+		vector<TargetPtr> dependencies;
+		if (table.Has("dependencies"))
+		{
+			struct Func
+			{
+				vector<TargetPtr> & dependencies;
+
+				Func(vector<TargetPtr> & dependencies)
+				: dependencies(dependencies)
+				{
+				}
+
+				void operator ()(TargetPtr target)
+				{
+					dependencies.push_back(target);
+				}
+			};
+			Func f(dependencies);
+			table.GetVector<Macaroni_Model_Project_Target, Func>(
+				"dependencies", f);
+		}
+		PathListPtr sources = table.Get<Macaroni_IO_PathList>("sources");
+		PathListPtr headers;
+		if (table.Has("headers"))
+		{
+			headers = table.Get<Macaroni_IO_PathList>("headers");
+		}
+		else
+		{
+			headers.reset(new PathList());
+			/*BOOST_FOREACH(TargetPtr dep, dependencies)
+			{
+				Target * nakedDepPtr = dep.get();
+				Lib
+				BOOST_FOREACH(PathPtr path, dep->GetHeaders())
+				{
+					headers->push_back(path);
+				}
+			}*/
+		}
+		return Create(projectVersion.get(), name, shortName, subType,
+			          dependencies, headers, sources);
+	}
+
+/*	public static TargetPtr Create2(
+		ProjectVersionPtr projectVersion,
+		const string & name,
+		const string & shortName,
+		const string & subType,
+		TargetListPtr dependencies,
+		PathListPtr headers,
+		PathListPtr sources
+		)
+		@LuaFunction "Create"
+	{
+		vector<TargetPtr> deps;
+		for (size_t index = 0; index < dependencies->GetCount(); index ++)
+		{
+			deps.push_back(dependencies->GetItem(index));
+		}
+		ExeTargetPtr e = Create(projectVersion.get(), name, shortName, subType,
+			                    deps, headers, sources);
+		TargetPtr t = e;
+		return e;
+	}
+*/
 	public static ExeTargetPtr CreateExe(
 		LibraryTargetPtr lib,
 		const string & name,

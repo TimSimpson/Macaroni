@@ -1,6 +1,8 @@
 require "os"
 require "Macaroni.IO.Path"
+require "Macaroni.Model.Project.ExeTarget"
 
+local ExeTarget = Macaroni.Model.Project.ExeTarget
 
 local newPath = function(subPath)
     local p = Macaroni.IO.Path.New(getWorkingDirectory())
@@ -73,6 +75,7 @@ function SimpleProject(args)
     ---------------------------------------------------------------------------
     args.exes = args.exes or {}
     args.tests = args.tests or {}
+    args.testDependencies = args.testDependencies or {}
 
     ---------------------------------------------------------------------------
     -- Plugins
@@ -123,14 +126,52 @@ function SimpleProject(args)
 
     -- Add the exe and test targets.
     local srcPath = newPath(src)
-    function addTargets(paths, func)
+    function addExeTargets(paths)
       for i, v in ipairs(paths) do
         local realPath = srcPath:NewPathForceSlash(v)
-        lLib[func](lLib, realPath.FileNameWithoutExtension, realPath);
+        lLib.AddExe(lLib, realPath.FileNameWithoutExtension, realPath);
       end
     end
-    addTargets(args.exes, "AddExe")
-    addTargets(args.tests, "AddTest")
+    addExeTargets(args.exes)
+
+    local testCount = 1
+
+    local createHeadersList = function(targets)
+        local stringList = {}
+        for i, v in ipairs(targets) do
+            for j=1, #v do
+                stringList[#stringList] = v[j]
+            end
+        end
+        return pathList{stringList}
+    end
+
+    local addTestTarget = function(testPath)
+        local realPath = srcPath:NewPathForceSlash(testPath)
+
+        local deps = {}
+        for i, v in ipairs(args.testDependencies) do
+            deps[i] = args.testDependencies[i]
+        end
+        deps[#deps + 1] = lLib
+
+        local realPath = srcPath:NewPathForceSlash(testPath)
+        ExeTarget.Create{
+            projectVersion=lProject,
+            name=realPath.FileNameWithoutExtension,
+            subType="test",
+            dependencies=deps,
+            sources=pathList2{realPath},
+            };
+    end
+
+    local addTestTargets = function(testPaths)
+        for i, testPath in ipairs(testPaths) do
+            addTestTarget(testPath)
+        end
+    end
+
+    addTestTargets(args.tests)
 
     -- This always runs, even if the user hasn't selected anything.
     -- It adds to the project model, but doesn't write any files.
