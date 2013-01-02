@@ -1,4 +1,4 @@
-//#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE Macaroni_Tests_Initializers_ConstructorInitializers
 #include <boost/test/unit_test.hpp>
 #include <Macaroni/Tests/Initializers/Poco.h>

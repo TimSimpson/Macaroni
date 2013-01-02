@@ -1,3 +1,4 @@
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE MyTest
 #include <boost/test/unit_test.hpp>
 
@@ -6,7 +7,7 @@
 using Macaroni::Tests::NamespaceStatement::ForThoseDaysWhenYouDontWantBraces;
 
 BOOST_AUTO_TEST_CASE(MyTestCase)
-{		
-	ForThoseDaysWhenYouDontWantBraces ftdwydwb;		
+{
+	ForThoseDaysWhenYouDontWantBraces ftdwydwb;
 	BOOST_CHECK_EQUAL(5, ftdwydwb.five);
 }
