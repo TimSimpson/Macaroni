@@ -13,18 +13,10 @@ local TypeNames = Macaroni.Model.TypeNames;
 Generator =
 {
     findOrCreateTarget = function(self, path, element)
-        -- local parentNode = element.Node.Node;
-        -- if (parentNode ~= nil and parentNode.TypeName == TypeNames.Class) then
-        --     -- If this is nested in a class, lets forget about it.
-        --     return parentNode.Element.Owner
-        -- end
         local t = self.defaultTarget:Unit(element.Node.FullName, true);
         local fileName = element.Node:GetPrettyFullName("/")
         t:SetHFileAsUnknownRelativePath(fileName .. ".h")
-        --t:SetHFile(path:NewPathForceSlash(fileName .. ".hpp"))
         t:SetCppFileAsUnknownRelativePath(fileName .. ".cpp")
-        --t:SetCppFile(path:NewPathForceSlash(fileName .. ".cpp"))
-        --print(t)
         return t;
     end,
 
@@ -78,11 +70,6 @@ function GetMethod(name)
                 -- and source to the destination directory "Source".
             end,
             Run = function(args)
-                -- print("")
-                -- print("TARGET=" .. tostring(args.target));
-                -- print("PATH=" .. tostring(args.path));
-                -- print("PATH.NewPath=" .. tostring(args.path.NewPath));
-
                 Generate(args.target, args.path)
             end
         }

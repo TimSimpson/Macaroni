@@ -76,11 +76,20 @@ class Console : public virtual Input, public virtual Output
 						SetConsoleTextAttribute(stdOut, (WORD) 12);
 					}
 				}
+
 				void SetNormal()
 				{
 					if (ok)
 					{
 						SetConsoleTextAttribute(stdOut, originalColor);
+					}
+				}
+
+				void SetDebug()
+				{
+					if (ok)
+					{
+						SetConsoleTextAttribute(stdOut, (WORD)7);
 					}
 				}
 
@@ -118,6 +127,8 @@ class Console : public virtual Input, public virtual Output
 
 	public virtual ~Console()
 	{
+		// Make sure we don't exit the program and leave a goofy color on.
+		platformConsole->SetNormal();
 	}
 
 	protected virtual void addReference()
@@ -166,6 +177,16 @@ class Console : public virtual Input, public virtual Output
 		{
 			platformConsole->SetError();
 		}
+		else if (Output::DEBUG == level)
+		{
+			platformConsole->SetDebug();
+		}
+		else
+		{
+			//WriteAnything(Output::ERROR, "NO THIS BAD!", true);
+			//throw std::exception("blah");
+			platformConsole->SetNormal();
+		}
 		if (lastWriteWasNewLine)
 		{
 			std::cout << indentString;
@@ -176,7 +197,7 @@ class Console : public virtual Input, public virtual Output
 			std::cout << std::endl;
 		}
 		lastWriteWasNewLine = newLine;
-		if (Output::ERROR == level)
+		if (Output::ERROR == level || Output::DEBUG == level)
 		{
 			platformConsole->SetNormal();
 		}

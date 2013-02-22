@@ -5,7 +5,7 @@ require "Macaroni.IO.Path"
 project = context
     :Group("Macaroni")
     :Project("Macaroni.App")
-    :Version("0.1.0.27")
+    :Version("0.1.0.28")
 
 
 ---------------------------------------------------------------------------
@@ -206,9 +206,8 @@ end
 
 build = function()
   local callBjam = function()
-      local cmd = "bjam -d+2 --toolset=gcc cxxflags=-std=gnu++11 "
+      local cmd = "bjam link=static threading=multi " -- cxxflags=-std=gnu++11 "
                   .. targetDir.AbsolutePath
-                  .. " link=static"
       output:WriteLine(cmd)
       if (os.execute(cmd) ~= 0) then
           output:ErrorLine("Failure running Boost Build!")
@@ -230,9 +229,28 @@ build = function()
       newRootPath("GeneratedSource"):NewPathForceSlash("LICENSE.txt")
         :CopyToDifferentRootPath(dstDir, true);
   end
+
+  local runTests = function()
+      output:WriteLine([[
+********************************************************************************
+ Running Unit tests...
+********************************************************************************
+]])
+      local exePath = targetDir:NewPathForceSlash("exe/macaroni.exe")
+      local testDir = newPath(src):NewPathForceSlash("../../test/lua")
+      local cmd = exePath.AbsolutePath .. " luaTests "
+                  .. testDir.AbsolutePath
+      output:WriteLine(cmd)
+      if (os.execute(cmd) ~= 0) then
+          output:ErrorLine("Failing running tests!")
+          error("Failure running tests.")
+      end
+  end
+
   if not built then
       generate()
       callBjam()
+      runTests()
       createPureCpp()
       built = true
   end

@@ -38,6 +38,7 @@ function GenerateCpp(args)
         sources=pathList{src},
         dependencies = args.dependencies,
         excludeFiles = pathList({}),
+        shortName = args.libShortName,
     }
 
     -- Instantly run this to generate physical objects in the model.
@@ -65,6 +66,14 @@ function GenerateCpp(args)
       generated = true
     end
 
+    build = function()
+        generate()
+    end
+
+    install = function()
+        build()
+        sinstall(project, filePath("./"));
+    end
 end
 
 -- Creates the project and lib vars, along with clean, generate, build, and
@@ -142,7 +151,7 @@ function SimpleProject(args)
             for j=1, #v do
                 stringList[#stringList] = v[j]
             end
-        end
+            end
         return pathList{stringList}
     end
 
@@ -231,7 +240,7 @@ function SimpleProject(args)
       lGenerate()
       local cmd = "bjam " .. properties.bjam_options ..
                  " " .. targetDir.AbsolutePath .. " -d+2"
-      output:WriteLine(cmd)
+      output:DebugLine(cmd)
       if (os.execute(cmd) ~= 0) then
         output:ErrorLine("Failure running Boost Build!")
         error("Failure running Boost Build!")

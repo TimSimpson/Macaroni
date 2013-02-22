@@ -545,7 +545,7 @@ class Macaroni::Environment::ProjectEnvironment
         }
         else
         {
-            loader.GetOutput()->WriteLine(format("Running %s...") % initLuaPath.string());
+            loader.GetOutput()->DebugLine(format("Running %s...") % initLuaPath.string());
             getLuaEnvironment().ParseFile(initLuaPath.string());
             getLuaEnvironment().Run();
         }
@@ -572,7 +572,7 @@ class Macaroni::Environment::ProjectEnvironment
                     " at %s.") % projectInit.string()));
                 return;
             }
-            loader.GetOutput()->WriteLine(format("Running %s...") % projectInit.string());
+            loader.GetOutput()->DebugLine(format("Running %s...") % projectInit.string());
             getLuaEnvironment().ParseFile(projectInit.string());
             getLuaEnvironment().Run();
         }
@@ -583,11 +583,11 @@ class Macaroni::Environment::ProjectEnvironment
     {
         path dst = loader.GetAppPaths()->FindOrCreateFinalProjectDirectory(pv->ToId());
         string bar(80, '*');
-        loader.GetOutput()->WriteLine(bar);
+        loader.GetOutput()->DebugLine(bar);
         loader.GetOutput()->WriteLine(format("Installing %s") % pv->ToString());
         loader.GetOutput()->WriteLine(format("%s -> %s") % src->GetAbsolutePath() %
                               dst.string());
-        loader.GetOutput()->WriteLine(bar);
+        loader.GetOutput()->DebugLine(bar);
         Path dstP(dst);
         dstP.CreateDirectory();
         dstP.ClearDirectoryContents();
@@ -597,7 +597,7 @@ class Macaroni::Environment::ProjectEnvironment
 		}
 		catch(const Macaroni::Exception & ex)
 		{
-			loader.GetOutput()->WriteLine(ex.message());
+			loader.GetOutput()->ErrorLine(ex.message());
 			throw;
 		}
 		catch(...)

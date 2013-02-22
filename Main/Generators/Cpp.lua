@@ -70,6 +70,20 @@ end
 
 function Generate2(self)
     -- The newer version used by the project system.
+
+    -- Replace log.Write with the output.DebugLine method passed in.
+    -- Because each generator uses it's own Lua environment we can use globals
+    -- like this, even though it's still kind of dirty.
+    log.Write = function(self, msg)
+        if MACARONI_VERSION == "0.1.0.27" then
+            print("[CPP]" .. msg)
+        else
+            if self.output ~= nil then
+                self.output:DebugLine(msg)
+            end
+        end
+    end
+
     Validate(self)
     if self.defaultLib == nil then
         for i=1, #self.projectVersion.Targets do
@@ -117,16 +131,6 @@ function Generate(library, path)
         local ufGen = UnitFileGenerator.new(library);
         ufGen:iterateUnits(library, rootGenPath);
     end
-end
-
-
-function printTable(tbl)
-    print("TABLE")
-    for key, value in pairs(tbl) do
-        print(tostring(key) .. " = " .. tostring(value))
-        print("\t" .. tostring(type(value)))
-    end
-    print("END TABLE")
 end
 
 

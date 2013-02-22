@@ -167,16 +167,28 @@ class Output
 		}
 	}
 
+	public virtual void LuaDebug(const char * msg)
+		@LuaFunction "Debug"
+	{
+		WriteAnything(DEBUG, msg, false);
+	}
+
+	public virtual void LuaDebugLine(const char * msg)
+		@LuaFunction "DebugLine"
+	{
+		WriteAnything(DEBUG, msg, true);
+	}
+
 	public virtual void LuaWrite(const char * msg)
 		@LuaFunction "Write"
 	{
-		WriteAnything(DEBUG, msg, false);
+		WriteAnything(INFO, msg, false);
 	}
 
 	public virtual void LuaWriteLine(const char * msg)
 		@LuaFunction "WriteLine"
 	{
-		WriteAnything(DEBUG, msg, true);
+		WriteAnything(INFO, msg, true);
 	}
 
 	~block "h"
@@ -193,13 +205,23 @@ class Output
 		}
 
 		template<typename T>
-		inline void Write(T arg) {
+		inline void Debug(T arg) {
 			WriteAnything(DEBUG, arg, false);
 		}
 
 		template<typename T>
-		inline void WriteLine(T arg) {
+		inline void DebugLine(T arg) {
 			WriteAnything(DEBUG, arg, true);
+		}
+
+		template<typename T>
+		inline void Write(T arg) {
+			WriteAnything(INFO, arg, false);
+		}
+
+		template<typename T>
+		inline void WriteLine(T arg) {
+			WriteAnything(INFO, arg, true);
 		}
 	}
 };

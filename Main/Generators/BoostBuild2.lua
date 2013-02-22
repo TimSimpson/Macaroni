@@ -14,6 +14,14 @@ Target = Macaroni.Model.Project.Target;
 --require "Macaroni.IO.PathList";
 
 
+function debugLine(self, msg)
+    if MACARONI_VERSION == "0.1.0.27" then
+        self.output:WriteLine(msg);
+    else
+        self.output:DebugLine(msg);
+    end
+end
+
 function GetMethod(name)
     if name == "Generate" then
         return
@@ -47,15 +55,15 @@ function GetMethod(name)
                 -- This next part copies all C++ files.
                 local self = args;
                 local dst = path:NewPathForceSlash("Source")
-                print("INSTALLING TO PATH " .. tostring(dst))
+                args.output:DebugLine("INSTALLING TO PATH " .. tostring(dst))
                 for target in Plugin.IterateProjectVersionTargets(
                     self.projectVersion, "unit")
                 do
                     local cppFile = target.CppFile
                     local hFile = target.HFile
-                    print(tostring(target))
-                    print("\t" .. tostring(cppFile))
-                    print("\t" .. tostring(hFile))
+                    args.output:DebugLine(tostring(target))
+                    args.output:DebugLine("\t" .. tostring(cppFile))
+                    args.output:DebugLine("\t" .. tostring(hFile))
                     cppFile:CopyToDifferentRootPath(dst)
                     if hFile ~= nil then
                         hFile:CopyToDifferentRootPath(dst)
@@ -101,7 +109,7 @@ function validateArgs(self)
     Plugin.Check(self.projectVersion ~= nil, "Missing argument 'projectVersion'.")
     Plugin.Check(self.jamroot ~= nil, "Missing argument 'jamroot'.")
     Plugin.Check(self.output ~= nil, "Missing argument 'output'.")
-    self.Log = self.Log or Plugin.CreateFakeLog()
+    --self.Log = self.output -- Log or Plugin.CreateFakeLog()
 end
 
 function getProjectName(projectVersion)
@@ -320,13 +328,25 @@ function writeLibTargets(self, writer)
     end
 end
 
-function writeTestTarget(self, writer, lib)
-    writer:WriteLine("# " .. lib.Name);
+function writeUnitTargetVariant(self, writer, lib, properties)
     writer:WriteLine("unit-test " .. getDepName(self, lib) );
     writer:WriteLine("    :   # Sources:");
     writer:WriteLine(allDependencies(self, lib));
-    writer:WriteLine("    :   # TODO: May need to set some compiler flags here.");
+    writer:WriteLine("    :  " .. properties);
     writer:WriteLine("    ;");
+end
+
+function writeTestTarget(self, writer, lib)
+    writer:WriteLine("# " .. lib.Name);
+    if self.testVariants then
+        -- Write multiple targets, all identical except for their
+        -- properties.
+        for i=1, #self.testVariants do
+            writeUnitTargetVariant(self, writer, lib, self.testVariants[i])
+        end
+    else
+        writeUnitTargetVariant(self, writer, lib, "")
+    end
 end
 
 function writeTestTargets(self, writer)
@@ -395,10 +415,8 @@ function getLibraryProperties(self, libTarget)
 end
 
 function writeBoostFile(self)
-    log:Write("Creating Boost.Build file at " ..
+    debugLine(self, "Creating Jamroot.jam file at " ..
               self.jamroot.AbsolutePathForceSlash .. ".");
-    self.output:WriteLine("Creating Jamroot file at " .. tostring(self.jamroot)
-                          .. ".");
     local writer = self.jamroot:CreateFile();
 
     writer:WriteLine([[
@@ -512,22 +530,6 @@ function initializeExtraArgs(args)
 end
 
 
-function Test(library, sources, outputPath, installPath, extraArgs)
-    log.Init("BoostBuild");
-    local cmdLine = "bjam"
-    if (extraArgs.CmdLine ~= nil) then
-        cmdLine = cmdLine .. " " .. extraArgs.CmdLine
-    end
-    cmdLine = cmdLine .. " " ..  outputPath.AbsolutePathForceSlash
-    print(cmdLine)
-    local rtnCode = os.execute(cmdLine)
-    log:Write("BJAM return code = " .. rtnCode .. ".")
-    if (rtnCode ~= 0) then
-        error("Call to Boost.Build failed.")
-        return false;
-    end
-end
-
 function findFilePath(sources, file)
     -- Given a series of directories, finds the file... if such a file exists!
     for i, v in ipairs(sources) do
@@ -572,7 +574,8 @@ function copyCppSource(regEx, src, dst)
     for i = 1, #srcs do
         local child = srcs[i];
         if (not child.IsDirectory) then
-            log:Write(tostring(child.AbsolutePathForceSlash) .. " ... " .. tostring(dst.AbsolutePathForceSlash));
+            debugLine(self, tostring(child.AbsolutePathForceSlash)
+                            .. " ... " .. tostring(dst.AbsolutePathForceSlash));
             --src:CreateDirectory();
             child:CopyToDifferentRootPath(dst);
         else
@@ -642,17 +645,22 @@ function writeUseStatement(self, writer, depProject)
         writeUseStatementForUnknownProject(self, writer, depProject);
 end
 
-function writeUseStatements(self, writer)
-    self.jamSupport = {}
+function writeUseStatementsForType(self, writer, type)
     for target in Plugin.IterateProjectVersionTargets(self.projectVersion,
-                                                      "lib") do
+                                                      type) do
         local t = {};
         print(Plugin.IterateDependencyProjects)
         for depProject in Plugin.IterateDependencyProjects(target) do
             writeUseStatement(self, writer, depProject)
         end
     end
+end
 
+function writeUseStatements(self, writer)
+    self.jamSupport = {}
+    writeUseStatementsForType(self, writer, "lib")
+    writeUseStatementsForType(self, writer, "exe")
+    writeUseStatementsForType(self, writer, "test")
 end
 
 function Prepare(library, sourcePaths, outputPath, installPath, extraArgs)

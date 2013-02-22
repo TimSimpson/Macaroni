@@ -161,7 +161,7 @@ class Macaroni::Environment::ProjectLoader
         MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(ProjectNotFoundException,
             "Could not find a file for project %s.");
 
-        #define LOG_DEBUG(a) std::cout << a << std::endl;
+        #define LOG_DEBUG(a) /* std::cout << a << std::endl; */
     }
 
     private AppPathsPtr appPaths;
@@ -345,7 +345,7 @@ class Macaroni::Environment::ProjectLoader
         {
             if (actualPvId != expectedPvId.get())
             {
-                output->WriteLine(format(
+                output->ErrorLine(format(
                     "Unexpected project found in file %s: %s.")
                     % projectPath.string() % actualPvId.ToString());
                 throw LoadProjectException2(expectedPvId.get().ToString().c_str(),
@@ -377,7 +377,7 @@ class Macaroni::Environment::ProjectLoader
         }
         path workingDir = projectFilePath;
         workingDir.remove_leaf();
-        output->WriteLine(format("Parsing file %s...") %
+        output->DebugLine(format("Parsing file %s...") %
                           projectFilePath.string());
 
         struct MarkerImpl : public ProjectLoaderMarker

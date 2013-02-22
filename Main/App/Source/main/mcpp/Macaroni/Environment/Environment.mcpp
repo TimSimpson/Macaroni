@@ -122,11 +122,6 @@ class Macaroni::Environment::Environment
 	// The working directory. This is always the project file's directory.
 	private path workingDirectory;
 	// The file current being parsed.
-	//MARIO private path workingProjectFile;
-	//MARIO // The known project ID. This isn't known until the file is "locked"
-	//MARIO // down, which means something happens in the script that forces the
-	//MARIO // user to have defined the project, or the script finishes parsing.
-	//MARIO // Before that it is simply the ProjectVersionId place holder.
 	//private ProjectVersionId workingProjectId;
 
 	public Environment(AppPathsPtr appPaths, ContextPtr context,
@@ -141,25 +136,25 @@ class Macaroni::Environment::Environment
 	  quitRepl(false),
 	  workingDirectory("./")
 	{
-		output->WriteLine("Creating new Environment with the following "
+		output->DebugLine("Creating new Environment with the following "
 		                  "AppPaths:");
-		output->Write(format("Message file : %s") %
+		output->DebugLine(format("Message file : %s") %
 		           appPaths->GetMessagePaths().string());
-		output->WriteLine("");
-		output->Write("Library Paths : [");
+		output->DebugLine("");
+		output->DebugLine("Library Paths : [");
 		BOOST_FOREACH(const boost::filesystem::path & path,
 			          appPaths->GetLibraryRepoPaths())
 		{
-			output->Write(path.string());
+			output->Debug(path.string());
 		}
-		output->WriteLine("]");
-		output->Write("Generator Paths : [");
+		output->DebugLine("]");
+		output->Debug("Generator Paths : [");
 		BOOST_FOREACH(const boost::filesystem::path & path,
 			          appPaths->GetGeneratorPaths())
 		{
-			output->Write(path.string());
+			output->Debug(path.string());
 		}
-		output->WriteLine("]");
+		output->DebugLine("]");
 		pLoader = new ProjectLoader(appPaths, context, output);
 	}
 
@@ -288,12 +283,12 @@ output->WriteLine("                     \\________/  ");
 					projectFilePath.get());
 				return true;
 			} catch (const Macaroni::Exception & me) {
-				output->WriteLine(format("Error running default project : %s")
+				output->ErrorLine(format("Error running default project : %s")
 			                      % me.message());
 				return false;
 			}
 		} else {
-			output->WriteLine("No \"project.lua\" file found.");
+			output->ErrorLine("No \"project.lua\" file found.");
 			return false;
 		}
 	}
