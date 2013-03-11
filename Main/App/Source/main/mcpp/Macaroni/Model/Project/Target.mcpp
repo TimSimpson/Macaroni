@@ -39,6 +39,9 @@
 ~import Macaroni::Model::Node;
 ~import Macaroni::Model::NodePtr;
 ~import boost::optional;
+~import Macaroni::Model::Project::PlatformName;
+~import Macaroni::Model::Project::PlatformList;
+~import Macaroni::Model::Project::PlatformListPtr;
 ~import Macaroni::Model::Project::Project;
 ~import Macaroni::Model::Project::ProjectVersion;
 ~import Macaroni::Model::Project::ProjectVersionPtr;
@@ -91,6 +94,7 @@ class Target
 	protected vector<Element *> elements;
 	private const string name;
 	private Target * parent;
+	private PlatformListPtr platformList;
 	private ProjectVersion * const projectVersion;
 	protected vector<Target *> requirements;
 	protected optional<string> shortName;
@@ -124,12 +128,14 @@ class Target
 		elements(),
 	    name(name),
 	    parent(0),
+	    platformList(),
 		projectVersion(projectVersion),
 		requirements(),
 		shortName(shortName)
 		//sources(new Files())
 	{
 		projectVersion->AddTarget(this);
+		platformList.reset(new PlatformList());
 	}
 
 	protected Target(ProjectVersion * projectVersion, const string & name,
@@ -139,12 +145,14 @@ class Target
 		elements(),
 	    name(name),
 	    parent(0),
+	    platformList(),
 		projectVersion(projectVersion),
 		requirements(),
 		shortName(shortName)
 		//sources(sources)
 	{
 		projectVersion->AddTarget(this);
+		platformList.reset(new PlatformList());
 	}
 
 	public virtual ~Target()
@@ -205,6 +213,24 @@ class Target
 		elements.push_back(element);
 	}
 
+	public void AddPlatform(const std::string & platformName)
+		@LuaFunction "AddPlatform"
+	/**
+	 * Adds a platform that this target compiles / functions on.
+	 * If the list is empty, then all platforms work; only by adding platforms
+	 * do they begin to get filtered out.
+	 */
+	{
+		BOOST_FOREACH(const PlatformName & name, *platformList)
+		{
+			if (name == platformName)
+			{
+				return;
+			}
+		}
+		platformList->push_back(PlatformName(platformName));
+	}
+
 	public virtual ArtifactListPtr FindArtifacts(const string & name)
 	{
 		return FindArtifacts(name, ConfigPtr());
@@ -251,6 +277,12 @@ class Target
 	{
 		return str(format("%s___%s") % projectVersion->GetCId()
 			                         % Utils::CreateCId(name));
+	}
+
+	public const PlatformListPtr GetPlatforms() const
+		@LuaProperty "Platforms"
+	{
+		return platformList;
 	}
 
 	public string GetVersionFreeCId() const
@@ -360,6 +392,26 @@ class Target
 	public virtual int LuaIndex(lua_State * L, const string & name)
 	{
 		return 0;
+	}
+
+	public bool MatchesPlatform(const std::string & platformName) const
+		@LuaFunction "MatchesPlatform"
+	{
+		if (platformList->size() == 0)
+		{
+			return true;  // If no names are defined, then everything matches.
+		}
+		else
+		{
+			BOOST_FOREACH(const PlatformName & name, *platformList)
+			{
+				if (name == platformName)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
 	}
 
 	/** Returns true if this target is owned by the given target. */

@@ -29,6 +29,7 @@ class std::vector { ~hfile=<vector> };
 
 // Boost
 class boost::bad_lexical_cast { ~hfile=<boost/lexical_cast.hpp> };
+class boost::flyweight { ~hfile=<boost/flyweight.hpp> };
 class boost::filesystem::directory_iterator { ~hfile=<boost/filesystem/operations.hpp> };
 class boost::lexical_cast { ~hfile=<boost/lexical_cast.hpp> };
 class BOOST_FOREACH { ~hfile=<boost/foreach.hpp> };

@@ -36,6 +36,7 @@
 #include <Macaroni/Model/Project/ExeTarget.h>
 #include <Macaroni/Model/Project/ExeTargetPtr.h>
 #include <Macaroni/Model/FileName.h>
+#include <boost/foreach.hpp>
 #include <Macaroni/Model/Cpp/Function.h>
 #include <Macaroni/Model/Cpp/FunctionOverload.h>
 #include <Macaroni/Model/Library.h>
@@ -2647,6 +2648,8 @@ public:
 		std::string hFile = defaultRootName + ".h";
 		std::string cppFile = defaultRootName + ".cpp";
 		std::string type = "lib";
+
+		std::vector<std::string> platforms;
 		while(true)
 		{
 			ConsumeWhitespace(newItr);
@@ -2671,6 +2674,27 @@ public:
 				}
 				newItr.ConsumeWhitespace();
 				ConsumeFilePath(newItr, cppFile);
+			}
+			else if (newItr.ConsumeWord("platform"))
+			{
+				newItr.ConsumeWhitespace();
+				if (!newItr.ConsumeChar('='))
+				{
+					throw ParserException(newItr.GetSource(),
+						Messages::Get("CppParser.Unit.PlatformNoEquals"));
+				}
+				newItr.ConsumeWhitespace();
+				std::string platform;
+				while (ConsumeSimpleName(newItr, platform))
+				{
+					platforms.push_back(platform);
+					newItr.ConsumeWhitespace();
+					if (!newItr.ConsumeChar(','))
+					{
+						break;
+					}
+					newItr.ConsumeWhitespace();
+				}
 			}
 			else if (newItr.ConsumeWord("type"))
 			{
@@ -2722,6 +2746,15 @@ public:
 				sources);
 			useTarget = exe;
 			name = "~unit~" + name;
+
+			// A great question here would be: why did I do this? Why can
+			// currentTarget sometimes be used? When would that ever be a
+			// good thing? I have a feeling I the code should throw an error
+			// if no types match. Way to go, ME.
+			BOOST_FOREACH(const std::string & platformName, platforms)
+			{
+				exe->AddPlatform(platformName);
+			}
 		}
 		// Finally create the new unit target, with the current target
 		// as the parent.

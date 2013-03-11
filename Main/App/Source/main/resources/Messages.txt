@@ -75,6 +75,7 @@ CppParser.Unit.NoID1=Identifier expected following ~unit keyword.
 CppParser.Unit.NoLegacy=Cannot define units when in legacy (manifest) mode.
 CppParser.Unit.NoEndingBrace=Ending brace expected to close block begun on line {0}.
 CppParser.Unit.NoOpeningBrace=Expected an opening brace following the ~unit declaration.
+CppParser.Unit.PlatformNoEquals=Missing equals after unit platform keyword.
 CppParser.Unit.StatementEof=Expected EOF at line {0}.
 CppParser.Unit.TypeNoEquals=Expected to see an equals sign following the ~type.
 CppParser.Unit.TypeNoName=Expected to see a name following "~type =".

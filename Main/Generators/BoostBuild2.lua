@@ -274,8 +274,20 @@ function includeDepPaths(self, target)
     return table.concat(t, "\n        ");
 end
 
+function _writePlatformExeTarget(self, writer, target)
+
+end
+
 function writeExeTarget(self, writer, target)
     writer:WriteLine("# " .. target.Name);
+    local platforms = {}
+    if MACARONI_VERSION ~= "0.1.0.27" then
+        platforms = target.Platforms;
+    end
+    if #platforms > 0 then
+        -- First, make an alias so this will be ignored by default.
+        writer:WriteLine("alias " .. getDepName(self, target) .. " : : ;");
+    end
     writer:WriteLine("exe " .. getDepName(self, target));
     writer:WriteLine("    :   # Sources:");
     writer:WriteLine(allDependenciesWithJamSupport(self, target));
@@ -283,6 +295,16 @@ function writeExeTarget(self, writer, target)
     local flags = self.flags[target.Name];
     if flags ~= nil then
         writer:WriteLine(flags);
+    end
+    for i=1, #platforms do
+        -- platform rules are specified in the arguments to this plugin
+        local rule = self.platformRules[platforms[i]];
+        if rule == nil then
+            error("There is not custom key in platformRules for platform "
+                  .. platforms[i] .. "!");
+        end
+        writer:WriteLine("        " .. rule
+                         .. " # " .. platforms[i] .. " rule ");
     end
     writer:WriteLine("    ;");
 end

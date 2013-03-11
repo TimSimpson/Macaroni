@@ -18,8 +18,8 @@ local TypeNames = Macaroni.Model.TypeNames;
 
 FileWriters = {
     H = {
-        Block = function(library, node, writer)
-            UnitBlockGenerator.Write{node = node, writer=writer}
+        Block = function(library, node, writer, unit)
+            UnitBlockGenerator.Write{writer=writer, unit=unit, type="h"}
         end,
 
         Class = function(library, node, writer)
@@ -34,8 +34,8 @@ FileWriters = {
         end,
     },
     Cpp = {
-        Block = function(library, node, writer)
-            UnitBlockGenerator.Write{node = node, writer=writer}
+        Block = function(library, node, writer, unit)
+            UnitBlockGenerator.Write{writer=writer, unit=unit, type="cpp"}
         end,
 
         Class = function(library, node, writer)
@@ -115,7 +115,7 @@ UnitFileGenerator = {
                           .. ". fileType=" .. tostring(fileType)
                           .. ", typeName=" .. tostring(typeName))
                 end
-                func(self.targetLibrary, node, writer)
+                func(self.targetLibrary, node, writer, unit)
             end
         end
     end,

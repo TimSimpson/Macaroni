@@ -6,8 +6,8 @@ UnitBlockGenerator =
     isNested = false,
     tabs = 0,
 
-    usingStatements = function(self)
-        local imports = self.block.ImportedNodes;
+    usingStatements = function(self, block)
+        local imports = block.ImportedNodes;
         for i = 1, #imports do
             local import = imports[i];
             self:writeUsing(import);
@@ -15,20 +15,56 @@ UnitBlockGenerator =
     end,
 
     Write = function(args)
-        assert(args.node ~= nil);
         assert(args.writer ~= nil);
-        assert(args.node.Member ~= nil);
-        local block = args.node.Member
-        args.block = block
+        --assert(args.node.Member ~= nil);
+        assert(args.unit ~= nil);
+        assert(args.type ~= nil);
+
+        --local block = args.node.Member
+        --args.block = block
         setmetatable(args, UnitBlockGenerator);
 
-        args:writeIncludes()
-        args:usingStatements()
-        args:writeBlockCodeBlock(args.node.Member)
+        local elements = args.unit:CreateElementList()
+
+        topBlocks = {}
+        bottomBlocks = {}
+        middleBlocks = {}
+
+        for i = 1, #elements do
+            local element = elements[i]
+            local member = element.Node.Member
+            if element.Node.TypeName == "Block" then
+                if member.Id == "top" then
+                    topBlocks[#topBlocks + 1] = member
+                elseif member.Id == "bottom" then
+                    bottomBlocks[#bottomBlocks + 1] = member
+                elseif member.Id == args.type then -- cpp or h
+                    middleBlocks[#middleBlocks + 1] = member
+                end
+            end
+        end
+
+        for i = 1, #topBlocks do
+            args:writeBlockCodeBlock(topBlocks[i])
+        end
+
+        for i = 1, #middleBlocks do
+            args:writeIncludes(middleBlocks[i])
+            args:usingStatements(middleBlocks[i])
+        end
+
+        for i = 1, #middleBlocks do
+            args:writeBlockCodeBlock(middleBlocks[i])
+        end
+
+        for i = 1, #bottomBlocks do
+            args:writeBlockCodeBlock(bottomBlocks[i])
+        end
+
     end,
 
-    writeIncludes = function(self)
-        local imports = self.block.ImportedNodes;
+    writeIncludes = function(self, block)
+        local imports = block.ImportedNodes;
         for i = 1, #imports do
             local import = imports[i];
             if (import.Member ~= nil) then
