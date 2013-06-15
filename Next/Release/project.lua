@@ -128,7 +128,7 @@ end
 function createPureCpp()
     local dstDir = newPath("target/macaroni-" .. version .. "-pureCpp");
     copyFiles(newPath("../../Main/App/PureCpp"), dstDir,
-            [[\.(jam|h|cpp|ico|txt|rc|rc2)?$]], "bin")
+            [[\.(jam|h|hpp|cpp|ico|txt|rc|rc2)?$]], "bin")
     zipDirectory(dstDir);
 end
 
