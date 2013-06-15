@@ -1,4 +1,3 @@
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE Macaroni_Tests_Blocks
 #include <boost/test/unit_test.hpp>
 #include <Macaroni/Tests/Blocks/Fsm.h>

@@ -5,7 +5,6 @@
 ~import std::endl;
 ~block "cpp" :=
 
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE TemplateExampleTest
 #include <boost/test/unit_test.hpp>
 

@@ -99,6 +99,7 @@ class Console : public virtual Input, public virtual Output
 			{
 				void SetError(){}
 				void SetNormal(){}
+				void SetDebug(){}
 			};
 		#endif
 	}

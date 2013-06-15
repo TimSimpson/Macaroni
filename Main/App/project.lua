@@ -207,7 +207,7 @@ end
 build = function()
   local callBjam = function()
       local cmd = "bjam link=static threading=multi " -- cxxflags=-std=gnu++11 "
-                  .. targetDir.AbsolutePath
+                  .. properties.bjam_options .. " " .. targetDir.AbsolutePath
       output:WriteLine(cmd)
       if (os.execute(cmd) ~= 0) then
           output:ErrorLine("Failure running Boost Build!")

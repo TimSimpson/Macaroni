@@ -1,7 +1,6 @@
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE TurtleTest
 #include <boost/test/unit_test.hpp>
-#include <boost/filesystem/convenience.hpp> 
+#include <boost/filesystem/convenience.hpp>
 #include "Turtle.h"
 #include <boost/shared_ptr.hpp>
 #include <string>
@@ -17,7 +16,7 @@ using Macaroni::Reptile::Turtle;
 BOOST_AUTO_TEST_SUITE(TurtleSuite)
 
 BOOST_AUTO_TEST_CASE(make_sure_turtle_works)
-{	
+{
 	path p("./");
 	Turtle t(p);
 	BOOST_CHECK_MESSAGE(t.getNumber() == 50, "Must be 50.");

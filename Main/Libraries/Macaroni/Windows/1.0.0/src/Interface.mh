@@ -1,0 +1,3 @@
+class HINSTANCE { ~hfile=<windows.h> };
+class HWND { ~hfile=<windows.h> };
+class TCHAR { ~hfile=<tchar.h> };

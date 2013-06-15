@@ -76,7 +76,7 @@ function Generate2(self)
     -- like this, even though it's still kind of dirty.
     log.Write = function(self, msg)
         if MACARONI_VERSION == "0.1.0.27" then
-            print("[CPP]" .. msg)
+            --print("[CPP]" .. msg)
         else
             if self.output ~= nil then
                 self.output:DebugLine(msg)

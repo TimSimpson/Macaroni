@@ -1,11 +1,10 @@
-#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE ExampleTests
 #include <boost/test/unit_test.hpp>
 
 
 BOOST_AUTO_TEST_SUITE(ExampleeSuite)
 
-static int add(int a, int b) 
+static int add(int a, int b)
 {
 	return a + b;
 }

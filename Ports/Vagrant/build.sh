@@ -8,9 +8,9 @@ fi
 set -e
 
 TOOLS_ROOT=$HOME/Tools
-export BOOST_ROOT=$TOOLS_ROOT/boost/boost_1_52_0
+export BOOST_ROOT=${BOOST_ROOT:-$TOOLS_ROOT/boost/boost_1_52_0}
 export LUA_ROOT=$TOOLS_ROOT/lua/lua-5.1.4
-MACARONI_SOURCE=/macaroni
+MACARONI_SOURCE=${MACARONI_SOURCE:-/macaroni}
 MACARONI_EXE=$MACARONI_SOURCE/Main/App/PureCpp/bin/gcc-4.7/debug/address-model-$CPU_BITS/link-static/threading-multi/macaroni_p
 export PATH=$PATH:$BOOST_ROOT
 export PATH=$PATH:$BOOST_ROOT/stage/lib
@@ -67,7 +67,7 @@ function install_lua() {
 function cmd_install() {
     install_gcc
     install_boost
-    ## install_lua
+    install_lua
 }
 
 function create_user_config() {
@@ -136,7 +136,8 @@ properties =
   },
 }
 properties.boost.current = properties.boost['1.52'];
-properties.bjam_options = '-d+2 '
+properties.bjam_options = '-d+2 ';
+properties.boost.version = '1.52';
 " > ~/Macaroni/init.lua
 }
 
@@ -161,7 +162,7 @@ function cmd_all_tests() {
     pushd /macaroni/Main/Dependencies/Lua
     cmd_run clean install
     popd
-    pushd /macaroni/Tests
+    pushd /macaroni/Next/Tests
     cmd_run clean install
     popd
 }
