@@ -15,4 +15,4 @@ REM %CAVATAPPI%\..\App\GeneratedSource\exe\macaroni.exe generatorPath %GEN_PATH%
 
 REM %CAVATAPPI%\..\App\GeneratedSource\bin\gcc-mingw-4.7.2\debug\link-static\threading-multi\macaroni.exe generatorPath %GEN_PATH% libraryRepoPath %CAVATAPPI%\..\Libraries messagesPath %CAVATAPPI%\..\App\Source\main\resources cavatappi %*
 @echo on
-%CAVATAPPI%\..\App\GeneratedSource\bin\msvc-11.0\debug\link-static\threading-multi\macaroni.exe generatorPath %GEN_PATH% libraryRepoPath %CAVATAPPI%\..\Libraries messagesPath %CAVATAPPI%\..\App\Source\main\resources cavatappi %*
+%CAVATAPPI%\..\App\GeneratedSource\bin\msvc-11.0\debug\link-static\threading-multi\macaroni.exe generatorPath %GEN_PATH% --libraryRepoPath %CAVATAPPI%\..\Libraries --messagesPath %CAVATAPPI%\..\App\Source\main\resources cavatappi %*

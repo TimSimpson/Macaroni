@@ -75,10 +75,10 @@ class AppPaths
 		lPaths.push_back(exePath / "Libraries");
 		lPaths.push_back(userLibraryPath());
 		return lPaths;
-	}	
+	}
 
 	/** Finds the directory of the project. */
-	public optional<path> FindFinalProjectDirectory(const ProjectVersionId & pv) 
+	public optional<path> FindFinalProjectDirectory(const ProjectVersionId & pv)
 		const
 	{
 		optional<path> p = FindFinalProjectFile(pv);
@@ -91,7 +91,7 @@ class AppPaths
 
 	/** Finds or creates the directory of the project. */
 	public path FindOrCreateFinalProjectDirectory(
-		const ProjectVersionId & pv) 
+		const ProjectVersionId & pv)
 		const
 	{
 		optional<path> p = FindFinalProjectDirectory(pv);
@@ -112,12 +112,12 @@ class AppPaths
 		}
 		else
 		{
-			return userLibraryPath() / pv.Group / pv.Name / pv.Version 
+			return userLibraryPath() / pv.Group / pv.Name / pv.Version
 				   / "project-final.lua";
 		}
 	}
 
-	/** Finds the path to an installed project file, if one exists. */	
+	/** Finds the path to an installed project file, if one exists. */
 	public optional<path> FindFinalProjectFile(const ProjectVersionId & pv) const
 	{
 		boost::filesystem::path rp = pv.Group;
@@ -133,37 +133,6 @@ class AppPaths
 			}
 		}
 		return boost::none;
-	}
-
-	public path FindFinalManifestFile(const LibraryId & id) const
-	{
-		boost::filesystem::path rp(id.GetGroup());
-		rp = rp / id.GetName();
-		rp = rp / id.GetVersion();
-		rp = rp / "manifest-final.lua";
-
-		std::stringstream ss;
-		ss << "Could not find the given relative path ";
-		ss << rp.string() ;
-
-		BOOST_FOREACH(const boost::filesystem::path & path,
-					  libraryRepoPaths)
-		{
-			boost::filesystem::path guess = path / rp;
-			ss << "; not found at path " << guess.string() ;
-			if (boost::filesystem::exists(guess) && boost::filesystem::is_regular_file(guess))
-			{
-				return guess;
-			}
-		}
-
-		throw FileNotFoundException(ss.str());
-	}
-
-	public path FindInstallPath(const LibraryId & id) const
-	{
-		path file = FindFinalManifestFile(id);
-		return file.branch_path();
 	}
 
 	public inline vector<path> GetGeneratorPaths()

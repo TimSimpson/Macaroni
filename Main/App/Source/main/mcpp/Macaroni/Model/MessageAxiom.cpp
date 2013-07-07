@@ -17,7 +17,7 @@
 #define MACARONI_MODEL_MESSAGEAXIOM_CPP
 
 #include "MessageAxiom.h"
-#include "../Environment/Messages.h"
+#include <Macaroni/Environment/Messages.h>
 
 using Macaroni::Environment::Messages;
 

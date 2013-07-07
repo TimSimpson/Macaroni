@@ -1,0 +1,146 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+~import MACARONI_CHECK;
+~import BOOST_FOREACH;
+~import boost::format;
+~import boost::regex;
+~import std::string;
+~import std::stringstream;
+
+~namespace Macaroni::Build;
+
+//TODO: Move this to be next to Library class.
+/** The part of a Project definition which can identify the Module. */
+class LibraryId
+{
+    private string group;
+    private string name;
+    private string version;
+
+    public LibraryId()
+    {
+    }
+
+    public LibraryId(const string & group,
+                     const string & name,
+                     const string & version)
+    :   group(group),
+        name(name),
+        version(version)
+    {
+        MACARONI_CHECK(IsStringLegal(group),
+            (boost::format("Group \"%s\" invalid for library.") % group).str().c_str());
+        MACARONI_CHECK(IsStringLegal(name),
+            (boost::format("Name \"%s\" invalid for library.") % name).str().c_str());
+        MACARONI_CHECK(IsStringLegal(version),
+            (boost::format("Version \"%s\" invalid for library.") % version).str().c_str());
+    }
+
+    public ~global ~friend bool operator==(const LibraryId & a,
+                                           const LibraryId & b)
+    {
+        return a.GetGroup() == b.GetGroup()
+                && a.GetName() == b.GetName()
+                && a.GetVersion() == b.GetVersion();
+    }
+
+    ~hidden static string cleanUp(const string & original)
+    {
+        stringstream str;
+        int i = 0;
+        BOOST_FOREACH(char ch, original)
+        {
+            bool isValid = (i == 0 ? valid1stChar(ch) : validNChar(ch));
+            if (isValid)
+            {
+                str << ch;
+            }
+            else if (ch == '_')
+            {
+                str << "__";
+            }
+            else
+            {
+                int ord = (int) ch;
+                str << "_" << ord << "_";
+            }
+            i ++;
+        }
+        return str.str();
+    }
+
+    /** Returns a version of this ID which can be used as a C identifier.
+     * The point isn't to make a pretty name but just one that maps uniquely.
+     */
+    public string GetCId() const
+    {
+        stringstream ss;
+        ss <<  cleanUp(group) << "___"
+            << cleanUp(name);// << "___"
+            //<< cleanUp(version);
+        return ss.str();
+    }
+
+    /** Determines whether or not a string can be used for a group, name,
+     *  or version string of a library. */
+    public static bool IsStringLegal(const string & str)
+    {
+        static const boost::regex legalCharacters("[A-Za-z0-9_\\-.]+");
+        return boost::regex_match(str, legalCharacters);
+    }
+
+    public inline const string & GetGroup() const
+    {
+        return group;
+    }
+
+    public inline const string & GetName() const
+    {
+        return name;
+    }
+
+    public inline const string & GetVersion() const
+    {
+        return version;
+    }
+
+    public inline void SetGroup(const string & value)
+    {
+        group = value;
+    }
+
+    public inline void SetName(const string & value)
+    {
+        name = value;
+    }
+
+    public inline void SetVersion(const string & value)
+    {
+        version = value;
+    }
+
+    ~hidden static bool valid1stChar(const char ch)
+    {
+        return (ch >= 'a' && ch <= 'z')
+            || (ch >= 'A' && ch <= 'Z');
+    }
+
+    ~hidden static bool validNChar(const char ch)
+    {
+        return (ch >= '0' && ch <= '9') || valid1stChar(ch);
+    }
+};
+

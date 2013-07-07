@@ -18,7 +18,6 @@
 
 #include <Macaroni/Model/Cpp/AccessLuaMetaData.h>
 #include "../NodeLua.h"
-#include "../../Environment/DebugLog.h"
 #include "ConstructorOverloadLua.h"
 #include "../ElementLua.h"
 #include "FunctionLua.h"
@@ -65,7 +64,7 @@ using Macaroni::Model::Cpp::VariableAssignmentLuaMetaData;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-namespace 
+namespace
 {
 	//TODO: Actually register the creation methods in Lua.
 
@@ -86,9 +85,9 @@ bool ConstructorOverloadLuaMetaData::IsType(lua_State * L, int index)
 	return ElementLuaMetaData::IsType(L, index);
 }
 
-int ConstructorOverloadLuaMetaData::OpenInLua(lua_State * L) 
+int ConstructorOverloadLuaMetaData::OpenInLua(lua_State * L)
 {
-	luaL_register(L, GLOBALTABLENAME, tableMethods);		
+	luaL_register(L, GLOBALTABLENAME, tableMethods);
 	return 1;
 }
 
@@ -98,25 +97,25 @@ void ConstructorOverloadLuaMetaData::PutInstanceOnStack(lua_State * L, const Con
 	ElementLuaMetaData::PutInstanceOnStack(L, memberPtr);
 }
 
-int ConstructorOverloadLuaMetaData::Index(lua_State * L, 
-										  const ConstructorOverloadPtr & ptr, 
+int ConstructorOverloadLuaMetaData::Index(lua_State * L,
+										  const ConstructorOverloadPtr & ptr,
 										  const std::string & index)
-{	
+{
 	if (index == "Arguments")
 	{
 		NodeListPtr argList = ptr->GetArguments();
 		Model::NodeListLuaMetaData::PutInstanceOnStack(L, argList);
 		return 1;
-	}		
+	}
 	if (index == "Assignments")
 	{
 		void * memory = lua_newuserdata(L, sizeof(ConstructorOverloadPtr));
 		ConstructorOverloadPtr * instance = new (memory) ConstructorOverloadPtr();
 		(*instance).operator=(ptr);
 		luaL_getmetatable(L, "Macaroni.Model.Cpp.ConstructorOverload.Assignments");
-		lua_setmetatable(L, -2); 
+		lua_setmetatable(L, -2);
 		return 1;
-	}				
+	}
 	return 0;
 }
 

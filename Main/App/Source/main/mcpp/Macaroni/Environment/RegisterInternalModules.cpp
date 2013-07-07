@@ -16,7 +16,7 @@
 #ifndef MACARONI_ENVIRONMENT_REGISTERINTERNALMODULES_CPP
 #define MACARONI_ENVIRONMENT_REGISTERINTERNALMODULES_CPP
 
-#include "LuaEnvironment.h"
+#include <Macaroni/Environment/LuaEnvironment.h>
 #include <Macaroni/Model/AnnotationTableLua.h>
 #include <Macaroni/Model/AnnotationValueLua.h>
 #include <Macaroni/Model/AxiomLua.h>

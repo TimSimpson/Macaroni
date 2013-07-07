@@ -17,7 +17,7 @@
 #define MACARONI_PARSER_CPP_CPPAXIOM_CPP
 
 #include "CppAxiom.h"
-#include "../../Environment/Messages.h"
+#include <Macaroni/Environment/Messages.h>
 
 using Macaroni::Environment::Messages;
 

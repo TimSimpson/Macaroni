@@ -21,7 +21,6 @@
 #include <lualib.h>
 #include "AxiomLua.h"
 #include "Axiom.h"
-#include "../Environment/DebugLog.h"
 #include <sstream>
 
 BEGIN_NAMESPACE2(Macaroni, Model)
@@ -35,7 +34,7 @@ BEGIN_NAMESPACE2(Macaroni, Model)
 //	virtual const std::string ToString() const
 //	{
 //		// Get registry table "AxiomCallbacks"
-//		// 
+//		//
 //	}
 //private:
 //	lua_State * L;
@@ -49,7 +48,7 @@ namespace {
 	static inline void createAxiomPtrUserData(lua_State * L, const AxiomPtr & source)
 	{
 		void * memory = lua_newuserdata(L, sizeof(AxiomPtr));
-		AxiomPtr * instance = new (memory) AxiomPtr();		
+		AxiomPtr * instance = new (memory) AxiomPtr();
 		(*instance).operator=(source);
 	}
 
@@ -70,7 +69,7 @@ namespace {
 	{
 		createAxiomPtrUserData(L, source);
 		luaL_getmetatable(L, METATABLENAME);
-		lua_setmetatable(L, -2); 
+		lua_setmetatable(L, -2);
 	}
 
 } // End Anon namespace
@@ -82,11 +81,11 @@ struct AxiomLuaFunctions
 		AxiomPtr * ptr = (AxiomPtr *) luaL_checkudata(L, 1, METATABLENAME);
 		ptr->~AxiomPtr();
 		return 0;
-	}	
+	}
 
 	static int __eq(lua_State * L)
 	{
-		AxiomPtr & a = getInstance(L, 1); 
+		AxiomPtr & a = getInstance(L, 1);
 		AxiomPtr & b = getInstance(L, 2);
 		lua_pushboolean(L, a.get()==b.get() ? 1 : 0);
 		return 1;
@@ -100,9 +99,9 @@ struct AxiomLuaFunctions
 		{
 			lua_pushinteger(L, ptr->GetReferenceCount());
 		}
-		else 
+		else
 		{*/
-			lua_pushnil(L);			
+			lua_pushnil(L);
 		//}
 		return 1;
 	}
@@ -121,7 +120,7 @@ struct AxiomLuaFunctions
 		{
 		public:
 			LuaAxiom(const std::string & words): ref(0), words(words){}
-			~LuaAxiom(){}			
+			~LuaAxiom(){}
 			const std::string ToString() const { return words; }
 		protected:
 			bool onDereference(){ return ((-- ref) > 0);}
@@ -153,7 +152,7 @@ static const struct luaL_Reg metaTableMethods[]=
 
 AxiomPtr & AxiomLuaMetaData::GetInstance(lua_State * L, int index)
 {
-	return getInstance(L, index);	
+	return getInstance(L, index);
 }
 
 bool AxiomLuaMetaData::IsType(lua_State * L, int index)
@@ -178,7 +177,7 @@ bool AxiomLuaMetaData::IsType(lua_State * L, int index)
 }
 
 int AxiomLuaMetaData::OpenInLua(lua_State * L)
-{	
+{
 	luaL_getmetatable(L, METATABLENAME);
 	if (lua_isnil(L, -1) != 1)
 	{
@@ -187,7 +186,7 @@ int AxiomLuaMetaData::OpenInLua(lua_State * L)
 	luaL_newmetatable(L, METATABLENAME); // create metaTable
 	luaL_register(L, nullptr, metaTableMethods);
 
-	// Creates or reuses a table called "Macaroni_File" and puts it in global 
+	// Creates or reuses a table called "Macaroni_File" and puts it in global
 	// scope.
 	luaL_register(L, GLOBALTABLENAME, tableMethods);
 

@@ -18,7 +18,6 @@
 
 #include "BlockLua.h"
 #include "NodeLua.h"
-#include "../Environment/DebugLog.h"
 #include "ElementLua.h"
 #include "NodeLua.h"
 #include "NodeListLua.h"
@@ -38,14 +37,14 @@ struct lua_State;
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
-namespace 
+namespace
 {
 	struct globalFunctions
 	{
-		static int Create(lua_State * L) 
+		static int Create(lua_State * L)
 		{
-			//static BlockPtr Create(NodePtr host, const std::string & id, 
-			//		const std::string & block,	
+			//static BlockPtr Create(NodePtr host, const std::string & id,
+			//		const std::string & block,
 			//		const ReasonPtr reasonCreated);
 			NodePtr home = NodeLuaMetaData::GetInstance(L, 1);
 			std::string id(luaL_checkstring(L, 2));
@@ -76,9 +75,9 @@ bool BlockLuaMetaData::IsType(lua_State * L, int index)
 	return ElementLuaMetaData::IsType(L, index);
 }
 
-int BlockLuaMetaData::Index(lua_State * L, const BlockPtr & ptr, 
+int BlockLuaMetaData::Index(lua_State * L, const BlockPtr & ptr,
 									  const std::string & index)
-{		
+{
 	if (index == "Code")
 	{
 		lua_pushstring(L, ptr->GetCode().c_str());
@@ -88,7 +87,7 @@ int BlockLuaMetaData::Index(lua_State * L, const BlockPtr & ptr,
 	{
 		lua_pushstring(L, ptr->GetId().c_str());
 		return 1;
-	}		
+	}
 	else if (index == "ImportedNodes")
 	{
 		NodeListPtr list = ptr->GetImportedNodes();
@@ -98,9 +97,9 @@ int BlockLuaMetaData::Index(lua_State * L, const BlockPtr & ptr,
 	return 0;
 }
 
-int BlockLuaMetaData::OpenInLua(lua_State * L) 
+int BlockLuaMetaData::OpenInLua(lua_State * L)
 {
-	luaL_register(L, GLOBALTABLENAME, tableMethods);		
+	luaL_register(L, GLOBALTABLENAME, tableMethods);
 	return 1;
 }
 

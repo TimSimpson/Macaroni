@@ -20,7 +20,6 @@
 #include <Macaroni/Model/Element.h>
 #include <Macaroni/Model/ElementLua.h>
 #include "../NodeLua.h"
-#include "../../Environment/DebugLog.h"
 #include "FunctionLua.h"
 #include <Macaroni/Model/Element.h>
 #include "../ModelInconsistencyException.h"
@@ -56,16 +55,16 @@ using Macaroni::Model::TypeLuaMetaData;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-namespace 
+namespace
 {
 	struct FunctionLuaFunctions
 	{
-		static int Create(lua_State * L) 
+		static int Create(lua_State * L)
 		{
 			try
 			{
-				//static FunctionPtr Create(NodePtr home, bool isInline, 
-				//	const Access access, const bool isStatic, const TypePtr rtnType, 
+				//static FunctionPtr Create(NodePtr home, bool isInline,
+				//	const Access access, const bool isStatic, const TypePtr rtnType,
 				//	bool constMember, Model::ReasonPtr reason);
 				NodePtr home = NodeLuaMetaData::GetInstance(L, 1);
 				ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 2);
@@ -73,10 +72,10 @@ namespace
 				ElementPtr rtnValue = boost::dynamic_pointer_cast<Element>(newFunc);
 				ElementLuaMetaData::PutInstanceOnStack(L, rtnValue);
 				return 1;
-			} 
-			catch(const ModelInconsistencyException & ex) 
+			}
+			catch(const ModelInconsistencyException & ex)
 			{
-				return luaL_error(L, "ModelInconsistencyException: %c", ex.what()); 
+				return luaL_error(L, "ModelInconsistencyException: %c", ex.what());
 			}
 		}
 
@@ -109,9 +108,9 @@ bool FunctionLuaMetaData::IsType(lua_State * L, int index)
 	return ElementLuaMetaData::IsType(L, index);
 }
 
-int FunctionLuaMetaData::OpenInLua(lua_State * L) 
+int FunctionLuaMetaData::OpenInLua(lua_State * L)
 {
-	luaL_register(L, GLOBALTABLENAME, tableMethods);		
+	luaL_register(L, GLOBALTABLENAME, tableMethods);
 	return 1;
 }
 
@@ -121,9 +120,9 @@ void FunctionLuaMetaData::PutInstanceOnStack(lua_State * L, const FunctionPtr & 
 	ElementLuaMetaData::PutInstanceOnStack(L, memberPtr);
 }
 
-int FunctionLuaMetaData::Index(lua_State * L, const FunctionPtr & ptr, 
+int FunctionLuaMetaData::Index(lua_State * L, const FunctionPtr & ptr,
 									  const std::string & index)
-{		
+{
 	return 0;
 }
 

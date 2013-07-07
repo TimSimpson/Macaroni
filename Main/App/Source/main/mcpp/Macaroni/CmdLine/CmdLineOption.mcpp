@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-~import Macaroni::Build::Builder;
 ~import Macaroni::Environment::Console;
 ~import Macaroni::Model::Context;
 ~import Macaroni::Model::ContextPtr;
@@ -22,28 +21,25 @@
 ~import Macaroni::Model::Library;
 ~import Macaroni::Model::LibraryPtr;
 ~import Macaroni::Environment::LuaEnvironment;
-~import Macaroni::Build::Manifest;
-~import Macaroni::Build::MCompiler;
-~import Macaroni::Build::MCompilerOptions;
 ~import Macaroni::Environment::Messages;
 ~import std::string;
 ~import std::stringstream;
 ~import std::vector;
 
-namespace Macaroni::CmdLine 
-{ 
+namespace Macaroni::CmdLine
+{
 
 class CmdLineOption
 {
 	private string description;
 	private string name;
-	
+
 	public CmdLineOption(const string name, const string description)
 	:	description(description),
 		name(name)
 	{
 	}
-	
+
 	public inline const string & GetDescription() const
 	{
 		return description;

@@ -21,7 +21,6 @@
 #include <lualib.h>
 #include "ContextLua.h"
 #include <Macaroni/Exception.h>
-#include "../Environment/DebugLog.h"
 #include <boost/foreach.hpp>
 #include <Macaroni/Model/FileNameLuaMetaData.h>
 #include "Library.h"
@@ -46,7 +45,7 @@ namespace {
 	static inline void createLibraryPtrUserData(lua_State * L, const LibraryPtr & source)
 	{
 		void * memory = lua_newuserdata(L, sizeof(LibraryPtr));
-		LibraryPtr * instance = new (memory) LibraryPtr();		
+		LibraryPtr * instance = new (memory) LibraryPtr();
 		(*instance).operator=(source);
 	}
 
@@ -56,7 +55,7 @@ namespace {
 		LibraryPtr & ptr = dynamic_cast<LibraryPtr &>(*ptrToPtr);
 		return ptr;
 	}
-	
+
 	static inline LibraryPtr & getInstance(lua_State * L)
 	{
 		return getInstance(L, 1);
@@ -64,7 +63,7 @@ namespace {
 
 	static inline void putLibraryInstanceOnStack(lua_State * L, const LibraryPtr & source)
 	{
-		if (!source) 
+		if (!source)
 		{
 			lua_pushnil(L);
 		}
@@ -72,7 +71,7 @@ namespace {
 		{
 			createLibraryPtrUserData(L, source);
 			luaL_getmetatable(L, METATABLENAME);
-			lua_setmetatable(L, -2); 
+			lua_setmetatable(L, -2);
 		}
 	}
 
@@ -85,13 +84,13 @@ struct LibraryLuaFunctions
 		LibraryPtr * ptr = (LibraryPtr *) luaL_checkudata(L, 1, METATABLENAME);
 		ptr->~LibraryPtr();
 		return 0;
-	}	
+	}
 
 	static int __eq(lua_State * L)
 	{
-		LibraryPtr & a = getInstance(L, 1); 
+		LibraryPtr & a = getInstance(L, 1);
 		LibraryPtr & b = getInstance(L, 2);
-		if (!a && !b) 
+		if (!a && !b)
 		{
 			lua_pushboolean(L, 1);
 		}
@@ -110,15 +109,15 @@ struct LibraryLuaFunctions
 	{
 		try
 		{
-			LibraryPtr & ptr = getInstance(L, 1); 
+			LibraryPtr & ptr = getInstance(L, 1);
 			PathPtr path = ptr->FindInstallPath();
 			PathLuaMetaData::PutInstanceOnStack(L, path);
 			return 1;
-		} 
+		}
 		catch(const std::exception & ex)
 		{
 			lua_pushstring(L, ex.what());
-			return lua_error(L);			
+			return lua_error(L);
 		}
 	}
 
@@ -126,15 +125,15 @@ struct LibraryLuaFunctions
 	{
 		try
 		{
-			LibraryPtr & ptr = getInstance(L, 1); 
+			LibraryPtr & ptr = getInstance(L, 1);
 			std::string cid = ptr->GetCId();
 			lua_pushstring(L, cid.c_str());
 			return 1;
-		} 
+		}
 		catch(const std::exception & ex)
 		{
 			lua_pushstring(L, ex.what());
-			return lua_error(L);			
+			return lua_error(L);
 		}
 	}
 
@@ -153,11 +152,11 @@ struct LibraryLuaFunctions
 		lua_pushlstring(L, ss.str().c_str(), ss.str().length());
 		return 1;
 	}
-	
+
 };
 
 static const struct luaL_Reg tableMethods[]=
-{	
+{
 	{nullptr, nullptr}
 };
 
@@ -171,7 +170,7 @@ static const struct luaL_Reg metaTableMethods[]=
 };
 
 int LibraryLuaMetaData::Index(lua_State * L, LibraryPtr & ptr, const std::string & index)
-{	
+{
 	if (index == "Context")
 	{
 		ContextLuaMetaData::PutInstanceOnStack(L, ptr->GetContext());
@@ -184,7 +183,7 @@ int LibraryLuaMetaData::Index(lua_State * L, LibraryPtr & ptr, const std::string
 		BOOST_FOREACH(LibraryPtr dep, ptr->GetDependencies())
 		{
 			lua_pushinteger(L, index);
-			putLibraryInstanceOnStack(L, dep);						
+			putLibraryInstanceOnStack(L, dep);
 			lua_settable(L, -3);
 			index ++;
 		}
@@ -200,7 +199,7 @@ int LibraryLuaMetaData::Index(lua_State * L, LibraryPtr & ptr, const std::string
 		lua_pushcfunction(L, LibraryLuaFunctions::getCId);
 		return 1;
 	}
-	else if (index == "Group") 
+	else if (index == "Group")
 	{
 		lua_pushstring(L, ptr->GetGroup().c_str());
 		return 1;
@@ -210,7 +209,7 @@ int LibraryLuaMetaData::Index(lua_State * L, LibraryPtr & ptr, const std::string
 		lua_pushboolean(L, ptr->IsInstalled());
 		return 1;
 	}
-	else if (index == "Name") 
+	else if (index == "Name")
 	{
 		lua_pushstring(L, ptr->GetName().c_str());
 		return 1;
@@ -219,12 +218,12 @@ int LibraryLuaMetaData::Index(lua_State * L, LibraryPtr & ptr, const std::string
 	{
 		lua_pushstring(L, ptr->GetVersion().c_str());
 		return 1;
-	}	
+	}
 	else
 	{
 		lua_pushnil(L);
 		return 1;
-	}				
+	}
 }
 
 LibraryPtr & LibraryLuaMetaData::GetInstance(lua_State * L, int index)
@@ -259,7 +258,7 @@ bool LibraryLuaMetaData::IsType(lua_State * L, int index)
 }
 
 int LibraryLuaMetaData::OpenInLua(lua_State * L)
-{		
+{
 	luaL_getmetatable(L, METATABLENAME);
 	if (lua_isnil(L, -1) != 1)
 	{
@@ -274,7 +273,7 @@ int LibraryLuaMetaData::OpenInLua(lua_State * L)
 }
 
 void LibraryLuaMetaData::PutInstanceOnStack(lua_State * L, const LibraryPtr & ptr)
-{	
+{
 	putLibraryInstanceOnStack(L, ptr);
 }
 

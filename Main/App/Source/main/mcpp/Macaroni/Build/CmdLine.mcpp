@@ -15,8 +15,6 @@
  */
 ~import Macaroni::AppPaths;
 ~import Macaroni::AppPathsPtr;
-~import Macaroni::Build::Builder;
-~import Macaroni::Build::BuilderArguments;
 ~import Macaroni::Environment::Console;
 ~import Macaroni::Model::Context;
 ~import Macaroni::Model::ContextPtr;
@@ -29,10 +27,6 @@
 ~import Macaroni::Model::Library;
 ~import Macaroni::Model::LibraryPtr;
 ~import Macaroni::Environment::LuaEnvironment;
-~import Macaroni::Build::Manifest;
-~import Macaroni::Build::ManifestPtr;
-~import Macaroni::Build::MCompiler;
-~import Macaroni::Build::MCompilerOptions;
 ~import Macaroni::Environment::Messages;
 ~import Macaroni::Environment::Output;
 ~import Macaroni::Environment::OutputPtr;
@@ -55,52 +49,36 @@ class CmdLine
 {
 	private bool about;
 	private bool build;
-	private bool cavatappiMode;
 	private bool clean;
-	private string config;
 	private Console & console;
 	private bool debugMode;
 	private bool endPrompt;
 	private bool generate;
 	private vector<path> generatorPaths;
-	private string inputPath;
 	private bool install;
 	private vector<path> libraryRepoPaths;
 	private string luaTestsPath;
-	private string manifestPath;
 	private optional<path> messagesPath;
-	private bool modeM;
 	private Output * output;
-	private string outputPath;
 	private bool repl;
-	private bool saveCppSource;
 	private bool startPrompt;
-	private bool test;
 
 	public CmdLine(const VectorOfConstString & args, Console & console)
 	:	about(false),
 	    build(false),
-		cavatappiMode(false),
 		clean(false),
-	    config(""),
 		console(console),
 		debugMode(false),
 		endPrompt(false),
 		generate(false),
 		generatorPaths(),
-		inputPath(""),
 		install(false),
 		libraryRepoPaths(),
 		luaTestsPath(""),
-		manifestPath(""),
 		messagesPath(),
-		modeM(false),
 		output(&console),
-		outputPath(""),
 		repl(false),
-		saveCppSource(false),
-		startPrompt(false),
-		test(false)
+		startPrompt(false)
 	{
 		for(unsigned int i = 0; i < args.size(); i ++)
 		{
@@ -117,8 +95,6 @@ class CmdLine
 
 	public ~CmdLine()
 	{
-		outputPath = "";
-		config = "";
 		luaTestsPath = "";
 	}
 
@@ -162,42 +138,6 @@ class CmdLine
 		return appPaths;
 	}
 
-	private void directCompile()
-	{
-		if (!inputPath.empty() && outputPath.empty())
-		{
-			output->Write("Missing option outputDirectory.");
-		}
-		else if (inputPath.empty() && !outputPath.empty())
-		{
-			output->Write("Missing option inputDirectory.");
-		}
-		else
-		{
-			output->Write("Executing compiler directly (no manifest).");
-			try
-			{
-				const std::vector<MACARONI_VE_CONST std::string> generators;
-				std::vector<RegexFileSet> input;
-				input.push_back(RegexFileSet(boost::filesystem::path(inputPath),
-					"\\.mcpp$"));
-				MCompilerOptions options(input,
-										 boost::filesystem::path(outputPath),
-										 generators);
-				MCompiler compiler(createAppPaths());
-				ContextPtr context(new Context(std::string("%ROOT%")));
-				LibraryPtr library = context->FindOrCreateLibrary("", "Command Line", "???");
-				compiler.Compile(library, options);
-			}
-			catch(const Macaroni::Exception & ex)
-			{
-				output->Error("UNHANDLED EXCEPTION:\n");
-				output->ErrorLine(ex.where());
-				output->ErrorLine(ex.message());
-			}
-		}
-	}
-
 	public bool EndPrompt()
 	{
 		return endPrompt;
@@ -216,26 +156,14 @@ class CmdLine
 			runLuaTests();
 			return true;
 		}
-		else if (!(inputPath.empty() && outputPath.empty()))
-		{
-			// Allows someone to not use a manifest.  Not really a great idea for
-			// larger projects, but good if someone thinks a the manifest / project
-			// layout is overkill (you know, if they're gunshy of using Macaroni).
-			directCompile();
-			return true;
-		}
 		else if (repl)
 		{
+			Messages::Get("Init.Test");
 			return runProject(true);
-		}
-		else if (modeM)
-		{
-			// Reads project information and runs one or more of the stages
-			// of Macaroni's build cycle.
-			return runManifest();
 		}
 		else
 		{
+			Messages::Get("Init.Test");
 			bool success = runProject(false);
 			return success;
 		}
@@ -244,24 +172,9 @@ class CmdLine
 
 	private void parseArg(const string & arg, const string & next)
 	{
-		if (arg == "about")
+		if (arg == "--about")
 		{
 			about = true;
-		}
-		else if (arg == "cavatappi")
-		{
-			cavatappiMode = true;
-		}
-		else if (arg == "configuration")
-		{
-			if (next.empty())
-			{
-				config = "";
-			}
-			else
-			{
-				config = next;
-			}
 		}
 		else if (arg == "clean")
 		{
@@ -279,7 +192,7 @@ class CmdLine
 		{
 			generate = true;
 		}
-		else if (arg == "generatorPath")
+		else if (arg == "--generatorPath")
 		{
 			if (next.empty())
 			{
@@ -294,7 +207,7 @@ class CmdLine
 		{
 			install = true;
 		}
-		else if (arg == "libraryRepoPath")
+		else if (arg == "--libraryRepoPath")
 		{
 			if (next.empty())
 			{
@@ -316,29 +229,7 @@ class CmdLine
 				luaTestsPath = next;
 			}
 		}
-		else if (arg == "inputDirectory")
-		{
-			if (next.empty())
-			{
-				output->Write("No input directory given following \"-inputDirectory\" arg.");
-			}
-			else
-			{
-				inputPath = next;
-			}
-		}
-		else if (arg == "manifest")
-		{
-			if (next.empty())
-			{
-				output->WriteLine("No file given following \"manifest\" arg.");
-			}
-			else
-			{
-				manifestPath = next;
-			}
-		}
-		else if (arg == "messagesPath")
+		else if (arg == "--messagesPath")
 		{
 			if (next.empty())
 			{
@@ -353,21 +244,6 @@ class CmdLine
 				Messages::Init(file.c_str());
 			}
 		}
-		else if (arg == "m" || arg == "modeM")
-		{
-			modeM = true;
-		}
-		else if (arg == "outputDirectory")
-		{
-			if (next.empty())
-			{
-				output->Write("No output directory given following \"-outputDirectory\" arg.");
-			}
-			else
-			{
-				outputPath = next;
-			}
-		}
 		else if (arg == "endPrompt")
 		{
 			endPrompt = true;
@@ -376,45 +252,20 @@ class CmdLine
 		{
 			repl = true;
 		}
-		else if (arg == "saveCppSource")
-        {
-            saveCppSource = true;
-        }
 		else if (arg == "startPrompt")
 		{
 			startPrompt = true;
 		}
-		else if (arg == "test")
-		{
-			test = true;
-		}
-        else if (arg == "wait")
-        {
-            std::string stuff;
-            std::cin >> stuff;
-        }
 	}
 
-	private void printAboutText()
+	~hidden void printAboutText()
 	{
 		output->WriteLine(
 		#include <Macaroni/AboutText.h>
 			);
 	}
 
-	private void runDefault()
-	{
-		//WHOA! This using statement made Visual Studio have an internal
-		// compiler error.
-		//using boost::filesystem::path;
-		//optional<boost::filesystem::path> path =
-		//	Macaroni::Environment::Environment::FindDefaultProject();
-		//if (path) {
-		//runProject(true);
-		//}
-	}
-
-	private void runLuaTests()
+	~hidden void runLuaTests()
 	{
 		output->WriteLine("Running arbitrary LUA files.");
 		Macaroni::Environment::LuaEnvironment lua;
@@ -429,36 +280,8 @@ class CmdLine
 		lua.Run();
 	}
 
-	private bool runManifest()
+	~hidden bool runProject(bool withRepl)
 	{
-		if (manifestPath.empty())
-		{
-			manifestPath = "manifest.lua";
-		}
-		if (config.empty())
-		{
-			config = "all";
-		}
-
-		/*const Configuration * mConfig = manifest.GetConfiguration(config);
-		if (mConfig == nullptr)
-		{
-			output->Write("Could not find config \"");
-			output->Write(config);
-			output->Write("\" in manifest.");
-			return;
-		}
-		const Configuration & mRefConfig = *mConfig;*/
-
-		ContextPtr context(new Context("%ROOT%"));
-		Builder builder(createAppPaths(), context, console);
-		BuilderArguments args(clean, generate, build, test, install, cavatappiMode);
-		return builder.Execute(args, manifestPath);
-	}
-
-	private bool runProject(bool withRepl)
-	{
-		// Advance mode - creates an Environment.
 		Console * console = new Console(0);
 		InputPtr input(console);
 		OutputPtr output(console);
@@ -467,8 +290,8 @@ class CmdLine
 		                                       input, output);
 		if (!env.FindDefaultProject())
 		{
-			output->WriteLine("No project file found, trying to use manifest.");
-			return runManifest();
+			output->ErrorLine("No project file found.");
+			return false;
 		}
 		if (!env.RunDefaultProject() && !withRepl) {
 			return false;

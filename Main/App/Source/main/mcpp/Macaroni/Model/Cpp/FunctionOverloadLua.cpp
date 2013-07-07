@@ -18,7 +18,6 @@
 
 #include <Macaroni/Model/Cpp/AccessLuaMetaData.h>
 #include "../NodeLua.h"
-#include "../../Environment/DebugLog.h"
 #include "../ElementLua.h"
 #include "FunctionLua.h"
 #include "FunctionOverloadLua.h"

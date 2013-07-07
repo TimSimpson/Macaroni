@@ -22,7 +22,7 @@
 #include <Macaroni/Build/BuildContextPtr.h>
 #include <Macaroni/Build/BuildContext.h>
 #include "../../Model/Library.h"
-#include "../../Environment/LuaEnvironment.h"
+#include <Macaroni/Environment/LuaEnvironment.h>
 #include "../../Model/MemberVisitor.h"
 #include <fstream>
 #include <boost/filesystem/operations.hpp>

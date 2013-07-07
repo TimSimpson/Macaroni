@@ -21,7 +21,6 @@
 #include <lualib.h>
 #include <Macaroni/Model/Context.h>
 #include "ContextLua.h"
-#include "../Environment/DebugLog.h"
 #include <Macaroni/Model/Project/Group.h>
 #include <Macaroni/Model/Project/GroupPtr.h>
 #include <Macaroni/Model/Project/GroupLuaMetaData.h>

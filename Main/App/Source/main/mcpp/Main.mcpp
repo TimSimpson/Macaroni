@@ -21,12 +21,10 @@
 
 #include "Macaroni/ME.h"
 #include "Macaroni/Build/CmdLine.h"
-#include "Macaroni/Build/MCompiler.h"
-#include "Macaroni/Build/MCompilerOptions.h"
 #include "Macaroni/Environment/Console.h"
 #include "Macaroni/Exception.h"
-#include "Macaroni/Environment/LuaEnvironment.h"
-#include "Macaroni/Environment/Messages.h"
+#include <Macaroni/Environment/LuaEnvironment.h>
+#include <Macaroni/Environment/Messages.h>
 #include "Macaroni/IO/FileSet.h"
 #include <iostream>
 #include <sstream>
@@ -50,8 +48,6 @@ using namespace Macaroni;
 using namespace Macaroni;
 using Macaroni::Build::CmdLine;
 using Macaroni::Environment::Console;
-using Macaroni::Build::MCompiler;
-using Macaroni::Build::MCompilerOptions;
 using Macaroni::IO::FileSet;
 using Macaroni::Environment::Messages;
 

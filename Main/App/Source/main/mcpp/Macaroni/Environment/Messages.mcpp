@@ -1,0 +1,152 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+~import std::auto_ptr;
+~import boost::format;
+~import std::fstream;
+~import std::istream;
+~import std::map;
+~import Macaroni::IO::Paths;
+~import std::string;
+~import std::stringstream;
+
+
+~namespace Macaroni::Environment;
+
+class Messages
+{
+    ~import ::Macaroni::Environment::Messages;
+
+    private map<string, string> bag;
+
+    ~block "cpp-include" {
+        #include <Macaroni/ME.h>
+        #include <iostream>
+    }
+    ~block "cpp" {
+        template<typename ObjectType>
+        void replace(string & str, unsigned int index, ObjectType obj)
+        {
+            stringstream marker;
+            marker << "{" << index << "}";
+            unsigned int indexOf = str.find_first_of(marker.str());
+            if (indexOf != string::npos)
+            {
+                stringstream newValue;
+                newValue << obj;
+                str.replace(indexOf, indexOf + marker.str().size(), newValue.str());
+            }
+        }
+    }
+
+    private Messages(const char * filePath = 0)
+    :bag()
+    {
+        string finalFilePath;
+        if (filePath != nullptr)
+        {
+            finalFilePath = filePath;
+        }
+        else
+        {
+
+            finalFilePath = str(format("%s%s%s") % Paths::GetExeDirectoryPath()
+                                % MACARONI_DIRECTORY_SEPERATOR % "Messages.txt");
+        }
+        std::ifstream file;
+        file.open(finalFilePath.c_str());
+        if (!!file)
+        {
+            string next;
+
+            do
+            {
+                std::getline(file, next);
+                int index = next.find_first_of("=");
+                if (next.size() > 0 && next[0] != '#')
+                {
+                    string key = next.substr(0, index);
+                    string content = next.substr(index + 1,
+                                                      next.size() - index);
+                    add(key, content);
+                }
+            }while(!file.eof());
+            file.close();
+        }
+        else
+        {
+            string msg = str(format("Messages file not not found at \"%s\".")
+                             % finalFilePath);
+            MACARONI_THROW(msg.c_str());
+        }
+    }
+
+    ~hidden void add(string key, string content)
+    {
+        bag[key] = content;
+    }
+
+    public static string Get(const char * id)
+    {
+        return getInstance(nullptr, false).get(id);
+    }
+
+    public static string Get(const char * id, int value)
+    {
+        string msg(Get(id));
+        replace(msg, 0, value);
+        return msg;
+    }
+
+/*    ~block "h" {
+        template<typename ObjectType>
+        static string Get(const char * id, ObjectType value);
+    }
+    ~block "cpp" {
+        template<typename ObjectType>
+        string Messages::Get(const char * id, ObjectType var)
+        {
+            string msg(Get(id));
+            replace(msg, 0, var);
+            return msg;
+        }
+    } */
+
+    ~hidden string get(const char * id)
+    {
+        string key(id);
+        if (bag.count(key) == 0)
+        {
+            return key;
+        }
+        return bag[key];
+    }
+
+    ~hidden static Messages & getInstance(const char * filePath, bool forceInit)
+    {
+        static auto_ptr<Messages> instance;
+        if (forceInit || nullptr == instance.get())
+        {
+            instance.reset(new Messages(filePath));
+        }
+        return dynamic_cast<Messages &>(*instance.get());
+    }
+
+    // Initializes all Messages, or re-initializes them.
+    public static void Init(const char * filePath)
+    {
+        getInstance(filePath, true);
+    }
+};

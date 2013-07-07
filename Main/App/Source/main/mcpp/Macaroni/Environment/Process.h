@@ -21,7 +21,7 @@
 #include <Macaroni/Environment/Console.h>
 #include <cstdlib>
 #include <Macaroni/Platform/EnvironmentVariables.h>
-#include "Messages.h"
+#include <Macaroni/Environment/Messages.h>
 #include <iostream>
 #include <boost/filesystem/operations.hpp>
 #include <string>

@@ -17,7 +17,6 @@
 #define MACARONI_MODEL_CPP_TYPEDEF_CPP
 
 #include "Typedef.h"
-#include "../../Environment/DebugLog.h"
 #include "../Member.h"
 #include "../Node.h"
 #include "ScopeMember.h"
@@ -37,7 +36,7 @@ using Macaroni::Model::TypePtr;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-Typedef::Typedef(Library * library, Node * node, ReasonPtr reason, 
+Typedef::Typedef(Library * library, Node * node, ReasonPtr reason,
 				 TypePtr type)
 :Scope(library, node, "Typedef", reason), type(type)
 {
@@ -58,13 +57,13 @@ bool Typedef::canBeChildOf(const Member * other) const
 }
 
 
-TypedefPtr Typedef::Create(LibraryPtr library, NodePtr home, ReasonPtr reason, 
+TypedefPtr Typedef::Create(LibraryPtr library, NodePtr home, ReasonPtr reason,
 						   TypePtr type)
 {
 	return TypedefPtr(new Typedef(library.get(), home.get(), reason, type));
 }
 
-TypedefPtr Typedef::Create(TargetPtr target, NodePtr home, ReasonPtr reason, 
+TypedefPtr Typedef::Create(TargetPtr target, NodePtr home, ReasonPtr reason,
 						   TypePtr type)
 {
 	return TypedefPtr(new Typedef(target.get(), home.get(), reason, type));
@@ -97,7 +96,7 @@ bool Typedef::RequiresHFile() const
 
 void Typedef::Visit(MemberVisitor * visitor) const
 {
-	// Ignore! I HATE THIS IDEA! 
+	// Ignore! I HATE THIS IDEA!
 }
 
 END_NAMESPACE

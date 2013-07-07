@@ -17,7 +17,7 @@ class Hash
     public static string GenerateHash(const std::string & original)
         @LuaFunction "GenerateHash"
     {
-        hash<string> stringHash;
+        boost::hash<string> stringHash;
         size_t number = stringHash(original);
         return boost::lexical_cast<string>(number);
     }

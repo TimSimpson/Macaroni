@@ -35,7 +35,6 @@
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
 ~import Macaroni::Model::Project::MacaroniCodeTarget;
-~import Macaroni::Build::MCompiler;
 ~import Macaroni::Model::NodePtr;
 ~import boost::optional;
 ~import boost::filesystem::path;

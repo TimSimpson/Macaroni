@@ -18,7 +18,7 @@
 
 #include "CppAxioms.h"
 #include "CppAxiom.h"
-#include "../../Environment/Messages.h"
+#include <Macaroni/Environment/Messages.h>
 
 using Macaroni::Environment::Messages;
 

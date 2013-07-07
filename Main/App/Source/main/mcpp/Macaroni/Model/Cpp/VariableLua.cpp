@@ -18,7 +18,6 @@
 
 #include <Macaroni/Model/Cpp/AccessLuaMetaData.h>
 #include "../NodeLua.h"
-#include "../../Environment/DebugLog.h"
 #include "../ElementLua.h"
 #include "FunctionLua.h"
 #include "../ModelInconsistencyException.h"
@@ -51,33 +50,33 @@ using Macaroni::Model::Cpp::VariablePtr;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-namespace 
+namespace
 {
 	struct LuaWrappers
 	{
-		static int Create(lua_State * L) 
+		static int Create(lua_State * L)
 		{
 			try
 			{
-				//static VariablePtr Create(NodePtr home, Access access, 
-				//	bool isStatic, const TypePtr type, std::string initializer, 
+				//static VariablePtr Create(NodePtr home, Access access,
+				//	bool isStatic, const TypePtr type, std::string initializer,
 				//Model::ReasonPtr reason);
 				NodePtr home = NodeLuaMetaData::GetInstance(L, 1);
 				AccessPtr access = AccessLuaMetaData::GetInstance(L, 2);
 				bool isStatic = lua_toboolean(L, 3) != 0;
 				TypePtr type = TypeLuaMetaData::GetInstance(L, 4);
-				std::string initializer(luaL_checkstring(L, 5));			
+				std::string initializer(luaL_checkstring(L, 5));
 				ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 6);
 				VariablePtr variable = Variable::Create(home, access,
-														isStatic, type, 
+														isStatic, type,
 														initializer, reason);
 				ElementPtr rtnValue = boost::dynamic_pointer_cast<Element>(variable);
 				ElementLuaMetaData::PutInstanceOnStack(L, rtnValue);
 				return 1;
-			} 
-			catch(const ModelInconsistencyException & ex) 
+			}
+			catch(const ModelInconsistencyException & ex)
 			{
-				return luaL_error(L, "ModelInconsistencyException: %c", ex.what()); 
+				return luaL_error(L, "ModelInconsistencyException: %c", ex.what());
 			}
 		}
 
@@ -102,14 +101,14 @@ bool VariableLuaMetaData::IsType(lua_State * L, int index)
 }
 
 
-int VariableLuaMetaData::OpenInLua(lua_State * L) 
+int VariableLuaMetaData::OpenInLua(lua_State * L)
 {
-	luaL_register(L, GLOBALTABLENAME, tableMethods);		
+	luaL_register(L, GLOBALTABLENAME, tableMethods);
 	return 1;
 }
 
 
-int VariableLuaMetaData::Index(lua_State * L, const VariablePtr var, 
+int VariableLuaMetaData::Index(lua_State * L, const VariablePtr var,
 								const std::string & index)
 {
 	///*if (index == "Const")

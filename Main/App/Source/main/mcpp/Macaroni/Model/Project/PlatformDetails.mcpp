@@ -1,0 +1,59 @@
+~import boost::format;
+~import boost::flyweight;
+~import boost::optional;
+~import boost::shared_ptr;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaIndexExtraCode;
+~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Lua::LuaProperty;
+~import std::string;
+~import std::vector;
+~import Macaroni::Cpp::UseLightDef;
+
+
+~namespace Macaroni::Model::Project;
+
+
+typedef boost::flyweight<std::string> PlatformName;
+
+class PlatformList{};
+
+typedef boost::shared_ptr<PlatformList ~l> PlatformListPtr
+    @LuaClass [ SameAsNode = PlatformList ]
+    @UseLightDef true
+;
+
+class PlatformList : public std::vector<PlatformName>
+    @LuaClass [
+        ReferenceType = PlatformListPtr
+    ]
+    @LuaIndexExtraCode ={
+        if (1 == lua_isnumber(L, 2))
+        {
+            lua_Number key = lua_tonumber(L, 2);
+            if (key < 1 || key > instance->size())
+            {
+                luaL_error(L, "Index out of bounds.");
+            }
+            lua_pushstring(L, instance->operator[](key - 1).get().c_str());
+            return 1;
+        }
+    }
+{
+    public PlatformList()
+    {
+    }
+
+    public int Size() const
+        @LuaOperator "__len"
+    {
+        return this->size();
+    }
+
+    public string ToString() const
+        @LuaOperator "__tostring"
+    {
+        return str(format("PlatformList, length=%d") % this->Size());
+    }
+};

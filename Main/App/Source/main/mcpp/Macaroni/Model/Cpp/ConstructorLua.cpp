@@ -18,7 +18,6 @@
 
 #include "../NodeLua.h"
 #include "ConstructorLua.h"
-#include "../../Environment/DebugLog.h"
 #include "../ElementLua.h"
 #include "FunctionLua.h"
 #include "../NodeListLua.h"
@@ -37,9 +36,9 @@ struct lua_State;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-int ConstructorLuaMetaData::Index(lua_State * L, const ConstructorPtr & ptr, 
+int ConstructorLuaMetaData::Index(lua_State * L, const ConstructorPtr & ptr,
 								  const std::string & index)
-{				
+{
 	return 0;
 }
 

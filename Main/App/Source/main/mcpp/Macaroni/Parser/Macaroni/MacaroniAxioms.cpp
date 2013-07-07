@@ -18,7 +18,7 @@
 
 #include "MacaroniAxioms.h"
 #include "MacaroniAxiom.h"
-#include "../../Environment/Messages.h"
+#include <Macaroni/Environment/Messages.h>
 
 using Macaroni::Environment::Messages;
 
