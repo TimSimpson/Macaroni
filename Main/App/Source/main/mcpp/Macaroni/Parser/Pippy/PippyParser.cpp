@@ -387,20 +387,24 @@ class ParserFunctions
 {
 private:
 	ContextPtr context;
+	AccessPtr currentAccess;
 	NodePtr currentScope;
 	TargetPtr currentTarget;
 	TargetPtr defaultTarget;
 	std::string hFilesForNewNodes;
 	NodeListPtr importedNodes;
+	AccessPtr lastAccess;
 	LibraryPtr library;
 public:
 
 	ParserFunctions(ContextPtr context, LibraryPtr library, TargetPtr target)
 		:context(context),
+		 currentAccess(Access::NotSpecified()),
 		 currentScope(context->GetRoot()),
 		 currentTarget(target),
 		 defaultTarget(target),
 		 importedNodes(new NodeList()),
+		 lastAccess(Access::NotSpecified()),
 		 library(library)
 	{
 		MACARONI_ASSERT(!!CppContext::GetPrimitives(context),
@@ -471,6 +475,13 @@ public:
 		else
 		{
 			access = Access::NotSpecified();
+		}
+
+		if (*access != *Access::NotSpecified()) {
+			itr.ConsumeWhitespace();
+			if (itr.ConsumeChar(':')) {
+				currentAccess = access;
+			}
 		}
 		return access;
 	}
@@ -748,6 +759,9 @@ public:
 
 		NodePtr oldScope = currentScope;
 		currentScope = currentScope->FindOrCreate(name, hFilesForNewNodes);
+		lastAccess = currentAccess;
+		currentAccess = Access::Private();
+
 		ClassPtr newClass;
 		TargetPtr tHome = deduceTargetHome(currentScope);
 		if (!tHome) {
@@ -801,6 +815,7 @@ public:
 
 		itr = newItr; // Success! :)
 		currentScope = oldScope;
+		currentAccess = lastAccess;
 		return true;
 	}
 
@@ -998,6 +1013,10 @@ public:
 			//       ~Dog
 			// ^._.^
 			//  _[[_)(_
+		}
+
+		if (*access == *Access::NotSpecified()) {
+			access = currentAccess;
 		}
 
 		ConsumeWhitespace(newItr);
@@ -2830,6 +2849,9 @@ public:
 			// ~."".
 		}
 
+		if (*access == *Access::NotSpecified()) {
+			access = currentAccess;
+		}
 
 		if (!!global)
 		{
@@ -2911,7 +2933,7 @@ public:
 
 		if (*access == *Access::NotSpecified())
 		{
-			access = Access::Private();
+			access = currentAccess;
 		}
 
 		NodePtr node;

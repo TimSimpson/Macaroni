@@ -105,7 +105,22 @@ tests = {
                 {
                     public int GetBarkCount(){ return bc; }
                     private int bc;
-                }
+                    protected:
+                        virtual int protectedMethod() = 0;
+                        int protectedField1;
+                    public char publicField;
+                        int protectedField2;
+
+                    Dog()
+                    : bc(0),
+                      protectedField1(0),
+                      protectedField2(0)
+                    {}
+
+                    private:
+                        int privateField;
+
+                };
             ]]);
             self.classNode = self.root.Children[2];
             self.class = self.classNode.Element;
@@ -114,8 +129,8 @@ tests = {
             ["ClassNode has name 'Dog'."] = function(self)
                 Test.assertEquals("Dog", self.classNode.Name);
             end,
-            ["ClassNode has two children."] = function(self)
-                Test.assertEquals(2, #(self.classNode.Children));
+            ["ClassNode has eight children."] = function(self)
+                Test.assertEquals(8, #(self.classNode.Children));
             end,
             ["Class has private int."] = function(self)
                 local bc = self.classNode.Children[2];
@@ -127,6 +142,39 @@ tests = {
                 Test.assertEquals("GetBarkCount", getter.Name);
                 Test.assertEquals(Access.Public, getter.Children[1].Element.Access);
             end,
+            ["Class has protected method."] = function(self)
+                local func = self.classNode.Children[3];
+                Test.assertEquals("protectedMethod", func.Name);
+                Test.assertEquals(Access.Protected,
+                                  func.Children[1].Element.Access);
+            end,
+            ["Class has protected field 1."] = function(self)
+                local field = self.classNode.Children[4];
+                Test.assertEquals("protectedField1", field.Name);
+                Test.assertEquals(Access.Protected, field.Element.Access);
+            end,
+            ["Class has public field."] = function(self)
+                local field = self.classNode.Children[5];
+                Test.assertEquals("publicField", field.Name);
+                Test.assertEquals(Access.Public, field.Element.Access);
+            end,
+            ["Class has protected field 2."] = function(self)
+                local field = self.classNode.Children[6];
+                Test.assertEquals("protectedField2", field.Name);
+                Test.assertEquals(Access.Protected, field.Element.Access);
+            end,
+            ["Class has protected constructor."] = function(self)
+                local ctor = self.classNode.Children[7];
+                Test.assertEquals("Constructor", ctor.TypeName);
+                Test.assertEquals(Access.Protected,
+                                  ctor.Children[1].Element.Access);
+            end,
+            ["Class has private field."] = function(self)
+                local field = self.classNode.Children[8];
+                Test.assertEquals("privateField", field.Name);
+                Test.assertEquals(Access.Private, field.Element.Access);
+            end,
+
         }
     },
 } -- end of tests table ( I skipped some indentation way above here).

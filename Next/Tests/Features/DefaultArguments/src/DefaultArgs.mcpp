@@ -1,0 +1,11 @@
+~import std::cout;
+
+class SomeClass {
+
+    public void SaySomething(const char * const words = "anything") {
+        std::cout << words << std::endl;
+    }
+
+};
+
+
