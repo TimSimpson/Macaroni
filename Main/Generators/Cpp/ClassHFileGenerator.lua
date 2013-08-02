@@ -16,6 +16,7 @@ local TypeNames = Macaroni.Model.TypeNames;
 
 ClassHFileGenerator = {
 
+    isHeader = true,
     isNested = false,
     node = nil,
     tabs = 0,

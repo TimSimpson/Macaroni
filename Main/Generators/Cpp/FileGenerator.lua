@@ -185,6 +185,10 @@ FileGenerator = {
                 self:writeType(c.Member.Type);
                 self:write(" ");
                 self:write(c.Name);
+                if (self.isHeader and c.Member.Initializer ~= "") then
+                    self:write(" = ");
+                    self:write(c.Member.Initializer);
+                end
             end
         end
     end,
