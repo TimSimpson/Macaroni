@@ -367,6 +367,12 @@ END_NAMESPACE2
 			lua_pushstring(L, relativePath.c_str());
 			return 1;
 		}
+		else if (index == "RelativePathNormalized")
+		{
+			std::string relativePath = ptr->GetRelativePathNormalized();
+			lua_pushstring(L, relativePath.c_str());
+			return 1;
+		}
 		else if (index == "RenameRelative")
 		{
 			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::renameRelative);

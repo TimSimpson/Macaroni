@@ -26,11 +26,13 @@ FileWriters = {
             gen = ClassHFileGenerator.new{node = node, targetLibrary=library,
                                           writer=writer};
             gen:parse()
+            writer:Write('\n'); -- avoid bunching up typedefs
         end,
         Typedef = function(library, node, writer)
             gen = TypedefFileGenerator.new{node=node, targetLibrary=library,
                                            writer=writer};
             gen:parse();
+            writer:Write('\n'); -- avoid bunching up typedefs
         end,
     },
     Cpp = {
@@ -42,6 +44,7 @@ FileWriters = {
             gen = ClassCppFileGenerator.new{node = node, targetLibrary=library,
                                           writer=writer};
             gen:parse()
+            writer:Write('\n'); -- avoid bunching up typedefs
         end,
     },
 };

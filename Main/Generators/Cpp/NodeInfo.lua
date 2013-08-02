@@ -93,6 +93,12 @@ NodeInfo = {
             elseif self:isUnderClass(node) then
 				return self:createHeaderFile(node.Node);
             elseif (node.Member ~= nil) then
+                if MACARONI_VERSION ~= "0.1.0.27" then
+                    local target = node.Element.Owner;
+                    if (target ~= nil and target.HFile ~= nil) then
+                        return '<' .. target.HFile.RelativePathNormalized .. '>';
+                    end
+                end
 				if (node.Member.TypeName == Macaroni.Model.TypeNames.Class or
 				    node.Member.TypeName == Macaroni.Model.TypeNames.Typedef)
 				    then

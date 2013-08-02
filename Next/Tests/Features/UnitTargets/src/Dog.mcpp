@@ -1,16 +1,47 @@
-~unit Dog;
+~unit "og/Dog";
+
+~import std::string;
+
+~namespace og;
 
 class Dog
 {
-     int legs;
+    ~import og::A_Dependency;
 
-     public Dog()
-     : legs(4)
-     {}
+    int legs;
 
-     public int GetLegs() const
-     {
-         return legs;
-     }
+    public Dog()
+    : a(),
+      legs(4)
+    {}
+
+    public int GetLegs() const
+    {
+     return legs;
+    }
+
+    private A_Dependency a;
 };
 
+class Frog
+{
+~import og::A_Dependency;
+public:
+    Frog(int feet)
+    :   feet(feet)
+    {
+    }
+
+    string saying() const
+    {
+        return "Mystery of Frog Dog forever went unknown.";
+    }
+private:
+    A_Dependency a;
+    int feet;
+};
+
+class A_Dependency {
+public:
+    A_Dependency(){}
+};
