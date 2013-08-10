@@ -84,7 +84,7 @@ function createDistributionArgs(args)
     local distArgs = nil
     if args.windows then
         distArgs = {
-                binPath = "gcc-mingw-4.7.2", ext = ".exe", tag = "-windows",
+                binPath = "gcc-mingw-windows", ext = ".exe", tag = "-windows",
                 errorHint = [[
     Enter the pure Cpp directory in Windows and execute:
     bjam -d+2 -j8 --toolset=gcc cxxflags=-std=gnu++11 link=static threading=multi]]

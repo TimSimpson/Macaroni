@@ -11,9 +11,24 @@ TOOLS_ROOT=$HOME/Tools
 export BOOST_ROOT=${BOOST_ROOT:-$TOOLS_ROOT/boost/boost_1_52_0}
 export LUA_ROOT=$TOOLS_ROOT/lua/lua-5.1.4
 MACARONI_SOURCE=${MACARONI_SOURCE:-/macaroni}
+MACARONI_PURECPP_SOURCE=${MACARONI_PURECPP_SOURCE:-MACARONI_SOURCE/Main/App/PureCpp}
 MACARONI_EXE=$MACARONI_SOURCE/Main/App/PureCpp/bin/gcc-4.7/debug/address-model-$CPU_BITS/link-static/threading-multi/macaroni_p
 export PATH=$PATH:$BOOST_ROOT
 export PATH=$PATH:$BOOST_ROOT/stage/lib
+
+function explain_vars() {
+    echo "
+    TOOLS_ROOT - This is a directory where the script will try to download
+        multiple dependencies, such as the Boost libraries and Lua.
+    BOOST_ROOT - Boost lib location. Defaults to a directory inside TOOLS_ROOT.
+    LUA_ROOT - Lua lib location. Defaults to a directory inside TOOLS_ROOT.
+    MACARONI_SOURCE - The root directory of a working copy of Macaroni's repo.
+    MACARONI_PURECPP_SOURCE - Directory of 'pure C++' distribution of Macaroni.
+        This defaults to a location within MACARONI_SOURCE.
+    MACARONI_EXE - The binary of Macaroni once it's build. Defaults to a path
+        relative to the MACARONI_PURECPP_SOURCE directory.
+    "
+}
 
 function install_gcc() {
     # Get access to a PPA where the latest GCC is available.
@@ -33,6 +48,8 @@ function install_gcc() {
 
     # I think this is needed to compile 32 and 64 bit versions.
     sudo apt-get install gcc-multilib
+    sudo apt-get install gcc-4.7-multilib
+    sudo apt-get install g++-4.7-multilib
 }
 
 function invoke_b2() {
@@ -92,7 +109,7 @@ function init_build() {
 
 function _build() {
     init_build
-    bjam -d+2 \
+    bjam -d+2 -q \
         address-model=$CPU_BITS \
         --toolset=gcc cxxflags=-std=gnu++11 link=static \
         threading=multi $_EXTRA_BUILD_OPTIONS $@
@@ -112,7 +129,7 @@ function cmd_unit_test() {
 
 function create_init_lua() {
     set +e
-    mkdir ~/Macaroni
+    mkdir -p ~/Macaroni
     set -e
     echo "
 properties =

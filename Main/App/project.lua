@@ -125,6 +125,8 @@ built = false
 
 clean = function()
     targetDir:ClearDirectoryContents();
+    local pureCppDir = newPath("PureCpp");
+    pureCppDir:ClearDirectoryContents();
 end
 
 local clockRun = function(label, f)
