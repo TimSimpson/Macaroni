@@ -61,9 +61,8 @@ class Messages
         }
         else
         {
-
-            finalFilePath = str(format("%s%s%s") % Paths::GetExeDirectoryPath()
-                                % MACARONI_DIRECTORY_SEPERATOR % "Messages.txt");
+            const auto path = Paths::GetExeDirectoryPath() / "Messages.txt";
+            finalFilePath = str(format("%s") % path);
         }
         std::ifstream file;
         file.open(finalFilePath.c_str());
