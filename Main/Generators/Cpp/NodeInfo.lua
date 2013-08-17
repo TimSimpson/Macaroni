@@ -23,6 +23,22 @@ local Context = Macaroni.Model.Context;
 local Node = Macaroni.Model.Node;
 local TypeNames = Macaroni.Model.TypeNames;
 
+-- Short for "NodeDefinition". These can be heavy or light.
+--
+-- "heavy" means including the definition causes a bit of heartburn; in other
+--  words, it means the header file is #include'd.
+-- "light" means its a forward declaration, like "class A;" or something.
+--
+-- In some cases a "light" definition is for a hollow node, not created with
+-- Macaroni, in which case it ends up being a header file include anyway.
+--
+DependencyUseObserver = {
+    notify = function(target, nodeInfo, heavy, text)
+        -- Do nothing
+    end
+}
+
+
 -- Stores quick lookup info about Nodes.
 NodeInfo = {
 	-- This information is difficult enough that it should live inside Macaroni
@@ -33,8 +49,9 @@ NodeInfo = {
 
 	dependencies = nil,
     headerFile = nil,
-    heavyDef = nil,
-    lightDef = nil,
+    _heavyDef = nil,
+    _lightDef = nil,
+    _lightIsHeavy = nil,
     using = nil,
 
     new = function(node)
@@ -44,9 +61,18 @@ NodeInfo = {
         self.node = node;
         self.dependencies = self:createDependencyList(self.node);
         self.headerFile = self:createHeaderFile(self.node);
-        self.heavyDef = self:createHeavyDef(self.node);
-        self.lightDef = self:createLightDef(self.node);
+        self._heavyDef = self:createHeavyDef(self.node);
+        self._lightDef, self._lightIsHeavy = self:createLightDef(self.node);
         self.using = self:createUsingStatement(self.node);
+        self.useHeavyDef = function(target)
+            DependencyUseObserver.notify(target, self, true, self._heavyDef)
+            return self._heavyDef
+        end
+        self.useLightDef = function(target)
+            -- Nothing uses this so let's disable it for now.
+            DependencyUseObserver.notify(target, self, self._lightIsHeavy, self._lightDef)
+            return self._lightDef
+        end
         return self;
     end,
 
@@ -141,7 +167,7 @@ NodeInfo = {
         check(self ~= nil, "Member method called without self.");
         check(node ~= nil, "Argument one must be node.");
         if (node.IsRoot) then
-			return ""; -- Ignore
+			return "", false; -- Ignore
         end
         if (node.HFilePath ~= nil) then
 			local attr = node.Annotations["Macaroni::Cpp::UseLightDef"];
@@ -156,7 +182,7 @@ NodeInfo = {
 			end
 			if ignore then
 				-- For header files are forced to use this... :(
-				return self:createHeavyDef(node);
+				return self:createHeavyDef(node), true;
 			end
         end
         local generateWarning = true;
@@ -171,11 +197,11 @@ NodeInfo = {
 					rtn = "/* ~< I don't know how to make a light definition "
 						.. "for nested class " .. node.FullName .. "!) */";
 				end
-                return rtn;
+                return rtn, false;
             elseif (node.Member.TypeName == TypeNames.Primitive) then
-                return ""; -- Ignore
+                return "", false; -- Ignore
             elseif (node.Member.TypeName == TypeNames.Typedef) then
-				return self:createHeavyDef(node);
+				return self:createHeavyDef(node), true;
                 --local typeUtil = TypeUtil.new();
                 --local rtn = self:beginNs(node.Node);
                 --rtn = rtn ..  'typedef ' ..

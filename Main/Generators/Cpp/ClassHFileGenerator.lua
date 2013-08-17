@@ -197,9 +197,9 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         for i = 1, #section.list do
             local s = section.list[i];
             if (s.heavy == false) then
-				self:write(NodeInfoList[s.node].lightDef);
+				self:write(NodeInfoList[s.node].useLightDef(self.targetLibrary));
             else
-				self:write(NodeInfoList[s.node].heavyDef);
+				self:write(NodeInfoList[s.node].useHeavyDef(self.targetLibrary));
             end
         end
 

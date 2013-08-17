@@ -237,9 +237,9 @@ change('%ROOT%');
 		self:write([[<ul>]]);
 		self:write([[<li>Header File: ]] .. codeToHtml(info.headerFile)
 				   .. [[</li>]]);
-		self:write([[<li>Light Def: ]] .. codeToHtml(info.lightDef)
+		self:write([[<li>Light Def: ]] .. codeToHtml(info._lightDef)
 		            .. [[</li>]]);
-		self:write([[<li>Heavy Def: ]] .. codeToHtml(info.heavyDef)
+		self:write([[<li>Heavy Def: ]] .. codeToHtml(info._heavyDef)
 		           .. [[</li>]]);
 		self:write([[<li>Using Statement: ]] .. codeToHtml(info.using)
 		            .. [[</li>]]);

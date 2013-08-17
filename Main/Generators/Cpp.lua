@@ -17,6 +17,7 @@ require "Cpp/Common";
 require "Cpp/CppFileGenerator";
 require "Cpp/HFileGenerator";
 require "Cpp/LibraryConfigGenerator";
+require "Cpp/NodeInfo";
 require "Cpp/UnitFileGenerator";
 require "Macaroni.Model.Library";
 require "Log";
@@ -110,11 +111,16 @@ end
 
 
 function Generate(library, path)
-    -- Write a centralized header file which can set macros for build options.
-    if BoostConfigIsAvailable(library) then -- .Context) then
-        lcg = LibraryConfigGenerator.new(library);
-        lcg:writeFile(path);
+    -- Install dep watcher.
+    local pchDeps = {}
+    DependencyUseObserver.notify = function(_target, nodeInfo, heavy, text)
+        local node = nodeInfo.node
+        if heavy and
+            (node.Element == nil or not node.Element:OwnedBy(library)) then
+            pchDeps[node.FullName] = text
+        end
     end
+
     -- Legacy mode: Iterate nodes and write files.
     if MACARONI_VERSION == "0.1.0.23" then
         log:Write("Generating H Files_.\n");
@@ -130,6 +136,13 @@ function Generate(library, path)
         local rootGenPath = Macaroni.IO.Path.New(path.AbsolutePath)
         local ufGen = UnitFileGenerator.new(library);
         ufGen:iterateUnits(library, rootGenPath);
+    end
+
+    -- Write a centralized header file which can set macros for build options.
+    if BoostConfigIsAvailable(library) then -- .Context) then
+        lcg = LibraryConfigGenerator.new(library);
+        lcg:writeFile(path);
+        lcg:writePchFile(path, pchDeps);
     end
 end
 

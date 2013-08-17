@@ -1624,7 +1624,7 @@ function Generate(library, path, arguments)
 			log:Write("Going to wrap.");
 			generator:wrapClass(wrapArgs)
 			includeFile:Write(
-				NodeInfoList[wrapArgs.metaNode].heavyDef .. "");
+				NodeInfoList[wrapArgs.metaNode].useHeavyDef(CurrentLibrary) .. "");
 			registerFile:Write(
 				[[{ "]] .. wrapArgs.node:GetPrettyFullName('.') ..
 				[[", ]] .. wrapArgs.metaNode.FullName .. "::OpenInLua }, \n")

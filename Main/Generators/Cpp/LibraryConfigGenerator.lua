@@ -28,6 +28,15 @@ LibraryConfigFile = function(library)
 	end
 end
 
+LibraryPchFile = function(library)
+	if MACARONI_VERSION == "0.1.0.23" then
+		return "Macaroni_PCH_" .. library:GetCId() .. ".hpp"
+	else
+		return "Macaroni_PCH_" ..
+			(library.ShortName or library:GetVersionFreeCId()) .. ".hpp";
+	end
+end
+
 LibraryCreate = function(library)
 	local libId = library:GetCId();
 	local libCreate = "MACARONI_LIB_CREATE_" .. libId;
@@ -58,7 +67,25 @@ LibraryConfigGenerator =
 		self = {}
 		self.library = library
 		self.writeFile = LibraryConfigGenerator.writeFile;
+		self.writePchFile = LibraryConfigGenerator.writePchFile;
 		return self;
+	end,
+
+	writePchFile = function(self, path, pchDeps)
+		local libId = self.library:GetCId();
+		self.file = path:NewPathForceSlash(LibraryPchFile(self.library));
+		self.writer = self.file:CreateFile();
+		self.writer:Write(
+			[[
+#ifdef BOOST_BUILD_PCH_ENABLED
+	]]);
+		for i, v in pairs(pchDeps) do
+			self.writer:Write("// " .. i .. "\n" .. v .. "\n");
+		end
+		self.writer:Write([[
+#endif
+			]]
+			);
 	end,
 
 	writeFile = function(self, path)
@@ -73,6 +100,10 @@ LibraryConfigGenerator =
 		self.writer:Write(
 [[#ifndef MACARONI_COMPILE_GUARD_Config_]] .. libId .. [[_H
 #define MACARONI_COMPILE_GUARD_Config_]] .. libId .. [[_H
+
+#ifdef BOOST_BUILD_PCH_ENABLED
+#include
+#endif
 
 #include <boost/config.hpp>
 

@@ -15,39 +15,39 @@ LuaGlueHFile = {
         if (args.path == nil) then
             assert(args.writer ~= nil);
         else
-            --local writer, errorMsg, errorNumber = io.open(args.path.AbsolutePath, 'w+'); --args.path:NewFileWriter(); 
+            --local writer, errorMsg, errorNumber = io.open(args.path.AbsolutePath, 'w+'); --args.path:NewFileWriter();
             --if (writer == nil) then
-            --    error(tostring(errorNumber) .. " " .. errorMsg, 2);                
+            --    error(tostring(errorNumber) .. " " .. errorMsg, 2);
             --end
             args.writer = args.path:CreateFile();--writer;
         end
-        
-        setmetatable(args, LuaGlueHFile);                
-        return args;        
+
+        setmetatable(args, LuaGlueHFile);
+        return args;
     end,
-    
+
     getGuardName = function(self)
         local guardName = "MACARONI_COMPILE_GUARD_" .. self.node:GetPrettyFullName("_") .. "_LUA_GLUE_H";
         return guardName;
     end,
-    
+
     parse = function(self)
         check(self ~= nil, "Instance method called without self.");
         check(self.writer ~= nil, "Instance writer missing.");
-        
+
         self:includeGuardHeader();
         self:write("#include <string>\n");
-        self:write(NodeInfoList[self.node].heavyDef .. '\n');   
-        self:write(NodeInfoList[self.ptrNode].heavyDef .. '\n'); 
+        self:write(NodeInfoList[self.node].useHeavyDef(self.targetLibrary) .. '\n');
+        self:write(NodeInfoList[self.ptrNode].useHeavyDef(self.targetLibrary) .. '\n');
         self:write("\n");
         self:write("struct lua_State;\n");
         self:write("\n");
-        self:namespaceBegin(self.node.Node);              
+        self:namespaceBegin(self.node.Node);
             self:writeStructDefinition();
         self:namespaceEnd(self.node.Node);
-        self:includeGuardFooter();        
+        self:includeGuardFooter();
     end,
-    
+
     writeStructDefinition = function(self)
         self:write([[
 struct ]] .. self.node.Name .. [[LuaMetaData
@@ -56,10 +56,10 @@ struct ]] .. self.node.Name .. [[LuaMetaData
     static int OpenInLua(lua_State * L);
     static ]] .. self.ptrNode.Name .. [[ & GetInstance(lua_State * L, int index);
     static int Index(lua_State * L, ]] .. self.ptrNode.Name .. [[ & ptr, const std::string & index);
-    static void PutInstanceOnStack(lua_State * L, const ]] .. self.ptrNode.Name .. [[ & ptr); 
-};       
+    static void PutInstanceOnStack(lua_State * L, const ]] .. self.ptrNode.Name .. [[ & ptr);
+};
         ]]);
-    end,    
+    end,
 };
 
-Util.linkToSubClass(FileGenerator, LuaGlueHFile); 
+Util.linkToSubClass(FileGenerator, LuaGlueHFile);
