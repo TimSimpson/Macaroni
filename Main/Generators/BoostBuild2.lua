@@ -168,7 +168,8 @@ function getDepName(self, target)
     end
     if target.TypeName == "exe" then
         --return prefix .. "MACARONI_EXE_TARGET_" .. target:GetShortCId();
-        return prefix .. target:GetShortCId();
+        local exeName = target.ShortName or target.Name;
+        return prefix .. exeName;
     end
     if target.TypeName == "test" then
         return prefix .. "MACARONI_TEST_TARGET_" .. target:GetShortCId();
@@ -355,6 +356,7 @@ function writeUnitTargetVariant(self, writer, lib, properties)
     writer:WriteLine("    :   # Sources:");
     writer:WriteLine(allDependencies(self, lib));
     writer:WriteLine("    :  " .. properties);
+    --writer:WriteLine("       <link>shared <define>BOOST_TEST_DYN_LINK ");
     writer:WriteLine("    ;");
 end
 
