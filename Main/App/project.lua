@@ -73,6 +73,7 @@ local core_dependencies={
     load("Macaroni", "Boost-regex", "1.52"):Target("lib"),
     load("Macaroni", "CppStd", "2003"):Target("lib"),
     load("Macaroni", "Lua", "5.1.4"):Target("lib"),
+    load("Macaroni", "lpeg", "0.12"):Target("lib"),
 };
 
 

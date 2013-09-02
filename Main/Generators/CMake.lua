@@ -1,3 +1,16 @@
+-- CMake support. Yay!
+--
+-- Notes:
+-- How to build just in the target directory:
+-- cmake target/CMakeLists.txt -Btarget
+-- make -C ./target install
+--
+-- http://www.cmake.org/Wiki/CMake/Tutorials/Exporting_and_Importing_Targets
+--
+-- http://stackoverflow.com/questions/8774593/cmake-link-to-external-library
+-- http://www.cmake.org/Wiki/CMake:How_To_Find_Libraries
+-- http://www.cmake.org/cmake/help/cmake_tutorial.html
+
 require "string"
 require "Macaroni.Core.Hash";
 require "Macaroni.IO.GeneratedFileWriter";
@@ -46,6 +59,8 @@ end
 
 function Initialize(self)
     self.cid = self.projectVersion:GetCId()
+    self.cmakeFiles = {}
+    self.installTargets = {}
 end
 
 
@@ -73,12 +88,24 @@ project (]] .. self.projectVersion.Project.Name .. [[)
 
     writeLibraries(self, writer)
     writeExes(self, writer)
+
+--     writer:WriteLine([[install(
+--         EXPORT cmake-interface
+--         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
+-- )]]);
+    writer:Write([[export(TARGETS ]] .. "\n        ");
+    for i, t in ipairs(self.installTargets) do
+        writer:Write(t .. " ");
+    end
+    writer:WriteLine([[ FILE cmake-interface.cmake) ]]);
 end
 
 function cmakeName(self, target)
     -- Given a target, finds the name CMake knows it by in this file.
-    if target.TypeName == "lib" then
-        return target.ShortName;
+    if target.TypeName == "lib" or target.TypeName == "exe" then
+        if target.ShortName then
+            return target.ShortName;
+        end
     elseif target.TypeName == "unit" then
         if target.CppFile ~= nil then
             return target.CppFile.AbsolutePathForceSlash
@@ -88,13 +115,33 @@ function cmakeName(self, target)
     return target:GetCId();
 end
 
+
+function findCMakeInterfaceFile(self, target)
+    local cachedResult = self.cmakeFiles[target:GetCId()]
+    if cachedResult ~= nil then
+        return cachedResult
+    end
+    local success, path = pcall(target.FindInstallPath, target);
+    if (success and path ~= nil) then
+        local pathText = path.AbsolutePathForceSlash;
+        local cmakeFile = path:NewPathForceSlash('target/cmake-interface.cmake');
+        if (cmakeFile.Exists) then
+            self.cmakeFiles[target:GetCId()] = cmakeFile
+            return cmakeFile
+        end
+    end
+    self.cmakeFiles[target:GetCId()] = false
+    return nil;
+end
+
+
 function hasCMakeSupport(self, target)
     if target.TypeName == "lib"
-       and target.ProjectVersion:GetCId() ~= self.cid then
-        return true
-    else
-        return true
+       and target.ProjectVersion:GetCId() ~= self.cid
+       and (not findCMakeInterfaceFile(self, target)) then
+        return false
     end
+    return true
 end
 
 function includeDirectoriesOfTarget(self, target)
@@ -133,12 +180,21 @@ function writeLibraries(self, writer)
 end
 
 function writeLibrary(self, writer, library)
+    local hasLibSupport = function(target)
+        return target ~= nil and hasCMakeSupport(self, target)
+    end
     writeIncludeDirectories(self, writer, library)
     writer:WriteLine([[
 add_library(]] .. cmakeName(self, library) .. [[
-        ]] .. cmakeDependencyList(self, library) .. [[
+        ]] .. cmakeDependencyList(self, library, hasLibSupport) .. [[
         )
     ]]);
+    -- writer:WriteLine([[install(TARGETS ]] .. cmakeName(self, library)
+    --     .. [[ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/exe ]]
+    --     .. [[ EXPORT cmake-interface )]]);
+    self.installTargets[#self.installTargets + 1] = cmakeName(self, library)
+    -- writer:WriteLine([[export(TARGETS ]]
+    --     ..  cmakeName(self, library) .. [[ FILE cmake-interface.cmake) ]]);
 end
 
 function allTargetDependencies(self, target, filter)
@@ -146,10 +202,7 @@ function allTargetDependencies(self, target, filter)
     local t = {};
     for target in Plugin.IterateDependencies(target) do
         if not filter or filter(target) then
-            if target.TypeName == 'unit' or
-                hasCMakeSupport(self, target) then
-                t[#t + 1] = target
-            end
+            t[#t + 1] = target
         end
     end
     return t
@@ -196,4 +249,11 @@ add_executable(]] .. cmakeName(self, exeTarget) .. [[
             .. cmakeName(self, exeTarget) .. " "
             .. cmakeName(self, depTarget) .. ")")
     end
+
+    -- writer:WriteLine([[install(TARGETS ]] .. cmakeName(self, exeTarget)
+    --     .. [[ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/exe ]]
+    --     .. [[ EXPORT cmake-interface )]]);
+    -- writer:WriteLine([[export(TARGETS ]]
+    --     ..  cmakeName(self, exeTarget) .. [[ FILE cmake-interface.cmake) ]]);
+    self.installTargets[#self.installTargets + 1] = cmakeName(self, exeTarget)
 end

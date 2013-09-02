@@ -96,6 +96,9 @@ void LuaEnvironment::OpenAllLuaModules()
 	Run();
 }
 
+// Include lpeg by stating it's function interface here.
+int luaopen_lpeg (lua_State *L);
+
 void LuaEnvironment::registerInternalLuaModules()
 {
 	// How this works:
@@ -141,6 +144,8 @@ void LuaEnvironment::registerInternalLuaModules()
 
 	// Take required function, override it with a function which
 	// given
+
+	luaopen_lpeg(state);
 };
 
 END_NAMESPACE2
