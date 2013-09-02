@@ -61,6 +61,7 @@ function Initialize(self)
     self.cid = self.projectVersion:GetCId()
     self.cmakeFiles = {}
     self.installTargets = {}
+    self.cmakeFilesForProjects = {}
 end
 
 
@@ -86,8 +87,14 @@ cmake_minimum_required (VERSION 2.6)
 project (]] .. self.projectVersion.Project.Name .. [[)
         ]]);
 
+    writeCMakeProjectIncludes(self, writer)
+    writer:WriteLine("")
     writeLibraries(self, writer)
+    writer:WriteLine("")
+    writeTests(self, writer)
+    writer:WriteLine("")
     writeExes(self, writer)
+    writer:WriteLine("")
 
 --     writer:WriteLine([[install(
 --         EXPORT cmake-interface
@@ -97,15 +104,65 @@ project (]] .. self.projectVersion.Project.Name .. [[)
     for i, t in ipairs(self.installTargets) do
         writer:Write(t .. " ");
     end
-    writer:WriteLine([[ FILE cmake-interface.cmake) ]]);
+    writer:WriteLine([[ NAMESPACE ]] .. self.cid .. "-"
+                     .. [[ FILE cmake-interface.cmake) ]]);
+end
+
+function inaccessibleTargetText(target)
+    return [[Couldn't refer to lib "]] .. target.Name
+        .. [[" as it lives in external project "]] .. target.ProjectVersion.Name
+        .. [[" which has either not yet been instaled or lacks a ]]
+        .. [[cmake-interface file.]]
+end
+
+function addInaccessibleTarget(self, target)
+    if self.inaccessibleTargets == nil then
+        error(inaccessibleTargetText(target))
+    end
+    -- Adds an inaccessible target to a list owned by self. Essentially this
+    -- is really crappy error checking since throwing an error is not an option.
+    self.inaccessibleTargets[#self.inaccessibleTargets + 1] = target
+    -- error("Can't refer to lib " .. target.Name .. " as it "
+    --                   .. "lives in external project "
+    --                   .. target.ProjectVersion.Name .. " which has either "
+    --                   .. "not yet been instaled or lacks a cmake-interface "
+    --                   .. "file.");
+end
+
+function clearInaccessibleTargets(self)
+    self.inaccessibleTargets = {}
+end
+
+function commentOnInaccessibleTargets(self, writer)
+    -- Writes some commentary to the CMakeFile about how certain targets
+    -- could not be imported.
+    for i, target in ipairs(self.inaccessibleTargets) do
+        writer:WriteLine("# WARNING: " .. inaccessibleTargetText(target));
+    end
+    self.inaccessibleTargets = nil
 end
 
 function cmakeName(self, target)
     -- Given a target, finds the name CMake knows it by in this file.
-    if target.TypeName == "lib" or target.TypeName == "exe" then
-        if target.ShortName then
-            return target.ShortName;
+    -- If it can't find a suitable name (because something is inaccessible)
+    -- "nil" is returned, or (if clearInaccessibleTargets hasn't been called)
+    -- an error is thrown.
+    if target.TypeName == "lib" or target.TypeName == "exe"
+       or target.TypeName == "test" then
+        local prefix = ""
+        local otherCId = target.ProjectVersion:GetCId();
+        if otherCId ~= self.cid then
+            local cmakeInterface = findCMakeInterfaceFile(self, target)
+            if not cmakeInterface then
+                addInaccessibleTarget(self, target)
+                return nil
+            end
+            prefix = otherCId .. "-"
         end
+        if target.ShortName then
+            return prefix .. target.ShortName;
+        end
+        return prefix .. target.Name;
     elseif target.TypeName == "unit" then
         if target.CppFile ~= nil then
             return target.CppFile.AbsolutePathForceSlash
@@ -117,25 +174,43 @@ end
 
 
 function findCMakeInterfaceFile(self, target)
+    -- Given a target such as a library which is probably installed, determine
+    -- where a cmake-interface file exists if one does and return the path.
+    -- Return nil if no such path is found.
     local cachedResult = self.cmakeFiles[target:GetCId()]
     if cachedResult ~= nil then
         return cachedResult
     end
-    local success, path = pcall(target.FindInstallPath, target);
-    if (success and path ~= nil) then
-        local pathText = path.AbsolutePathForceSlash;
-        local cmakeFile = path:NewPathForceSlash('target/cmake-interface.cmake');
-        if (cmakeFile.Exists) then
-            self.cmakeFiles[target:GetCId()] = cmakeFile
-            return cmakeFile
-        end
+    local proj = target.ProjectVersion;
+    local cmakeFile = findCMakeInterfaceFileFromProject(self, proj)
+    self.cmakeFiles[target:GetCId()] = cmakeFile
+    return cmakeFile
+end
+
+function findCMakeInterfaceFileFromProject(self, project)
+    -- Given a project which is probably installed, determine
+    -- where a cmake-interface file exists if one does and return the path.
+    -- Return nil if no such path is found.
+    local projectCId = project:GetCId()
+    local cachedResult = self.cmakeFilesForProjects[projectCId]
+    if cachedResult ~= nil then
+        return cachedResult
     end
-    self.cmakeFiles[target:GetCId()] = false
+    local cmakeFile = findOrCreateInstallPath(project)
+                      :NewPathForceSlash("target/cmake-interface.cmake");
+    if cmakeFile.Exists then
+        self.cmakeFilesForProjects[projectCId] = cmakeFile
+        return cmakeFile
+    end
+    self.cmakeFilesForProjects[projectCId] = false
     return nil;
 end
 
 
 function hasCMakeSupport(self, target)
+    -- True if the given target can be used by CMake.
+    -- What targets can't be used by CMake? Ones that aren't yet supported yet
+    -- by this plugin, and ones which weren't exported using CMake.
     if target.TypeName == "lib"
        and target.ProjectVersion:GetCId() ~= self.cid
        and (not findCMakeInterfaceFile(self, target)) then
@@ -158,6 +233,9 @@ end
 
 
 function writeIncludeDirectories(self, writer, target)
+    -- Adds include directories based on a targets include headers property.
+    -- Libraries in particular have these. For example, the Boost Headers
+    -- dependency is nothing but a reference to these headers.
     local deps = allTargetDependencies(self, target)
     deps[#deps + 1] = target
 
@@ -171,31 +249,6 @@ include_directories (]]);
 ) ]]);
 end
 
-function writeLibraries(self, writer)
-    for target in Plugin.IterateProjectVersionTargets(self.projectVersion,
-                                                      "lib")
-    do
-        writeLibrary(self, writer, target)
-    end
-end
-
-function writeLibrary(self, writer, library)
-    local hasLibSupport = function(target)
-        return target ~= nil and hasCMakeSupport(self, target)
-    end
-    writeIncludeDirectories(self, writer, library)
-    writer:WriteLine([[
-add_library(]] .. cmakeName(self, library) .. [[
-        ]] .. cmakeDependencyList(self, library, hasLibSupport) .. [[
-        )
-    ]]);
-    -- writer:WriteLine([[install(TARGETS ]] .. cmakeName(self, library)
-    --     .. [[ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/exe ]]
-    --     .. [[ EXPORT cmake-interface )]]);
-    self.installTargets[#self.installTargets + 1] = cmakeName(self, library)
-    -- writer:WriteLine([[export(TARGETS ]]
-    --     ..  cmakeName(self, library) .. [[ FILE cmake-interface.cmake) ]]);
-end
 
 function allTargetDependencies(self, target, filter)
     -- Returns a string with all a targets with jam support seperated by spaces
@@ -209,15 +262,196 @@ function allTargetDependencies(self, target, filter)
 end
 
 
-function cmakeDependencyList(self, target, filter)
-    local deps = allTargetDependencies(self, target, filter)
+function cmakeDependencyList(self, deps)
+    -- Given a target, returns an array of all targets it "depends on".
     local t = {};
     for i, target in ipairs(deps) do
         if target ~= nil then
-            t[#t + 1] = cmakeName(self, target)
+            local name = cmakeName(self, target)
+            if name ~= nil then
+                t[#t + 1] = name
+            end
         end
     end
     return table.concat(t, "\n        ");
+end
+
+function findElementsInDepList(self, targets)
+    -- Given a list of targets, returns all Macaroni Elements (NodeSpace)
+    -- represented.
+    local elements = {}
+    for i, target in ipairs(targets) do
+        for i, element in ipairs(target:CreateElementList()) do
+            elements[#elements + 1] = element
+        end
+    end
+    return elements
+end
+
+function getMacaroniSourceFromElement(element)
+    -- Given an Element, returns the absolute path to the source file which
+    -- created it, if any, otherwise nil.
+    local result = element.ReasonCreated
+    if result ~= nil then
+        result = result.Source
+        if result ~= nil then
+            result = result.FileName
+            if result ~= nil then
+                result = result.OsName
+                if result ~= nil then
+                    return result
+                end
+            end
+        end
+    end
+    return nil
+end
+
+function findMacaroniSourceWhichCreatedTargets(self, targets)
+    -- Given some targets (such as units, libraries, etc) determines what
+    -- Macaroni source code was parsed to create them. In other words, this
+    -- can get a list of units in Physical Space and translate them to
+    -- Node Space before finding the original mcpp files where they were
+    -- defined.
+    -- Returns an array of strings.
+    local elements = findElementsInDepList(self, targets)
+    local results = {}
+    for i, element in ipairs(elements) do
+        local result = getMacaroniSourceFromElement(element)
+        if result ~= nil then
+            results[#results + 1] = result
+        end
+    end
+    return results
+end
+
+
+function findAllDependencyProjects(self)
+    -- Returns a list of every Macaroni ProjectVersion the ProjectVersion
+    -- represented by self will depend on.
+    local projects = {}
+    for i, type in ipairs({"lib", "exe", "test"}) do
+        for target in Plugin.IterateProjectVersionTargets(self.projectVersion,
+                                                          type) do
+            for depProject in Plugin.IterateDependencyProjects(target) do
+                projects[depProject:GetCId()] = depProject
+            end
+        end
+    end
+    local result = {}
+    for i, v in pairs(projects) do
+        result[#result + 1] = v
+    end
+    return result
+end
+
+function writeCMakeProjectIncludes(self, writer)
+    -- This is where we tell CMake to include other projects we depend on,
+    -- which hopefully also have CMake support.
+    for i, project in ipairs(findAllDependencyProjects(self)) do
+        local cmakeFile = findCMakeInterfaceFileFromProject(self, project)
+        if cmakeFile then
+            writer:WriteLine("include(" .. cmakeFile.AbsolutePathForceSlash
+                             ..  ")")
+        else
+            writer:WriteLine([[# WARNING: No cmake-interface.cmake file ]]
+                .. [[could be found for project "]] .. tostring(project)
+                .. [[".]])
+        end
+    end
+end
+
+function writeLibraries(self, writer)
+    -- Writes the definition of libraries into the CMake file.
+
+    for target in Plugin.IterateProjectVersionTargets(self.projectVersion,
+                                                      "lib")
+    do
+        writeLibrary(self, writer, target)
+    end
+end
+
+function writeCMakeAddCommand(self, writer, commandName, target, depFilter)
+    -- In CMake, libraries and exes are defined with two unique commands such
+    -- as "add_blah(target_name file1 file2 file3)" etc. This function
+    -- handles both target types since the work to generate the CMake stuff
+    -- is mostly the same.
+    writeIncludeDirectories(self, writer, target)
+    local deps = allTargetDependencies(self, target, depFilter)
+    local targetsName = cmakeName(self, target)
+    clearInaccessibleTargets(self)
+    writer:Write(commandName .. "(" .. targetsName .. [[
+        ]] .. cmakeDependencyList(self, deps) .. " ")
+    commentOnInaccessibleTargets(self, writer)
+
+    -- Now output all Macaroni source files.
+    local mcppFiles = findMacaroniSourceWhichCreatedTargets(self, deps)
+
+    for i, mcppFile in ipairs(mcppFiles) do
+        writer:Write(mcppFile .. " ")
+    end
+    writer:WriteLine([[)]]);
+
+    -- Now we have to lie and say these are "header only", which basically
+    -- means they get ignored by the build process but will be put into
+    -- things CMake generates such as Visual Studio projects.
+    writer:Write([[set_source_files_properties(]]);
+    for i, mcppFile in ipairs(mcppFiles) do
+         writer:Write(mcppFile .. " ")
+    end
+    writer:WriteLine([[ PROPERTIES HEADER_FILE_ONLY TRUE )]]);
+
+
+    -- Now say what libraries this exe depends on.
+    local isLib = function(target)
+        return target.TypeName == "lib"
+    end
+
+    local deps = allTargetDependencies(self, target, isLib)
+    clearInaccessibleTargets(self)
+    for i, depTarget in ipairs(deps) do
+        local depTargetName = cmakeName(self, depTarget)
+        if depTargetName ~= nil then
+            writer:WriteLine("target_link_libraries("
+                .. targetsName .. " "
+                .. depTargetName .. ")")
+        end
+    end
+    commentOnInaccessibleTargets(self, writer)
+
+end
+
+function writeLibrary(self, writer, library)
+    -- Writes the definition of a single library into the CMake file.
+    local hasLibSupport = function(target)
+        return target ~= nil and target.TypeName ~= "lib"
+               and hasCMakeSupport(self, target)
+    end
+
+    writeCMakeAddCommand(self, writer, "add_library", library, hasLibSupport)
+
+    -- Now tell CMake to export this library in case something else wants to
+    -- use it.
+    self.installTargets[#self.installTargets + 1] = cmakeName(self, library)
+end
+
+
+function writeTests(self, writer)
+    -- Writes the definition of tests into the CMake file.
+
+    for target in Plugin.IterateProjectVersionTargets(self.projectVersion,
+                                                      "test")
+    do
+        writeTest(self, writer, target)
+    end
+end
+
+function writeTest(self, writer, testTarget)
+    -- Writes the definition of a single test into the CMake file.
+    local notLib = function(target)
+        return target.TypeName ~= "lib"
+    end
+    writeCMakeAddCommand(self, writer, "add_executable", testTarget, notLib)
 end
 
 function writeExes(self, writer)
@@ -232,28 +466,11 @@ function writeExe(self, writer, exeTarget)
     local notLib = function(target)
         return target.TypeName ~= "lib"
     end
-    writeIncludeDirectories(self, writer, exeTarget)
-    writer:WriteLine([[
-add_executable(]] .. cmakeName(self, exeTarget) .. [[
-        ]] .. cmakeDependencyList(self, exeTarget, notLib) .. [[
-        )
-    ]]);
+    writeCMakeAddCommand(self, writer, "add_executable", exeTarget, notLib)
 
-    local isLib = function(target)
-        return target.TypeName == "lib"
-    end
 
-    local deps = allTargetDependencies(self, exeTarget, isLib)
-    for i, depTarget in ipairs(deps) do
-        writer:WriteLine("target_link_libraries("
-            .. cmakeName(self, exeTarget) .. " "
-            .. cmakeName(self, depTarget) .. ")")
-    end
 
-    -- writer:WriteLine([[install(TARGETS ]] .. cmakeName(self, exeTarget)
-    --     .. [[ DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/exe ]]
-    --     .. [[ EXPORT cmake-interface )]]);
-    -- writer:WriteLine([[export(TARGETS ]]
-    --     ..  cmakeName(self, exeTarget) .. [[ FILE cmake-interface.cmake) ]]);
-    self.installTargets[#self.installTargets + 1] = cmakeName(self, exeTarget)
+    -- It's possible to export the exe, but for now I've commented this out.
+    -- TODO: Consider installing it to target/exe, like with Boost Build.
+    -- self.installTargets[#self.installTargets + 1] = cmakeName(self, exeTarget)
 end

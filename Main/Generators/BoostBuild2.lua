@@ -144,9 +144,8 @@ function getDepName(self, target)
                 self.output:WriteLine("WARNING: Target name " .. name ..
                     " exceeds Boost Build's limit for target names by roughly " ..
                     tostring(string.len(name) - 113) .. " characters!")
-            else
-                return name
             end
+            return name
         else
             return target.GetShortCId();
         end
@@ -265,6 +264,9 @@ function includeDepPaths(self, target)
         if depTarget.TypeName == 'lib' and
            self.jamSupport[depTarget.ProjectVersion:GetCId()] then
             local dep = getDepName(self, depTarget);
+            if dep == nil then
+                error("No name found for " .. tostring(depTarget) .. ".")
+            end
             t[#t + 1] = "<library>" .. dep .. " "
         elseif depTarget.Headers ~= nil then
             t[#t + 1] = includePaths(depTarget)
@@ -673,7 +675,7 @@ function writeUseStatementsForType(self, writer, type)
     for target in Plugin.IterateProjectVersionTargets(self.projectVersion,
                                                       type) do
         local t = {};
-        print(Plugin.IterateDependencyProjects)
+        -- print(Plugin.IterateDependencyProjects)
         for depProject in Plugin.IterateDependencyProjects(target) do
             writeUseStatement(self, writer, depProject)
         end
