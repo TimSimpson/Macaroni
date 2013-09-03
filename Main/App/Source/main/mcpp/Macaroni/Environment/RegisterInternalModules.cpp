@@ -49,6 +49,11 @@
 #include <Macaroni/Model/Cpp/VariableAssignmentLua.h>
 #include <Macaroni/VersionNo.h>
 #include <LuaModulesInclude_Macaroni___Macaroni_46_App___lib.h>
+#include <lfs.h>
+
+// Include lpeg by stating it's function interface here.
+extern int luaopen_lpeg (lua_State *L);
+
 
 BEGIN_NAMESPACE2(Macaroni, Environment)
 
@@ -95,9 +100,6 @@ void LuaEnvironment::OpenAllLuaModules()
 	ParseString("Require-All-Internal", ss.str().c_str());
 	Run();
 }
-
-// Include lpeg by stating it's function interface here.
-int luaopen_lpeg (lua_State *L);
 
 void LuaEnvironment::registerInternalLuaModules()
 {

@@ -41,6 +41,7 @@ class ClassicPlugin : public Plugin
 	~block "cpp-include"
 	{
 		#include <boost/algorithm/string/predicate.hpp>
+		#include <boost/algorithm/string/replace.hpp>
 	}
 
     ~block "cpp" { namespace
@@ -59,15 +60,21 @@ class ClassicPlugin : public Plugin
             LuaEnvironment env;
             path luaFilePath;
         public:
-             Runner(path luaFilePath)
+             Runner(AppPathsPtr appPaths, path luaFilePath)
             :   env(),
                 luaFilePath(luaFilePath)
             {
 				env.OpenAllLuaModules();
-                env.SetPackageDirectory(luaFilePath.branch_path().string());
+				vector<string> paths;
+				paths.push_back(luaFilePath.branch_path().string());
+				if (appPaths->GetMoonScriptPath())
+				{
+					paths.push_back(appPaths->GetMoonScriptPath().get().string());
+				}
+                env.SetPackageDirectory(paths);
             }
 
-			void addAppPaths(AppPathsPtr appPaths)
+			void addAppPathRelatedGlobalFunctions(AppPathsPtr appPaths)
 			{
 				lua_State * L = env.GetState();
 				lua_pushlightuserdata(L, (void *) appPaths.get());
@@ -155,6 +162,23 @@ class ClassicPlugin : public Plugin
 				env.Run();
 			}
 
+			void parseMoonScriptFile()
+			{
+				const string luaFilePathStr = luaFilePath.string();
+				const string chunkName = luaFilePathStr.size() < 43 ?
+						luaFilePathStr
+                	:
+                		luaFilePathStr.substr(luaFilePathStr.size() - 43);
+
+                const string luaEscapedFilePath =
+                	boost::replace_all_copy(luaFilePathStr, "\\", "\\\\");
+				stringstream code;
+				code << "require 'MacaroniMoonScriptLoader'\n"
+						"RunMoonScriptFile(\"" << luaEscapedFilePath
+								<< "\", function(msg) print(msg); end)\n";
+				env.ParseString(chunkName.c_str(), code.str().c_str());
+				env.Run();
+			}
 			void setupPcall(lua_State * L)
 			{
 				lua_getglobal(L, "debug");
@@ -293,27 +317,63 @@ class ClassicPlugin : public Plugin
     } } // end anonymous namespace and h-block
 
     private AppPathsPtr appPaths;
+    private bool isMoonScript;
 	private path luaFilePath;
 	private AnyPtr properties;
 
     public ClassicPlugin(AppPathsPtr appPaths, const string & name)
     :   Plugin(name),
         appPaths(appPaths),
+        isMoonScript(false),
         luaFilePath(),
 		properties()
     {
-		string fileName = boost::algorithm::ends_with(name, ".lua")
-			? name
-			: str(format("%s.lua") % name);
-		luaFilePath = fileName;
+    	const bool endsWithLua = boost::algorithm::ends_with(name, ".lua");
+    	const bool endsWithMoon = endsWithLua ? false : (
+    		boost::algorithm::ends_with(name, ".moon") ? true : false
+    		);
+		const string luaFileName = (
+			endsWithLua ?
+				name
+			:
+				str(format("%s.lua") % name)
+		);
+		const optional<string> moonFileName = (
+			endsWithLua ?
+				boost::none
+			:	optional<string>(
+				endsWithMoon ?
+					name
+				:
+					str(format("%s.moon") % name)
+			)
+		);
+		// If .moon was specified, we'll assume it's a moon script. This can
+		// still change depending on what we find below.
+		isMoonScript = endsWithMoon;
+		luaFilePath = luaFileName;
 		vector<path> paths = appPaths->GetGeneratorPaths();
 		BOOST_FOREACH(const path & genPath, paths)
 		{
-			path p = genPath / fileName;
-			if (boost::filesystem::exists(p))
+			if (endsWithLua || !endsWithMoon)
 			{
-				luaFilePath = p;
-				break;
+				path p = genPath / luaFileName;
+				if (boost::filesystem::exists(p))
+				{
+					luaFilePath = p;
+					isMoonScript = false;
+					break;
+				}
+			}
+			if (endsWithMoon || !endsWithLua)
+			{
+				path p = genPath / moonFileName.get();
+				if (boost::filesystem::exists(p))
+				{
+					luaFilePath = p;
+					isMoonScript = true;
+					break;
+				}
 			}
 		}
     }
@@ -322,10 +382,14 @@ class ClassicPlugin : public Plugin
                     /* Some kind of work context */)
     {
 
-		Runner runner(luaFilePath);
+		Runner runner(appPaths, luaFilePath);
 		runner.runProperties(properties);
-		runner.addAppPaths(appPaths);
-		runner.parseLuaFile();
+		runner.addAppPathRelatedGlobalFunctions(appPaths);
+		if (isMoonScript) {
+			runner.parseMoonScriptFile();
+		} else {
+			runner.parseLuaFile();
+		}
 		runner.runMethod(action, arguments);
         /*DynamicGeneratorRunner runner(appPaths);
         path generatorFilePath(action);

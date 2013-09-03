@@ -87,14 +87,14 @@ class ExeTarget : public virtual LibraryTarget
 		return exe;
 	}
 
-	public static TargetPtr Create2(Table & table)
+	public static TargetPtr Create(Table & table)
 		@LuaFunction "Create"
 		@LuaGlueCode ={
 			Table table;
 			boost::optional<string> key("Create argument 1");
 			LuaEnvironment::SerializeTable(table, L, 1, key);
 
-			TargetPtr target = ExeTarget::Create2(table);
+			TargetPtr target = ExeTarget::Create(table);
 
 			TargetLuaMetaData::PutInstanceOnStack(L, target);
 			return 1;

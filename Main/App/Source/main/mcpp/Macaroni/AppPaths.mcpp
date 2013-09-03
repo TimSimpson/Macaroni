@@ -40,13 +40,15 @@ class AppPaths
 	private vector<path> generatorPaths;
 	private vector<path> libraryRepoPaths;
 	private path messagesPath;
+	private optional<path> moonscriptPath;
 	private path workingDirectory;
 
 	public AppPaths(vector<path> generatorPaths, vector<path> libraryRepoPaths,
-					path messagesPath)
+					path messagesPath, optional<path> moonscriptPath)
 	:	generatorPaths(generatorPaths),
 		libraryRepoPaths(libraryRepoPaths),
-		messagesPath(messagesPath)
+		messagesPath(messagesPath),
+		moonscriptPath(moonscriptPath)
 	{
 		const string empty = "./";
 		Path p(empty);
@@ -148,6 +150,11 @@ class AppPaths
 	public inline path GetMessagePaths()
 	{
 		return messagesPath;
+	}
+
+	public inline optional<path> GetMoonScriptPath() const
+	{
+		return moonscriptPath;
 	}
 
 	public inline path GetWorkingDirectory() const

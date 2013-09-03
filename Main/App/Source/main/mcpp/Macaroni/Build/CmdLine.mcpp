@@ -59,6 +59,7 @@ class CmdLine
 	private vector<path> libraryRepoPaths;
 	private string luaTestsPath;
 	private optional<path> messagesPath;
+	private optional<path> moonScriptPath;
 	private Output * output;
 	private bool repl;
 	private bool startPrompt;
@@ -76,6 +77,7 @@ class CmdLine
 		libraryRepoPaths(),
 		luaTestsPath(""),
 		messagesPath(),
+		moonScriptPath(),
 		output(&console),
 		repl(false),
 		startPrompt(false)
@@ -134,7 +136,9 @@ class CmdLine
 		path mPath = !messagesPath
 						? Paths::GetExeDirectoryPath()
 						: messagesPath.get();
-		AppPathsPtr appPaths(new AppPaths(generatorPaths, libraryRepoPaths, mPath));
+		path possibleMoonScriptPath = Paths::GetExeDirectoryPath() / "MoonScript";
+		AppPathsPtr appPaths(new AppPaths(generatorPaths, libraryRepoPaths,
+										  mPath, moonScriptPath));
 		return appPaths;
 	}
 
@@ -196,7 +200,8 @@ class CmdLine
 		{
 			if (next.empty())
 			{
-				output->Write("No generator path given following \"generatorPath\" arg.");
+				output->ErrorLine("No generator path given following "
+					              "\"generatorPath\" arg.");
 			}
 			else
 			{
@@ -211,7 +216,8 @@ class CmdLine
 		{
 			if (next.empty())
 			{
-				output->Write("No library repo path given following \"libraryRepoPath\" arg.");
+				output->ErrorLine("No library repo path given following "
+					              "\"libraryRepoPath\" arg.");
 			}
 			else
 			{
@@ -222,7 +228,7 @@ class CmdLine
 		{
 			if (next.empty())
 			{
-				output->Write("No input specified for luaTests command.");
+				output->ErrorLine("No input specified for luaTests command.");
 			}
 			else
 			{
@@ -233,8 +239,8 @@ class CmdLine
 		{
 			if (next.empty())
 			{
-				output->Write("No messages path given following "
-				              "\"messagesPath\" arg.");
+				output->ErrorLine("No messages path given following "
+				                  "\"messagesPath\" arg.");
 			}
 			else
 			{
@@ -242,6 +248,24 @@ class CmdLine
 				messagesPath = optional<path>(p);
 				string file = (p / "Messages.txt").string();
 				Messages::Init(file.c_str());
+			}
+		}
+		else if (arg == "--moonScriptPath")
+		{
+			if (next.empty())
+			{
+				output->ErrorLine("No MoonScript path given following "
+					              "\"--moonscriptPath\" arg.");
+			}
+			else
+			{
+				path p = next;
+				if (!boost::filesystem::exists(p))
+				{
+					output->ErrorLine("No directory found at the given "
+						"Moon Script files path.");
+				}
+				moonScriptPath = optional<path>(p);
 			}
 		}
 		else if (arg == "endPrompt")

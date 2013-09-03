@@ -84,8 +84,23 @@ function generate()
   -- properties file to the local CPP directory.
   -- In the process it renames the files to use the CPP extensions which
   -- makes it compile as C++ automatically in VC.
-  copyCFilesToCppFiles(Macaroni.IO.Path.New(luaSource),
-                       Macaroni.IO.Path.New(targetDirectory));
+  local sourceDirectoryPath = Macaroni.IO.Path.New(luaSource)
+  local targetDirectoryPath = Macaroni.IO.Path.New(targetDirectory)
+  copyCFilesToCppFiles(sourceDirectoryPath, targetDirectoryPath);
+  local originalLuaConf = targetDirectoryPath:NewPathForceSlash("luaconf.h")
+  originalLuaConf:RenameRelative("luaconfOriginal.h")
+  local newLuaConf = targetDirectoryPath:NewPathForceSlash("luaconf.h")
+  local writer = newLuaConf:CreateFile()
+  writer:WriteLine([[
+#ifndef lconfig_h
+#include "luaconfOriginal.h"
+#undef LUA_IDSIZE
+#define LUA_IDSIZE 512
+#endif
+    ]])
+  writer:Close()
+
+
   local cppPath = Macaroni.IO.Path.New(targetDirectory);
   -- Add extra library information. Because the files didn't exist we couldn't
   -- do this above, the way we normally would.
