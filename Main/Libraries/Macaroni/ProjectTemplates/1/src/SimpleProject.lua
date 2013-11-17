@@ -76,6 +76,18 @@ function GenerateCpp(args)
     end
 end
 
+
+-- Because nested Lua calls can get cut short, this function logs any errors
+-- caused by func to the given output logger and then quits.
+function runWithLoggedErrors(func)
+    result, msg = pcall(func)
+    if not result then
+        output:ErrorLine(msg)
+        error(msg)
+    end
+end
+
+
 -- Creates the project and lib vars, along with clean, generate, build, and
 -- install functions.
 function SimpleProject(args)
@@ -93,6 +105,7 @@ function SimpleProject(args)
     local cpp = plugins:Get("Cpp")
     local html = plugins:Get("HtmlView")
     local bjam = plugins:Get("BoostBuild2")
+    local cmake = plugins:Get("CMake")
 
     ---------------------------------------------------------------------------
     -- Helper functions.
@@ -215,35 +228,49 @@ function SimpleProject(args)
         preGenerated = true
     end
 
+    local outputPath = filePath(target);
+
+    local cmakeFlags = args.cmakeFlags or {}
+    cmakeFlags.projectVersion = lProject;
+    cmakeFlags.filePath = outputPath
+    cmakeFlags.output = output
+
     local lGenerate = function()
       if generated then return end
       lPreGenerate()
-      local outputPath = filePath(target) --ath.New("target")
-      result, msg = pcall(function()
+      runWithLoggedErrors(function()
         cpp:Run("Generate", { projectVersion=lProject, path=outputPath })
-        end)
-      if not result then
-        output:ErrorLine(msg)
-        error(msg)
-      end
+      end)
+
       html:Run("Generate", { target=lLib, path=outputPath})
       local bjamFlags = args.bjamFlags or {}
       bjamFlags.jamroot = outputPath:NewPath("/jamroot.jam")
       bjamFlags.projectVersion = lProject;
       bjamFlags.output = output;
-      bjam:Run("Generate", bjamFlags)
+      runWithLoggedErrors(function()
+        bjam:Run("Generate", bjamFlags)
+      end)
+
+      runWithLoggedErrors(function()
+        cmake:Run("Generate", cmakeFlags);
+      end)
       generated = true
     end
 
     local lBuild = function()
       if built then return end
       lGenerate()
-      local cmd = "bjam " .. properties.bjam_options ..
-                 " " .. targetDir.AbsolutePath .. " -d+2"
-      output:DebugLine(cmd)
-      if (os.execute(cmd) ~= 0) then
-        output:ErrorLine("Failure running Boost Build!")
-        error("Failure running Boost Build!")
+      if (args.buildWithBoost ~= false) then
+          local cmd = "bjam " .. properties.bjam_options ..
+                     " " .. targetDir.AbsolutePath .. " -d+2"
+          output:DebugLine(cmd)
+          if (os.execute(cmd) ~= 0) then
+            output:ErrorLine("Failure running Boost Build!")
+            error("Failure running Boost Build!")
+          end
+      end
+      if (cmakeFlags.invoke) then
+          cmake:Run("Build", cmakeFlags);
       end
       built = true
     end

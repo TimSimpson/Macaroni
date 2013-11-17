@@ -60,6 +60,7 @@ local porg = plugins:Get("Porg")
 local cpp = plugins:Get("Cpp")
 local html = plugins:Get("HtmlView")
 local bjam = plugins:Get("BoostBuild2")
+local cmake = plugins:Get("CMake")
 local replCommand = plugins:Get("Source/main/lua/ReplCommand")
 local versionInfo = plugins:Get("Source/main/lua/VersionInfoGenerator")
 
@@ -183,6 +184,13 @@ generate = function()
         bjam:Run("Generate", bjamFlags)
     end
 
+    local generateCMake = function()
+      cmake:Run("Generate", {
+          projectVersion = project,
+          filePath = outputPath:NewPathForceSlash("CMakeLists.txt")
+      })
+    end
+
     local generateVersionInfo = function()
         versionInfo:Run("Generate", { projectVersion=project, path=outputPath })
     end
@@ -198,6 +206,7 @@ generate = function()
         --clockRun("HTML", generateHtml)
         clockRun("C++", generateCpp)
         clockRun("BOOST BUILD", generateBjam)
+        clockRun("CMAKE", generateCMake)
         clockRun("VERSION INFO", generateVersionInfo)
         generated = true
         watch()

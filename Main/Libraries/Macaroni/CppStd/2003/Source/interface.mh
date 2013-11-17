@@ -11,6 +11,7 @@ namespace std
 	class fstream { ~hfile=<fstream> };
 	class ifstream { ~hfile=<fstream> };
 	class istream { ~hfile=<iostream> };
+	class std::map { ~hfile=<map> };
 	class ofstream { ~hfile=<iostream> };
 	class ostream { ~hfile=<iostream> };
 	class string{  ~hfile=<string> };
