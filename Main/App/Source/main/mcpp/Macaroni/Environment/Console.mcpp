@@ -28,6 +28,7 @@
 ~import Macaroni::Environment::Messages;
 ~import std::string;
 ~import std::stringstream;
+~import Macaroni::Environment::Timer;
 ~import std::vector;
 
 ~namespace Macaroni::Environment;
@@ -190,7 +191,7 @@ class Console : public virtual Input, public virtual Output
 		}
 		if (lastWriteWasNewLine)
 		{
-			std::cout << indentString;
+			std::cout << "[" << Timer::GetTime() << "] " << indentString;
 		}
 		std::cout << msg;
 		if (newLine)

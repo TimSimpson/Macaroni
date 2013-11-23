@@ -69,9 +69,9 @@ local versionInfo = plugins:Get("Source/main/lua/VersionInfoGenerator")
 -- Dependencies
 ---------------------------------------------------------------------------
 local core_dependencies={
-    load("Macaroni", "Boost-headers", "1.52"):Target("lib"),
-    load("Macaroni", "Boost-filesystem", "1.52"):Target("lib"),
-    load("Macaroni", "Boost-regex", "1.52"):Target("lib"),
+    load("Macaroni", "Boost-headers", "1.55"):Target("lib"),
+    load("Macaroni", "Boost-filesystem", "1.55"):Target("lib"),
+    load("Macaroni", "Boost-regex", "1.55"):Target("lib"),
     load("Macaroni", "CppStd", "2003"):Target("lib"),
     load("Macaroni", "Lua", "5.1.4"):Target("lib"),
     load("Macaroni", "MoonScriptDeps", "DEV"):Target("lib"),
@@ -187,7 +187,8 @@ generate = function()
     local generateCMake = function()
       cmake:Run("Generate", {
           projectVersion = project,
-          filePath = outputPath:NewPathForceSlash("CMakeLists.txt")
+          filePath = outputPath,
+          output = output
       })
     end
 

@@ -231,22 +231,6 @@ class LibraryTarget : public virtual Macaroni::Model::Project::Target
 			}
 			sweeper.RecursivelyParseDirectory(*sources, excludeFiles);
 		}
-
-		//sources->Add("Macaroni");
-		////sources->Add("Headers");
-		////BOOST_FOREACH(FileSetPtr fs, *(sources["Headers"]))
-		////{
-		////	lib->headers->push_back(fs->GetRootPath());
-		////}
-
-		////TargetPtr ptr(lib.get());
-		////TargetFileSweeper sweeper(ptr);
-		////BOOST_FOREACH(FileSetPtr fs, *(sources->Macaroni())) {
-		////	if (!!fs) {
-		////		sweeper.ParseFileSet(*(fs.get()));
-		////		//lib->GetSources()->Macaroni()->push_back(fs);
-		////	}
-		////}
 	}
 
 	public virtual  ArtifactListPtr FindArtifacts(

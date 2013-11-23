@@ -54,6 +54,7 @@ class CmdLine
 	private bool debugMode;
 	private bool endPrompt;
 	private bool generate;
+	private bool generateLess;
 	private vector<path> generatorPaths;
 	private bool install;
 	private vector<path> libraryRepoPaths;
@@ -72,6 +73,7 @@ class CmdLine
 		debugMode(false),
 		endPrompt(false),
 		generate(false),
+		generateLess(false),
 		generatorPaths(),
 		install(false),
 		libraryRepoPaths(),
@@ -195,6 +197,10 @@ class CmdLine
 		else if (arg == "generate")
 		{
 			generate = true;
+		}
+		else if (arg == "generateLess")
+		{
+			generateLess = true;
 		}
 		else if (arg == "--generatorPath")
 		{
@@ -332,6 +338,16 @@ class CmdLine
 				if (!env.RunCommand("generate();"))
 				{
 					return false;
+				}
+			}
+			else
+			{
+				if (generateLess)
+				{
+					if (!env.RunCommand("generateLess();"))
+					{
+						return false;
+					}
 				}
 			}
 			if (build)

@@ -115,6 +115,9 @@ class Macaroni::Environment::ProjectEnvironment
     }
 
     private ProjectLoader & loader;
+    // If this variable is true, the environment can try some tricks to speed
+    // up how the project is loaded.
+    private bool loadingAsDependency;
     private LuaEnvironment luaEnvironment;
     private auto_ptr<ProjectLoaderMarker> marker;
     private PluginFactoryPtr pluginFactory;
@@ -134,9 +137,11 @@ class Macaroni::Environment::ProjectEnvironment
         ProjectLoader & loader,
         auto_ptr<ProjectLoaderMarker> marker,
         path workingDirectory,
-        path projectFile
+        path projectFile,
+        bool loadingAsDependency
         )
     : loader(loader),
+      loadingAsDependency(loadingAsDependency),
       luaEnvironment(),
       marker(marker),
       pluginFactory(new PluginFactory(loader.GetAppPaths())),
@@ -228,6 +233,9 @@ class Macaroni::Environment::ProjectEnvironment
         lua_pushlightuserdata(luaEnvironment.GetState(), (void *) this);
         lua_pushcclosure(luaEnvironment.GetState(), importLua, 1);
         lua_setglobal(luaEnvironment.GetState(), "import");
+
+        lua_pushboolean(luaEnvironment.GetState(), loadingAsDependency ? 1 : 0);
+        lua_setglobal(luaEnvironment.GetState(), "loadingAsDependency");
 
         lua_pushlightuserdata(luaEnvironment.GetState(), (void *) this);
         lua_pushcclosure(luaEnvironment.GetState(), parseUpperProjectLua, 1);

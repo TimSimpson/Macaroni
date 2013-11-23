@@ -27,6 +27,7 @@
 #include <Macaroni/Environment/Messages.h>
 #include "Macaroni/IO/FileSet.h"
 #include <iostream>
+#include <Macaroni/Environment/Timer.h>
 #include <sstream>
 #include <Macaroni/VersionNo.h>
 
@@ -50,6 +51,7 @@ using Macaroni::Build::CmdLine;
 using Macaroni::Environment::Console;
 using Macaroni::IO::FileSet;
 using Macaroni::Environment::Messages;
+using Macaroni::Environment::Timer;
 
 int generic_main(std::vector<MACARONI_VE_CONST std::string> & args)
 {
@@ -70,6 +72,10 @@ int generic_main(std::vector<MACARONI_VE_CONST std::string> & args)
 		std::string stuff;
 		std::cin >> stuff;
 	}
+
+	// Initialize timer.
+	Timer::Init();
+	const auto startTime = Timer::GetTime();
 
 	int returnCode = 1;
 	if (cmd.StartPrompt()) // Not running in a try / catch makes it easier to debug
@@ -103,7 +109,12 @@ int generic_main(std::vector<MACARONI_VE_CONST std::string> & args)
 			}
 		#endif
 	}
-	std::cout << std::endl << "Program finished." << std::endl;
+	const auto endTime = Timer::GetTime();
+	const auto elapsed = endTime - startTime;
+
+	std::cout << std::endl << "Program executed in " << elapsed
+	          << "ms." << std::endl;
+
 	if (cmd.EndPrompt())
 	{
 		std::cout << "press enter to quit.";

@@ -76,7 +76,7 @@ NodePtr Scope::GetMember(int index) const
 
 TargetPtr Scope::GetOwner() const
 {
-	if (!target) 
+	if (!target)
 	{
 		return Element::GetOwner();
 	}
@@ -84,19 +84,23 @@ TargetPtr Scope::GetOwner() const
 }
 
 bool Scope::OwnedBy(Macaroni::Model::Project::TargetPtr target) const {
-	if (!target) 
+	if (nullptr == this->target)
+	{
+		return (!target);
+	}
+	if (!target)
 	{
 		return false;
 	}
-	if (*target == *(this->target)) 
+	if (*target == *(this->target))
 	{
 		return true;
 	}
-	return this->target->OwnedBy(target.get());		
+	return this->target->OwnedBy(target.get());
 }
 
 void Scope::SwitchOwner(Macaroni::Model::Project::TargetPtr newTarget)
-{	
+{
 	if (0 != target)
 	{
 		Target & from = *target;

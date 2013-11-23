@@ -103,6 +103,7 @@ function SimpleProject(args)
     ---------------------------------------------------------------------------
     local porg = plugins:Get("Porg")
     local cpp = plugins:Get("Cpp")
+    local interface = plugins:Get("InterfaceMh")
     local html = plugins:Get("HtmlView")
     local bjam = plugins:Get("BoostBuild2")
     local cmake = plugins:Get("CMake")
@@ -122,6 +123,8 @@ function SimpleProject(args)
                             :Version(args.version)
     local src = args.src or "src";
     local target = args.target or "target";
+    local outputPath = filePath(target);
+    local interfacePath = outputPath:NewPath("/Interface.mh")
 
     -- Exclude the exe and test targets from the library.
     local excludePathStrings = {}
@@ -130,6 +133,21 @@ function SimpleProject(args)
         excludePathStrings[#excludePathStrings + 1] = src .. "/" .. v
       end
     end
+
+    -- If this is "loadingAsDependency" and an interface file exists (i.e. this
+    -- project was already generated) we make the decision to nix any targets
+    -- other than the main lib and in doing so save a ton of time.
+    local lLibSources;
+    if loadingAsDependency and interfacePath.Exists then
+        lLibSources = pathList2{ interfacePath }
+        -- A project loading this one won't need to know anything about it's
+        -- exes or tests.
+        args.exes = {}
+        args.tests = {}
+    else
+        lLibSources = pathList{src}
+    end
+
     addRelativePathList(args.exes)
     addRelativePathList(args.tests)
     local excludeFiles = pathList(excludePathStrings)
@@ -138,11 +156,10 @@ function SimpleProject(args)
         name="lib",
         shortName = args.libShortName,
         headers=pathList{src, target},
-        sources=pathList{src},
+        sources=lLibSources,
         dependencies = args.dependencies,
         excludeFiles = excludeFiles,
     }
-
     project = lProject
     lib = lLib
 
@@ -155,7 +172,6 @@ function SimpleProject(args)
       end
     end
     addExeTargets(args.exes)
-
     local testCount = 1
 
     local createHeadersList = function(targets)
@@ -167,7 +183,6 @@ function SimpleProject(args)
             end
         return pathList{stringList}
     end
-
     local addTestTarget = function(testPath)
         local realPath = srcPath:NewPathForceSlash(testPath)
 
@@ -186,13 +201,11 @@ function SimpleProject(args)
             sources=pathList2{realPath},
             };
     end
-
     local addTestTargets = function(testPaths)
         for i, testPath in ipairs(testPaths) do
             addTestTarget(testPath)
         end
     end
-
     addTestTargets(args.tests)
 
     -- This always runs, even if the user hasn't selected anything.
@@ -206,10 +219,10 @@ function SimpleProject(args)
     -- Functions.
     ---------------------------------------------------------------------------
     local preGenerated = false
+    local generatedLess = false
     local generated = false
     local built = false
     local installed = false
-
     local targetDir = newPath(target)
     -- Bind local vars in case the global changes.
 
@@ -228,20 +241,29 @@ function SimpleProject(args)
         preGenerated = true
     end
 
-    local outputPath = filePath(target);
-
     local cmakeFlags = args.cmakeFlags or {}
     cmakeFlags.projectVersion = lProject;
     cmakeFlags.filePath = outputPath
     cmakeFlags.output = output
-
-    local lGenerate = function()
-      if generated then return end
+    local lGenerateLess = function()
+      if generatedLess then return end
       lPreGenerate()
       runWithLoggedErrors(function()
         cpp:Run("Generate", { projectVersion=lProject, path=outputPath })
       end)
+      generatedLess = true
+    end
 
+    local lGenerate = function()
+      if generated then return end
+      generateLess()
+      runWithLoggedErrors(function()
+          interface:Run("Generate", {
+              library=lLib,
+              interfacePath=interfacePath,
+              output = output
+          })
+      end)
       html:Run("Generate", { target=lLib, path=outputPath})
       local bjamFlags = args.bjamFlags or {}
       bjamFlags.jamroot = outputPath:NewPath("/jamroot.jam")
@@ -282,6 +304,7 @@ function SimpleProject(args)
         installed = true
     end
 
+    generateLess = lGenerateLess
     generate = lGenerate
     build = lBuild
     install = lInstall

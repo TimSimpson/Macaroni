@@ -282,12 +282,13 @@ class Macaroni::Environment::ProjectLoader
         }
 
         optional<ProjectVersionId> opv(pv);
-        return LoadProjectEnvironment(projectFilePath.get(), opv);
+        return LoadProjectEnvironment(projectFilePath.get(), opv, true);
     }
 
     public ProjectVersionPtr LoadProject(const path & projectPath)
     {
-        ProjectEnvironmentPtr pEnv = LoadProjectEnvironment(projectPath);
+        ProjectEnvironmentPtr pEnv = LoadProjectEnvironment(projectPath,
+            boost::none, true);
         return GetContext()->FindProjectVersion(pEnv->GetWorkingProjectId());
     }
 
@@ -296,7 +297,7 @@ class Macaroni::Environment::ProjectLoader
      **/
     public ProjectEnvironmentPtr LoadProjectEnvironment(const path & projectPath)
     {
-        return LoadProjectEnvironment(projectPath, boost::none);
+        return LoadProjectEnvironment(projectPath, boost::none, false);
     }
 
 ~block "cpp-include"
@@ -310,7 +311,8 @@ class Macaroni::Environment::ProjectLoader
      * said project is defined in the given file.
      */
     public ProjectEnvironmentPtr LoadProjectEnvironment(
-        const path & projectPath, optional<ProjectVersionId> expectedPvId)
+        const path & projectPath, optional<ProjectVersionId> expectedPvId,
+        bool loadingAsDependency)
     {
         LOG_DEBUG("LoadProjectEnvironment")
         LOG_DEBUG(projectPath.string().c_str())
@@ -323,7 +325,8 @@ class Macaroni::Environment::ProjectLoader
         ProjectEnvironmentPtr env;
         try
         {
-            env = loadProjectEnvironment(projectPath);
+            env = loadProjectEnvironment(projectPath,
+                                         loadingAsDependency);
         }
         catch(const Macaroni::Exception & me)
         {
@@ -365,7 +368,8 @@ class Macaroni::Environment::ProjectLoader
 
     /** Runs the file at the given path and returns the global variable
      *  "project" defined in the script. */
-    ~hidden ProjectEnvironmentPtr loadProjectEnvironment(path projectFilePath)
+    ~hidden ProjectEnvironmentPtr loadProjectEnvironment(path projectFilePath,
+                                                         bool isInstalled)
     {
         {
             ProjectEnvironmentPtr pEnv =
@@ -377,8 +381,8 @@ class Macaroni::Environment::ProjectLoader
         }
         path workingDir = projectFilePath;
         workingDir.remove_leaf();
-        output->DebugLine(format("Parsing file %s...") %
-                          projectFilePath.string());
+        //output->DebugLine(format("Parsing file %s...") %
+        //                  projectFilePath.string());
 
         struct MarkerImpl : public ProjectLoaderMarker
         {
@@ -397,8 +401,9 @@ class Macaroni::Environment::ProjectLoader
 
         {
             ProjectEnvironmentPtr pEnv;
+            output->DebugLine(format("Loading %s...") % projectFilePath.string());
             pEnv = new ProjectEnvironment(*this, marker, workingDir,
-                                          projectFilePath);
+                                          projectFilePath, isInstalled);
             pEnv->Initialize();
             return pEnv;
         }
@@ -448,7 +453,7 @@ class Macaroni::Environment::ProjectLoader
         if (boost::filesystem::exists(upper))
         {
             runUpperProjects(upper); // Run its parent first...
-            LoadProjectEnvironment(upper);
+            LoadProjectEnvironment(upper, boost::none, true);
         }
     }
 

@@ -1,0 +1,107 @@
+
+~namespace Macaroni::Environment;
+
+
+class Timer
+{
+    ~block "h"
+    {
+        public: typedef unsigned long long Integer;
+    }
+
+    class Integer{ ~hfile=<Macaroni/Environment/Timer.h> };
+
+    ~import Macaroni::Environment::Timer::Integer;
+
+    private static bool useCrapTimer;
+    private static double ticksPerMS;
+
+    ~block "h" {
+      private: static Integer initHighFreqTime;
+    }
+    ~block "cpp" {
+        Timer::Integer Timer::initHighFreqTime;
+    }
+
+    ~block "cpp"
+    {
+        #include <Macaroni/ME.h>
+        #ifdef MACARONI_COMPILE_TARGET_WINDOWS
+          #include <windows.h>
+        #endif
+
+        namespace {
+            #ifdef MACARONI_COMPILE_TARGET_LINUX
+            inline Timer::Integer getLinuxTime()
+            {
+                long unsigned int secs;
+                long unsigned int msecs;
+                timer_ms_gettime(&secs, &msecs);
+                return ((Integer)secs * 1000) + (Integer)msecs;
+            }
+            #endif
+        } // end anonymous namespace
+    }
+
+    /** Initializes the high frequency timer.  This must only be called once.*/
+    public static void Init()
+    {
+        #ifdef MACARONI_COMPILE_TARGET_WINDOWS
+          LARGE_INTEGER li; /* This is a weird data type... */
+          if (!QueryPerformanceFrequency(&li))
+          {
+              useCrapTimer = true;
+              return;
+          }
+          auto ticksPerSecond = li.QuadPart;
+          if (ticksPerSecond >= 1000){
+            ticksPerMS = (double) ticksPerSecond / (double)1000;
+            if (!QueryPerformanceCounter(&li)){
+               useCrapTimer = true;
+            }
+            else{
+               initHighFreqTime = li.QuadPart;
+               useCrapTimer = false;
+            }
+          }
+          else{
+            useCrapTimer = true;
+          }
+        #else
+            initHighFreqTime = getLinuxTime();
+        #endif
+    }
+
+    ~block "h"
+    {
+      public:
+      MACARONI_LIB_DECL_Macaroni___Macaroni_46_App____48__46_1_46_0_46_29___lib
+      static Integer GetTime();
+    }
+
+    ~block "cpp"
+    {
+      Timer::Integer Timer::GetTime()
+      {
+        #ifdef MACARONI_COMPILE_TARGET_WINDOWS
+            if (useCrapTimer){ /* Crappy timer. */
+               return GetTickCount();
+            }
+            else{  /* High res timer. */
+               LARGE_INTEGER li;
+               while(!QueryPerformanceCounter(&li)){
+                  return 0;  // Silently fail. This assumes the timer is only
+                             // used for metrics so such failures will be ok.
+               }
+               auto currentHighFreqTime = li.QuadPart - initHighFreqTime;
+               return ((double)currentHighFreqTime / ticksPerMS);
+            }
+        #else  // Unix
+            initHighFreqTime = getLinuxTime();
+            long unsigned int secs;
+            long unsigned int msecs;
+            return getLinuxTime() - initHighFreqTime;
+          #endif
+      }
+      } // End block.
+};

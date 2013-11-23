@@ -12,7 +12,7 @@ local TypeNames = Macaroni.Model.TypeNames;
 
 MhFileGenerator = {
 
-    new = function(path, targetLibrary)
+    new = function(output, interfacePath, targetLibrary)
         args = {}
         setmetatable(args, MhFileGenerator);
         MhFileGenerator.__index = function(t, k)
@@ -23,13 +23,15 @@ MhFileGenerator = {
             return v;
         end;
 
-        local filePath = path:NewPath("/Interface.mh");
+        local filePath = interfacePath;
         --TODO: Somehow calling C++ NewFileWriter() method currently results in entire Lua call from C++ ending.
         --local writer, errorMsg, errorNumber = io.open(filePath.AbsolutePath, 'w+'); --args.path:NewFileWriter();
         --if (writer == nil) then
         --    error(tostring(errorNumber) .. " " .. errorMsg, 2);
         --end
         --args.writer = writer;
+        args.lines = {}
+        args.output = output;
         args.writer = filePath:CreateFile();
         args.tabs = 0;
         args.targetLibrary = targetLibrary;
@@ -37,63 +39,66 @@ MhFileGenerator = {
     end,
 
 
-    iterateNodes = function (self, nodeChildren)
+    iterate = function (self)
+        local nodeChildren = self.targetLibrary.Context.Root.Children
+        self:iterateNodes(nodeChildren)
+        table.sort(self.lines, function (a, b)
+            return string.lower(a) < string.lower(b)
+        end)
+        self:writeAfterTabs("// Macaroni interface for "
+                            .. tostring(self.targetLibrary) .. "\n\n");
+        for i, v in ipairs(self.lines) do
+            self:writeAfterTabs(v)
+        end
+    end,
+
+    iterateNodes = function(self, nodeChildren)
         for i = 1, #(nodeChildren) do
-            n = nodeChildren[i];
-            self:parseNode(n);
+            local node = nodeChildren[i];
+            local element = node.Element
+            if element ~= nil and element:OwnedBy(self.targetLibrary) then
+                self:parseElement(node, element);
+            end
+            if #(node.Children) > 0 then
+                self:iterateNodes(node.Children)
+            end
         end
     end,
 
-    parseClass = function(self, node)
-		if (node.Member.Library == self.targetLibrary) then
-            local info = NodeInfoList[node];
-            self:writeAfterTabs('class ' .. node.Name .. ' {\n');
-            self:addTabs(1);
-            self:writeAfterTabs('~hfile=' .. info.headerFile .. '\n');
-            self:iterateNodes(node.Children);
-            self:addTabs(-1);
-            self:writeAfterTabs('};\n');
-            -- Find the hFile
-        end
-    end,
-
-    parseNamespace = function(self, node)
-		if (node.Member.Library == self.targetLibrary) then
-            local info = NodeInfoList[node];
-            self:writeAfterTabs("namespace " .. node.Name .. ' {\n');
-            self:addTabs(1);
-            -- self:writeAfterTabs('~hfile=' .. info.headerFile .. ';\n');
-            self:iterateNodes(node.Children);
-            self:addTabs(-1);
-            self:writeAfterTabs("}\n");
-        end
-    end,
-
-    parseNode = function(self, node)
-        if (node.Member == nil) then
-            self:writeAfterTabs("// Skipping hollow node " .. node.Name .. '\n');
-        else
-            self:parseNodeMember(node);
-        end
-    end,
-
-    parseNodeMember = function(self, node)
-        local member = node.Member;
-        if (member.TypeName == TypeNames.Class) then
-            self:parseClass(node);
-        elseif (member.TypeName == TypeNames.Namespace) then
-            self:parseNamespace(node);
-        elseif (member.TypeName == TypeNames.Typedef) then
-            self:parseTypedef(node);
-        else
-            self:writeAfterTabs("//WARNING: Do not know how to handle " .. node.Name .. " with Member type " .. member.TypeName .. ".\n");
-        end
-    end,
-
-    parseTypedef = function(self, node)
+    parseClass = function(self, node, element)
         local info = NodeInfoList[node];
-        self:writeAfterTabs("class " .. node.Name .. ' { ' ..
-                            '~hfile=' .. info.headerFile .. '; };\n');
+        self.lines[#self.lines + 1] = 'class ' .. node.FullName .. ' {\t'
+                                .. '~hfile=' .. info.headerFile .. '\t};\n';
+    end,
+
+  --   parseNamespace = function(self, node)
+		-- if (node.Element.Library == self.targetLibrary) then
+  --           local info = NodeInfoList[node];
+  --           self:writeAfterTabs("namespace " .. node.Name .. ' {\n');
+  --           self:addTabs(1);
+  --           -- self:writeAfterTabs('~hfile=' .. info.headerFile .. ';\n');
+  --           self:iterateNodes(node.Children);
+  --           self:addTabs(-1);
+  --           self:writeAfterTabs("}\n");
+  --       end
+  --   end,
+
+    parseElement = function(self, node, element)
+        if (element.TypeName == TypeNames.Class) then
+            self:parseClass(node, element);
+        -- elseif (element.TypeName == TypeNames.Namespace) then
+        --     self:parseNamespace(node);
+        elseif (element.TypeName == TypeNames.Typedef) then
+            self:parseTypedef(node, element);
+        -- else
+        --     self:writeAfterTabs("//WARNING: Do not know how to handle " .. node.Name .. " with Element type " .. element.TypeName .. ".\n");
+        end
+    end,
+
+    parseTypedef = function(self, node, element)
+        local info = NodeInfoList[node];
+        self.lines[#self.lines + 1] = "class " .. node.FullName .. " {\t" ..
+                                      "~hfile=" .. info.headerFile .. "\t};\n";
     end,
 }; -- end HFileGenerator
 
