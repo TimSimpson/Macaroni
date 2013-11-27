@@ -141,10 +141,16 @@ class Macaroni::Environment::Environment
 		output->DebugLine(format("Message file : %s") %
 		           appPaths->GetMessagePaths().string());
 		output->DebugLine("");
-		output->DebugLine("Library Paths : [");
+		output->Debug("Library Paths : [");
+		bool seenOnce = false;
 		BOOST_FOREACH(const boost::filesystem::path & path,
 			          appPaths->GetLibraryRepoPaths())
 		{
+			if (seenOnce)
+			{
+				output->Debug(", ");
+			}
+			seenOnce = true;
 			output->Debug(path.string());
 		}
 		output->DebugLine("]");

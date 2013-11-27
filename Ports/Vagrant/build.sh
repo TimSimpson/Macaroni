@@ -124,7 +124,7 @@ function cmd_build_release() {
 }
 
 function cmd_unit_test() {
-    $MACARONI_EXE luaTests $MACARONI_SOURCE/Main/App/Source/test/lua
+    $MACARONI_EXE --messagesPath $MACARONI_SOURCE/Main/App/Source/main/resources luaTests $MACARONI_SOURCE/Main/App/Source/test/lua
 }
 
 function create_init_lua() {
@@ -153,13 +153,13 @@ properties =
   },
 }
 properties.boost.current = properties.boost['1.52'];
-properties.bjam_options = '-d+2 ';
+properties.bjam_options = '-d+2 -q ';
 properties.boost.version = '1.52';
 " > ~/Macaroni/init.lua
 }
 
 function cavatappi_args() {
-    echo "generatorPath $MACARONI_SOURCE/Main/Generators libraryRepoPath $MACARONI_SOURCE/Main/Libraries messagesPath $MACARONI_SOURCE/Main/App/Source/main/resources cavatappi $@"
+    echo "--generatorPath $MACARONI_SOURCE/Main/Generators --libraryRepoPath $MACARONI_SOURCE/Main/Libraries --messagesPath $MACARONI_SOURCE/Main/App/Source/main/resources cavatappi $@"
 }
 
 function cmd_run() {

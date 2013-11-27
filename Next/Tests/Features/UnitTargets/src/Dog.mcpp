@@ -4,6 +4,10 @@
 
 ~namespace og;
 
+void hi() {
+    int five = 5;
+}
+
 class Dog
 {
     ~import og::A_Dependency;

@@ -1,9 +1,18 @@
+~import std::chrono::duration_cast;
+~import std::chrono::milliseconds;
+~import std::chrono::steady_clock;
 
 ~namespace Macaroni::Environment;
 
 
 class Timer
 {
+    ~block "h-predef"
+    {
+      #include <Macaroni/ME.h>
+      #include <chrono>
+    }
+
     ~block "h"
     {
         public: typedef unsigned long long Integer;
@@ -17,10 +26,14 @@ class Timer
     private static double ticksPerMS;
 
     ~block "h" {
-      private: static Integer initHighFreqTime;
+        private: static Integer initHighFreqTime;
+
+        private: static std::chrono::steady_clock::time_point initTime;
+
     }
     ~block "cpp" {
         Timer::Integer Timer::initHighFreqTime;
+        std::chrono::steady_clock::time_point Timer::initTime;
     }
 
     ~block "cpp"
@@ -29,18 +42,6 @@ class Timer
         #ifdef MACARONI_COMPILE_TARGET_WINDOWS
           #include <windows.h>
         #endif
-
-        namespace {
-            #ifdef MACARONI_COMPILE_TARGET_LINUX
-            inline Timer::Integer getLinuxTime()
-            {
-                long unsigned int secs;
-                long unsigned int msecs;
-                timer_ms_gettime(&secs, &msecs);
-                return ((Integer)secs * 1000) + (Integer)msecs;
-            }
-            #endif
-        } // end anonymous namespace
     }
 
     /** Initializes the high frequency timer.  This must only be called once.*/
@@ -68,15 +69,14 @@ class Timer
             useCrapTimer = true;
           }
         #else
-            initHighFreqTime = getLinuxTime();
+            initTime = std::chrono::high_resolution_clock::now();
+            //initHighFreqTime = getLinuxTime();
         #endif
     }
 
     ~block "h"
     {
-      public:
-      MACARONI_LIB_DECL_Macaroni___Macaroni_46_App____48__46_1_46_0_46_29___lib
-      static Integer GetTime();
+      public: static Integer GetTime();
     }
 
     ~block "cpp"
@@ -97,10 +97,8 @@ class Timer
                return ((double)currentHighFreqTime / ticksPerMS);
             }
         #else  // Unix
-            initHighFreqTime = getLinuxTime();
-            long unsigned int secs;
-            long unsigned int msecs;
-            return getLinuxTime() - initHighFreqTime;
+            const auto now = std::chrono::high_resolution_clock::now();
+            return duration_cast<milliseconds>(now - initTime).count();
           #endif
       }
       } // End block.

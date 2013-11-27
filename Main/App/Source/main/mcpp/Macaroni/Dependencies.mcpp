@@ -26,6 +26,10 @@ class std::stringstream { ~hfile=<sstream> };
 class std::string { ~hfile=<string> };
 class std::vector { ~hfile=<vector> };
 
+class std::chrono::duration_cast { ~hfile=<chrono> };
+class std::chrono::milliseconds { ~hfile=<chrono> };
+class std::chrono::steady_clock { ~hfile=<chrono> };
+
 // Boost
 class boost::bad_lexical_cast { ~hfile=<boost/lexical_cast.hpp> };
 class boost::flyweight { ~hfile=<boost/flyweight.hpp> };

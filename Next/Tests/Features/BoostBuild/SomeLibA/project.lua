@@ -10,7 +10,7 @@ bjam = plugins:Get("BoostBuild2")
 --------------------------------------------------------------------------------
 -- Dependencies
 --------------------------------------------------------------------------------
-boost  = load("Macaroni", "Boost-headers", "1.52"):Target("lib")
+boost  = load("Macaroni", "Boost-headers", "1.55"):Target("lib")
 cppstd = load("Macaroni", "CppStd", "2003"):Target("lib")
 someLibB = load("Macaroni.Tests", "Features-BoostBuild-SomeLibB", "1.0.0.0")
            :Target("lib")

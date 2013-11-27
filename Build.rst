@@ -80,3 +80,11 @@ Making an official release is much trickier and involves building the Ubuntu ver
 4. Enter the Ports/Vagrant/Ubuntu64 directory and run "vagrant up". Now, ssh into it the way you did the 32 bit VM and repeat step 3.
 
 5. Finally, enter the "Next" directory and run "cavatappi clean install"
+   Sometimes, the Boost tests won't compile. At various points, I've had to
+   define BOOST_TEST_DYN_LINK and then at other times had to undefine it. At
+   this point, I've stopped caring. Instead, if it complains about linker
+   errors, just run this at the command prompt:
+
+   > SET CL=/DBOOST_TEST_DYN_LINK
+
+   That will define the symbol BOOST_TEST_DYN_LINK in case its needed.
