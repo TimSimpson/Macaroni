@@ -33,6 +33,7 @@
 #include <memory>
 #include <sstream>
 
+using boost::optional;
 using Macaroni::Model::ModelInconsistencyException;
 using Macaroni::Model::Node;
 
@@ -43,16 +44,17 @@ namespace
 	inline TypePtr voidType()
 	{
 		TypeModifiers modifiers;
-		return TypePtr(new Type(NodePtr(), modifiers));		
+		return TypePtr(new Type(NodePtr(), modifiers));
 	}
 };
 
-Destructor::Destructor(Node * home, Model::ReasonPtr reason, bool isInline, 
-                       AccessPtr access, bool isVirtual, bool throwSpecifier)
+Destructor::Destructor(Node * home, Model::ReasonPtr reason, bool isInline,
+                       AccessPtr access, bool isVirtual,
+                       const optional<ExceptionSpecifier> exceptionSpecifier)
 :Function(home, "Destructor", reason)
 {
-	FunctionOverload::Create(this, isInline, access, false, isVirtual, 
-		                     voidType(), false, throwSpecifier, reason);
+	FunctionOverload::Create(this, isInline, access, false, isVirtual,
+		                     voidType(), false, exceptionSpecifier, reason);
 }
 
 Destructor::~Destructor()
@@ -64,22 +66,24 @@ bool Destructor::canBeChildOf(const Member * other) const
 	return dynamic_cast<const Class *>(other) != nullptr;
 }
 
-DestructorPtr Destructor::Create(NodePtr host, bool isInline, AccessPtr access, 
-								 bool isVirtual, bool throwSpecifier,
+DestructorPtr Destructor::Create(NodePtr host, bool isInline, AccessPtr access,
+								 bool isVirtual,
+					 const optional<ExceptionSpecifier> exceptionSpecifier,
 								 Model::ReasonPtr reason)
 {
 	if (!host->GetElement())
 	{
-		return DestructorPtr(new Destructor(host.get(), reason, isInline, 
-			                                access, isVirtual, throwSpecifier));
+		return DestructorPtr(new Destructor(host.get(), reason, isInline,
+			                                access, isVirtual,
+			                                exceptionSpecifier));
 	}
 	DestructorPtr dPtr = host->GetElement<DestructorPtr>();
 	if (!dPtr)
 	{
 		// Something already exists here, and it isn't a destructor.
 		// Will throw an error message.
-		return DestructorPtr(new Destructor(host.get(), reason, isInline, 
-			access, isVirtual, throwSpecifier));
+		return DestructorPtr(new Destructor(host.get(), reason, isInline,
+			access, isVirtual, exceptionSpecifier));
 	}
 	// Re-use previously set variable.
 	return dPtr;
@@ -119,7 +123,7 @@ void Destructor::Visit(MemberVisitor * visitor) const
 {
 	visitor->VisitDestructor(*this);
 }
-	
+
 END_NAMESPACE
 
 #endif

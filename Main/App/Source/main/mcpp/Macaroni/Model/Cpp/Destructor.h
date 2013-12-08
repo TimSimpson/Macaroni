@@ -18,6 +18,7 @@
 
 #include "../../ME.h"
 #include "DestructorPtr.h"
+#include <Macaroni/Model/Cpp/ExceptionSpecifier.h>
 #include "Function.h"
 #include "FunctionOverload.h"
 #include "../Member.h"
@@ -37,8 +38,9 @@ friend void intrusive_ptr_release(Destructor * p);
 
 public:
 
-	static DestructorPtr Create(NodePtr home, bool isInline, AccessPtr access, 
-		                        bool isVirtual, bool throwSpecifier, 
+	static DestructorPtr Create(NodePtr home, bool isInline, AccessPtr access,
+		                        bool isVirtual,
+		           const boost::optional<ExceptionSpecifier> exceptionSpecifier,
 								Model::ReasonPtr reason);
 
 	virtual ~Destructor();
@@ -46,7 +48,7 @@ public:
 	virtual bool canBeChildOf(const Member * other) const;
 
 	/** Destructors can only have one overload so they are created with it,
-	    unlike Constructors or Functions which need to have them manually 
+	    unlike Constructors or Functions which need to have them manually
 		added.  This helper just returns it. */
 	FunctionOverloadPtr GetFunctionOverload();
 
@@ -55,10 +57,11 @@ public:
 	virtual void Visit(MemberVisitor * visitor) const;
 
 private:
-	
-	Destructor(Node * home, Model::ReasonPtr reason, bool isInline, 
-		       AccessPtr access, bool isVirtual, bool throwSpecifier);
-	
+
+	Destructor(Node * home, Model::ReasonPtr reason, bool isInline,
+		       AccessPtr access, bool isVirtual,
+		       const boost::optional<ExceptionSpecifier> exceptionSpecifier);
+
 };
 
 END_NAMESPACE

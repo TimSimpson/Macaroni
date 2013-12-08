@@ -49,15 +49,15 @@ namespace
 	{
 		TypeModifiers modifiers;
 		NodePtr node(home);
-		return TypePtr(new Type(node, modifiers));		
+		return TypePtr(new Type(node, modifiers));
 	}
 };
 
-ConstructorOverload::ConstructorOverload(Node * home, Model::ReasonPtr reason, 
-										 bool isInline, Access access, 
-										 bool throwSpecifier)
-:FunctionOverload(home, "ConstructorOverload", reason, isInline, access, true, 
-				  false, voidTypeInfo(home), false, throwSpecifier), 
+ConstructorOverload::ConstructorOverload(Node * home, Model::ReasonPtr reason,
+										 bool isInline, Access access,
+				   const boost::optional<ExceptionSpecifier> exceptionSpecifier)
+:FunctionOverload(home, "ConstructorOverload", reason, isInline, access, true,
+				  false, voidTypeInfo(home), false, exceptionSpecifier),
  assignments()
 {
 }
@@ -78,17 +78,18 @@ bool ConstructorOverload::canBeChildOf(const Member * other) const
 
 
 ConstructorOverloadPtr ConstructorOverload::Create(
-	NodePtr node, bool isInline, AccessPtr access, bool throwSpecifier, 
+	NodePtr node, bool isInline, AccessPtr access,
+	const boost::optional<ExceptionSpecifier> exceptionSpecifier,
 	Model::ReasonPtr reason)
-{	
+{
 	ConstructorOverload * co = new ConstructorOverload(
-		node.get(), reason, isInline, *access, throwSpecifier);
+		node.get(), reason, isInline, *access, exceptionSpecifier);
 	return ConstructorOverloadPtr(co);
 }
 
 NodePtr ConstructorOverload::CreateNode(NodePtr ctorHomeNode)
 {
-	return ctorHomeNode->CreateNextInSequence("Overload#");	
+	return ctorHomeNode->CreateNextInSequence("Overload#");
 }
 
 const VariableAssignment & ConstructorOverload::GetAssignment(int index) const

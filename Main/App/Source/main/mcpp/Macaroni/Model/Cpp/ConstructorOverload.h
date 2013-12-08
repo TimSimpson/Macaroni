@@ -39,11 +39,12 @@ friend void intrusive_ptr_release(ConstructorOverload * p);
 
 public:
 
-	ConstructorPtr Create(NodePtr host, bool isInline, AccessPtr access, 
+	ConstructorPtr Create(NodePtr host, bool isInline, AccessPtr access,
 						  Model::ReasonPtr reason);
 
-	static ConstructorOverloadPtr Create(NodePtr home, 
-		bool isInline, AccessPtr access, bool throwSpecifier,
+	static ConstructorOverloadPtr Create(NodePtr home,
+		bool isInline, AccessPtr access,
+		const boost::optional<ExceptionSpecifier> exceptionSpecifier,
 		Model::ReasonPtr reason);
 
 	virtual ~ConstructorOverload();
@@ -52,28 +53,30 @@ public:
 
 	virtual bool canBeChildOf(const Member * other) const;
 
-	ConstructorOverloadPtr Create(FunctionPtr home, bool isInline, const Access access, 
-							   const bool isStatic, const TypePtr rtnType, 
-							   bool constMember, bool throwSpecifier,
+	ConstructorOverloadPtr Create(FunctionPtr home, bool isInline, const Access access,
+							   const bool isStatic, const TypePtr rtnType,
+							   bool constMember,
+				   const boost::optional<ExceptionSpecifier> exceptionSpecifier,
 							   Model::ReasonPtr reason);
 
 	/** Creates a new Node under the given Node where the overload will be. */
-	static NodePtr CreateNode(NodePtr ctorHomeNode); 
+	static NodePtr CreateNode(NodePtr ctorHomeNode);
 
 	const VariableAssignment & GetAssignment(int index) const;
 
 	int GetAssignmentCount() const;
-	
+
 	virtual const char * GetTypeName() const;
 
 	virtual void Visit(MemberVisitor * visitor) const;
 
 private:
-	
-	ConstructorOverload(Model::Node * home, Model::ReasonPtr reason, 
-		                bool isInline, Access access, bool throwSpecifier);
-	
-	std::vector<VariableAssignment> assignments;	
+
+	ConstructorOverload(Model::Node * home, Model::ReasonPtr reason,
+		                bool isInline, Access access,
+		           const boost::optional<ExceptionSpecifier> exceptionSpecifier);
+
+	std::vector<VariableAssignment> assignments;
 };
 
 END_NAMESPACE

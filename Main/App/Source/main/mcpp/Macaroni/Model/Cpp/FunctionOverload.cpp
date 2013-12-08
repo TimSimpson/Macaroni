@@ -23,36 +23,39 @@
 #include <Macaroni/Model/Cpp/Variable.h>
 
 using Macaroni::Model::ModelInconsistencyException;
+using boost::optional;
 using Macaroni::Model::Project::TargetPtr;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 FunctionOverload::FunctionOverload
 (
- Node * home, Model::ReasonPtr reason, bool isInline, 
- Access access, const bool isStatic, bool isVirtual, 
- const TypePtr rtnTypeInfo, bool constMember, bool throwSpecifier
+ Node * home, Model::ReasonPtr reason, bool isInline,
+ Access access, const bool isStatic, bool isVirtual,
+ const TypePtr rtnTypeInfo, bool constMember,
+ const optional<ExceptionSpecifier> exceptionSpecifier
 )
-:ScopeMember(home, "FunctionOverload", 
+:ScopeMember(home, "FunctionOverload",
 			 reason, access, isStatic),
  codeBlock(),
  codeBlockAddRedirect(false),
- constMember(constMember), 
+ constMember(constMember),
  isInline(isInline),
  isPureVirtual(false),
  isVirtual(isVirtual),
  returnType(rtnTypeInfo),
- throwSpecifier(throwSpecifier)
-{	
+ exceptionSpecifier(exceptionSpecifier)
+{
 }
 
 FunctionOverload::FunctionOverload
 (
- Node * home, const char * typeName, Model::ReasonPtr reason, bool isInline, 
- Access access, const bool isStatic, bool isVirtual, 
- const TypePtr rtnTypeInfo, bool constMember, bool throwSpecifier
+ Node * home, const char * typeName, Model::ReasonPtr reason, bool isInline,
+ Access access, const bool isStatic, bool isVirtual,
+ const TypePtr rtnTypeInfo, bool constMember,
+ const optional<ExceptionSpecifier> exceptionSpecifier
 )
-:ScopeMember(home, typeName, 
+:ScopeMember(home, typeName,
 			 reason, access, isStatic),
  codeBlock(),
  constMember(constMember),
@@ -61,55 +64,55 @@ FunctionOverload::FunctionOverload
  isPureVirtual(false),
  isVirtual(isVirtual),
  returnType(rtnTypeInfo),
- throwSpecifier(throwSpecifier)
-{	
+ exceptionSpecifier(exceptionSpecifier)
+{
 }
 
 FunctionOverload::~FunctionOverload()
 {
 }
 
-FunctionOverloadPtr FunctionOverload::Create(FunctionPtr home, 
-											 bool isInline, const AccessPtr access, 
-											 const bool isStatic, 
+FunctionOverloadPtr FunctionOverload::Create(FunctionPtr home,
+											 bool isInline, const AccessPtr access,
+											 const bool isStatic,
 											 bool isVirtual,
-											 const TypePtr rtnType, 
-											 bool constMember, 
-											 bool throwSpecifier,
+											 const TypePtr rtnType,
+											 bool constMember,
+						  const optional<ExceptionSpecifier> exceptionSpecifier,
 											 Model::ReasonPtr reason)
 {
 	Function * fn = home.get();
-	return Create(fn, isInline, access, isStatic, isVirtual, rtnType, 
-		          constMember, throwSpecifier, reason);
+	return Create(fn, isInline, access, isStatic, isVirtual, rtnType,
+		          constMember, exceptionSpecifier, reason);
 }
 
-FunctionOverloadPtr FunctionOverload::Create(Function * fn, 
-											 bool isInline, const AccessPtr access, 
-											 const bool isStatic, 
+FunctionOverloadPtr FunctionOverload::Create(Function * fn,
+											 bool isInline, const AccessPtr access,
+											 const bool isStatic,
 											 bool isVirtual,
-											 const TypePtr rtnType, 
-											 bool constMember, 
-											 bool throwSpecifier,
+											 const TypePtr rtnType,
+											 bool constMember,
+						  const optional<ExceptionSpecifier> exceptionSpecifier,
 											 Model::ReasonPtr reason)
-{	
+{
 	Node * node = fn->GetNode().get();
-	NodePtr foNode = node->CreateNextInSequence("Overload#");	
-	return Create(foNode, isInline, access, isStatic, isVirtual, rtnType, 
-		          constMember, throwSpecifier, reason);	
+	NodePtr foNode = node->CreateNextInSequence("Overload#");
+	return Create(foNode, isInline, access, isStatic, isVirtual, rtnType,
+		          constMember, exceptionSpecifier, reason);
 }
 
-FunctionOverloadPtr FunctionOverload::Create(NodePtr foNode, 
-											 bool isInline, const AccessPtr access, 
-											 const bool isStatic, 
+FunctionOverloadPtr FunctionOverload::Create(NodePtr foNode,
+											 bool isInline, const AccessPtr access,
+											 const bool isStatic,
 											 bool isVirtual,
-											 const TypePtr rtnType, 
-											 bool constMember, 
-											 bool throwSpecifier,
+											 const TypePtr rtnType,
+											 bool constMember,
+						const optional<ExceptionSpecifier> exceptionSpecifier,
 											 Model::ReasonPtr reason)
-{		
-	FunctionOverload * fo = new FunctionOverload(foNode.get(), reason, 
+{
+	FunctionOverload * fo = new FunctionOverload(foNode.get(), reason,
 		isInline, *access,
-		isStatic, isVirtual, rtnType, constMember, throwSpecifier);
+		isStatic, isVirtual, rtnType, constMember, exceptionSpecifier);
 	return FunctionOverloadPtr(fo);
 }
 
@@ -126,17 +129,17 @@ bool FunctionOverload::DoesDefinitionReference(NodePtr node) const
 
 NodeListPtr FunctionOverload::GetArguments() const
 {
-	NodeListPtr argList(new NodeList());	
+	NodeListPtr argList(new NodeList());
 	NodeListPtr args(new NodeList());
 	for (unsigned int i = 0; i < getNode()->GetChildCount(); i ++)
 	{
 		NodePtr child = getNode()->GetChild(i);
 		MACARONI_ASSERT(!!child->GetElement(), "Member for function argument set to null.");
 		ElementPtr element = child->GetElement();
-		MACARONI_ASSERT(boost::dynamic_pointer_cast<Variable>(element), 
+		MACARONI_ASSERT(boost::dynamic_pointer_cast<Variable>(element),
 					"Member was not of type variable - code is out of date.");
 		argList->push_back(child);
-	}	
+	}
 	return argList;
 }
 
@@ -175,16 +178,16 @@ bool FunctionOverload::RequiresHFile() const
 	return getAccess().VisibleInHeader();
 }
 
-void FunctionOverload::SetCodeBlock(std::string & code, SourcePtr startOfCode, 
+void FunctionOverload::SetCodeBlock(std::string & code, SourcePtr startOfCode,
 									bool codeBlockAddRedirect)
 {
 	if (!!codeSource)
 	{
 		std::stringstream msg;
 		msg << "Cannot create a code block for function "
-			<< this->getNode()->GetFullName() 
+			<< this->getNode()->GetFullName()
 			<< " because one was already defined at "
-			<< codeSource->ToString() 
+			<< codeSource->ToString()
 			<< ".";
 		throw ModelInconsistencyException(startOfCode, msg.str());
 	}
@@ -200,9 +203,9 @@ void FunctionOverload::SetPureVirtual(SourcePtr startOfCode)
 	{
 		std::stringstream msg;
 		msg << "Cannot set function "
-			<< this->getNode()->GetFullName() 
+			<< this->getNode()->GetFullName()
 			<< " as pure virtual because it already has been defined at "
-			<< codeSource->ToString() 
+			<< codeSource->ToString()
 			<< ".";
 		throw ModelInconsistencyException(startOfCode, msg.str());
 	}
@@ -211,7 +214,7 @@ void FunctionOverload::SetPureVirtual(SourcePtr startOfCode)
 }
 
 void FunctionOverload::Visit(MemberVisitor * visitor) const
-{	
+{
 }
 
 END_NAMESPACE

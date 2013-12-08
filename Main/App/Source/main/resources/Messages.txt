@@ -62,6 +62,7 @@ CppParser.PureVirtual.ExpectedSemicolon=Following equals and zero expected a sem
 CppParser.PureVirtual.ExpectedZero=Following equals expected to see a zero to indicate a pure virtual function.
 CppParser.StringLiteralStartExpected=Expected to see the a String literal here.
 CppParser.StringLiteralEndingExpected=Expected to see the ending of a String literal.
+CppParser.NoExcept.MissingSecondParanthesis=Expected to see end of paranthesis for noexcept specifier here.
 CppParser.ThrowSpecifier.MissingFirstParanthesis=Expected to see a pair of paranthesis following throw specifier.
 CppParser.ThrowSpecifier.MissingSecondParanthesis=Expected to see end of paranthesis for throw specifier here (note: unfortunately Macaroni has not implemented non-empty type specifiers).
 CppParser.Type.TypeDefinitionArgumentExpected=Expected to see type definition within ankle brackets.

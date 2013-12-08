@@ -33,6 +33,7 @@
 #include <Macaroni/Model/Cpp/Destructor.h>
 #include <Macaroni/Model/Cpp/DestructorPtr.h>
 #include <Macaroni/Exception.h>
+#include <Macaroni/Model/Cpp/ExceptionSpecifier.h>
 #include <Macaroni/Model/Project/ExeTarget.h>
 #include <Macaroni/Model/Project/ExeTargetPtr.h>
 #include <Macaroni/Model/FileName.h>
@@ -91,6 +92,7 @@ using Macaroni::Model::Cpp::CppContext;
 using Macaroni::Model::Cpp::CppContextPtr;
 using Macaroni::Model::Cpp::Destructor;
 using Macaroni::Model::Cpp::DestructorPtr;
+using Macaroni::Model::Cpp::ExceptionSpecifier;
 using Macaroni::Model::Project::ExeTarget;
 using Macaroni::Model::Project::ExeTargetPtr;
 using Macaroni::Model::FileName;
@@ -1080,7 +1082,8 @@ public:
 
 		currentScope = oldScope;
 
-		bool throwSpecifier = ThrowSpecifier(newItr);
+		boost::optional<ExceptionSpecifier> exceptionSpecifier
+			= ParseExceptionSpecifier(newItr);
 
 		FunctionOverloadPtr fOlPtr;
 		if (!tilda)
@@ -1091,13 +1094,13 @@ public:
 			//isInline, access,
 			ConstructorOverloadPtr ctorOl =
 				ConstructorOverload::Create(fOlNode, isInline, access,
-				                            throwSpecifier, ctorReason);
+				                            exceptionSpecifier, ctorReason);
 			fOlPtr = boost::dynamic_pointer_cast<FunctionOverload>(ctorOl);
 		} // end !tilda
 		else
 		{
 			DestructorPtr dtor = Destructor::Create(ctorNode,  isInline, access,
-				isVirtual, throwSpecifier,
+				isVirtual, exceptionSpecifier,
 				Reason::Create(CppAxioms::DtorCreation(), itr.GetSource()));
 			fOlPtr = dtor->GetFunctionOverload();
 		}
@@ -2296,6 +2299,53 @@ public:
 		return true;
 	}
 
+	/** Determines what exception specifier, if any, exists here. */
+	boost::optional<ExceptionSpecifier> ParseExceptionSpecifier(Iterator & itr)
+	{
+		itr.ConsumeWhitespace();
+		if (itr.ConsumeWord("throw"))
+		{
+			itr.ConsumeWhitespace();
+			if (!itr.ConsumeChar('('))
+			{
+				throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.ThrowSpecifier.MissingFirstParanthesis"));
+			}
+			//TODO: If for some reason the ability to put a type specifier into the
+			//throw statement is ever worth doing, remember to change the error
+			//message which currently gives a reminder that it isn't.
+			itr.ConsumeWhitespace();
+			if (!itr.ConsumeChar(')'))
+			{
+				throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.ThrowSpecifier.MissingSecondParanthesis"));
+			}
+			return ExceptionSpecifier::EmptyThrows();
+		}
+		else if (itr.ConsumeWord("BOOST_NOEXCEPT"))
+		{
+			return ExceptionSpecifier::BoostNoExcept();
+		}
+		else if (itr.ConsumeWord("noexcept"))
+		{
+			itr.ConsumeWhitespace();
+			if (!itr.ConsumeChar('('))
+			{
+				return ExceptionSpecifier::NoExcept();
+			}
+			std::string expr;
+			ConsumeExpression(itr, ")", expr);
+			//TODO: If for some reason the ability to put a type specifier into the
+			//throw statement is ever worth doing, remember to change the error
+			//message which currently gives a reminder that it isn't.
+			return ExceptionSpecifier::NoExcept(expr);
+		}
+		else
+		{
+			return boost::none;
+		}
+	}
+
 	/** Returns true if the pure virtual syntax is found here (in other words,
 	 *  "= 0;"). "source" is the start of the pure virtual expression.
 	 */
@@ -2443,34 +2493,6 @@ public:
 	{
 		ConsumeWhitespace(itr);
 		return itr.ConsumeWord("static");
-	}
-
-	/** Returns true if a throw specifier is read. Right now only empty throw
-	 *  specifiers are implemented.
-	 */
-	bool ThrowSpecifier(Iterator & itr)
-	{
-		itr.ConsumeWhitespace();
-		if (!itr.ConsumeWord("throw"))
-		{
-			return false;
-		}
-		itr.ConsumeWhitespace();
-		if (!itr.ConsumeChar('('))
-		{
-			throw ParserException(itr.GetSource(),
-				Messages::Get("CppParser.ThrowSpecifier.MissingFirstParanthesis"));
-		}
-		//TODO: If for some reason the ability to put a type specifier into the
-		//throw statement is ever worth doing, remember to change the error
-		//message which currently gives a reminder that it isn't.
-		itr.ConsumeWhitespace();
-		if (!itr.ConsumeChar(')'))
-		{
-			throw ParserException(itr.GetSource(),
-				Messages::Get("CppParser.ThrowSpecifier.MissingSecondParanthesis"));
-		}
-		return true;
 	}
 
 	/** Consumes type info into the form of Type, in the format of
@@ -2993,11 +3015,12 @@ public:
 				FunctionArgumentList(itr);
 
 			bool constMember = false;
-			bool throwSpecifier = false; // Only empty throw implemented now.
+			boost::optional<ExceptionSpecifier> exceptionSpecifier = boost::none;
 
 			while(
 				(!constMember && (constMember = ConstKeyword(itr)))
-			 || (!throwSpecifier && (throwSpecifier = ThrowSpecifier(itr)))
+			 || (!exceptionSpecifier
+			 	 && (exceptionSpecifier = ParseExceptionSpecifier(itr)))
 			){}
 
 			while(Annotation(itr));
@@ -3027,7 +3050,7 @@ public:
 			FunctionOverloadPtr fOl =
 				FunctionOverload::Create(foNode, isInline, access, isStatic,
 				                         isVirtual, type,
-										 constMember, throwSpecifier,
+										 constMember, exceptionSpecifier,
 										 fReason);
 			if (codeAttached)
 			{

@@ -300,8 +300,14 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         self:write(self.node.Name .. "(");
         self:writeArgumentList(node);
         self:write(")");
-        if (node.Member.ThrowSpecifier) then
-			self:write(" throw()");
+        if MACARONI_VERSION ~= "0.1.0.27" then
+            if (node.Member.ExceptionSpecifier) then
+                self:write(" " .. node.Member.ExceptionSpecifier);
+            end
+        else
+            if (node.Member.ThrowSpecifier) then
+                self:write(" throw()");
+            end
         end
         if (not node.Member.Inline) then
             self:write(";\n");

@@ -364,8 +364,14 @@ ClassCppFileGenerator = {
         if (func.Const) then
             self:write(" const");
         end
-        if (func.ThrowSpecifier) then
-            self:write(" throw()");
+        if MACARONI_VERSION ~= "0.1.0.27" then
+            if (func.ExceptionSpecifier) then
+                self:write(" " .. func.ExceptionSpecifier);
+            end
+        else
+            if (func.ThrowSpecifier) then
+                self:write(" throw()");
+            end
         end
         self:write("\n");
 

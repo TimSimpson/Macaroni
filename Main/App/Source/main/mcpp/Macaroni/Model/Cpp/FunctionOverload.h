@@ -17,9 +17,11 @@
 #define MACARONI_MODEL_CPP_FUNCTIONOVERLOAD_H
 
 #include "../../ME.h"
+#include <Macaroni/Model/Cpp/ExceptionSpecifier.h>
 #include "Function.h"
 #include "FunctionOverloadPtr.h"
 #include "../Member.h"
+#include <boost/optional.hpp>
 #include "../ReasonPtr.h"
 #include "ScopeMember.h"
 #include "../SourcePtr.h"
@@ -41,14 +43,15 @@ public:
 									  const bool isStatic, bool isVirtual,
 									  const TypePtr rtnType,
 									  bool constMember,
-									  bool throwSpecifier,
+					const boost::optional<ExceptionSpecifier> exceptionSpecifier,
 									  Model::ReasonPtr reason);
 
 	static FunctionOverloadPtr Create(FunctionPtr home, bool isInline,
 									  const AccessPtr access,
 									  const bool isStatic, bool isVirtual,
 									  const TypePtr rtnType,
-									  bool constMember, bool throwSpecifier,
+									  bool constMember,
+				const boost::optional<ExceptionSpecifier> exceptionSpecifier,
 									  Model::ReasonPtr reason);
 
 	static FunctionOverloadPtr Create(Function * home, bool isInline,
@@ -56,7 +59,8 @@ public:
 									  const bool isStatic,
 									  bool isVirtual,
 									  const TypePtr rtnType,
-									  bool constMember, bool throwSpecifier,
+									  bool constMember,
+				 const boost::optional<ExceptionSpecifier> exceptionSpecifier,
 									  Model::ReasonPtr reason);
 
 	virtual ~FunctionOverload();
@@ -79,6 +83,12 @@ public:
 		return codeSource;
 	}
 
+	inline const boost::optional<ExceptionSpecifier> GetExceptionSpecifier()
+	const
+	{
+		return exceptionSpecifier;
+	}
+
 	inline const TypePtr GetReturnType() const
 	{
 		return returnType;
@@ -87,11 +97,6 @@ public:
 	virtual const char * GetTypeName() const;
 
 	bool HasCodeBlock() const;
-
-	bool HasThrowSpecifier() const
-	{
-		return throwSpecifier;
-	}
 
 	inline bool IsConst() const
 	{
@@ -135,9 +140,11 @@ public:
 protected:
 	//FunctionOverload(Node home, bool isInline, const Access access, const bool isStatic, const TypePtr rtnType, bool constMember, Model::ReasonPtr reason);
 
-	FunctionOverload(Node * home, Model::ReasonPtr reason, bool isInline, Access access, const bool isStatic, bool isVirtual, const TypePtr rtnTypeInfo, bool constMember, bool throwSpecifier);
+	FunctionOverload(Node * home, Model::ReasonPtr reason, bool isInline, Access access, const bool isStatic, bool isVirtual, const TypePtr rtnTypeInfo, bool constMember,
+		const boost::optional<ExceptionSpecifier> exceptionSpecifier);
 
-	FunctionOverload(Node * home, const char * typeName, Model::ReasonPtr reason, bool isInline, Access access, const bool isStatic, bool isVirtual, const TypePtr rtnTypeInfo, bool constMember, bool throwSpecifier);
+	FunctionOverload(Node * home, const char * typeName, Model::ReasonPtr reason, bool isInline, Access access, const bool isStatic, bool isVirtual, const TypePtr rtnTypeInfo, bool constMember,
+		const boost::optional<ExceptionSpecifier> exceptionSpecifier);
 
 	virtual bool canBeChildOf(const Member * other) const;
 
@@ -151,6 +158,8 @@ private:
 
 	bool constMember;
 
+	const boost::optional<ExceptionSpecifier> exceptionSpecifier;
+
 	const bool isInline;
 
 	bool isPureVirtual;
@@ -161,7 +170,6 @@ private:
 
 	TypePtr returnType;
 
-	bool throwSpecifier;
 };
 
 END_NAMESPACE

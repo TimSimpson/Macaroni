@@ -84,9 +84,7 @@ function Generate(self)
     validateArgs(self)
     Initialize(self)
     writeCMakeFile(self)
-    if (self.invoke) then
-        invokeCMakeGenerate(self)
-    end
+    invokeCMakeGenerate(self)
 end
 
 local runCMake = function(self, cmd)
@@ -99,9 +97,17 @@ local runCMake = function(self, cmd)
 end
 
 function invokeCMakeGenerate(self)
+    local cmd = 'cmake ' .. self.cmakeListTxt.AbsolutePathForceSlash
+                   .. ' -B' .. self.filePath.AbsolutePathForceSlash
+    if self.invoke then
+        runCMake(self, cmd)
+    else
+        if self.output.DebugLine ~= nil then  -- needed for older Macaronies
+            self.output:DebugLine("Not invoking CMake; do so by running :")
+            self.output:DebugLine("\t" .. cmd)
+        end
+    end
     --local cmd = 'cmake -G "Visual Studio 12"'
-    runCMake(self, 'cmake ' .. self.cmakeListTxt.AbsolutePathForceSlash
-                   .. ' -B' .. self.filePath.AbsolutePathForceSlash)
     --runCMake('cmake --build ' .. outputPath.AbsolutePathForceSlash)
 end
 

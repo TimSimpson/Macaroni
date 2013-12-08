@@ -1,0 +1,77 @@
+~import boost::format;
+~import boost::optional;
+~import std::string;
+
+~namespace Macaroni::Model::Cpp;
+
+class ExceptionSpecifier
+{
+    ~block "h"
+    {
+    private:
+        enum class Form
+        {
+            EMPTY_THROWS,  // throws() -- How it was done in C++98 / 03
+            NOEXCEPT,      // noexcept -- part of C++11
+            NOEXCEPT_BOOST // BOOST_NOEXCEPT macro - transitional.
+                           // Macaroni code can use this if it uses Boost Config.
+        };
+
+        Form form;
+    }
+    private optional<string> expression;
+
+    ~block "h"
+    {
+    private:
+        ExceptionSpecifier(Form form, boost::optional<std::string> expr);
+    }
+    ~block "cpp"
+    {
+        ExceptionSpecifier::ExceptionSpecifier(Form form, optional<string> expr)
+        :   form(form), expression(expr)
+        {}
+    }
+
+    public static ExceptionSpecifier EmptyThrows()
+    {
+        return ExceptionSpecifier(Form::EMPTY_THROWS, boost::none);
+    }
+
+    public static ExceptionSpecifier NoExcept()
+    {
+        return ExceptionSpecifier(Form::NOEXCEPT, boost::none);
+    }
+
+    public static ExceptionSpecifier NoExcept(const string & expression)
+    {
+        return ExceptionSpecifier(Form::NOEXCEPT, expression);
+    }
+
+    public static ExceptionSpecifier BoostNoExcept()
+    {
+        return ExceptionSpecifier(Form::NOEXCEPT_BOOST, boost::none);
+    }
+
+    public string GetCodeText() const
+    {
+        switch(form)
+        {
+            case Form::EMPTY_THROWS:
+                return "throws()";
+            case Form::NOEXCEPT:
+                if (!expression)
+                {
+                    return "noexcept";
+                }
+                else
+                {
+                    return str(format("noexcept(%s)") % expression);
+                }
+            case Form::NOEXCEPT_BOOST:
+                return "BOOST_NOEXCEPT";
+            default:
+                return "";
+        }
+    }
+};

@@ -84,14 +84,31 @@ namespace
 				bool isVirtual = lua_toboolean(L, 5) != 0;
 				TypePtr rtnType = TypeLuaMetaData::GetInstance(L, 6);
 				bool constMember = lua_toboolean(L, 7) != 0;
-				bool throwSpecifier = lua_toboolean(L, 8) != 0;
+				boost::optional<ExceptionSpecifier> exceptionSpecifier;
+				if (lua_isstring(L, 8))
+				{
+					const std::string value(lua_tostring(L, 8));
+					if (value == "throws()")
+					{
+						exceptionSpecifier = ExceptionSpecifier::EmptyThrows();
+					}
+					else if (value == "BOOST_NOEXCEPT")
+					{
+						exceptionSpecifier = ExceptionSpecifier::BoostNoExcept();
+					}
+					else if (value == "noexcept")
+					{
+						exceptionSpecifier = ExceptionSpecifier::NoExcept();
+					}
+				}
 				ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 9);
 				FunctionOverloadPtr newFO = FunctionOverload::Create(home,
 													   isInline, access,
 													   isStatic, isVirtual,
 													   rtnType,
 													   constMember,
-													   throwSpecifier, reason);
+													   exceptionSpecifier,
+													   reason);
 				ElementPtr rtnValue = boost::dynamic_pointer_cast<Element>(newFO);
 				ElementLuaMetaData::PutInstanceOnStack(L, rtnValue);
 				return 1;
@@ -202,9 +219,18 @@ int FunctionOverloadLuaMetaData::Index(lua_State * L,
 		lua_pushcfunction(L, FunctionOverloadLuaFunctions::SetCodeBlock);
 		return 1;
 	}
-	else if (index == "ThrowSpecifier")
+	else if (index == "ExceptionSpecifier")
 	{
-		lua_pushboolean(L, ptr->HasThrowSpecifier());
+		auto es = ptr->GetExceptionSpecifier();
+		if (!es)
+		{
+			lua_pushnil(L);
+		}
+		else
+		{
+			std::string text = es.get().GetCodeText();
+			lua_pushstring(L, text.c_str());
+		}
 		return 1;
 	}
 	else if (index == "Virtual")
