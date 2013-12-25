@@ -58,7 +58,7 @@ class ExceptionSpecifier
         switch(form)
         {
             case Form::EMPTY_THROWS:
-                return "throws()";
+                return "throw()";
             case Form::NOEXCEPT:
                 if (!expression)
                 {

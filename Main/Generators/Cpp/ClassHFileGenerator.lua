@@ -339,6 +339,15 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         self:write('~' .. self.node.Name .. "(");
         self:writeArgumentList(overload);
         self:write(")");
+        if MACARONI_VERSION ~= "0.1.0.27" then
+            if (overload.Member.ExceptionSpecifier) then
+                self:write(" " .. overload.Member.ExceptionSpecifier);
+            end
+        else
+            if (overload.Member.ThrowSpecifier) then
+                self:write(" throw()");
+            end
+        end
         if (not overload.Member.Inline) then
 			self:write(";\n");
 		else

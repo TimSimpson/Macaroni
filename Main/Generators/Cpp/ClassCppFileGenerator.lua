@@ -254,6 +254,15 @@ ClassCppFileGenerator = {
         self:write(self.node.Name .. "::" .. self.node.Name .. "(");
         self:writeArgumentList(node);
         self:write(")\n");
+        if MACARONI_VERSION ~= "0.1.0.27" then
+            if (node.Member.ExceptionSpecifier) then
+                self:write(" " .. node.Member.ExceptionSpecifier);
+            end
+        else
+            if (node.Member.ThrowSpecifier) then
+                self:write(" throw()");
+            end
+        end
         self:writeTabs();
         --[[local assignments = node.Member.Assignments;
         local seenOne = false;
@@ -306,6 +315,15 @@ ClassCppFileGenerator = {
         self:write(self.node.Name .. "::~" .. self.node.Name .. "(");
         self:writeArgumentList(overload);
         self:write(")\n");
+        if MACARONI_VERSION ~= "0.1.0.27" then
+            if (overload.Member.ExceptionSpecifier) then
+                self:write(" " .. overload.Member.ExceptionSpecifier);
+            end
+        else
+            if (overload.Member.ThrowSpecifier) then
+                self:write(" throw()");
+            end
+        end
         self:writeTabs();
         self:write("{\n");
         self:addTabs(1);
