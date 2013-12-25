@@ -32,7 +32,7 @@ DependencyTraveller = {
         setmetatable(self, {
 			["__index"]=DependencyTraveller,
 			});
-        self.originalNode = node; -- who wants this dependency.
+        self.originalNode = originalNode; -- who wants this dependency.
         self.heavy = heavy;
         self.type = "DependencyTraveller";
         return self;
