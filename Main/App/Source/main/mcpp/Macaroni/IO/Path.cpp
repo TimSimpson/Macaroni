@@ -42,23 +42,23 @@ BEGIN_NAMESPACE2(Macaroni, IO)
 //	}
 //}
 Path::Path(const std::string & absolutePath)
-:path(absolutePath), rootPath(absolutePath)
+:	absolutePath(boost::none), path(absolutePath), rootPath(absolutePath)
 {
 }
 
 Path::Path(const boost::filesystem::path & rootPath)
-:path(rootPath), rootPath(rootPath)
+:	absolutePath(boost::none), path(rootPath), rootPath(rootPath)
 {
 }
 
 Path::Path(const boost::filesystem::path & rootPath, const char * path)
-:path(path), rootPath(rootPath)
+:	absolutePath(boost::none), path(path), rootPath(rootPath)
 {
 	assertPathExistsInRootPath();
 }
 
 Path::Path(const Path & other)
-:path(other.path), rootPath(other.rootPath)
+:	absolutePath(other.absolutePath), path(other.path), rootPath(other.rootPath)
 {
 	assertPathExistsInRootPath();
 }
@@ -246,32 +246,41 @@ bool Path::Exists() const
 
 std::string Path::GetAbsolutePath() const
 {
-	// In Windows, system_complete can be used successfully in most cases.
-	// In Linux there seems to be multiple problems with it.
-	// However, this program (like C++ itself) may often use forward slashes
-	// in Windows. "canonical" throws on forward slashes, in which case
-	// we refer to system_complete, which is what was used everywhere
-	// anyway when Macaroni only ran on Windows.
-	try
+	if (!absolutePath)
 	{
-		return boost::filesystem::canonical(path).string();
-	}
-	catch(...)
-	{
+		// In Windows, system_complete can be used successfully in most cases.
+		// In Linux there seems to be multiple problems with it.
+		// However, this program (like C++ itself) may often use forward
+		// slashes in Windows. "canonical" throws on forward slashes, in which
+		// case we refer to system_complete, which is what was used everywhere
+		// anyway when Macaroni only ran on Windows.
+		auto noncost_this = const_cast<Path *>(this);
 		try
 		{
-			return boost::filesystem::system_complete(path).string();
+
+			noncost_this->absolutePath
+				= boost::filesystem::canonical(path).string();
 		}
 		catch(...)
 		{
-			std::cerr << "PATH ERROR: File " << path.string()
-		    	      << " has no canonical path." << std::endl;
-			throw;
+			try
+			{
+				noncost_this->absolutePath
+					= boost::filesystem::system_complete(path).string();
+			}
+			catch(...)
+			{
+				std::cerr << "PATH ERROR: File " << path.string()
+			    	      << " has no canonical path." << std::endl;
+				throw;
+			}
 		}
+		// NOTE: canonical throws errors if a Path isn't found, but it seems
+		// that Path instances are created before a Path exists. In Linux I
+		// believe I saw issues using system_complete, but for now I'll return
+		// to using it.
 	}
-	//NOTE: canonical throws errors if a Path isn't found, but it seems that
-	// Path instances are created before a Path exists. In Linux I believe I
-	// saw issues using system_complete, but for now I'll return to using it.
+	return absolutePath.get();
 }
 
 std::string Path::GetAbsolutePathForceSlash() const

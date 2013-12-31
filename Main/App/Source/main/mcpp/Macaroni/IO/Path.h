@@ -17,6 +17,7 @@
 #define MACARONI_IO_PATH_H
 
 #include "../ME.h"
+#include <boost/optional.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/shared_ptr.hpp>
 #include <Macaroni/IO/GeneratedFileWriter.h>
@@ -166,6 +167,8 @@ public:
 	std::string ToString() const;
 
 private:
+
+	boost::optional<std::string> absolutePath;
 
 	void assertPathExistsInRootPath();
 
