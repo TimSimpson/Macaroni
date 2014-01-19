@@ -461,7 +461,7 @@ void LuaEnvironment::SerializeField(lua_State * state,
 		std::stringstream msg;
 		msg << "Element within table had a value whose type cannot be "
 			<< "handled by the serialize function. "
-			<< "Current data is as follows: " << cereal;
+			<< "Current data is as follows: " << cereal.str();
 		throw Macaroni::StringException(msg.str().c_str());
 	}
 }
