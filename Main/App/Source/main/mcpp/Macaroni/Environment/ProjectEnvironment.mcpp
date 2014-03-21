@@ -536,6 +536,45 @@ class Macaroni::Environment::ProjectEnvironment
         return true;
     }
 
+    ~hidden void fixInitLua()
+    {
+        path userPath(Paths::GetUserPath());
+        if (!boost::filesystem::exists(userPath))
+        {
+            if (boost::filesystem::create_directory(userPath))
+            {
+                path initLuaPath = userPath / "init.lua";
+                std::ofstream initLua(initLuaPath.string());
+                if (initLua)
+                {
+                    initLua << "properties = {" << std::endl;
+                    initLua << "   --Note: This file is for setting global properties." << std::endl;
+                    initLua << "   --      For example, the lines below shows how to add the location of " << std::endl;
+                    initLua << "   --      the Boost libraires so that Macaroni can use them if they were" << std::endl;
+                    initLua << "   --      installed at \"C:\\Tools\\boost_1_55_0\"." << std::endl;
+                    initLua << "   --      Alas, The forward slash is necessary." << std::endl;
+                    initLua << "   --boost=[\"1.55\"] = { " << std::endl;
+                    initLua << "   --   include=[[C:/Tools/boost_1_55_0]], " << std::endl;
+                    initLua << "   --   lib=[[C:/Tools/boost_1_55_0/stage/lib]], " << std::endl;
+                    initLua << "   --   path=[[C:/Tools/boost_1_55_0]]," << std::endl;
+                    initLua << "   --}" << std::endl;
+                    initLua << "};" << std::endl;
+                    initLua.close();
+                }
+                else
+                {
+                    loader.GetOutput()->ErrorLine(str(format(
+                        "Error creating file %s!") % initLuaPath.string()));
+                }
+            }
+            else
+            {
+                loader.GetOutput()->ErrorLine(str(format(
+                    "Error creating path %s!") % userPath.string()));
+            }
+        }
+    }
+
     /** Runs the "init.lua" script stored in the user's path.
      *  This has properties in it the user sets on a per-machine basis.
      *  For instance, the path to the Boost libraries might be stored
@@ -546,8 +585,7 @@ class Macaroni::Environment::ProjectEnvironment
         path initLuaPath = userPath / "init.lua";
         if (!boost::filesystem::exists(initLuaPath))
         {
-            loader.GetOutput()->ErrorLine(str(format("Could not find init.lua at %s.")
-                              % initLuaPath.string()));
+            fixInitLua();
             getLuaEnvironment().ParseString("init.lua", "properties = {}");
             getLuaEnvironment().Run();
         }

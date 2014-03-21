@@ -5,7 +5,7 @@ require "Macaroni.IO.Path"
 project = context
     :Group("Macaroni")
     :Project("Macaroni.App")
-    :Version("0.1.0.30")
+    :Version("0.2.0")
 
 
 ---------------------------------------------------------------------------
@@ -233,6 +233,8 @@ build = function()
       -- Creates a directory with the pure C++ source.
       local dstDir = newRootPath("PureCpp");
       copyCppFiles(newRootPath("../Dependencies/Lua/target"), dstDir);
+      copyCppFiles(newRootPath("../Dependencies/LuaFileSystem/target"), dstDir);
+      copyCppFiles(newRootPath("../Dependencies/MoonScriptDeps/target"), dstDir);
       copyCppFiles(newRootPath("Source/main/mcpp"), dstDir);
       copyResourceFiles(newRootPath("Source/main/resources"), dstDir);
       copyCppFiles(newRootPath("GeneratedSource"), dstDir);

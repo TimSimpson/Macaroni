@@ -31,7 +31,7 @@
 #       to your home directory. Put this somewhere in the contents:
 #
 #            using boost
-#              : 1.52
+#              : 1.55
 #              ;
 #
 #       Next, make sure the environment variable "BOOST_ROOT" contains
@@ -40,7 +40,7 @@
 ################################################################################
 
 import boost ;
-boost.use-project 1.52 ;
+boost.use-project 1.55 ;
 
 alias sources
 	:	[ glob-tree *.c	: .svn ]

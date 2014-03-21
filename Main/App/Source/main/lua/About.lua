@@ -1,7 +1,9 @@
 function aboutText(version)
     local about = [[
 Macaroni for C++, Version ]] .. version .. "\n" .. [[
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ----------------------------------
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Copyright 2011 Tim Simpson
 
@@ -17,8 +19,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-Macaroni incorporates the following dependencies:
 
+Macaroni incorporates the following dependencies:
+=================================================
 
 The Programming Language Lua
 ----------------------------

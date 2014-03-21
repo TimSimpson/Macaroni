@@ -67,6 +67,8 @@ end;
 function Validate(self)
     Plugin.Check(self.projectVersion ~= nil, "Missing argument 'projectVersion'.")
     Plugin.Check(self.path ~= nil, "Missing argument 'path'.")
+    Plugin.Check(self.path.AbsolutePath ~= nil, [["path" argument looks ]] ..
+                                        [[wrong. Is this a path or a string?]])
 end
 
 function Generate2(self)

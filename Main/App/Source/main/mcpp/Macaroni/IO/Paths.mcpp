@@ -46,7 +46,12 @@ class Paths
     public static path GetExeDirectoryPath()
     {
         path exePath0(GetExePath());
-        path exePath = boost::filesystem::canonical(exePath0);
+        #ifdef MACARONI_COMPILE_TARGET_WINDOWS
+            path exePath = exePath0;
+        #endif
+        #ifdef MACARONI_COMPILE_TARGET_LINUX
+            path exePath = boost::filesystem::canonical(exePath0);
+        #endif
         exePath.remove_leaf();
         return exePath;
     }

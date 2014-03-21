@@ -237,8 +237,15 @@ function SimpleProject(args)
             local outputPath = filePath(target)
             args.preGenerate(outputPath)
         end
-        porg:Run("Generate", {target=lLib})
-        preGenerated = true
+        result, msg = pcall(function()
+            porg:Run("Generate", {target=lLib})
+            preGenerated = true
+            end)
+        if not result then
+            output:ErrorLine(msg)
+            error(msg)
+        end
+
     end
 
     local cmakeFlags = args.cmakeFlags or {}

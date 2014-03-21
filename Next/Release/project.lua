@@ -56,10 +56,11 @@ function zipDirectory(dstPath)
     os.execute(cmd)
 end
 
-function createDistributionDirectory(jamConfig, ext, dstDir, errorHint)
+function createDistributionDirectory(jamConfig, weirdTag, ext, dstDir, errorHint)
     local macaroniBinary = newPath(
-        "../../Main/App/PureCpp/bin/" .. jamConfig
-         .. "/link-static/threading-multi"):NewPath("/macaroni_p" .. ext)
+        "../../Main/App/GeneratedSource/bin/" .. jamConfig
+         .. "/link-static/threading-multi"):NewPath("/macaroni"
+        .. weirdTag .. ext)
     if not macaroniBinary.Exists then
         output:ErrorLine("Missing file " .. macaroniBinary.AbsolutePath .. "!")
         output:ErrorLine("Hint:" .. errorHint)
@@ -75,7 +76,8 @@ end
 function createDistributionDirectoryAndZip(args)
     local dstPath = "target/macaroni-" .. version .. args.tag
     local dstDir = newPath(dstPath);
-    createDistributionDirectory(args.binPath, args.ext, dstDir, args.errorHint)
+    createDistributionDirectory(args.binPath, args.weirdTag,
+                                args.ext, dstDir, args.errorHint)
     zipDirectory(dstDir)
 end
 
@@ -84,14 +86,15 @@ function createDistributionArgs(args)
     local distArgs = nil
     if args.windows then
         distArgs = {
-                binPath = "gcc-mingw-windows", ext = ".exe", tag = "-windows",
+                binPath = "msvc-12.0", ext = ".exe", tag = "-windows",
+                weirdTag = "",
                 errorHint = [[
     Enter the pure Cpp directory in Windows and execute:
-    bjam -d+2 -j8 --toolset=gcc cxxflags=-std=gnu++11 link=static threading=multi]]
+    bjam -d+2 -j8 --toolset=msvc-12.0 link=static threading=multi address-model=32]]
                }
     else
         distArgs = {
-                 binPath = "gcc-4.7", ext = "", tag="-ubuntu",
+                 binPath = "gcc-4.7", ext = "", tag="-ubuntu", weirdTag = "_p",
                  errorHint = [[
     In the Ubuntu ]] .. tostring(args.bits) .. [[ VM, execute
     /vagrant/mbuild build.sh]]
@@ -166,10 +169,10 @@ function build()
 
     buildWebSite()
 
-    -- createDistribution{windows=true,  release=false };
-    -- createDistribution{windows=true,  release=true  };
-    createDistribution{windows=false, release=false, bits=32 };
-    createDistribution{windows=false, release=true,  bits=32 };
+    -- createDistribution{windows=true,  release=false, bits=32 };
+    createDistribution{windows=true,  release=true, bits=32  };
+    --createDistribution{windows=false, release=false, bits=32 };
+    --- createDistribution{windows=false, release=true,  bits=32 };
     -- createDistribution{windows=false, release=false, bits=64 };
     -- createDistribution{windows=false, release=true,  bits=64 };
 end

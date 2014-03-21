@@ -28,6 +28,14 @@ FileWriters = {
             gen:parse()
             writer:Write('\n'); -- avoid bunching up typedefs
         end,
+
+        --TODO: Make functions owned by Targets and then this will work.
+        -- Function = function(library, node, writer, unit)
+        --     gen = UnitFunctionGenerator.Write{node=node, unit=unit,
+        --         targetLibrary=library, writer=writer};
+
+        -- end,
+
         Typedef = function(library, node, writer)
             gen = TypedefFileGenerator.new{node=node, targetLibrary=library,
                                            writer=writer};

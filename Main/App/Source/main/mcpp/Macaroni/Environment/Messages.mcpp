@@ -61,12 +61,13 @@ class Messages
         }
         else
         {
-            const auto path = Paths::GetExeDirectoryPath() / "Messages.txt";
-            finalFilePath = str(format("%s") % path);
+            const auto path = Paths::GetExeDirectoryPath();
+            const auto path2 = path / "Messages.txt";
+            finalFilePath = path2.string();
         }
         std::ifstream file;
         file.open(finalFilePath.c_str());
-        if (!!file)
+        if (file)
         {
             string next;
 
@@ -86,8 +87,9 @@ class Messages
         }
         else
         {
-            string msg = str(format("Messages file not not found at \"%s\".")
-                             % finalFilePath);
+
+            string msg = str(format("Messages file not not found at \"%s\" (%s) (%s).")
+                             % finalFilePath % Paths::GetExeDirectoryPath() % Paths::GetExePath());
             MACARONI_THROW(msg.c_str());
         }
     }
