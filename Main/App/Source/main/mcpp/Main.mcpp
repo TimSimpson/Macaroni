@@ -20,6 +20,7 @@
 ~block "cpp":=
 
 #include "Macaroni/ME.h"
+#include "Macaroni/Build/BadArgException.h"
 #include "Macaroni/Build/CmdLine.h"
 #include "Macaroni/Environment/Console.h"
 #include "Macaroni/Exception.h"
@@ -53,17 +54,8 @@ using Macaroni::IO::FileSet;
 using Macaroni::Environment::Messages;
 using Macaroni::Environment::Timer;
 
-int generic_main(std::vector<MACARONI_VE_CONST std::string> & args)
+int run(CmdLine & cmd)
 {
-	std::cout << MACARONI_FILE_DESCRIPTION << std::endl;
-	std::cout << "Version " << MACARONI_VERSION_STRING <<
-		" built at " << BUILD_TIMESTAMP_LOCAL << std::endl;
-	std::cout << std::endl;
-
-	Console output(0);
-
-	CmdLine cmd(args, output);
-
 	if (cmd.StartPrompt())
 	{
 		std::cout <<
@@ -122,6 +114,25 @@ int generic_main(std::vector<MACARONI_VE_CONST std::string> & args)
 		std::cin >> ch;
 	}
 	return returnCode;
+}
+
+int generic_main(std::vector<MACARONI_VE_CONST std::string> & args)
+{
+	std::cout << MACARONI_FILE_DESCRIPTION << std::endl;
+	std::cout << "Version " << MACARONI_VERSION_STRING <<
+		" built at " << BUILD_TIMESTAMP_LOCAL << std::endl;
+	std::cout << std::endl;
+
+	Console output(0);
+
+
+	try {
+		CmdLine cmd(args, output);
+		return run(cmd);
+	} catch(const Macaroni::Build::BadArgException & bae) {
+		output.ErrorLine("An argument was missing or incorrect.");
+		return 10;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////

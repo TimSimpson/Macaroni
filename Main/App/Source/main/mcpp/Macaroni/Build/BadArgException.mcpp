@@ -1,0 +1,17 @@
+~import Macaroni::InternalSource;
+~import Macaroni::Exceptions::SimpleException;
+
+~namespace Macaroni::Build;
+
+class BadArgException : public SimpleException
+{
+    public BadArgException(InternalSource where)
+    : Macaroni::Exceptions::SimpleException(where)
+    {
+    }
+
+    public virtual const char * what() const throw()
+    {
+        return "The argument was missing or incorrect.";
+    }
+};

@@ -15,13 +15,13 @@
  */
 ~import Macaroni::AppPaths;
 ~import Macaroni::AppPathsPtr;
+~import Macaroni::Build::BadArgException;
 ~import Macaroni::Environment::Console;
 ~import Macaroni::Model::Context;
 ~import Macaroni::Model::ContextPtr;
 ~import Macaroni::Environment::Environment;
 ~import Macaroni::IO::FileSet;
 ~import BOOST_FOREACH;
-~import Macaroni::Exception;
 ~import Macaroni::Environment::Input;
 ~import Macaroni::Environment::InputPtr;
 ~import Macaroni::Model::Library;
@@ -34,6 +34,7 @@
 ~import Macaroni::IO::Paths;
 ~import boost::filesystem::path;
 ~import Macaroni::IO::RegexFileSet;
+~import Macaroni::SimpleException;
 ~import std::string;
 ~import std::stringstream;
 ~import std::vector;
@@ -101,7 +102,6 @@ class CmdLine
 	{
 		luaTestsPath = "";
 	}
-
 
 	private bool pathContains(vector<path> & paths, path & path)
 	{
@@ -208,6 +208,7 @@ class CmdLine
 			{
 				output->ErrorLine("No generator path given following "
 					              "\"generatorPath\" arg.");
+				throw BadArgException(MACARONI_INTERNAL_SOURCE);
 			}
 			else
 			{
@@ -224,6 +225,7 @@ class CmdLine
 			{
 				output->ErrorLine("No library repo path given following "
 					              "\"libraryRepoPath\" arg.");
+				throw BadArgException(MACARONI_INTERNAL_SOURCE);
 			}
 			else
 			{
@@ -247,6 +249,7 @@ class CmdLine
 			{
 				output->ErrorLine("No messages path given following "
 				                  "\"messagesPath\" arg.");
+				throw BadArgException(MACARONI_INTERNAL_SOURCE);
 			}
 			else
 			{
@@ -262,6 +265,7 @@ class CmdLine
 			{
 				output->ErrorLine("No MoonScript path given following "
 					              "\"--moonscriptPath\" arg.");
+				throw BadArgException(MACARONI_INTERNAL_SOURCE);
 			}
 			else
 			{
@@ -270,6 +274,7 @@ class CmdLine
 				{
 					output->ErrorLine("No directory found at the given "
 						"Moon Script files path.");
+					throw BadArgException(MACARONI_INTERNAL_SOURCE);
 				}
 				moonScriptPath = optional<path>(p);
 			}
