@@ -1,7 +1,8 @@
 -- Disclaimer:
 -- This code is mostly copied from the moon script (no pun intended) written
 -- by Leaf Corcoran. However it was modified a bit to make it feel like a first
--- class citizen in Macaroni so don't blame him for anything bad found here.
+-- class citizen in Macaroni so anything disgusting you find here is probably
+-- something I added.
 --
 -- It's possible that moonscript.dofile is all that needs to be called but
 -- I can't seem to get the MoonScript source in the stack trace that way
@@ -47,7 +48,6 @@ function RunMoonScriptFile(filePath, errorOutputMethod)
                 errorOutputMethod(rewritten)
                 error(err)
             else
-                errorOutputMethod("MARIO: YOU SEE IT BROKE")
                 errorOutputMethod(table.concat({
                   err,
                   util.trim(trace)

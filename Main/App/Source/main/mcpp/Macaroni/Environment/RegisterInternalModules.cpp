@@ -147,7 +147,7 @@ void LuaEnvironment::registerInternalLuaModules()
 	// Take required function, override it with a function which
 	// given
 
-	//luaopen_lpeg(state);
+	luaopen_lpeg(state);
 };
 
 END_NAMESPACE2
