@@ -31,6 +31,7 @@
 #include <Macaroni/Model/Project/ProjectVersionLuaMetaData.h>
 #include <Macaroni/Model/Project/ProjectVersion.h>
 #include <sstream>
+#include <Macaroni/LuaCompat.h>
 
 using Macaroni::Model::Project::Group;
 using Macaroni::Model::Project::GroupPtr;
@@ -313,7 +314,7 @@ int ContextLuaMetaData::OpenInLua(lua_State * L)
 		return 0; // Already loaded, DO NOT WASTE TIME DUMMY.
 	}
 	luaL_newmetatable(L, METATABLENAME); // create metaTable
-	luaL_register(L, nullptr, metaTableMethods);
+	luaL_setfuncs(L, metaTableMethods, 0);
 
 	//lua_newtable(L);	// create __indexTable
 	//luaL_register(L, nullptr, __indexTableMethods);
@@ -334,10 +335,10 @@ int ContextLuaMetaData::OpenInLua(lua_State * L)
 
 	// Creates or reuses a table called "Macaroni_File" and puts it in global
 	// scope.
-	luaL_register(L, GLOBALTABLENAME, tableMethods);
+	MACARONI_LUA_REGISTER_FOR_RETURN(L, GLOBALTABLENAME, tableMethods);
 
-	/** Now open dependent libraries. */
-	NodeLuaMetaData::OpenInLua(L);
+	///** Now open dependent libraries. */
+	//NodeLuaMetaData::OpenInLua(L);
 
 	return 1;
 }

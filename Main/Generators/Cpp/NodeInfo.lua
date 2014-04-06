@@ -18,9 +18,9 @@ require "Macaroni.Model.AnnotationValue";
 require "Cpp/Common";
 require "Cpp/DependencyList";
 
-local Access = Macaroni.Model.Cpp.Access;
-local Context = Macaroni.Model.Context;
-local Node = Macaroni.Model.Node;
+local Access = require "Macaroni.Model.Cpp.Access";
+local Context = require "Macaroni.Model.Context";
+local Node = require "Macaroni.Model.Node";
 local TypeNames = Macaroni.Model.TypeNames;
 
 -- Short for "NodeDefinition". These can be heavy or light.
@@ -81,7 +81,7 @@ NodeInfo = {
         local fs = namespaceNode.FullName;
         local rtn = "";
         if not namespaceNode.IsRoot then
-			local names = Macaroni.Model.Node.SplitComplexName(fs);
+			local names = Node.SplitComplexName(fs);
 			for i = 1, #names do
 				rtn = rtn .. "namespace " .. names[i] .. " { ";
 			end
@@ -105,7 +105,7 @@ NodeInfo = {
         check(self ~= nil, "Member function called without self.");
         check(node ~= nil, "Argument 2, 'node', cannot be nil.");
         if (node.Member ~= nil and
-            (node.Member.TypeName == Macaroni.Model.TypeNames.Primitive
+            (node.Member.TypeName == TypeNames.Primitive
              or node.Member.TypeName == "AnnotationDefinition")
             ) then
             return "";
@@ -125,8 +125,8 @@ NodeInfo = {
                         return '<' .. target.HFile.RelativePathNormalized .. '>';
                     end
                 end
-				if (node.Member.TypeName == Macaroni.Model.TypeNames.Class or
-				    node.Member.TypeName == Macaroni.Model.TypeNames.Typedef)
+				if (node.Member.TypeName == TypeNames.Class or
+				    node.Member.TypeName == TypeNames.Typedef)
 				    then
 					return '<' .. node:GetPrettyFullName("/") .. '.h>';
 				end
@@ -152,7 +152,7 @@ NodeInfo = {
         check(namespaceNode ~= nil, "namespaceNode cannot be nil.");
         local rtn = "";
         if not namespaceNode.IsRoot then
-			local names = Macaroni.Model.Node.SplitComplexName(namespaceNode.FullName);
+			local names = Node.SplitComplexName(namespaceNode.FullName);
 			for i = 1, #names do
 				rtn = rtn .. "} ";
 			end
@@ -242,7 +242,7 @@ NodeInfo = {
     isUnderClass = function(self, node)
 		local parent = node.Node;
 		if (parent ~= nil and parent.Member ~= nil) then
-			if parent.Member.TypeName == Macaroni.Model.TypeNames.Class then
+			if parent.Member.TypeName == TypeNames.Class then
 				return true;
 			end
         end

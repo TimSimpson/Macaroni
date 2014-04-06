@@ -24,10 +24,20 @@ print = function(msg)
     output:WriteLine(tostring(msg))
 end
 
-local Files = Macaroni.Model.Project.Files
-local FileSet = Macaroni.IO.FileSet;
-local Path = Macaroni.IO.Path;
-local PathList = Macaroni.IO.PathList;
+
+if MACARONI_VERSION == "0.1.0.27" then
+    Files = Macaroni.Model.Project.Files
+    FileSet = Macaroni.IO.FileSet;
+    Path = Macaroni.IO.Path;
+    PathList = Macaroni.IO.PathList;
+else
+    Files = require "Macaroni.Model.Project.Files"
+    FileSet = require "Macaroni.IO.FileSet"
+    Path = require "Macaroni.IO.Path"
+    PathList = require "Macaroni.IO.PathList"
+end
+
+
 
 loadBoostLib = function(name)
     -- Short hand for loading a Boost Library.

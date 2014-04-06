@@ -1,5 +1,6 @@
 require "os"
-require "Macaroni.IO.Path"
+local Path = require "Macaroni.IO.Path";
+
 
 
 upper = getUpperProject();
@@ -15,7 +16,7 @@ project = context:Group("Macaroni")
                  :Project("Macaroni.Release")
                  :Version(version)
 
-local dir = Macaroni.IO.Path.New(getWorkingDirectory())
+local dir = Path.New(getWorkingDirectory())
 
 function newPath(suffix)
     return dir:NewPathForceSlash(suffix):CreateWithCurrentAsRoot();

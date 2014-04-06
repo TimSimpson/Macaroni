@@ -13,9 +13,11 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --------------------------------------------------------------------------------
-require "Macaroni.IO.Path";
-local Path = Macaroni.IO.Path;
-
+local Context = require "Macaroni.Model.Context";
+local FileName = require "Macaroni.Model.FileName";
+local Path = require "Macaroni.IO.Path";
+local PippyParser = require "Macaroni.Parser.Pippy.PippyParser";
+local Source = require "Macaroni.Model.Source";
 
 -- Helper to write parser tests.
 ParserTest = {
@@ -34,13 +36,13 @@ ParserTest = {
 	end,
 
 	init = function(self)
-		self.parser = Macaroni.Parser.Pippy.PippyParser.Create();
-        self.context = Macaroni.Model.Context.New("{ROOT}");
+		self.parser = PippyParser.Create();
+        self.context = Context.New("{ROOT}");
         self.library = self.context:FindOrCreateLibrary("Tests",
                               "TestGeneratedLib", "1.0");
-        self.file = Macaroni.Model.FileName.Create(Path.New("", "Blah1.mcpp"));
+        self.file = FileName.Create(Path.New("", "Blah1.mcpp"));
         self.root = self.context.Root;
-        self.src = Macaroni.Model.Source.Create(self.file, 1, 1);
+        self.src = Source.Create(self.file, 1, 1);
 	end,
 };
 

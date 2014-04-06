@@ -21,6 +21,7 @@ require "debug";
 require "io";
 
 -- Eventually put this next part in C++.
+Macaroni = { Model = {} }
 Macaroni.Model.TypeNames =
 {
     Block = "Block",

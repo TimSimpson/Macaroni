@@ -1,5 +1,5 @@
 require "string"
-require "Macaroni.Core.Hash";
+local Hash = require "Macaroni.Core.Hash";
 require "Macaroni.IO.GeneratedFileWriter";
 require "Macaroni.Model.Library";
 require "Macaroni.IO.Path";
@@ -7,9 +7,7 @@ require "Log"
 require "Cpp/LibraryConfigGenerator";
 require "Plugin"
 
-Hash = Macaroni.Core.Hash
-
-Target = Macaroni.Model.Project.Target;
+Target = require "Macaroni.Model.Project.Target";
 
 --require "Macaroni.IO.PathList";
 

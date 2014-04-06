@@ -13,30 +13,17 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --------------------------------------------------------------------------------
-require "Macaroni.Model.Context";
-require "Macaroni.Environment.Messages";
-require "Macaroni.Model.Node";
-require "Macaroni.Model.NodeList";
-require "Macaroni.Parser.Pippy.PippyParser";
-require "Macaroni.Parser.Parser";
-require "Macaroni.Parser.ParserException";
-require "Macaroni.Model.Source";
-require "Macaroni.Model.Type";
-require "Macaroni.Model.TypeArgument";
-require "Macaroni.Model.TypeArgumentList";
-require "Macaroni.Model.TypeList";
-
-local Context = Macaroni.Model.Context;
-local FileName = Macaroni.Model.FileName;
-local Messages = Macaroni.Environment.Messages;
-local Node = Macaroni.Model.Node;
-local NodeList = Macaroni.Model.NodeList;
-local PippyParser = Macaroni.Parser.Pippy.PippyParser;
-local Source = Macaroni.Model.Source;
-local Type = Macaroni.Model.Type;
-local TypeArgument = Macaroni.Model.TypeArgument;
-local TypeArgumentList = Macaroni.Model.TypeArgumentList;
-local TypeList = Macaroni.Model.TypeList;
+local Context = require "Macaroni.Model.Context";
+local FileName = require "Macaroni.Model.FileName";
+local Messages = require "Macaroni.Environment.Messages";
+local Node = require "Macaroni.Model.Node";
+local NodeList = require "Macaroni.Model.NodeList";
+local PippyParser = require "Macaroni.Parser.Pippy.PippyParser";
+local Source = require "Macaroni.Model.Source";
+local Type = require "Macaroni.Model.Type";
+local TypeArgument = require "Macaroni.Model.TypeArgument";
+local TypeArgumentList = require "Macaroni.Model.TypeArgumentList";
+local TypeList = require "Macaroni.Model.TypeList";
 
 local function mixinContext(self)
     self.context = Context.New("{ROOT}");
@@ -45,34 +32,34 @@ local function mixinContext(self)
 end
 
 Test.register(
-{	
-    name = "TypeList Tests",    
-    tests = {    
+{
+    name = "TypeList Tests",
+    tests = {
         {
             name = "Creating an empty TypeList.",
-            init = function(self)               
+            init = function(self)
                 self.typeList = TypeList.New{};
             end,
             tests = {
                 ["TypeList is empty."] = function(self)
                     Test.assertEquals(0, #(self.typeList));
-                end,                
+                end,
             }
         },
         {
             name = "Creating a TypeList with one element.",
-            init = function(self)  
-                mixinContext(self);   
-                self.typeList = TypeList.New{self.stdstringType};                
+            init = function(self)
+                mixinContext(self);
+                self.typeList = TypeList.New{self.stdstringType};
             end,
             tests = {
                 ["TypeList has one element."] = function(self)
                     Test.assertEquals(1, #(self.typeList));
-                end,                
+                end,
                 ["TypeList first element is what we gave it."] = function(self)
                     Test.assertEquals(self.stdstringType, self.typeList[1]);
-                end,                
+                end,
             }
-        },        
-    }    
+        },
+    }
 }); -- End of register call

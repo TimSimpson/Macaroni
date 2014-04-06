@@ -13,48 +13,48 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --
--- 
---  This file copies the Lua source code from some a path specified at 
---  properties.lua["5.1.4"] to the target directory, in the process changing
+--
+--  This file copies the Lua source code from some a path specified at
+--  properties.lua["5.2.3"] to the target directory, in the process changing
 -- .c files to .cpp to easily compile it as C++ under VC++.
---  
+--
 --------------------------------------------------------------------------------
 
 require "Macaroni.IO.GeneratedFileWriter";
 require "Macaroni.Model.Library";
 require "Macaroni.IO.Path";
 
-function copyCFilesToCppFiles(src, dst)		
+function copyCFilesToCppFiles(src, dst)
 	local srcFiles = src:GetPaths([[\.(c|h)?$]])
 	for i = 1, #srcFiles do
 		local fp = srcFiles[i];
 		fp:CopyToDifferentRootPath(dst, true);
 	end
 	local dstFiles = dst:GetPaths([[\.(c)?$]])
-	for j = 1, #dstFiles do		
+	for j = 1, #dstFiles do
 		local fp = dstFiles[j];
 		local rp = string.gsub(fp.RelativePath, ".c", ".cpp")
 		fp:RenameRelative(rp)
-	end		
+	end
 end
 
-function getIncludePath()	
+function getIncludePath()
 	local success, path = pcall(function()
-		return properties.lua["5.1.4"].include;
+		return properties.lua["5.2.3"].include;
 	end);
 	if (not success) then
 		error([[
-Could not find the variable properties.lua["5.1.4"].include.
+Could not find the variable properties.lua["5.2.3"].include.
 This can be set in the file "init.lua" located in the Macaroni directory under
 your home directory.
 The variable to set should look something like this:
 lua =
   {
-    ["5.1.4"] =
+    ["5.2.3"] =
     {
-      bin = "C:/lua-5.1.4/bin",      
-      include = "C:/lua-5.1.4/src",
-      source = "C:/lua-5.1.4/src"
+      bin = "C:/lua-5.2.3/bin",
+      include = "C:/lua-5.2.3/src",
+      source = "C:/lua-5.2.3/src"
     },
   },
 		]]);
@@ -69,7 +69,7 @@ function Generate(library, path)
 end
 
 function Build(library, sources, outputPath, installPath, extraArgs)
-	local includePath = getIncludePath();	
-	copyCFilesToCppFiles(Macaroni.IO.Path.New(includePath), outputPath);	
+	local includePath = getIncludePath();
+	copyCFilesToCppFiles(Macaroni.IO.Path.New(includePath), outputPath);
 end
 

@@ -13,19 +13,12 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --------------------------------------------------------------------------------
-require "Macaroni.Model.Context";
-require "Macaroni.Model.Node";
-require "Macaroni.Model.NodeList";
-require "Macaroni.Model.Type";
-require "Macaroni.Model.TypeArgument";
-require "Macaroni.Model.TypeList";
-
-local Context = Macaroni.Model.Context;
-local Node = Macaroni.Model.Node;
-local NodeList = Macaroni.Model.NodeList;
-local Type = Macaroni.Model.Type;
-local TypeArgument = Macaroni.Model.TypeArgument;
-local TypeList = Macaroni.Model.TypeList;
+local Context = require "Macaroni.Model.Context";
+local Node = require "Macaroni.Model.Node";
+local NodeList = require "Macaroni.Model.NodeList";
+local Type = require "Macaroni.Model.Type";
+local TypeArgument = require "Macaroni.Model.TypeArgument";
+local TypeList = require "Macaroni.Model.TypeList";
 
 local function mixinContext(self)
     self.context = Context.New("{ROOT}");
@@ -39,9 +32,9 @@ local function mixinContext(self)
 end
 
 Test.register(
-{	
-    name = "TypeArgument Tests",    
-    tests = {    
+{
+    name = "TypeArgument Tests",
+    tests = {
         {
             name = "Creating a TypeArgument in Lua with no arguments.",
             init = function(self)
@@ -50,22 +43,22 @@ Test.register(
             end,
             tests = {
                 ["Node should be what we gave it."] = function(self)
-                    Test.assertEquals(self.nodeA.FullName, self.typeArgument.Node.FullName);           
+                    Test.assertEquals(self.nodeA.FullName, self.typeArgument.Node.FullName);
                 end,
                 ["Arguments are empty."] = function(self)
-                    Test.assertEquals(0, #(self.typeArgument.Arguments));           
+                    Test.assertEquals(0, #(self.typeArgument.Arguments));
                 end,
             }
         },
         {
             name = "Creating a TypeArgument in Lua with Arguments.",
             init = function(self)
-                mixinContext(self);                     
+                mixinContext(self);
                 self.typeArgument = TypeArgument.New(self.nodeA, self.typeList);
             end,
             tests = {
                 ["Node should be what we gave it."] = function(self)
-                    Test.assertEquals(self.nodeA.FullName, self.typeArgument.Node.FullName);           
+                    Test.assertEquals(self.nodeA.FullName, self.typeArgument.Node.FullName);
                 end,
                 ["Arguments are the TypeList we provided."] = function(self)
                     local expected = self.typeList;
@@ -74,5 +67,5 @@ Test.register(
                 end,
             }
         }
-    }    
+    }
 }); -- End of register call

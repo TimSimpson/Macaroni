@@ -17,6 +17,7 @@
 #define MACARONI_IO_PATHLUA_CPP
 
 #include <Macaroni/IO/GeneratedFileWriterLuaMetaData.h>
+#include <Macaroni/LuaCompat.h>
 #include "PathLua.h"
 
 //extern "C" {
@@ -39,9 +40,8 @@ struct lua_State;
 #define LUAGLUE_REGISTRATIONCLASSNAME PathLuaMetaData
 #define LUAGLUE_HELPERCLASS PathsLuaFunctions
 #define LUAGLUE_OPENOTHERMODULES  \
-		luaL_newmetatable(L, "Macaroni.IO.PathList"); \
-		luaL_register(L, nullptr, PathsProperty_MetaTableMethods); \
-		luaL_register(L, "Macaroni.IO.PathList", PathsProperty_GlobalTableMethods);
+		PathListLuaMetaData::OpenInLua(L); \
+		lua_pop(L, 1);
 
 //#define LUAGLUE_OPENOTHERMODULES /*Macaroni::Generator::Output::PathLuaMetaData::OpenInLua(L); \
 //		luaL_newmetatable(L, "Macaroni.Generator.Output.Path.PathList"); \
@@ -519,7 +519,18 @@ bool PathListLuaMetaData::IsType(lua_State * L, int index)
 
 int PathListLuaMetaData::OpenInLua(lua_State * L)
 {
-	return PathLuaMetaData::OpenInLua(L);
+	luaL_getmetatable(L, PATHSMETATABLENAME);
+	if (!lua_isnil(L, -1))
+	{
+		lua_getglobal(L, "Macaroni.IO.PathList");
+		return 1; // Already loaded, DO NOT WASTE TIME DUMMY.
+	}
+
+	luaL_newmetatable(L, PATHSMETATABLENAME);
+	luaL_setfuncs(L, PathsProperty_MetaTableMethods, 0);
+	lua_pop(L, 1);
+	MACARONI_LUA_REGISTER_FOR_RETURN(L, "Macaroni.IO.PathList", PathsProperty_GlobalTableMethods);
+	return 1;
 }
 
 PathListPtr & PathListLuaMetaData::GetInstance(lua_State * L, int index)

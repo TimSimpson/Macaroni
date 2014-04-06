@@ -13,41 +13,37 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --------------------------------------------------------------------------------
-require "Macaroni.Model.Context";
---require "Macaroni.Model.Namespace";
-require "Macaroni.Model.Node";
+local Context = require "Macaroni.Model.Context";
+local Node = require "Macaroni.Model.Node";
 
-local Context = Macaroni.Model.Context;
-local Namespace = Macaroni.Model.Namespace;
-local Node = Macaroni.Model.Node;
 
 Test.register(
-{	
-name = "Context Tests",    
-tests={	       
+{
+name = "Context Tests",
+tests={
     ["CreateRoot Test"] = function(this)
-        this.context = Context.New("{ROOT}");        
-        Test.assertEquals("{ROOT}", tostring(this.context.Root));        
-    end,   
-    
-    ["ToString returns a string of some kind."] = function(this)
-        local lContext = Context.New("{ROOT}");        
-        Test.assertEquals("Context[references:3,Root:{ROOT}]", tostring(lContext));        
+        this.context = Context.New("{ROOT}");
+        Test.assertEquals("{ROOT}", tostring(this.context.Root));
     end,
-    
-    
+
+    ["ToString returns a string of some kind."] = function(this)
+        local lContext = Context.New("{ROOT}");
+        Test.assertEquals("Context[references:3,Root:{ROOT}]", tostring(lContext));
+    end,
+
+
     ["ParseComplexName will morph unknown Nodes into Namespaces."] = function(this)
         local context = Context.New("{ROOT}", "{WILDCARD}");
         local d = context.Root:FindOrCreate("A::B::C::D");
-        Test.assertEquals("A::B::C::D", d.FullName);       
+        Test.assertEquals("A::B::C::D", d.FullName);
         local d_c = d.Node;
         Test.assertEquals("A::B::C", d_c.FullName);
         local d_b = d_c.Node;
         Test.assertEquals("A::B", d_b.FullName);
         local d_a = d_b.Node;
-        Test.assertEquals("A", d_a.FullName);       
+        Test.assertEquals("A", d_a.FullName);
         Test.assertEquals(1, #(context.Root.Children));
-       
+
         -- Must reuse A, and morph it into an Namespace...
         -- I.. am.. morphing...
         local a = context.Root:FindOrCreate("A");
@@ -55,31 +51,31 @@ tests={
         Test.assertEquals(a, d_a);
         Test.assertEquals(1, #(context.Root.Children));
     end,
-        
+
     --[[
-    ["Existing namespace instances are used when adding to collection."] = function(this)        
+    ["Existing namespace instances are used when adding to collection."] = function(this)
         local context = Context.New("{r}", "*");
         Node.
 context.RootNamespace.
-        
+
 		doc:Read("namespace A::B::C::D { } ");
 		doc:Read("namespace A{}");
 		Test.assertEquals(2, #(doc.Namespaces));
 		local a = doc.Namespaces[2];
 		local d = doc.Namespaces[1];
 		Test.assertEquals("A::B::C::D", d.FullName);
-		Test.assertEquals("A", a.FullName);		
+		Test.assertEquals("A", a.FullName);
 		local c = d.Parent;
-		local b = d.Parent.Parent;		
+		local b = d.Parent.Parent;
 		local aReference2 = d.Parent.Parent.Parent;
 		Test.assertEquals(a, aReference2);
     end,]]--
-    
+
     ["Root and wildcard namespaces created properly"] = function(this)
         context = Context.New("{ROOT}");
         root = context.Root;
-        Test.assertEquals("{ROOT}", tostring(root));                
-    end,    
+        Test.assertEquals("{ROOT}", tostring(root));
+    end,
 }
 
 } -- End of Test table.

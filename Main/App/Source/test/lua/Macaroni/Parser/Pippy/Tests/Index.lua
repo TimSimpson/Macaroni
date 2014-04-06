@@ -24,16 +24,16 @@ require "Macaroni/Parser/Pippy/Tests/PippyParserTests_Operators";
 require "Macaroni/Parser/Pippy/Tests/PippyParserTests_Typedef";
 require "Macaroni/Parser/Pippy/Tests/PippyParserTests_Variables";
 
-local Context = Macaroni.Model.Context;
-local Messages = Macaroni.Environment.Messages;
-local PippyParser = Macaroni.Parser.Pippy.PippyParser;
-local FileName = Macaroni.Model.FileName;
-local Source = Macaroni.Model.Source;
+local Context = require "Macaroni.Model.Context";
+local Messages = require "Macaroni.Environment.Messages";
+local PippyParser = require "Macaroni.Parser.Pippy.PippyParser";
+local FileName = require "Macaroni.Model.FileName";
+local Source = require "Macaroni.Model.Source";
 
 Test.register(
-    {	
-        name = "PippyParser Tests :: Import",    
-        tests = {        
+    {
+        name = "PippyParser Tests :: Import",
+        tests = {
             ["Running C++ parser method tests."] = function(this)
                 PippyParser.RunTests();
             end

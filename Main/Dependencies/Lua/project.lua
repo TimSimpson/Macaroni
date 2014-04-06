@@ -20,7 +20,7 @@ targetDirectory = "target"
 --------------------------------------------------------------------------------
 project = context:Group("Macaroni")
                :Project("Lua")
-               :Version("5.1.4");
+               :Version("5.2.3");
 lib = project:Library{name="lib", shortName="LuaLib",
                       headers=pathList{}, sources=pathList{"Mh"},
                       dependencies={}}
@@ -57,21 +57,21 @@ function generate()
 
   local getIncludePath = function()
     local success, path = pcall(function()
-      return properties.lua["5.1.4"].include;
+      return properties.lua["5.2.3"].include;
     end);
     if (not success) then
       error([[
-  Could not find the variable properties.lua["5.1.4"].include.
+  Could not find the variable properties.lua["5.2.3"].include.
   This can be set in the file "init.lua" located in the Macaroni directory under
   your home directory.
   The variable to set should look something like this:
   lua =
     {
-      ["5.1.4"] =
+      ["5.2.3"] =
       {
-        bin = "C:/lua-5.1.4/bin",
-        include = "C:/lua-5.1.4/src",
-        source = "C:/lua-5.1.4/src"
+        bin = "C:/lua-5.2.3/bin",
+        include = "C:/lua-5.2.3/src",
+        source = "C:/lua-5.2.3/src"
       },
     },
       ]]);

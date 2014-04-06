@@ -20,31 +20,23 @@ require "Cpp/NodeInfo";
 require "Macaroni.Model.Node";
 require "Macaroni.Model.NodeList";
 require "Macaroni.IO.Path";
-require "Macaroni.Model.Reason";
-require "Macaroni.Model.Source";
-require "Macaroni.Model.Type";
-require "Macaroni.Model.Cpp.Variable";
+
 require "Cpp/NodeInfo";
 require "Log";
 require "Plugin"
 
-Axiom = Macaroni.Model.Axiom;
-Block = Macaroni.Model.Axiom;
-Class = Macaroni.Model.Cpp.Class;
-Context = Macaroni.Model.Context;
-FileName = Macaroni.Model.FileName;
-Function = Macaroni.Model.Cpp.Function;
-if MACARONI_VERSION == "0.1.0.22" then
-	Member = Macaroni.Model.Member;
-else
-	--TODO: change Member to Element
-	Member = Macaroni.Model.Element;
-end
-NodeList = Macaroni.Model.NodeList;
-Reason = Macaroni.Model.Reason;
-Source = Macaroni.Model.Source;
-Type = Macaroni.Model.Type;
-Variable = Macaroni.Model.Cpp.Variable;
+local Axiom = require "Macaroni.Model.Axiom";
+local Block = require "Macaroni.Model.Axiom";
+local Class = require "Macaroni.Model.Cpp.Class";
+local Context = require "Macaroni.Model.Context";
+local FileName = require "Macaroni.Model.FileName";
+local Function = require "Macaroni.Model.Cpp.Function";
+local Member = require "Macaroni.Model.Element";
+local NodeList = require "Macaroni.Model.NodeList";
+local Reason = require "Macaroni.Model.Reason";
+local Source = require "Macaroni.Model.Source";
+local Type = require "Macaroni.Model.Type";
+local Variable = require "Macaroni.Model.Cpp.Variable";
 
 local check = function(con, msg)
 	if (not con) then

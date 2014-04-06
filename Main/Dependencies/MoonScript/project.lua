@@ -76,24 +76,28 @@ function generate()
       return path;
   end
 
-  local srcRoot = Macaroni.IO.Path.New(getMoonScriptSource())
+  local moonSrcRoot = Macaroni.IO.Path.New(getMoonScriptSource())
   local outputRoot = Macaroni.IO.Path.New(targetDirectory)
                      :NewPathForceSlash("lua")
 
-  local source1 = srcRoot:NewPathForceSlash("moonscript")
+  local source1 = moonSrcRoot:NewPathForceSlash("moonscript")
   copyLuaFiles(source1, outputRoot)
 
-  local source2 = srcRoot:NewPathForceSlash("moon")
+  local source2 = moonSrcRoot:NewPathForceSlash("moon")
   copyLuaFiles(source2, outputRoot)
 
-  local moonLua = srcRoot:NewPathForceSlash("moon.lua")
+  local moonLua = moonSrcRoot:NewPathForceSlash("moon.lua")
   moonLua:CopyToDifferentRootPath(outputRoot, true);
-  local moonscriptLua = srcRoot:NewPathForceSlash("moonscript.lua")
+  local moonscriptLua = moonSrcRoot:NewPathForceSlash("moonscript.lua")
   moonscriptLua:CopyToDifferentRootPath(outputRoot, true);
 
   local helperScript = Macaroni.IO.Path.New(sourceDirectory)
                        :NewPathForceSlash("MacaroniMoonScriptLoader.lua")
   helperScript:CopyToDifferentRootPath(outputRoot, true);
+
+  local helperScripts = Macaroni.IO.Path.New(sourceDirectory)
+                       :NewPathForceSlash("macaroni")
+  copyLuaFiles(helperScripts, outputRoot)
 
   generated = true
 end

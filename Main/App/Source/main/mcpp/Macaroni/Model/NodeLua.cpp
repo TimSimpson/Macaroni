@@ -32,6 +32,8 @@
 #include <Macaroni/Model/ReasonLuaMetaData.h>
 #include <sstream>
 
+#include <Macaroni/LuaCompat.h>
+
 BEGIN_NAMESPACE2(Macaroni, Model)
 
 #define METATABLENAME "Macaroni.Model.Node"
@@ -504,21 +506,23 @@ int NodeLuaMetaData::OpenInLua(lua_State * L)
 	}
 
 	luaL_newmetatable(L, METATABLENAME); // create metaTable
-	luaL_register(L, nullptr, metaTableMethods);
+	luaL_setfuncs(L, metaTableMethods, 0);
 
 	luaL_newmetatable(L, MEMBERSPROPERTY_METATABLENAME);
-	luaL_register(L, nullptr, MembersProperty_MetaTableMethods);
+	luaL_setfuncs(L, MembersProperty_MetaTableMethods, 0);
 
 	//ScopeMemberLuaMetaData::OpenInLua(L);
 
 	NodeListLuaMetaData::OpenInLua(L);
+	lua_pop(L, 1);
 	// 2009-10-31- Taking this out as it is EVIL!!
 	// Causes some kind of memory corruption error:
 	ElementLuaMetaData::OpenInLua(L);
+	lua_pop(L, 1);
 
 	// Creates or reuses a table called "Macaroni_File" and puts it in global
 	// scope.
-	luaL_register(L, GLOBALTABLENAME, tableMethods);
+	MACARONI_LUA_REGISTER_FOR_RETURN(L, GLOBALTABLENAME, tableMethods);
 
 	//FileNameLuaMetaData::OpenInLua(L);
 

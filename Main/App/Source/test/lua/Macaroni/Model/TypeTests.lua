@@ -13,30 +13,17 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --------------------------------------------------------------------------------
-require "Macaroni.Model.Context";
-require "Macaroni.Environment.Messages";
-require "Macaroni.Model.Node";
-require "Macaroni.Model.NodeList";
-require "Macaroni.Parser.Pippy.PippyParser";
-require "Macaroni.Parser.Parser";
-require "Macaroni.Parser.ParserException";
-require "Macaroni.IO.Path";
-require "Macaroni.Model.Source";
-require "Macaroni.Model.Type";
-require "Macaroni.Model.TypeArgument";
-require "Macaroni.Model.TypeArgumentList";
-
-local Context = Macaroni.Model.Context;
-local FileName = Macaroni.Model.FileName;
-local Messages = Macaroni.Environment.Messages;
-local Node = Macaroni.Model.Node;
-local NodeList = Macaroni.Model.NodeList;
-local Path = Macaroni.IO.Path;
-local PippyParser = Macaroni.Parser.Pippy.PippyParser;
-local Source = Macaroni.Model.Source;
-local Type = Macaroni.Model.Type;
-local TypeArgument = Macaroni.Model.TypeArgument;
-local TypeArgumentList = Macaroni.Model.TypeArgumentList;
+local Context = require "Macaroni.Model.Context";
+local FileName = require "Macaroni.Model.FileName";
+local Messages = require "Macaroni.Environment.Messages";
+local Node = require "Macaroni.Model.Node";
+local NodeList = require "Macaroni.Model.NodeList";
+local Path = require "Macaroni.IO.Path";
+local PippyParser = require "Macaroni.Parser.Pippy.PippyParser";
+local Source = require "Macaroni.Model.Source";
+local Type = require "Macaroni.Model.Type";
+local TypeArgument = require "Macaroni.Model.TypeArgument";
+local TypeArgumentList = require "Macaroni.Model.TypeArgumentList";
 
 --[[
 Its easy to see how a vector class could accept a type argument.

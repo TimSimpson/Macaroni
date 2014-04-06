@@ -127,7 +127,7 @@ class SimpleIntException : public SimpleException
 class SimpleStringException : public SimpleException
 {
 	~block "h" {
-		private : static const int CHAR_LENGTH = 256;
+		private : static const int CHAR_LENGTH = 2024;
 		private : char value[CHAR_LENGTH];
 	}
 

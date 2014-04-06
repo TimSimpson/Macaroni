@@ -22,6 +22,7 @@
 #include "AxiomLua.h"
 #include "Axiom.h"
 #include <sstream>
+#include <Macaroni/LuaCompat.h>
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
@@ -184,11 +185,11 @@ int AxiomLuaMetaData::OpenInLua(lua_State * L)
 		return 0; // Already loaded, DO NOT WASTE TIME DUMMY.
 	}
 	luaL_newmetatable(L, METATABLENAME); // create metaTable
-	luaL_register(L, nullptr, metaTableMethods);
+	luaL_setfuncs(L, metaTableMethods, 0);
 
 	// Creates or reuses a table called "Macaroni_File" and puts it in global
 	// scope.
-	luaL_register(L, GLOBALTABLENAME, tableMethods);
+	MACARONI_LUA_REGISTER_FOR_RETURN(L, GLOBALTABLENAME, tableMethods);
 
 	return 1;
 }

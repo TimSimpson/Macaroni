@@ -13,12 +13,9 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --------------------------------------------------------------------------------
-require "Macaroni.IO.Path";
-require "Macaroni.Model.Source";
-
-local FileName = Macaroni.Model.FileName;
-local Path = Macaroni.IO.Path;
-local Source = Macaroni.Model.Source;
+local FileName = require "Macaroni.Model.FileName";
+local Path = require "Macaroni.IO.Path";
+local Source = require "Macaroni.Model.Source";
 
 Test.register(
 {
@@ -42,7 +39,7 @@ Test.register(
                     Test.assertEquals(27, this.src.Line);
                 end,
                 ["ReferenceCount on the File should have been incremented."] = function(this)
-                    Test.assertEquals(2, this.file.ReferenceCount);
+                    Test.assertEquals(3, this.file.ReferenceCount);
                 end,
                 ["ReferenceCount on the Source starts as one."] = function(this)
                     Test.assertEquals(1, this.src.ReferenceCount);

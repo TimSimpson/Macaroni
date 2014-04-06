@@ -30,6 +30,7 @@
 #include "VariableLua.h"
 #include "VariableAssignmentLua.h"
 #include "../TypeLua.h"
+#include <Macaroni/LuaCompat.h>
 
 #include <lua.h>
 #include <lauxlib.h>
@@ -87,7 +88,7 @@ bool ConstructorOverloadLuaMetaData::IsType(lua_State * L, int index)
 
 int ConstructorOverloadLuaMetaData::OpenInLua(lua_State * L)
 {
-	luaL_register(L, GLOBALTABLENAME, tableMethods);
+	MACARONI_LUA_REGISTER_FOR_RETURN(L, GLOBALTABLENAME, tableMethods);
 	return 1;
 }
 
@@ -188,7 +189,7 @@ int ConstructorOverloadLuaMetaData::AssignmentListOpenInLua(lua_State * L)
 		return 0;
 	}
 	luaL_newmetatable(L, "Macaroni.Model.Cpp.ConstructorOverload.Assignments"); // create metaTable
-	luaL_register(L, nullptr, assignmentsMetaTableMethods);
+	luaL_setfuncs(L, assignmentsMetaTableMethods, 0);
 
 	return 1;
 }

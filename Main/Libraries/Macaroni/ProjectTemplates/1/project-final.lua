@@ -1,5 +1,5 @@
-Files = Macaroni.Model.Project.Files
-FileSet = Macaroni.IO.FileSet;
+local Files = require "Macaroni.Model.Project.Files"
+local FileSet = require "Macaroni.IO.FileSet"
 
 project = context:Group("Macaroni")
                  :Project("ProjectTemplates")

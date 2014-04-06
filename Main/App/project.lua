@@ -73,7 +73,7 @@ local core_dependencies={
     load("Macaroni", "Boost-filesystem", "1.55"):Target("lib"),
     load("Macaroni", "Boost-regex", "1.55"):Target("lib"),
     load("Macaroni", "CppStd", "2003"):Target("lib"),
-    load("Macaroni", "Lua", "5.1.4"):Target("lib"),
+    load("Macaroni", "Lua", "5.2.3"):Target("lib"),
     load("Macaroni", "MoonScriptDeps", "DEV"):Target("lib"),
 };
 

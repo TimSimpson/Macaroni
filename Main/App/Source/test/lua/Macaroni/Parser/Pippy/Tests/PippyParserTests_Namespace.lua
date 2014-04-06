@@ -13,24 +13,24 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --------------------------------------------------------------------------------
-require "Macaroni.Model.Context";
-require "Macaroni.Model.Library";
-require "Macaroni.Environment.Messages";
-require "Macaroni.Model.Element";
-require "Macaroni.Model.Node";
-require "Macaroni.Parser.Pippy.PippyParser";
-require "Macaroni.Parser.Parser";
-require "Macaroni.Parser.ParserException";
-require "Macaroni.IO.Path";
-require "Macaroni.Model.Source";
+-- require "Macaroni.Model.Context";
+-- require "Macaroni.Model.Library";
+-- require "Macaroni.Environment.Messages";
+-- require "Macaroni.Model.Element";
+-- require "Macaroni.Model.Node";
+-- require "Macaroni.Parser.Pippy.PippyParser";
+-- require "Macaroni.Parser.Parser";
+-- require "Macaroni.Parser.ParserException";
+-- require "Macaroni.IO.Path";
+-- require "Macaroni.Model.Source";
 
-local Context = Macaroni.Model.Context;
-local Library = Macaroni.Model.Library;
-local Messages = Macaroni.Environment.Messages;
-local Path = Macaroni.IO.Path;
-local PippyParser = Macaroni.Parser.Pippy.PippyParser;
-local FileName = Macaroni.Model.FileName;
-local Source = Macaroni.Model.Source;
+local Context = require "Macaroni.Model.Context";
+local Library = require "Macaroni.Model.Library";
+local Messages = require "Macaroni.Environment.Messages";
+local Path = require "Macaroni.IO.Path";
+local PippyParser = require "Macaroni.Parser.Pippy.PippyParser";
+local FileName = require "Macaroni.Model.FileName";
+local Source = require "Macaroni.Model.Source";
 
 Test.register(
 {

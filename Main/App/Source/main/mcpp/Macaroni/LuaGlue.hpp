@@ -41,6 +41,7 @@
 	#include <lauxlib.h>
 	#include <lualib.h>
 //MARIO }
+#include <Macaroni/LuaCompat.h>
 #include <Macaroni/Exception.h>
 
 LUAGLUE_STARTNAMESPACE

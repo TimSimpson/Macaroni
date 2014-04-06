@@ -40,20 +40,19 @@ require "Macaroni/Model/AnnotationTests";
 require "Macaroni/Model/AxiomTests";
 require "Macaroni/Model/Cpp/ClassTests";
 require "Macaroni/Model/ContextTests";
--- Commenting out Document Tests... FOR NOW...
--- require "Macaroni/Model/DocumentTests";
+-- -- Commenting out Document Tests... FOR NOW...
+-- -- require "Macaroni/Model/DocumentTests";
 require "Macaroni/Model/FileNameTests";
---require "Macaroni/Model/NamespaceTests";
+-- --require "Macaroni/Model/NamespaceTests";
 require "Macaroni/Model/NodeTests";
 require "Macaroni/Model/NodeListTests";
 require "Macaroni/Model/ReasonTests";
 require "Macaroni/Model/SourceTests";
 require "Macaroni/Model/TypeTests";
 require "Macaroni/Model/TypeArgumentTests";
--- Bug below?
-require "Macaroni/Model/TypeArgumentListTests";  -- suspect
+-- -- Bug below?
+require "Macaroni/Model/TypeArgumentListTests";
 require "Macaroni/Model/TypeListTests";
---require "Macaroni/Parser/Cpp/Tests/Namespaces";
 
 require "Macaroni/Parser/Pippy/Tests/Index"; -- primary suspect
 

@@ -13,13 +13,9 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --------------------------------------------------------------------------------
-require "Macaroni.Model.Cpp.Access";
-require "Macaroni.Model.Context";
-require "Macaroni.Model.Node";
-
-local Access = Macaroni.Model.Cpp.Access;
-local Context = Macaroni.Model.Context;
-local Node = Macaroni.Model.Node;
+local Access = require "Macaroni.Model.Cpp.Access";
+local Context = require "Macaroni.Model.Context";
+local Node = require "Macaroni.Model.Node";
 
 
 Test.register(

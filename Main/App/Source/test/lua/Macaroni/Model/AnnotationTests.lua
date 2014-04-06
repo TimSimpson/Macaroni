@@ -13,23 +13,22 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --------------------------------------------------------------------------------
-require "Macaroni.Model.Cpp.Access";
-require "Macaroni.Model.AnnotationTable";
-require "Macaroni.Model.AnnotationValue";
-require "Macaroni.Model.Context";
-require "Macaroni.Model.Node";
+local Access = require "Macaroni.Model.Cpp.Access";
+local AnnotationTable = require "Macaroni.Model.AnnotationTable";
+local AnnotationValue = require "Macaroni.Model.AnnotationValue";
+local Context = require "Macaroni.Model.Context";
+local Node = require "Macaroni.Model.Node";
 
-local Access = Macaroni.Model.Cpp.Access;
-local AnnotationTable = Macaroni.Model.AnnotationTable;
-local AnnotationValue = Macaroni.Model.AnnotationValue;
-local Context = Macaroni.Model.Context;
-local Node = Macaroni.Model.Node;
+--local Access = Macaroni.Model.Cpp.Access;
+
+local Context = require "Macaroni.Model.Context";
+
 
 
 Test.register(
-{	
-name = "Annotation Tests",    
-tests = {    
+{
+name = "Annotation Tests",
+tests = {
     {   name = "Creating a node with some attributes.",
         init = function(this)
             this.context = Context.New("{r}");
@@ -41,8 +40,8 @@ tests = {
             ["Find returns the same Node that was created."] = function(this)
                 local foundNode = this.root:Find("Dog");
                 Test.assertEquals(this.newNode, foundNode);
-            end,            
-        }        
-    },    
+            end,
+        }
+    },
 } -- end of tests
 }); -- End of register call

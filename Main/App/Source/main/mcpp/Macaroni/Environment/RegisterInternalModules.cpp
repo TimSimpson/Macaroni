@@ -117,7 +117,8 @@ void LuaEnvironment::registerInternalLuaModules()
 	// Registers everything into "package.preload."
 	// This way they are not loaded until lua calls
 	// "require."
-	luaL_register(state, nullptr, libs);
+	//luaL_register(state, nullptr, libs);
+	luaL_setfuncs(state, libs, 0);
 
 	// Override how the default "require" functionality works.
 	// Try to keep true to the spirit of require, just fudge it a little so we

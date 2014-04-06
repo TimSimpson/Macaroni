@@ -95,8 +95,7 @@ class ClassicPlugin : public Plugin
 				// TODO: I don't understand this part to be honest. I copied
 				// it from some old code. I think it has to do with error
 				// handling.
-				lua_pushliteral(L, "debug");
-				lua_gettable(L, LUA_GLOBALSINDEX);
+				lua_getglobal(L, "debug");
 				lua_pushliteral(L, "traceback");
 				lua_gettable(L, -2);
 			}

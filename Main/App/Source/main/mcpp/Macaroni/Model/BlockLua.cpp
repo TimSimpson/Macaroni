@@ -31,6 +31,8 @@
 #include <lauxlib.h>
 #include <lualib.h>
 
+#include <Macaroni/LuaCompat.h>
+
 #define GLOBALTABLENAME "Macaroni.Model.Block"
 
 struct lua_State;
@@ -99,7 +101,7 @@ int BlockLuaMetaData::Index(lua_State * L, const BlockPtr & ptr,
 
 int BlockLuaMetaData::OpenInLua(lua_State * L)
 {
-	luaL_register(L, GLOBALTABLENAME, tableMethods);
+	MACARONI_LUA_REGISTER_FOR_RETURN(L, GLOBALTABLENAME, tableMethods);
 	return 1;
 }
 

@@ -21,8 +21,9 @@ require "Cpp/NodeInfo";
 require "Cpp/UnitFileGenerator";
 require "Macaroni.Model.Library";
 require "Log";
-require "Macaroni.IO.Path";
 require "Plugin"
+
+local Path = require "Macaroni.IO.Path";
 
 if MACARONI_VERSION ~= "0.1.0.23" then
     require "Macaroni.Model.Project.Target";
@@ -135,7 +136,7 @@ function Generate(library, path)
         log:Write("End of Cpp.lua\n");
     else
     -- New mode- Assume units have been created. Write files per unit.
-        local rootGenPath = Macaroni.IO.Path.New(path.AbsolutePath)
+        local rootGenPath = Path.New(path.AbsolutePath)
         local ufGen = UnitFileGenerator.new(library);
         ufGen:iterateUnits(library, rootGenPath);
     end

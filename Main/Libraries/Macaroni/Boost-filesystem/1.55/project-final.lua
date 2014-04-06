@@ -1,3 +1,6 @@
+local Path = require "Macaroni.IO.Path";
+
+
 project = context:Group("Macaroni")
                  :Project("Boost-filesystem")
                  :Version("1.55");
@@ -20,4 +23,4 @@ lib = project:Library
 local headers = lib.Headers
 require "Macaroni.IO.Path"
 
-headers[#headers + 1] = Macaroni.IO.Path.New(boost_props.include)
+headers[#headers + 1] = Path.New(boost_props.include)

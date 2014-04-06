@@ -24,7 +24,7 @@ project = context:Group("Macaroni")
 lib = project:Library{name="lib", shortName="MoonScriptDeps",
                       headers=pathList{}, sources=pathList{"Mh", "target/lua"},
                       dependencies={
-                        load("Macaroni", "Lua", "5.1.4"):Target("lib"),
+                        load("Macaroni", "Lua", "5.2.3"):Target("lib"),
                       }}
 
 

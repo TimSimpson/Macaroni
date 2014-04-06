@@ -27,6 +27,8 @@
 #include "VariableLua.h"
 #include "../TypeLua.h"
 
+#include <Macaroni/LuaCompat.h>
+
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
@@ -103,7 +105,7 @@ bool VariableLuaMetaData::IsType(lua_State * L, int index)
 
 int VariableLuaMetaData::OpenInLua(lua_State * L)
 {
-	luaL_register(L, GLOBALTABLENAME, tableMethods);
+	MACARONI_LUA_REGISTER_FOR_RETURN(L, GLOBALTABLENAME, tableMethods);
 	return 1;
 }
 

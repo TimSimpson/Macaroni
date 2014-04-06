@@ -2,7 +2,8 @@ require "os"
 require "Macaroni.IO.Path"
 require "Macaroni.Model.Project.ExeTarget"
 
-local ExeTarget = Macaroni.Model.Project.ExeTarget
+local ExeTarget = require "Macaroni.Model.Project.ExeTarget"
+local Path = require "Macaroni.IO.Path"
 
 local newPath = function(subPath)
     local p = Macaroni.IO.Path.New(getWorkingDirectory())
@@ -112,7 +113,7 @@ function SimpleProject(args)
     -- Helper functions.
     ---------------------------------------------------------------------------
     local newPath = function(subPath)
-        local p = Macaroni.IO.Path.New(getWorkingDirectory())
+        local p = Path.New(getWorkingDirectory())
         return p:NewPathForceSlash(subPath)
     end
 
@@ -293,8 +294,9 @@ function SimpleProject(args)
           local cmd = "bjam " .. properties.bjam_options ..
                      " " .. targetDir.AbsolutePath .. " -d+2"
           output:DebugLine(cmd)
-          if (os.execute(cmd) ~= 0) then
-            output:ErrorLine("Failure running Boost Build!")
+          local success, exit, number = os.execute(cmd)
+          if (not success or exit ~= "exit" or number ~= 0) then
+            output:ErrorLine("Failure running Boost Build! ")
             error("Failure running Boost Build!")
           end
       end

@@ -31,6 +31,8 @@
 #include <Macaroni/IO/PathLua.h>
 #include <sstream>
 
+#include <Macaroni/LuaCompat.h>
+
 using Macaroni::IO::Path;
 using Macaroni::IO::PathPtr;
 using Macaroni::IO::PathLuaMetaData;
@@ -266,8 +268,9 @@ int LibraryLuaMetaData::OpenInLua(lua_State * L)
 	}
 
 	luaL_newmetatable(L, METATABLENAME); // create metaTable
-	luaL_register(L, nullptr, metaTableMethods);
-	luaL_register(L, GLOBALTABLENAME, tableMethods);
+	luaL_setfuncs(L, metaTableMethods, 0);
+
+	MACARONI_LUA_REGISTER_FOR_RETURN(L, GLOBALTABLENAME, tableMethods);
 
 	return 1;
 }

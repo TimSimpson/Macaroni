@@ -13,33 +13,22 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --------------------------------------------------------------------------------
-require "Macaroni.Model.Cpp.Access";
-require "Macaroni.Model.Axiom";
-require "Macaroni.Model.Cpp.Class";
-require "Macaroni.Model.Context";
-require "Macaroni.Model.FileName";
-require "Macaroni.Model.Project.Group";
-require "Macaroni.Model.Library";
-require "Macaroni.Model.Node";
-require "Macaroni.Model.NodeList";
-require "Macaroni.IO.Path";
-require "Macaroni.Model.Reason";
-require "Macaroni.Model.Project.Project";
-require "Macaroni.Model.Project.ProjectVersion";
-require "Macaroni.Model.Project.Target";
-require "Macaroni.Model.Source";
+local Access = require "Macaroni.Model.Cpp.Access";
+local Axiom = require "Macaroni.Model.Axiom";
+local Class = require "Macaroni.Model.Cpp.Class";
+local Context = require "Macaroni.Model.Context";
+local FileName = require "Macaroni.Model.FileName";
+local Group = require "Macaroni.Model.Project.Group";
+local Library = require "Macaroni.Model.Library";
+local NodeList = require "Macaroni.Model.NodeList";
+local Node = require "Macaroni.Model.Node";
+local Path = require "Macaroni.IO.Path";
+local Reason = require "Macaroni.Model.Reason";
+local Project = require "Macaroni.Model.Project.Project";
+local ProjectVersion = require "Macaroni.Model.Project.ProjectVersion";
+local Target = require "Macaroni.Model.Project.Target";
+local Source = require "Macaroni.Model.Source";
 
-local Access = Macaroni.Model.Cpp.Access;
-local Axiom = Macaroni.Model.Axiom;
-local Class = Macaroni.Model.Cpp.Class;
-local Context = Macaroni.Model.Context;
-local FileName = Macaroni.Model.FileName;
-local Library = Macaroni.Model.Library;
-local Node = Macaroni.Model.Node;
-local NodeList = Macaroni.Model.NodeList;
-local Path = Macaroni.IO.Path;
-local Reason = Macaroni.Model.Reason;
-local Source = Macaroni.Model.Source;
 
 Test.register(
 {

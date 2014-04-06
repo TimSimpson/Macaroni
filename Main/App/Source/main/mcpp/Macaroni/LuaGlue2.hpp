@@ -1,4 +1,4 @@
-/**
+ /**
  * Copyright 2011 Tim Simpson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,10 +44,10 @@ static const struct luaL_Reg tableMethods[]=
 #ifdef LUAGLUE_CREATEMETATABLE
 	LUAGLUE_CLASSREFNAME & LUAGLUE_REGISTRATIONCLASSNAME::GetInstance(lua_State * L, int index)
 	{
-		return getInstance(L, index);	
+		return getInstance(L, index);
 	}
 
-	int LUAGLUE_REGISTRATIONCLASSNAME::Index(lua_State * L, 
+	int LUAGLUE_REGISTRATIONCLASSNAME::Index(lua_State * L,
 											 const LUAGLUE_CLASSREFNAME & ptr,
 											 const std::string & index)
 	{
@@ -76,34 +76,38 @@ static const struct luaL_Reg tableMethods[]=
 	}
 
 	void LUAGLUE_REGISTRATIONCLASSNAME::PutInstanceOnStack(
-		lua_State * L, 
-		const LUAGLUE_CLASSREFNAME & ptr) 
+		lua_State * L,
+		const LUAGLUE_CLASSREFNAME & ptr)
 	{
 		putLUAGLUE_CLASSREFNAMEInstanceOnStack(L, ptr);
 	}
 #endif
 
 int LUAGLUE_REGISTRATIONCLASSNAME::OpenInLua(lua_State * L)
-{	
+{
+	LUAGLUE_OPENOTHERMODULES;
+
 	std::string metaTableName(METATABLENAME);
-	std::string fullLuaName(LUAGLUE_CLASSFULLLUANAME);	
+	std::string fullLuaName(LUAGLUE_CLASSFULLLUANAME);
 
 	luaL_getmetatable(L, metaTableName.c_str());
 	if (lua_isnil(L, -1) != 1)
 	{
-		return 0; // Already loaded, DO NOT WASTE TIME DUMMY.
-	}				
+		lua_getglobal(L, GLOBALTABLENAME);
+		return 1; // Already loaded, DO NOT WASTE TIME DUMMY.
+	}
 
 	luaL_newmetatable(L, metaTableName.c_str()); // create metaTable
-	
 	#ifdef LUAGLUE_CREATEMETATABLE
-		luaL_register(L, nullptr, metaTableMethods);
+		//luaL_register(L, nullptr, metaTableMethods);
+		luaL_setfuncs(L, metaTableMethods, 0);
 	#endif
+	lua_pop(L, 1);
 
-	// Creates or reuses a table called "Macaroni_File" and puts it in global 
+	// Creates or reuses a table called "Macaroni_File" and puts it in global
 	// scope.
-	luaL_register(L, GLOBALTABLENAME, tableMethods);
-	LUAGLUE_OPENOTHERMODULES;
+	MACARONI_LUA_REGISTER_FOR_RETURN(L, GLOBALTABLENAME, tableMethods);
+
 	return 1;
 }
 

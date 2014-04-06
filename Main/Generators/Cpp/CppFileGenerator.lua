@@ -2,9 +2,9 @@ require "Cpp/Common";
 require "Cpp/ClassCppFileGenerator";
 require "Cpp/NodeFileGenerator";
 
-local Access = Macaroni.Model.Cpp.Access;
-local Context = Macaroni.Model.Context;
-local Node = Macaroni.Model.Node;
+local Access = require "Macaroni.Model.Cpp.Access";
+local Context = require "Macaroni.Model.Context";
+local Node = require "Macaroni.Model.Node";
 local TypeNames = Macaroni.Model.TypeNames;
 
 CppFileGenerator = {

@@ -1,7 +1,7 @@
 -- Physical Organizer.  Creates unit targets for Elements.
 require "Cpp/Common";
 
-local UnitTarget = Macaroni.Model.Project.UnitTarget;
+local UnitTarget = require "Macaroni.Model.Project.UnitTarget";
 local TypeNames = Macaroni.Model.TypeNames;
 
 -- Parses NodeSpace for a library.

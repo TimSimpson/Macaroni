@@ -13,29 +13,29 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --------------------------------------------------------------------------------
-require "Macaroni.Model.Context";
-require "Macaroni.Environment.Messages";
-require "Macaroni.Parser.Pippy.PippyParser";
-require "Macaroni.Parser.Parser";
-require "Macaroni.Parser.ParserException";
-require "Macaroni.IO.Path";
-require "Macaroni.Model.Source";
-require "Macaroni.Model.Type";
-require "Macaroni.Model.TypeArgument";
-require "Macaroni.Model.TypeArgumentList";
-require "Macaroni.Model.TypeList";
---require "Macaroni.Model.Cpp.Typedef";
+-- require "Macaroni.Model.Context";
+-- require "Macaroni.Environment.Messages";
+-- require "Macaroni.Parser.Pippy.PippyParser";
+-- require "Macaroni.Parser.Parser";
+-- require "Macaroni.Parser.ParserException";
+-- require "Macaroni.IO.Path";
+-- require "Macaroni.Model.Source";
+-- require "Macaroni.Model.Type";
+-- require "Macaroni.Model.TypeArgument";
+-- require "Macaroni.Model.TypeArgumentList";
+-- require "Macaroni.Model.TypeList";
+-- --require "Macaroni.Model.Cpp.Typedef";
 
-local Context = Macaroni.Model.Context;
-local Messages = Macaroni.Environment.Messages;
-local PippyParser = Macaroni.Parser.Pippy.PippyParser;
-local FileName = Macaroni.Model.FileName;
-local Path = Macaroni.IO.Path;
-local Source = Macaroni.Model.Source;
-local Type = Macaroni.Model.Type;
-local TypeArgument = Macaroni.Model.TypeArgument;
-local TypeArgumentList = Macaroni.Model.TypeArgumentList;
-local TypeList = Macaroni.Model.TypeList;
+local Context = require "Macaroni.Model.Context";
+local Messages = require "Macaroni.Environment.Messages";
+local PippyParser = require "Macaroni.Parser.Pippy.PippyParser";
+local FileName = require "Macaroni.Model.FileName";
+local Path = require "Macaroni.IO.Path";
+local Source = require "Macaroni.Model.Source";
+local Type = require "Macaroni.Model.Type";
+local TypeArgument = require "Macaroni.Model.TypeArgument";
+local TypeArgumentList = require "Macaroni.Model.TypeArgumentList";
+local TypeList = require "Macaroni.Model.TypeList";
 --local Typedef = Macaroni.Model.Cpp.Typedef;
 
 -- Convience method returns result of the parse, then status, and

@@ -13,15 +13,12 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --------------------------------------------------------------------------------
-require "Macaroni.IO.Path";
-require "Macaroni.Model.Reason";
-require "Macaroni.Model.Source";
 
-local Axiom = Macaroni.Model.Axiom;
-local FileName = Macaroni.Model.FileName;
-local Path = Macaroni.IO.Path;
-local Reason = Macaroni.Model.Reason;
-local Source = Macaroni.Model.Source;
+local Axiom = require "Macaroni.Model.Axiom";
+local FileName = require "Macaroni.Model.FileName";
+local Path = require "Macaroni.IO.Path";
+local Reason = require "Macaroni.Model.Reason";
+local Source = require "Macaroni.Model.Source";
 
 Test.register(
 {

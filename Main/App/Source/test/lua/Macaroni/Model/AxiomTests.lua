@@ -13,9 +13,7 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --------------------------------------------------------------------------------
-require "Macaroni.Model.Axiom";
-
-local Axiom = Macaroni.Model.Axiom;
+local Axiom = require "Macaroni.Model.Axiom";
 
 Test.register(
 {

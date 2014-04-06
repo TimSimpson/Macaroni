@@ -13,11 +13,8 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --------------------------------------------------------------------------------
-require "Macaroni.Model.FileName";
-require "Macaroni.IO.Path";
-
-local FileName = Macaroni.Model.FileName;
-local Path = Macaroni.IO.Path;
+local FileName = require "Macaroni.Model.FileName";
+local Path = require "Macaroni.IO.Path";
 
 Test.register(
 {

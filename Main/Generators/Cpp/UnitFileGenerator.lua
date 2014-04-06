@@ -5,9 +5,9 @@ require "Cpp/ClassHFileGenerator";
 require "Cpp/TypedefFileGenerator";
 require "Cpp/UnitBlockGenerator";
 
-local Access = Macaroni.Model.Cpp.Access;
-local Context = Macaroni.Model.Context;
-local Node = Macaroni.Model.Node;
+local Access = require "Macaroni.Model.Cpp.Access";
+local Context = require "Macaroni.Model.Context";
+local Node = require "Macaroni.Model.Node";
 local TypeNames = Macaroni.Model.TypeNames;
 
 -- The older method of generating is to iterate by Node, and for each type

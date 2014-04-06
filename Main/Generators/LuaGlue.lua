@@ -1370,15 +1370,17 @@ namespace
 		return 0; // Already loaded, DO NOT WASTE TIME DUMMY.
 	}
 	luaL_newmetatable(L, "]] .. self.metaTableName .. [["); // create metaTable
-	luaL_register(L, 0, metaTableMethods);
+	luaL_setfuncs(L, metaTableMethods, 0);
 	// TODO: Put dependencies here
 
-	luaL_register(L, "]] .. self.globalTableName .. [[", globalTableMethods);
+	luaL_newlib(L, globalTableMethods);
+	lua_pushvalue(L, -1);
+	lua_setglobal(L, "]] .. self.globalTableName .. [[");
 	// New global table is left at the top of the stack.
 
 	// Now create a meta table for the global table.
 	lua_newtable(L); // t
-	luaL_register(L, 0, globalTableMetaTableMethods);
+	luaL_setfuncs(L, globalTableMetaTableMethods, 0);
 	lua_setmetatable(L, -2);
 
 	return 1;

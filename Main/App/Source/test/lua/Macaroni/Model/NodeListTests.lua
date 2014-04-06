@@ -13,13 +13,10 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --------------------------------------------------------------------------------
-require "Macaroni.Model.Context";
-require "Macaroni.Model.Node";
-require "Macaroni.Model.NodeList";
+local Context = require "Macaroni.Model.Context";
+local Node = require "Macaroni.Model.Node";
+local NodeList = require "Macaroni.Model.NodeList";
 
-local Context = Macaroni.Model.Context;
-local Node = Macaroni.Model.Node;
-local NodeList = Macaroni.Model.NodeList;
 
 local function mixinContext(self)
     self.context = Context.New("{ROOT}");
@@ -29,9 +26,9 @@ local function mixinContext(self)
 end
 
 Test.register(
-{	
-    name = "NodeList Tests",    
-    tests = {    
+{
+    name = "NodeList Tests",
+    tests = {
         {
             name = "Creating an empty NodeList in Lua.",
             init = function(self)
@@ -74,5 +71,5 @@ Test.register(
                 end,
             }
         },
-    }    
+    }
 }); -- End of register call

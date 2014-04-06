@@ -38,7 +38,7 @@ using Macaroni::Model::SourceLuaMetaData;
 #define LUAGLUE_CLASSFULLLUANAME "Macaroni.Parser.Pippy.PippyParser"
 #define LUAGLUE_CLASSFULLCPPNAME Macaroni::Parser::Pippy::PippyParser
 #define LUAGLUE_REGISTRATIONCLASSNAME PippyParserLuaMetaData
-#define LUAGLUE_OPENOTHERMODULES //Macaroni::Parser::ParserLuaMetaData::OpenInLua(L);
+#define LUAGLUE_OPENOTHERMODULES Macaroni::Parser::ParserLuaMetaData::OpenInLua(L);
 
 #include "../../LuaGlue.hpp"
 

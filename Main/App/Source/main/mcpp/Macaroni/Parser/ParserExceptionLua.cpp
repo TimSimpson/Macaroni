@@ -33,7 +33,7 @@ using Macaroni::Model::SourceLuaMetaData;
 #define LUAGLUE_CLASSFULLCPPNAME Macaroni::Parser::ParserException
 #define LUAGLUE_REGISTRATIONCLASSNAME ParserExceptionLuaMetaData
 #define LUAGLUE_HELPERCLASS ParserExceptionLuaFunctions
-#define LUAGLUE_OPENOTHERMODULES /*Macaroni::Model::SourceLuaMetaData::OpenInLua(L);*/
+#define LUAGLUE_OPENOTHERMODULES Macaroni::Model::SourceLuaMetaData::OpenInLua(L);
 #define LUAGLUE_CREATEMETATABLE YESPLEASE
 
 #include "../LuaGlue.hpp"
@@ -63,7 +63,7 @@ using Macaroni::Model::SourceLuaMetaData;
 		ss << "Description:" << ptr->GetMessage();
 		ss << " ParsedSource:" << ptr->GetSource()->ToString();
 		if (ptr->where()) {
-			ss << " Thrown from file " << ptr->where().get().FileName 
+			ss << " Thrown from file " << ptr->where().get().FileName
 			   << ", line " << ptr->where().get().Line << ".";
 		}
 		lua_pushstring(L, ss.str().c_str());
