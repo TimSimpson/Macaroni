@@ -223,8 +223,18 @@ tests = {
 				Test.assertEquals(false, status);
                 --TODO: Figure out why ParserException isn't getting glued
                 -- to Lua correctly anymore. :(
-                --Test.assertEquals(self.file, parserException.Source.FileName);
-				--Test.assertEquals(5, parserException.Source.Line);
+
+                if type(parserException) == "string" then
+                    Test.assertEquals(false, "Expected a " ..
+                        "PippyParser exception, got "
+                        .. tostring(parserException) .. ".");
+                else
+                    Test.assertEquals(self.file,
+                        parserException.Source.FileName);
+                    Test.assertEquals(5,
+                        parserException.Source.Line);
+                end
+
 				self.classNode = self.root:Find("Something::GlobalKeyword");
 				self.class = self.classNode.Element;
 			end,

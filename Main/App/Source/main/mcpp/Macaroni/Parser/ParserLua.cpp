@@ -18,6 +18,7 @@
 
 #include "ParserLua.h"
 #include <Macaroni/Parser/Parser.h>
+#include <boost/format.hpp>
 #include <Macaroni/Model/Context.h>
 #include "../Model/ContextLua.h"
 #include "../Model/Library.h"
@@ -44,7 +45,7 @@ using Macaroni::Model::SourceLuaMetaData;
 #define LUAGLUE_CLASSFULLCPPNAME Macaroni::Parser::Parser
 #define LUAGLUE_REGISTRATIONCLASSNAME ParserLuaMetaData
 #define LUAGLUE_HELPERCLASS ParserLuaFunctions
-#define LUAGLUE_OPENOTHERMODULES /*ParserExceptionLuaMetaData::OpenInLua(L);*/
+#define LUAGLUE_OPENOTHERMODULES ParserExceptionLuaMetaData::OpenInLua(L); lua_pop(L, 1);
 #define LUAGLUE_CREATEMETATABLE YESPLEASE
 
 #include "../LuaGlue.hpp"
@@ -85,14 +86,25 @@ using Macaroni::Model::SourceLuaMetaData;
 		}
 		catch(Macaroni::Parser::ParserException & pe)
 		{
-			Macaroni::Parser::ParserException * copy = 
-				new Macaroni::Parser::ParserException(pe.GetSource(), 
-													  pe.GetMessage(), 
+			Macaroni::Parser::ParserException * copy =
+				new Macaroni::Parser::ParserException(pe.GetSource(),
+													  pe.GetMessage(),
 													  boost::none);
 
 			ParserExceptionPtr newPtr(copy);
 			ParserExceptionLuaMetaData::Throw(L, newPtr, 1); // DOES NOT RETURN
 			return 0;
+		}
+		catch(const std::exception & ex)
+		{
+			std::string msg = str(boost::format(
+				"Error running Parser: %s") % ex.what());
+			return luaL_error(L, msg.c_str());
+		}
+		catch(...)
+		{
+			return luaL_error(L,
+				"Error running Parser: unknown exception type.");
 		}
 	}
 

@@ -142,5 +142,6 @@ print("Tests   : " .. Test.count);
 print("Failures: " .. #Test.failures );
 
 if (#Test.failures > 0) then
+    print("Tests experienced errors! Aborting program.")
     error("Experienced failures running Lua tests.");
 end
