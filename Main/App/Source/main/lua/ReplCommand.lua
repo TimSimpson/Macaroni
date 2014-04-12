@@ -25,8 +25,13 @@ require "Macaroni.Model.Library";
 require "Macaroni.IO.Path";
 require "Macaroni.Model.Source";
 
-FileName = Macaroni.Model.FileName;
-Source = Macaroni.Model.Source;
+if Macaroni == nil then
+    FileName = require "Macaroni.Model.FileName";
+    Source = require "Macaroni.Model.Source";
+else -- lua 5.1
+    FileName = Macaroni.Model.FileName;
+    Source = Macaroni.Model.Source;
+end
 
 
 findFunctions = function(node)

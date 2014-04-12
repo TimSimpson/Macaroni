@@ -44,7 +44,7 @@ function utc()
 end
 
 function Generate(library, path)
-    local commaVersion = string.gsub(library.Version, "%.", "\,");
+    local commaVersion = string.gsub(library.Version, "%.", [[\,]]);
     local version = library.Version;
     createVersionNoH(path, library)
     createAboutTextH(path, library)
@@ -79,7 +79,7 @@ function createAboutTextH(path, library)
 end
 
 function createVersionNoH(path, library)
-	local commaVersion = string.gsub(library.Version, "%.", "\,");
+	local commaVersion = string.gsub(library.Version, "%.", [[\,]]);
     local version = library.Version;
     local file = path:NewPath("/Macaroni/VersionNo.h");
     local writer = file:CreateFile();
