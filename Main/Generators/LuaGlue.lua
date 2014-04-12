@@ -18,7 +18,7 @@ require "Macaroni.Model.NodeList";
 require "Macaroni.Model.AnnotationTable"
 require "Macaroni.Model.AnnotationValue";
 require "Macaroni.Model.Axiom";
-Block = require "Macaroni.Model.Block";
+local Block = require "Macaroni.Model.Block";
 require "Macaroni.Model.Cpp.Class";
 require "Cpp/Common";
 require "Macaroni.Model.Context";
@@ -28,41 +28,31 @@ require "Macaroni.Model.Cpp.FunctionOverload";
 require "LuaGlue/LuaGlueCppFile";
 require "LuaGlue/LuaGlueHFile";
 require "Macaroni.Model.Library";
-if MACARONI_VERSION == "0.1.0.22" then
-	require "Macaroni.Model.Member";
-else
-	require "Macaroni.Model.Element";
-end
+require "Macaroni.Model.Element";
 require "Macaroni.Model.Node";
 require "Macaroni.Model.NodeList";
 require "Macaroni.IO.Path";
 require "Macaroni.Model.Reason";
-require "Macaroni.Model.Source";
 require "Macaroni.Model.Type";
 require "Macaroni.Model.Cpp.Variable";
 require "Cpp/NodeInfo";
 require "Log";
 require "Plugin"
 
-Access = Macaroni.Model.Cpp.Access;
-Axiom = Macaroni.Model.Axiom;
-Class = Macaroni.Model.Cpp.Class;
-Context = Macaroni.Model.Context;
-FileName = Macaroni.Model.FileName;
-Function = Macaroni.Model.Cpp.Function;
-FunctionOverload = Macaroni.Model.Cpp.FunctionOverload;
-if MACARONI_VERSION == "0.1.0.22" then
-	Member = Macaroni.Model.Member;
-else
-	--TODO: change Member to Element
-	Member = Macaroni.Model.Element;
-end
-NodeList = Macaroni.Model.NodeList;
-Path = Macaroni.IO.Path;
-Reason = Macaroni.Model.Reason;
-Source = Macaroni.Model.Source;
-Type = Macaroni.Model.Type;
-Variable = Macaroni.Model.Cpp.Variable;
+local Access = require "Macaroni.Model.Cpp.Access";
+local Axiom = require "Macaroni.Model.Axiom";
+local Class = require "Macaroni.Model.Cpp.Class";
+local Context = require "Macaroni.Model.Context";
+local FileName = require "Macaroni.Model.FileName";
+local Function = require "Macaroni.Model.Cpp.Function";
+local FunctionOverload = require "Macaroni.Model.Cpp.FunctionOverload";
+local Member = require "Macaroni.Model.Element";
+local NodeList = require "Macaroni.Model.NodeList";
+local Path = require "Macaroni.IO.Path";
+local Reason = require "Macaroni.Model.Reason";
+local Source = require "Macaroni.Model.Source";
+local Type = require "Macaroni.Model.Type";
+local Variable = require "Macaroni.Model.Cpp.Variable";
 
 OPERATORS_CPP_TO_LUA =
 {
@@ -1367,7 +1357,8 @@ namespace
 	luaL_getmetatable(L, "]] .. self.metaTableName .. [[");
 	if (lua_isnil(L, -1) != 1)
 	{
-		return 0; // Already loaded, DO NOT WASTE TIME DUMMY.
+		lua_getglobal(L, "]] .. self.globalTableName .. [[");
+		return 1; // Already loaded, DO NOT WASTE TIME DUMMY.
 	}
 	luaL_newmetatable(L, "]] .. self.metaTableName .. [["); // create metaTable
 	luaL_setfuncs(L, metaTableMethods, 0);

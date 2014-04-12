@@ -14,7 +14,7 @@ SimpleBoostProject{
   src="Source",
   target="GeneratedSource",
   dependencies = {
-    load("Macaroni", "Lua", "5.1.4"):Target("lib"),
+    load("Macaroni", "Lua", "5.2.3"):Target("lib"),
   },
   exes={
     "Main.cpp"

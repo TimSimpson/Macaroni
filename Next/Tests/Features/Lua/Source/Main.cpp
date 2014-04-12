@@ -50,7 +50,7 @@ void openOurLibs(lua_State * L)
 	lua_getglobal(L, "package");
 	lua_pushstring(L, "preload");
 	lua_gettable(L, -2);
-	luaL_register(L, 0, libs);
+	luaL_setfuncs(L, libs, 0);
 }
 
 int main(int argc, const char * argv[])

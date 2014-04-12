@@ -20,10 +20,9 @@ using Macaroni::Tests::Lua::PoloLuaMetaData;
 
 std::string LUA_CODE =
 "require 'os';                                                              "
-"require 'Macaroni.Tests.Lua.Polo';											"
-"require 'Macaroni.Tests.Lua.PoloName';										"
 "                                                                           "
-"local Polo = Macaroni.Tests.Lua.Polo;										"
+"local Polo = require 'Macaroni.Tests.Lua.Polo';							"
+"local PoloName = require 'Macaroni.Tests.Lua.PoloName';					"
 "																			"
 "function formatTimeToString(date)                                          "
 "    return (date.year .. '-' .. date.month .. '-' .. date.day .. '-' ..    "
@@ -56,18 +55,18 @@ std::string LUA_CODE =
 "end                                                                        "
 "                                                                           "
 "function setMeViaStatics(polo)                                             "
-"    globalTable = Macaroni.Tests.Lua.Polo;                                 "
+"    globalTable = Polo;   						                            "
 "    oldName = globalTable.PointlessStaticFunctionGet(polo);                "
 "    newName = oldName .. ' STATICLY.';                                     "
 "    globalTable.PointlessStaticFunctionSet(polo, newName);                 "
 "end                                                                        "
 "                                                                           "
 "function setUsingStaticProps(polo)                                         "
-"    polo.Name = Macaroni.Tests.Lua.PoloName.Jon.Name                       "
+"    polo.Name = PoloName.Jon.Name                       					"
 "end                                                                        "
 "                                                                           "
 "function tryToSetGlobalTable()                                             "
-"    Macaroni.Tests.Lua.PoloName.Jon = 'something else';                    "
+"    PoloName.Jon = 'something else';                    					"
 "end                                                                        "
 "                                                                           "
 "function triggerTargetMethodException(polo)                                "
@@ -94,7 +93,7 @@ void openOurLibs(lua_State * L)
 	lua_getglobal(L, "package");
 	lua_pushstring(L, "preload");
 	lua_gettable(L, -2);
-	luaL_register(L, 0, libs);
+	luaL_setfuncs(L, libs, 0);
 }
 
 BOOST_AUTO_TEST_CASE(MyTestCase)
