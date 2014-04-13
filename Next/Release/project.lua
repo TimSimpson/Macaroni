@@ -157,6 +157,10 @@ function buildWebSite()
     });
 end
 
+function clean()
+    newPath("target"):ClearDirectoryContents();
+end
+
 function generate()
 end
 
@@ -180,4 +184,5 @@ end
 
 function install()
     build()
+    print("Installed!")
 end

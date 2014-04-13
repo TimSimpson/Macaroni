@@ -1,6 +1,11 @@
 require "os"
 require "Macaroni.IO.Path"
 
+if Macaroni == nil then
+    Path = require "Macaroni.IO.Path"
+else
+    Path = Macaroni.IO.Path
+end
 
 project = context
     :Group("Macaroni")
@@ -12,7 +17,7 @@ project = context
 -- Helper functions.
 --------------------------------------------------------------------------
 local newPath = function(subPath)
-    local p = Macaroni.IO.Path.New(getWorkingDirectory())
+    local p = Path.New(getWorkingDirectory())
     return p:NewPathForceSlash(subPath)
 end
 
@@ -254,7 +259,8 @@ build = function()
       local exePath = targetDir:NewPathForceSlash("exe/macaroni.exe")
       local testDir = newPath(src):NewPathForceSlash("../../test/lua")
       local cmd = exePath.AbsolutePath .. " luaTests "
-                  .. testDir.AbsolutePath
+                  .. testDir.AbsolutePath .. " --messagesPath "
+                  .. newPath(src):NewPathForceSlash("../resources").AbsolutePath
       output:WriteLine(cmd)
       if (os.execute(cmd) ~= 0) then
           output:ErrorLine("Failing running tests!")

@@ -185,7 +185,7 @@ class CmdLine
 ("moonScriptPath",
 	po::value<decltype(argMoonScriptPath)>(&argMoonScriptPath),
 	"Path to MoonScript's Lua source code.")
-("install",
+("install,i",
 	po::bool_switch(&install),
 	"Install this project to your local artifact repo.")
 ("printTimes",

@@ -1,52 +1,29 @@
 require "Macaroni.Model.AnnotationTable"
 require "Macaroni.Model.AnnotationValue";
-require "Macaroni.Model.Axiom";
-require "Macaroni.Model.Block";
-require "Macaroni.Model.Cpp.Class";
+local Axiom = require "Macaroni.Model.Axiom";
+local Block = require "Macaroni.Model.Block";
+local Class = require "Macaroni.Model.Cpp.Class";
 require "Cpp/Common";
-require "Macaroni.Model.Context";
-require "Macaroni.Model.FileName";
-require "Macaroni.Model.Cpp.Function";
+local Context = require "Macaroni.Model.Context";
+local FileName = require "Macaroni.Model.FileName";
+local Function = require "Macaroni.Model.Cpp.Function";
 require "Macaroni.IO.GeneratedFileWriter";
 require "LuaGlue/LuaGlueCppFile";
 require "LuaGlue/LuaGlueHFile";
 require "Macaroni.Model.Library";
-require "Macaroni.Doc.MDocParser";
-if MACARONI_VERSION == "0.1.0.22" then
-	require "Macaroni.Model.Member";
-else
-	require "Macaroni.Model.Element";
-end
-require "Macaroni.Model.Node";
-require "Macaroni.Model.NodeList";
-require "Macaroni.IO.Path";
-require "Macaroni.Model.Reason";
-require "Macaroni.Model.Source";
-require "Macaroni.Model.Type";
-require "Macaroni.Model.Cpp.Variable";
+local MDocParser = require "Macaroni.Doc.MDocParser";
+local Node = require "Macaroni.Model.Node";
+local NodeList = require "Macaroni.Model.NodeList";
+local Path = require "Macaroni.IO.Path";
+local Reason = require "Macaroni.Model.Reason";
+local Source = require "Macaroni.Model.Source";
+local Type = require "Macaroni.Model.Type";
+local Variable = require "Macaroni.Model.Cpp.Variable";
 require "Cpp/NodeInfo";
 require "Log";
 require "io";
 require "string";
 
-Axiom = Macaroni.Model.Axiom;
-Block = Macaroni.Model.Axiom;
-Class = Macaroni.Model.Cpp.Class;
-Context = Macaroni.Model.Context;
-FileName = Macaroni.Model.FileName;
-Function = Macaroni.Model.Cpp.Function;
-MDocParser = Macaroni.Doc.MDocParser;
-if MACARONI_VERSION == "0.1.0.22" then
-	Member = Macaroni.Model.Member;
-else
-	--TODO: change Member to Element
-	Member = Macaroni.Model.Element;
-end
-NodeList = Macaroni.Model.NodeList;
-Reason = Macaroni.Model.Reason;
-Source = Macaroni.Model.Source;
-Type = Macaroni.Model.Type;
-Variable = Macaroni.Model.Cpp.Variable;
 
 mdocAssociatedFiles = [[\.(mdoc|html|htm|gif|png|jpg|jpeg)?$]];
 
