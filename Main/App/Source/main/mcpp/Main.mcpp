@@ -32,6 +32,8 @@
 #include <sstream>
 #include <Macaroni/VersionNo.h>
 
+#include "boost/program_options.hpp"
+
 #ifdef MACARONI_COMPILE_TARGET_WINDOWS
 	#include <tchar.h>
 	#include "Macaroni/Platform/Windows/Strings.h"
@@ -54,6 +56,8 @@ using Macaroni::IO::FileSet;
 using Macaroni::Environment::Messages;
 using Macaroni::Environment::Timer;
 
+
+
 int run(CmdLine & cmd)
 {
 	if (cmd.StartPrompt())
@@ -65,13 +69,29 @@ int run(CmdLine & cmd)
 		std::cin >> stuff;
 	}
 
-	// Initialize timer.
-	Timer::Init();
+	Timer::SetPrintTimes(cmd.PrintTimes());
 	const auto startTime = Timer::GetTime();
 
-	int returnCode = 1;
-	if (cmd.StartPrompt()) // Not running in a try / catch makes it easier to debug
+	try
 	{
+		Messages::Init(cmd.MessagesPath());
+	}
+	catch(const Macaroni::Exception & me)
+	{
+		// I'd put this in the try / catch below, except it's
+		// way too obnoxious to get an exception only to
+		// realize it's this. Step through it if you must.
+		std::cerr << me.what() << std::endl
+				  << "Error loading messages. Be sure the "
+				  "--messagesPath argument points to a valid "
+				  "message file." << std::endl;
+		return 1;
+	}
+
+	int returnCode = 1;
+	if (cmd.DebugMode())
+	{
+		std::cout << "Notice: Not catching errors." << std::endl;
 		if (cmd.Execute())
 		{
 			returnCode = 0; // success
@@ -79,27 +99,23 @@ int run(CmdLine & cmd)
 	}
 	else
 	{
-		#ifndef _DEBUG
-			try
+		try
+		{
+			if (cmd.Execute())
 			{
-		#endif
-				if (cmd.Execute())
-				{
-					returnCode = 0; // success
-				}
-		#ifndef _DEBUG
+				returnCode = 0; // success
 			}
-			catch(Macaroni::Exception & ex)
-			{
-				std::cerr << "An error occurred.\n" << std::endl;
-				std::cerr << ex.message()  << std::endl;
-			}
-			catch(std::exception & ex)
-			{
-				std::cerr << "An error occurred.\n" << std::endl;
-				std::cerr << ex.what()  << std::endl;
-			}
-		#endif
+		}
+		catch(Macaroni::Exception & ex)
+		{
+			std::cerr << "An error occurred.\n" << std::endl;
+			std::cerr << ex.message()  << std::endl;
+		}
+		catch(std::exception & ex)
+		{
+			std::cerr << "An error occurred.\n" << std::endl;
+			std::cerr << ex.what()  << std::endl;
+		}
 	}
 	const auto endTime = Timer::GetTime();
 	const auto elapsed = endTime - startTime;
@@ -116,22 +132,26 @@ int run(CmdLine & cmd)
 	return returnCode;
 }
 
-int generic_main(std::vector<MACARONI_VE_CONST std::string> & args)
+int generic_main(int argc, const char * argv[])
 {
 	std::cout << MACARONI_FILE_DESCRIPTION << std::endl;
 	std::cout << "Version " << MACARONI_VERSION_STRING <<
 		" built at " << BUILD_TIMESTAMP_LOCAL << std::endl;
 	std::cout << std::endl;
 
+	// Initialize timer.
+	Timer::Init();
+
 	Console output(0);
 
-
-	try {
-		CmdLine cmd(args, output);
+	CmdLine cmd(argc, argv, output);
+	if (cmd.InitialReturnCode())
+	{
+		return cmd.InitialReturnCode().get();
+	}
+	else
+	{
 		return run(cmd);
-	} catch(const Macaroni::Build::BadArgException & bae) {
-		output.ErrorLine("An argument was missing or incorrect.");
-		return 10;
 	}
 }
 
@@ -150,18 +170,9 @@ void convert(std::wstring & original, std::string & rtnString)
 	rtnString = ss.str();
 }
 
-/** I'm not sure if using the _TCHAR version of main is necessary. Maybe
- *  there's an easier way to achieve platform independence here. */
-int _tmain(int argc, const _TCHAR * argv[])//_TCHAR* argv[])
+int main(int argc, const char * argv[])
 {
-	std::vector<MACARONI_VE_CONST std::string> convertedArgs;
-	for (int i = 0; i < argc; i ++)
-	{
-		NonWindowsString convertedString(argv[i]);
-		convertedArgs.push_back(convertedString.get());
-	}
-
-	return generic_main(convertedArgs);
+	return generic_main(argc, argv);
 }
 
 #endif // COMPILE_TARGET_WINDOWS
@@ -183,16 +194,8 @@ int main(int argc, const char * argv[])
 		std::cerr << "Less than one argument?! But how could that be?!!";
 		return -500; // Negative 500 is super bad.
 	}
-
 	Macaroni::IO::CURRENT_EXE_PATH = argv[0];
-
-	std::vector<MACARONI_VE_CONST std::string> convertedArgs;
-	for (int i = 0; i < argc; i ++)
-	{
-		convertedArgs.push_back(argv[i]);
-	}
-
-	return generic_main(convertedArgs);
+	return generic_main(argc, argv);
 }
 #endif // COMPILE_TARGET_LINUX
 

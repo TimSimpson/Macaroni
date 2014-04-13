@@ -19,6 +19,7 @@
 ~import std::istream;
 ~import std::map;
 ~import Macaroni::IO::Paths;
+~import boost::filesystem::path;
 ~import std::string;
 ~import std::stringstream;
 
@@ -30,6 +31,7 @@ class Messages
     ~import ::Macaroni::Environment::Messages;
 
     private map<string, string> bag;
+    private bool initialized;
 
     ~block "cpp-include" {
         #include <Macaroni/ME.h>
@@ -51,20 +53,16 @@ class Messages
         }
     }
 
-    private Messages(const char * filePath = 0)
-    :bag()
+    private Messages()
+    :   bag(),
+        initialized(false)
     {
-        string finalFilePath;
-        if (filePath != nullptr)
-        {
-            finalFilePath = filePath;
-        }
-        else
-        {
-            const auto path = Paths::GetExeDirectoryPath();
-            const auto path2 = path / "Messages.txt";
-            finalFilePath = path2.string();
-        }
+    }
+
+    ~hidden void loadFile(path filePath)
+    {
+        initialized = true;
+        string finalFilePath = filePath.string();
         std::ifstream file;
         file.open(finalFilePath.c_str());
         if (file)
@@ -82,14 +80,13 @@ class Messages
                                                       next.size() - index);
                     add(key, content);
                 }
-            }while(!file.eof());
-            file.close();
+            } while(!file.eof());
         }
         else
         {
 
-            string msg = str(format("Messages file not not found at \"%s\" (%s) (%s).")
-                             % finalFilePath % Paths::GetExeDirectoryPath() % Paths::GetExePath());
+            string msg = str(format("No messages file found at \"%s\".")
+                             % filePath);
             MACARONI_THROW(msg.c_str());
         }
     }
@@ -101,7 +98,13 @@ class Messages
 
     public static string Get(const char * id)
     {
-        return getInstance(nullptr, false).get(id);
+        Messages & msgs = getInstance();
+        if (!msgs.initialized)
+        {
+            MACARONI_THROW(
+                "Messages accessed before Init was called.");
+        }
+        return msgs.get(id);
     }
 
     public static string Get(const char * id, int value)
@@ -135,19 +138,20 @@ class Messages
         return bag[key];
     }
 
-    ~hidden static Messages & getInstance(const char * filePath, bool forceInit)
+    ~hidden static Messages & getInstance()
     {
-        static auto_ptr<Messages> instance;
-        if (forceInit || nullptr == instance.get())
-        {
-            instance.reset(new Messages(filePath));
-        }
-        return dynamic_cast<Messages &>(*instance.get());
+        static Messages instance;
+        return instance;
     }
 
     // Initializes all Messages, or re-initializes them.
-    public static void Init(const char * filePath)
+    public static void Init(const path filePath)
     {
-        getInstance(filePath, true);
+        Messages & msgs = getInstance();
+        if (msgs.initialized)
+        {
+            MACARONI_THROW("Messages was initialized twice!");
+        }
+        msgs.loadFile(filePath);
     }
 };

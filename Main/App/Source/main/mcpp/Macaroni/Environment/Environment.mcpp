@@ -119,13 +119,15 @@ class Macaroni::Environment::Environment
 	//private PluginFactoryPtr pluginFactory;
 	private ProjectLoaderPtr pLoader;
 	private bool quitRepl;
+	private const bool showPaths;
 	// The working directory. This is always the project file's directory.
 	private path workingDirectory;
 	// The file current being parsed.
 	//private ProjectVersionId workingProjectId;
 
 	public Environment(AppPathsPtr appPaths, ContextPtr context,
-		               InputPtr input, OutputPtr output)
+		               InputPtr input, OutputPtr output,
+		               bool showPaths=false)
 	: appPaths(appPaths),
 	  context(context),
 	  currentProject(),
@@ -134,33 +136,37 @@ class Macaroni::Environment::Environment
 	  pLoader(),
 	  //pluginFactory(new PluginFactory(appPaths)),
 	  quitRepl(false),
+	  showPaths(showPaths),
 	  workingDirectory("./")
 	{
-		output->DebugLine("Creating new Environment with the following "
-		                  "AppPaths:");
-		output->DebugLine(format("Message file : %s") %
-		           appPaths->GetMessagePaths().string());
-		output->DebugLine("");
-		output->Debug("Library Paths : [");
-		bool seenOnce = false;
-		BOOST_FOREACH(const boost::filesystem::path & path,
-			          appPaths->GetLibraryRepoPaths())
+		if (showPaths)
 		{
-			if (seenOnce)
+			output->DebugLine("Creating new Environment with "
+				              "the following AppPaths:");
+			output->DebugLine(format("Message file : %s") %
+			           appPaths->GetMessagePaths().string());
+			output->DebugLine("");
+			output->Debug("Library Paths : [");
+			bool seenOnce = false;
+			BOOST_FOREACH(const boost::filesystem::path & path,
+				          appPaths->GetLibraryRepoPaths())
 			{
-				output->Debug(", ");
+				if (seenOnce)
+				{
+					output->Debug(", ");
+				}
+				seenOnce = true;
+				output->Debug(path.string());
 			}
-			seenOnce = true;
-			output->Debug(path.string());
+			output->DebugLine("]");
+			output->Debug("Generator Paths : [");
+			BOOST_FOREACH(const boost::filesystem::path & path,
+				          appPaths->GetGeneratorPaths())
+			{
+				output->Debug(path.string());
+			}
+			output->DebugLine("]");
 		}
-		output->DebugLine("]");
-		output->Debug("Generator Paths : [");
-		BOOST_FOREACH(const boost::filesystem::path & path,
-			          appPaths->GetGeneratorPaths())
-		{
-			output->Debug(path.string());
-		}
-		output->DebugLine("]");
 		pLoader = new ProjectLoader(appPaths, context, output);
 	}
 
@@ -181,21 +187,42 @@ class Macaroni::Environment::Environment
 
 	/* Finds any file named "project.lua" in the current directory or any
 	 * directory it can find by iterating downward. */
-	public static optional<path> FindDefaultProject()
+	public static optional<path> FindDefaultProject(
+		optional<path> dirOrProjectFile=boost::none)
 	{
+		using boost::filesystem::equivalent;
+		using boost::filesystem::exists;
+		using boost::filesystem::is_directory;
+
+		path directory = "";
 		path defaultLua = "project.lua";
-		if (boost::filesystem::exists(defaultLua)) {
+		if (dirOrProjectFile)
+		{
+			path dirOrProjectFilePath = dirOrProjectFile.get();
+			if (is_directory(dirOrProjectFilePath))
+			{
+				directory = dirOrProjectFilePath;
+				defaultLua = directory / "project.lua";
+			}
+			else if (exists(dirOrProjectFilePath))
+			{
+				defaultLua = directory;
+				directory = dirOrProjectFilePath.parent_path();
+			}
+		}
+
+		if (exists(defaultLua)) {
 			return optional<path>(defaultLua);
 		}
-		path directory = "../";
-		while(boost::filesystem::exists(directory)) {
+		directory = directory / "../";
+		while(exists(directory)) {
 			path file = directory / "project.lua";
-			if (boost::filesystem::exists(file)) {
+			if (exists(file)) {
 				return optional<path>(file);
 			}
 			const path nextDirectory = directory / "../";
 			// Make sure we're not endlessly iterating over "/" in Unix.
-			if (boost::filesystem::equivalent(directory, nextDirectory))
+			if (equivalent(directory, nextDirectory))
 			{
 				return boost::none;
 			}
@@ -280,7 +307,8 @@ output->WriteLine("                     \\________/  ");
 	}
 
 	/** Runs the default project. Does not return the Id. */
-	public bool RunDefaultProject()
+	public bool RunDefaultProject(
+		optional<path> dirOrProjectFile=boost::none)
 	{
 		optional<path> projectFilePath = FindDefaultProject();
 		if (projectFilePath) {

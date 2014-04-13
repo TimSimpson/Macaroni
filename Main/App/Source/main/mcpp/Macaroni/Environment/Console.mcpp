@@ -191,7 +191,11 @@ class Console : public virtual Input, public virtual Output
 		}
 		if (lastWriteWasNewLine)
 		{
-			std::cout << "[" << Timer::GetTime() << "] " << indentString;
+			if (Timer::PrintTimes())
+			{
+				std::cout << "[" << Timer::GetTime() << "] ";
+			}
+			std::cout << indentString;
 		}
 		std::cout << msg;
 		if (newLine)

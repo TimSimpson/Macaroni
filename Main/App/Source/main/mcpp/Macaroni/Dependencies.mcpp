@@ -42,6 +42,8 @@ class boost::hash { ~hfile=<boost/functional/hash.hpp> };
 class boost::intrusive_ptr { ~hfile=<boost/intrusive_ptr.hpp> };
 class boost::optional { ~hfile=<boost/optional.hpp> };
 //class boost::filesystem::path { ~hfile=<boost/filesystem.hpp> }
+class boost::program_options::variables_map { ~hfile=<boost/program_options.hpp> };
+
 class boost::regex { ~hfile=<boost/regex.hpp> };
 class boost::shared_ptr { ~hfile=<boost/shared_ptr.hpp> };
 class boost::to_lower { ~hfile=<boost/algorithm/string.hpp> };

@@ -24,6 +24,7 @@
 ~import BOOST_FOREACH;
 ~import Macaroni::Environment::Input;
 ~import Macaroni::Environment::InputPtr;
+~import boost::lexical_cast;
 ~import Macaroni::Model::Library;
 ~import Macaroni::Model::LibraryPtr;
 ~import Macaroni::Environment::LuaEnvironment;
@@ -37,6 +38,7 @@
 ~import Macaroni::SimpleException;
 ~import std::string;
 ~import std::stringstream;
+~import boost::program_options::variables_map;
 ~import std::vector;
 ~import Macaroni::Containers::VectorOfConstString;
 
@@ -57,16 +59,20 @@ class CmdLine
 	private bool generate;
 	private bool generateLess;
 	private vector<path> generatorPaths;
+	private optional<int> initialReturnCode;
 	private bool install;
 	private vector<path> libraryRepoPaths;
 	private string luaTestsPath;
-	private optional<path> messagesPath;
+	private path messagesPath;
 	private optional<path> moonScriptPath;
 	private Output * output;
+	private optional<path> projectFile;
+	private bool printTimes;
 	private bool repl;
 	private bool startPrompt;
+	private bool showPaths;
 
-	public CmdLine(const VectorOfConstString & args, Console & console)
+	/*public CmdLine(const VectorOfConstString & args, Console & console)
 	:	about(false),
 	    build(false),
 		clean(false),
@@ -96,11 +102,221 @@ class CmdLine
 				parseArg(arg, "");
 			}
 		}
+	}*/
+
+	~block "h-predef" {
+		#include <boost/program_options.hpp>
 	}
+
+	~block "h" {
+		public: CmdLine(int argc, const char * * argv,
+			            Macaroni::Environment::Console & console);
+	}
+
+~block "cpp" {
+	CmdLine::CmdLine(int argc, const char * * argv,
+		             Console & console)
+	:	about(false),
+	    build(false),
+		clean(false),
+		console(console),
+		debugMode(false),
+		endPrompt(false),
+		generate(false),
+		generateLess(false),
+		generatorPaths(),
+		install(false),
+		libraryRepoPaths(),
+		luaTestsPath(""),
+		messagesPath(""),
+		moonScriptPath(),
+		initialReturnCode(1),
+		output(&console),
+		printTimes(false),
+		repl(false),
+		startPrompt(false),
+		showPaths(false)
+	{
+		namespace po = boost::program_options;
+		po::options_description description("Options");
+		vector<string> argGeneratorPaths;
+		vector<string> argLibraryRepoPaths;
+		string argMessagesPath;
+		string argMoonScriptPath;
+		string argProjectFile;
+		description.add_options()
+("help,h", "Command line instructions.")
+("about",
+	po::bool_switch(&about),
+	"Shows information on Macaroni.")
+("build,b",
+	po::bool_switch(&build),
+	"Run the project's build phase, which may invoke a "
+	"C++ compiler.")
+("clean,c",
+	po::bool_switch(&clean),
+	"Delete the generated directories before doing anything.")
+("debug",
+	po::bool_switch(&debugMode),
+	"Do not catch internal exceptions.")
+("endPrompt",
+	po::bool_switch(&endPrompt),
+	"If set, Macaroni will wait for user input before ending.")
+("generate,g",
+	po::bool_switch(&generate),
+	"Run the project's generation phase, which will normally "
+	"create C++ source code.")
+("generateLess",
+	po::bool_switch(&generateLess),
+	"Run the project's \"generateLess\" phase, which may do "
+	"something simple like updating generated project files.")
+("generatorPath",
+	po::value<vector<string>>(&argGeneratorPaths),
+	"Path to Macaroni's Lua plugins.")
+("luaTests",
+	po::value<std::string>(&luaTestsPath),
+	"Path to arbitrary Lua files for Macaroni to run.")
+("libraryRepoPath",
+	po::value<vector<string>>(&argLibraryRepoPaths),
+	"Path to where additional Macaroni projects are stored.")
+("messagesPath",
+	po::value<decltype(argMessagesPath)>(&argMessagesPath),
+	"Path to the messages file.")
+("moonScriptPath",
+	po::value<decltype(argMoonScriptPath)>(&argMoonScriptPath),
+	"Path to MoonScript's Lua source code.")
+("install",
+	po::bool_switch(&install),
+	"Install this project to your local artifact repo.")
+("printTimes",
+	po::bool_switch(&printTimes),
+	"Show milliseconds from program start next to all output.")
+("repl",
+	po::bool_switch(&repl),
+	"Start an interactive Lua session after parsing any project"
+	" files.")
+("startPrompt",
+	po::bool_switch(&startPrompt),
+	"If set, Macaroni will wait for user input before running.")
+("showPaths",
+	po::bool_switch(&showPaths),
+	"If set, Macaroni will print out the file paths in use "
+	"at the start of the program.")
+("projectFile",
+	po::value<string>(&argProjectFile),
+	"Project file to run.")
+;
+		po::positional_options_description pos;
+		pos.add("projectFile", 1);
+
+		po::variables_map map;
+		try
+		{
+			po::store(po::command_line_parser(argc, argv)
+					  .options(description)
+					  .positional(pos).run(),
+				      map);
+			if (map.count("help"))
+			{
+				std::cout << description << std::endl;
+				initialReturnCode = 0;
+			}
+			else
+			{
+				po::notify(map);
+				convertArgsToPaths("generatorPath",
+					argGeneratorPaths,
+					generatorPaths
+					);
+				convertArgsToPaths("libraryRepoPath",
+					argLibraryRepoPaths,
+					libraryRepoPaths
+					);
+
+				if (argMessagesPath.empty()) {
+					messagesPath = Paths::GetExeDirectoryPath()
+						           / "Messages.txt";
+				} else {
+					messagesPath = convertArgToPath(
+						"messagesPath", argMessagesPath);
+				}
+				moonScriptPath = convertOptionalArgToPath(
+					"moonScriptPath", argMoonScriptPath);
+				projectFile = convertOptionalArgToPath(
+					"project file", argProjectFile);
+				initialReturnCode = boost::none;
+			}
+		}
+		catch(const po::error & e)
+		{
+			std::cerr << e.what() << std::endl;
+			if (argc < 1)
+			{
+				std::cerr << "Use argv--help for usage info." << std::endl;
+			}
+			std::cerr << "Run \"" <<
+				(argc >= 1 ? argv[0] : "macaroni")
+ 			    << " --help\" to view usage info." << std::endl;
+			initialReturnCode = 9;
+		}
+		catch(const BadArgException & bae)
+		{
+			std::cerr << bae.what() << std::endl;
+			initialReturnCode = 9;
+		}
+		catch(...)
+		{
+			std::cerr << "Something weird happened." << std::endl;
+			initialReturnCode = 10;
+		}
+	}
+
+} // end c block
+
 
 	public ~CmdLine()
 	{
 		luaTestsPath = "";
+	}
+
+	~hidden path convertArgToPath(const char * name,
+		                          const string & arg)
+	{
+		path p = arg;
+		if (!boost::filesystem::exists(p))
+		{
+			output->ErrorLine(
+				str(boost::format("No directory found at the "
+					"given %s path \"%s\"") % name % arg));
+			throw BadArgException(MACARONI_INTERNAL_SOURCE);
+		}
+		return p;
+	}
+
+	~hidden optional<path> convertOptionalArgToPath(
+		const char * name, const string & arg)
+	{
+		if (arg.empty()) { return boost::none; }
+		path p = arg;
+		if (!boost::filesystem::exists(p))
+		{
+			output->ErrorLine(
+				str(boost::format("No directory found at the "
+					"given %s path \"%s\"") % name % arg));
+			throw BadArgException(MACARONI_INTERNAL_SOURCE);
+		}
+		return p;
+	}
+
+	~hidden void convertArgsToPaths(
+		const char * name,
+		vector<string> & args, vector<path> & paths)
+	{
+
+		BOOST_FOREACH(const string & arg, args)
+		{
+			paths.push_back(convertArgToPath(name, arg));
+		}
 	}
 
 	private bool pathContains(vector<path> & paths, path & path)
@@ -135,13 +351,16 @@ class CmdLine
 		{
 			libraryRepoPaths.push_back(lPath2);
 		}
-		path mPath = !messagesPath
-						? Paths::GetExeDirectoryPath()
-						: messagesPath.get();
+		path mPath = messagesPath;
 		path possibleMoonScriptPath = Paths::GetExeDirectoryPath() / "MoonScript";
 		AppPathsPtr appPaths(new AppPaths(generatorPaths, libraryRepoPaths,
 										  mPath, moonScriptPath));
 		return appPaths;
+	}
+
+	public bool DebugMode()
+	{
+		return debugMode;
 	}
 
 	public bool EndPrompt()
@@ -176,121 +395,14 @@ class CmdLine
 		return false;
 	}
 
-	private void parseArg(const string & arg, const string & next)
+	public optional<int> InitialReturnCode()
 	{
-		if (arg == "--about")
-		{
-			about = true;
-		}
-		else if (arg == "clean")
-		{
-			clean = true;
-		}
-		else if (arg == "build")
-		{
-			build = true;
-		}
-		else if (arg == "debug")
-		{
-			debugMode = true;
-		}
-		else if (arg == "generate")
-		{
-			generate = true;
-		}
-		else if (arg == "generateLess")
-		{
-			generateLess = true;
-		}
-		else if (arg == "--generatorPath")
-		{
-			if (next.empty())
-			{
-				output->ErrorLine("No generator path given following "
-					              "\"generatorPath\" arg.");
-				throw BadArgException(MACARONI_INTERNAL_SOURCE);
-			}
-			else
-			{
-				generatorPaths.push_back(next);
-			}
-		}
-		else if (arg == "install")
-		{
-			install = true;
-		}
-		else if (arg == "--libraryRepoPath")
-		{
-			if (next.empty())
-			{
-				output->ErrorLine("No library repo path given following "
-					              "\"libraryRepoPath\" arg.");
-				throw BadArgException(MACARONI_INTERNAL_SOURCE);
-			}
-			else
-			{
-				libraryRepoPaths.push_back(next);
-			}
-		}
-		else if (arg == "luaTests")
-		{
-			if (next.empty())
-			{
-				output->ErrorLine("No input specified for luaTests command.");
-			}
-			else
-			{
-				luaTestsPath = next;
-			}
-		}
-		else if (arg == "--messagesPath")
-		{
-			if (next.empty())
-			{
-				output->ErrorLine("No messages path given following "
-				                  "\"messagesPath\" arg.");
-				throw BadArgException(MACARONI_INTERNAL_SOURCE);
-			}
-			else
-			{
-				path p = next;
-				messagesPath = optional<path>(p);
-				string file = (p / "Messages.txt").string();
-				Messages::Init(file.c_str());
-			}
-		}
-		else if (arg == "--moonScriptPath")
-		{
-			if (next.empty())
-			{
-				output->ErrorLine("No MoonScript path given following "
-					              "\"--moonscriptPath\" arg.");
-				throw BadArgException(MACARONI_INTERNAL_SOURCE);
-			}
-			else
-			{
-				path p = next;
-				if (!boost::filesystem::exists(p))
-				{
-					output->ErrorLine("No directory found at the given "
-						"Moon Script files path.");
-					throw BadArgException(MACARONI_INTERNAL_SOURCE);
-				}
-				moonScriptPath = optional<path>(p);
-			}
-		}
-		else if (arg == "endPrompt")
-		{
-			endPrompt = true;
-		}
-		else if (arg == "repl")
-		{
-			repl = true;
-		}
-		else if (arg == "startPrompt")
-		{
-			startPrompt = true;
-		}
+		return initialReturnCode;
+	}
+
+	public path MessagesPath()
+	{
+		return messagesPath;
 	}
 
 	~hidden void printAboutText()
@@ -298,6 +410,11 @@ class CmdLine
 		output->WriteLine(
 		#include <Macaroni/AboutText.h>
 			);
+	}
+
+	public bool PrintTimes()
+	{
+		return printTimes;
 	}
 
 	~hidden void runLuaTests()
@@ -322,13 +439,23 @@ class CmdLine
 		OutputPtr output(console);
 		ContextPtr context(new Context("%ROOT%"));
 		Macaroni::Environment::Environment env(createAppPaths(), context,
-		                                       input, output);
-		if (!env.FindDefaultProject())
+		                                       input, output,
+		                                       showPaths);
+		if (!env.FindDefaultProject(projectFile))
 		{
-			output->ErrorLine("No project file found.");
+			if (!projectFile)
+			{
+				output->ErrorLine("No project file found.");
+			}
+			else
+			{
+				output->ErrorLine(str(boost::format(
+					"No project file found at %s.")
+					% projectFile.get()));
+			}
 			return false;
 		}
-		if (!env.RunDefaultProject() && !withRepl) {
+		if (!env.RunDefaultProject(projectFile) && !withRepl) {
 			return false;
 		}
 		if (withRepl) {

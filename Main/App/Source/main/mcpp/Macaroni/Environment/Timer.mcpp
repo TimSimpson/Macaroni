@@ -22,6 +22,7 @@ class Timer
 
     ~import Macaroni::Environment::Timer::Integer;
 
+    private static bool printTimes;
     private static bool useCrapTimer;
     private static double ticksPerMS;
 
@@ -47,6 +48,7 @@ class Timer
     /** Initializes the high frequency timer.  This must only be called once.*/
     public static void Init()
     {
+        printTimes = false;
         #ifdef MACARONI_COMPILE_TARGET_WINDOWS
           LARGE_INTEGER li; /* This is a weird data type... */
           if (!QueryPerformanceFrequency(&li))
@@ -101,5 +103,15 @@ class Timer
             return duration_cast<milliseconds>(now - initTime).count();
           #endif
       }
-      } // End block.
+    } // End block.
+
+    public static bool PrintTimes()
+    {
+        return printTimes;
+    }
+
+    public static void SetPrintTimes(bool value)
+    {
+        printTimes = value;
+    }
 };
