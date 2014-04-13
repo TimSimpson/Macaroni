@@ -33,6 +33,7 @@ else -- lua 5.1
     Source = Macaroni.Model.Source;
 end
 
+
 findFunctions = function(node)
     if (node == nil) then
         error("Node cannot be nil.", 2);
