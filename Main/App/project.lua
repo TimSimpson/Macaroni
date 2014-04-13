@@ -258,9 +258,9 @@ build = function()
 ]])
       local exePath = targetDir:NewPathForceSlash("exe/macaroni.exe")
       local testDir = newPath(src):NewPathForceSlash("../../test/lua")
-      local cmd = exePath.AbsolutePath .. " luaTests "
-                  .. testDir.AbsolutePath .. " --messagesPath "
-                  .. newPath(src):NewPathForceSlash("../resources").AbsolutePath
+      local cmd = exePath.AbsolutePath .. " --luaTests="
+                  .. testDir.AbsolutePath .. " --messagesPath="
+                  .. newPath(src):NewPathForceSlash("../resources/Messages.txt").AbsolutePath
       output:WriteLine(cmd)
       if (os.execute(cmd) ~= 0) then
           output:ErrorLine("Failing running tests!")

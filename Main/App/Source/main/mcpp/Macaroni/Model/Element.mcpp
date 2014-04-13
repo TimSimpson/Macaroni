@@ -21,11 +21,11 @@ typedef intrusive_ptr<Element> ElementPtr
 ;
 
 class Element
-	@LuaClass 
+	@LuaClass
 	[
 		LuaGlueClass = Macaroni::Model::ElementLuaMetaData,
 		ReferenceType = Macaroni::Model::ElementPtr,
-	]	
+	]
 {
 	friend Node;
 
@@ -33,13 +33,13 @@ class Element
 	private ReasonPtr reasonCreated;
 
 	protected Element(Node * node, const ReasonPtr reasonCreated)
-	:	node(nullptr), 
+	:	node(nullptr),
 		reasonCreated(reasonCreated)
 	{
 		node->setElement(this, reasonCreated);
-		MACARONI_ASSERT(node != nullptr, 
+		MACARONI_ASSERT(node != nullptr,
 			"Node must be initialized by base class.");
-		MACARONI_ASSERT(reasonCreated != false, 
+		MACARONI_ASSERT(reasonCreated != false,
 			"Reason created must be set by base class.");
 	}
 
@@ -56,7 +56,7 @@ class Element
 	public ~global ~friend void intrusive_ptr_release(Element * p)
 	{
 		intrusive_ptr_release(p->node);
-	}	
+	}
 
 	public NodePtr GetNode() const
 	{
@@ -71,27 +71,28 @@ class Element
 	/** Gets the adopted home of this Element, or just the parent. */
 	public Element * GetAdoptedParent() const
 	{
-		if (0 != node)
+		if (nullptr != node)
 		{
 			Node * const adoptedHome = node->adoptedHome;
-			if (0 != adoptedHome)
+			if (nullptr != adoptedHome)
 			{
 				return adoptedHome->element;
 			}
 			Node * const parentNode = node->getNode();
-			if (0 != parentNode)
+			if (nullptr != parentNode)
 			{
 				return parentNode->element;
 			}
 		}
+		return nullptr;
 	}
 
-	/** Finds the target which owns this Element. If no target owns this 
+	/** Finds the target which owns this Element. If no target owns this
 	 *  element, recursively checks all parents. */
 	public virtual TargetPtr GetOwner() const
 	{
 		Element * parent = this->GetAdoptedParent();
-		if (0 != parent)
+		if (nullptr != parent)
 		{
 			return parent->GetOwner();
 		}
@@ -101,10 +102,10 @@ class Element
 	/** Gets the parent of this Element's Element, or nullptr if nothing. */
 	public Element * GetParent() const
 	{
-		if (0 != node)
+		if (nullptr != node)
 		{
 			Node * parentNode = node->getNode();
-			if (0 != parentNode)
+			if (nullptr != parentNode)
 			{
 				return parentNode->element;
 			}
@@ -118,12 +119,12 @@ class Element
 
 	public virtual const char * GetTypeName() const = 0;
 
-	/** Returns true if this Elements's target is in the given target or a 
+	/** Returns true if this Elements's target is in the given target or a
 	 *  child of the given target. */
 	public virtual bool OwnedBy(TargetPtr target) const
 	{
 		Element * parent = this->GetAdoptedParent();
-		if (0 != parent)
+		if (nullptr != parent)
 		{
 			return parent->OwnedBy(target);
 		}
@@ -131,7 +132,7 @@ class Element
 	}
 
 	/** True if a cpp file is necessary to define this.
-	 *  For example, undefined functions (such as unimplemented copy 
+	 *  For example, undefined functions (such as unimplemented copy
 	 *  constructors) return false for this, as do most things besides
 	 *  functions, variables, and types which encapsulate them. */
 	public virtual bool RequiresCppFile() const
@@ -140,7 +141,7 @@ class Element
 	}
 
 	/** True if a h file is necessary to define this.
-	 *  For example, undefined functions (such as unimplemented copy 
+	 *  For example, undefined functions (such as unimplemented copy
 	 *  constructors) return false for this, as do most things besides
 	 *  functions, variables, and types which encapsulate them. */
 	public virtual bool RequiresHFile() const
@@ -163,5 +164,5 @@ class Element
 			Target::SwitchOwner(*this, *owner, *target);
 		}
 	}
-	
+
 };

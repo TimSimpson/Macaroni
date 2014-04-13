@@ -67,7 +67,7 @@
 				Macaroni::Model::Project::TargetLuaMetaData::GetInstance(L, 2);
 			bool result = element->OwnedBy(target);
 			lua_pushboolean(L, result ? 1 : 0);
-			return 1;	
+			return 1;
 		}
 		else if (LibraryLuaMetaData::IsType(L, 2))
 		{
@@ -75,7 +75,7 @@
 			// see if it was equal to the target Library.
 			// Now there is the superior "OwnedBy" method that accepts a target,
 			// not an old-style Library, but to keep compatability with the
-			// manifest system this function can be given a Library in 
+			// manifest system this function can be given a Library in
 			// Lua Glue and will check if its equal to the Library owned by the
 			// element, if any.
 			LibraryPtr lib = LibraryLuaMetaData::GetInstance(L, 2);
@@ -95,13 +95,13 @@
 			luaL_error(L, "Expected a Target or (old-style) Library for "
 				          "argument 2.");
 		}
-		
-		LUA_GLUE_CATCH
-	}	
 
-	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr, 
+		LUA_GLUE_CATCH
+	}
+
+	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr,
 									  const std::string & index)
-	{		
+	{
 		LUA_GLUE_TRY
 
 		if (index == "Access")
@@ -170,7 +170,7 @@
 			}
 			return 1;
 		}
-			
+
 		LibraryElement * lm;
 		if ((lm = dynamic_cast<LibraryElement *>(ptr.get())) != nullptr)
 		{
@@ -246,17 +246,17 @@
 			}
 		}
 
-		lua_pushnil(L);			
+		lua_pushnil(L);
 		return 1;
 
 		LUA_GLUE_CATCH
 	}
-	
+
 	static int switchOwner(lua_State * L)
 	{
 		LUA_GLUE_TRY
 			ElementPtr element = getInstance(L);
-		Macaroni::Model::Project::TargetPtr newTarget = 
+		Macaroni::Model::Project::TargetPtr newTarget =
 			Macaroni::Model::Project::TargetLuaMetaData::GetInstance(L, 2);
 		element->SwitchOwner(newTarget);
 		return 0;
@@ -270,13 +270,13 @@
 		ss << "[";
 		ss << ptr->GetTypeName();
 		ss << "]";
-		ss << ptr->GetNode()->GetFullName();			
+		ss << ptr->GetNode()->GetFullName();
 		lua_pushstring(L, ss.str().c_str());
 		return 1;
-	}	
+	}
 
 	#define LUAGLUE_ADDITIONALMETATABLEMETHODS \
-		{"__tostring", LUAGLUE_HELPERCLASS::__tostring}, 
+		{"__tostring", LUAGLUE_HELPERCLASS::__tostring},
 
 	#define LUAGLUE_ADDITIONALTABLEMETHODS \
 		/*{"LuaCreate", LUAGLUE_HELPERCLASS::LuaCreate},*/

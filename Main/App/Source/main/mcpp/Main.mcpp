@@ -110,11 +110,19 @@ int run(CmdLine & cmd)
 		{
 			std::cerr << "An error occurred.\n" << std::endl;
 			std::cerr << ex.message()  << std::endl;
+			returnCode = 1;
 		}
 		catch(std::exception & ex)
 		{
 			std::cerr << "An error occurred.\n" << std::endl;
 			std::cerr << ex.what()  << std::endl;
+			returnCode = 1;
+		}
+		catch(...)
+		{
+			std::cerr << "A major error occurred running "
+			             "Macaroni! " << std::endl;
+			returnCode = 1;
 		}
 	}
 	const auto endTime = Timer::GetTime();

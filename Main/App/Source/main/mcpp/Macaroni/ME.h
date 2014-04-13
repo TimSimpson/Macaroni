@@ -83,9 +83,9 @@ void ThrowMacaroniException(const char * file, int line, const char * message);
 #define MACARONI_CHECK(a, b) {if (!(a)){ Macaroni::ThrowMacaroniException(__FILE__, __LINE__, (b)); } }
 
 #ifndef DEBUGGING_OFF
-#define MACARONI_ASSERT(a, b) {if (!(a)){ Macaroni::ThrowMacaroniException(__FILE__, __LINE__, (b)); } }
+    #define MACARONI_ASSERT(a, b) {if (!(a)){ Macaroni::ThrowMacaroniException(__FILE__, __LINE__, (b)); } }
 #else
-#define MACARONI_ASSERT(a, b) { /* a, b */ }
+    #define MACARONI_ASSERT(a, b) { /* a, b */ }
 #endif
 
 #endif
