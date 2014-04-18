@@ -1,0 +1,189 @@
+<~lua title="Motivation" ~>
+<~#include <header.mdoc>~>
+
+Motivation
+**********
+
+Avoiding Duplication of Information (`DRY`_)
+--------------------------------------------
+
+.. _`DRY`: http://en.wikipedia.org/wiki/Don't_repeat_yourself
+
+Writing C++ is an N-step process, where N is rarely less than two.
+
+In most cases, you start by writing a header file along with an implementation file. You may need to write a host of other files after this, which redefine your classes so that they can be wrapped by other programs or function properly as DLLs. Finally you'll have to specify everything again for a build script or two.
+
+
+
+
+Macaroni simplifies this process by creating a new dialect of C++ which resembles C# and Java and does not need header files. Instead, you write your static interface along with the definition in the same file, and Macaroni generates the header and implementation unit files for you.
+
+
+
+Example
+^^^^^^^
+
+Before is a Macaroni code file named "Point.mcpp" which defines a simple Point
+class.
+
+
+
+
+<~lua
+showFile("Macaroni.Examples", "Hello", "1.0.0.0", "source/Point.mcpp");
+~>
+
+
+Macaroni reads the file above and uses it to generate the following files:
+
+
+*Hello/Geometry/Point.h:*
+
+<~lua
+showFile("Macaroni.Examples", "Hello", "1.0.0.0", "target/Hello/Geometry/Point.h");
+~>
+
+*Hello/Geometry/Point.cpp:*
+
+<~lua
+showFile("Macaroni.Examples", "Hello", "1.0.0.0", "target/Hello/Geometry/Point.cpp");
+~>
+
+In many ways it solves the same problem being tackled by the
+<a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2005/n1778.pdf">ongoing work to
+provide for "modules" in C++</a> which would also eliminate the need for header files. However, it goes a bit further than that.
+
+
+References to Short Names
+-------------------------
+
+
+Code written in Macaroni can feel free to
+refer to types or functions in nested scopes using their short names,
+and avoid polutting generated header files with using statements which
+destroy the whole point of namespaces. That's because Macaroni inserts allows you to write code such as "~import std::ostream" and then use it
+as simply "ostream." However, the generated header files use the fully qualified
+name "std::ostream" to avoid polutting the root namespace.
+
+
+Easy creation of dynamic libraries on Windows
+---------------------------------------------
+
+Macaroni generated header files can also be optionally compiled in Windows dynamic libraries without any fuss thanks to the insertion of the dllimport and dllexport attributes (it piggybacks off Boost Config to do this while retaining cross-platform compatibility). If you haven't had the joy of creating Windows DLLs before, what this means is a large part of the problem goes away, hidden behind a hopefully globally unique (and thus non-namespace polluting) macro.
+
+
+Every library in Macaroni gets a header file to store such macros. Below is one
+such file, which you might have noticed being #include'd by the "Point" class
+above.
+
+
+<~lua
+showFile("Macaroni.Examples", "Hello", "1.0.0.0", "target/Config_HelloApp.h");
+~>
+
+Easily hide functions for quicker compile times
+-----------------------------------------------
+
+
+Macaroni allows for "hidden" functions to be defined in classes. These functions are only visible inside a class's own compilation unit. How's that possible? Because Macaroni doesn't include the same class definition in a class's implementation file, but instead generates code that is equivalent to what's seen in the class's header except for the presence of "hidden" functions (defining
+the same header file twice does not increase compile times, and because
+Macaroni controls both static interfaces does not lead to bugs either). As a result, you can add minor functions to class's without having to recompile all units which include the class's header file.
+
+
+Example:
+
+<~lua
+showFile("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", project.Version,
+         "Source/Something.mcpp");
+~>
+
+Header file (notice the omission of SetX and SetY):
+
+<~lua
+showFile("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", project.Version,
+         "target/Something.h");
+~>
+
+Implementation file (notice the "internal" header has SetX and SetY):
+
+<~lua
+showFile("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", project.Version,
+         "target/Something.cpp");
+~>
+
+Keep metadata next to code
+--------------------------
+
+
+Additionally, Macaroni allows for annotations which enable you to put metadata on code which can then be interpreted by Macaroni's code generators. For example,
+there is a plugin which generates Lua glue, following the specifications of
+the annotations. This plugin is used extensively on Macaroni itself.
+
+
+*Example:*
+
+Macaroni Source File:
+
+<~lua
+showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", project.Version,
+         "Source/PoloName.mcpp");
+~>
+Generated Header File:
+
+<~lua
+showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", project.Version,
+         "GeneratedSource/Macaroni/Tests/Lua/PoloName.h");
+~>
+Generated Impl File:
+
+<~lua
+showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", project.Version,
+         "GeneratedSource/Macaroni/Tests/Lua/PoloName.cpp");
+~>
+Generated Lua Glue Class Header File:
+
+<~lua
+showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", project.Version,
+         "GeneratedSource/Macaroni/Tests/Lua/PoloNameLuaMetaData.h");
+~>
+Generated Lua Glue Class Impl File:
+
+<~lua
+showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", project.Version,
+         "GeneratedSource/Macaroni/Tests/Lua/PoloNameLuaMetaData.cpp");
+~>
+
+Generation of Build Scripts
+---------------------------
+
+As Macaroni knows what a project looks like, it also can be used to generate build scripts.
+
+
+Macaroni Project File:
+
+<~lua
+showFile("Macaroni.Examples", "Hello", "1.0.0.0", "project.lua");
+~>
+Generated Jamroot.jam file, used by Boost Build
+
+<~lua
+showFile("Macaroni.Examples", "Hello", "1.0.0.0", "target/jamroot.jam");
+~>
+
+Easy extensibility with Lua plugins
+-----------------------------------
+
+Macaroni itself does all this by using a native code parser, which generates a decadent in-memory model of your code, which can then be traversed in all sorts of ways using Lua code plugins.  I'm not equipped to judge how difficult it would be to write these plugins, but I think that relative to the payoff or other similar systems its fairly trivial (it'd be better with documentation).
+
+
+
+My goal with Macaroni is to make it easier to write and manage large batches of C++ code. For example, Macaroni can be driven by project files which allow for Ant or Maven style code generation and can even be used to build your project (Macaroni also can be tucked into other build systems). Currently, Macaroni supports Boost Build, which in my experience has the best knowledge of compiler idiosyncrasies. By piggybacking off Boost Build, its possibly to easily create libraries, each with their own set of unit tests and "driver" exes, and reuse them simply from other projects thanks to a Maven-inspired local repo.
+
+
+
+My wish is for C++ to become fun again and hopefully Macaroni will enable amateur's learning the language to quickly spin up large projects and more easily and correctly reuse their code.
+
+
+
+<~lua local commentId='motivation'; ~>
+<~#include <footer.mdoc> ~>

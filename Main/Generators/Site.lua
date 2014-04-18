@@ -39,12 +39,15 @@ local notNull = function(name, value)
 	end
 end
 
-function Build(project, sources, outputPath, output)
+function Build(project, sources, outputPath, output,
+	           extension, outputSubPath)
 	log.Init("Site");
-	local sitePath = outputPath:NewPath("/www/site"):CreateWithCurrentAsRoot();
+	local outputSubPath = outputSubPath or "/www/site"
+	local sitePath = outputPath:NewPath(outputSubPath):CreateWithCurrentAsRoot();
 	log:Write("SITEPATH = " .. sitePath.AbsolutePath);
 	sitePath:CreateDirectory();
-	local gen = SiteGenerator.new(sitePath, project, output);
+	local gen = SiteGenerator.new(sitePath, project, output,
+		extension);
 	log:Write("SITEPATH = " .. gen.outputPath.AbsolutePath);
 	for i = 1, #sources do
 		local s = sources[i];
@@ -79,7 +82,8 @@ function GetMethod(name)
                 local outputPath = args.outputPath;
                 local output = args.output;
                 context = args.context
-                Build(projectVersion, sources, outputPath, output);
+                Build(projectVersion, sources, outputPath, output,
+                	  args.extension, args.outputSubPath);
             end
         }
     end
@@ -101,13 +105,14 @@ end
 
 SiteGenerator =
 {
-	new = function(outputPath, project, output)
+	new = function(outputPath, project, output, extension)
 		check(outputPath ~= nil, 'Argument 1, "outputPath", must be specified.');
 		check(project ~= nil, 'Argument 2, "project", must be specified.');
         local self = {}
         self.outputPath = outputPath;
         self.output = output;
         self.project = project;
+        self.extension = extension or "html"
         setmetatable(self, {["__index"] = SiteGenerator});
         return self;
     end,
@@ -116,7 +121,7 @@ SiteGenerator =
 		local dir = path.ParentPath;
 		local oldFileName = path.FileName;
 		local newFileName = oldFileName:sub(1, #oldFileName - 4);
-		newFileName = newFileName .. 'html';
+		newFileName = newFileName .. self.extension;
 		return dir:NewPathForceSlash(newFileName);
 	end,
 
@@ -181,7 +186,8 @@ SiteGenerator =
 		return stringEndsWith(str, ".css")
 		    or stringEndsWith(str, ".jpg")
 			or stringEndsWith(str, ".gif")
-			or stringEndsWith(str, ".png");
+			or stringEndsWith(str, ".png")
+			or stringEndsWith(str, ".py");
 	end,
 
 }

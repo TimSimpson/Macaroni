@@ -147,14 +147,25 @@ end
 function buildWebSite()
     loadWebSiteExamples();
 
+    local target=newPath("target")
     local site = plugins:Get("Site")
     site:Run("build", {
         project=project,
-        outputPath=newPath("target"),
-        sources={newPath("source/www")},
+        outputPath=target,
+        sources={newPath("source/docs")},
         output=output,
-        context=context
+        context=context,
+        extension="rst",
+        outputSubPath="/docs",
     });
+
+
+    target:NewPathForceSlash("site")
+    os.execute("sphinx-build  -b html "
+        .. target:NewPathForceSlash("docs").AbsolutePath .. " "
+        .. target:NewPathForceSlash("site").AbsolutePath
+    )
+
 end
 
 function clean()
@@ -184,5 +195,6 @@ end
 
 function install()
     build()
+    sinstall(project, filePath("./"));
     print("Installed!")
 end

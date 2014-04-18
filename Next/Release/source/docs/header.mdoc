@@ -1,0 +1,21 @@
+
+<~lua
+idIndex = 0
+function showFile(g, n, v, f)
+    local io = require "io"
+
+    local pointMcpp = Site.pathToProjectFile(
+        {Group=g, Name=n, Version=v},
+        f);
+
+    writer:WriteLine(".. code-block:: c++")
+    writer:WriteLine("");
+    for line in io.lines(pointMcpp.AbsolutePath) do
+        writer:WriteLine("    " .. line)
+    end
+    writer:WriteLine("");
+end
+~>
+
+
+
