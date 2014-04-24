@@ -65,3 +65,9 @@ exe macaroni_p  # In linux it can't create the file "macaroni" (without the p)
 		<target-os>linux:<define>MACARONI_COMPILE_TARGET_LINUX
 		<target-os>windows:<define>MACARONI_COMPILE_TARGET_WINDOWS
 	;
+
+
+install exe
+	: 	macaroni_p
+    : 	<install-dependencies>on <install-type>EXE
+        <install-type>LIB ;

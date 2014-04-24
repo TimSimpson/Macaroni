@@ -1,7 +1,7 @@
 require "os"
 require "Macaroni.IO.GeneratedFileWriter";
 require "Macaroni.Model.Library";
-require "Macaroni.IO.Path";
+local Path = require "Macaroni.IO.Path";
 
 --------------------------------------------------------------------------------
 -- Plugins
@@ -38,7 +38,7 @@ built = false
 installed = false
 
 function clean()
-    local targetDir = Macaroni.IO.Path.New(targetDirectory)
+    local targetDir = Path.New(targetDirectory)
     targetDir:ClearDirectoryContents();
 end
 
@@ -115,16 +115,16 @@ function generate()
 
 
   local lpegSource = getLpegIncludePath()
-  copyCFilesToCppFiles(Macaroni.IO.Path.New(lpegSource),
-                       Macaroni.IO.Path.New(targetDirectory),
+  copyCFilesToCppFiles(Path.New(lpegSource),
+                       Path.New(targetDirectory),
                        ".cpp");
 
   local luaFileSystemSource = getLuaFileSystemSource()
-  copyCFilesToCppFiles(Macaroni.IO.Path.New(luaFileSystemSource),
-                       Macaroni.IO.Path.New(targetDirectory),
+  copyCFilesToCppFiles(Path.New(luaFileSystemSource),
+                       Path.New(targetDirectory),
                        ".c");
 
-  local cppPath = Macaroni.IO.Path.New(targetDirectory);
+  local cppPath = Path.New(targetDirectory);
   lib:Append{headers=pathList{targetDirectory},
              sources=pathList{targetDirectory},
              dependencies={},
