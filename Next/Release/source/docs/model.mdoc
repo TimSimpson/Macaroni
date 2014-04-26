@@ -21,13 +21,13 @@ In a Python or Java program which has class A and class B defined in different f
 
 To paraphrase Boromir, one does not simply "import" a class or function in C++. Assuming the analogous situation exists there, with A and B existing in two pairs of header and implementation files, class B must first use the #include statement to parse class A's class definition. This introduces the requirement that A must have a header file and this file name must be known to the code in class B.  If class A is defined in one or more namespaces, then the definition of B, or it's header file, will need to also fully qualify A's name in order to avoid polluting the global namespace with a using statement.
 
-The use of the #import directive is avoided if class A and B are defined in the same file, but much like in other languages in many cases that can be considered a bad style. Additionally there's no need to qualify A's name if A and B reside in the same namespace, though this is also not always possible.
+The use of the #import directive is avoided if class A and B are defined in the same file, but much like in other languages in many cases that can be considered a bad style and does not scale. Additionally there's no need to qualify A's name if A and B reside in the same namespace, though this is also not always possible.
 
 Physical design remains important in C++ even today due to it's lack of a dedicated language mechanism for modules. In Python for instance a line of code such as "from packagename.module import A" will make the language search a directory named "packagename" for a file named "module" which will then be parsed. The language enforces that packages reside in directories of the same name and modules reside in files of the same name which means it mandates a certain physical design for any logical construct which eliminates any confusion. However C++, due to its roots in C and the fact it must support garguntian amounts of legacy code gives programmers complete control over the physical design, allowing classes and namespaces to be defined in any files at all which can be reached from the list of include directories passed to the compiler (included files need not even end with .h or .hpp).
 
 Additionally the requirement to write header files for any function which will be used outside of a single translation unit (if you aren't familar with that word, substitute it with .cpp file for now) puts an onus on library authors to duplicate information for even simple function and classes and can lead to subtle errors if the function declarations and definitions disagree.
 
-While C++'s old school file based modularity system does allow for flexibility for the most part it confuses newcomers and leads to a tremendous amount of extra typing that is usually not worth it. It also can lead lazy coders to write programs with an unflexible physical layout, such as programs where even non-template classes are defined entirely within header files.
+While C++'s old school file based modularity system does allow for flexibility for the most part it confuses newcomers and leads to a tremendous amount of extra typing that is usually not worth it. It also can lead lazy coders to write programs with an unflexible physical layout, such as programs where even non-template classes and functions are defined entirely within header files.
 
 Macaroni attempts to solve some of the frustration arising from this situation by creating a special dialect of C++ which introduces an ~import keyword and other nicities and allows coders to ignore the physical design of a C++ program as they would in other languages, allowing coders to focus only on logical design. Macaroni then generates traditional C++ code with a flexible physical design. If desired,Macaroni's project system can be used to tweak the physical design of the generated source code.
 
@@ -39,7 +39,7 @@ Macaroni reasons about the physical design of your source code in something call
 
 When Macaroni starts up, it looks for a file called "project.lua" in the root of the current directory which it then runs. This file is actually a script in the Lua programming language which is embedded in Macaroni.
 
-This script is meant to describe the state of Project Space to Macaroni. You can think of Project Space as a model outlining the physical design of a project or code repo.
+This script is meant to describe the state of Project Space to Macaroni. You can think the script itself as a semi-declarative model outlining the physical design of a project or code repo.
 
 The simplest valid Macaroni project.lua file must define a global variable named "project", which technically has a type of "ProjectVersion":
 
@@ -51,7 +51,7 @@ The simplest valid Macaroni project.lua file must define a global variable named
 
 The above is a valid Macaroni project file. Of course, it doesn't do anything, but it won't give you an error if you were to run "macaroni" in its directory.
 
-You can start an interactive REPL in Macaroni if you want to explore things in the Macaroni Model by adding the command line argument "--repl" to macaroni. Doing that for the program above, you can print out the project variable:
+You can start an interactive REPL in Macaroni if you want to explore things in the Macaroni Model by adding the command line argument "--repl" to Macaroni. If you run "macaroni --repl" in the same directory as project.lua above, you can print out the project variable:
 
 .. code-block:: lua
 
@@ -79,7 +79,7 @@ In the repl we can see that lib gets added as a target:
 
 .. note::
 
-    Reminder: In Lua, arrays are indexed by one.
+    In Lua, arrays are indexed by one.
 
 
 Libraries are actually a subclass of Targets. Pretty much everything under a Project in project space is a target of various types, such as units, exes, and libraries.
@@ -211,7 +211,7 @@ The moment Macaroni sees "class" it finds the Node "myproject::Thing" from Node 
 
 Before then though, the Node "myproject::Thing" is referred to as a hollow node.
 
-The reason thing works is that the parser just consumes information and doesn't care about generating C++ code or anything else.
+The reason Macaroni accepts "Thing" before it knows it's type is because the parser just consumes information and doesn't care about generating C++ code or anything else.
 
 That happens later, when generator plugins begin to the Macaroni Model's NodeSpace for elements to generate. The main plugin which does this is called (aptly enough) "Cpp" and was used in the Project Space tutorial above.
 
@@ -225,7 +225,7 @@ Let's say you have Macaroni code which does this:
         }
     }
 
-This would fail the parse phase as the Macaroni parser would be unable to determine what "OtherThing" was, since the node "std::string" wasn't even declared. Thankfully you'd get a nice error message from the parser telling you it didn't know what "std::string" is.
+This would fail the parse phase as the Macaroni parser would be unable to determine what "std::string" was, since the node "std::string" wasn't even declared. Thankfully you'd get a nice error message from the parser telling you it didn't know what "std::string" is.
 
 This second version would get farther:
 
@@ -239,9 +239,9 @@ This second version would get farther:
         }
     }
 
-However, it would fail during the code generation phase when the Cpp plugin was called, with the error message that std::string is hollow.
+However, it would fail later when (for most projects) the Cpp plugin was called. The Cpp plugin would need to know exactly what class is used by "name" so in it could include the proper #include statements or forward declarations in the generated source it's writing. When it couldn't find that, it would return an error message that std::string is a "hollow node."
 
-This wouldn't be the case if you add another file (possibly called "Dependencies.mcpp") with the following:
+This wouldn't be the case if you add another file (by convention called "Dependencies.mcpp") with the following:
 
 .. code-block:: c++
 
@@ -249,10 +249,12 @@ This wouldn't be the case if you add another file (possibly called "Dependencies
 
 The keyword "~hfile" tells Macaroni that this Node is a type defined outside of Macaroni in pre-existing C++ source code. This means when Macaroni generates the Console class's header file it will know to insert the text "#include <string>", and will also add "using std::string;" to the cpp file.
 
-However, this version will get an error from the real C++ compiler, as "cout" (which is intended to be std::cout, from the header file <iostream>) is not being ~imported. Thankfully though this error message should be relatively obvious and will even point to the Macaroni source file and not the generated source, thanks to the wonderful #line directive.
+However, this version will get an error from the real C++ compiler, which will complain that it doesn't know what "cout" is. "cout" is intended to be the standard output stream "std::cout", which comes from the header file <iostream>. The solution is to define the class std::cout in Macaroni as "class std::cout { ~hfile=<iostream> };" along side std::string, and then also add "~import std::cout" to the top of the Macaroni file containing the definition of class Thing. However, if none of that is done Macaroni won't inspect the code block and magically deduce the problem.
 
-Macaroni is not a C++ Compiler (and that's good!)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Thankfully this shouldn't matter at the C++ compiler's error message should be obvious and will even point to the Macaroni source file and not the generated source, thanks to the fact that all C++ code generated by Macaroni contains the wonderful #line directive.
+
+Macaroni is not a C++ Compiler (and that's ok!)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The last section brings up two important points:
 
@@ -263,9 +265,9 @@ Unlike other meta languages such as Coffee Script, Macaroni isn't defining new C
 
 In fact, the Macaroni parser is so simple it doesn't even look inside functions, instead just scooping up the block between the two curly braces and gleefully generating C++ code for it. That's ok though because it doesn't need to, since that's what real C++ compilers are for.
 
-Additionally, normal C++ files can be easily mixed with Macaroni files in any Macaroni project, as Project Space considers original C++ code equally. The Macaroni parser has a ~block keyword will allows you to stick a block of pure C++ code onto a class that is otherwise generated by Macaroni which can work as a get out of jail free card if some feature your C++ program really needs is not yet available in Macaroni.
+Additionally, normal C++ files can be easily mixed with Macaroni files in any Macaroni project, as Project Space considers original C++ code equally with the translation units it generates. The Macaroni parser also has a ~block keyword will allows you to stick a block of pure C++ code onto a class that is otherwise generated by Macaroni which can work as a get out of jail free card if some feature your C++ program really needs is not yet available in Macaroni.
 
-Finally, more modern C++ programmers might have looked at this and wondered what the point was, since they write all their template code in headers only anyway. Since template code is inherently tied to the physical design of C++ in a way non-template code isn't, giving Macaroni first class support for template classes isn't on the top of the priority list, though it is planned. For template functions on classes the ~block keyword can be used today, though better support is planned for the future.
+More modern C++ programmers might have looked at this and wondered what the point was, since template heavy code may be mostly in headers anyway. This is a valid point- pure template code won't benefit much from Macaroni's ability to generate .h and .cpp files, though code which uses templates will. In fact, it currently is not possible to define templated classes or functions in Macaroni without using the ~block statement (which is a bit of a cheat), though support is planned for the future.
 
 
 
@@ -278,7 +280,7 @@ Macaroni Project Space offers support for programs using the Exe target, which c
 
 However it is also possible to define a target from Macaroni code itself.
 
-The follow example, put into any .mcpp file, will create a simple hello world program (note: for the purposes of this example, std::cout is already defined):
+The following example, put into any .mcpp file, will create a simple hello world program (note: for the purposes of this example, pretend std::cout is already defined in a Dependencies.mcpp file):
 
 
 .. code-block:: c++

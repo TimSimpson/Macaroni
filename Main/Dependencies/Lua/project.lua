@@ -1,7 +1,7 @@
 require "os"
 require "Macaroni.IO.GeneratedFileWriter";
 require "Macaroni.Model.Library";
-require "Macaroni.IO.Path";
+local Path = require "Macaroni.IO.Path";
 
 --------------------------------------------------------------------------------
 -- Plugins
@@ -84,8 +84,8 @@ function generate()
   -- properties file to the local CPP directory.
   -- In the process it renames the files to use the CPP extensions which
   -- makes it compile as C++ automatically in VC.
-  local sourceDirectoryPath = Macaroni.IO.Path.New(luaSource)
-  local targetDirectoryPath = Macaroni.IO.Path.New(targetDirectory)
+  local sourceDirectoryPath = Path.New(luaSource)
+  local targetDirectoryPath = Path.New(targetDirectory)
   copyCFilesToCppFiles(sourceDirectoryPath, targetDirectoryPath);
   local originalLuaConf = targetDirectoryPath:NewPathForceSlash("luaconf.h")
   originalLuaConf:RenameRelative("luaconfOriginal.h")
@@ -101,7 +101,7 @@ function generate()
   writer:Close()
 
 
-  local cppPath = Macaroni.IO.Path.New(targetDirectory);
+  local cppPath = Path.New(targetDirectory);
   -- Add extra library information. Because the files didn't exist we couldn't
   -- do this above, the way we normally would.
   -- Avoid the source files used as drivers.
