@@ -15,6 +15,19 @@ function showFile(g, n, v, f)
     end
     writer:WriteLine("");
 end
+
+function dumpFile(g, n, v, f)
+    local io = require "io"
+
+    local pointMcpp = Site.pathToProjectFile(
+        {Group=g, Name=n, Version=v},
+        f);
+
+    for line in io.lines(pointMcpp.AbsolutePath) do
+        writer:WriteLine(line)
+    end
+    writer:WriteLine("");
+end
 ~>
 
 

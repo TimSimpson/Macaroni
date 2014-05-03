@@ -55,6 +55,7 @@ class CmdLine
 	private bool clean;
 	private Console & console;
 	private bool debugMode;
+	private bool document;
 	private bool endPrompt;
 	private bool generate;
 	private bool generateLess;
@@ -121,6 +122,7 @@ class CmdLine
 		clean(false),
 		console(console),
 		debugMode(false),
+		document(false),
 		endPrompt(false),
 		generate(false),
 		generateLess(false),
@@ -159,6 +161,9 @@ class CmdLine
 ("debug",
 	po::bool_switch(&debugMode),
 	"Do not catch internal exceptions.")
+("document,d",
+	po::bool_switch(&document),
+	"Generate documentation.")
 ("endPrompt",
 	po::bool_switch(&endPrompt),
 	"If set, Macaroni will wait for user input before ending.")
@@ -485,6 +490,13 @@ class CmdLine
 			if (build)
 			{
 				if (!env.RunCommand("build();"))
+				{
+					return false;
+				}
+			}
+			if (document)
+			{
+				if (!env.RunCommand("document();"))
 				{
 					return false;
 				}

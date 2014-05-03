@@ -105,10 +105,16 @@ function SimpleProject(args)
     local porg = plugins:Get("Porg")
     local cpp = plugins:Get("Cpp")
     local interface = plugins:Get("InterfaceMh")
-    local html = plugins:Get("HtmlView")
+    local html = nil;
+    if args.htmlView then
+        html = plugins:Get("HtmlView")
+    end
     local bjam = plugins:Get("BoostBuild2")
     local cmake = plugins:Get("CMake")
-
+    local rst = nil;
+    if args.docs then
+        rst = plugins:Get("Rst")
+    end
     ---------------------------------------------------------------------------
     -- Helper functions.
     ---------------------------------------------------------------------------
@@ -223,6 +229,7 @@ function SimpleProject(args)
     local generatedLess = false
     local generated = false
     local built = false
+    local documented = false
     local installed = false
     local targetDir = newPath(target)
     -- Bind local vars in case the global changes.
@@ -272,7 +279,6 @@ function SimpleProject(args)
               output = output
           })
       end)
-      html:Run("Generate", { target=lLib, path=outputPath})
       local bjamFlags = args.bjamFlags or {}
       bjamFlags.jamroot = outputPath:NewPath("/jamroot.jam")
       bjamFlags.projectVersion = lProject;
@@ -306,6 +312,26 @@ function SimpleProject(args)
       built = true
     end
 
+    local lDocument = function()
+        if documented then return end
+        lBuild()
+        if args.htmlView then
+            html:Run("Generate", { target=lLib, path=outputPath})
+        end
+        if args.docs then
+            rst:Run("Build", {
+                project=lProject,
+                outputPath=targetDir,
+                -- Important: the root path for every file parsed will be
+                -- relative to the project's base, which is more useful for
+                -- including files or snippets.
+                sources={newPath(args.docs)},
+                output=output
+        })
+
+        end
+    end
+
     local lInstall = function()
         if installed then return end
         lBuild()
@@ -316,6 +342,7 @@ function SimpleProject(args)
     generateLess = lGenerateLess
     generate = lGenerate
     build = lBuild
+    document = lDocument
     install = lInstall
     project = lProject
     lib = lLib
@@ -384,6 +411,7 @@ function ParentProject(args)
     local generated = false
     local built = false
     local installed = false
+    local doct = false
 
     function clean()
         for_each_child("clean", true)
@@ -397,6 +425,11 @@ function ParentProject(args)
     function build()
         if built then return end
         for_each_child("build", false)
+    end
+
+    function document()
+        if doct then return end
+        for_each_child("document", false)
     end
 
     function install()

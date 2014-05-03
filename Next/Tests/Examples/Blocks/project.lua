@@ -1,12 +1,14 @@
 import("Macaroni", "ProjectTemplates", "1")
 require "SimpleProject"
 
+
 SimpleProject{
   group="Macaroni.Examples",
   project="Blocks",
   version="1.0.0.0",
   libShortName = "ExampleBlocks",
   src="src",
+  docs="docs",
   target="target",
   dependencies = {
     load("Macaroni", "CppStd", "2003"):Target("lib"),

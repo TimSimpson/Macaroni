@@ -145,7 +145,7 @@ class MDocParser
 			{
 				return true;
 			}
-			else if (includeFile())
+			else if (includeOrDumpFile())
 			{
 				return true;
 			}
@@ -173,19 +173,61 @@ class MDocParser
 		return includeFilePath;
 	}
 
-	private bool includeFile()
+	~hidden void getFileDetails(PathPtr & includeFilePath,
+							    std::string & newPrefix)
+	{
+		itr.ConsumeWhitespace();
+		if (!(includeRelativeLocal(includeFilePath, newPrefix)
+			  || includeRelativeAbs(includeFilePath, newPrefix)))
+		{
+			std::stringstream msg;
+			msg << "Unexpected character at ";
+			SourcePtr src = itr.GetSource();
+			msg << src->ToString();
+			msg << ".  Expected '<' or '\"'.";
+			throw Macaroni::StringException(msg.str().c_str());
+		}
+	}
+
+	~hidden bool includeFile()
 	{
 		if (itr.ConsumeWord("include"))
 		{
-			itr.ConsumeWhitespace();
-			if (!(includeRelativeLocal() || includeRelativeAbs()))
+			PathPtr includeFilePath;
+			std::string newPrefix;
+			getFileDetails(includeFilePath, newPrefix);
+			MDocParser::Parse(L, newPrefix, includeFilePath, writer);
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	~hidden bool dumpFile(bool indent=false)
+	{
+		if (itr.ConsumeWord(indent ? "dumpi" : "dump"))
+		{
+			PathPtr includeFilePath;
+			std::string newPrefix;
+			getFileDetails(includeFilePath, newPrefix);
+			std::ifstream file(includeFilePath->GetAbsolutePath());
+			if (!file)
 			{
 				std::stringstream msg;
-				msg << "Unexpected character at ";
-				SourcePtr src = itr.GetSource();
-				msg << src->ToString();
-				msg << ".  Expected '<' or '\"'.";
+				msg << "Could not load file: "
+				    << includeFilePath->GetAbsolutePath();
 				throw Macaroni::StringException(msg.str().c_str());
+			}
+			std::string line;
+			while(std::getline(file, line))
+			{
+				if (indent)
+				{
+					writer->Write("    ");
+				}
+				writer->WriteLine(line);
 			}
 			return true;
 		}
@@ -193,6 +235,16 @@ class MDocParser
 		{
 			return false;
 		}
+	}
+
+	~hidden bool dumpIndent()
+	{
+		return dumpFile(true);
+	}
+
+	private bool includeOrDumpFile()
+	{
+		return includeFile() || dumpIndent() || dumpFile();
 	}
 
 	private bool includeFileWith(char startsWith, char endsWith,
@@ -245,31 +297,31 @@ class MDocParser
 		return rtn;
 	}
 
-	private bool includeRelativeAbs()
+	private bool includeRelativeAbs(PathPtr & includeFilePath,
+		                            std::string & newPrefix)
 	{
 		string file;
 		if (!includeFileWith('<', '>', file))
 		{
 			return false;
 		}
-		PathPtr includeFilePath = findIncludeFilePathRoot(file);
+		includeFilePath = findIncludeFilePathRoot(file);
 		PathPtr includeDir = includeFilePath->GetParentPath();
-		std::string newPrefix = findNewPrefix(includeDir);
-		MDocParser::Parse(L, newPrefix, includeFilePath, writer);
+		newPrefix = findNewPrefix(includeDir);
 		return true;
 	}
 
-	private bool includeRelativeLocal()
+	private bool includeRelativeLocal(PathPtr & includeFilePath,
+									  std::string & newPrefix)
 	{
 		string file;
 		if (!includeFileWith('"', '"', file))
 		{
 			return false;
 		}
-		PathPtr includeFilePath = findIncludeFilePathLocal(file);
+		includeFilePath = findIncludeFilePathLocal(file);
 		PathPtr includeDir = includeFilePath->GetParentPath();
-		std::string newPrefix = findNewPrefix(includeDir);
-		MDocParser::Parse(L, newPrefix, includeFilePath, writer);
+		newPrefix = findNewPrefix(includeDir);
 		return true;
 	}
 

@@ -1,0 +1,12 @@
+~unit Main type=exe ;
+
+~import std::cout;
+~import std::endl;
+
+~block "cpp":=
+
+int main()
+{
+    cout << "Hello world." << endl;
+}
+
