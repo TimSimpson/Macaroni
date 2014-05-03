@@ -16,7 +16,7 @@
 #ifndef MACARONI_MODEL_CPP_CONSTRUCTOR_CPP
 #define MACARONI_MODEL_CPP_CONSTRUCTOR_CPP
 
-#include "Class.h"
+#include <Macaroni/Model/Cpp/Class.h>
 #include "Constructor.h"
 #include "Primitive.h"
 #include <Macaroni/Exception.h>
@@ -103,7 +103,7 @@ void Constructor::Visit(MemberVisitor * visitor) const
 {
 	visitor->VisitConstructor(*this);
 }
-	
+
 END_NAMESPACE
 
 #endif

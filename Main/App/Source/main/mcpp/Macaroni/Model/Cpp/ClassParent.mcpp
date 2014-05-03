@@ -30,7 +30,7 @@
 
 namespace Macaroni::Model::Cpp
 {
-    
+
 class ClassParent {};
 
 typedef boost::intrusive_ptr<ClassParent> ClassParentPtr
@@ -47,18 +47,18 @@ typedef boost::shared_ptr<ClassParentList> ClassParentListPtr
 
 class ClassParent
 	@UseLightDef true
-	@LuaClass 
+	@LuaClass
 	[
 		ReferenceType = ClassParentPtr,
 	]
-{  	
+{
 	friend Class;
 
 	private Access access;
-	private Class * child;	
+	private Class * child;
 	private TypePtr parent; // Memory leak! Change to point eventually.
 	private bool _virtual;
-   
+
 	private ClassParent(Class * node, TypePtr parent, Access access, bool _virtual)
 	:	access(access),
 		child(node),
@@ -67,20 +67,16 @@ class ClassParent
 	{
 	}
 
-	public ~global void intrusive_ptr_add_ref(ClassParent * p)
+	public ~global ~friend void intrusive_ptr_add_ref(ClassParent * p)
 	{
 		intrusive_ptr_add_ref(p->child);
 	}
-	
-	friend intrusive_ptr_add_ref;
 
-	public ~global void intrusive_ptr_release(ClassParent * p)
+	public ~global ~friend void intrusive_ptr_release(ClassParent * p)
 	{
 		intrusive_ptr_release(p->child);
 	}
 
-	friend intrusive_ptr_release;
-	
 	public inline AccessPtr GetAccess() const
 		@LuaProperty "Access"
 	{
@@ -105,7 +101,7 @@ class ClassParent
 	{
 		return _virtual;
 	}
-	
+
 };
 
 } // end ns

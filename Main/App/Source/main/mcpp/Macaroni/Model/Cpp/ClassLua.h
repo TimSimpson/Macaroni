@@ -16,14 +16,14 @@
 #ifndef MACARONI_MODEL_CPP_CLASSLUA_H
 #define MACARONI_MODEL_CPP_CLASSLUA_H
 
-#include "Class.h"
+#include <Macaroni/Model/Cpp/Class.h>
 
 struct lua_State;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 struct ClassLuaMetaData
-{	
+{
 	static bool IsType(lua_State * L, int index);
 	static int OpenInLua(lua_State * L);
 	static ClassPtr & GetInstance(lua_State * L, int index);

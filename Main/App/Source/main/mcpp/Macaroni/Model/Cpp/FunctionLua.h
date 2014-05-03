@@ -17,14 +17,14 @@
 #define MACARONI_MODEL_CPP_FUNCTIONLUA_H
 
 #include <Macaroni/Model/Element.h>
-#include "Function.h"
+#include <Macaroni/Model/Cpp/Function.h>
 
 struct lua_State;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 struct FunctionLuaMetaData
-{	
+{
 	static bool IsType(lua_State * L, int index);
 	static int OpenInLua(lua_State * L);
 	static ElementPtr & GetInstance(lua_State * L, int index);

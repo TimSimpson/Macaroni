@@ -17,10 +17,10 @@
 #define MACARONI_MODEL_CPP_CONSTRUCTOROVERLOAD_H
 
 #include "../../ME.h"
-#include "Constructor.h"
-#include "ConstructorOverloadPtr.h"
-#include "Function.h"
-#include "FunctionOverload.h"
+#include <Macaroni/Model/Cpp/Constructor.h>
+#include <Macaroni/Model/Cpp/ConstructorOverloadPtr.h>
+#include <Macaroni/Model/Cpp/Function.h>
+#include <Macaroni/Model/Cpp/FunctionOverload.h>
 #include "../Member.h"
 #include <Macaroni/Model/Node.h>
 #include "../ReasonPtr.h"

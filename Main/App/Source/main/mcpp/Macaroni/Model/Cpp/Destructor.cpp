@@ -16,7 +16,7 @@
 #ifndef MACARONI_MODEL_CPP_DESTRUCTOR_CPP
 #define MACARONI_MODEL_CPP_DESTRUCTOR_CPP
 
-#include "Class.h"
+#include <Macaroni/Model/Cpp/Class.h>
 #include "Destructor.h"
 #include "FunctionOverload.h"
 #include "Primitive.h"

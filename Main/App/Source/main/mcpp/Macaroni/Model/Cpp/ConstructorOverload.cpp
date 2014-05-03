@@ -17,7 +17,7 @@
 #define MACARONI_MODEL_CPP_CONSTRUCTOROVERLOAD_CPP
 
 #include "ConstructorOverload.h"
-#include "Class.h"
+#include <Macaroni/Model/Cpp/Class.h>
 #include "Constructor.h"
 #include "Primitive.h"
 #include <Macaroni/Exception.h>

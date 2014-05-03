@@ -1,0 +1,283 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+~import boost::intrusive_ptr;
+~import Macaroni::Model::Cpp::Access;
+~import Macaroni::Model::Cpp::AccessPtr;
+~import BOOST_FOREACH;
+~import Macaroni::Model::Cpp::ClassLuaMetaData;
+~import Macaroni::Model::Cpp::ClassParent;
+~import Macaroni::Model::Cpp::ClassParentListPtr;
+~import Macaroni::Model::Cpp::ClassParentPtr;
+~import Macaroni::Model::Element;
+~import Macaroni::Model::ElementPtr;
+~import Macaroni::Model::Cpp::Function;
+~import Macaroni::Model::Cpp::FunctionOverload;
+~import Macaroni::Model::Cpp::FunctionPtr;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Model::NodeList;
+~import Macaroni::Model::NodeListPtr;
+~import Macaroni::Model::Node;
+~import Macaroni::Model::NodePtr;
+~import Macaroni::Model::NodeList;
+~import Macaroni::Model::Project::Target;
+~import Macaroni::Model::Project::TargetPtr;
+~import Macaroni::Model::ModelInconsistencyException;
+~import Macaroni::Model::Node;
+~import Macaroni::Model::ReasonPtr;
+~import Macaroni::Model::Cpp::Scope;
+~import Macaroni::Model::Cpp::ScopeMember;
+~import Macaroni::Model::SourcePtr;
+~import Macaroni::Model::Type;
+~import Macaroni::Cpp::UseLightDef;
+~import Macaroni::Model::Cpp::Variable;
+~import Macaroni::Model::Cpp::VariablePtr;
+
+
+~namespace Macaroni::Model::Cpp;
+
+class Class {};
+
+typedef boost::intrusive_ptr<Class> ClassPtr
+    @LuaClass
+    [
+        LuaGlueClass = Macaroni::Model::Cpp::ClassLuaMetaData,
+        ReferenceType = Macaroni::Model::Cpp::ClassPtr,
+    ]
+;
+
+
+class Class : public Scope
+    @UseLightDef true
+    @LuaClass
+    [
+        LuaGlueClass = Macaroni::Model::Cpp::ClassLuaMetaData,
+        ReferenceType = Macaroni::Model::Cpp::ClassPtr,
+    ]
+{
+    private Access access;
+
+    // Awesome, all of these are memory leaks.  No wonder I used to get things
+    // done quicker!
+    private NodeListPtr friends;
+
+    private NodeListPtr globals;
+
+    private NodeListPtr imports;
+
+    private Macaroni::Model::Cpp::ClassParentListPtr parents;
+
+    protected Class(Library * library, Node * parent,
+                    Access access,
+                    NodeListPtr importedNodes, ReasonPtr reason)
+    :   Scope(library, parent, "Class", reason),
+        access(access),
+        friends(new NodeList()),
+        globals(new NodeList()),
+        imports(importedNodes),
+        parents(new ClassParentList())
+    {
+    }
+
+    protected Class(Target * target, Node * parent,
+                    Access access,
+                    NodeListPtr importedNodes, ReasonPtr reason)
+    :   Scope(target, parent, "Class", reason),
+        access(access),
+        friends(new NodeList()),
+        globals(new NodeList()),
+        imports(importedNodes),
+        parents(new ClassParentList())
+    {
+    }
+
+
+    public virtual ~Class()
+    {
+
+    }
+
+    public static ClassPtr Create(LibraryPtr library, NodePtr parent,
+                                  AccessPtr access,
+                                  NodeListPtr importedNodes, ReasonPtr reason)
+    {
+        ElementPtr existingMember = parent->GetElement();
+        if (!!existingMember)
+        {
+            ClassPtr existingClass = boost::dynamic_pointer_cast<Class>(existingMember);
+            if (!existingClass)
+            {
+                std::stringstream ss;
+                ss << "The member at node " << parent->GetFullName()
+                    << " is a " << parent->GetElement()->GetTypeName()
+                    << " and cannot be morphed into a class.";
+                throw Model::ModelInconsistencyException(existingMember->GetReasonCreated(),
+                    reason, ss.str());
+            }
+            return existingClass;
+        }
+        ClassPtr other = boost::dynamic_pointer_cast<Class>(existingMember);
+        return ClassPtr(new Class(library.get(), parent.get(), *access, importedNodes, reason));
+    }
+
+    public static ClassPtr Create(TargetPtr target, NodePtr parent,
+                                  AccessPtr access,
+                                  NodeListPtr importedNodes, ReasonPtr reason)
+    {
+        ElementPtr existingMember = parent->GetElement();
+        if (!!existingMember)
+        {
+            ClassPtr existingClass = boost::dynamic_pointer_cast<Class>(existingMember);
+            if (!existingClass)
+            {
+                std::stringstream ss;
+                ss << "The member at node " << parent->GetFullName()
+                    << " is a " << parent->GetElement()->GetTypeName()
+                    << " and cannot be morphed into a class.";
+                throw Model::ModelInconsistencyException(existingMember->GetReasonCreated(),
+                    reason, ss.str());
+            }
+            return existingClass;
+        }
+        ClassPtr other = boost::dynamic_pointer_cast<Class>(existingMember);
+        ClassPtr ptr(new Class(target.get(), parent.get(), *access, importedNodes, reason));
+        return ptr;
+    }
+
+    public AccessPtr GetAccess() const
+    {
+        AccessPtr aPtr(new Access(this->access));
+        return aPtr;
+    }
+
+    public void AddFriend(NodePtr node)
+    {
+        friends->push_back(node);
+    }
+
+    public void AddGlobal(NodePtr node)
+    {
+        globals->push_back(node);
+        //friends->push_back(node);
+    }
+
+    public void AddParent(TypePtr parent, AccessPtr access, bool _virtual)
+    {
+        Class * const me = this;
+        parents->push_back(ClassParent(me, parent, *access, _virtual));
+    }
+
+    public virtual bool canBeChildOf(const Member * other) const
+    {
+        return dynamic_cast<const Scope *>(other) != nullptr;
+    }
+
+    public virtual bool DoesDefinitionReference(NodePtr node) const
+    {
+        return this->Member::DoesDefinitionReference(node);
+    }
+
+    /** Classes which this Class inherits from. */
+    public ClassParentListPtr GetParents() const
+    {
+        return parents;
+    }
+
+    /** A list of Nodes who are "friends" of this class.  Friends with benefits,
+     * that is.  These nodes have intricate knowledge of this classes inner-
+     * most secrets. */
+    public NodeListPtr GetFriendNodes() const
+    {
+        return friends;
+    }
+
+    /** A list of Nodes that may or may not have anything to do with this
+     * class, but are adopted by this class.  They are usually defined in the
+     * same MCPP file and get stored in the same code files as the class.
+     * An example would be a global function thats callable from plain C but
+     * is useful only in the context of this class. */
+    public NodeListPtr GetGlobalNodes() const
+    {
+        return globals;
+    }
+
+    /** Nodes imported by this class.  Always needed by the implementation file
+     *  of this class. */
+    public NodeListPtr GetImportedNodes() const
+    {
+        return imports;
+    }
+
+    public virtual const char * GetTypeName() const
+    {
+        return "Class";
+    }
+
+    public ~global ~friend void intrusive_ptr_add_ref(Class * p)
+    {
+        intrusive_ptr_add_ref((ScopeMember *)p);
+    }
+
+    public ~global ~friend void intrusive_ptr_release(Class * p)
+    {
+        intrusive_ptr_release((ScopeMember *)p);
+    }
+
+    /** Returns true if the given member is an instance of Class. */
+    public static bool IsInstance(Model::ElementPtr other)
+    {
+        if (!other)
+        {
+            return false;
+        }
+        ClassPtr classPtr = boost::dynamic_pointer_cast<Class>(other);
+        return (!!classPtr);
+    }
+
+    public bool RequiresCppFile() const
+    {
+        Node & node = *GetNode();
+        for (size_t i = 0; i < node.GetChildCount(); i ++)
+        {
+            ElementPtr childElement = node.GetChild(i)->GetElement();
+            if (childElement && childElement->RequiresCppFile())
+            {
+                return true;
+            }
+        }
+
+        NodeListPtr globals = this->GetGlobalNodes();
+        BOOST_FOREACH(NodePtr & node, *globals)
+        {
+            if (node->GetElement()->RequiresCppFile())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public bool RequiresHFile() const
+    {
+        return getAccess().VisibleInHeader();
+    }
+
+    public virtual void Visit(MemberVisitor * visitor) const
+    {
+        //deprecated
+    }
+
+};

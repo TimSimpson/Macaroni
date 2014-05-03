@@ -19,8 +19,8 @@
 #include "../../ME.h"
 #include "DestructorPtr.h"
 #include <Macaroni/Model/Cpp/ExceptionSpecifier.h>
-#include "Function.h"
-#include "FunctionOverload.h"
+#include <Macaroni/Model/Cpp/Function.h>
+#include <Macaroni/Model/Cpp/FunctionOverload.h>
 #include "../Member.h"
 #include "../ReasonPtr.h"
 #include "ScopeMember.h"

@@ -1,0 +1,143 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+~import boost::shared_ptr;
+~import Macaroni::Model::Cpp::FunctionOverload;
+~import Macaroni::Model::Cpp::FunctionOverloadPtr;
+~import Macaroni::Model::Member;
+~import Macaroni::Model::ModelInconsistencyException;
+~import Macaroni::Model::Node;
+~import Macaroni::Model::ReasonPtr;
+~import Macaroni::Model::Cpp::Scope;
+~import Macaroni::Model::Cpp::ScopeMember;
+~import Macaroni::Model::SourcePtr;
+~import Macaroni::Model::Type;
+~import Macaroni::Model::Cpp::VariablePtr;
+
+
+~namespace Macaroni::Model::Cpp;
+
+
+class Function {};
+typedef boost::intrusive_ptr<Function> FunctionPtr;
+
+
+/** Represents a function in any possible Scope. */
+class Function : public Macaroni::Model::Member
+{
+    protected Function(Node * home, const char * typeName, ReasonPtr reason)
+    :   Member(home, typeName, reason)
+    {
+    }
+
+    private Function(Node * home, ReasonPtr reason)
+    :   Member(home, "Function", reason)
+    {
+    }
+
+    public virtual ~Function()
+    {
+    }
+
+    public static FunctionPtr Create(NodePtr host, ReasonPtr reason)
+    {
+        if (!host->GetElement())
+        {
+            Function * fo = new Function(host.get(), reason);
+            return FunctionPtr(fo);
+        }
+        Element * member = host->GetElement().get();
+        Function * existingFunc = dynamic_cast<Function *>(member);
+        if (existingFunc == nullptr)
+        {
+            // Will throw an error message.
+            return FunctionPtr(new Function(host.get(), reason));
+        }
+
+        FunctionPtr rtn;
+        rtn = boost::dynamic_pointer_cast<Function>(host->GetElement());
+        return rtn;
+    }
+
+    public virtual bool canBeChildOf(const Macaroni::Model::Member * other) const
+    {
+        return dynamic_cast<const Scope *>(other) != nullptr;
+    }
+
+    public virtual bool DoesDefinitionReference(NodePtr node) const
+    {
+        for (unsigned int i = 0; i < getNode()->GetChildCount(); i ++)
+        {
+            FunctionOverloadPtr fo = getNode()->GetChild(i)
+                ->GetElement<FunctionOverloadPtr>();
+            if (fo && fo->DoesDefinitionReference(node))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public virtual const char * GetTypeName() const
+    {
+        return "Function";
+    }
+
+    public ~global ~friend void intrusive_ptr_add_ref(Function * p)
+    {
+        intrusive_ptr_add_ref((ScopeMember *)p);
+    }
+
+    public ~global ~friend void intrusive_ptr_release(Function * p)
+    {
+        intrusive_ptr_release((ScopeMember *)p);
+    }
+
+    public virtual bool RequiresCppFile() const
+    {
+        Node & node = *GetNode();
+        for (size_t i = 0; i < node.GetChildCount(); i ++)
+        {
+            Node & child = *(node.GetChild(i));
+            if (child.GetElement()->RequiresCppFile())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public virtual bool RequiresHFile() const
+    {
+        Node & node = *GetNode();
+        for (size_t i = 0; i < node.GetChildCount(); i ++)
+        {
+            Node & child = *(node.GetChild(i));
+            if (child.GetElement()->RequiresHFile())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    public virtual void Visit(MemberVisitor * visitor) const
+    {
+        //TODO: Delete!
+        //visitor->VisitFunction(*this);
+    }
+
+};

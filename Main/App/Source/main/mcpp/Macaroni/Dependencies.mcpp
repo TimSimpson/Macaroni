@@ -69,7 +69,7 @@ class Macaroni::Model::AxiomPtr @LuaClass [ SameAsNode=Axiom ] {}
 
 class MACARONI_CHECK { ~hfile=<Macaroni/ME.h> };
 class Macaroni::Model::Cpp::ClassLuaMetaData { ~hfile=<Macaroni/Model/Cpp/ClassLua.h> };
-class Macaroni::Model::Cpp::ClassPtr {
+/*class Macaroni::Model::Cpp::ClassPtr {
 	~hfile=<Macaroni/Model/Cpp/ClassPtr.h>
 	@LuaClass
 	[
@@ -86,7 +86,7 @@ class Macaroni::Model::Cpp::Class
 		LuaGlueClass = Macaroni::Model::Cpp::ClassLuaMetaData,
 		ReferenceType = Macaroni::Model::Cpp::ClassPtr,
 	]
-};
+};*/
 class Macaroni::Model::ContextLuaMetaData { ~hfile=<Macaroni/Model/ContextLua.h> };
 class Macaroni::Model::ContextPtr
 	@LuaClass [ SameAsNode=Macaroni::Model::Context ]
@@ -97,14 +97,18 @@ class Macaroni::IO::FileNotFoundException { ~hfile=<Macaroni/IO/FileNotFoundExce
 //class Macaroni::Model::FileName { ~hfile=<Macaroni/Model/FileName.h> }
 //class Macaroni::Model::FileNamePtr { ~hfile=<Macaroni/Model/FileNamePtr.h> }
 //class Macaroni::IO::FileSet { ~hfile=<Macaroni/IO/FileSet.h> };
-class Macaroni::Model::Cpp::Function { ~hfile=<Macaroni/Model/Cpp/Function.h> };
 class Macaroni::Model::Cpp::FunctionOverload { ~hfile=<Macaroni/Model/Cpp/FunctionOverload.h> };
 class Macaroni::Model::Cpp::FunctionOverloadPtr { ~hfile=<Macaroni/Model/Cpp/FunctionOverloadPtr.h> };
+class Macaroni::Model::Cpp::Scope { ~hfile=<Macaroni/Model/Cpp/Scope.h> };
+class Macaroni::Model::Cpp::ScopeMember { ~hfile=<Macaroni/Model/Cpp/ScopeMember.h> };
 class Macaroni::Model::Library { ~hfile=<Macaroni/Model/Library.h> };
 class Macaroni::Model::LibraryPtr { ~hfile=<Macaroni/Model/LibraryPtr.h> };
 class MACARONI_FAIL { ~hfile=<Macaroni/ME.h> };
 class Macaroni::Model::Member { ~hfile=<Macaroni/Model/Member.h> };
 class Macaroni::Model::MemberVisitor { ~hfile=<Macaroni/Model/MemberVisitor.h> };
+
+class Macaroni::Model::ModelInconsistencyException
+{ ~hfile=<Macaroni/Model/ModelInconsistencyException.h> };
 
 ~import Macaroni::Model::Node;
 class Macaroni::Model::NodePtr
@@ -122,7 +126,8 @@ class Macaroni::Model::Node
 };
 class Macaroni::Model::NodeLuaMetaData { ~hfile=<Macaroni/Model/NodeLua.h> };
 class nullptr { ~hfile=<Macaroni/ME.h> };
-
+class Macaroni::Model::NodeList { ~hfile=<Macaroni/Model/NodePtr.h> };
+class Macaroni::Model::NodeListPtr { ~hfile=<Macaroni/Model/NodePtr.h> };
 
 
 // Path

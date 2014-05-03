@@ -18,8 +18,8 @@
 
 #include "../../ME.h"
 #include <Macaroni/Model/Cpp/ExceptionSpecifier.h>
-#include "Function.h"
-#include "FunctionOverloadPtr.h"
+#include <Macaroni/Model/Cpp/Function.h>
+#include <Macaroni/Model/Cpp/FunctionOverloadPtr.h>
 #include "../Member.h"
 #include <boost/optional.hpp>
 #include "../ReasonPtr.h"

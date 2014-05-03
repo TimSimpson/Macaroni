@@ -18,7 +18,7 @@
 
 #include "../../ME.h"
 #include "ConstructorPtr.h"
-#include "Function.h"
+#include <Macaroni/Model/Cpp/Function.h>
 #include "../Member.h"
 #include "../ReasonPtr.h"
 #include "ScopeMember.h"
@@ -54,10 +54,10 @@ public:
 	virtual void Visit(MemberVisitor * visitor) const;
 
 private:
-	
+
 	Constructor(Node * home, Model::ReasonPtr reason);
-	
-	//std::vector<VariableAssignment> assignments;	
+
+	//std::vector<VariableAssignment> assignments;
 };
 
 END_NAMESPACE
