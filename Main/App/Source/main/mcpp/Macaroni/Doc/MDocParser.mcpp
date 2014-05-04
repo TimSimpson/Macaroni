@@ -16,6 +16,7 @@
 ~import Macaroni::Exception;
 ~import Macaroni::Model::FileName;
 ~import Macaroni::Model::FileNamePtr;
+~import boost::format;
 ~import Macaroni::IO::GeneratedFileWriter;
 ~import Macaroni::IO::GeneratedFileWriterPtr;
 ~import Macaroni::IO::GeneratedFileWriterLuaMetaData;
@@ -56,6 +57,7 @@ class MDocParser
 	~block "cpp-include"
 	{
 		#include <Macaroni/LuaCompat.h>
+		#include <boost/algorithm/string/predicate.hpp>
 	}
 
 	private TextIterator & itr;
@@ -205,23 +207,69 @@ class MDocParser
 		}
 	}
 
-	~hidden bool dumpFile(bool indent=false)
+	~hidden void writeFile(const string filePath,
+		                   const bool indent,
+		                   const optional<string> printSection)
 	{
-		if (itr.ConsumeWord(indent ? "dumpi" : "dump"))
+		// Accept either -- or //
+		//--MDOC-BEGIN or //MDOC-BEGIN
+		//--MDOC-END or //MDOC-END
+		const char * sectionStart = "MDOC-BEGIN";
+		const int sizeOfSectionStart = 10;
+		const char * sectionEnd = "MDOC-END";
+		const int sizeOfSectionEnd = 8;
+		bool inSection = !printSection;
+		std::ifstream file(filePath);
+		if (!file)
 		{
-			PathPtr includeFilePath;
-			std::string newPrefix;
-			getFileDetails(includeFilePath, newPrefix);
-			std::ifstream file(includeFilePath->GetAbsolutePath());
-			if (!file)
+			std::stringstream msg;
+			msg << "Could not load file: "
+			    << filePath;
+			throw Macaroni::StringException(msg.str().c_str());
+		}
+		std::string line;
+		bool skipLine;
+		bool discoveredPrintSection = false;
+		while(std::getline(file, line))
+		{
+			skipLine = false;
+			if (line.length() > 2)
 			{
-				std::stringstream msg;
-				msg << "Could not load file: "
-				    << includeFilePath->GetAbsolutePath();
-				throw Macaroni::StringException(msg.str().c_str());
+				const auto subline = line.substr(2, string::npos);
+				if (boost::starts_with(subline, sectionStart) &&
+					subline.length() > sizeOfSectionStart + 1)
+				{
+					skipLine = true;
+					// Note: depends on the trivia that if the printSection
+					// is none, the below line should always be false.
+					if (!inSection) // Don't bother if we're in a section.
+					{
+						string sec = subline.substr(sizeOfSectionStart + 1,
+							                        string::npos);
+						if (sec == printSection.get())
+						{
+							inSection = true;
+							discoveredPrintSection = true;
+						}
+					}
+				}
+				if (boost::starts_with(subline, sectionEnd) &&
+					subline.length() > sizeOfSectionEnd + 1)
+				{
+					skipLine = true;
+
+					if (inSection && printSection)
+					{
+						string sec = subline.substr(sizeOfSectionEnd + 1,
+							                        string::npos);
+						if (sec == printSection.get())
+						{
+							inSection = false;
+						}
+					}
+				}
 			}
-			std::string line;
-			while(std::getline(file, line))
+			if (inSection && !skipLine)
 			{
 				if (indent)
 				{
@@ -229,6 +277,41 @@ class MDocParser
 				}
 				writer->WriteLine(line);
 			}
+		}
+		if (printSection && !discoveredPrintSection)
+		{
+			std::stringstream msg;
+			msg << "Could not find section " << printSection.get()
+				<< " in file: " << filePath;
+			throw Macaroni::StringException(msg.str().c_str());
+		}
+	}
+
+	~hidden optional<string> getSectionName()
+	{
+		itr.ConsumeWhitespace();
+		if (itr.ConsumeChar('"')) {
+			stringstream s;
+			while(!itr.Is('"'))
+			{
+				s << itr.Current();
+				itr.Advance(1);
+			}
+			itr.Advance(1); // eat last quote.
+			return s.str();
+		}
+		return boost::none;
+	}
+	~hidden bool dumpFile(bool indent=false)
+	{
+		if (itr.ConsumeWord(indent ? "dumpi" : "dump"))
+		{
+			PathPtr includeFilePath;
+			std::string newPrefix;
+			getFileDetails(includeFilePath, newPrefix);
+			optional<string> section = getSectionName();
+			writeFile(includeFilePath->GetAbsolutePath(),
+				      indent, section);
 			return true;
 		}
 		else
