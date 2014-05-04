@@ -1,0 +1,301 @@
+Lua Glue Plugin
+***************
+
+The plugin "LuaGlue" generates glue code to bind C++ to Lua at runtime.
+
+This plugin works by analyzing pre-existing Elements in Node space to add more
+Elements to Node space. It does not affect Project Space. Essentially this means
+it must run after your mcpp files are parsed but before the Porg plugin runs
+and creates the units.
+
+
+Adding to your project
+----------------------
+
+First, load the plugin towards the top of your project file. If you're using
+SimpleProject it will need to be above that call:
+
+.. code-block:: lua
+
+<~#dumpi <project.lua> "pluginGet" ~>
+
+The simplest way to do this is to run it at the top of your "generate" method.
+
+If you're using the SimpleProject build function, add this as an argument:
+
+.. code-block:: lua
+
+<~#dumpi <project.lua> "preGenerate" ~>
+
+"target" will be the name of the library to generate Lua bindings for. If you're using SimpleProject, this will be in a global variable called "lib". outputPath
+is the place for generated source (again, SimpleProject makes a global var for
+this of the same name). Finally, luaImportCode is the code you'll need to include to make Lua work. Usually, this will need to be marked as being non-C++ code like so:
+
+.. code-block:: c++
+
+  extern "C" {
+    #include "lua.h"
+  }
+
+
+Annotating the Code
+-------------------
+
+Next, you'll want to annotate your Macaroni source code with the details on how
+it will bind to Lua.
+
+Classes
+^^^^^^^
+
+To illustrate how this works, we're creating a class named Polo
+:ref:`(view source here)<lua_polo_mcpp>`, or "Plain Old Lua Object", which is a
+terrible name since the source is C++, not Lua.
+
+.. code-block: c++
+
+<~#dumpi <src/Polo.mcpp> "PoloSimple" ~>
+
+Lua can manage the lifetime of objects using reference counting, making it
+tempting to allow Lua to create the object and handling things from there.
+However, in most cases we will have our own type in C++ to handle an object's
+lifetime. For example, Polo has a type called "PoloPtr" which is a typedef
+for "boost::intrusive_ptr<Polo>". Polo then has global functions for
+"intrusive_ptr_add_ref" and "intrusive_ptr_release" which allows it to manage
+its memory itself (in this case it doesn't really do anything special other
+than use reference counting, but of course on a real project an intrusive_ptr
+might be used to do something far more complicated).
+
+Rather than letting Lua manage the memory of a Polo instance directly, we'll
+instead always pass Lua a PoloPtr. This means Lua will hold onto one reference
+of a smart pointer object that may also be used by C++ code, which gives us
+more flexibility.
+
+To do this, we add special annotations to the Polo class telling the LuaGlue
+geneartor that it's reference type is PoloPtr:
+
+.. code-block: c++
+
+<~#dumpi <src/Polo.mcpp> "PoloComplex" ~>
+
+.. note:
+
+    See :ref:`annotations_index` for more information.
+
+@LuaClass is an annotation which accepts a table with various arguments. Here,
+"ReferenceType" tells Lua that it should store Polo instances as PoloPtrs.
+
+We also need to tell the LuaGlue plugin that "PoloPtr" is just a reference
+for Polo, or it may try to generate indepedent glue bindings for it.
+
+.. code-block: c++
+
+<~#dumpi <src/Polo.mcpp> "PoloPtrDef" ~>
+
+"SameAsNode" means that Lua shouldn't try to generate glue code for PoloPtr
+as it and Polo are attached at the hip.
+
+The full name of the @LuaClass is "Macaroni::Lua::LuaClass." It and other
+annotations live in Macaroni::Lua and can be imported from there.
+
+Functions
+^^^^^^^^^
+
+Next we'll want to make some of Polo's functions accessible from Lua. To do
+that, we'll annotate the functions themselves with the @LuaFunction annotation.
+
+.. code-block: c++
+
+<~#dumpi <src/Polo.mcpp> "PoloFunction" ~>
+
+The argument for @LuaFunction is the name of the function from Lua.
+
+Note that static member functions will be attached to the table object
+representing "Polo" in Lua.
+
+.. note:
+
+    The LuaGlue plugin cannot currently generate glue to correctly dispatch
+    to overloaded functions, meaning you should only give the name passed as
+    the argument to @LuaFunction to a single C++ function.
+
+
+Note on Constructors
+^^^^^^^^^^^^^^^^^^^^
+
+The LuaGlue plugin does not currently offer a way to wrap C++ constructors.
+However, you can use static functions to create instances and pass them back
+using the reference type, like so:
+
+.. code-block: c++
+
+<~#dumpi <src/Polo.mcpp> "PoloCreate" ~>
+
+.. code-block: c++
+
+<~#dumpi <src/Test.cpp> "luaCreate" ~>
+    ;
+
+
+Properties
+----------
+
+Unlike C++, Lua has properties. It we have getter and setter member functions
+in our C++ code, we can describe them as properties using annotations and
+use them as such from Lua code using the @LuaProperty annotation.
+
+.. code-block: c++
+
+<~#dumpi <src/PoloName.mcpp> "properties" ~>
+
+
+This code makes a simple read only property called "ReferenceCount".
+
+Note that the @LuaFunction can also be be added, meaning you can represent
+a single function in C++ as both a function and a property.
+
+.. code-block: c++
+
+<~#dumpi <src/Polo.mcpp> "propertiesGet" ~>
+
+.. note:
+
+    The use of the equals sign and braces is just a different way to
+    specify a string argument to an annotation.
+
+To specify a setter, use @LuaProperty again- but this time, make sure the
+C++ function's signature makes sense as a setter.
+
+.. code-block: c++
+
+<~#dumpi <src/Polo.mcpp> "properties" ~>
+
+.. note:
+
+    Note that there is no way to explicitly describe something as a getter
+    or setter for a Lua property: the LuaGlue plugin just looks at the
+    function signature and does what makes sense. See @LuaIndexExtraCode
+    for more complex options.
+
+Operators
+^^^^^^^^^
+
+You can bind a C++ function to a Lua operator using the @LuaOperator
+annotation:
+
+.. code-block: c++
+
+<~#dumpi <src/Polo.mcpp> "operator" ~>
+
+@LuaOperator takes the name of the function to add to the Lua metatable as
+it's argument.
+
+Here's an example of creating an equality operator:
+
+.. code-block: c++
+
+<~#dumpi <src/Polo.mcpp> "operator2" ~>
+
+
+Registering Lua Functions
+-------------------------
+
+To make the C++ binded functions available to Lua, you need to register
+them. An explanation of how Lua works is out of scope for these docs, but
+the code to do that typically looks like this:
+
+.. code-block: c++
+
+    #include <Macaroni/Tests/Lua/PoloLuaMetaData.h>
+    #include <Macaroni/Tests/Lua/PoloNameLuaMetaData.h>
+    // etc, etc
+
+    static const struct luaL_Reg libs[] = {
+      {"Macaroni.Tests.Lua.Polo",
+          Macaroni::Tests::Lua::PoloLuaMetaData::OpenInLua},
+      {"Macaroni.Tests.Lua.PoloName",
+          Macaroni::Tests::Lua::PoloNameLuaMetaData::OpenInLua},
+      // etc, etc
+      {0, 0} /* sentinel */
+    };
+
+    void openOurLibs(lua_State * L)
+    {
+      lua_getglobal(L, "package");
+      lua_pushstring(L, "preload");
+      lua_gettable(L, -2);
+      luaL_setfuncs(L, libs, 0);
+    }
+
+The entire point of Macaroni is to avoid enumerating stuff like this.
+
+To make it easier to write this code, the LuaGlue plugin generates a header
+file  containing the include statements, and another containing the struct
+definitions which bind the Lua module name to a C function.
+
+These files have gross names starting with "LuaModulesInclude_" and
+"LuaModulesRegister_" which are followed by the group name, the project
+name, and finally the library name. Any characters that would make including
+the filename difficult are mangled out.
+
+In the Polo test, for example, the two files are named "LuaModulesInclude_Macaroni___Macaroni_46_Tests_46_Features_46_LuaGlue___lib.h" and "LuaModulesRegister_Macaroni___Macaroni_46_Tests_46_Features_46_LuaGlue___lib.h".
+Here's a snippet showing how the code above can be replaced with include
+statements for these files:
+
+.. code-block: c++
+
+<~#dumpi <src/Test.cpp> "includes" ~>
+    // etc, etc
+
+<~#dumpi <src/Test.cpp> "luaL_Reg" ~>
+
+
+Advanced Options
+----------------
+
+If the LuaGlue plugin features above aren't meeting your needs, you can
+add more annotations to modify the generate glue code. Note though that
+this stuff is much more experimental and subject to change.
+
+.. note:
+
+    Because these operations force you to know the names of classes that
+    the LuaGlue plugin is creating, it's possible code you write using
+    them could break in the future.
+
+Writing function code manually
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This example shows how to create a weird Lua only function which prints
+the size of the Lua stack multiplied by the Polo object's reference count.
+
+.. code-block: c++
+
+<~#dumpi <src/Polo.mcpp> "handcranked" ~>
+
+Extending the Index function
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The most important part of the glue code for your class is the function
+that's called everytime Lua code tries to index an instance of the class.
+However, Macaroni's default behavior may not give you what you want.
+
+It's tricky, but it's possible to supplement the behavior of this function.
+Here's an example which generates glue for PoloList :ref:`(view source here)<lua_pololist_mcpp>`, which is just a type
+def around a std::vector.
+
+.. code-block: c++
+
+<~#dumpi <src/PoloList.mcpp> "PoloList" ~>
+
+.. note:
+
+    The @LuaIncludes annotation is used to write arbitrary code into the
+    point where the Lua glue code includes files, which is needed here to
+    include Polo's Lua metadata class.
+
+Notice how the index function is completely different- if you're to check
+the generated source code you'll see much of it is being ignored and the
+index function contains unreachable code following our return. So it
+isn't perfect, but it is still less work than writing the glue code by
+hand.
+

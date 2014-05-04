@@ -1,0 +1,41 @@
+~import std::exception;
+~import boost::format;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaGlueCode;
+~import Macaroni::Lua::LuaIncludes;
+~import Macaroni::Lua::LuaIndexExtraCode;
+~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Lua::LuaProperty;
+~import Macaroni::Tests::Lua::Polo;
+~import Macaroni::Tests::Lua::PoloPtr;
+~import boost::shared_ptr;
+
+~import Macaroni::Tests::Lua::PoloList;
+
+namespace Macaroni::Tests::Lua
+{
+    typedef shared_ptr<PoloList> PoloListPtr
+        @LuaClass [ SameAsNode = PoloList ]
+    ;
+
+//MDOC-BEGIN PoloList
+    typedef std::vector<PoloPtr> PoloList
+        @LuaClass [
+            ReferenceType=PoloListPtr
+        ]
+        @LuaIncludes ={
+            #include <Macaroni/Tests/Lua/PoloLuaMetaData.h>
+            #include <Macaroni/Tests/Lua/Polo.h>
+        }
+        @LuaIndexExtraCode ={
+            const auto listIndex = luaL_checknumber(L, 2) + 1;
+            PoloList & list = *instance;
+            PoloPtr element = list[listIndex];
+            PoloLuaMetaData::PutInstanceOnStack(L, element);
+            return 1;
+        }
+    ;
+//MDOC-END PoloList
+
+}

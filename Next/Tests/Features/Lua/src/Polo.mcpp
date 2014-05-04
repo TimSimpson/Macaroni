@@ -1,10 +1,17 @@
 ~import std::exception;
+~import boost::format;
+//MDOC-BEGIN imports
 ~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaGlueCode;
 ~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
+//MDOC-END imports
 ~import std::string;
 ~import Macaroni::Tests::Lua::Polo;
 ~import Macaroni::Tests::Lua::PoloPtr;
+~import Macaroni::Tests::Lua::PoloList;
+~import Macaroni::Tests::Lua::PoloListPtr;
 ~import boost::intrusive_ptr;
 
 // Plain old Lua Object
@@ -30,18 +37,24 @@ namespace Macaroni::Tests::Lua
 		}
 	};
 
+//MDOC-BEGIN PoloSimple
 	class Polo {};
+//MDOC-END PoloSimple
 
+//MDOC-BEGIN PoloPtrDef
 	typedef intrusive_ptr<Polo> PoloPtr
 		@LuaClass [ SameAsNode = Polo ]
 	;
+//MDOC-END PoloPtrDef
 
+//MDOC-BEGIN PoloComplex
 	class Polo
 	  @LuaClass
 	  [
 	    ReferenceType = PoloPtr,
 	  ]
 	{
+//MDOC-END PoloComplex
 		~import Macaroni::Tests::Lua::PoloException;
 		~import Macaroni::Tests::Lua::SueNameException;
 		private string name;
@@ -53,22 +66,24 @@ namespace Macaroni::Tests::Lua
 		{
 		}
 
-		public const string & GetName() const
-		@LuaFunction "GetName"
-		@LuaProperty ={Name}
+//MDOC-BEGIN PoloCreate
+		public static PoloPtr Create(const string name)
+		@LuaFunction "Create"
 		{
-			if (name == "Suzy")
-			{
-				throw PoloException();
-			}
-			return name;
+			PoloPtr rtn(new Polo());
+			rtn->name = name;
+			return rtn;
 		}
+//MDOC-END PoloCreate
 
+
+//MDOC-BEGIN PoloFunction
 		public inline int GetReferenceCount() const
 		@LuaFunction "GetReferenceCount"
 		{
 			return refCount;
 		}
+//MDOC-ENG PoloFunction
 
 		public ~friend ~global void intrusive_ptr_add_ref(Polo * p)
 		{
@@ -93,6 +108,20 @@ namespace Macaroni::Tests::Lua
 			something = "This should not be called from Lua...";
 		}
 
+//MDOC-BEGIN:properties
+//MDOC-BEGIN:propertiesGet
+		public const string & GetName() const
+		@LuaFunction "GetName"
+		@LuaProperty ={Name}
+		{
+			if (name == "Suzy")
+			{
+				throw PoloException();
+			}
+			return name;
+		}
+//MDOC-END:propertiesGet
+
 		public void SetName(const string & newName)
 		@LuaFunction "SetName"
 		@LuaProperty "Name"
@@ -103,6 +132,7 @@ namespace Macaroni::Tests::Lua
 			}
 			this->name = newName;
 		}
+//MDOC-END:properties
 
 		public static string PointlessStaticFunctionGet(const PoloPtr & ptr)
 		@LuaFunction "PointlessStaticFunctionGet"
@@ -116,6 +146,50 @@ namespace Macaroni::Tests::Lua
 		{
 			ptr->SetName(name);
 		}
+
+//MDOC-BEGIN:operator
+		public string ToString()
+		@LuaOperator "__tostring"
+		{
+			return str(boost::format("%s, reference count=%d")
+				       % name % refCount);
+		}
+//MDOC-END:operator
+
+//MDOC-BEGIN:operator2
+		public bool operator==(const Polo & rhs) const
+			@LuaOperator "__eq"
+		{
+			return this->name == rhs.name;
+		}
+//MDOC-END:operator2
+
+//MDOC-BEGIN:handcranked
+		private static void __internal()
+			@LuaFunction "PrintLuaStackTimesRef"
+			@LuaGlueCode ={
+				PoloPtr & instance = PoloLuaMetaData::GetInstance(L, 1);
+				const auto count = lua_gettop(L)
+				                   * instance->GetReferenceCount();
+				lua_pushinteger(L, count);
+				return 1;
+			}
+		{
+			// Do not call!
+			throw std::exception();
+		}
+//MDOC-END:handcranked
+
+		public static PoloListPtr CreateList()
+			@LuaFunction "CreateList"
+		{
+			PoloListPtr ptr(new PoloList());
+			ptr->push_back(Create("a"));
+			ptr->push_back(Create("b"));
+			ptr->push_back(Create("c"));
+			return ptr;
+		}
+
 	};
 
 } //end ns

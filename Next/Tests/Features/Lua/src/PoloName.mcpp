@@ -37,11 +37,13 @@ namespace Macaroni::Tests::Lua
 			return name;
 		}
 
+//MDOC-BEGIN:properties
 		public inline int GetReferenceCount() const
 		@LuaProperty "ReferenceCount"
 		{
 			return refCount;
 		}
+//MDOC-ENG:properties
 
 		public ~friend ~global void intrusive_ptr_add_ref(PoloName * p)
 		{

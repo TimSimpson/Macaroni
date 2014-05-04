@@ -1,7 +1,29 @@
 <~#include <header.mdoc>~>
 
+Macaroni in a Nut Shell
+***********************
+
+Macaroni is a tool which creates a model of a C++ program you can then use to generate all sorts of stuff.
+
+At it's heart is an in-memory representation of a C++ project, called the **Macaroni Model**, that can be easily traversed from Lua code. Unlike the C++ compiler, which may get invoked dozens of times for a project build, Macaroni is intended to be invoked once per build and can optionally stick around to supervise related activities (such as running tests).
+
+On startup, Macaroni loads a Lua file with instructions on how to manipulate a part of the model called **Project Space** which tells it the location of a project's source files, its dependencies, and the output directory for anything Macaroni generates.
+
+Next, it parses **Macaroni Code**, which is a variant of the C++ language, and stores entities such as typedefs, classes, and functions into what's called **Node Space**. Node Space models a program's logical structure. The Macaroni parser isn't a full fledged C++ compiler so it just records any code it sees inside of curly braces as is.
+
+Afterwards, control is passed to a variety of plugins written in Lua which continue to manipulate the Macaroni Model using the information collected by the parser. Some, such as the LuaGlue plugin, can add more classes and functions to Node Space. Others will work with Project Space, which models the final C++ program to be built by the compiler's physical structure. Some plugins will read Project Space to generate a build script.
+
+Which plugins are run and how all this lays out is completely configurable, though there are simple Project Templates included with Macaroni that allow new projects to be build by convention similar to Maven.
+
+The point of all this is to make it easy to focus on code without having to constantly think about all the strange nuances of C++'s old style #include semantics. You still need to understand how all that stuff is working if you're going to be building native code, but Macaroni can help eliminate much of the related boilerplate that typically goes into C++ projects by doing much of it for you.
+
+Because Macaroni generates so much code that would normally be written by hand, it also makes it easier to do things consistently. For example, if your build system requires a list of every source file in your project, Macaroni can generate that list for you. Want to generate include guards next to where you're including the files? Hey, why not. You're not giving up control or concern for how your project is laid out or built so much as you're being enabled to treat it as an independent problem.
+
+You're also getting the ability to write extra metadata about your project using Lua scripts. So if you need to define an interface to your C++ code that's available at runtime by enumerating dozens of classes and hundreds of functions (which is the case if you're embedding a language or adding diagnostic tools) you can write a script to do it for you.
+
+
 The Macaroni Model - Project Space and Node Space
-*************************************************
+=================================================
 
 Macaroni is a relatively simple program that builds an in-memory model of your program, which it then feeds to a C++ compiler and build system.
 

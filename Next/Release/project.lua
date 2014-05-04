@@ -22,6 +22,10 @@ function newPath(suffix)
     return dir:NewPathForceSlash(suffix):CreateWithCurrentAsRoot();
 end
 
+function copyRstFiles(src, dst)
+    copyFiles(src, dst, [[\.(rst)?$]]);
+end
+
 function copyCppFiles(src, dst)
     copyFiles(src, dst, [[\.(c|cpp|h|hpp)?$]]);
 end
@@ -160,7 +164,31 @@ function buildWebSite()
     });
 
 
-    target:NewPathForceSlash("site")
+    local dstRoot = target:NewPathForceSlash("site")
+    local function addDocs(group, name, version, dstName)
+        local otherProject = context:FindProjectVersion(
+            group, name, version);
+        if otherProject == nil then error("Can't find project.") end
+        local installPath = findInstallPath(otherProject);
+        if (installPath == nil) then
+            error("Could not find install path for library "
+                  .. pvIdToString(projectVersionId));
+        end
+        local srcPath = installPath:NewPathForceSlash("target/docs");
+        if (not srcPath.Exists) then
+            error("No target/docs path found for project "
+                  .. tostring(otherProject) .. ".");
+        end
+        local dstPath = dstRoot:NewPathForceSlash(dstName)
+        copyRstFiles(srcPath, dstPath);
+    end
+
+    addDocs("Macaroni.Examples", "Blocks", "1.0.0.0",
+            "reference/code/blocks")
+    addDocs("Macaroni", "Macaroni.Tests.Features.LuaGlue", version,
+            "Blocks", "1.0.0.0",
+            "reference/plugins/luaglue")
+
     os.execute("sphinx-build  -b html "
         .. target:NewPathForceSlash("docs").AbsolutePath .. " "
         .. target:NewPathForceSlash("site").AbsolutePath

@@ -30,7 +30,7 @@ class.
 
 
 <~lua
-showFile("Macaroni.Examples", "Hello", "1.0.0.0", "source/Point.mcpp");
+showFile("Macaroni.Examples", "Hello", "1.0.0.0", "src/Point.mcpp");
 ~>
 
 
@@ -94,7 +94,7 @@ Example:
 
 <~lua
 showFile("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", project.Version,
-         "Source/Something.mcpp");
+         "src/Something.mcpp");
 ~>
 
 Header file (notice the omission of SetX and SetY):
@@ -126,31 +126,31 @@ Macaroni Source File:
 
 <~lua
 showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", project.Version,
-         "Source/PoloName.mcpp");
+         "src/PoloName.mcpp");
 ~>
 Generated Header File:
 
 <~lua
 showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", project.Version,
-         "GeneratedSource/Macaroni/Tests/Lua/PoloName.h");
+         "target/Macaroni/Tests/Lua/PoloName.h");
 ~>
 Generated Impl File:
 
 <~lua
 showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", project.Version,
-         "GeneratedSource/Macaroni/Tests/Lua/PoloName.cpp");
+         "target/Macaroni/Tests/Lua/PoloName.cpp");
 ~>
 Generated Lua Glue Class Header File:
 
 <~lua
 showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", project.Version,
-         "GeneratedSource/Macaroni/Tests/Lua/PoloNameLuaMetaData.h");
+         "target/Macaroni/Tests/Lua/PoloNameLuaMetaData.h");
 ~>
 Generated Lua Glue Class Impl File:
 
 <~lua
 showFile("Macaroni", "Macaroni.Tests.Features.LuaGlue", project.Version,
-         "GeneratedSource/Macaroni/Tests/Lua/PoloNameLuaMetaData.cpp");
+         "target/Macaroni/Tests/Lua/PoloNameLuaMetaData.cpp");
 ~>
 
 Generation of Build Scripts
