@@ -51,7 +51,7 @@ To illustrate how this works, we're creating a class named Polo
 :ref:`(view source here)<lua_polo_mcpp>`, or "Plain Old Lua Object", which is a
 terrible name since the source is C++, not Lua.
 
-.. code-block: c++
+.. code-block:: c++
 
 <~#dumpi <src/Polo.mcpp> "PoloSimple" ~>
 
@@ -73,7 +73,7 @@ more flexibility.
 To do this, we add special annotations to the Polo class telling the LuaGlue
 geneartor that it's reference type is PoloPtr:
 
-.. code-block: c++
+.. code-block:: c++
 
 <~#dumpi <src/Polo.mcpp> "PoloComplex" ~>
 
@@ -87,7 +87,7 @@ geneartor that it's reference type is PoloPtr:
 We also need to tell the LuaGlue plugin that "PoloPtr" is just a reference
 for Polo, or it may try to generate indepedent glue bindings for it.
 
-.. code-block: c++
+.. code-block:: c++
 
 <~#dumpi <src/Polo.mcpp> "PoloPtrDef" ~>
 
@@ -103,7 +103,7 @@ Functions
 Next we'll want to make some of Polo's functions accessible from Lua. To do
 that, we'll annotate the functions themselves with the @LuaFunction annotation.
 
-.. code-block: c++
+.. code-block:: c++
 
 <~#dumpi <src/Polo.mcpp> "PoloFunction" ~>
 
@@ -119,18 +119,18 @@ representing "Polo" in Lua.
     the argument to @LuaFunction to a single C++ function.
 
 
-Note on Constructors
-^^^^^^^^^^^^^^^^^^^^
+Constructors
+^^^^^^^^^^^^
 
 The LuaGlue plugin does not currently offer a way to wrap C++ constructors.
 However, you can use static functions to create instances and pass them back
 using the reference type, like so:
 
-.. code-block: c++
+.. code-block:: c++
 
 <~#dumpi <src/Polo.mcpp> "PoloCreate" ~>
 
-.. code-block: c++
+.. code-block:: c++
 
 <~#dumpi <src/Test.cpp> "luaCreate" ~>
     ;
@@ -143,7 +143,7 @@ Unlike C++, Lua has properties. It we have getter and setter member functions
 in our C++ code, we can describe them as properties using annotations and
 use them as such from Lua code using the @LuaProperty annotation.
 
-.. code-block: c++
+.. code-block:: c++
 
 <~#dumpi <src/PoloName.mcpp> "properties" ~>
 
@@ -153,7 +153,7 @@ This code makes a simple read only property called "ReferenceCount".
 Note that the @LuaFunction can also be be added, meaning you can represent
 a single function in C++ as both a function and a property.
 
-.. code-block: c++
+.. code-block:: c++
 
 <~#dumpi <src/Polo.mcpp> "propertiesGet" ~>
 
@@ -165,7 +165,7 @@ a single function in C++ as both a function and a property.
 To specify a setter, use @LuaProperty again- but this time, make sure the
 C++ function's signature makes sense as a setter.
 
-.. code-block: c++
+.. code-block:: c++
 
 <~#dumpi <src/Polo.mcpp> "properties" ~>
 
@@ -182,7 +182,7 @@ Operators
 You can bind a C++ function to a Lua operator using the @LuaOperator
 annotation:
 
-.. code-block: c++
+.. code-block:: c++
 
 <~#dumpi <src/Polo.mcpp> "operator" ~>
 
@@ -191,7 +191,7 @@ it's argument.
 
 Here's an example of creating an equality operator:
 
-.. code-block: c++
+.. code-block:: c++
 
 <~#dumpi <src/Polo.mcpp> "operator2" ~>
 
@@ -203,7 +203,7 @@ To make the C++ binded functions available to Lua, you need to register
 them. An explanation of how Lua works is out of scope for these docs, but
 the code to do that typically looks like this:
 
-.. code-block: c++
+.. code-block:: c++
 
     #include <Macaroni/Tests/Lua/PoloLuaMetaData.h>
     #include <Macaroni/Tests/Lua/PoloNameLuaMetaData.h>
@@ -241,7 +241,7 @@ In the Polo test, for example, the two files are named "LuaModulesInclude_Macaro
 Here's a snippet showing how the code above can be replaced with include
 statements for these files:
 
-.. code-block: c++
+.. code-block:: c++
 
 <~#dumpi <src/Test.cpp> "includes" ~>
     // etc, etc
@@ -268,7 +268,7 @@ Writing function code manually
 This example shows how to create a weird Lua only function which prints
 the size of the Lua stack multiplied by the Polo object's reference count.
 
-.. code-block: c++
+.. code-block:: c++
 
 <~#dumpi <src/Polo.mcpp> "handcranked" ~>
 
@@ -283,7 +283,7 @@ It's tricky, but it's possible to supplement the behavior of this function.
 Here's an example which generates glue for PoloList :ref:`(view source here)<lua_pololist_mcpp>`, which is just a type
 def around a std::vector.
 
-.. code-block: c++
+.. code-block:: c++
 
 <~#dumpi <src/PoloList.mcpp> "PoloList" ~>
 

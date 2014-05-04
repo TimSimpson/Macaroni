@@ -164,7 +164,7 @@ function buildWebSite()
     });
 
 
-    local dstRoot = target:NewPathForceSlash("site")
+    local dstRoot = target:NewPathForceSlash("docs")
     local function addDocs(group, name, version, dstName)
         local otherProject = context:FindProjectVersion(
             group, name, version);
@@ -180,15 +180,16 @@ function buildWebSite()
                   .. tostring(otherProject) .. ".");
         end
         local dstPath = dstRoot:NewPathForceSlash(dstName)
-        copyRstFiles(srcPath, dstPath);
+        print(srcPath)
+        print(dstPath)
+        dstPath:CreateDirectory();
+        copyRstFiles(srcPath:CreateWithCurrentAsRoot(), dstPath);
     end
 
     addDocs("Macaroni.Examples", "Blocks", "1.0.0.0",
             "reference/code/blocks")
     addDocs("Macaroni", "Macaroni.Tests.Features.LuaGlue", version,
-            "Blocks", "1.0.0.0",
             "reference/plugins/luaglue")
-
     os.execute("sphinx-build  -b html "
         .. target:NewPathForceSlash("docs").AbsolutePath .. " "
         .. target:NewPathForceSlash("site").AbsolutePath

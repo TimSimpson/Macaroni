@@ -26,7 +26,7 @@ using Macaroni::Tests::Lua::PoloLuaMetaData;
 std::string LUA_CODE =
 "local Polo = require 'Macaroni.Tests.Lua.Polo' 							"
 "local instance = Polo.Create('Billy')                                      "
-//MDOC-BEGIN luaCreate
+//MDOC-END luaCreate
 "instance = nil                                                             "
 "                                                                           "
 "require 'os';                                                              "

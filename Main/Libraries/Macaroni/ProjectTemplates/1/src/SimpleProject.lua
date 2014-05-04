@@ -10,6 +10,8 @@ local newPath = function(subPath)
     return p:NewPathForceSlash(subPath)
 end
 
+local simpleProjectProperties = properties.simple_project or {}
+
 
 --require "Plugin"
 
@@ -327,14 +329,25 @@ function SimpleProject(args)
                 -- including files or snippets.
                 sources={newPath(args.docs)},
                 output=output
-        })
+            })
+            if simpleProjectProperties.run_sphinx then
+                    output:DebugLine("'properties.simple_project.run_sphinx' "
+                        .. "set to true, calling Sphinx...")
+                rst:Run("Site", {
+                    output=output,
+                    outputPath=targetDir
+                })
+            else
+                output:DebugLine("Call sphinx by setting "
+                    .. "'properties.simple_project.run_sphinx' to true.")
+            end
 
         end
     end
 
     local lInstall = function()
         if installed then return end
-        lBuild()
+        lDocument()
         sinstall(lProject, filePath("./"))
         installed = true
     end

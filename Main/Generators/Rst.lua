@@ -21,6 +21,35 @@ function GetMethod(name)
                 return runner.Run(args)
             end
         }
+    elseif name == "Site" then
+        return
+        {
+            Describe = function(args)
+                args.output.WriteLine("Call sphinx to build webpage.")
+            end,
+            Run = function(args)
+                local target = args.outputPath
+                local confFile = target:NewPathForceSlash("docs/conf.py")
+                if not confFile.Exists then
+                    local writer = confFile:CreateFile()
+                    writer:WriteLine([[
+import sys
+import os
+
+extensions = []
+master_doc = 'index']]);
+                end
+                local src = target:NewPathForceSlash("docs").AbsolutePath
+                local dst = target:NewPathForceSlash("site").AbsolutePath
+                args.output:DebugLine("Running Sphinx...")
+                local success, exit, number =
+                    os.execute("sphinx-build  -b html " .. src .. " " .. dst)
+                if (not success or exit ~= "exit" or number ~= 0) then
+                    args.output:ErrorLine("Failure running Sphinx! ")
+                    error("Failure running Sphinx!")
+                end
+            end,
+        }
     end
     return nil;
 end
