@@ -170,6 +170,14 @@ NodeInfo = {
 			return "", false; -- Ignore
         end
         if (node.HFilePath ~= nil) then
+            local attr = node.Annotations["Macaroni::Cpp::LightDef"];
+            if (attr ~= nil) then
+                if not attr.IsString then
+                    error("The node " .. node.FullName .. " annotation value "
+                          .. "LightDef must be a string.");
+                end
+                return attr.ValueAsString;
+            end
 			local attr = node.Annotations["Macaroni::Cpp::UseLightDef"];
 			if (attr ~= nil) then
 				if not attr.IsBool then

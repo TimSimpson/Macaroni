@@ -1,0 +1,86 @@
+~import Macaroni::Cpp::LightDef;
+~import Macaroni::Cpp::UseLightDef;
+
+
+class boost::shared_ptr @UseLightDef true { ~hfile=<boost/shared_ptr.hpp> };
+
+//MDOC-BEGIN:ex1
+class MyClassA
+{
+    public int count;
+
+    public MyClassA()
+    :   count(0)
+    {}
+};
+
+class MyClassB
+{
+    private MyClassA a;
+
+    public MyClassB()
+    :   a()
+    {}
+
+    public void SetACount(int count)
+    {
+        a.count = count;
+    }
+};
+//MDOC-END:ex1
+
+class MyClassC
+{
+    ~block "h-predef" { #include <MyClassA.h> }
+
+    private MyClassA ~l a;
+
+    public MyClassC()
+    :   a()
+    {}
+
+    public void SetACount(int count)
+    {
+        a.count = count;
+    }
+};
+
+//MDOC-BEGIN:sp1
+typedef boost::shared_ptr<MyClassA> MyClassPtrH;
+//MDOC-END:sp1
+//MDOC-BEGIN:sp2
+typedef boost::shared_ptr<MyClassA ~l> MyClassPtrL;
+//MDOC-END:sp2
+
+class MyClassD
+{
+    MyClassPtrH ptr;
+};
+
+
+class MyClassE
+{
+    MyClassPtrL ptr;
+};
+
+
+//MDOC-BEGIN:@UseLightDef
+class ClassUseLightDef
+    @UseLightDef true
+{
+    ~hfile=<AcmeLib.h>
+};
+//MDOC-END:@UseLightDef
+
+
+//MDOC-BEGIN:@LightDef
+class ClassLightDef
+    @LightDef ={class ClassLightDef; /* Forward ! */ }
+{
+};
+//MDOC-END:@LightDef
+
+class ClassLightDefUser
+{
+    ClassLightDef * ptr;
+};

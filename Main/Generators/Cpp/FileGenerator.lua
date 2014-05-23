@@ -53,6 +53,18 @@ FileGenerator = {
         return node.FullName;
     end,
 
+    includeConfigFile = function(self)
+        if BoostConfigIsAvailable(self.targetLibrary) then
+            self:write('\n');
+            self:writeAfterTabs("#include <"
+                       .. LibraryConfigFile(self.targetLibrary)
+                       .. ">\n");
+            self:writeAfterTabs("#ifdef BOOST_HAS_PRAGMA_ONCE\n")
+            self:writeAfterTabs("    #pragma once\n")
+            self:writeAfterTabs("#endif\n\n")
+        end
+    end,
+
     includeGuardFooter = function(self)
         self:write("#endif // end of " .. self:getGuardName());
     end,
@@ -64,7 +76,6 @@ FileGenerator = {
         self:write("#ifndef " .. guardName .. "\n");
         self:write("#define " .. guardName .. "\n");
     end,
-
 
     isNodeGlobal = function(self, node)
     	return (node.Node ~= self.node);

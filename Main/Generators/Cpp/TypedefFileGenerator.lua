@@ -123,11 +123,7 @@ TypedefFileGenerator = {
         check(self.writer ~= nil, "Instance writer missing.");
         self:includeGuardHeader();
         self:debugOutDependencyGraph();
-        if BoostConfigIsAvailable(self.targetLibrary) then
-			self:write("\n#include <"
-			           .. LibraryConfigFile(self.targetLibrary)
-			           .. ">\n\n");
-        end
+        self:includeConfigFile();
         self:write('\n');
         self:includeStatements();
         self:write('\n');
@@ -179,7 +175,11 @@ TypedefFileGenerator = {
             if (node.HFilePath == nil) then
 				return true;
 			end
-			attr = node.Annotations["Macaroni::Cpp::UseLightDef"]
+            local attr = node.Annotations["Macaroni::Cpp::LightDef"];
+            if (attr ~= nil) then
+                return true;
+            end
+			local attr = node.Annotations["Macaroni::Cpp::UseLightDef"]
 			if attr ~= nil and not attr.ValueAsBool then
 				return true;
 			end

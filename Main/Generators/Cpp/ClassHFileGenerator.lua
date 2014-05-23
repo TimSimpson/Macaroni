@@ -227,12 +227,8 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
 
         self:writeAfterTabs("// This class was originally defined in " .. tostring(src.FileName) .. "\n");
 
-        if not self.isNested
-           and BoostConfigIsAvailable(self.targetLibrary) then
-            self:write('\n');
-			self:writeAfterTabs("#include <"
-			           .. LibraryConfigFile(self.targetLibrary)
-			           .. ">\n\n");
+        if not self.isNested then
+           self:includeConfigFile();
         end
 
         self:writeAfterTabs("// Forward declaration necessary for anything which also depend on this.\n");

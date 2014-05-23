@@ -297,6 +297,14 @@ DependencyList = {
 		if node.HFilePath == nil then
 			return true;
 		end
+        local attr = node.Annotations["Macaroni::Cpp::LightDef"];
+        if (attr ~= nil) then
+            if not attr.IsString then
+                error("The node " .. node.FullName .. " annotation value "
+                      .. "LightDef must be a string.");
+            end
+            return true;
+        end
 		local attr = node.Annotations["Macaroni::Cpp::UseLightDef"];
 		if (attr ~= nil) then
 			if not attr.IsBool then

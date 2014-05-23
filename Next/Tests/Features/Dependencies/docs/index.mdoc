@@ -1,0 +1,82 @@
+Logical to Physical Dependency Mappings in Macaroni
+***************************************************
+
+How Macaroni chooses when to use forward declarations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When a type uses another type, it takes on a logical dependency for that type. To minimize build times Macaroni makes a decent effort to determine whether such dependencies are "light" or "heavy."
+
+Currently, "heavy" dependencies mean that the header file for the dependency will be needed in the header of the type being constructed no matter what.
+
+"Light" dependencies mean that Macaroni will attempt to use a forward declaration instead.
+
+For instance, if a class contains an instance of a type which is not a reference and not a pointer as part of a variable used by that class, Macaroni will consider it a heavy dependency:
+
+.. code-block:: c++
+
+<~#dumpi <src/MyClass.mcpp> "ex1" ~>
+
+Here, MyClassB has a variable of type MyClassA. Because the compiler won't be able to use (create instances of) MyClassB without knowing MyClassA's definition, Macaroni marks MyClassA as a "heavy" dependency of MyClassB, which means the header for MyClassA is included at the top of MyClassB's header file.
+
+However, if MyClassB were to use a pointer or reference to MyClassA instead, there'd be no such need:
+
+.. code-block:: c++
+
+    class MyClassB
+    {
+        private MyClassA * a;
+        ...
+
+
+In this case Macaroni would create a "light" dependency on MyClassA and try to use a forward declaration of MyClassA in MyClassB's header file instead.
+
+
+
+The ~l syntax
+-------------
+
+Sometimes it may seem as Macaroni treats a dependency as "heavy" even though it should actually be light. A good example is when defining smart pointer typedefs:
+
+.. code-block:: c++
+
+<~#dumpi <src/MyClass.mcpp> "sp1" ~>
+
+The header file for MyClassPtrH won't include the header for MyClassA, but any other class which uses MyClassPtrH will end up with a heavy dependency on MyClassA.
+
+This can be prevented by defining the typedef using the ~l syntax, which forces Macaroni to make it a light definition instead:
+
+.. code-block:: c++
+
+<~#dumpi <src/MyClass.mcpp> "sp2" ~>
+
+Unlike MyClassPtrH, users MyClassPtrL will not transitively develop a heavy dependency on MyClassA.
+
+
+.. note::
+
+    "~l" must proceed * and & in a type's definition.
+
+
+Coercing a Forward Declaration with @LightDef
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Even if Macaroni decides something introduces only a "light" dependency it may have to #include it's entire header file if it can't surmise what the forward declaration looks like.
+
+For example, Macaroni makes use of existing C++ code by defining classes which can be completely hollow except for the ~hfile keyword, which tells Macaroni the path to the header file. The Cpp code generator plugin will assume it lacks information to generate forward declarations for such classes unless the following annotations are used.
+
+@Macaroni::Cpp::UseLightDef tells the generator to try to guess the forward declaration no matter what. Take this snippet:
+
+.. code-block:: c++
+
+<~#dumpi <src/MyClass.mcpp> "@UseLightDef" ~>
+
+Here "ClassUseLightDef" is actually defined by the header file AcmeLib.h and could potentially be something complex. However, because @UseLightDef is set to true, Macaroni will guess what the forward declaration should be using the info it's own parser sees- which in this case is nothing other than the fact than "ClassUseLightDef" is a class. So the forward declaration ends up looking like this: "class ClassUseLightDef;".
+
+Rather than letting Macaroni guess at the forward declaration, you can also spell it out instead using the @Macaroni::Cpp::LightDef annotation:
+
+.. code-block:: c++
+
+<~#dumpi <src/MyClass.mcpp> "@LightDef" ~>
+
+The string specified for @LigthDef will be used as is in the generated source.
+
