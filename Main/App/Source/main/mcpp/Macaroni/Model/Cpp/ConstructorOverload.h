@@ -68,8 +68,6 @@ public:
 
 	virtual const char * GetTypeName() const;
 
-	virtual void Visit(MemberVisitor * visitor) const;
-
 private:
 
 	ConstructorOverload(Model::Node * home, Model::ReasonPtr reason,

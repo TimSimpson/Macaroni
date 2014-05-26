@@ -105,7 +105,6 @@ class Macaroni::Model::Library { ~hfile=<Macaroni/Model/Library.h> };
 class Macaroni::Model::LibraryPtr { ~hfile=<Macaroni/Model/LibraryPtr.h> };
 class MACARONI_FAIL { ~hfile=<Macaroni/ME.h> };
 class Macaroni::Model::Member { ~hfile=<Macaroni/Model/Member.h> };
-class Macaroni::Model::MemberVisitor { ~hfile=<Macaroni/Model/MemberVisitor.h> };
 
 class Macaroni::Model::ModelInconsistencyException
 { ~hfile=<Macaroni/Model/ModelInconsistencyException.h> };

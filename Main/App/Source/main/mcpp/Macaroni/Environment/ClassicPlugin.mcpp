@@ -2,7 +2,6 @@
 ~import Macaroni::Environment::Values::AnyPtr;
 ~import Macaroni::Build::BuildContext;
 ~import Macaroni::Build::BuildContextPtr;
-~import Macaroni::Generator::DynamicGeneratorRunner;
 ~import BOOST_FOREACH;
 ~import Macaroni::Exceptions::SimpleException;
 ~import boost::format;
@@ -390,14 +389,6 @@ class ClassicPlugin : public Plugin
 			runner.parseLuaFile();
 		}
 		runner.runMethod(action, arguments);
-        /*DynamicGeneratorRunner runner(appPaths);
-        path generatorFilePath(action);
-        BuildContextPtr buildContext(appPaths, target, );
-        runner.RunDynamicGenerator(generatorFilePath,)
-        RunDynamicGenerator(const path & generatorFilePath,
-                                    BuildContextPtr buildContext,
-                                    const string & methodName,
-                                    const string & arguments)*/
     }
 
 	public void SetGlobalProperties(AnyPtr properties)

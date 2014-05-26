@@ -44,17 +44,17 @@ void intrusive_ptr_release(Block * p)
 }
 
 
-Block::Block(Target * target, Node * host, const std::string & id, 
+Block::Block(Target * target, Node * host, const std::string & id,
 			 const std::string & code, const ReasonPtr reasonCreated,
 			 optional<NodeListPtr> importedNodes)
 :	Member(host, "Block", reasonCreated),
-	code(code),	
+	code(code),
 	id(id),
 	imports(),
 	target(target)
 {
 	// Target usually isn't needed unless this is a ~block placed
-	// directly within a unit. Blocks inside larger nodes like 
+	// directly within a unit. Blocks inside larger nodes like
 	if (nullptr != target)
 	{
 		target->AddElement(this);
@@ -77,7 +77,7 @@ bool Block::canBeChildOf(const Member *) const
 	return true;
 }
 
-BlockPtr Block::Create(TargetPtr target, NodePtr host, const std::string & id, 
+BlockPtr Block::Create(TargetPtr target, NodePtr host, const std::string & id,
 					   const std::string & block, const ReasonPtr reasonCreated,
 					   optional<NodeListPtr> importedNodes)
 {
@@ -86,16 +86,16 @@ BlockPtr Block::Create(TargetPtr target, NodePtr host, const std::string & id,
 	{
 		BlockPtr existingBlock = boost::dynamic_pointer_cast<Block>(existingMember);
 		std::stringstream ss;
-		if (!existingBlock) 
+		if (!existingBlock)
 		{
-			ss << "The member at node " << host->GetFullName() 
+			ss << "The member at node " << host->GetFullName()
 				<< " was already defined as a "
 				<< existingMember->GetTypeName()
-				<< "; thus, it may not become a Block.";			
+				<< "; thus, it may not become a Block.";
 		}
 		else
-		{			
-			ss << "The member at node " << host->GetFullName() 
+		{
+			ss << "The member at node " << host->GetFullName()
 				<< " was already created as a Block.  Blocks cannot be "
 				<< "continued; please, create a new Block.";
 		}
@@ -116,7 +116,7 @@ NodeListPtr Block::GetImportedNodes() const
 }
 TargetPtr Block::GetOwner() const
 {
-	if (!target) 
+	if (!target)
 	{
 		return Element::GetOwner();
 	}
@@ -127,7 +127,7 @@ const char * Block::GetTypeName() const
 {
 	return "Block";
 }
-	
+
 bool Block::RequiresCppFile() const
 {
 	// cpp or cpp-include necessitate a cpp file.
@@ -143,11 +143,6 @@ bool Block::RequiresHFile() const
 {
 	// h, h-predef, or h-postdef all necessitate an h file.
 	return id.size() > 0 && id[0] == 'h';
-}
-
-void Block::Visit(MemberVisitor * visitor) const
-{
-	// do nothing.
 }
 
 END_NAMESPACE2

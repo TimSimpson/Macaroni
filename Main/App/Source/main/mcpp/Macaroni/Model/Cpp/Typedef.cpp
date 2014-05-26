@@ -94,10 +94,6 @@ bool Typedef::RequiresHFile() const
 	return true;
 }
 
-void Typedef::Visit(MemberVisitor * visitor) const
-{
-	// Ignore! I HATE THIS IDEA!
-}
 
 END_NAMESPACE
 

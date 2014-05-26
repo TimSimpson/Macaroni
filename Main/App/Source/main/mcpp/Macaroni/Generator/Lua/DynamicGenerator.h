@@ -23,7 +23,6 @@
 #include <Macaroni/Build/BuildContext.h>
 #include "../../Model/Library.h"
 #include <Macaroni/Environment/LuaEnvironment.h>
-#include "../../Model/MemberVisitor.h"
 #include <fstream>
 #include <boost/filesystem/operations.hpp>
 #include "../../Environment/StringPair.h"

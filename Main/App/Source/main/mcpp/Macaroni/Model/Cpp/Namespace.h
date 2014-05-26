@@ -23,7 +23,6 @@
 #include <boost/shared_ptr.hpp>
 #include "../LibraryPtr.h"
 #include "../Member.h"
-#include "../MemberVisitor.h"
 #include "NamespacePtr.h"
 #include "Scope.h"
 #include <Macaroni/Model/Project/TargetPtr.h>
@@ -59,8 +58,6 @@ public:
 
 	/** Returns true if the given member is an instance of Class. */
 	static bool IsInstance(Model::ElementPtr other);
-
-	virtual void Visit(MemberVisitor * visitor) const;
 
 protected:
 	Namespace(Library * library, Node * home, ReasonPtr reason);

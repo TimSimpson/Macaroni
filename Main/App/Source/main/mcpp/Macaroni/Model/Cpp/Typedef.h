@@ -32,15 +32,15 @@ friend void intrusive_ptr_add_ref(Typedef * p);
 friend void intrusive_ptr_release(Typedef * p);
 
 public:
-	static TypedefPtr Create(LibraryPtr library, Macaroni::Model::NodePtr home, 
-							 Macaroni::Model::ReasonPtr reason, 
+	static TypedefPtr Create(LibraryPtr library, Macaroni::Model::NodePtr home,
+							 Macaroni::Model::ReasonPtr reason,
 							 TypePtr type);
 
 	static TypedefPtr Create(Macaroni::Model::Project::TargetPtr target,
-		                     Macaroni::Model::NodePtr home, 
-		                     Macaroni::Model::ReasonPtr reason, 
+		                     Macaroni::Model::NodePtr home,
+		                     Macaroni::Model::ReasonPtr reason,
 		                     TypePtr type);
-	
+
 	~Typedef();
 
 	Macaroni::Model::TypePtr GetType() const;
@@ -49,23 +49,21 @@ public:
 
 	virtual bool RequiresHFile() const;
 
-	virtual void Visit(Macaroni::Model::MemberVisitor * visitor) const;
-
 protected:
 	Typedef(Library * library,
-		    Macaroni::Model::Node *		home, 
-			Macaroni::Model::ReasonPtr	reason, 
+		    Macaroni::Model::Node *		home,
+			Macaroni::Model::ReasonPtr	reason,
 			Macaroni::Model::TypePtr	type);
 
 	Typedef(Macaroni::Model::Project::Target * target,
-		    Macaroni::Model::Node *		home, 
-		    Macaroni::Model::ReasonPtr	reason, 
+		    Macaroni::Model::Node *		home,
+		    Macaroni::Model::ReasonPtr	reason,
 		    Macaroni::Model::TypePtr	type);
 
 	virtual bool canBeChildOf(const Macaroni::Model::Member * other) const;
 
 private:
-	Macaroni::Model::TypePtr type;	
+	Macaroni::Model::TypePtr type;
 };
 
 END_NAMESPACE

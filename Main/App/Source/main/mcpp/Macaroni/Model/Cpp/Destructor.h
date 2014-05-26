@@ -54,8 +54,6 @@ public:
 
 	virtual const char * GetTypeName() const;
 
-	virtual void Visit(MemberVisitor * visitor) const;
-
 private:
 
 	Destructor(Node * home, Model::ReasonPtr reason, bool isInline,

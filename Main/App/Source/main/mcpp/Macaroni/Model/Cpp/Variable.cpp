@@ -18,7 +18,6 @@
 
 #include "Primitive.h"
 #include <Macaroni/Exception.h>
-#include "../MemberVisitor.h"
 #include "../ModelInconsistencyException.h"
 #include "Namespace.h"
 #include "../Node.h"
@@ -42,7 +41,7 @@ Variable::Variable(Node * parent, ReasonPtr reason, Access access, bool isStatic
 
 Variable::~Variable()
 {
-	
+
 }
 
 
@@ -70,7 +69,7 @@ VariablePtr Variable::Create(NodePtr host, AccessPtr access, bool isStatic, cons
 	if (existingVar != nullptr && !(existingVar->type->operator==(*type.get())))
 	{
 		std::stringstream ss;
-		ss << "Variable was already defined with conflicting type information. ";	
+		ss << "Variable was already defined with conflicting type information. ";
 		if (existingVar->type->IsConst() && !type->IsConst())
 		{
 			ss << "Previous definition was const.";
@@ -90,7 +89,7 @@ VariablePtr Variable::Create(NodePtr host, AccessPtr access, bool isStatic, cons
 		existingVar->type->DescribeDifferences(type, ss);
 		throw ModelInconsistencyException(element->GetReasonCreated(),
 											  reason,
-											  ss.str());	
+											  ss.str());
 	}
 	// Re-use the previously set variable.
 	return VariablePtr(boost::dynamic_pointer_cast<Variable>(host->GetElement()));
@@ -98,7 +97,7 @@ VariablePtr Variable::Create(NodePtr host, AccessPtr access, bool isStatic, cons
 
 bool Variable::DoesDefinitionReference(NodePtr node) const
 {
-	return type->GetNode() == node ? true 
+	return type->GetNode() == node ? true
 		: this->Member::DoesDefinitionReference(node);
 }
 
@@ -130,11 +129,6 @@ bool Variable::RequiresCppFile() const
 bool Variable::RequiresHFile() const
 {
 	return getAccess().VisibleInHeader();
-}
-
-void Variable::Visit(MemberVisitor * visitor) const
-{
-	visitor->VisitVariable(*this);
 }
 
 

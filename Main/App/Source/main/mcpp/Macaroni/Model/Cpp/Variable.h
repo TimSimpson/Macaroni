@@ -58,10 +58,8 @@ public:
 
 	virtual bool RequiresHFile() const;
 
-	virtual void Visit(MemberVisitor * visitor) const;
-
 private:
-	
+
 	Variable(Node * home, Model::ReasonPtr reason, Access access, bool isStatic, const TypePtr type, std::string initializer);
 
 	std::string initializer;

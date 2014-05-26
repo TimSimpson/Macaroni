@@ -20,7 +20,6 @@
 #include "Constructor.h"
 #include "Primitive.h"
 #include <Macaroni/Exception.h>
-#include "../MemberVisitor.h"
 #include <Macaroni/Model/ModelInconsistencyException.h>
 #include "Namespace.h"
 #include <Macaroni/Model/Node.h>
@@ -97,11 +96,6 @@ void intrusive_ptr_add_ref(Constructor * p)
 void intrusive_ptr_release(Constructor * p)
 {
 	intrusive_ptr_release((ScopeMember *)p);
-}
-
-void Constructor::Visit(MemberVisitor * visitor) const
-{
-	visitor->VisitConstructor(*this);
 }
 
 END_NAMESPACE

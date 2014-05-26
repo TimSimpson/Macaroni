@@ -21,7 +21,6 @@
 #include "Constructor.h"
 #include "Primitive.h"
 #include <Macaroni/Exception.h>
-#include "../MemberVisitor.h"
 #include "../ModelInconsistencyException.h"
 #include "Namespace.h"
 #include "../Node.h"
@@ -117,11 +116,6 @@ void intrusive_ptr_add_ref(ConstructorOverload * p)
 void intrusive_ptr_release(ConstructorOverload * p)
 {
 	intrusive_ptr_release((ScopeMember *)p);
-}
-
-void ConstructorOverload::Visit(MemberVisitor * visitor) const
-{
-	// Do nadda
 }
 
 END_NAMESPACE

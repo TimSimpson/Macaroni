@@ -42,7 +42,7 @@ AnnotationDefinition::AnnotationDefinition(Node * node, TypeCode type, const Rea
 :Member(node, TYPE_NAME, reasonCreated), type(type)
 {
 }
-	
+
 AnnotationDefinition::~AnnotationDefinition()
 {
 }
@@ -62,12 +62,12 @@ void AnnotationDefinition::Define(NodePtr node, TypeCode type, const ReasonPtr &
 	ElementPtr member = node->GetElement();
 	if (!!member)
 	{
-		AnnotationDefinitionPtr existingDef = boost::dynamic_pointer_cast<AnnotationDefinition>(member); 
+		AnnotationDefinitionPtr existingDef = boost::dynamic_pointer_cast<AnnotationDefinition>(member);
 		if (!existingDef)
 		{
 			std::stringstream ss;
 			ss << "Attempt to define previously defined Node "
-				<< node->GetFullName() 
+				<< node->GetFullName()
 				<< " as an Annotation.";
 			throw ModelInconsistencyException(existingDef->GetReasonCreated(),
 				reason,
@@ -82,17 +82,17 @@ void AnnotationDefinition::Define(NodePtr node, TypeCode type, const ReasonPtr &
 			}
 			std::stringstream ss;
 			ss << "Attempt to redefine Annotation "
-				<< node->GetFullName() 
-				<< " with value type of " 
+				<< node->GetFullName()
+				<< " with value type of "
 				<< existingDef->GetAnnotationTypeName()
-				<< " as value type " 
+				<< " as value type "
 				<< getAnnotationTypeName(type);
 			throw ModelInconsistencyException(existingDef->GetReasonCreated(),
 				reason,
 				ss.str());
 		}
 	} // end !!member
-	Create(node, type, reason); 
+	Create(node, type, reason);
 
 }
 
@@ -123,12 +123,6 @@ const char * AnnotationDefinition::getAnnotationTypeName(TypeCode type)
 const char * AnnotationDefinition::GetTypeName() const
 {
 	return TYPE_NAME;
-}
-
-void AnnotationDefinition::Visit(MemberVisitor * visitor) const
-{
-	//TODO: Visit should no longer be here! Arg, I say.
-	return;
 }
 
 END_NAMESPACE2

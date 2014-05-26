@@ -133,11 +133,4 @@ class Function : public Macaroni::Model::Member
         return false;
     }
 
-
-    public virtual void Visit(MemberVisitor * visitor) const
-    {
-        //TODO: Delete!
-        //visitor->VisitFunction(*this);
-    }
-
 };

@@ -22,8 +22,6 @@
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
-class MemberVisitor;
-
 //TODO: Possibly rename this to "Element"?
 class Member : public Element
 {
@@ -46,9 +44,6 @@ public:
 
 	/** Finds a parent namespace by iterating backwards, skipping unknown nodes. */
 	Cpp::NamespacePtr FindClosestParentNamespace() const;
-
-	//TODO: Get rid of this.
-	virtual void Visit(MemberVisitor * visitor) const = 0;
 
 protected:
 	Member(Node * node, const char * typeName, const ReasonPtr reasonCreated);

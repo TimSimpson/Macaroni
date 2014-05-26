@@ -36,7 +36,7 @@ Primitive::Primitive(Node * parent, ReasonPtr reason)
 
 Primitive::~Primitive()
 {
-	
+
 }
 
 /*void Primitive::AddCppPrimitives(ContextPtr context)
@@ -74,11 +74,6 @@ void intrusive_ptr_add_ref(Primitive * p)
 void intrusive_ptr_release(Primitive * p)
 {
 	intrusive_ptr_release((ScopeMember *)p);
-}
-
-void Primitive::Visit(MemberVisitor * visitor) const
-{
-	// Do nothing.
 }
 
 END_NAMESPACE

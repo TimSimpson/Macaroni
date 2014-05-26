@@ -47,7 +47,7 @@ public:
 	};
 
 	AnnotationDefinition(Node * node, TypeCode type, const ReasonPtr & reasonCreated);
-	
+
 	~AnnotationDefinition();
 
 	virtual bool canBeChildOf(const Member * other) const;
@@ -55,9 +55,9 @@ public:
 	static AnnotationDefinitionPtr Create(NodePtr home, TypeCode type, const ReasonPtr & reason);
 
 	/** Defines the given Node to be an Annotation of the given type.
-	 * Throws "ModelInconsistencyException" on failure. 
+	 * Throws "ModelInconsistencyException" on failure.
 	 */
-	static void Define(NodePtr node, TypeCode type, const ReasonPtr & reasonCreated);	
+	static void Define(NodePtr node, TypeCode type, const ReasonPtr & reasonCreated);
 
 	const char * GetAnnotationTypeName() const;
 
@@ -68,7 +68,6 @@ public:
 
 	virtual const char * GetTypeName() const;
 
-	virtual void Visit(MemberVisitor * visitor) const;
 private:
 	static const char * getAnnotationTypeName(TypeCode type);
 

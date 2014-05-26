@@ -25,9 +25,9 @@
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
-/** A Block in the model is simply plain text associated with a node that is 
- * thrown in the direction of some generator.  Usually, blocks are directed 
- * towards the h or cpp generators, which place them in the files they're 
+/** A Block in the model is simply plain text associated with a node that is
+ * thrown in the direction of some generator.  Usually, blocks are directed
+ * towards the h or cpp generators, which place them in the files they're
  * generating in the order they are found. */
 class Block : public Member
 {
@@ -35,8 +35,8 @@ friend void intrusive_ptr_add_ref(Block * p);
 friend void intrusive_ptr_release(Block * p);
 public:
 	static BlockPtr Create(Macaroni::Model::Project::TargetPtr target,
-		                   NodePtr host, const std::string & id, 
-						   const std::string & block, 
+		                   NodePtr host, const std::string & id,
+						   const std::string & block,
 						   const ReasonPtr reasonCreate,
 					boost::optional<NodeListPtr> importedNodes=boost::none);
 
@@ -51,7 +51,7 @@ public:
 	{
 		return id;
 	}
-	
+
 	NodeListPtr GetImportedNodes() const;
 
 	Macaroni::Model::Project::TargetPtr GetOwner() const;
@@ -61,14 +61,14 @@ public:
 	virtual bool RequiresHFile() const;
 
 private:
-	Block(Macaroni::Model::Project::Target * target, Node * host, 
-		  const std::string & id, const std::string & code, 
+	Block(Macaroni::Model::Project::Target * target, Node * host,
+		  const std::string & id, const std::string & code,
 		  const ReasonPtr reasonCreated,
 		  boost::optional<NodeListPtr> importedNodes);
 
 	~Block();
-	
-	std::string code;	
+
+	std::string code;
 
 	virtual const char * GetTypeName() const;
 
@@ -77,8 +77,6 @@ private:
 	NakedNodeList imports;
 
 	Macaroni::Model::Project::Target * target;
-
-	virtual void Visit(MemberVisitor * visitor) const;
 
 };
 

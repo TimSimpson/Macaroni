@@ -135,8 +135,6 @@ public:
 	 *  which means it ends in "= 0". */
 	void SetPureVirtual(SourcePtr startOfCode);
 
-	virtual void Visit(MemberVisitor * visitor) const;
-
 protected:
 	//FunctionOverload(Node home, bool isInline, const Access access, const bool isStatic, const TypePtr rtnType, bool constMember, Model::ReasonPtr reason);
 

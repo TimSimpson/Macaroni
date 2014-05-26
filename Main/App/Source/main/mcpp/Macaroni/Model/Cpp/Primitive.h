@@ -30,7 +30,7 @@ class Primitive : public ScopeMember
 {
 friend void intrusive_ptr_add_ref(Primitive * p);
 friend void intrusive_ptr_release(Primitive * p);
-public:	
+public:
 	static PrimitivePtr Create(NodePtr home, ReasonPtr reason);
 
 	virtual ~Primitive();
@@ -41,12 +41,10 @@ public:
 
 	virtual const char * GetTypeName() const;
 
-	virtual void Visit(MemberVisitor * visitor) const;
-
-protected:	
+protected:
 	Primitive(Node * home, ReasonPtr reason);
 private:
-	
+
 };
 
 void intrusive_ptr_add_ref(Primitive * p);

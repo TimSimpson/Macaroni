@@ -21,7 +21,6 @@
 #include "FunctionOverload.h"
 #include "Primitive.h"
 #include <Macaroni/Exception.h>
-#include <Macaroni/Model/MemberVisitor.h>
 #include "../ModelInconsistencyException.h"
 #include "Namespace.h"
 #include <Macaroni/Model/Node.h>
@@ -117,11 +116,6 @@ void intrusive_ptr_add_ref(Destructor * p)
 void intrusive_ptr_release(Destructor * p)
 {
 	intrusive_ptr_release((ScopeMember *)p);
-}
-
-void Destructor::Visit(MemberVisitor * visitor) const
-{
-	visitor->VisitDestructor(*this);
 }
 
 END_NAMESPACE

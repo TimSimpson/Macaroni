@@ -275,9 +275,4 @@ class Class : public Scope
         return getAccess().VisibleInHeader();
     }
 
-    public virtual void Visit(MemberVisitor * visitor) const
-    {
-        //deprecated
-    }
-
 };

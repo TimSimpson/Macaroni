@@ -213,10 +213,6 @@ void FunctionOverload::SetPureVirtual(SourcePtr startOfCode)
 	this->isPureVirtual = true;
 }
 
-void FunctionOverload::Visit(MemberVisitor * visitor) const
-{
-}
-
 END_NAMESPACE
 
 #endif
