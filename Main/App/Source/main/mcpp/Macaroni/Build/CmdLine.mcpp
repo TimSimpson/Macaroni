@@ -15,6 +15,8 @@
  */
 ~import Macaroni::AppPaths;
 ~import Macaroni::AppPathsPtr;
+~import Macaroni::Environment::Values::Any;
+~import Macaroni::Environment::Values::AnyPtr;
 ~import Macaroni::Build::BadArgException;
 ~import Macaroni::Environment::Console;
 ~import Macaroni::Model::Context;
@@ -38,6 +40,8 @@
 ~import Macaroni::SimpleException;
 ~import std::string;
 ~import std::stringstream;
+~import Macaroni::Environment::Values::String;
+~import Macaroni::Environment::Values::Table;
 ~import boost::program_options::variables_map;
 ~import std::vector;
 ~import Macaroni::Containers::VectorOfConstString;
@@ -52,6 +56,7 @@ class CmdLine
 {
 	private bool about;
 	private bool build;
+	private vector<string> buildOptions;
 	private bool clean;
 	private Console & console;
 	private bool debugMode;
@@ -70,6 +75,7 @@ class CmdLine
 	private optional<path> projectFile;
 	private bool printTimes;
 	private bool repl;
+	private AnyPtr runTimeProperties;
 	private bool startPrompt;
 	private bool showPaths;
 
@@ -119,6 +125,7 @@ class CmdLine
 		             Console & console)
 	:	about(false),
 	    build(false),
+	    buildOptions(),
 		clean(false),
 		console(console),
 		debugMode(false),
@@ -136,6 +143,7 @@ class CmdLine
 		output(&console),
 		printTimes(false),
 		repl(false),
+		runTimeProperties(),
 		startPrompt(false),
 		showPaths(false)
 	{
@@ -155,6 +163,10 @@ class CmdLine
 	po::bool_switch(&build),
 	"Run the project's build phase, which may invoke a "
 	"C++ compiler.")
+("buildOptions,o",
+	po::value<vector<string>>(&buildOptions),
+	"Build options to pass to the build tool (such as CMake or "
+    "Bjam).")
 ("clean,c",
 	po::bool_switch(&clean),
 	"Delete the generated directories before doing anything.")
@@ -405,6 +417,26 @@ class CmdLine
 		return initialReturnCode;
 	}
 
+	~hidden void initializeRuntimeProperties()
+	{
+		// This is where the stuff the user specified on the
+		// command line turns into Lua values.
+		Table * table;
+		runTimeProperties.reset(table = new Table());
+
+		// Set "buildOptions" to what the user passed in.
+		Table * boTable;
+		AnyPtr boTablePtr(boTable = new Table());
+
+		int index = 0;
+		for (const string & buildOption : buildOptions)
+		{
+			AnyPtr stringValue(new String(buildOption));
+			boTable->SetAndGiveReference(++ index, stringValue);
+		}
+		table->SetAndGiveReference("buildOptions", boTablePtr);
+	}
+
 	public path MessagesPath()
 	{
 		return messagesPath;
@@ -439,12 +471,14 @@ class CmdLine
 
 	~hidden bool runProject(bool withRepl)
 	{
+		initializeRuntimeProperties();
 		Console * console = new Console(0);
 		InputPtr input(console);
 		OutputPtr output(console);
 		ContextPtr context(new Context("%ROOT%"));
 		Macaroni::Environment::Environment env(createAppPaths(), context,
 		                                       input, output,
+		                                       runTimeProperties,
 		                                       showPaths);
 		if (!env.FindDefaultProject(projectFile))
 		{

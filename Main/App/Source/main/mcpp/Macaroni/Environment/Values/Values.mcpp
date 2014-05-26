@@ -502,9 +502,10 @@ class Table : public Any
 		children[name] = value;
 	}
 
-	public virtual void ToLua(lua_State * L)
+	// Merges the values of this table with the table at the
+	// top of the stack.
+	public void TableMerge(lua_State * L)
 	{
-		lua_newtable(L);
 		for (map<variant<int, string>, AnyPtr>::const_iterator itr = children.begin();
 			itr != children.end(); itr ++)
 		{
@@ -525,6 +526,12 @@ class Table : public Any
 			lua_settable(L, -3);  // Assign to table.
 			// ^-- Both the value and the key are popped.
 		}
+	}
+
+	public virtual void ToLua(lua_State * L)
+	{
+		lua_newtable(L);
+		TableMerge(L);
 	}
 
 };

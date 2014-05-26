@@ -16,7 +16,7 @@
 ~import std::auto_ptr;
 ~import Macaroni::AppPaths;
 ~import Macaroni::AppPathsPtr;
-//~import Macaroni::Environment::Values::AnyPtr;
+~import Macaroni::Environment::Values::AnyPtr;
 ~import BOOST_FOREACH;
 ~import Macaroni::Model::Context;
 ~import Macaroni::Model::ContextLuaMetaData;
@@ -172,16 +172,18 @@ class Macaroni::Environment::ProjectLoader
     //private PluginFactoryPtr pluginFactory;
     private ProjectEnvironmentPtr pEnv;
     private int referenceCount;
+    private AnyPtr runtimeProperties;
 
     public ProjectLoader(AppPathsPtr appPaths, ContextPtr context,
-                         OutputPtr output)
+                         OutputPtr output, AnyPtr runtimeProperties)
     : appPaths(appPaths),
       context(context),
       output(output),
       parsedProjectFiles(),
       pvIdToFilePaths(),
       pEnv(),
-      referenceCount(0)
+      referenceCount(0),
+      runtimeProperties(runtimeProperties)
     {
         //pEnv = new ProjectEnvironment(*this, "", "");
     }
@@ -403,7 +405,8 @@ class Macaroni::Environment::ProjectLoader
             ProjectEnvironmentPtr pEnv;
             output->DebugLine(format("Loading %s...") % projectFilePath.string());
             pEnv = new ProjectEnvironment(*this, marker, workingDir,
-                                          projectFilePath, isInstalled);
+                                          projectFilePath, isInstalled,
+                                          runtimeProperties);
             pEnv->Initialize();
             return pEnv;
         }

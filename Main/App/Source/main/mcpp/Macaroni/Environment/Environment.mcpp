@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+~import Macaroni::Environment::Values::Any;
+~import Macaroni::Environment::Values::AnyPtr;
 ~import Macaroni::AppPaths;
 ~import Macaroni::AppPathsPtr;
 //~import Macaroni::Environment::Values::AnyPtr;
@@ -56,6 +58,7 @@
 ~import Macaroni::Environment::ProjectEnvironmentPtr;
 ~import Macaroni::Environment::ProjectLoader;
 ~import Macaroni::Environment::ProjectLoaderPtr;
+~import Macaroni::Environment::Values::Table;
 
 // There's a bug which prevents Macaroni from detecting creating a node within
 // a Namespace if the node has the same short name. :(
@@ -118,6 +121,8 @@ class Macaroni::Environment::Environment
 	private OutputPtr output;
 	//private PluginFactoryPtr pluginFactory;
 	private ProjectLoaderPtr pLoader;
+	// Properties given at runtime, usually via the command line.
+	private AnyPtr runTimeProperties;
 	private bool quitRepl;
 	private const bool showPaths;
 	// The working directory. This is always the project file's directory.
@@ -127,6 +132,7 @@ class Macaroni::Environment::Environment
 
 	public Environment(AppPathsPtr appPaths, ContextPtr context,
 		               InputPtr input, OutputPtr output,
+		               AnyPtr runTimeProperties,
 		               bool showPaths=false)
 	: appPaths(appPaths),
 	  context(context),
@@ -134,6 +140,7 @@ class Macaroni::Environment::Environment
 	  input(input),
 	  output(output),
 	  pLoader(),
+	  runTimeProperties(runTimeProperties),
 	  //pluginFactory(new PluginFactory(appPaths)),
 	  quitRepl(false),
 	  showPaths(showPaths),
@@ -167,7 +174,8 @@ class Macaroni::Environment::Environment
 			}
 			output->DebugLine("]");
 		}
-		pLoader = new ProjectLoader(appPaths, context, output);
+		pLoader = new ProjectLoader(appPaths, context, output,
+			                        runTimeProperties);
 	}
 
 	public AppPathsPtr GetAppPaths()

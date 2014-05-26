@@ -37,6 +37,19 @@ function GetMethod(name)
                 Generate(args)
             end
         }
+    elseif name == "Build" then
+        return
+        {
+            Describe = function(args)
+                validateArgs(args);
+                args.output.WriteLine("Call Boost Build.");
+            end,
+            Run = function(args)
+                validateArgs(args);
+                Initialize(args);
+                Build(args)
+            end
+        }
     elseif name == "Install" then
         return
         {
@@ -101,6 +114,22 @@ end
 function Generate(self)
     validateArgs(self)
     writeBoostFile(self)
+end
+
+function Build(self)
+    local targetDir = self.jamroot.ParentPath.AbsolutePath
+    local b2name = properties.b2_name or "b2"
+    local cmd = "bjam " .. properties.bjam_options ..
+                     " " .. targetDir
+    for i,v in ipairs(properties.buildOptions) do
+        cmd = cmd .. " " .. v
+    end
+    self.output:DebugLine(cmd)
+    local success, exit, number = os.execute(cmd)
+    if (not success or exit ~= "exit" or number ~= 0) then
+        self.output:ErrorLine("Failure running Boost Build! ")
+        error("Failure running Boost Build!")
+    end
 end
 
 function validateArgs(self)

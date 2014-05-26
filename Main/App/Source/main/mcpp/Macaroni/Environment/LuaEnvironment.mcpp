@@ -344,6 +344,14 @@ class LuaEnvironment
         return src;
     }
 
+    public void MergeTable(const char * globalTableName,
+                           Table & table)
+    {
+        lua_getglobal(GetState(), "properties");
+            table.TableMerge(GetState());
+        lua_pop(GetState(), 1);
+    }
+
     // This method is defined by "RegisterInternalModules.cpp"
     ~block "h" {
         /** "Requires" every single module defined internally. */

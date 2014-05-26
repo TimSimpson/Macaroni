@@ -271,6 +271,11 @@ function SimpleProject(args)
       generatedLess = true
     end
 
+    local bjamFlags = args.bjamFlags or {}
+    bjamFlags.jamroot = outputPath:NewPath("/jamroot.jam")
+    bjamFlags.projectVersion = lProject;
+    bjamFlags.output = output;
+
     local lGenerate = function()
       if generated then return end
       generateLess()
@@ -281,10 +286,7 @@ function SimpleProject(args)
               output = output
           })
       end)
-      local bjamFlags = args.bjamFlags or {}
-      bjamFlags.jamroot = outputPath:NewPath("/jamroot.jam")
-      bjamFlags.projectVersion = lProject;
-      bjamFlags.output = output;
+
       runWithLoggedErrors(function()
         bjam:Run("Generate", bjamFlags)
       end)
@@ -299,14 +301,7 @@ function SimpleProject(args)
       if built then return end
       lGenerate()
       if (args.buildWithBoost ~= false) then
-          local cmd = "bjam " .. properties.bjam_options ..
-                     " " .. targetDir.AbsolutePath .. " -d+2"
-          output:DebugLine(cmd)
-          local success, exit, number = os.execute(cmd)
-          if (not success or exit ~= "exit" or number ~= 0) then
-            output:ErrorLine("Failure running Boost Build! ")
-            error("Failure running Boost Build!")
-          end
+          bjam:Run("Build", bjamFlags)
       end
       if (cmakeFlags.invoke) then
           cmake:Run("Build", cmakeFlags);

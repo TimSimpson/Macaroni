@@ -17,7 +17,8 @@
 ~import Macaroni::AppPaths;
 ~import Macaroni::AppPathsPtr;
 ~import std::auto_ptr;
-//~import Macaroni::Environment::Values::AnyPtr;
+~import Macaroni::Environment::Values::Any;
+~import Macaroni::Environment::Values::AnyPtr;
 ~import BOOST_FOREACH;
 ~import Macaroni::Model::Context;
 ~import Macaroni::Model::ContextLuaMetaData;
@@ -58,6 +59,7 @@
 ~import std::string;
 ~import Macaroni::Model::Project::Resource;
 ~import Macaroni::Model::Project::ResourcePtr;
+~import Macaroni::Environment::Values::Table;
 ~import Macaroni::Cpp::UseLightDef;
 
 class Macaroni::Environment::ProjectEnvironment {};
@@ -138,7 +140,8 @@ class Macaroni::Environment::ProjectEnvironment
         auto_ptr<ProjectLoaderMarker> marker,
         path workingDirectory,
         path projectFile,
-        bool loadingAsDependency
+        bool loadingAsDependency,
+        AnyPtr runtimeProperties
         )
     : loader(loader),
       loadingAsDependency(loadingAsDependency),
@@ -150,7 +153,7 @@ class Macaroni::Environment::ProjectEnvironment
       workingProjectFile(projectFile),
       workingProjectId()
     {
-       initializeLuaEnvironment();
+       initializeLuaEnvironment(runtimeProperties);
     }
 
     public ProjectVersionPtr GetProjectVersion() const
@@ -184,7 +187,7 @@ class Macaroni::Environment::ProjectEnvironment
             lua_setglobal(luaEnvironment.GetState(), luaName);
     }*/
 
-    ~hidden void initializeLuaEnvironment()
+    ~hidden void initializeLuaEnvironment(AnyPtr runtimeProperties)
     {
         luaEnvironment.OpenAllLuaModules();
         OutputLuaMetaData::PutInstanceOnStack(luaEnvironment.GetState(),
@@ -195,7 +198,8 @@ class Macaroni::Environment::ProjectEnvironment
         runProjectInitScript();
 
         // Run "init.lua" which resides in the user directory.
-        runInitScript();
+        runInitScript(runtimeProperties);
+
 
         // Insert our global variables: context, output, plugins, and load.
 
@@ -579,7 +583,7 @@ class Macaroni::Environment::ProjectEnvironment
      *  This has properties in it the user sets on a per-machine basis.
      *  For instance, the path to the Boost libraries might be stored
      *  here. */
-    ~hidden void runInitScript()
+    ~hidden void runInitScript(AnyPtr runtimeProperties)
     {
         path userPath(Paths::GetUserPath());
         path initLuaPath = userPath / "init.lua";
@@ -595,6 +599,9 @@ class Macaroni::Environment::ProjectEnvironment
             getLuaEnvironment().ParseFile(initLuaPath.string());
             getLuaEnvironment().Run();
         }
+        Any * any = runtimeProperties.get();
+        Table * table = static_cast<Table *>(any);
+        getLuaEnvironment().MergeTable("properties", *table);
     }
 
     /** Loads a lua file containing special helper functions all projects

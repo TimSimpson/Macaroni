@@ -257,7 +257,7 @@ class ClassicPlugin : public Plugin
 								//ss << "tostring=";
 								ss << luaL_checkstring(L, -1);
 							}
-							catch(const Macaroni::Exception & ex)
+							catch(const Macaroni::Exception &)
 							{
 								///*try
 								//{
