@@ -131,6 +131,11 @@ class Enum : public Scope
         return true;
     }
 
+    public virtual bool RequiresCppFile() const
+    {
+        return true;
+    }
+
     public virtual const char * GetTypeName() const
     {
         return "Enum";

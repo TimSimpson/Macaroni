@@ -84,7 +84,13 @@ class UnitTarget : public Target
 
 	public void SetCppFile(PathPtr value)
 	{
-		if (cppFile)
+		if (!value && cppFile)
+		{
+			throw CppPathAlreadySetException(
+					cppFile->GetAbsolutePathForceSlash().c_str(),
+					MACARONI_INTERNAL_SOURCE);
+		}
+		else if (cppFile)
 		{
 			if (*cppFile != *value)
 			{

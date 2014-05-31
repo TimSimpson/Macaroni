@@ -1,0 +1,9 @@
+~namespace SomeNamespace;
+
+//MDOC-BEGIN:example
+enum old_style
+{
+    A, B=3,
+    C=4
+};
+//MDOC-END:example

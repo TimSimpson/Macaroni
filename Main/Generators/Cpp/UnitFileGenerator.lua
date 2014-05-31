@@ -8,7 +8,8 @@ require "Cpp/UnitBlockGenerator";
 
 local Access = require "Macaroni.Model.Cpp.Access";
 local Context = require "Macaroni.Model.Context";
-local EnumFileGenerator = CppEnumFileGenerator.EnumFileGenerator
+local EnumHFileGenerator = CppEnumFileGenerator.EnumHFileGenerator
+local EnumCppFileGenerator = CppEnumFileGenerator.EnumCppFileGenerator
 local Node = require "Macaroni.Model.Node";
 local TypeNames = Macaroni.Model.TypeNames;
 
@@ -32,7 +33,7 @@ FileWriters = {
         end,
 
         Enum = function(library, node, writer)
-            gen = EnumFileGenerator.new{node=node, targetLibrary=library,
+            gen = EnumHFileGenerator.new{node=node, targetLibrary=library,
                                         writer=writer};
             gen:parse()
             writer:Write('\n');
@@ -62,6 +63,13 @@ FileWriters = {
                                           writer=writer};
             gen:parse()
             writer:Write('\n'); -- avoid bunching up typedefs
+        end,
+
+        Enum = function(library, node, writer)
+            gen = EnumCppFileGenerator.new{node=node, targetLibrary=library,
+                                        writer=writer};
+            gen:parse()
+            writer:Write('\n');
         end,
     },
 };
@@ -137,6 +145,9 @@ UnitFileGenerator = {
                           .. ", typeName=" .. tostring(typeName))
                 end
                 func(self.targetLibrary, node, writer, unit)
+            else
+                -- TODO: Find some way to disable the constant
+                --       generation of the cpp file.
             end
         end
     end,

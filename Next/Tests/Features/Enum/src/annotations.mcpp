@@ -1,0 +1,18 @@
+~import Macaroni::Cpp::EnumToStringFunction;
+~import Macaroni::Cpp::EnumToCharStrFunction;
+~import Macaroni::Cpp::EnumFromStringFunction;
+
+
+enum class ElementTypes : char
+    @EnumToStringFunction "str"
+    @EnumToCharStrFunction "str"
+    @EnumFromStringFunction "create_cpp11_style"
+{
+    EARTH,
+    FIRE,
+    WATER,
+    LIME,
+    GOLF
+};
+
+

@@ -9,12 +9,15 @@ SimpleBoostProject{
   project=upper.Name .. ".Enum",
   version=upper.Version,
   src="src",
+  docs="docs",
   target="target",
 };
 
 
-local table = context.Root:Find("TrafficLights").Member:GetValues();
-print("HAI")
+--MDOC-BEGIN:example
+print("Here's how you print out the enum values:")
+local table = context.Root:Find("traffic_lights").Member:GetValues();
 for k, v in pairs(table) do
     print(tostring(k) .. "=" .. tostring(v));
 end
+--MDOC-END:example

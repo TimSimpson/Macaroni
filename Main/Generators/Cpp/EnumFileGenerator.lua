@@ -9,30 +9,29 @@ local Node = require "Macaroni.Model.Node";
 local TypeNames = Macaroni.Model.TypeNames;
 
 
-EnumFileGenerator = {
+EnumHFileGenerator = {
 
-    isNested = false,
     node = nil,
     tabs = 0,
     writer = nil,
 
-    new = function(args)
-        if (args == nil or args.node == nil or (args.path == nil and args.writer == nil)) then
+    new = function(self)
+        if (self == nil or self.node == nil or (self.path == nil and self.writer == nil)) then
             error('Expected a table to create new instance with fields "node" and "path" or "writer".', 2);
         end
-        if (args.path == nil) then
-            assert(args.writer ~= nil);
+        if (self.path == nil) then
+            assert(self.writer ~= nil);
         else
-            args.writer = args.path:CreateFile();
+            self.writer = self.path:CreateFile();
         end
 
-        setmetatable(args, EnumFileGenerator);
+        setmetatable(self, EnumHFileGenerator);
 
-        args.minors = args:createMinorNodeList();
+        self.minors = self:createMinorNodeList();
 
-        args.libDecl = LibraryDecl(args.targetLibrary);
+        self.libDecl = LibraryDecl(self.targetLibrary);
 
-        return args;
+        return self;
     end,
 
     createMinorNodeList = function(self)
@@ -43,10 +42,6 @@ EnumFileGenerator = {
     getGuardName = function(self)
         local guardName = "MACARONI_COMPILE_GUARD_" .. self.node:GetPrettyFullName("_") .. "___H";
         return guardName;
-    end,
-
-    hasEntriesInLibrary = function(self, targetLibrary)
-        return self.node.Element.OwnedBy(targetLibrary);
     end,
 
     includeStatements = function(self)
@@ -71,16 +66,6 @@ EnumFileGenerator = {
         end
     end,
 
-    memberEligibleForOutput = function(self, member)
-        local typeName = member.TypeName;
-        local handlerFunc = nil;
-        if (typeName == TypeNames.Typedef) then
-            handlerFunc = self.parseTypedef;
-        else
-            handlerFunc = self["parse" .. typeName];
-        end
-        return handlerFunc ~= nil;
-    end,
 
     parse = function(self)
         check(self ~= nil, "Instance method called without self.");
@@ -94,7 +79,7 @@ EnumFileGenerator = {
         self:namespaceBegin(self.node.Node);
         self:write('\n');
 
-        self:iterateMembers(self.minors);
+        self:parseEnum(self.node);
 
         self:write('\n');
         self:namespaceEnd(self.node.Node);
@@ -102,29 +87,7 @@ EnumFileGenerator = {
         self:includeGuardFooter();
     end,
 
-    parseMember = function(self, node)
-        local m = node.Member;
-        if (m == nil) then
-            self:writeTabs();
-            self:write("// No member info- " .. node.Name .. "\n");
-        end
-        local typeName = m.TypeName;
-        local handlerFunc = nil;
-        if (typeName == TypeNames.Typedef) then
-            handlerFunc = self.parseTypedef;
-        else
-            handlerFunc = self["parse" .. typeName];
-        end
-
-        if (handlerFunc ~= nil) then
-            handlerFunc(self, node);
-        else
-            self:writeTabs();
-            self:write("//     ~ Have no way to handle node " .. node.Name .. " with Member type " .. typeName .. ".\n");
-        end
-    end,
-
-    ["parse" .. TypeNames.Enum] = function(self, node)
+    parseEnum = function(self, node)
         self:writeTabs();
         local enum = node.Member;
         self:writeAfterTabs("enum ");
@@ -157,29 +120,100 @@ EnumFileGenerator = {
         self:writeAfterTabs("};\n");
     end,
 
-    shouldIncludeNode = function(self, node)
-        if (node.Member ~= nil
-                and node.Member.TypeName ~= TypeNames.Class
-                and node.AdoptedHome == nil) then
-            if (node.HFilePath == nil) then
-                return true;
-            end
-            local attr = node.Annotations["Macaroni::Cpp::LightDef"];
-            if (attr ~= nil) then
-                return true;
-            end
-            local attr = node.Annotations["Macaroni::Cpp::UseLightDef"]
-            if attr ~= nil and not attr.ValueAsBool then
-                return true;
-            end
-        end
-        return false;
-    end,
 
 };
 
-Util.linkToSubClass(FileGenerator, EnumFileGenerator);
+Util.linkToSubClass(FileGenerator, EnumHFileGenerator);
+
+EnumCppFileGenerator = {
+
+    node = nil,
+    tabs = 0,
+    writer = nil,
+
+    new = function(self)
+        if (self == nil or self.node == nil or (self.path == nil and self.writer == nil)) then
+            error('Expected a table to create new instance with fields "node" and "path" or "writer".', 2);
+        end
+        if (self.path == nil) then
+            assert(self.writer ~= nil);
+        else
+            self.writer = self.path:CreateFile();
+        end
+
+        setmetatable(self, EnumCppFileGenerator);
+
+        self.minors = self:createMinorNodeList();
+
+        self.libDecl = LibraryDecl(self.targetLibrary);
+
+        return self;
+    end,
+
+    createMinorNodeList = function(self)
+        return { self.node }
+    end,
+
+
+    getGuardName = function(self)
+        local guardName = "MACARONI_COMPILE_GUARD_" .. self.node:GetPrettyFullName("_") .. "___H";
+        return guardName;
+    end,
+
+    includeStatements = function(self)
+        -- Write include statement. No inner header.
+        self:write(NodeInfoList[self.node].useHeavyDef(self.targetLibrary));
+    end,
+
+
+    parse = function(self)
+        return
+        -- --TODO: Somehow add extra functions via annotations
+        -- check(self ~= nil, "Instance method called without self.");
+        -- check(self.writer ~= nil, "Instance writer missing.");
+        -- self:includeGuardHeader();
+        -- --self:debugOutDependencyGraph();
+        -- self:includeConfigFile();
+        -- self:write('\n');
+        -- self:includeStatements();
+        -- self:write('\n');
+        -- self:namespaceBegin(self.node.Node);
+        -- self:write('\n');
+
+        -- self:parseEnum(self.node);
+
+        -- self:write('\n');
+        -- self:namespaceEnd(self.node.Node);
+        -- self:write('\n');
+        -- self:includeGuardFooter();
+    end,
+
+    -- hasEnumAttr = function(self, node, name)
+    --     local attr = node.Annotations[name]
+    --     if attr ~= nil then
+    --         if not attr.IsString then
+    --             error("The node " .. node.FullName .. " annotation value "
+    --                   .. name .. " must be a string.")
+    --         end
+    --         return attr.ValueAsString
+    --     end
+    --     return nil
+    -- end,
+
+    parseEnum = function(self, node)
+        --TODO: Add extra function bodies if possible
+        -- local toStr = self:hasEnumAttr("Macaroni::Cpp::EnumToStringFunction")
+        -- if toStr then
+
+        -- end
+    end,
+
+
+};
+
+Util.linkToSubClass(FileGenerator, EnumCppFileGenerator);
 
 return {
-    EnumFileGenerator=EnumFileGenerator
+    EnumHFileGenerator=EnumHFileGenerator,
+    EnumCppFileGenerator=EnumCppFileGenerator
 }

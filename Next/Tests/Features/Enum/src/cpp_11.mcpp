@@ -1,0 +1,6 @@
+enum class traffic_lights : char
+{
+    RED='r',
+    GREEN='g',
+    BLUE='b'
+};

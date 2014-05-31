@@ -249,7 +249,11 @@ class TargetLuaExtra
 			{
 				return luaL_error(L, "Expected a UnitTarget.");
 			}
-			PathPtr path = PathLuaMetaData::GetInstance(L, 2);
+			PathPtr path;
+			if (!lua_isnil(L, 2))
+			{
+				path = PathLuaMetaData::GetInstance(L, 2);
+			}
 			unitTarget->SetCppFile(path);
 			return 0;
 		LUA_GLUE_CATCH

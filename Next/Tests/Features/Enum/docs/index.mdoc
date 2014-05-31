@@ -1,0 +1,41 @@
+The Enum Keyword
+================
+
+Macaroni supports C++ enums using the same syntax as C++, with any discrepancies being inadvertent or accidental.
+
+Here's an example of an old style enum:
+
+
+.. code-block:: c++
+
+<~#dumpi <src/old_style.mcpp> "example" ~>
+
+And here's an example of using the C++11 "class" enums:
+
+.. code-block:: c++
+
+<~#dumpi <src/cpp_11.mcpp> ~>
+
+By default, a new unit is created for each enum, but only the header file
+contains anything with the cpp file being empty.
+
+.. note::
+
+    Note that the order enumerations are declared in Macaroni is not the same as how they are generated. If order is important, use a ~block or do not rely on auto-incrementing default values.
+
+Lua Scripts
+-----------
+The enum values are accessible from Lua using the GetValues command, like so:
+
+.. code-block:: lua
+
+<~#dumpi <project.lua> "example" ~>
+
+The above script produces the following output:
+
+.. code-block:: lua
+
+    Here's how you print out the enum values:
+    BLUE='b'
+    GREEN='g'
+    RED='r'

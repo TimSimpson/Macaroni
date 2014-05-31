@@ -265,6 +265,12 @@ DependencyList = {
             else
                 self:addLightDependencyNode(node);
             end
+        elseif (member.TypeName == TypeNames.Enum) then
+            if (traveller.heavy) then
+                self:addHeavyDependencyNode(node);
+            else
+                self:addLightDependencyNode(node);
+            end
         elseif (member.TypeName == TypeNames.Primitive) then
             -- Ignore! :D
         elseif (member.TypeName == TypeNames.Typedef) then

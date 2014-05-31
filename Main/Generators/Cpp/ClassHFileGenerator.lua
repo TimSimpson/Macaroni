@@ -235,7 +235,7 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
            self:includeConfigFile();
         end
 
-        self:writeAfterTabs("// Forward declaration necessary for anything which also depend on this.\n");
+        self:writeAfterTabs("// Forward declaration necessary for anything which also depends on this.\n");
 
         if (not self.isNested) then
             self:namespaceBegin(self.node.Node);
