@@ -39,9 +39,9 @@
 
 #include "../LuaGlue.hpp"
 
-	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr, 
+	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr,
 									  const std::string & index)
-	{				
+	{
 		if (index == "Const")
 		{
 			lua_pushboolean(L, ptr->IsConst());
@@ -67,6 +67,11 @@
 			lua_pushboolean(L, ptr->IsReference());
 			return 1;
 		}
+		else if (index == "RvalueReference")
+		{
+			lua_pushboolean(L, ptr->IsRvalueReference());
+			return 1;
+		}
 		else if (index == "Node")
 		{
 			NodeLuaMetaData::PutInstanceOnStack(L, ptr->GetNode());
@@ -78,7 +83,7 @@
 			TypeArgumentListLuaMetaData::PutInstanceOnStack(L, list);
 			return 1;
 		}
-		lua_pushnil(L);			
+		lua_pushnil(L);
 		return 1;
 	}
 
@@ -87,15 +92,15 @@
 		if (!NodeLuaMetaData::IsType(L, 1))
 		{
 			luaL_error(L, "Expected a Node for argument #1 in Type creator.");
-		}		
+		}
 
-		NodePtr node = NodeLuaMetaData::GetInstance(L, 1);				
+		NodePtr node = NodeLuaMetaData::GetInstance(L, 1);
 
 		TypePtr type;
-		
+
 		TypeModifiers modifiers;
 		const int tableIndex = 2;
-		
+
 		if (lua_istable(L, tableIndex))
 		{
 			luaL_checktype(L, tableIndex, LUA_TTABLE);
@@ -127,7 +132,7 @@
 
 		if (lua_checkstack(L, 3) && TypeArgumentListLuaMetaData::IsType(L, 3))
 		{
-			TypeArgumentListPtr list = 
+			TypeArgumentListPtr list =
 				TypeArgumentListLuaMetaData::GetInstance(L, 3);
 			type.reset(new Type(node, modifiers, list));
 		}
@@ -135,7 +140,7 @@
 		{
 			type.reset(new Type(node, modifiers));
 		}
-		
+
 		TypeLuaMetaData::PutInstanceOnStack(L, type);
 		return 1;
 	}
@@ -144,7 +149,7 @@
 	{
 		TypePtr & ptr = getInstance(L);
 		std::stringstream ss;
-		if (ptr->IsConst()) 
+		if (ptr->IsConst())
 		{
 			ss << "const ";
 		}
@@ -153,20 +158,20 @@
 		{
 			ss << " & ";
 		}
-		if (ptr->IsConstPointer()) 
+		if (ptr->IsConstPointer())
 		{
 			ss << " * const ";
 		}
 		else if (ptr->IsPointer())
 		{
 			ss << " * ";
-		}		
+		}
 		lua_pushstring(L, ss.str().c_str());
 		return 1;
-	}	
+	}
 
 	#define LUAGLUE_ADDITIONALMETATABLEMETHODS \
-		{"__tostring", LUAGLUE_HELPERCLASS::__tostring}, 
+		{"__tostring", LUAGLUE_HELPERCLASS::__tostring},
 
 	#define LUAGLUE_ADDITIONALTABLEMETHODS \
 		{"New", LUAGLUE_HELPERCLASS::__new},

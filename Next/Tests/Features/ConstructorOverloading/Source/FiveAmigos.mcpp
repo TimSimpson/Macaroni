@@ -1,0 +1,88 @@
+
+/**
+ * Proof of concept to show Macaroni handling the rule of five for C++11.
+ *
+ * 1. Copy Constructor
+ * 2. Assignment Operator.
+ * 3. Destructor
+ * 4. Move Constructor.
+ * 5. Move assignment Operator.
+ */
+
+class Handle
+{
+    ~block "h-predef" { #include <memory> }
+
+    private char * memory;
+    private static const int size = 300;
+
+    public Handle()
+    : memory(nullptr)
+    {
+        memory = new char[size];
+    }
+
+    // Move constructor- exchange ownership.
+    public Handle(Handle && rhs)
+    :   memory(rhs.memory)
+    {
+        rhs.memory = nullptr;
+    }
+
+
+    // Copy constructor.
+    public Handle(const Handle & rhs)
+    :   memory(nullptr)
+    {
+        memory = new char[size];
+        for (auto i = 0; i < size; ++ i) {
+            memory[i] = rhs.memory[i];
+        }
+    }
+
+    // Copy assignment operator
+    public Handle & operator=(const Handle & rhs)
+    {
+        if (this != &rhs)
+        {
+            std::unique_ptr<char> copy(new char[size]);
+            for (auto i = 0; i < size; ++ i) {
+                copy.get()[i] = rhs.memory[i];
+            }
+            delete[] this->memory;
+            this->memory = copy.release();
+        }
+        return *this;
+    }
+
+    // Move assignment operator
+    public Handle & operator=(Handle && rhs)
+    {
+        if (this != &rhs)
+        {
+            delete[] this->memory;
+            this->memory = rhs.memory;
+            rhs.memory = nullptr;
+        }
+        return *this;
+    }
+
+    public ~Handle()
+    {
+        if (nullptr != this->memory)
+        {
+            delete[] this->memory;
+        }
+    }
+
+    public bool operator== (const Handle & rhs) const
+    {
+        return this->memory == rhs.memory;
+    }
+
+    public bool operator != (const Handle & rhs) const
+    {
+        return ! this->operator==(rhs);
+    }
+
+};

@@ -22,21 +22,23 @@
 ~import std::stringstream;
 
 namespace Macaroni::Model {
-	
+
 	class TypeModifiers
 		@LuaClass [ ReferenceType = TypeModifiers ]
 	{
 		private bool _const;
-		private bool _constPointer;		
+		private bool _constPointer;
 		private bool _light;
 		private bool _pointer;
-		private bool _reference;	
+		private bool _reference;
+		private bool _rvalue;
 
 		public TypeModifiers()
 			: _const(false), _constPointer(false),
 			  _light(false),
-			  _pointer(false), _reference(false)			  
-		{			
+			  _pointer(false), _reference(false),
+			  _rvalue(false)
+		{
 			if (ConstPointer() && !Pointer())
 			{
 				MACARONI_THROW("Cannot use 'ConstPointer' type modifier if the "
@@ -59,7 +61,7 @@ namespace Macaroni::Model {
 			return _const;
 		}
 
-		public inline void SetConst(bool value)			
+		public inline void SetConst(bool value)
 		{
 			_const = value;
 		}
@@ -86,7 +88,7 @@ namespace Macaroni::Model {
 			_constPointer = value;
 		}
 
-		
+
 		public inline bool Pointer() const
 			@LuaProperty "Pointer"
 		{
@@ -101,7 +103,7 @@ namespace Macaroni::Model {
 		public inline bool Reference() const
 			@LuaProperty "Reference"
 		{
-			return _reference;
+			return _reference || _rvalue;
 		}
 
 		public inline void SetReference(bool value)
@@ -109,21 +111,33 @@ namespace Macaroni::Model {
 			_reference = value;
 		}
 
+		public inline bool RvalueReference() const
+			@LuaProperty "RvalueReference"
+		{
+			return _rvalue;
+		}
+
+		public inline void SetRvalueReference(bool value)
+		{
+			_rvalue = value;
+		}
 
 		public bool MayOnlyNeedForwardDeclaration()
 			@LuaProperty "MayOnlyNeedForwardDeclaration"
 		{
-			return (_constPointer || _light || _reference || _pointer);
+			return (_constPointer || _light || _reference || _pointer
+				    || _rvalue);
 		}
 
 		public string ToString()
 			@LuaOperator "__tostring"
 		{
-			stringstream ss;			
-			ss << (Const() ? "const " : "") 
+			stringstream ss;
+			ss << (Const() ? "const " : "")
 			   << "T"
 			   << (Light() ? " ~L" : "")
-			   << (Pointer() ? " *" : (Reference() ? " &" : ""))
+			   << (Pointer() ? " *" : "")
+			   << (RvalueReference() ? " &&" : (Reference() ? " &" : ""))
 			   << (ConstPointer() ? " const" : "")
 				;
 			return ss.str();

@@ -35,19 +35,19 @@ Type::Type(NodePtr type, TypeModifiers modifiers, TypeArgumentListPtr typeArgume
 	modifiers(modifiers)
 {
 }
-	
+
 Type::~Type()
 {
 }
 
 bool Type::operator== (const Type & other) const
-{	
+{
 	return this->modifiers == other.modifiers
 		   && type == other.type
-		   && TypeArgument::ListIsEqual(this->GetTypeArguments(), 
+		   && TypeArgument::ListIsEqual(this->GetTypeArguments(),
 		                                other.GetTypeArguments());
 }
-	
+
 void Type::DescribeDifferences(const TypePtr other, std::stringstream & stream) const
 {
 	if (this->IsConst() && !other->IsConst())
@@ -65,6 +65,10 @@ void Type::DescribeDifferences(const TypePtr other, std::stringstream & stream) 
 	if (this->IsReference() && !other->IsReference())
 	{
 		stream << "Previous definition was reference.";
+	}
+	if (this->IsRvalueReference() && !other->IsRvalueReference())
+	{
+		stream << "Previous definition was rvalue reference.";
 	}
 	if (this->GetNode()->GetFullName() != other->GetNode()->GetFullName())
 	{
@@ -87,10 +91,10 @@ TypeArgumentListPtr Type::GetTypeArguments() const
 {
 	return typeArguments;
 }
-	
-bool Type::ListContains(TypeListPtr list, TypePtr target) 
+
+bool Type::ListContains(TypeListPtr list, TypePtr target)
 {
-	Type & targetRef = *target.get();	
+	Type & targetRef = *target.get();
 	BOOST_FOREACH(TypePtr e, *(list.get()))
 	{
 		Type & a = *e.get();
@@ -107,7 +111,7 @@ bool Type::ListIsEqual(TypeListPtr list1, TypeListPtr list2)
 	TypeList & list1Ref = *(list1.get());
 	BOOST_FOREACH(TypePtr element, list1Ref)
 	{
-		if (!ListContains(list2, element)) 
+		if (!ListContains(list2, element))
 		{
 			return false;
 		}

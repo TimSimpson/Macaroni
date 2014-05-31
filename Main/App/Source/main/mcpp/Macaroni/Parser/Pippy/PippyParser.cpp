@@ -2699,6 +2699,10 @@ public:
 		if (itr.ConsumeChar('&'))
 		{
 			modifiers.SetReference(true);
+			if (itr.ConsumeChar('&'))
+			{
+				modifiers.SetRvalueReference(true);
+			}
 			ConsumeWhitespace(itr);
 		}
 

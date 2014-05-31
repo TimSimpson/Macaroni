@@ -295,7 +295,9 @@ TypeUtil = {
         if (type.Pointer) then
             rtnStr = rtnStr .. "* ";
         end
-        if (type.Reference) then
+        if type.RvalueReference then
+            rtnStr = rtnStr .. "&& ";
+        elseif type.Reference then
             rtnStr = rtnStr .. "& ";
         end
         if (type.ConstPointer) then
