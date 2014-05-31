@@ -41,12 +41,13 @@ tests = {
         init = function(this)
             this.parser = PippyParser.Create();
             this.context = Context.New("{ROOT}");
-            this.library = this.context:FindOrCreateLibrary("Tests", "Test", "1.0");
+            this.target = this.context:Group("Tests")
+                :Project("Test"):Version("1.0"):Target("hi");
             this.file = FileName.Create(Path.New("", "Blah1.mcpp"));
             this.root = this.context.Root;
             this.src = Source.Create(this.file, 1, 1);
 
-            this.parser:Read(this.library, this.src, "");
+            this.parser:Read(this.target, this.src, "");
         end,
         tests = {
             ["One node exists within the Context"] = function(this)
@@ -63,12 +64,13 @@ tests = {
         init = function(this)
             this.parser = PippyParser.Create();
             this.context = Context.New("{ROOT}");
-            this.library = this.context:FindOrCreateLibrary("Tests", "Test", "1.0");
+            this.target = this.context:Group("Tests")
+                :Project("Test"):Version("1.0"):Target("hi");
             this.file = FileName.Create(Path.New("", "Blah1.mcpp"));
             this.root = this.context.Root;
             this.src = Source.Create(this.file, 1, 1);
 
-            this.parser:Read(this.library, this.src, [[
+            this.parser:Read(this.target, this.src, [[
                 namespace Apple { }
             ]]);
         end,
@@ -99,12 +101,13 @@ tests = {
         init = function(this)
             this.parser = PippyParser.Create();
             this.context = Context.New("{ROOT}");
-            this.library = this.context:FindOrCreateLibrary("Tests", "Test", "1.0");
+            this.target = this.context:Group("Tests")
+                :Project("Test"):Version("1.0"):Target("hi");
             this.file = FileName.Create(Path.New("", "Blah1.mcpp"));
             this.root = this.context.Root;
             this.src = Source.Create(this.file, 1, 1);
 
-            this.parser:Read(this.library, this.src, [[
+            this.parser:Read(this.target, this.src, [[
                 namespace Apple {
                     namespace Seed
                     {
@@ -136,13 +139,14 @@ tests = {
         tryParse = function(text)
             local parser = PippyParser.Create();
             local context = Context.New("{ROOT}");
-            local library = context:FindOrCreateLibrary("Tests", "Test", "1.0");
+            local target = context:Group("Tests")
+                :Project("Test"):Version("1.0"):Target("hi");
             local file = FileName.Create(Path.New("", "Blah1.mcpp"));
             local src = Source.Create(file, 1, 1);
 
             local result = nil;
             local status, err = pcall(function()
-                    result = parser:Read(library, src, text);
+                    result = parser:Read(target, src, text);
                 end
             );
             return status, err;

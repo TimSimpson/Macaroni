@@ -41,7 +41,7 @@ function operatorTest(actualCode, expectedNode)
         name = expectedNode,
         init = function(self)
 			ParserTest.init(self)
-            self.parser:Read(self.library, self.src, [[
+            self.parser:Read(self.target, self.src, [[
                 class Blah
                 {
 					public int ]] .. actualCode .. [[(int a, int b) {}

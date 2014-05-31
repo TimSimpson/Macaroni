@@ -62,12 +62,13 @@ tests = {
         init = function(this)
             this.parser = PippyParser.Create();
             this.context = Context.New("{ROOT}");
-            this.library = this.context:FindOrCreateLibrary("Tests", "PippyParserTests_Functions", "9.5");
+            this.target = this.context:Group("Tests")
+                :Project("PippyParserTests_Functions"):Version("9.5"):Target("hi");
             this.file = FileName.Create(Path.New("", "Blah1.mcpp"));
             this.root = this.context.Root;
             this.src = Source.Create(this.file, 1, 1);
 
-            this.parser:Read(this.library, this.src, [[
+            this.parser:Read(this.target, this.src, [[
                 void main(){}
             ]]);
             this.funcNode = this.root.Children[2];
@@ -101,12 +102,13 @@ tests = {
         init = function(this)
             this.parser = PippyParser.Create();
             this.context = Context.New("{ROOT}");
-            this.library = this.context:FindOrCreateLibrary("Tests", "ArgList_types", "3.x");
+            this.target = this.context:Group("Tests")
+                :Project("ArgList_types"):Version("3.x"):Target("hi");
             this.file = FileName.Create(Path.New("", "Blah1.mcpp"));
             this.root = this.context.Root;
             this.src = Source.Create(this.file, 1, 1);
 
-            this.parser:Read(this.library, this.src, [[
+            this.parser:Read(this.target, this.src, [[
                 ~import std::string;
                 void go(string blah){}
             ]]);

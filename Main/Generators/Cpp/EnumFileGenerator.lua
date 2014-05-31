@@ -152,6 +152,7 @@ EnumFileGenerator = {
                 self:write("=" .. tostring(v))
             end
         end
+        self:write("\n");
         self:addTabs(-1);
         self:writeAfterTabs("};\n");
     end,

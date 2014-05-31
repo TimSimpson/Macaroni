@@ -33,13 +33,14 @@ local Source = require "Macaroni.Model.Source";
 local tryParse = function(text)
     local parser = PippyParser.Create();
     local context = Context.New("{ROOT}");
-    local library = context:FindOrCreateLibrary("Tests", "tryParse", "1.0");
+    local target = self.context:Group("Tests")
+                :Project("tryParse"):Version("1.0"):Target("hi");
     local file = FileName.Create(Path.New("", "Blah1.mcpp"));
     local src = Source.Create(file, 1, 1);
 
     local result = nil;
     local status, err = pcall(function()
-            result = parser:Read(library, src, text);
+            result = parser:Read(target, src, text);
         end
     );
     return status, err;
@@ -55,12 +56,13 @@ tests = {
         init = function(this)
             this.parser = PippyParser.Create();
             this.context = Context.New("{ROOT}");
-            this.library = this.context:FindOrCreateLibrary("Tests", "PippyParserTests_VARS", "44");
+            this.target = this.context:Group("Tests")
+                :Project("PippyParserTests_VARS"):Version("44"):Target("hi");
             this.file = FileName.Create(Path.New("", "Blah1.mcpp"));
             this.root = this.context.Root;
             this.src = Source.Create(this.file, 1, 1);
 
-            this.parser:Read(this.library, this.src, [[
+            this.parser:Read(this.target, this.src, [[
                 char c;
             ]]);
             this.var = this.root.Children[2].Element;
@@ -84,12 +86,13 @@ tests = {
         init = function(this)
             this.parser = PippyParser.Create();
             this.context = Context.New("{ROOT}");
-            this.library = this.context:FindOrCreateLibrary("Tests", "fgd", "4");
+            this.target = this.context:Group("Tests")
+                :Project("fgd"):Version("4"):Target("hi");
             this.file = FileName.Create(Path.New("", "Blah1.mcpp"));
             this.root = this.context.Root;
             this.src = Source.Create(this.file, 1, 1);
 
-            this.parser:Read(this.library, this.src, [[
+            this.parser:Read(this.target, this.src, [[
                 char c;
                 double k;
             ]]);
@@ -121,12 +124,13 @@ tests = {
         init = function(this)
             this.parser = PippyParser.Create();
             this.context = Context.New("{ROOT}");
-            this.library = this.context:FindOrCreateLibrary("Tests", "fsds", "c");
+            this.target = this.context:Group("Tests")
+                :Project("fsds"):Version("c"):Target("hi");
             this.file = FileName.Create(Path.New("", "Blah1.mcpp"));
             this.root = this.context.Root;
             this.src = Source.Create(this.file, 1, 1);
 
-            this.parser:Read(this.library, this.src, [[
+            this.parser:Read(this.target, this.src, [[
                 const char c;
             ]]);
             this.var = this.root.Children[2].Element;
@@ -143,12 +147,13 @@ tests = {
         init = function(this)
             this.parser = PippyParser.Create();
             this.context = Context.New("{ROOT}");
-            this.library = this.context:FindOrCreateLibrary("Tests", "fsds", "c");
+            this.target = this.context:Group("Tests")
+                :Project("fsds"):Version("c"):Target("hi");
             this.file = FileName.Create(Path.New("", "Blah1.mcpp"));
             this.root = this.context.Root;
             this.src = Source.Create(this.file, 1, 1);
 
-            this.parser:Read(this.library, this.src, [[
+            this.parser:Read(this.target, this.src, [[
                 char const c;
             ]]);
             this.var = this.root.Children[2].Element;
@@ -171,12 +176,13 @@ tests = {
         init = function(this)
             this.parser = PippyParser.Create();
             this.context = Context.New("{ROOT}");
-            this.library = this.context:FindOrCreateLibrary("Tests", "fsds", "c");
+            this.target = this.context:Group("Tests")
+                :Project("fsds"):Version("c"):Target("hi");
             this.file = FileName.Create(Path.New("", "Blah1.mcpp"));
             this.root = this.context.Root;
             this.src = Source.Create(this.file, 1, 1);
 
-            this.parser:Read(this.library, this.src, [[
+            this.parser:Read(this.target, this.src, [[
                 char const Donut::K;
             ]]);
         end,
@@ -199,12 +205,13 @@ tests = {
         init = function(this)
             this.parser = PippyParser.Create();
             this.context = Context.New("{ROOT}");
-            this.library = this.context:FindOrCreateLibrary("Tests", "gdfd", "423");
+            this.target = this.context:Group("Tests")
+                :Project("gdfd"):Version("423"):Target("hi");
             this.file = FileName.Create(Path.New("", "DoubleDribbler.mcpp"));
             this.root = this.context.Root;
             this.src = Source.Create(this.file, 1, 1);
 
-            this.parser:Read(this.library, this.src, [[
+            this.parser:Read(this.target, this.src, [[
                 char c;  // Apparently, this was allowed but isn't anymore.
                 double const k; // I'd like to keep the feature though so IOU
                 const double k; // one bug fix. ~ Tim of the Past
@@ -235,12 +242,13 @@ tests = {
         init = function(this)
             this.parser = PippyParser.Create();
             this.context = Context.New("{ROOT}");
-            this.library = this.context:FindOrCreateLibrary("Tests", "rfdg", "x");
+            this.target = this.context:Group("Tests")
+                :Project("rfdg"):Version("x"):Target("hi");
             this.file = FileName.Create(Path.New("", "Blah1.mcpp"));
             this.root = this.context.Root;
             this.src = Source.Create(this.file, 1, 1);
 
-            this.parser:Read(this.library, this.src, [[
+            this.parser:Read(this.target, this.src, [[
                 const char * c;
             ]]);
             this.var = this.root.Children[2].Element;
@@ -267,12 +275,13 @@ tests = {
         init = function(this)
             this.parser = PippyParser.Create();
             this.context = Context.New("{ROOT}");
-            this.library = this.context:FindOrCreateLibrary("Tests", "fsds", "c");
+            this.target = this.context:Group("Tests")
+                :Project("fsds"):Version("c"):Target("hi");
             this.file = FileName.Create(Path.New("", "Blah1.mcpp"));
             this.root = this.context.Root;
             this.src = Source.Create(this.file, 1, 1);
 
-            this.parser:Read(this.library, this.src, [[
+            this.parser:Read(this.target, this.src, [[
                 char const * c;
             ]]);
             this.var = this.root.Children[2].Element;
@@ -299,12 +308,13 @@ tests = {
         init = function(this)
             this.parser = PippyParser.Create();
             this.context = Context.New("{ROOT}");
-            this.library = this.context:FindOrCreateLibrary("Tests", "fsds", "c");
+            this.target = this.context:Group("Tests")
+                :Project("fsds"):Version("c"):Target("hi");
             this.file = FileName.Create(Path.New("", "Blah1.mcpp"));
             this.root = this.context.Root;
             this.src = Source.Create(this.file, 1, 1);
 
-            this.parser:Read(this.library, this.src, [[
+            this.parser:Read(this.target, this.src, [[
                 char const * const c;
             ]]);
             this.var = this.root.Children[2].Element;
@@ -337,12 +347,13 @@ tests = {
         init = function(this)
             this.parser = PippyParser.Create();
             this.context = Context.New("{ROOT}");
-            this.library = this.context:FindOrCreateLibrary("Tests", "fsds", "c");
+            this.target = this.context:Group("Tests")
+                :Project("fsds"):Version("c"):Target("hi");
             this.file = FileName.Create(Path.New("", "Blah1.mcpp"));
             this.root = this.context.Root;
             this.src = Source.Create(this.file, 1, 1);
 
-            this.parser:Read(this.library, this.src, [[
+            this.parser:Read(this.target, this.src, [[
                 char & c;
             ]]);
             this.var = this.root.Children[2].Element;
@@ -375,12 +386,13 @@ tests = {
         init = function(this)
             this.parser = PippyParser.Create();
             this.context = Context.New("{ROOT}");
-            this.library = this.context:FindOrCreateLibrary("Tests", "fsds", "c");
+            this.target = this.context:Group("Tests")
+                :Project("fsds"):Version("c"):Target("hi");
             this.file = FileName.Create(Path.New("", "Blah1.mcpp"));
             this.root = this.context.Root;
             this.src = Source.Create(this.file, 1, 1);
 
-            this.parser:Read(this.library, this.src, [[
+            this.parser:Read(this.target, this.src, [[
                 char const * const & c;
             ]]);
             this.var = this.root.Children[2].Element;

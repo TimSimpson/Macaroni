@@ -67,12 +67,13 @@ tests = {
         init = function(self)
             self.parser = PippyParser.Create();
             self.context = Context.New("{ROOT}");
-            self.library = self.context:FindOrCreateLibrary("Tests", "Test", "1.0");
+            self.target = self.context:Group("Tests")
+                :Project("Test"):Version("1.0"):Target("hi");
             self.file = FileName.Create(Path.New("", "a_std.mcpp"));
             self.root = self.context.Root;
             self.src = Source.Create(self.file, 1, 1);
 
-            self.parser:Read(self.library, self.src, [[
+            self.parser:Read(self.target, self.src, [[
                 namespace std {
                     class string { ~hfile=<string> }
                 }
@@ -95,12 +96,13 @@ tests = {
         init = function(self)
             self.parser = PippyParser.Create();
             self.context = Context.New("{ROOT}");
-            self.library = self.context:FindOrCreateLibrary("Tests", "Test", "1.0");
+            self.target = self.context:Group("Tests")
+                :Project("Test"):Version("1.0"):Target("hi");
             self.file = FileName.Create(Path.New("", "Blah1.mcpp"));
             self.root = self.context.Root;
             self.src = Source.Create(self.file, 1, 1);
 
-            self.parser:Read(self.library, self.src, [[
+            self.parser:Read(self.target, self.src, [[
                 class Dog
                 {
                     public int GetBarkCount(){ return bc; }

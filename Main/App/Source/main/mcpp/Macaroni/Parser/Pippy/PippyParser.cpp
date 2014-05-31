@@ -746,9 +746,20 @@ public:
 		AccessPtr access = AccessKeyword(newItr);
 		newItr.ConsumeWhitespace();
 
+		auto defaultAccess = Access::Private();
+		bool isStruct = false;
+
 		if (!newItr.ConsumeWord("class"))
 		{
-			return false;
+			if (!newItr.ConsumeWord("struct"))
+			{
+				return false;
+			}
+			else
+			{
+				isStruct = true;
+				defaultAccess = Access::Public();
+			}
 		}
 
 		// Once the parser has seen "class" it must see the correct
@@ -766,7 +777,7 @@ public:
 		NodePtr oldScope = currentScope;
 		currentScope = currentScope->FindOrCreate(name, hFilesForNewNodes);
 		lastAccess = currentAccess;
-		currentAccess = Access::Private();
+		currentAccess = defaultAccess;
 
 		ClassPtr newClass;
 		TargetPtr tHome = deduceTargetHome(currentScope);
@@ -778,7 +789,7 @@ public:
 		} else {
 			// NEW WAY
 			newClass =
-			Class::Create(tHome, currentScope, access, importedNodes,
+			Class::Create(tHome, currentScope, isStruct, access, importedNodes,
 				Reason::Create(CppAxioms::ClassCreation(), newItr.GetSource()));
 		}
 
@@ -1730,7 +1741,7 @@ public:
 			ConsumeWhitespace(newItr);
 			if (newItr.ConsumeChar('='))
 			{
-				ConsumeExpression(newItr, " ,}", value);
+				ConsumeExpression(newItr, " ,}\n\r", value);
 				if (value.length() < 1)
 				{
 					throw ParserException(newItr.GetSource(),

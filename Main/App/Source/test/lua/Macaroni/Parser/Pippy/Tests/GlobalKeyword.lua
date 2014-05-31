@@ -67,12 +67,13 @@ tests = {
         init = function(self)
             self.parser = PippyParser.Create();
             self.context = Context.New("{ROOT}");
-            self.library = self.context:FindOrCreateLibrary("Tests", "Test", "1.0");
+            self.target = self.context:Group("Tests")
+                :Project("Test"):Version("1.0"):Target("hi");
             self.file = FileName.Create(Path.New("", "GlobalKeyword.mcpp"));
             self.root = self.context.Root;
             self.src = Source.Create(self.file, 1, 1);
 
-            self.parser:Read(self.library, self.src, [[
+            self.parser:Read(self.target, self.src, [[
 
 				~namespace Something;
 				class GlobalKeyword {
@@ -109,12 +110,13 @@ tests = {
         init = function(self)
             self.parser = PippyParser.Create();
             self.context = Context.New("{ROOT}");
-            self.library = self.context:FindOrCreateLibrary("Tests", "Test", "1.0");
+            self.target = self.context:Group("Tests")
+                :Project("Test"):Version("1.0"):Target("hi");
             self.file = FileName.Create(Path.New("", "GlobalKeyword.mcpp"));
             self.root = self.context.Root;
             self.src = Source.Create(self.file, 1, 1);
 
-            self.parser:Read(self.library, self.src, [[
+            self.parser:Read(self.target, self.src, [[
 				~import SomeOtherPlace;
 				~namespace Something;
 
@@ -154,12 +156,13 @@ tests = {
         init = function(self)
             self.parser = PippyParser.Create();
             self.context = Context.New("{ROOT}");
-            self.library = self.context:FindOrCreateLibrary("Tests", "Test", "1.0");
+            self.target = self.context:Group("Tests")
+                :Project("Test"):Version("1.0"):Target("hi");
             self.file = FileName.Create(Path.New("", "GlobalKeyword.mcpp"));
             self.root = self.context.Root;
             self.src = Source.Create(self.file, 1, 1);
 
-            self.parser:Read(self.library, self.src, [[
+            self.parser:Read(self.target, self.src, [[
 				~import SomeOtherPlace;
 				~namespace Something;
 
@@ -204,13 +207,14 @@ tests = {
 			= function(self)
 				self.parser = PippyParser.Create();
 				self.context = Context.New("{ROOT}");
-				self.library = self.context:FindOrCreateLibrary("Tests", "Test", "1.0");
+                self.target = self.context:Group("Tests")
+                    :Project("Test"):Version("1.0"):Target("hi");
 				self.file = FileName.Create(Path.New("", "GlobalKeyword.mcpp"));
 				self.root = self.context.Root;
 				self.src = Source.Create(self.file, 1, 1);
 
 				local status, parserException = pcall(function()
-					self.parser:Read(self.library, self.src,
+					self.parser:Read(self.target, self.src,
 					[[  ~import SomeOtherPlace;
 						~namespace Something;
 

@@ -38,8 +38,8 @@ ParserTest = {
 	init = function(self)
 		self.parser = PippyParser.Create();
         self.context = Context.New("{ROOT}");
-        self.library = self.context:FindOrCreateLibrary("Tests",
-                              "TestGeneratedLib", "1.0");
+        self.target = self.context:Group("Tests")
+            :Project("TestGeneratedLib"):Version("1.0"):Target("hi");
         self.file = FileName.Create(Path.New("", "Blah1.mcpp"));
         self.root = self.context.Root;
         self.src = Source.Create(self.file, 1, 1);

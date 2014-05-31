@@ -24,6 +24,8 @@
 #include "../Model/Library.h"
 #include "../Model/LibraryLua.h"
 #include <Macaroni/Parser/ParserException.h>
+#include <Macaroni/Model/Project/Target.h>
+#include <Macaroni/Model/Project/TargetLuaMetaData.h>
 #include "ParserExceptionLua.h"
 #include <Macaroni/Model/Source.h>
 #include <Macaroni/Model/SourceLuaMetaData.h>
@@ -32,10 +34,11 @@
 using Macaroni::Model::ContextPtr;
 using Macaroni::Model::ContextLuaMetaData;
 using Macaroni::Model::Library;
-using Macaroni::Model::LibraryPtr;
-using Macaroni::Model::LibraryLuaMetaData;
 using Macaroni::Model::SourcePtr;
 using Macaroni::Model::SourceLuaMetaData;
+using Macaroni::Model::Project::Target;
+using Macaroni::Model::Project::TargetLuaMetaData;
+using Macaroni::Model::Project::TargetPtr;
 
 #define LUAGLUE_STARTNAMESPACE BEGIN_NAMESPACE2(Macaroni, Parser)
 #define LUAGLUE_ENDNAMESPACE	END_NAMESPACE2
@@ -74,13 +77,13 @@ using Macaroni::Model::SourceLuaMetaData;
 	static int Read(lua_State * L)
 	{
 		ParserPtr self = getInstance(L, 1);
-		LibraryPtr library = LibraryLuaMetaData::GetInstance(L, 2);
+		auto target = TargetLuaMetaData::GetInstance(L, 2);
 		SourcePtr src = SourceLuaMetaData::GetInstance(L, 3);
 		std::string text(luaL_checkstring(L, 4));
 
 		try
 		{
-			int result = self->Read(library, src, text);
+			int result = self->Read(target, src, text);
 			lua_pushinteger(L, result);
 			return 1;
 		}

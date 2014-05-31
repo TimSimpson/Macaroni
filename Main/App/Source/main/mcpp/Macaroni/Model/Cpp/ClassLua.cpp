@@ -122,7 +122,7 @@ END_NAMESPACE
 		ClassPtr newInstance;
 		if (target)
 		{
-			newInstance = Class::Create(target, node, access, imports, reason);
+			newInstance = Class::Create(target, node, false, access, imports, reason);
 		}
 		else
 		{
@@ -136,7 +136,11 @@ END_NAMESPACE
 	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr,
 									  const std::string & index)
 	{
-		if (index == "FriendNodes")
+		if (index == "IsStruct")
+		{
+			lua_pushboolean(L, ptr->IsStruct() ? 1 : 0);
+		}
+		else if (index == "FriendNodes")
 		{
 			NodeListPtr list = ptr->GetFriendNodes();
 			NodeListLuaMetaData::PutInstanceOnStack(L, list);

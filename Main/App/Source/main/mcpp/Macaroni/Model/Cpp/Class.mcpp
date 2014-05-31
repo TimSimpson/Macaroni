@@ -78,28 +78,32 @@ class Class : public Scope
 
     private NodeListPtr imports;
 
+    private const bool isStruct;
+
     private Macaroni::Model::Cpp::ClassParentListPtr parents;
 
     protected Class(Library * library, Node * parent,
-                    Access access,
+                    bool isStruct, Access access,
                     NodeListPtr importedNodes, ReasonPtr reason)
     :   Scope(library, parent, "Class", reason),
         access(access),
         friends(new NodeList()),
         globals(new NodeList()),
         imports(importedNodes),
+        isStruct(isStruct),
         parents(new ClassParentList())
     {
     }
 
     protected Class(Target * target, Node * parent,
-                    Access access,
+                    bool isStruct, Access access,
                     NodeListPtr importedNodes, ReasonPtr reason)
     :   Scope(target, parent, "Class", reason),
         access(access),
         friends(new NodeList()),
         globals(new NodeList()),
         imports(importedNodes),
+        isStruct(isStruct),
         parents(new ClassParentList())
     {
     }
@@ -114,6 +118,7 @@ class Class : public Scope
                                   AccessPtr access,
                                   NodeListPtr importedNodes, ReasonPtr reason)
     {
+        MACARONI_ASSERT(false, "Deprecated Class create function!");
         ElementPtr existingMember = parent->GetElement();
         if (!!existingMember)
         {
@@ -130,11 +135,11 @@ class Class : public Scope
             return existingClass;
         }
         ClassPtr other = boost::dynamic_pointer_cast<Class>(existingMember);
-        return ClassPtr(new Class(library.get(), parent.get(), *access, importedNodes, reason));
+        return ClassPtr(new Class(library.get(), parent.get(), false, *access, importedNodes, reason));
     }
 
     public static ClassPtr Create(TargetPtr target, NodePtr parent,
-                                  AccessPtr access,
+                                  bool isStruct, AccessPtr access,
                                   NodeListPtr importedNodes, ReasonPtr reason)
     {
         ElementPtr existingMember = parent->GetElement();
@@ -153,7 +158,7 @@ class Class : public Scope
             return existingClass;
         }
         ClassPtr other = boost::dynamic_pointer_cast<Class>(existingMember);
-        ClassPtr ptr(new Class(target.get(), parent.get(), *access, importedNodes, reason));
+        ClassPtr ptr(new Class(target.get(), parent.get(), isStruct, *access, importedNodes, reason));
         return ptr;
     }
 
@@ -245,6 +250,11 @@ class Class : public Scope
         }
         ClassPtr classPtr = boost::dynamic_pointer_cast<Class>(other);
         return (!!classPtr);
+    }
+
+    public bool IsStruct() const
+    {
+        return isStruct;
     }
 
     public bool RequiresCppFile() const

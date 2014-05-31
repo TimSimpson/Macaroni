@@ -48,7 +48,11 @@ ClassHFileGenerator = {
 
     classBegin = function(self)
 		self:writeAfterTabs("// Define class " .. self.node.Name .. "\n");
-        self:writeAfterTabs("class ")
+        if self.node.Member.IsStruct then
+            self:writeAfterTabs("struct ")
+        else
+            self:writeAfterTabs("class ")
+        end
         if self.libDecl then
 			self:write(self.libDecl .. " ");
         end

@@ -45,7 +45,7 @@ tests = {
         name = "Creating an empty method.",
         init = function(self)
 			ParserTest.init(self)
-            self.parser:Read(self.library, self.src, [[
+            self.parser:Read(self.target, self.src, [[
                 class Blah
                 {
 					public Blah(int a, int b) {}

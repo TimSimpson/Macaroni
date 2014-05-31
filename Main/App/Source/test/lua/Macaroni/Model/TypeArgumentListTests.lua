@@ -44,7 +44,7 @@ type information earlier.
 
 local function mixinContext(self)
     self.context = Context.New("{ROOT}");
-    self.library = self.context:FindOrCreateLibrary("Tests", "TypeArgumentListTests", "1.0");
+    self.target = self.context:Group("Tests"):Project("TypeArgumentListTests"):Version("1.0"):Target("hi");
 
     local parser = PippyParser.Create();
     local p = Path.New("Blah1.mcpp")
@@ -52,7 +52,7 @@ local function mixinContext(self)
     local root = self.context.Root;
     local src = Source.Create(file, 1, 1);
 
-    parser:Read(self.library, src, [[
+    parser:Read(self.target, src, [[
         namespace std
         {
             class string{}
