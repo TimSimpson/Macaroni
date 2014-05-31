@@ -117,6 +117,11 @@ int ConstructorOverloadLuaMetaData::Index(lua_State * L,
 		lua_setmetatable(L, -2);
 		return 1;
 	}
+	if (index == "Explicit")
+	{
+		lua_pushboolean(L, ptr->IsExplicit());
+		return 1;
+	}
 	return 0;
 }
 

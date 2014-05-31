@@ -297,6 +297,9 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         if (node.Member.Inline) then
             self:write("inline ");
         end
+        if node.Member.Explicit then
+            self:write("explicit ")
+        end
         self:write(self.node.Name .. "(");
         self:writeArgumentList(node);
         self:write(")");

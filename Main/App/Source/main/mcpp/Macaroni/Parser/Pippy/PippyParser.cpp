@@ -1037,6 +1037,11 @@ public:
 		}
 
 		ConsumeWhitespace(newItr);
+
+		bool isExplicit = newItr.ConsumeWord("explicit");
+
+		ConsumeWhitespace(newItr);
+
 		bool tilda = false;
 		if (newItr.ConsumeChar('~'))
 		{
@@ -1109,7 +1114,8 @@ public:
 			//isInline, access,
 			ConstructorOverloadPtr ctorOl =
 				ConstructorOverload::Create(fOlNode, isInline, access,
-				                            exceptionSpecifier, ctorReason);
+				                            isExplicit, exceptionSpecifier,
+				                            ctorReason);
 			fOlPtr = boost::dynamic_pointer_cast<FunctionOverload>(ctorOl);
 		} // end !tilda
 		else

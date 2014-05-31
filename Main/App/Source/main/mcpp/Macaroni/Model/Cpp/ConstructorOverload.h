@@ -44,6 +44,7 @@ public:
 
 	static ConstructorOverloadPtr Create(NodePtr home,
 		bool isInline, AccessPtr access,
+		bool isExplicit,
 		const boost::optional<ExceptionSpecifier> exceptionSpecifier,
 		Model::ReasonPtr reason);
 
@@ -54,7 +55,8 @@ public:
 	virtual bool canBeChildOf(const Member * other) const;
 
 	ConstructorOverloadPtr Create(FunctionPtr home, bool isInline, const Access access,
-							   const bool isStatic, const TypePtr rtnType,
+							   const bool isStatic,
+							   const TypePtr rtnType,
 							   bool constMember,
 				   const boost::optional<ExceptionSpecifier> exceptionSpecifier,
 							   Model::ReasonPtr reason);
@@ -68,13 +70,20 @@ public:
 
 	virtual const char * GetTypeName() const;
 
+	inline bool IsExplicit() const
+	{
+		return isExplicit;
+	}
+
 private:
 
 	ConstructorOverload(Model::Node * home, Model::ReasonPtr reason,
-		                bool isInline, Access access,
+		                bool isInline, Access access, bool isExplicit,
 		           const boost::optional<ExceptionSpecifier> exceptionSpecifier);
 
 	std::vector<VariableAssignment> assignments;
+
+	bool isExplicit;
 };
 
 END_NAMESPACE

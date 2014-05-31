@@ -54,10 +54,12 @@ namespace
 
 ConstructorOverload::ConstructorOverload(Node * home, Model::ReasonPtr reason,
 										 bool isInline, Access access,
+										 bool isExplicit,
 				   const boost::optional<ExceptionSpecifier> exceptionSpecifier)
 :FunctionOverload(home, "ConstructorOverload", reason, isInline, access, true,
 				  false, voidTypeInfo(home), false, exceptionSpecifier),
- assignments()
+ assignments(),
+ isExplicit(isExplicit)
 {
 }
 
@@ -77,12 +79,12 @@ bool ConstructorOverload::canBeChildOf(const Member * other) const
 
 
 ConstructorOverloadPtr ConstructorOverload::Create(
-	NodePtr node, bool isInline, AccessPtr access,
+	NodePtr node, bool isInline, AccessPtr access, bool isExplicit,
 	const boost::optional<ExceptionSpecifier> exceptionSpecifier,
 	Model::ReasonPtr reason)
 {
 	ConstructorOverload * co = new ConstructorOverload(
-		node.get(), reason, isInline, *access, exceptionSpecifier);
+		node.get(), reason, isInline, *access, isExplicit, exceptionSpecifier);
 	return ConstructorOverloadPtr(co);
 }
 
