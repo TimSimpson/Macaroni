@@ -60,7 +60,8 @@ function GenerateCpp(args)
 
       local outputPath = filePath(target)
       result, msg = pcall(function()
-        cpp:Run("Generate", { projectVersion=project, path=outputPath })
+        cpp:Run("Generate", { projectVersion=project, path=outputPath,
+                              output=output })
         end)
       if not result then
         output:ErrorLine(msg)
@@ -266,7 +267,8 @@ function SimpleProject(args)
       if generatedLess then return end
       lPreGenerate()
       runWithLoggedErrors(function()
-        cpp:Run("Generate", { projectVersion=lProject, path=outputPath })
+        cpp:Run("Generate", { projectVersion=lProject, path=outputPath,
+                              output=output })
       end)
       generatedLess = true
     end

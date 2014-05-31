@@ -78,15 +78,19 @@ function Generate2(self)
     -- Replace log.Write with the output.DebugLine method passed in.
     -- Because each generator uses it's own Lua environment we can use globals
     -- like this, even though it's still kind of dirty.
+    local oldOutput = self.output
     log.Write = function(self, msg)
-        if MACARONI_VERSION == "0.1.0.27" then
-            --print("[CPP]" .. msg)
-        else
-            if self.output ~= nil then
-                self.output:DebugLine(msg)
-            end
+        if oldOutput ~= nil then
+            oldOutput:DebugLine(msg)
         end
     end
+
+    log.Error = function(self, msg)
+        if oldOutput ~= nil then
+            oldOutput:ErrorLine(msg)
+        end
+    end
+
 
     Validate(self)
     if self.defaultLib == nil then

@@ -6,6 +6,7 @@ CppAxioms.BlockCreation=Keyword "~block" creates a block of code in the current 
 CppAxioms.ClassCreation=Keyword "class" begins or continues classes.
 CppAxioms.ConstructorCreation=Name of class without type creates constructor.
 CppAxioms.DestructorCreation=Tilda (~) followed by name of class begins destructor definition.
+CppAxioms.EnumCreation=Keyword "enum" begins or continues enumerations.
 CppAxioms.FunctionCreation=Function definition encountered.
 CppAxioms.NamespaceCreation=Keyword "namespace" begins or continues namespaces.
 CppAxioms.NamespaceRoot=The root of the Node system is a Namespace.
@@ -29,6 +30,13 @@ CppParser.Annotation.TableEntryEqualsExpected=Expected to see '=' following the 
 CppParser.Annotation.TableEntryValueExpected=Expected to see a value for the Annotation table entry following the name and '='.
 CppParser.Annotation.ValueNoNodeByTheGivenNameFound=It seems as a Node value for an Annotation was specified here, but no Node by that name could be found (are you missing an ~import?).
 CppParser.Annotation.ValueExpectedFollowingNodeName=No attribute value was found following the attribute name.
+CppParser.Enum.NoID1=Identifier expected following enum keyword.
+CppParser.Enum.Size.NoType=Expected to see a type specified for the enum size here.
+CppParser.Enum.NoComma=Expected to see a comma seperating enum values.
+CppParser.Enum.NoSemicolon=Expected to see a semicolon to end enum definition.
+CppParser.Enum.NoStartBrace=Expected to see an opening brace here to start the definition of enum values.
+CppParser.Enum.NoValueName=Expected to see the name of an enum value here.
+CppParser.Enum.NoValueFollowingEquals=Expected to see an value expression following '=' in enum body.
 CppParser.Class.NoID1=Identifier expected following class keyword.
 CppParser.Class.NoOpeningBrace=Expected '{' following class signature.
 CppParser.Class.NoEndingBrace=Expected '}' at this point to end class definition.
@@ -36,7 +44,7 @@ CppParser.Class.Inheritance.NoType=Expected a type to be specified as inheritanc
 CppParser.CodeBlock.Expected=Expected to see a code block (i.e. "{ blah blah }").
 CppParser.Constructor.ArgumentListExpected=Constructor argument list expected here.
 CppParser.Constructor.ClassNameExpected=Class name expected following destructor symbol '~'.
-CppParser.Expression.CouldNotMatch
+CppParser.Expression.CouldNotMatch=Macaroni searched this spot for a generic C++ expression but couldn't find one.
 CppParser.Directive.Unknown=Unknown keyword following Macaroni marker "~".
 CppParser.Directive.HFileBadArgument=Bad text following "hfile".
 CppParser.Directive.HFileFilePathExpected=A file path was expected here.

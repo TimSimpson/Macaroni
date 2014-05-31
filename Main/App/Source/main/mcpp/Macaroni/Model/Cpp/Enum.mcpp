@@ -1,0 +1,138 @@
+~import boost::intrusive_ptr;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaGlueCode;
+~import Macaroni::Lua::LuaIncludes;
+~import Macaroni::Lua::LuaProperty;
+~import std::map;
+~import Macaroni::Model::Member;
+~import Macaroni::Model::Node;
+~import Macaroni::Model::NodePtr;
+~import boost::optional;
+~import Macaroni::Model::ReasonPtr;
+~import Macaroni::Model::Cpp::Scope;
+~import std::string;
+~import Macaroni::Model::Project::Target;
+~import Macaroni::Model::Project::TargetPtr;
+~import Macaroni::Model::TypePtr;
+~import Macaroni::Cpp::UseLightDef;
+
+~namespace Macaroni::Model::Cpp;
+
+
+class Enum {};
+
+typedef intrusive_ptr<Enum ~l> EnumPtr
+    @LuaClass[ SameAsNode = Enum ]
+    @UseLightDef true
+;
+
+
+class Enum : public Scope
+    @LuaClass [ ReferenceType = EnumPtr ]
+    @LuaIncludes ={
+        #include <Macaroni/Model/ElementLua.h>
+    } //;
+{
+    private bool isClass;  // True if this is a C++11 class enum.
+    private TypePtr sizeType;  // For C++11 style enums.
+    private map<string, optional<string>> values;
+
+    protected Enum(Target * target, Node * node, ReasonPtr reason,
+                   bool isClass, TypePtr sizeType)
+    :   Scope(target, node, "Enum", reason),
+        isClass(isClass),
+        sizeType(sizeType)
+    {
+    }
+
+    public static EnumPtr Create(TargetPtr target, NodePtr home,
+                                 ReasonPtr reason, bool isClass,
+                                 TypePtr sizeType)
+    {
+        EnumPtr ptr(new Enum(target.get(), home.get(), reason,
+                             isClass, sizeType));
+        return ptr;
+    }
+
+    public void AddValue(const string & key,
+                         const optional<string> & value=boost::none)
+    {
+        values[key] = value;
+    }
+
+    virtual bool canBeChildOf(const Member * other) const
+    {
+        return dynamic_cast<const Enum *>(other) != nullptr;
+    }
+
+    public TypePtr GetSizeType()
+        @LuaProperty "SizeType"
+    {
+        return sizeType;
+    }
+
+    public const map<string, optional<string>> & GetValues() const
+    {
+        return values;
+    }
+
+    public ~global ~friend void intrusive_ptr_add_ref(Enum * p)
+    {
+        intrusive_ptr_add_ref((ScopeMember *)p);
+    }
+
+    public ~global ~friend void intrusive_ptr_release(Enum * p)
+    {
+        intrusive_ptr_release((ScopeMember *)p);
+    }
+
+    public bool IsClassEnum()
+        @LuaProperty "IsClassEnum"
+    {
+        return isClass;
+    }
+
+    private void _LuaValuesFunction() const
+        @LuaFunction "GetValues"
+        @LuaGlueCode ={
+            EnumPtr instance;
+            if (EnumLuaMetaData::IsType(L, 1))
+            {
+                instance = EnumLuaMetaData::GetInstance(L, 1);
+            }
+            else
+            {
+                auto element = ElementLuaMetaData::GetInstance(L, 1);
+                instance = boost::dynamic_pointer_cast<Cpp::Enum>(element);
+            }
+            const auto & map = instance->GetValues();
+            lua_newtable(L);
+            for (auto itr=map.begin(); itr != map.end(); ++itr)
+            {
+                lua_pushstring(L, itr->first.c_str());
+                if (itr->second)
+                {
+                    lua_pushstring(L, itr->second.get().c_str());
+                }
+                else
+                {
+                    lua_pushboolean(L, 0); // Have to push *something*
+                }
+                lua_settable(L, -3);
+            }
+            return 1;
+        }
+    {
+    }
+
+    public virtual bool RequiresHFile() const
+    {
+        return true;
+    }
+
+    public virtual const char * GetTypeName() const
+    {
+        return "Enum";
+    }
+};

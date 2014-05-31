@@ -51,6 +51,11 @@ AxiomPtr DtorCreation()
 	return AxiomPtr(new CppAxiom("CppAxioms.DestructorCreation"));
 }
 
+AxiomPtr EnumCreation()
+{
+	return AxiomPtr(new CppAxiom("CppAxioms.EnumCreation"));
+}
+
 AxiomPtr FunctionCreation()
 {
 	return AxiomPtr(new CppAxiom("CppAxioms.FunctionCreation"));

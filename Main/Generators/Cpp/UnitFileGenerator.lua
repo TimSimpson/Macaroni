@@ -2,11 +2,13 @@ require "Cpp/Common";
 require "Plugin";
 require "Cpp/ClassCppFileGenerator";
 require "Cpp/ClassHFileGenerator";
+local CppEnumFileGenerator = require "Cpp/EnumFileGenerator";
 require "Cpp/TypedefFileGenerator";
 require "Cpp/UnitBlockGenerator";
 
 local Access = require "Macaroni.Model.Cpp.Access";
 local Context = require "Macaroni.Model.Context";
+local EnumFileGenerator = CppEnumFileGenerator.EnumFileGenerator
 local Node = require "Macaroni.Model.Node";
 local TypeNames = Macaroni.Model.TypeNames;
 
@@ -27,6 +29,13 @@ FileWriters = {
                                           writer=writer};
             gen:parse()
             writer:Write('\n'); -- avoid bunching up typedefs
+        end,
+
+        Enum = function(library, node, writer)
+            gen = EnumFileGenerator.new{node=node, targetLibrary=library,
+                                        writer=writer};
+            gen:parse()
+            writer:Write('\n');
         end,
 
         --TODO: Make functions owned by Targets and then this will work.
@@ -120,6 +129,7 @@ UnitFileGenerator = {
             if element[requiresFileProp] then
                 local node = element.Node
                 local typeName = node.TypeName
+
                 local func = FileWriters[fileType][typeName]
                 if func == nil then
                     error("No way to write the element " .. tostring(element)

@@ -31,6 +31,7 @@ namespace CppAxioms
 	AxiomPtr ClassCreation();
 	AxiomPtr CtorCreation();
 	AxiomPtr DtorCreation();
+	AxiomPtr EnumCreation();
 	AxiomPtr FunctionCreation();
 	AxiomPtr NamespaceCreation();
 	AxiomPtr PrimitiveChar();

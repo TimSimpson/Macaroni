@@ -32,6 +32,8 @@
 #include <Macaroni/Model/Cpp/CppContext.h>
 #include <Macaroni/Model/Cpp/Destructor.h>
 #include <Macaroni/Model/Cpp/DestructorPtr.h>
+#include <Macaroni/Model/Cpp/Enum.h>
+#include <Macaroni/Model/Cpp/EnumPtr.h>
 #include <Macaroni/Exception.h>
 #include <Macaroni/Model/Cpp/ExceptionSpecifier.h>
 #include <Macaroni/Model/Project/ExeTarget.h>
@@ -92,6 +94,8 @@ using Macaroni::Model::Cpp::CppContext;
 using Macaroni::Model::Cpp::CppContextPtr;
 using Macaroni::Model::Cpp::Destructor;
 using Macaroni::Model::Cpp::DestructorPtr;
+using Macaroni::Model::Cpp::Enum;
+using Macaroni::Model::Cpp::EnumPtr;
 using Macaroni::Model::Cpp::ExceptionSpecifier;
 using Macaroni::Model::Project::ExeTarget;
 using Macaroni::Model::Project::ExeTargetPtr;
@@ -1649,6 +1653,110 @@ public:
 		}
 	}
 
+	bool Enum(Iterator & itr)
+	{
+		Iterator newItr = itr;
+		ConsumeWhitespace(newItr);
+
+		if (!newItr.ConsumeWord("enum"))
+		{
+			return false;
+		}
+		ConsumeWhitespace(newItr);
+
+		const bool isClass = newItr.ConsumeWord("class");
+		ConsumeWhitespace(newItr);
+
+		std::string nodeName;
+		if (!ConsumeComplexName(newItr, nodeName))
+		{
+			throw ParserException(newItr.GetSource(),
+				Messages::Get("CppParser.Enum.NoID1"));
+		}
+		ConsumeWhitespace(newItr);
+
+		TypePtr sizeType;
+		if (newItr.ConsumeChar(':'))
+		{
+			ConsumeWhitespace(newItr);
+			if (!Type(newItr, sizeType))
+			{
+				throw ParserException(newItr.GetSource(),
+				Messages::Get("CppParser.Enum.Size.NoType"));
+			}
+			ConsumeWhitespace(newItr);
+		}
+
+		NodePtr oldScope = currentScope;
+		currentScope = currentScope->FindOrCreate(nodeName, hFilesForNewNodes);
+
+		TargetPtr tHome = deduceTargetHome(currentScope);
+		auto ePtr = Enum::Create(tHome, currentScope,
+								 Reason::Create(CppAxioms::EnumCreation(),
+								 	            newItr.GetSource()),
+								 isClass, sizeType);
+
+		// Parse annotations.
+		while(Annotation(newItr));
+
+		if (!newItr.ConsumeChar('{'))
+		{
+			throw ParserException(newItr.GetSource(),
+				Messages::Get("CppParser.Enum.NoStartBrace"));
+		}
+		ConsumeWhitespace(newItr);
+
+		// Parse the body of the enum.
+
+		std::string name;
+		std::string value;
+		bool seenOne = false;
+		while(!newItr.ConsumeChar('}'))
+		{
+			if (seenOne)
+			{
+				if (!newItr.ConsumeChar(','))
+				{
+					throw ParserException(newItr.GetSource(),
+						Messages::Get("CppParser.Enum.NoComma"));
+				}
+			}
+			ConsumeWhitespace(newItr);
+			if (!ConsumeSimpleName(newItr, name))
+			{
+				throw ParserException(newItr.GetSource(),
+					Messages::Get("CppParser.Enum.NoValueName"));
+			}
+			ConsumeWhitespace(newItr);
+			if (newItr.ConsumeChar('='))
+			{
+				ConsumeExpression(newItr, " ,}", value);
+				if (value.length() < 1)
+				{
+					throw ParserException(newItr.GetSource(),
+						Messages::Get("CppParser.Enum.NoValueFollowingEquals"));
+				}
+				ConsumeWhitespace(newItr);
+				ePtr->AddValue(name, value);
+			}
+			else
+			{
+				ePtr->AddValue(name);
+			}
+			seenOne=true;
+		}
+		ConsumeWhitespace(newItr);
+		if (!newItr.ConsumeChar(';'))
+		{
+			throw ParserException(newItr.GetSource(),
+						Messages::Get("CppParser.Enum.NoSemicolon"));
+		}
+
+		itr = newItr;
+		currentScope = oldScope;
+		return true;
+	}
+
 	/** Given a Node, crawls up the Node tree to find the first
 	 * parent (or the given node itself) which is a Class. */
 	NodePtr FindClassAncestorOfNode(NodePtr node)
@@ -2425,6 +2533,7 @@ public:
 				|| FriendDeclaration(itr)
 				|| Namespace(itr)
 				|| Class(itr)
+				|| Enum(itr)
 				|| Typedef(itr)
 				|| VariableOrFunction(itr)
 				|| Annotation(itr)

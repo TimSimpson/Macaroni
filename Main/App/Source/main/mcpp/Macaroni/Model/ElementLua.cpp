@@ -21,6 +21,9 @@
 #include "Cpp/ClassLua.h"
 #include "Cpp/ConstructorLua.h"
 #include "Cpp/ConstructorOverloadLua.h"
+ #include <Macaroni/Model/Cpp/Enum.h>
+ #include <Macaroni/Model/Cpp/EnumPtr.h>
+#include <Macaroni/Model/Cpp/EnumLuaMetaData.h>
 #include "Cpp/FunctionLua.h"
 #include "Cpp/FunctionOverloadLua.h"
 #include "LibraryLua.h"
@@ -192,6 +195,14 @@
 		if (!!boost::dynamic_pointer_cast<Cpp::Class>(ptr))
 		{
 			int rtnCnt = Cpp::ClassLuaMetaData::Index(L, boost::dynamic_pointer_cast<Cpp::Class>(ptr), index);
+			if (rtnCnt > 0)
+			{
+				return rtnCnt;
+			}
+		}
+		if (!!boost::dynamic_pointer_cast<Cpp::Enum>(ptr))
+		{
+			int rtnCnt = Cpp::EnumLuaMetaData::Index(L, boost::dynamic_pointer_cast<Cpp::Enum>(ptr), index);
 			if (rtnCnt > 0)
 			{
 				return rtnCnt;

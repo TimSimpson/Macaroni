@@ -29,6 +29,7 @@ Macaroni.Model.TypeNames =
     Constructor="Constructor",
     ConstructorOverload="ConstructorOverload",
     Destructor="Destructor",
+    Enum="Enum",
     Function="Function",
     FunctionOverload = "FunctionOverload",
     Namespace = "Namespace",
