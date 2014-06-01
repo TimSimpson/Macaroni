@@ -3,15 +3,13 @@ local Path = require "Macaroni.IO.Path";
 
 
 
-upper = getUpperProject();
-
 --dependency {group=upper.Group, name="Macaroni.Tests.Bugs", version=upper.Version}
 --dependency {group="Macaroni.Examples", name="Hello", version="1.0.0.0"}
 
 sources = { "source/scripts", "source/www" }
 outputPath = "target"
 
-local version = upper.Version
+local version = "0.2.3"
 project = context:Group("Macaroni")
                  :Project("Macaroni.Release")
                  :Version(version)
@@ -166,9 +164,11 @@ function buildWebSite()
 
     local dstRoot = target:NewPathForceSlash("docs")
     local function addDocs(group, name, version, dstName)
+        load(group, name, version)
         local otherProject = context:FindProjectVersion(
             group, name, version);
-        if otherProject == nil then error("Can't find project.") end
+        if otherProject == nil then error("Can't find project "
+            .. group .. "/" .. name .. "/" .. version .."!") end
         local installPath = findInstallPath(otherProject);
         if (installPath == nil) then
             error("Could not find install path for library "
@@ -188,6 +188,10 @@ function buildWebSite()
 
     addDocs("Macaroni.Examples", "Blocks", "1.0.0.0",
             "reference/code/blocks")
+    addDocs("Macaroni", "Macaroni.Tests.Features.Dependencies", "DEV",
+            "reference/code/dependencies")
+    addDocs("Macaroni", "Macaroni.Tests.Features.Enum", "DEV",
+             "reference/code/enum")
     addDocs("Macaroni", "Macaroni.Tests.Features.LuaGlue", version,
             "reference/plugins/luaglue")
     os.execute("sphinx-build  -b html "

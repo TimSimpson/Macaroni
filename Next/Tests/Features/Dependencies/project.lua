@@ -1,13 +1,10 @@
 import("Macaroni", "ProjectTemplates", "1")
 require "SimpleProject"
 
-upper = getUpperProject();
-print(upper)
-
 SimpleBoostProject{
-  group=upper.Group,
-  project=upper.Name .. ".Dependencies",
-  version=upper.Version,
+  group="Macaroni",
+  project="Macaroni.Tests.Features.Dependencies",
+  version="DEV",
   docs="docs",
   src="src",
   target="target",
