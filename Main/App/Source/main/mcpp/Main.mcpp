@@ -159,6 +159,7 @@ int generic_main(int argc, const char * argv[])
 	}
 	else
 	{
+		output.SetVerbose(cmd.Verbose());
 		return run(cmd);
 	}
 }

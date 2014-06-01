@@ -109,6 +109,8 @@ class Console : public virtual Input, public virtual Output
 	private int indentLevel;
 	private std::string indentString;
 	private bool open;
+	private bool verbose;
+
 	~block "h"
 	{
 		class PlatformConsole;
@@ -122,9 +124,20 @@ class Console : public virtual Input, public virtual Output
 	  indentString(indentLevel, '='),
 	  open(true),
 	  platformConsole(),
-	  referenceCount(0)
+	  referenceCount(0),
+	  verbose(false)
 	{
 		platformConsole.reset(new PlatformConsole());
+	}
+
+	~hidden Console(Console & other)
+	:	indentLevel(other.indentLevel),
+		indentString(other.indentString),
+		open(other.open),
+		platformConsole(other.platformConsole),
+		referenceCount(0),
+		verbose(other.verbose)
+	{
 	}
 
 	public virtual ~Console()
@@ -138,9 +151,19 @@ class Console : public virtual Input, public virtual Output
 		referenceCount ++;
 	}
 
+	public Console * Clone()
+	{
+		return new Console(*this);
+	}
+
 	public virtual void End()
 	{
 		open = false;
+	}
+
+	public void SetVerbose(const bool value)
+	{
+		this->verbose = value;
 	}
 
 	~block "h"
@@ -181,6 +204,10 @@ class Console : public virtual Input, public virtual Output
 		}
 		else if (Output::DEBUG == level)
 		{
+			if (!verbose)
+			{
+				return;
+			}
 			platformConsole->SetDebug();
 		}
 		else

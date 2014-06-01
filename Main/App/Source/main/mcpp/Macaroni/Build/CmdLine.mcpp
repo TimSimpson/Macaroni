@@ -78,6 +78,7 @@ class CmdLine
 	private AnyPtr runTimeProperties;
 	private bool startPrompt;
 	private bool showPaths;
+	private bool verbose;
 
 	/*public CmdLine(const VectorOfConstString & args, Console & console)
 	:	about(false),
@@ -145,7 +146,8 @@ class CmdLine
 		repl(false),
 		runTimeProperties(),
 		startPrompt(false),
-		showPaths(false)
+		showPaths(false),
+		verbose(false)
 	{
 		namespace po = boost::program_options;
 		po::options_description description("Options");
@@ -222,6 +224,9 @@ class CmdLine
 ("projectFile",
 	po::value<string>(&argProjectFile),
 	"Project file to run.")
+("verbose",
+	po::bool_switch(&verbose),
+	"Show more console output.")
 ;
 		po::positional_options_description pos;
 		pos.add("projectFile", 1);
@@ -472,7 +477,7 @@ class CmdLine
 	~hidden bool runProject(bool withRepl)
 	{
 		initializeRuntimeProperties();
-		Console * console = new Console(0);
+		Console * console = this->console.Clone();
 		InputPtr input(console);
 		OutputPtr output(console);
 		ContextPtr context(new Context("%ROOT%"));
@@ -549,6 +554,11 @@ class CmdLine
 	public inline bool StartPrompt()
 	{
 		return startPrompt;
+	}
+
+	public inline bool Verbose()
+	{
+		return verbose;
 	}
 
 } // end class
