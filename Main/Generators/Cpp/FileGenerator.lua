@@ -20,6 +20,13 @@ local Context = require "Macaroni.Model.Context";
 local Node = require "Macaroni.Model.Node";
 local TypeNames = Macaroni.Model.TypeNames;
 
+
+writerInfo = {}
+writerInfoMetaTable = {}
+setmetatable(writerInfo, writerInfoMetaTable)
+writerInfoMetaTable.__mode = "k"
+
+
 FileGenerator = {
     addTabs = function(self, tabCount)
         self.tabs = self.tabs + tabCount;
@@ -54,7 +61,9 @@ FileGenerator = {
     end,
 
     includeConfigFile = function(self)
-        if BoostConfigIsAvailable(self.targetLibrary) then
+        local wrotePragma = writerInfo[self.writer]
+        if (not wrotePragma and
+            BoostConfigIsAvailable(self.targetLibrary)) then
             self:write('\n');
             self:writeAfterTabs("#include <"
                        .. LibraryConfigFile(self.targetLibrary)
@@ -62,6 +71,7 @@ FileGenerator = {
             self:writeAfterTabs("#ifdef BOOST_HAS_PRAGMA_ONCE\n")
             self:writeAfterTabs("    #pragma once\n")
             self:writeAfterTabs("#endif\n\n")
+            writerInfo[self.writer] = true
         end
     end,
 

@@ -94,6 +94,52 @@ UnitFileGenerator = {
         return args;
     end,
 
+    createElementList = function(self, unit)
+        -- Create an ordered list of elements so that the unit will be
+        -- generated in the correct way, with any Nodes that depend on other
+        -- Nodes in the unit being written later.
+        local elements = unit:CreateElementList()
+        local swappedNodes = {}
+        for i = 1, #elements do
+            ::elementCheck::
+            local node = elements[i].Node
+            info = NodeInfoList[node]
+            -- Now, check if this node depends on Nodes which will be
+            -- written to the file after this, and swap the two nodes if that's
+            -- true.
+            for k, dependencyNode in pairs(info.dependencies.heavy) do
+                if dependencyNode == node then
+                    -- In other words, the node is it's own dependency (duh).
+                    -- Skip it.
+                    goto nextDependencyNodeContinue
+                end
+                for j = i, #elements do
+                    local node2 = elements[j].Node
+                    if dependencyNode == node2 then
+                        -- Check if we already swapped these, raise an error
+                        -- if we have.
+                        for k2, v2 in pairs(swappedNodes) do
+                            if v2 == elements[j] then
+                                error("Can't determine how to order the nodes "
+                                    .. tostring(k2) .. " and "
+                                    .. tostring(v2) .. " in Unit "
+                                    .. tostring(unit) .. ".")
+                            end
+                        end
+                        swappedNodes[elements[i]] = elements[j]
+                        local swap = elements[i]
+                        elements[i] = elements[j]
+                        elements[j] = swap
+                        goto elementCheck -- reiterate this index
+                    end
+                end
+                ::nextDependencyNodeContinue::
+            end
+        end
+
+        return elements
+    end,
+
     iterateUnits = function (self, library, rootPath)
         for unit in Plugin.IterateChildDependencies(library) do
             self:writeUnitFiles(unit, rootPath);
@@ -130,7 +176,8 @@ UnitFileGenerator = {
                   .. tostring(unit[fileProp]));
         local writer = unit[fileProp]:CreateFile();
 
-        local elements = unit:CreateElementList()
+        local elements = self:createElementList(unit)
+
         for i = 1, #elements do
             log:Write(tostring(i) .. '=' .. tostring(elements[i]))
             local element = elements[i]

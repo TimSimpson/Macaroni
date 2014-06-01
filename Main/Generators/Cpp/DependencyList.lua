@@ -195,19 +195,9 @@ DependencyList = {
         -- #include file which stinks! But if its light, that isn't necessary...
 
         local newTraveller = traveller:clone();
-        if MACARONI_VERSION=="0.1.0.20" then
-			if not asLight then
-				if (type.Pointer or type.ConstPointer or type.Reference) then
-					newTraveller.heavy = false;
-				end
-			else
-				newTraveller.heavy = false;
-			end
-		else
-			if type.Modifiers.MayOnlyNeedForwardDeclaration then
-				newTraveller.heavy = false;
-			end
-		end
+        if type.Modifiers.MayOnlyNeedForwardDeclaration then
+            newTraveller.heavy = false;
+        end
         if (not self:canUseLightDef(type.Node)) then
             -- HFiles refer to something defined elsewhere we're including.
               -- A light definition is fundamentally impossible, so force heavy def.
