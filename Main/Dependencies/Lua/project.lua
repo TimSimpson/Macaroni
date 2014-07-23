@@ -33,7 +33,7 @@ built = false
 installed = false
 
 function clean()
-    local targetDir = Macaroni.IO.Path.New(targetDirectory)
+    local targetDir = Path.New(targetDirectory)
     targetDir:ClearDirectoryContents();
 end
 

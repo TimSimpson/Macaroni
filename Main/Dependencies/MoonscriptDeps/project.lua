@@ -121,7 +121,7 @@ function generate()
   local luaFileSystemSource = getLuaFileSystemSource()
   copyCFilesToCppFiles(Path.New(luaFileSystemSource),
                        Path.New(targetDirectory),
-                       ".cpp");
+                       ".c");
 
   local cppPath = Path.New(targetDirectory);
   lib:Append{headers=pathList{targetDirectory},
