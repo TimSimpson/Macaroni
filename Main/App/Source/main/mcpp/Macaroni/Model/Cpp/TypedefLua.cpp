@@ -24,10 +24,7 @@
 #include "../NodeListLua.h"
 #include "../TypeLua.h"
 
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
-
+#include <Macaroni/Lua.h>
 
 struct lua_State;
 
@@ -52,18 +49,18 @@ END_NAMESPACE
 
 #include "../../LuaGlue.hpp"
 
-	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr, 
+	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr,
 									  const std::string & index)
 	{
 		if (index == "Type")
 		{
 			TypePtr type = ptr->GetType();
-			TypeLuaMetaData::PutInstanceOnStack(L, type);		
-		}		
-		else 
+			TypeLuaMetaData::PutInstanceOnStack(L, type);
+		}
+		else
 		{
 			lua_pushnil(L);
-		}	
+		}
 		return 1;
 	}
 
@@ -71,7 +68,7 @@ END_NAMESPACE
 	{
 		lua_pushstring(L, "Typedef");
 		return 1;
-	}	
+	}
 
 	#define LUAGLUE_ADDITIONALMETATABLEMETHODS \
 		/*{"__tostring", LUAGLUE_HELPERCLASS::__tostring}, */

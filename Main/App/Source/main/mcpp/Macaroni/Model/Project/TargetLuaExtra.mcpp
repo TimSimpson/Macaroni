@@ -32,9 +32,7 @@ class TargetLuaExtra
 {
 	~block "cpp-include"
 	{
-		#include <lua.h>
-		#include <lauxlib.h>
-		#include <lualib.h>
+		#include <Macaroni/Lua.h>
 	}
 
 	~block "cpp"

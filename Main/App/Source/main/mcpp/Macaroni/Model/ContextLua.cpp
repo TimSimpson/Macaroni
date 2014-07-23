@@ -16,7 +16,7 @@
 #ifndef MACARONI_MODEL_CONTEXTLUA_CPP
 #define MACARONI_MODEL_CONTEXTLUA_CPP
 
-#include <lua.h>
+#include <Macaroni/Lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
 #include <Macaroni/Model/Context.h>

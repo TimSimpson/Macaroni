@@ -30,12 +30,7 @@
 #include "TypeInfoLua.h"
 #include "VariableLua.h"
 
-//extern "C" {
-	#include <lua.h>
-	#include <lauxlib.h>
-	#include <lualib.h>
-//}
-
+#include <Macaroni/Lua.h>
 
 struct lua_State;
 

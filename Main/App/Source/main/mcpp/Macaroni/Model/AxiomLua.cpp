@@ -16,9 +16,7 @@
 #ifndef MACARONI_MODEL_AXIOMLUA_CPP
 #define MACARONI_MODEL_AXIOMLUA_CPP
 
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
+#include <Macaroni/Lua.h>
 #include "AxiomLua.h"
 #include "Axiom.h"
 #include <sstream>

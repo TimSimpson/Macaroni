@@ -311,11 +311,9 @@ namespace {
 
     writeLuaInclude = function(self)
         self:write([[
- //extern "C" {
 	#include <Lua/lua.h>
 	#include <Lua/lauxlib.h>
 	#include <Lua/lualib.h>
-//}
 ]]);
     end,
 

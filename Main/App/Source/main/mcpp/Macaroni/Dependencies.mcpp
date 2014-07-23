@@ -50,8 +50,6 @@ class boost::to_lower { ~hfile=<boost/algorithm/string.hpp> };
 class boost::variant { ~hfile=<boost/variant.hpp> };
 
 // Lua
-//class lua_State { ~hfile=<Lua/lua.h> }
-//class luaL_Reg	{ ~hfile=<Lulauxlib.h> }
 // #include <Lua/lualib.h>
 
 class Macaroni::Containers::AssignVectorToConstElementVector { ~hfile=<Macaroni/Containers.h.> } //TODO: Make function

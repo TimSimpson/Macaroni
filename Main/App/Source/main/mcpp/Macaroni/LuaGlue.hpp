@@ -36,11 +36,7 @@
  *                             this.
  */
 
-//MARIO extern "C" {
-	#include <lua.h>
-	#include <lauxlib.h>
-	#include <lualib.h>
-//MARIO }
+#include <Macaroni/Lua.h>
 #include <Macaroni/LuaCompat.h>
 #include <Macaroni/Exception.h>
 

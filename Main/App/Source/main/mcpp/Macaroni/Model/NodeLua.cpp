@@ -16,11 +16,7 @@
 #ifndef MACARONI_MODEL_SCOPELUAREGISTER_CPP
 #define MACARONI_MODEL_SCOPELUAREGISTER_CPP
 
-//MARIO extern "C" {
-	#include <lua.h>
-	#include <lauxlib.h>
-	#include <lualib.h>
-//MARIO }
+#include <Macaroni/Lua.h>
 #include "AnnotationTableLua.h"
 #include <Macaroni/Exception.h>
 #include "ElementLua.h"

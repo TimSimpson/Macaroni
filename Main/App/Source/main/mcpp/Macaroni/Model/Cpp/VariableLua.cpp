@@ -28,10 +28,7 @@
 #include "../TypeLua.h"
 
 #include <Macaroni/LuaCompat.h>
-
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
+#include <Macaroni/Lua.h>
 
 #define GLOBALTABLENAME "Macaroni.Model.Cpp.Variable"
 

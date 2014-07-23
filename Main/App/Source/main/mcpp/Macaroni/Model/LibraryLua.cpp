@@ -16,9 +16,7 @@
 #ifndef MACARONI_MODEL_LIBRARYLUAREGISTER_CPP
 #define MACARONI_MODEL_LIBRARYLUAREGISTER_CPP
 
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
+#include <Macaroni/Lua.h>
 #include "ContextLua.h"
 #include <Macaroni/Exception.h>
 #include <boost/foreach.hpp>

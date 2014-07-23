@@ -55,7 +55,6 @@ function generate()
     for j = 1, #dstFiles do
       local fp = dstFiles[j];
       local rp = fp.FileNameWithoutExtension .. extension
-      --local rp = string.gsub(fp.RelativePath, ".c", ".cpp")
       fp:RenameRelative(rp)
     end
   end
@@ -122,7 +121,7 @@ function generate()
   local luaFileSystemSource = getLuaFileSystemSource()
   copyCFilesToCppFiles(Path.New(luaFileSystemSource),
                        Path.New(targetDirectory),
-                       ".c");
+                       ".cpp");
 
   local cppPath = Path.New(targetDirectory);
   lib:Append{headers=pathList{targetDirectory},

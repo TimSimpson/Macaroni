@@ -1,7 +1,7 @@
 require "os"
 require "Macaroni.IO.GeneratedFileWriter";
-require "Macaroni.Model.Library";
-require "Macaroni.IO.Path";
+--local Library = require "Macaroni.Model.Library";
+local Path = require "Macaroni.IO.Path";
 
 Files = Macaroni.Model.Project.Files
 FileSet = Macaroni.IO.FileSet;
@@ -32,7 +32,7 @@ built = false
 installed = false
 
 function clean()
-    local targetDir = Macaroni.IO.Path.New(targetDirectory)
+    local targetDir = Path.New(targetDirectory)
     targetDir:ClearDirectoryContents();
 end
 

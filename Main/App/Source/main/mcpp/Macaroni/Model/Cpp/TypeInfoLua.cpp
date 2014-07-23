@@ -18,15 +18,13 @@
 
 #include "../NodeLua.h"
 #include "TypeInfoLua.h"
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
+#include <Macaroni/Lua.h>
 
 struct lua_State;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-int TypeInfoLuaMetaData::Index(lua_State * L, const TypeInfo & var, 
+int TypeInfoLuaMetaData::Index(lua_State * L, const TypeInfo & var,
 								const std::string & index)
 {
 	if (index == "Const")

@@ -20,11 +20,7 @@
 #include <Macaroni/LuaCompat.h>
 #include "PathLua.h"
 
-//extern "C" {
-	#include <lua.h>
-	#include <lauxlib.h>
-	#include <lualib.h>
-//}
+#include <Macaroni/Lua.h>
 
 
 struct lua_State;

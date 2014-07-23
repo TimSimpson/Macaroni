@@ -20,9 +20,7 @@
 #include "../NodeLua.h"
 #include <sstream>
 #include "VariableAssignmentLua.h"
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
+#include <Macaroni/Lua.h>
 
 struct lua_State;
 
@@ -38,7 +36,7 @@ struct lua_State;
 
 #include "../../LuaGlue.hpp"
 
-	static int __index(lua_State * L, const VariableAssignmentPtr ptr, 
+	static int __index(lua_State * L, const VariableAssignmentPtr ptr,
 									  const std::string & index)
 	{
 		if (index == "Expression")
@@ -64,10 +62,10 @@ struct lua_State;
 		ss << ";";
 		lua_pushstring(L, ss.str().c_str());
 		return 1;
-	}	
+	}
 
 	#define LUAGLUE_ADDITIONALMETATABLEMETHODS \
-		{"__tostring", LUAGLUE_HELPERCLASS::__tostring}, 
+		{"__tostring", LUAGLUE_HELPERCLASS::__tostring},
 
 	#define LUAGLUE_ADDITIONALTABLEMETHODS \
 		/*{"LuaCreate", LUAGLUE_HELPERCLASS::LuaCreate},*/

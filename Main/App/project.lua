@@ -159,10 +159,6 @@ generate = function()
         luaGlue:Run("Generate", {
             target=lib,
             outputPath=outputPath,
-            luaImportCode=[[
-    #include <lauxlib.h>
-    #include <lualib.h>
-            ]]
             });
     end
 
@@ -235,7 +231,7 @@ build = function()
 	  output:ErrorLine(tostring(success) .. "," .. tostring(exit) .. "," ..
 	                   tostring(number))
           error("Failure running Boost Build!")
-      end 
+      end
   end
 
   local createPureCpp = function()
