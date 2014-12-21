@@ -87,7 +87,8 @@ end
 
 local runCMake = function(self, cmd)
     self.output:WriteLine(cmd)
-    if (os.execute(cmd) ~= 0) then
+    local success, exit, number = os.execute(cmd)
+    if (not success or exit ~= "exit" or number ~= 0) then
         self.output:ErrorLine("Failure running CMake!")
         self.output:ErrorLine(cmd)
         error("Failure running CMake!")
