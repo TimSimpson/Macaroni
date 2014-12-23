@@ -57,7 +57,6 @@ SimpleProject{
 --    print("- then do more after it.")
 -- end
     ]])
-    output:WriteLine("WTF?!")
 end
 
 
