@@ -63,6 +63,10 @@
 // There's a bug which prevents Macaroni from detecting creating a node within
 // a Namespace if the node has the same short name. :(
 
+class Macaroni::Environment::MacaroniEnvironment {
+	~hfile=<Macaroni/Environment/MacaroniEnvironment.hpp>
+};
+
 class Macaroni::Environment::Environment
 /*
  * Handles the interactive portions of a context, particularly regarding

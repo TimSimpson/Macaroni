@@ -23,6 +23,7 @@
 #include <boost/format.hpp>
 #include <Macaroni/Exception.h>
 #include <iostream>
+#include <Macaroni/Environment/Values/Macaroni_IO_Path.h>
 #include <Macaroni/IO/RegexFileSet.h>
 #include <Macaroni/IO/RegexFileSetIterator.h>
 #include <sstream>
@@ -34,6 +35,13 @@ using Macaroni::IO::RegexFileSet;
 using Macaroni::IO::RegexFileSetIterator;
 
 BEGIN_NAMESPACE2(Macaroni, IO)
+
+Macaroni::Environment::Values::AnyPtr ToAny(PathPtr p)
+{
+	Macaroni::Environment::Values::AnyPtr any(
+		new Macaroni::Environment::Values::Macaroni_IO_Path(p));
+	return any;
+}
 
 //namespace {
 //	static path createPath(const std::string & absolutePath)

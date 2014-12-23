@@ -17,6 +17,7 @@
 #define MACARONI_IO_PATH_H
 
 #include "../ME.h"
+#include <Macaroni/Environment/Values/AnyPtr.h>
 #include <boost/optional.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/shared_ptr.hpp>
@@ -31,6 +32,8 @@ typedef boost::shared_ptr<Path> PathPtr;
 typedef std::vector<PathPtr> PathList;
 typedef boost::shared_ptr<PathList> PathListPtr;
 
+Macaroni::Environment::Values::AnyPtr ToAny(PathPtr p);
+
 /** Directory or file path.
  * Strangely the path you are manipulating is relative to another directory or
  * file path- for example, Path("C:\Progs") defines the path C:\Progs relative
@@ -42,6 +45,7 @@ typedef boost::shared_ptr<PathList> PathListPtr;
  * I made this class a bit more complicated than might seem needed at first
  * glance. */
 //TODO: Rename "RelativePath"
+//TODO-TODO: Sure! That ain't happening. :(
 class Path
 {
 public:
@@ -178,6 +182,7 @@ private:
 
 	static bool stringBeginsWith(const std::string & str, const std::string begins);
 };
+
 
 END_NAMESPACE2
 

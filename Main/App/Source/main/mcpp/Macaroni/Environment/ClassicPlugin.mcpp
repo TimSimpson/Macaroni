@@ -52,6 +52,9 @@ class ClassicPlugin : public Plugin
 		MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(
 			MethodNameUnknown,
 			"Could not find method name %s.");
+		MACARONI_SIMPLE_EXCEPTION_DEFINE(
+			GlobalPropertiesNotSet,
+			"The properties variable has not been set!");
 
         class Runner
         {
@@ -379,7 +382,10 @@ class ClassicPlugin : public Plugin
     public void Run(string action, AnyPtr arguments
                     /* Some kind of work context */)
     {
-
+    	if (!properties)
+    	{
+    		throw GlobalPropertiesNotSet(MACARONI_INTERNAL_SOURCE);
+    	}
 		Runner runner(appPaths, luaFilePath);
 		runner.runProperties(properties);
 		runner.addAppPathRelatedGlobalFunctions(appPaths);

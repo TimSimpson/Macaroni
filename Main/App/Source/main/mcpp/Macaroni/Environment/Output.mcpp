@@ -1,3 +1,4 @@
+~import Macaroni::Environment::Values::AnyPtr;
 ~import std::exception;
 ~import boost::format;
 ~import Macaroni::Lua::LuaClass;
@@ -5,6 +6,7 @@
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
 ~import Macaroni::InternalSource;
+~import Macaroni::Environment::Values::Macaroni_Environment_Output;
 ~import boost::intrusive_ptr;
 ~import boost::optional;
 ~import Macaroni::Exception;
@@ -97,6 +99,12 @@ class Output
 	{
 		ErrorLine(ex.what());
 	}*/
+
+	public ~global ~friend AnyPtr ToAny(OutputPtr value)
+	{
+		AnyPtr any(new Macaroni_Environment_Output(value));
+		return any;
+	}
 
 	/** If true is returned, the reference will be destroyed. */
 	protected virtual bool releaseReference() = 0;

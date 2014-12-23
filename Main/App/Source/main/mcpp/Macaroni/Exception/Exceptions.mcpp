@@ -55,9 +55,9 @@ class SimpleException : public Macaroni::Exception
 		SimpleException::~SimpleException() BOOST_NOEXCEPT {}
 	}
 
-	public virtual const char * what() const throw() = 0;
+	public virtual const char * what() const BOOST_NOEXCEPT = 0;
 
-	public virtual const optional<InternalSource> & where() const throw()
+	public virtual const optional<InternalSource> & where() const BOOST_NOEXCEPT
 	{
 		return source;
 	}
@@ -70,7 +70,7 @@ class SimpleException : public Macaroni::Exception
 			class typeName : public Macaroni::Exceptions::SimpleException { \
 				public: typeName(Macaroni::InternalSource where) \
 					: Macaroni::Exceptions::SimpleException(where) {} \
-				public: virtual const char * what() const throw() \
+				public: virtual const char * what() const BOOST_NOEXCEPT \
 				{ return message ; } \
 			};
 	}
@@ -115,7 +115,7 @@ class SimpleIntException : public SimpleException
 		class typeName : public Macaroni::Exceptions::SimpleIntException { \
 			public: typeName(int value, Macaroni::InternalSource where) \
 				: Macaroni::Exceptions::SimpleIntException(value, where) {} \
-			public: virtual const char * what() const throw() \
+			public: virtual const char * what() const BOOST_NOEXCEPT \
 			{ return message ; } \
 		};
 	}
@@ -197,7 +197,7 @@ class SimpleStringException : public SimpleException
 		class typeName : public Macaroni::Exceptions::SimpleStringException { \
 			public: typeName(const char * value, Macaroni::InternalSource where) \
 				: Macaroni::Exceptions::SimpleStringException(value, where) {} \
-			public: virtual const char * what() const throw() \
+			public: virtual const char * what() const BOOST_NOEXCEPT \
 			{ return message ; } \
 		};
 	}

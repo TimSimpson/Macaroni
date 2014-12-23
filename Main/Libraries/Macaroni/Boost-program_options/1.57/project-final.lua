@@ -17,9 +17,6 @@ end
 if (properties.boost == nil) then
     errorMessage('boost')
 end
-if (properties.boost.version == nil) then
-    errorMessage('boost.version')
-end
 local boost_props = properties.boost["1.57"]
 if (boost_props == nil) then
     errorMessage(properties.boost.version)

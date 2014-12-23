@@ -1,0 +1,103 @@
+~import Macaroni::Environment::Values::Any;
+~import Macaroni::Environment::Values::AnyPtr;
+~import Macaroni::AppPaths;
+~import Macaroni::Model::Context;
+~import Macaroni::Model::ContextPtr;
+~import Macaroni::Environment::Environment;
+~import boost::format;
+~import Macaroni::Environment::MacaroniEnvironment;
+~import Macaroni::Environment::Output;
+~import Macaroni::Environment::OutputPtr;
+~import boost::filesystem::path;
+~import Macaroni::IO::Path;
+~import Macaroni::IO::PathPtr;
+~import Macaroni::Environment::Values::Macaroni_IO_Path;
+~import Macaroni::Environment::Plugin;
+~import Macaroni::Environment::PluginPtr;
+~import Macaroni::Environment::PluginFactory;
+~import Macaroni::Environment::ProjectLoader;
+~import Macaroni::Model::Project::ProjectVersionId;
+~import std::string;
+~import Macaroni::Environment::Values::Table;
+
+
+~namespace Macaroni::Build;
+
+
+class NewProjectWizard
+{
+
+    AppPathsPtr appPaths;
+    OutputPtr output;
+    AnyPtr runtimeProperties;
+    //ProjectLoader pLoader;
+
+    public NewProjectWizard(AppPathsPtr appPaths, ContextPtr context,
+                            OutputPtr output, AnyPtr runtimeProperties)
+    :   appPaths(appPaths),
+        output(output),
+        runtimeProperties(runtimeProperties)
+        //pLoader(appPaths, context, output, runtimeProperties)
+    {
+    }
+
+    public bool Create(const string & projName, const path & dir)
+        // Creates a new project file in the current working directory.
+        // Returns an error code.
+    {
+        if (exists(dir))
+        {
+            output->ErrorLine(str(format(
+                "Can't create a new project as there is already a file or "
+                "directory at this path: %s") % dir.string()));
+            return false;
+        }
+
+        output->WriteLine(str(
+            format("Writing new project to: %s") % dir.string()));
+
+        boost::filesystem::create_directories(dir);
+
+        appPaths->SetWorkingDirectory(dir);
+
+        try
+        {
+            runProjectCreator(projName, dir);
+            return true;
+        } catch(const std::exception & ex) {
+            output->ErrorLine("An error happened while executing the "
+                "NewProject template.");
+            output->ErrorLine(ex.what());
+            return false;
+        }
+    }
+
+    ~hidden void runProjectCreator(string projName, const path & dir)
+    {
+        /*ProjectVersionId id("Macaroni", "NewProject", "DEV");
+        auto project = pLoader.LoadProjectEnvironmentById(id);
+        // Some extremely weak attempts here to avoid security issues. But
+        // by its nature a user will be running this so I can't imagine it
+        // will be that big of a target (bonus: no one even uses this!).
+        if (std::string::npos != projName.find("]"))
+        {
+            projName = "your-project-name-here";
+        }
+        string cmd = str(boost::format("createProject([[%s]]);") % projName);
+        project->RunCommand(cmd.c_str(), output);*/
+
+        PathPtr path(new Path(dir, dir));
+
+        Table * t = new Table();
+        AnyPtr args(new Table(
+            "path", path,
+            "projName", projName,
+            "output", output));
+
+        PluginFactory plugins(appPaths);
+        auto plugin = plugins.Get("Wizard");
+        plugin->SetGlobalProperties(runtimeProperties);
+        plugin->Run("CreateProject", args);
+    }
+
+};

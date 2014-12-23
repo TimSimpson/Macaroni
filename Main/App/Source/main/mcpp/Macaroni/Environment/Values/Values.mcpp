@@ -65,7 +65,7 @@ class Any
 		referenceCount ++;
 	}
 
-	protected virtual void destroyChildren() throw()
+	protected virtual void destroyChildren() BOOST_NOEXCEPT
 	{
 	}
 
@@ -120,6 +120,12 @@ class Bool : public Any
 		lua_pushboolean(L, value ? 1 : 0);
 	}
 
+	public ~global ~friend AnyPtr ToAny(bool value)
+	{
+		AnyPtr any(new Bool(value));
+		return any;
+	}
+
 	///*public virtual string ToLuaCode() const
 	//{
 	//	return value ? "true" : "false";
@@ -140,6 +146,18 @@ class Double : public Any
 	public double Get() const
 	{
 		return value;
+	}
+
+	public ~global ~friend AnyPtr ToAny(double value)
+	{
+		AnyPtr any(new Double(value));
+		return any;
+	}
+
+	public ~global ~friend AnyPtr ToAny(int value)
+	{
+		AnyPtr any(new Double((double)value));
+		return any;
 	}
 
 	public virtual void ToLua(lua_State * L)
@@ -164,6 +182,12 @@ class Null : public Any
 	public void * Get() const
 	{
 		return 0;
+	}
+
+	public ~global ~friend AnyPtr ToAny()
+	{
+		AnyPtr any(new Null());
+		return any;
 	}
 
 	public virtual void ToLua(lua_State * L)
@@ -224,6 +248,18 @@ class String : public Any
 		throw StringFormatException(MACARONI_INTERNAL_SOURCE);
 	}
 
+	public ~global ~friend AnyPtr ToAny(const string & value)
+	{
+		AnyPtr any(new String(value));
+		return any;
+	}
+
+	public ~global ~friend AnyPtr ToAny(const char * const value)
+	{
+		AnyPtr any(new String(string(value)));
+		return any;
+	}
+
 	public virtual void ToLua(lua_State * L)
 	{
 		lua_pushstring(L, value.c_str());
@@ -243,7 +279,7 @@ class KeyNotFoundException : public SimpleStringException
 	{
 	}
 
-	public virtual const char * what() const throw()
+	public virtual const char * what() const BOOST_NOEXCEPT
 	{
 		return "Key %s not found.";
 	}
@@ -256,7 +292,7 @@ class ValueTypeException : public SimpleStringException
 	{
 	}
 
-	public virtual const char * what() const throw()
+	public virtual const char * what() const BOOST_NOEXCEPT
 	{
 		return "Key could not be converted to the correct type.";
 	}
@@ -276,6 +312,12 @@ class Table : public Any
 	~import boost::variant;
 
 	~block "h-predef" {
+		// Needed for the ToAny support...
+		#include <Macaroni/Environment/Values/Bool.h>
+		#include <Macaroni/Environment/Values/Double.h>
+		#include <Macaroni/Environment/Values/Null.h>
+		#include <Macaroni/Environment/Values/String.h>
+
 		#include <Macaroni/Environment/Values/KeyNotFoundException.h>
 		#include <Macaroni/Environment/Values/ValueTypeException.h>
 		#include <boost/format.hpp>  // Bug in M
@@ -297,7 +339,38 @@ class Table : public Any
 	{
 	}
 
-	protected virtual void destroyChildren() throw()
+	~block "h"
+	{
+		public:
+		template<typename... Parameters>
+		Table(Parameters... args)
+		:	Any(),
+			children()
+		{
+			AddValues(args...);
+		}
+	}
+
+	~block "h"
+	{
+		public:	template<typename Type>
+		void AddValues(const boost::variant<int, std::string> & name,
+			           Type value)
+		{
+			AnyPtr v = ToAny(value);
+			SetAndGiveReference(name, v);
+		}
+
+		template<typename typename Head, typename... Tail>
+		void AddValues(const boost::variant<int, std::string> & name,
+			           Head value, Tail... rest)
+		{
+			AddValues(name, value);
+			AddValues(rest...);
+		}
+	}
+
+	protected virtual void destroyChildren() BOOST_NOEXCEPT
 	{
 		///*for (map<variant<int, string>, AnyPtr>::iterator itr = children.begin();
 		//	itr != children.end(); itr ++)

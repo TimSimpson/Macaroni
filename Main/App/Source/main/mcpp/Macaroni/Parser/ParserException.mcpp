@@ -74,12 +74,12 @@ class ParserException : public Exception
 
 	/** Gives the source (in Macaroni code parsed at runtime) plus the message.
 	 */
-	public virtual const char * what() const throw()
+	public virtual const char * what() const BOOST_NOEXCEPT
 	{
 		return whatString.c_str();
 	}
 
-	public virtual const optional<InternalSource> & where() const throw()
+	public virtual const optional<InternalSource> & where() const BOOST_NOEXCEPT
 	{
 		return internalSource;
 	}

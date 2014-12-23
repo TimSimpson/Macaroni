@@ -29,9 +29,9 @@ public:
 	SourceException(SourcePtr source, const std::string & msg)
 		: msg(msg), source(source)
 	{
-	}	
+	}
 
-	~SourceException() throw()
+	~SourceException() BOOST_NOEXCEPT
 	{
 	}
 
@@ -45,7 +45,7 @@ public:
 		return source;
 	}
 
-	virtual const char * what() const throw()
+	virtual const char * what() const BOOST_NOEXCEPT
 	{
 		return GetMessage().c_str();
 	}

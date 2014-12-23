@@ -30,7 +30,9 @@
 ~import Macaroni::Model::Library;
 ~import Macaroni::Model::LibraryPtr;
 ~import Macaroni::Environment::LuaEnvironment;
+~import Macaroni::Environment::MacaroniEnvironment;
 ~import Macaroni::Environment::Messages;
+~import Macaroni::Build::NewProjectWizard;
 ~import Macaroni::Environment::Output;
 ~import Macaroni::Environment::OutputPtr;
 ~import boost::optional;
@@ -71,6 +73,7 @@ class CmdLine
 	private string luaTestsPath;
 	private path messagesPath;
 	private optional<path> moonScriptPath;
+	private optional<string> newProject;
 	private Output * output;
 	private optional<path> projectFile;
 	private bool printTimes;
@@ -140,6 +143,7 @@ class CmdLine
 		luaTestsPath(""),
 		messagesPath(""),
 		moonScriptPath(),
+		newProject(),
 		initialReturnCode(1),
 		output(&console),
 		printTimes(false),
@@ -155,6 +159,7 @@ class CmdLine
 		vector<string> argLibraryRepoPaths;
 		string argMessagesPath;
 		string argMoonScriptPath;
+		string argNewProject;
 		string argProjectFile;
 		description.add_options()
 ("help,h", "Command line instructions.")
@@ -207,6 +212,9 @@ class CmdLine
 ("install,i",
 	po::bool_switch(&install),
 	"Install this project to your local artifact repo.")
+("newProject",
+	po::value<decltype(argNewProject)>(&argNewProject),
+	"Create a new Macaroni project in the given directory.")
 ("printTimes",
 	po::bool_switch(&printTimes),
 	"Show milliseconds from program start next to all output.")
@@ -262,9 +270,10 @@ class CmdLine
 					messagesPath = convertArgToPath(
 						"messagesPath", argMessagesPath);
 				}
-				moonScriptPath = convertOptionalArgToPath(
+				moonScriptPath = convertOptionalArgToPathThatMustExist(
 					"moonScriptPath", argMoonScriptPath);
-				projectFile = convertOptionalArgToPath(
+				newProject = convertOptionalArgToString(argNewProject);
+				projectFile = convertOptionalArgToPathThatMustExist(
 					"project file", argProjectFile);
 				initialReturnCode = boost::none;
 			}
@@ -315,19 +324,34 @@ class CmdLine
 		return p;
 	}
 
-	~hidden optional<path> convertOptionalArgToPath(
-		const char * name, const string & arg)
+	~hidden optional<path> convertOptionalArgToPath(const string & arg)
 	{
 		if (arg.empty()) { return boost::none; }
 		path p = arg;
-		if (!boost::filesystem::exists(p))
-		{
-			output->ErrorLine(
-				str(boost::format("No directory found at the "
-					"given %s path \"%s\"") % name % arg));
-			throw BadArgException(MACARONI_INTERNAL_SOURCE);
-		}
 		return p;
+	}
+
+	~hidden optional<path> convertOptionalArgToPathThatMustExist(
+		const char * name, const string & arg)
+	{
+		auto rtn = convertOptionalArgToPath(arg);
+		if (rtn)
+		{
+			if (!boost::filesystem::exists(rtn.get()))
+			{
+				output->ErrorLine(
+					str(boost::format("No directory found at the "
+						"given %s path \"%s\"") % name % arg));
+				throw BadArgException(MACARONI_INTERNAL_SOURCE);
+			}
+		}
+		return rtn;
+	}
+
+	~hidden optional<string> convertOptionalArgToString(const string & arg)
+	{
+		if (arg.empty()) { return boost::none; }
+		return arg;
 	}
 
 	~hidden void convertArgsToPaths(
@@ -339,6 +363,21 @@ class CmdLine
 		{
 			paths.push_back(convertArgToPath(name, arg));
 		}
+	}
+
+	~hidden bool createNewProject(const string & projName)
+	{
+		initializeRuntimeProperties();
+
+		AppPathsPtr appPaths = createAppPaths();
+		Console * console = this->console.Clone();
+		OutputPtr output(console);
+		ContextPtr context(new Context("%ROOT%"));
+		NewProjectWizard wizard(appPaths, context, output, runTimeProperties);
+
+		const auto dir = appPaths->GetWorkingDirectory()
+                       / projName;
+		return wizard.Create(projName, dir);
 	}
 
 	private bool pathContains(vector<path> & paths, path & path)
@@ -380,6 +419,21 @@ class CmdLine
 		return appPaths;
 	}
 
+	~hidden MacaroniEnvironment createEnvironment()
+	// Creates a Macaroni Environment, taking into account command line flags.
+	{
+		initializeRuntimeProperties();
+		Console * console = this->console.Clone();
+		InputPtr input(console);
+		OutputPtr output(console);
+		ContextPtr context(new Context("%ROOT%"));
+		Macaroni::Environment::Environment env(createAppPaths(), context,
+		                                       input, output,
+		                                       runTimeProperties,
+		                                       showPaths);
+		return env;
+	}
+
 	public bool DebugMode()
 	{
 		return debugMode;
@@ -396,6 +450,10 @@ class CmdLine
 		{
 			printAboutText();
 			return true;
+		}
+		if (newProject)
+		{
+			return createNewProject(newProject.get());
 		}
 		else if (!luaTestsPath.empty())
 		{
@@ -476,15 +534,7 @@ class CmdLine
 
 	~hidden bool runProject(bool withRepl)
 	{
-		initializeRuntimeProperties();
-		Console * console = this->console.Clone();
-		InputPtr input(console);
-		OutputPtr output(console);
-		ContextPtr context(new Context("%ROOT%"));
-		Macaroni::Environment::Environment env(createAppPaths(), context,
-		                                       input, output,
-		                                       runTimeProperties,
-		                                       showPaths);
+		Macaroni::Environment::Environment env = createEnvironment();
 		if (!env.FindDefaultProject(projectFile))
 		{
 			if (!projectFile)
