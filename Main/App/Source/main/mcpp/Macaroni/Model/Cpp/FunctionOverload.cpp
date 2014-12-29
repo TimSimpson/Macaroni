@@ -46,7 +46,8 @@ FunctionOverload::FunctionOverload
  isVirtual(isVirtual),
  returnType(rtnTypeInfo),
  exceptionSpecifier(exceptionSpecifier),
- usesDefaultKeyword(false)
+ usesDefaultKeyword(false),
+ usesDeleteKeyword(false)
 {
 }
 
@@ -67,7 +68,8 @@ FunctionOverload::FunctionOverload
  isVirtual(isVirtual),
  returnType(rtnTypeInfo),
  exceptionSpecifier(exceptionSpecifier),
- usesDefaultKeyword(false)
+ usesDefaultKeyword(false),
+ usesDeleteKeyword(false)
 {
 }
 
@@ -173,8 +175,9 @@ void intrusive_ptr_release(FunctionOverload * p)
 
 bool FunctionOverload::RequiresCppFile() const
 {
-	return HasCodeBlock() && (!IsInline()) && (!IsPureVirtual())
-		&& (!UsesDefault());
+	return HasCodeBlock() && !(
+		IsInline() || IsPureVirtual() || UsesDefault() || IsDeleted()
+	);
 }
 
 bool FunctionOverload::RequiresHFile() const
@@ -195,10 +198,19 @@ void FunctionOverload::SetCodeBlock(std::string & code, SourcePtr startOfCode,
 void FunctionOverload::SetDefault(SourcePtr startOfCode)
 {
 	setCodeDefinitionSource(startOfCode,
-		"Cannot set function %s to use the defaul keyword because it already "
+		"Cannot set function %s to use the default keyword because it already "
 		"was defined at %s.");
 	this->codeSource = startOfCode;
 	this->usesDefaultKeyword = true;
+}
+
+void FunctionOverload::SetDelete(SourcePtr startOfCode)
+{
+	setCodeDefinitionSource(startOfCode,
+		"Cannot set function %s to use the delete keyword because it already "
+		"was defined at %s.");
+	this->codeSource = startOfCode;
+	this->usesDeleteKeyword = true;
 }
 
 void FunctionOverload::SetPureVirtual(SourcePtr startOfCode)

@@ -103,6 +103,12 @@ public:
 		return constMember;
 	}
 
+	/** Uses the delete keyword. */
+	inline bool IsDeleted() const
+	{
+		return usesDeleteKeyword;
+	}
+
 	inline bool IsInline() const
 	{
 		return isInline;
@@ -133,6 +139,9 @@ public:
 
 	/** Specifies that this function has the "default" keyword. */
 	void SetDefault(SourcePtr startOfCode);
+
+	/** Specifies this function is deleted. */
+	void SetDelete(SourcePtr startOfCode);
 
 	/** Specifies that this function overload is a "pure virtual function"
 	 *  which means it ends in "= 0". */
@@ -183,6 +192,7 @@ private:
 
 	bool usesDefaultKeyword;
 
+	bool usesDeleteKeyword;
 };
 
 END_NAMESPACE

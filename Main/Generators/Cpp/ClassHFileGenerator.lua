@@ -440,6 +440,8 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
             self:write(" = 0;\n");
         elseif element.UsesDefault == true then
             self:write(" = default;\n");
+        elseif element.IsDeleted == true then
+            self:write(" = delete;\n");
         elseif (not element.Inline) then
             self:write(";\n");
         else
