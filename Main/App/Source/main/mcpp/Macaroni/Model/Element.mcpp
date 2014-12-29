@@ -110,6 +110,7 @@ class Element
 				return parentNode->element;
 			}
 		}
+		return nullptr;
 	}
 
 	public ReasonPtr GetReasonCreated() const

@@ -95,8 +95,8 @@
 		}
 		else
 		{
-			luaL_error(L, "Expected a Target or (old-style) Library for "
-				          "argument 2.");
+			return luaL_error(L, "Expected a Target or (old-style) Library for "
+				                 "argument 2.");
 		}
 
 		LUA_GLUE_CATCH

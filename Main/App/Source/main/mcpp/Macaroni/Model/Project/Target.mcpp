@@ -444,7 +444,7 @@ class Target
 		this->parent = parent;
 	}
 
-	public static bool SwitchOwner(Element & element, Target & from, Target & to)
+	public static void SwitchOwner(Element & element, Target & from, Target & to)
 	{
 		if (from.projectVersion != to.projectVersion)
 		{
