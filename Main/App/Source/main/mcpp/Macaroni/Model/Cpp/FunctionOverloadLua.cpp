@@ -232,12 +232,18 @@ int FunctionOverloadLuaMetaData::Index(lua_State * L,
 		}
 		return 1;
 	}
+	else if (index == "UsesDefault")
+	{
+		lua_pushboolean(L, ptr->UsesDefault());
+		return 1;
+	}
 	else if (index == "Virtual")
 	{
 		lua_pushboolean(L, ptr->IsVirtual());
 		return 1;
 	}
-	return 0;
+	ElementPtr ePtr = ptr;
+	return ElementLuaMetaData::Index(L, ePtr, index);
 }
 
 

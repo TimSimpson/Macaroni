@@ -238,14 +238,20 @@ ClassCppFileGenerator = {
     ["parse" .. TypeNames.ConstructorOverload] = function(self, node)
     	check(node.Member ~= nil and node.Member.TypeName == TypeNames.ConstructorOverload,
     	      "Argument 'node' must be a Member which is a ConstructorOverload.")
-    	if (node.Member.Inline) then
-            self:write("//~<(Skipping inline constructor.)\n");
-            return;
-        end
-        if (not node.Member.HasCodeBlock) then
-			self:write('//~<(Skipping constructor with no code block "' .. node.FullName .. '")\n');
-			return;
-        end
+        if MACARONI_VERSION ~= "0.2.3" then
+            if (not node.Member.RequiresCppFile) then
+                return;
+            end
+        else -- START LEGACY STUFF
+            if (node.Member.Inline) then
+                self:write("//~<(Skipping inline constructor.)\n");
+                return;
+            end
+            if (not node.Member.HasCodeBlock) then
+                self:write('//~<(Skipping constructor with no code block "' .. node.FullName .. '")\n');
+                return;
+            end
+        end -- END LEGACY STUFF
         if node.Member.Access.VisibleInLibrary and self.libDecl then
 			self:writeTabs();
 			self:write(self.libDecl .. "\n");
@@ -298,14 +304,21 @@ ClassCppFileGenerator = {
     ["parse" .. TypeNames.Destructor] = function(self, node)
 		check(#node.Children == 1, "Destructor must have one child.");
 		local overload = node.Children[1];
-        if (overload.Member.Inline) then
-            self:write("//~<(Skipping inline destructor.)\n");
-            return;
-        end
-        if (not overload.Member.HasCodeBlock) then
-			self:write('//~<(Skipping destructor with no code block "' .. node.FullName .. '")\n');
-			return
-        end
+
+        if MACARONI_VERSION ~= "0.2.3" then
+            if (not overload.Member.RequiresCppFile) then
+                return;
+            end
+        else -- START LEGACY STUFF
+            if (overload.Member.Inline) then
+                self:write("//~<(Skipping inline destructor.)\n");
+                return;
+            end
+            if (not overload.Member.HasCodeBlock) then
+                self:write('//~<(Skipping destructor with no code block "' .. node.FullName .. '")\n');
+                return;
+            end
+        end -- END LEGACY STUFF
 
         if overload.Member.Access.VisibleInLibrary and self.libDecl then
 			self:writeTabs();
@@ -352,14 +365,21 @@ ClassCppFileGenerator = {
 
 	["parse" .. TypeNames.FunctionOverload] = function(self, node,
 	                                                   insertIntoNamespaces)
-        if (node.Member.Inline or node.Member.IsPureVirtual) then
-            self:write('//~<(Skipping inline or pure virtual function "' .. node.FullName .. '")\n');
-            return;
-        end
-        if (not node.Member.HasCodeBlock) then
-			self:write('//~<(Skipping function with no code block "' .. node.FullName .. '")\n');
-			return;
-        end
+        if MACARONI_VERSION ~= "0.2.3" then
+            if (not node.Member.RequiresCppFile) then
+                return;
+            end
+        else -- START LEGACY STUFF
+            if (node.Member.Inline or node.Member.IsPureVirtual) then
+                self:write("//~<(Skipping inline constructor.)\n");
+                return;
+            end
+            if (not node.Member.HasCodeBlock) then
+                self:write('//~<(Skipping constructor with no code block "' .. node.FullName .. '")\n');
+                return;
+            end
+        end -- END LEGACY STUFF
+
         if insertIntoNamespaces then
 			self:namespaceBegin(node.Node.Node);
 		end

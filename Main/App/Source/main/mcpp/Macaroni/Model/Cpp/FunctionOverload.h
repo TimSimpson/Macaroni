@@ -131,9 +131,18 @@ public:
 	void SetCodeBlock(std::string & code, SourcePtr startOfCode,
 		              bool codeBlockAddRedirect);
 
+	/** Specifies that this function has the "default" keyword. */
+	void SetDefault(SourcePtr startOfCode);
+
 	/** Specifies that this function overload is a "pure virtual function"
 	 *  which means it ends in "= 0". */
 	void SetPureVirtual(SourcePtr startOfCode);
+
+	/** Uses the default keyword. */
+	inline bool UsesDefault() const
+	{
+		return usesDefaultKeyword;
+	}
 
 protected:
 	//FunctionOverload(Node home, bool isInline, const Access access, const bool isStatic, const TypePtr rtnType, bool constMember, Model::ReasonPtr reason);
@@ -167,6 +176,12 @@ private:
 	Macaroni::Model::ReasonPtr reasonCreated;
 
 	TypePtr returnType;
+
+	// Ensures the function wasn't already set and does error checking
+	// before another function finishes.
+	void setCodeDefinitionSource(SourcePtr startOfCode, const char * const msg);
+
+	bool usesDefaultKeyword;
 
 };
 

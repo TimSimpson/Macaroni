@@ -17,6 +17,7 @@
 #define MACARONI_MODEL_CPP_FUNCTIONOVERLOAD_CPP
 
 #include "FunctionOverload.h"
+#include <boost/format.hpp>
 #include <Macaroni/Model/ModelInconsistencyException.h>
 #include <Macaroni/Model/Reason.h>
 #include <Macaroni/Model/Source.h>
@@ -44,7 +45,8 @@ FunctionOverload::FunctionOverload
  isPureVirtual(false),
  isVirtual(isVirtual),
  returnType(rtnTypeInfo),
- exceptionSpecifier(exceptionSpecifier)
+ exceptionSpecifier(exceptionSpecifier),
+ usesDefaultKeyword(false)
 {
 }
 
@@ -64,7 +66,8 @@ FunctionOverload::FunctionOverload
  isPureVirtual(false),
  isVirtual(isVirtual),
  returnType(rtnTypeInfo),
- exceptionSpecifier(exceptionSpecifier)
+ exceptionSpecifier(exceptionSpecifier),
+ usesDefaultKeyword(false)
 {
 }
 
@@ -170,7 +173,8 @@ void intrusive_ptr_release(FunctionOverload * p)
 
 bool FunctionOverload::RequiresCppFile() const
 {
-	return HasCodeBlock() && (!IsInline());
+	return HasCodeBlock() && (!IsInline()) && (!IsPureVirtual())
+		&& (!UsesDefault());
 }
 
 bool FunctionOverload::RequiresHFile() const
@@ -181,36 +185,41 @@ bool FunctionOverload::RequiresHFile() const
 void FunctionOverload::SetCodeBlock(std::string & code, SourcePtr startOfCode,
 									bool codeBlockAddRedirect)
 {
-	if (!!codeSource)
-	{
-		std::stringstream msg;
-		msg << "Cannot create a code block for function "
-			<< this->getNode()->GetFullName()
-			<< " because one was already defined at "
-			<< codeSource->ToString()
-			<< ".";
-		throw ModelInconsistencyException(startOfCode, msg.str());
-	}
+	setCodeDefinitionSource(startOfCode,
+		"Cannot create a code block for function %s because one was "
+		"already defined at %s.");
 	codeBlock = code;
-	codeSource = startOfCode;
 	this->codeBlockAddRedirect = codeBlockAddRedirect;
-	this->isPureVirtual = false;
+}
+
+void FunctionOverload::SetDefault(SourcePtr startOfCode)
+{
+	setCodeDefinitionSource(startOfCode,
+		"Cannot set function %s to use the defaul keyword because it already "
+		"was defined at %s.");
+	this->codeSource = startOfCode;
+	this->usesDefaultKeyword = true;
 }
 
 void FunctionOverload::SetPureVirtual(SourcePtr startOfCode)
 {
-	if (!!codeSource)
-	{
-		std::stringstream msg;
-		msg << "Cannot set function "
-			<< this->getNode()->GetFullName()
-			<< " as pure virtual because it already has been defined at "
-			<< codeSource->ToString()
-			<< ".";
-		throw ModelInconsistencyException(startOfCode, msg.str());
-	}
+	setCodeDefinitionSource(startOfCode,
+		"Cannot set function %s as pure virtual because it already "
+		"was defined at %s.");
 	this->codeSource = startOfCode;
 	this->isPureVirtual = true;
+}
+
+void FunctionOverload::setCodeDefinitionSource(SourcePtr startOfCode,
+	                                           const char * const msg)
+{
+	if (!!codeSource)
+	{
+		std::string text = str(boost::format(msg)
+			% this->getNode()->GetFullName() % codeSource->ToString());
+		throw ModelInconsistencyException(startOfCode, text);
+	}
+	this->codeSource = startOfCode;
 }
 
 END_NAMESPACE

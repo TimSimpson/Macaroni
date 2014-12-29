@@ -1176,31 +1176,10 @@ public:
 				} while(newItr.ConsumeChar(','));
 			}
 		} // end !tilda
-		///*else
-		//{
-		//	DestructorPtr dtor = Destructor::Create(ctorNode,  isInline, access,
-		//		Reason::Create(CppAxioms::DtorCreation(), itr.GetSource()));
-		//	fOlPtr = dtor->GetFunctionOverload();
-		//}*/
 
-		std::string codeBlock;
-		bool codeAttached = false;
-		SourcePtr startOfCodeBlock;
-		codeAttached = CodeBlock(newItr, codeBlock, startOfCodeBlock);
-		if (!codeAttached)
-		{
-			ConsumeWhitespace(newItr);
-			if (!newItr.ConsumeChar(';'))
-			{
-				throw ParserException(newItr.GetSource(),
-					Messages::Get("CppParser.Function.SemicolonExpected"));
-			}
-		}
+		FunctionCodeDefInfo defInfo(*this, newItr);
+		defInfo.ApplyToFunction(fOlPtr);
 
-		if (codeAttached)
-		{
-			fOlPtr->SetCodeBlock(codeBlock, startOfCodeBlock, true);
-		}
 		itr = newItr;
 		return true;
 	}
@@ -2093,6 +2072,57 @@ public:
 		}
 	}
 
+	struct FunctionCodeDefInfo
+	{
+		std::string codeBlock;
+		bool pureVirtual;
+		bool defaultKeyword;
+		bool codeAttached;
+		SourcePtr startOfCodeBlock;
+
+		FunctionCodeDefInfo(ParserFunctions & parent, Iterator & itr)
+		:	codeBlock(),
+			pureVirtual(false),
+			defaultKeyword(false),
+			codeAttached(false),
+			startOfCodeBlock()
+		{
+			codeAttached = parent.CodeBlock(itr, codeBlock, startOfCodeBlock);
+			if (!codeAttached)
+			{
+				if (!(parent.PureVirtualOrDefaultKeyword(
+						pureVirtual, defaultKeyword, itr,
+						startOfCodeBlock
+					)))
+				{
+					parent.ConsumeWhitespace(itr);
+					if (!itr.ConsumeChar(';'))
+					{
+						throw ParserException(itr.GetSource(),
+							Messages::Get("CppParser.Function.SemicolonExpected"));
+					}
+				}
+			}
+		}
+
+		void ApplyToFunction(FunctionOverloadPtr fOl)
+		{
+			if (codeAttached)
+			{
+				fOl->SetCodeBlock(codeBlock, startOfCodeBlock, true);
+			}
+			else if (pureVirtual)
+			{
+				fOl->SetPureVirtual(startOfCodeBlock);
+			}
+			else if (defaultKeyword)
+			{
+				fOl->SetDefault(startOfCodeBlock);
+			}
+		}
+	};
+
+
 	bool GlobalKeyword(Iterator & itr, NodePtr & home)
 	{
 		home.reset();
@@ -2474,7 +2504,9 @@ public:
 	/** Returns true if the pure virtual syntax is found here (in other words,
 	 *  "= 0;"). "source" is the start of the pure virtual expression.
 	 */
-	bool PureVirtual(Iterator & itr, SourcePtr & source)
+	bool PureVirtualOrDefaultKeyword(bool & virtualKeyword,
+		                             bool & defaultKeyword,
+		                             Iterator & itr, SourcePtr & source)
 	{
 		itr.ConsumeWhitespace();
 		source = itr.GetSource();
@@ -2483,7 +2515,9 @@ public:
 			return false;
 		}
 		itr.ConsumeWhitespace();
-		if (!itr.ConsumeChar('0'))
+		virtualKeyword = itr.ConsumeChar('0');
+		defaultKeyword = virtualKeyword ? false : itr.ConsumeWord("default");
+		if (!virtualKeyword && !defaultKeyword)
 		{
 			throw ParserException(itr.GetSource(),
 				Messages::Get("CppParser.PureVirtual.ExpectedZero"));
@@ -3157,23 +3191,8 @@ public:
 
 			currentScope = oldScope;
 
-			bool pureVirtual = false;
-			std::string codeBlock;
-			bool codeAttached = false;
-			SourcePtr startOfCodeBlock;
-			codeAttached = CodeBlock(itr, codeBlock, startOfCodeBlock);
-			if (!codeAttached)
-			{
-				if (!(pureVirtual = PureVirtual(itr, startOfCodeBlock)))
-				{
-					ConsumeWhitespace(itr);
-					if (!itr.ConsumeChar(';'))
-					{
-						throw ParserException(itr.GetSource(),
-							Messages::Get("CppParser.Function.SemicolonExpected"));
-					}
-				}
-			}
+			FunctionCodeDefInfo defInfo(*this, itr);
+
 			ReasonPtr fReason = Reason::Create(CppAxioms::FunctionCreation(),
 											   oldItr.GetSource());
 			FunctionPtr function = Function::Create(node, fReason);
@@ -3182,14 +3201,10 @@ public:
 				                         isVirtual, type,
 										 constMember, exceptionSpecifier,
 										 fReason);
-			if (codeAttached)
-			{
-				fOl->SetCodeBlock(codeBlock, startOfCodeBlock, true);
-			}
-			else if (pureVirtual)
-			{
-				fOl->SetPureVirtual(startOfCodeBlock);
-			}
+
+			defInfo.ApplyToFunction(fOl);
+
+
 			if (!!globalHome)
 			{
 				ClassPtr classPtr = currentScope->GetElement<ClassPtr>();

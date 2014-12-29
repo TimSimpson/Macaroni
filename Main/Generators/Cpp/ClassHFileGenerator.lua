@@ -303,29 +303,7 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         self:write(self.node.Name .. "(");
         self:writeArgumentList(node);
         self:write(")");
-        if MACARONI_VERSION ~= "0.1.0.27" then
-            if (node.Member.ExceptionSpecifier) then
-                self:write(" " .. node.Member.ExceptionSpecifier);
-            end
-        else
-            if (node.Member.ThrowSpecifier) then
-                self:write(" throw()");
-            end
-        end
-        if (not node.Member.Inline) then
-            self:write(";\n");
-        else
-            self:writeConstructorAssignments(node.Member.Assignments);
-            self:write("\n");
-            self:writeTabs();
-            self:write("{\n");
-            self:addTabs(1);
-
-            self:writeAfterTabs(node.Member.CodeBlock .. "\n");
-
-            self:addTabs(-1);
-            self:writeAfterTabs("}\n");
-        end
+        self:writeFunctionBody(node.Member, true);
     end,
 
     ["parse" .. TypeNames.Destructor] = function(self, node)
@@ -342,22 +320,7 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         self:write('~' .. self.node.Name .. "(");
         self:writeArgumentList(overload);
         self:write(")");
-        if MACARONI_VERSION ~= "0.1.0.27" then
-            if (overload.Member.ExceptionSpecifier) then
-                self:write(" " .. overload.Member.ExceptionSpecifier);
-            end
-        else
-            if (overload.Member.ThrowSpecifier) then
-                self:write(" throw()");
-            end
-        end
-        if (not overload.Member.Inline) then
-			self:write(";\n");
-		else
-			self:write("\n");
-			self:writeTabs();
-			self:writeFunctionCodeBlock(overload.Member);
-		end
+        self:writeFunctionBody(overload.Member, false);
     end,
 
     ["parse" .. TypeNames.Function] = function(self, node, insertIntoNamespaces)
@@ -394,17 +357,8 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
 			self:writeTabs();
         end
         self:writeFunctionOverloadDefinition(node, ownedByClass);
-        if node.Member.IsPureVirtual == true then
-			self:write(" = 0;\n");
-		else
-			if (not node.Member.Inline) then
-				self:write(";\n");
-			else
-				self:write("\n");
-				self:writeTabs();
-				self:writeFunctionCodeBlock(node.Member);
-			end
-		end
+
+        self:writeFunctionBody(node.Member, false);
 		if insertIntoNamespaces then
 			self:namespaceEnd(node.Node.Node);
 		end
@@ -470,6 +424,32 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
 		end
 		text = text .. ': ';
 		self:write(text);
+    end,
+
+    writeFunctionBody = function(self, element, isCtor)
+        if MACARONI_VERSION ~= "0.1.0.27" then
+            if (element.ExceptionSpecifier) then
+                self:write(" " .. element.ExceptionSpecifier);
+            end
+        else
+            if (element.ThrowSpecifier) then
+                self:write(" throw()");
+            end
+        end
+        if element.IsPureVirtual == true then
+            self:write(" = 0;\n");
+        elseif element.UsesDefault == true then
+            self:write(" = default;\n");
+        elseif (not element.Inline) then
+            self:write(";\n");
+        else
+            if (isCtor) then
+                self:writeConstructorAssignments(element.Assignments);
+            end
+            self:write("\n");
+            self:writeTabs();
+            self:writeFunctionCodeBlock(element);
+        end
     end,
 };
 
