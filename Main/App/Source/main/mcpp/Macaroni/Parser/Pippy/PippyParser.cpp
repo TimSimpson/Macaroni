@@ -2077,6 +2077,7 @@ public:
 		std::string codeBlock;
 		bool pureVirtual;
 		bool defaultKeyword;
+		bool deleteKeyword;
 		bool codeAttached;
 		SourcePtr startOfCodeBlock;
 
@@ -2084,6 +2085,7 @@ public:
 		:	codeBlock(),
 			pureVirtual(false),
 			defaultKeyword(false),
+			deleteKeyword(false),
 			codeAttached(false),
 			startOfCodeBlock()
 		{
@@ -2091,7 +2093,7 @@ public:
 			if (!codeAttached)
 			{
 				if (!(parent.PureVirtualOrDefaultKeyword(
-						pureVirtual, defaultKeyword, itr,
+						pureVirtual, defaultKeyword, deleteKeyword, itr,
 						startOfCodeBlock
 					)))
 				{
@@ -2118,6 +2120,10 @@ public:
 			else if (defaultKeyword)
 			{
 				fOl->SetDefault(startOfCodeBlock);
+			}
+			else if (deleteKeyword)
+			{
+				fOl->SetDelete(startOfCodeBlock);
 			}
 		}
 	};
@@ -2506,6 +2512,7 @@ public:
 	 */
 	bool PureVirtualOrDefaultKeyword(bool & virtualKeyword,
 		                             bool & defaultKeyword,
+		                             bool & deleteKeyword,
 		                             Iterator & itr, SourcePtr & source)
 	{
 		itr.ConsumeWhitespace();
@@ -2517,7 +2524,10 @@ public:
 		itr.ConsumeWhitespace();
 		virtualKeyword = itr.ConsumeChar('0');
 		defaultKeyword = virtualKeyword ? false : itr.ConsumeWord("default");
-		if (!virtualKeyword && !defaultKeyword)
+		deleteKeyword = (virtualKeyword || defaultKeyword)
+			? false
+		    : itr.ConsumeWord("delete");
+		if (! (virtualKeyword || defaultKeyword || deleteKeyword))
 		{
 			throw ParserException(itr.GetSource(),
 				Messages::Get("CppParser.PureVirtual.ExpectedZero"));
