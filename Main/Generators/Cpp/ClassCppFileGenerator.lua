@@ -257,6 +257,9 @@ ClassCppFileGenerator = {
 			self:write(self.libDecl .. "\n");
 		end
         self:writeTabs();
+        if self.isNested then -- Qualify child class via parent name.
+            self:write(self.parent.Name .. "::");
+        end
         self:write(self.node.Name .. "::" .. self.node.Name .. "(");
         self:writeArgumentList(node);
         self:write(")\n");
@@ -325,6 +328,9 @@ ClassCppFileGenerator = {
 			self:write(self.libDecl .. "\n");
 		end
         self:writeTabs();
+        if self.isNested then -- Qualify child class via parent name.
+            self:write(self.parent.Name .. "::");
+        end
         self:write(self.node.Name .. "::~" .. self.node.Name .. "(");
         self:writeArgumentList(overload);
         self:write(")\n");
@@ -392,6 +398,9 @@ ClassCppFileGenerator = {
         self:writeType(func.ReturnType, not insertIntoNamespaces);
         self:write(" ");
         if (not self:isFunctionOverloadNodeGlobal(node)) then
+            if self.isNested then -- Qualify child class via parent name.
+                self:write(self.parent.Name .. "::");
+            end
             self:write(self.node.Name .. "::" .. node.Node.Name);
         else
             self:write(node.Node.Name);
@@ -439,9 +448,16 @@ ClassCppFileGenerator = {
         local handlerFunc = nil;
         if (typeName == TypeNames.Class) then
             -- Pass the new generator the same writer as this class.
-            ClassCppFileGenerator.new({isNested = true, node = node, writer = self.writer,
-                                       targetLibrary = self.targetLibrary});
-            handlerFunc = self.parseClass;
+            gen = ClassCppFileGenerator.new({
+                isNested = true,
+                node = node,
+                parent = self.node,
+                writer = self.writer,
+                targetLibrary = self.targetLibrary});
+            handlerFunc = function(self)
+                self:writeAfterTabs("// Nested class " .. node.Name .. "\n");
+                gen:parse();
+            end;
         else
             handlerFunc = self["parse" .. typeName];
         end
