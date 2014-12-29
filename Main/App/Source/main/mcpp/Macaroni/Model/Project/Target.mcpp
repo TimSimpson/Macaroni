@@ -474,7 +474,7 @@ class Target
 
 		public ~InnerTargetList()
 		{
-			intrusive_ptr_release(p->parent);
+			intrusive_ptr_release(parent);
 		}
 
 		//public virtual void AddReference()
@@ -484,12 +484,12 @@ class Target
 
 		public virtual int GetCount() const
 		{
-			return vec.size();
+			return vec->size();
 		}
 
 		public virtual TargetPtr GetItem(int index) const
 		{
-			Target * t = vec[index];
+			Target * t = (*vec)[index];
 			TargetPtr ptr(t);
 			return ptr;
 		}
@@ -506,61 +506,4 @@ class Target
 	    //}
 
 	};
-	//TODO: Get Macaroni to fully generate inner classes... ugh!
-	~block "cpp"
-	{
-		Target::InnerTargetList::InnerTargetList(Target * parent,
-			vector<Target *> * vec)
-		:   parent(parent), vec(vec)
-		{
-			intrusive_ptr_add_ref(parent);
-		}
-
-		Target::InnerTargetList::~InnerTargetList()
-		{
-			intrusive_ptr_release(parent);
-		}
-
-		//public virtual void AddReference()
-		//{
-		//	intrusive_ptr_add_ref(parent);
-		//}
-
-		int Target::InnerTargetList::GetCount() const
-		{
-			return vec->size();
-		}
-
-		TargetPtr Target::InnerTargetList::GetItem(int index) const
-		{
-			Target * t = (*vec)[index];
-			TargetPtr ptr(t);
-			return ptr;
-		}
-	} //cpp
 };
-
-/*
-class TargetList {
-	private const vector<Target *> * const list;
-
-	public RealTarget::const_iterator begin() const {
-		return list->begin();
-	}
-
-	public RealTarget::const_iterator end() const {
-		return list->end();
-	}
-
-	public RealTarget::const_reverse_iterator rbegin() const {
-		return list->rbegin();
-	}
-
-	public RealTarget::const_reverse_iterator rend() const {
-		return list->rend();
-	}
-
-	public size_t size() const {
-		return list.size();
-	}
-};*/
