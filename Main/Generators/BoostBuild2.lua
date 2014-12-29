@@ -385,7 +385,9 @@ function writeUnitTargetVariant(self, writer, lib, properties)
     writer:WriteLine("    :   # Sources:");
     writer:WriteLine(allDependencies(self, lib));
     writer:WriteLine("    :  " .. properties);
-    --writer:WriteLine("       <link>shared <define>BOOST_TEST_DYN_LINK ");
+    --TODO: What the hell is the right thing to put here? I've gone back
+    --      and forth on this hundreds of times.
+    writer:WriteLine("       <link>shared <define>BOOST_TEST_DYN_LINK ");
     writer:WriteLine("    ;");
 end
 
