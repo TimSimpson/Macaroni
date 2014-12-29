@@ -24,6 +24,7 @@
 ~import Macaroni::Model::LibraryPtr;
 ~import Macaroni::Lua::LuaClass;
 ~import MACARONI_ASSERT;
+~import Macaroni::Exceptions::SimpleException;
 ~import Macaroni::Model::Node;
 ~import Macaroni::Model::NodePtr;
 ~import boost::optional;
@@ -62,6 +63,7 @@ class Context
 			Macaroni::Model::Project::ProjectVersionId>
 			ProjectFileMemory;
 	}*/
+	private Node ~l * floater;
 	private GroupList * groups;
 	private bool hasBeenDeleted;
 	private std::vector<Library *> libraries;
@@ -80,7 +82,8 @@ class Context
 	}
 
 	public Context(const std::string & rootName)
-	: groups(nullptr),
+	: floater(nullptr),
+	  groups(nullptr),
 	  hasBeenDeleted(false),
 	  libraries(),
 	  referenceCount(0),
@@ -102,7 +105,43 @@ class Context
 			delete libraries[i];
 		}
 		delete groups;
+		if (floater)
+		{
+			delete floater;
+		}
 		hasBeenDeleted = true;
+	}
+
+	~block "cpp"
+	{
+		namespace {
+			MACARONI_SIMPLE_EXCEPTION_DEFINE(DoubleFloaterException,
+				"Can't create a second floating Node root. One already exists.");
+			MACARONI_SIMPLE_EXCEPTION_DEFINE(ForeignFloaterException,
+				"Can't land a floater because it was not created by this "
+				"context.");
+			MACARONI_SIMPLE_EXCEPTION_DEFINE(NoFloaterException,
+				"No floater exists.");
+		}
+	}
+
+	/** Creates a "floating" node, that isn't yet in a permanent spot. */
+	public NodePtr CreateFloater(const string & name)
+	{
+		// No use sugar-coating this: it's exclusively so the parser can
+	 	// work through template parameter lists and use them for the
+	 	// return types on functions, then later make the template nodes
+	 	// "owned" by the function nodes. It's a bit of a messy solution
+	 	// but the best one I ever thought of outside of rewriting the
+	 	// parser to use a proper lexer (not a terrible idea but not
+	 	// trivial or really required). :(
+		if (floater)
+		{
+			throw DoubleFloaterException(MACARONI_INTERNAL_SOURCE);
+		}
+		floater = new Macaroni::Model::Node(*this, name);
+		NodePtr rtn(floater);
+		return rtn;
 	}
 
 	public LibraryPtr FindLibrary(const Macaroni::Build::LibraryId & id)
@@ -218,6 +257,17 @@ class Context
 		}
 		parsedProjectFiles[absolutePath] = pvId;
 	}*/
+
+	/* Puts the "floating node" into it's forever home. */
+	public void LandFloater(NodePtr newHome)
+	{
+		if (!floater)
+		{
+			throw NoFloaterException(MACARONI_INTERNAL_SOURCE);
+		}
+		newHome->adoptFloatingNode(floater);
+		floater = nullptr;
+	}
 
 	public NodePtr Node(string name)
 	{

@@ -195,8 +195,9 @@ FileGenerator = {
     -- Given the Node of a Function, writes the argument list.
     writeArgumentList = function(self, node)
         local seenOne = false;
-        for i = 1, #(node.Children) do
-            local c = node.Children[i];
+        local args = node.Element.Arguments
+        for i = 1, #args do
+            local c = args[i];
             if (c.Member.TypeName == TypeNames.Variable) then
                 if (seenOne) then
                     self:write(", ");

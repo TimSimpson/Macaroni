@@ -189,6 +189,8 @@ protected:
 	void operator=(const Node & other);
 	~Node();
 
+	void adoptFloatingNode(Node * node);
+
 	Node * createNode(const std::string & simpleName);
 
 	//Class * createClass(const std::string & simpleName);

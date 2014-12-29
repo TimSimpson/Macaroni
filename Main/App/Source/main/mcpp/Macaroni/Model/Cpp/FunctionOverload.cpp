@@ -139,6 +139,11 @@ NodeListPtr FunctionOverload::GetArguments() const
 	for (unsigned int i = 0; i < getNode()->GetChildCount(); i ++)
 	{
 		NodePtr child = getNode()->GetChild(i);
+		ElementPtr element = child->GetElement();
+		if (element && nullptr != boost::dynamic_pointer_cast<Variable>(element))
+		{
+			argList->push_back(child);
+		}
 		MACARONI_ASSERT(!!child->GetElement(), "Member for function argument set to null.");
 		ElementPtr element = child->GetElement();
 		MACARONI_ASSERT(boost::dynamic_pointer_cast<Variable>(element),

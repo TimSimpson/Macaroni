@@ -95,6 +95,21 @@ bool Node::operator==(const Node & other) const
 	return (this == &other); // || this->GetFullName() == other.GetFullName();
 }
 
+void Node::adoptFloatingNode(Node * node)
+{
+	if (nullptr == node
+		|| this == node
+		|| nullptr != node->scope
+		|| this->context != node->context)
+	{
+		throw Macaroni::StringException("Cannot adopt this floater. "
+			"It is either null, the same as the node adopting it, "
+			"already has a parent, or was created by a different context.");
+	}
+	children.push_back(node);
+	node->scope = this;
+}
+
 //Class * Node::createClass(const std::string & simpleName)
 //{
 //	std::auto_ptr<Class> newInstance(new Class(this, simpleName));

@@ -2665,6 +2665,72 @@ public:
 		return itr.ConsumeWord("static");
 	}
 
+	NodePtr TemplateParameters(Iterator & itr)
+	{
+		ConsumeWhitespace(itr);
+		if (!itr.ConsumeWord("template"))
+		{
+			NodePtr none;
+			return none;
+		}
+		// Comitted.
+		NodePtr templateHome = context->CreateFloater("$t");
+		itr.ConsumeWhitespace();
+		if (!itr.ConsumeChar('<'))
+		{
+			throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.Template.ExpectedLT"));
+		}
+		itr.ConsumeWhitespace();
+		TemplateParameterList(templateHome, itr, 1);
+		return templateHome;
+	}
+
+	void TemplateParameterList(NodePtr templateHome, Iterator & itr,
+		                       int bracketLevel)
+	{
+		while(!itr.ConsumeChar('>'))
+		{
+			if (TemplateParameterTypeName(templateHome, itr))
+			{
+				itr.ConsumeWhitespace();
+			}
+			else
+			{
+				throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.Template.UnexpectedSyntax"));
+			}
+		}
+	}
+
+	bool TemplateParameterTypeName(NodePtr templateHome, Iterator & itr)
+	{
+		if (itr.ConsumeWord("typename"))
+		{
+			itr.ConsumeWhitespace();
+			std::string name;
+			if (!ConsumeSimpleName(itr, name))
+			{
+				throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.Template.ExpectedTypenameName"));
+			}
+			if (templateHome->Find(name))
+			{
+				throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.Template.NodeNameNotUnique",
+								  name));
+			}
+			NodePtr typeNameNode = templateHome->FindOrCreate(name);
+			//MARIO:
+			// TemplateTypename::Create(target, typeNameNode, )
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
 	/** Consumes type info into the form of Type, in the format of
 	 * [const] [TypeNodeAndArgs] [*] [const] [&]
 	 * and sets the new (or, potentially later, found) Type object in "info."
@@ -3097,8 +3163,9 @@ public:
 	 * may define additional nodes if the variable's name is complex. */
 	bool VariableOrFunction(Iterator & itr)
 	{
-		using namespace Macaroni::Model::Cpp;
+		NodePtr templateHome = TemplateParameters(itr);
 
+		using namespace Macaroni::Model::Cpp;
 
 		AccessPtr access = Access::NotSpecified();
 		bool _friend;
@@ -3156,6 +3223,11 @@ public:
 
 		if (itr.ConsumeChar(';'))
 		{
+			if (templateHome)
+			{
+				throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.Variable.TemplateNotAllowed"));
+			}
 			Variable::Create(node, access, isStatic, type, initializer,
 				Reason::Create(CppAxioms::VariableScopeCreation(), oldItr.GetSource()));
 			if (!!globalHome)
@@ -3186,7 +3258,14 @@ public:
 			NodePtr oldScope = currentScope;
 			NodePtr foNode = node->CreateNextInSequence("Overload#");
 			currentScope = foNode;
-				FunctionArgumentList(itr);
+
+			if (templateHome)
+			{
+				// Move the template to their real home...
+				context->LandFloater(foNode);
+			}
+
+			FunctionArgumentList(itr);
 
 			bool constMember = false;
 			boost::optional<ExceptionSpecifier> exceptionSpecifier = boost::none;

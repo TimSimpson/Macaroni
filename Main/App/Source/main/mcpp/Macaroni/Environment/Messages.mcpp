@@ -114,6 +114,13 @@ class Messages
         return msg;
     }
 
+    public static string Get(const char * id, string value)
+    {
+        string msg(Get(id));
+        replace(msg, 0, value);
+        return msg;
+    }
+
 /*    ~block "h" {
         template<typename ObjectType>
         static string Get(const char * id, ObjectType value);
