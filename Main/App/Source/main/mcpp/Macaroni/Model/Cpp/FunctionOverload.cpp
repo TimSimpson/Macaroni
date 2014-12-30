@@ -144,11 +144,6 @@ NodeListPtr FunctionOverload::GetArguments() const
 		{
 			argList->push_back(child);
 		}
-		MACARONI_ASSERT(!!child->GetElement(), "Member for function argument set to null.");
-		ElementPtr element = child->GetElement();
-		MACARONI_ASSERT(boost::dynamic_pointer_cast<Variable>(element),
-					"Member was not of type variable - code is out of date.");
-		argList->push_back(child);
 	}
 	return argList;
 }
