@@ -14,7 +14,6 @@
 -- limitations under the License.
 --------------------------------------------------------------------------------
 require "Macaroni.IO.GeneratedFileWriter";
-require "Macaroni.Model.Library";
 require "Macaroni.IO.Path";
 require "About";
 
@@ -41,14 +40,6 @@ end
 
 function utc()
     return formatTimeToString( os.date("!*t") );
-end
-
-function Generate(library, path)
-    local commaVersion = string.gsub(library.Version, "%.", [[\,]]);
-    local version = library.Version;
-    createVersionNoH(path, library)
-    createAboutTextH(path, library)
-    createAboutTxt(path, library)
 end
 
 function GetMethod(name)

@@ -10,7 +10,6 @@ require "Macaroni.Model.Cpp.Function";
 require "Macaroni.IO.GeneratedFileWriter";
 require "LuaGlue/LuaGlueCppFile";
 require "LuaGlue/LuaGlueHFile";
-require "Macaroni.Model.Library";
 if MACARONI_VERSION == "0.1.0.22" then
 	require "Macaroni.Model.Member";
 else

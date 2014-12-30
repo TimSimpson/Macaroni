@@ -21,7 +21,6 @@
 --------------------------------------------------------------------------------
 
 require "Macaroni.IO.GeneratedFileWriter";
-require "Macaroni.Model.Library";
 require "Macaroni.IO.Path";
 
 function copyCFilesToCppFiles(src, dst)

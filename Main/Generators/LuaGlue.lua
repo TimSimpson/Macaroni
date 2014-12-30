@@ -27,7 +27,6 @@ require "Macaroni.Model.Cpp.Function";
 require "Macaroni.Model.Cpp.FunctionOverload";
 require "LuaGlue/LuaGlueCppFile";
 require "LuaGlue/LuaGlueHFile";
-require "Macaroni.Model.Library";
 require "Macaroni.Model.Element";
 require "Macaroni.Model.Node";
 require "Macaroni.Model.NodeList";

@@ -16,7 +16,6 @@
 
 require "os"
 require "Macaroni.IO.GeneratedFileWriter";
-require "Macaroni.Model.Library";
 require "Macaroni.IO.Path";
 
 function Generate(library, path)
@@ -43,12 +42,12 @@ function Generate(library, path)
 
 # Root jam file for "pure" C++ version of Macaroni
 
-using boost 
+using boost
      : 1.49.0
      : <include>/C:/Users/Tim/Tools/Local/Boost/boost_1_49_0
        <library>C:/Users/Tim/Tools/Local/Boost/boost_1_49_0/stage/lib
-     ; 
-     
+     ;
+
 import boost ;
 boost.use-project 1.49.0 ;
 
@@ -59,11 +58,11 @@ import path ;
 lib lua_lib
     : [  path.glob-tree "../../Dependencies/Lua/Target" : *.cpp : lua.cpp lu.cpp.cpp  ]
     ;
-    
+
 alias sources
     :   [ path.glob-tree ../Source/main/mcpp : *.c ]
         [ path.glob-tree ../Source/main/mcpp : *.cpp ]
-        #[ path.glob-tree ./ : *.cpp ]        
+        #[ path.glob-tree ./ : *.cpp ]
         lua_lib
         /boost//filesystem
         /boost//regex
@@ -73,10 +72,10 @@ alias sources
     ;
 
 exe macaroni_p  # In linux it can't create the file because the name is the
-                # same as a directory.        
+                # same as a directory.
     :   [ path.glob-tree ../Source/main/mcpp : *.c ]
         [ path.glob-tree ../Source/main/mcpp : *.cpp ]
-        #[ path.glob-tree ./Macaroni : *.cpp ]        
+        #[ path.glob-tree ./Macaroni : *.cpp ]
         lua_lib
         ../Source/main/resources/Macaroni.rc
         /boost//filesystem

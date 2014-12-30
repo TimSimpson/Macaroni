@@ -1,6 +1,5 @@
 require "Cpp/Common";
 require "Cpp/ClassHFileGenerator";
-require "Macaroni.Model.Library";
 require "Cpp/NamespaceHFileGenerator";
 require "Cpp/NodeFileGenerator";
 require "Cpp/NodeInfo";

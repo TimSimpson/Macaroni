@@ -10,7 +10,6 @@ local Function = require "Macaroni.Model.Cpp.Function";
 require "Macaroni.IO.GeneratedFileWriter";
 require "LuaGlue/LuaGlueCppFile";
 require "LuaGlue/LuaGlueHFile";
-require "Macaroni.Model.Library";
 local MDocParser = require "Macaroni.Doc.MDocParser";
 local Node = require "Macaroni.Model.Node";
 local NodeList = require "Macaroni.Model.NodeList";

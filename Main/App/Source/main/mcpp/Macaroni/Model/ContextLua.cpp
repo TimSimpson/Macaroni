@@ -24,7 +24,6 @@
 #include <Macaroni/Model/Project/Group.h>
 #include <Macaroni/Model/Project/GroupPtr.h>
 #include <Macaroni/Model/Project/GroupLuaMetaData.h>
-#include "LibraryLua.h"
 #include "Node.h"
 #include "NodeLua.h"
 #include <Macaroni/Model/Project/ProjectVersionId.h>

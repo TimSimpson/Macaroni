@@ -28,7 +28,6 @@
 #include <Macaroni/Model/ElementLua.h>
 #include <Macaroni/Model/Cpp/FunctionLua.h>
 #include <Macaroni/Model/Cpp/FunctionOverloadLua.h>
-#include <Macaroni/Model/LibraryLua.h>
 #include <Macaroni/Doc/MDocParser.h>
 //#include <Macaroni/Model/MemberLua.h>
 #include <Macaroni/Environment/MessagesLua.h>
@@ -69,7 +68,6 @@ static const struct luaL_Reg libs[] = {
 	{"Macaroni.Model.Element", Model::ElementLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Cpp.Function", Model::Cpp::FunctionLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Cpp.FunctionOverload", Model::Cpp::FunctionOverloadLuaMetaData::OpenInLua},
-	{"Macaroni.Model.Library", Model::LibraryLuaMetaData::OpenInLua},
 	{"Macaroni.Doc.MDocParser", Macaroni::Doc::MDocParser::OpenInLua},
 	//{"Macaroni.Model.Member", Model::MemberLuaMetaData::OpenInLua},
 	{"Macaroni.Model.NodeList", Model::NodeListLuaMetaData::OpenInLua},

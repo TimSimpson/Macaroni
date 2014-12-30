@@ -42,7 +42,6 @@
 #include <boost/foreach.hpp>
 #include <Macaroni/Model/Cpp/Function.h>
 #include <Macaroni/Model/Cpp/FunctionOverload.h>
-#include <Macaroni/Model/Library.h>
 #include <memory>
 #include <Macaroni/Environment/Messages.h>
 #include <Macaroni/Model/ModelInconsistencyException.h>

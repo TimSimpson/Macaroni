@@ -1,5 +1,5 @@
 -- This generator saves a copy of all files to the install directory.
--- If the multiple outdifferent source directories or 
+-- If the multiple outdifferent source directories or
 require "Cpp/Common";
 require "Cpp/CppFileGenerator";
 require "Cpp/HFileGenerator";
@@ -20,16 +20,16 @@ function Install(library, sourcePaths, outputPath, installPath, extraArgs)
 		      .. "set to a regular expression string of which files to "
 		      .. "archive.");
 	end
-	local dir = Path.New(extraArgs.directory);	
-	copySourceToInstallPath(dir, installPath, extraArgs.regex);	
+	local dir = Path.New(extraArgs.directory);
+	copySourceToInstallPath(dir, installPath, extraArgs.regex);
 end
 
-function copySourceToInstallPath(sourcePath, installPath, regex)	
+function copySourceToInstallPath(sourcePath, installPath, regex)
 	local dstPath = installPath:NewPathForceSlash("original");
 	local filePaths = sourcePath:GetPaths(regex)
 	for i = 1, #filePaths do
 		local fp = filePaths[i];
 		local fp = filePaths[i];
 		fp:CopyToDifferentRootPath(dstPath, true);
-	end	
+	end
 end

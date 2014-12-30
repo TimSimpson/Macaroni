@@ -23,7 +23,6 @@
 #include <Macaroni/Model/Element.h>
 #include <Macaroni/Model/ElementPtr.h>
 #include <Macaroni/Model/FileNamePtr.h>
-#include "Library.h"
 #include "NodePtr.h"
 #include "ReasonPtr.h"
 #include <vector>

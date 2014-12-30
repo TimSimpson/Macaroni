@@ -1,6 +1,5 @@
 require "os"
 require "Macaroni.IO.GeneratedFileWriter";
-require "Macaroni.Model.Library";
 local Path = require "Macaroni.IO.Path";
 
 --------------------------------------------------------------------------------

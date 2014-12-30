@@ -19,7 +19,6 @@
 require "Macaroni.Model.Context";
 require "Macaroni.Model.FileName";
 require "Macaroni.IO.GeneratedFileWriter";
-require "Macaroni.Model.Library";
 require "Macaroni.IO.Path";
 
 function Generate(library, path)
@@ -31,8 +30,8 @@ function Generate(library, path)
 	if cpp.HFilePath == nil then
 		error("NO!GG");
 	end
-	
-	
+
+
 	local cmdline = root:FindOrCreate("Macaroni::Build::CmdLine")
 	local ctor = cmdline:Find("$ctor")
 	assert(ctor.TypeName == "Constructor")
@@ -41,6 +40,6 @@ function Generate(library, path)
 	assert(ol.TypeName == "ConstructorOverload")
 	local args = ol.Arguments;
 	local arg1 = args[1]
-	
-	
+
+
 end

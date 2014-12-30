@@ -13,19 +13,7 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --------------------------------------------------------------------------------
--- require "Macaroni.Model.Context";
--- require "Macaroni.Model.Library";
--- require "Macaroni.Environment.Messages";
--- require "Macaroni.Model.Element";
--- require "Macaroni.Model.Node";
--- require "Macaroni.Parser.Pippy.PippyParser";
--- require "Macaroni.Parser.Parser";
--- require "Macaroni.Parser.ParserException";
--- require "Macaroni.IO.Path";
--- require "Macaroni.Model.Source";
-
 local Context = require "Macaroni.Model.Context";
-local Library = require "Macaroni.Model.Library";
 local Messages = require "Macaroni.Environment.Messages";
 local Path = require "Macaroni.IO.Path";
 local PippyParser = require "Macaroni.Parser.Pippy.PippyParser";

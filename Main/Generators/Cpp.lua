@@ -19,7 +19,6 @@ require "Cpp/HFileGenerator";
 require "Cpp/LibraryConfigGenerator";
 require "Cpp/NodeInfo";
 require "Cpp/UnitFileGenerator";
-require "Macaroni.Model.Library";
 require "Log";
 require "Plugin"
 

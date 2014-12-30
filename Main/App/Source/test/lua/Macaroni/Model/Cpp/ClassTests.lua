@@ -19,7 +19,6 @@ local Class = require "Macaroni.Model.Cpp.Class";
 local Context = require "Macaroni.Model.Context";
 local FileName = require "Macaroni.Model.FileName";
 local Group = require "Macaroni.Model.Project.Group";
-local Library = require "Macaroni.Model.Library";
 local NodeList = require "Macaroni.Model.NodeList";
 local Node = require "Macaroni.Model.Node";
 local Path = require "Macaroni.IO.Path";
@@ -41,7 +40,6 @@ tests = {
                                       :Project("Test_Project")
                                       :Version("Test_Version")
                                       :Target("Test_Target");
-            --this.library = this.context.RootLibrary;
             this.root = this.context.Root;
             this.newNode = this.root:Find("Dog");
             Test.assertEquals(nil, this.newNode);

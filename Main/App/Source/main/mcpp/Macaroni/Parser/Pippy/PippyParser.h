@@ -17,7 +17,6 @@
 #define MACARONI_PARSER_PIPPY_PIPPYPARSER_H
 
 #include "../../ME.h"
-#include "../../Model/LibraryPtr.h"
 #include "PippyParserPtr.h"
 #include <Macaroni/Parser/Parser.h>
 #include <Macaroni/Model/Project/TargetPtr.h>

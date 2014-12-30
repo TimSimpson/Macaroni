@@ -21,8 +21,6 @@
 #include <boost/format.hpp>
 #include <Macaroni/Model/Context.h>
 #include "../Model/ContextLua.h"
-#include "../Model/Library.h"
-#include "../Model/LibraryLua.h"
 #include <Macaroni/Parser/ParserException.h>
 #include <Macaroni/Model/Project/Target.h>
 #include <Macaroni/Model/Project/TargetLuaMetaData.h>
@@ -33,7 +31,6 @@
 
 using Macaroni::Model::ContextPtr;
 using Macaroni::Model::ContextLuaMetaData;
-using Macaroni::Model::Library;
 using Macaroni::Model::SourcePtr;
 using Macaroni::Model::SourceLuaMetaData;
 using Macaroni::Model::Project::Target;

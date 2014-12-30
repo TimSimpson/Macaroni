@@ -21,7 +21,6 @@ require "Macaroni.Model.AnnotationValue";
 require "Macaroni.Model.Context";
 require "Macaroni.Model.FileName";
 require "Macaroni.IO.GeneratedFileWriter";
-require "Macaroni.Model.Library";
 require "Macaroni.IO.Path";
 require "Macaroni.Model.Source";
 

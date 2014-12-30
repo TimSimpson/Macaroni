@@ -1,7 +1,6 @@
 require "Cpp/Common";
 require "Cpp/CppFileGenerator";
 require "Cpp/HFileGenerator";
-require "Macaroni.Model.Library";
 require "Macaroni/MhFileGenerator";
 require "Log";
 require "Plugin"
