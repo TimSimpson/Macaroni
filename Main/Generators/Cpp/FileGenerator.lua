@@ -333,22 +333,11 @@ FileGenerator = {
             self:write("inline ");
         end
         self:writeType(func.ReturnType);
-        --2014-12-23: I originally did this because it was, as near as I could
-        --            tell, the only way to non-ambigously define a friend
-        --            function that might be in another scope. But it can't
-        --            work all the time, because you end up with a def that
-        --            looks like:
-        --
-        --            ::namespace::typename ::namespace::func_name(args...);
-        --
-        --            This is hella-ambigious because C++ allows spaces between
-        --            chunks of a full qualified name (DAMN IT). I can't figure
-        --            out any way to make the above non-ambigous in all cases.
-        --if not calledForFriendDefinition then
-			self:write(" " .. foNode.Node.Name .. "(");
-		--else
-		--	self:write(" ::" .. foNode.Node.FullName .. "(");
-		--end
+        if not calledForFriendDefinition then
+            self:write(" " .. foNode.Node.Name .. "(");
+        else
+            self:write(" (::" .. foNode.Node.FullName .. ") (");
+        end
         self:writeArgumentList(foNode);
         self:write(")");
         if (func.Const) then
