@@ -275,6 +275,18 @@ FileGenerator = {
         end
     end,
 
+    writeFunctionExceptionSpecifier = function(self, element)
+        if MACARONI_VERSION ~= "0.1.0.27" then
+            if (element.ExceptionSpecifier) then
+                self:write(" " .. element.ExceptionSpecifier);
+            end
+        else
+            if (element.ThrowSpecifier) then
+                self:write(" throw()");
+            end
+        end
+    end,
+
     writeFunctionCodeBlock = function(self, memberWithBlock)
 		check(self ~= nil, "Method called without instance.");
 		check(memberWithBlock.CodeBlock ~= nil, "Member " ..memberWithBlock.Node.FullName.. " does not have code block.");
@@ -343,15 +355,7 @@ FileGenerator = {
         if (func.Const) then
             self:write(" const");
         end
-        if MACARONI_VERSION ~= "0.1.0.27" then
-            if (func.ExceptionSpecifier) then
-                self:write(" " .. func.ExceptionSpecifier);
-            end
-        else
-            if (func.ThrowSpecifier) then
-                self:write(" throw()");
-            end
-        end
+        self:writeFunctionExceptionSpecifier(func)
     end,
 
     writeType = function(self, type)

@@ -303,6 +303,7 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         self:write(self.node.Name .. "(");
         self:writeArgumentList(node);
         self:write(")");
+        self:writeFunctionExceptionSpecifier(node.Member);
         self:writeFunctionBody(node.Member, true);
     end,
 
@@ -320,6 +321,7 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         self:write('~' .. self.node.Name .. "(");
         self:writeArgumentList(overload);
         self:write(")");
+        self:writeFunctionExceptionSpecifier(overload.Member);
         self:writeFunctionBody(overload.Member, false);
     end,
 
@@ -427,15 +429,6 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
     end,
 
     writeFunctionBody = function(self, element, isCtor)
-        if MACARONI_VERSION ~= "0.1.0.27" then
-            if (element.ExceptionSpecifier) then
-                self:write(" " .. element.ExceptionSpecifier);
-            end
-        else
-            if (element.ThrowSpecifier) then
-                self:write(" throw()");
-            end
-        end
         if element.IsPureVirtual == true then
             self:write(" = 0;\n");
         elseif element.UsesDefault == true then
