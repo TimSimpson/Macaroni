@@ -36,12 +36,6 @@ using Macaroni::Model::TypePtr;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-Typedef::Typedef(Library * library, Node * node, ReasonPtr reason,
-				 TypePtr type)
-:Scope(library, node, reason), type(type)
-{
-}
-
 Typedef::Typedef(Target * target, Node * node, ReasonPtr reason, TypePtr type)
 :Scope(target, node, reason), type(type)
 {
@@ -49,13 +43,6 @@ Typedef::Typedef(Target * target, Node * node, ReasonPtr reason, TypePtr type)
 
 Typedef::~Typedef()
 {
-}
-
-
-TypedefPtr Typedef::Create(LibraryPtr library, NodePtr home, ReasonPtr reason,
-						   TypePtr type)
-{
-	return TypedefPtr(new Typedef(library.get(), home.get(), reason, type));
 }
 
 TypedefPtr Typedef::Create(TargetPtr target, NodePtr home, ReasonPtr reason,

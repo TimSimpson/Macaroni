@@ -32,9 +32,6 @@ friend void intrusive_ptr_add_ref(Typedef * p);
 friend void intrusive_ptr_release(Typedef * p);
 
 public:
-	static TypedefPtr Create(LibraryPtr library, Macaroni::Model::NodePtr home,
-							 Macaroni::Model::ReasonPtr reason,
-							 TypePtr type);
 
 	static TypedefPtr Create(Macaroni::Model::Project::TargetPtr target,
 		                     Macaroni::Model::NodePtr home,
@@ -50,11 +47,6 @@ public:
 	virtual bool RequiresHFile() const;
 
 protected:
-	Typedef(Library * library,
-		    Macaroni::Model::Node *		home,
-			Macaroni::Model::ReasonPtr	reason,
-			Macaroni::Model::TypePtr	type);
-
 	Typedef(Macaroni::Model::Project::Target * target,
 		    Macaroni::Model::Node *		home,
 		    Macaroni::Model::ReasonPtr	reason,

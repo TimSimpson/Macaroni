@@ -781,17 +781,9 @@ public:
 
 		ClassPtr newClass;
 		TargetPtr tHome = deduceTargetHome(currentScope);
-		if (!tHome) {
-			// OLD WAY
-			newClass =
-			Class::Create(library, currentScope, access, importedNodes,
-				Reason::Create(CppAxioms::ClassCreation(), newItr.GetSource()));
-		} else {
-			// NEW WAY
-			newClass =
-			Class::Create(tHome, currentScope, isStruct, access, importedNodes,
-				Reason::Create(CppAxioms::ClassCreation(), newItr.GetSource()));
-		}
+		newClass = Class::Create(
+			tHome, currentScope, isStruct, access, importedNodes,
+			Reason::Create(CppAxioms::ClassCreation(), newItr.GetSource()));
 
 
 		ClassParents(newItr, newClass);
@@ -1579,41 +1571,9 @@ public:
 		}
 		else
 		{
-			if (defaultTarget)
-			{
-				return defaultTarget;
-
-			}
-			else
-			{
-				return TargetPtr();
-			}
+			MACARONI_ASSERT(defaultTarget, "Default Target null in Parser!");
+			return defaultTarget;
 		}
-		// Note: I had code here to create unit targets automatically but
-		// abandoned it in favor of letting a Lua plugin do it to make it
-		// more flexible.
-
-		//
-		/*
-		// If the target has been manually overridden use that.
-		if (currentTarget)
-		{
-			return currentTarget;
-		}
-		// Default choice resolution.
-		if (node->GetNode()->HasElementOfType<Macaroni::Model::Cpp::Class>())
-		{
-			// 1. If the parent node is a class, then always use its target.
-			return node->GetNode()->GetElement()->GetOwner();
-		}
-		else
-		{
-			// 2. Create a UnitTarget for the node with the default target
-			//    as its home.
-			TargetPtr rtnPtr(
-				UnitTarget::Create(defaultTarget, node->GetFullName()));
-			return rtnPtr;
-		}*/
 	}
 
 	bool Directives(Iterator & itr)
@@ -2289,16 +2249,9 @@ public:
 			if (!ns->GetElement())
 			{
 				TargetPtr tHome = deduceTargetHome(ns);
-				if (!tHome) {
-					// OLD WAY
-					Namespace::Create(this->library, ns,
+				Namespace::Create(tHome, ns,
 						Reason::Create(CppAxioms::NamespaceCreation(),
 						               newItr.GetSource()));
-				} else {
-					Namespace::Create(tHome, ns,
-						Reason::Create(CppAxioms::NamespaceCreation(),
-						               newItr.GetSource()));
-				}
 			}
 			ns = ns->GetNode();
 		}
@@ -2857,18 +2810,9 @@ public:
 		NodePtr typedefNode = currentScope->FindOrCreate(name);
 
 		TargetPtr tHome = deduceTargetHome(typedefNode);
-		if (!tHome) {
-			// OLD WAY
-			Typedef::Create(this->library, typedefNode,
-				Reason::Create(CppAxioms::TypedefCreation(), newItr.GetSource()),
-				type);
-		} else {
-			// NEW WAY
-			Typedef::Create(tHome, typedefNode,
-				Reason::Create(CppAxioms::TypedefCreation(), newItr.GetSource()),
-				type);
-		}
-
+		Typedef::Create(tHome, typedefNode,
+			Reason::Create(CppAxioms::TypedefCreation(), newItr.GetSource()),
+			type);
 
 		ConsumeWhitespace(newItr);
 

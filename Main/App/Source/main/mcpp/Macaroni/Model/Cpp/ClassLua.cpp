@@ -20,7 +20,6 @@
 #include <Macaroni/Model/Cpp/AccessLuaMetaData.h>
 #include <Macaroni/Model/Cpp/ClassParentListLuaMetaData.h>
 #include "../ElementLua.h"
-#include <Macaroni/Model/LibraryLua.h>
 #include "../NodeLua.h"
 #include "../NodeListLua.h"
 #include <Macaroni/Model/ReasonLuaMetaData.h>
@@ -57,9 +56,6 @@ END_NAMESPACE
 
 	static int Create(lua_State * L)
 	{
-		using Macaroni::Model::Library;
-		using Macaroni::Model::LibraryPtr;
-		using Macaroni::Model::LibraryLuaMetaData;
 		using Macaroni::Model::Element;
 		using Macaroni::Model::ElementLuaMetaData;
 		using Macaroni::Model::Node;
@@ -74,13 +70,8 @@ END_NAMESPACE
 		using Macaroni::Model::Project::TargetPtr;
 		using Macaroni::Model::Project::TargetLuaMetaData;
 
-		LibraryPtr library;
 		TargetPtr target;
-		if (LibraryLuaMetaData::IsType(L, 1))
-		{
-			library = LibraryLuaMetaData::GetInstance(L, 1);
-		}
-		else if (TargetLuaMetaData::IsType(L, 1))
+		if (TargetLuaMetaData::IsType(L, 1))
 		{
 			target = TargetLuaMetaData::GetInstance(L, 1);
 		}
@@ -114,15 +105,9 @@ END_NAMESPACE
 		}
 		ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 5);
 
-		ClassPtr newInstance;
-		if (target)
-		{
-			newInstance = Class::Create(target, node, false, access, imports, reason);
-		}
-		else
-		{
-			newInstance = Class::Create(library, node, access, imports, reason);
-		}
+		ClassPtr newInstance = Class::Create(target, node, false, access,
+			                                 imports, reason);
+
 		ElementPtr memberPtr = boost::dynamic_pointer_cast<Element>(newInstance);
 		ElementLuaMetaData::PutInstanceOnStack(L, memberPtr);
 		return 1;

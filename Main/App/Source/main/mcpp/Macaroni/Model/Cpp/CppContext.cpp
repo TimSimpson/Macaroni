@@ -41,16 +41,6 @@ BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 void CppContext::CreateCppNodes(ContextPtr context)
 {
-	if (context->GetRoot()->GetElement() == nullptr)
-	{
-		FileNamePtr file = FileName::CreateNonPhysical(std::string("Cpp Parser"));
-		SourcePtr src = Source::Create(file, 0, 0);
-		Namespace::Create(context->GetRootLibrary(),
-			              context->GetRoot(), 
-						  Reason::Create(MessageAxiom::Create("CppAxioms.NamespaceRoot"), src)
-						  );
-	}
-
 	NodePtr primitiveRoot = context->GetRoot()->FindOrCreate("{C++ Primitives}");
 	if (primitiveRoot->GetChildCount() == 0)
 	{
@@ -69,7 +59,7 @@ void CppContext::CreateCppNodes(ContextPtr context)
 		addPrimitive(primitiveRoot, "signed short");
 		addPrimitive(primitiveRoot, "unsigned short");
 		addPrimitive(primitiveRoot, "size_t");
-		addPrimitive(primitiveRoot, "int");				
+		addPrimitive(primitiveRoot, "int");
 		addPrimitive(primitiveRoot, "void");
 		addPrimitive(primitiveRoot, "wchar_t");
 	}

@@ -18,7 +18,6 @@
 
 #include "../../ME.h"
 #include <vector>
-#include "../LibraryElement.h"
 #include <Macaroni/Model/Element.h>
 #include "../NodePtr.h"
 #include "ScopeMember.h"
@@ -26,16 +25,12 @@
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-class Scope : public ScopeMember, public virtual Model::LibraryElement
+class Scope : public ScopeMember
 {
 friend void intrusive_ptr_add_ref(Scope * p);
 friend void intrusive_ptr_release(Scope * p);
 
 public:
-	virtual Model::LibraryPtr GetLibrary() const;
-
-	size_t GetMemberCount() const;
-
 	NodePtr GetMember(int index) const;
 
 	virtual Macaroni::Model::Project::TargetPtr GetOwner() const;
@@ -49,15 +44,13 @@ public:
 	virtual void SwitchOwner(Macaroni::Model::Project::TargetPtr target);
 
 protected:
-	Scope(Library * library, Node * scope, ReasonPtr reason);
-	Scope(Macaroni::Model::Project::Target * target, Node * scope, ReasonPtr reason);
+	Scope(Macaroni::Model::Project::Target * target, Node * scope,
+		  ReasonPtr reason);
 	Scope(const Scope & other);
 	void operator=(const Scope & other);
 	virtual ~Scope(){}
 
 private:
-	Model::Library * library;
-
 	Macaroni::Model::Project::Target * target;
 };
 

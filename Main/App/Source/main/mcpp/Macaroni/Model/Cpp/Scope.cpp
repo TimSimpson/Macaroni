@@ -18,7 +18,6 @@
 
 #include "Scope.h"
 #include <Macaroni/Exception.h>
-#include "../Library.h"
 #include "../Node.h"
 #include <Macaroni/StringException.h>
 #include <Macaroni/Model/Project/Target.h>
@@ -39,34 +38,11 @@ void intrusive_ptr_release(Scope * p)
 	intrusive_ptr_add_ref((ScopeMember *)p);
 }
 
-Scope::Scope(Library * library, Node * node, ReasonPtr reason)
-:ScopeMember(node, reason),
- library(library),
- target(0)
-{
-}
-
 Scope::Scope(Target * target, Node * node, ReasonPtr reason)
 :ScopeMember(node, reason),
- library(0),
  target(target)
 {
 	target->AddElement(this);
-}
-
-
-LibraryPtr Scope::GetLibrary() const
-{
-	if (!target) {
-		return LibraryPtr(library);
-	} else {
-		throw Macaroni::StringException("Deprecated- use 'OwnedBy' instead.");
-	}
-}
-
-size_t Scope::GetMemberCount() const
-{
-	return getNode()->GetChildCount();
 }
 
 NodePtr Scope::GetMember(int index) const

@@ -26,7 +26,6 @@
 #include <Macaroni/Model/Cpp/EnumLuaMetaData.h>
 #include "Cpp/FunctionLua.h"
 #include "Cpp/FunctionOverloadLua.h"
-#include "LibraryLua.h"
 #include "ElementLua.h"
 #include <Macaroni/Model/Element.h>
 #include "Node.h"
@@ -72,31 +71,9 @@
 			lua_pushboolean(L, result ? 1 : 0);
 			return 1;
 		}
-		else if (LibraryLuaMetaData::IsType(L, 2))
-		{
-			// The Lua generators used to work by checking member.Library to
-			// see if it was equal to the target Library.
-			// Now there is the superior "OwnedBy" method that accepts a target,
-			// not an old-style Library, but to keep compatability with the
-			// manifest system this function can be given a Library in
-			// Lua Glue and will check if its equal to the Library owned by the
-			// element, if any.
-			LibraryPtr lib = LibraryLuaMetaData::GetInstance(L, 2);
-			LibraryElement * lm;
-			if ((lm = dynamic_cast<LibraryElement *>(element.get())) != nullptr)
-			{
-				LibraryPtr otherLib = lm->GetLibrary();
-				const bool result = lib->GetId() == otherLib->GetId();
-				lua_pushboolean(L, result ? 1 : 0);
-				return 1;
-			}
-			lua_pushboolean(L, 0);
-			return 1;
-		}
 		else
 		{
-			return luaL_error(L, "Expected a Target or (old-style) Library for "
-				                 "argument 2.");
+			return luaL_error(L, "Expected a Target for argument 2.");
 		}
 
 		LUA_GLUE_CATCH
@@ -174,14 +151,11 @@
 			return 1;
 		}
 
-		LibraryElement * lm;
-		if ((lm = dynamic_cast<LibraryElement *>(ptr.get())) != nullptr)
+		if (index == "Library")
 		{
-			if (index == "Library")
-			{
-				LibraryLuaMetaData::PutInstanceOnStack(L, lm->GetLibrary());
-				return 1;
-			}
+			luaL_error(L, "Library property no longer exists. Please change "
+				          "this code.");
+			return 1;
 		}
 
 		if (!!boost::dynamic_pointer_cast<Block>(ptr))

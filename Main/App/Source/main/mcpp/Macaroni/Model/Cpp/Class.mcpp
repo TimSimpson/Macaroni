@@ -82,19 +82,6 @@ class Class : public Scope
 
     private Macaroni::Model::Cpp::ClassParentListPtr parents;
 
-    protected Class(Library * library, Node * parent,
-                    bool isStruct, Access access,
-                    NodeListPtr importedNodes, ReasonPtr reason)
-    :   Scope(library, parent, reason),
-        access(access),
-        friends(new NodeList()),
-        globals(new NodeList()),
-        imports(importedNodes),
-        isStruct(isStruct),
-        parents(new ClassParentList())
-    {
-    }
-
     protected Class(Target * target, Node * parent,
                     bool isStruct, Access access,
                     NodeListPtr importedNodes, ReasonPtr reason)
@@ -112,30 +99,6 @@ class Class : public Scope
     public virtual ~Class()
     {
 
-    }
-
-    public static ClassPtr Create(LibraryPtr library, NodePtr parent,
-                                  AccessPtr access,
-                                  NodeListPtr importedNodes, ReasonPtr reason)
-    {
-        MACARONI_ASSERT(false, "Deprecated Class create function!");
-        ElementPtr existingMember = parent->GetElement();
-        if (!!existingMember)
-        {
-            ClassPtr existingClass = boost::dynamic_pointer_cast<Class>(existingMember);
-            if (!existingClass)
-            {
-                std::stringstream ss;
-                ss << "The member at node " << parent->GetFullName()
-                    << " is a " << parent->GetElement()->GetTypeName()
-                    << " and cannot be morphed into a class.";
-                throw Model::ModelInconsistencyException(existingMember->GetReasonCreated(),
-                    reason, ss.str());
-            }
-            return existingClass;
-        }
-        ClassPtr other = boost::dynamic_pointer_cast<Class>(existingMember);
-        return ClassPtr(new Class(library.get(), parent.get(), false, *access, importedNodes, reason));
     }
 
     public static ClassPtr Create(TargetPtr target, NodePtr parent,

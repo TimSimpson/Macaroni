@@ -18,7 +18,6 @@
 
 #include "Namespace.h"
 #include <Macaroni/Exception.h>
-#include "../Library.h"
 #include "../Node.h"
 #include <memory>
 #include <sstream>
@@ -31,11 +30,6 @@ using Macaroni::Model::Project::TargetPtr;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-Namespace::Namespace(Library * library, Node * parent, ReasonPtr reason)
-:Scope(library, parent, reason)
-{
-}
-
 Namespace::Namespace(Target * target, Node * parent, ReasonPtr reason)
 :Scope(target, parent, reason)
 {
@@ -44,11 +38,6 @@ Namespace::Namespace(Target * target, Node * parent, ReasonPtr reason)
 Namespace::~Namespace()
 {
 
-}
-
-NamespacePtr Namespace::Create(LibraryPtr library, NodePtr parent, ReasonPtr reason)
-{
-	return NamespacePtr(new Namespace(library.get(), parent.get(), reason));
 }
 
 NamespacePtr Namespace::Create(TargetPtr target, NodePtr parent, ReasonPtr reason)
