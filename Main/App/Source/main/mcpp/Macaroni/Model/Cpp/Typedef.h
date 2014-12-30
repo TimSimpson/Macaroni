@@ -17,7 +17,7 @@
 #define MACARONI_MODEL_CPP_TYPEDEF_H
 
 #include "../../ME.h"
-#include "../Member.h"
+#include <Macaroni/Model/Element.h>
 #include "../Node.h"
 #include "Scope.h"
 #include "../TypePtr.h"
@@ -59,8 +59,6 @@ protected:
 		    Macaroni::Model::Node *		home,
 		    Macaroni::Model::ReasonPtr	reason,
 		    Macaroni::Model::TypePtr	type);
-
-	virtual bool canBeChildOf(const Macaroni::Model::Member * other) const;
 
 private:
 	Macaroni::Model::TypePtr type;

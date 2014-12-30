@@ -85,7 +85,7 @@ class Class : public Scope
     protected Class(Library * library, Node * parent,
                     bool isStruct, Access access,
                     NodeListPtr importedNodes, ReasonPtr reason)
-    :   Scope(library, parent, "Class", reason),
+    :   Scope(library, parent, reason),
         access(access),
         friends(new NodeList()),
         globals(new NodeList()),
@@ -98,7 +98,7 @@ class Class : public Scope
     protected Class(Target * target, Node * parent,
                     bool isStruct, Access access,
                     NodeListPtr importedNodes, ReasonPtr reason)
-    :   Scope(target, parent, "Class", reason),
+    :   Scope(target, parent, reason),
         access(access),
         friends(new NodeList()),
         globals(new NodeList()),
@@ -183,16 +183,6 @@ class Class : public Scope
     {
         Class * const me = this;
         parents->push_back(ClassParent(me, parent, *access, _virtual));
-    }
-
-    public virtual bool canBeChildOf(const Member * other) const
-    {
-        return dynamic_cast<const Scope *>(other) != nullptr;
-    }
-
-    public virtual bool DoesDefinitionReference(NodePtr node) const
-    {
-        return this->Member::DoesDefinitionReference(node);
     }
 
     /** Classes which this Class inherits from. */

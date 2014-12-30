@@ -39,15 +39,15 @@ void intrusive_ptr_release(Scope * p)
 	intrusive_ptr_add_ref((ScopeMember *)p);
 }
 
-Scope::Scope(Library * library, Node * node, const char * typeName, ReasonPtr reason)
-:ScopeMember(node, typeName, reason),
+Scope::Scope(Library * library, Node * node, ReasonPtr reason)
+:ScopeMember(node, reason),
  library(library),
  target(0)
 {
 }
 
-Scope::Scope(Target * target, Node * node, const char * typeName, ReasonPtr reason)
-:ScopeMember(node, typeName, reason),
+Scope::Scope(Target * target, Node * node, ReasonPtr reason)
+:ScopeMember(node, reason),
  library(0),
  target(target)
 {

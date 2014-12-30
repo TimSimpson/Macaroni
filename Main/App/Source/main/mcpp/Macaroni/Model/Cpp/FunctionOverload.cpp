@@ -36,31 +36,9 @@ FunctionOverload::FunctionOverload
  const TypePtr rtnTypeInfo, bool constMember,
  const optional<ExceptionSpecifier> exceptionSpecifier
 )
-:ScopeMember(home, "FunctionOverload",
-			 reason, access, isStatic),
+:ScopeMember(home, reason, access, isStatic),
  codeBlock(),
  codeBlockAddRedirect(false),
- constMember(constMember),
- isInline(isInline),
- isPureVirtual(false),
- isVirtual(isVirtual),
- returnType(rtnTypeInfo),
- exceptionSpecifier(exceptionSpecifier),
- usesDefaultKeyword(false),
- usesDeleteKeyword(false)
-{
-}
-
-FunctionOverload::FunctionOverload
-(
- Node * home, const char * typeName, Model::ReasonPtr reason, bool isInline,
- Access access, const bool isStatic, bool isVirtual,
- const TypePtr rtnTypeInfo, bool constMember,
- const optional<ExceptionSpecifier> exceptionSpecifier
-)
-:ScopeMember(home, typeName,
-			 reason, access, isStatic),
- codeBlock(),
  constMember(constMember),
  codeSource(),
  isInline(isInline),
@@ -119,17 +97,6 @@ FunctionOverloadPtr FunctionOverload::Create(NodePtr foNode,
 		isInline, *access,
 		isStatic, isVirtual, rtnType, constMember, exceptionSpecifier);
 	return FunctionOverloadPtr(fo);
-}
-
-bool FunctionOverload::canBeChildOf(const Member * other) const
-{
-	return dynamic_cast<const Function *>(other) != nullptr;
-}
-
-bool FunctionOverload::DoesDefinitionReference(NodePtr node) const
-{
-	return this->returnType->GetNode() == node ? true
-		: this->Member::DoesDefinitionReference(node);
 }
 
 NodeListPtr FunctionOverload::GetArguments() const

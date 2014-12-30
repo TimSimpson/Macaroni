@@ -21,7 +21,7 @@
 #include <Macaroni/Model/Cpp/ConstructorOverloadPtr.h>
 #include <Macaroni/Model/Cpp/Function.h>
 #include <Macaroni/Model/Cpp/FunctionOverload.h>
-#include "../Member.h"
+#include <Macaroni/Model/Element.h>
 #include <Macaroni/Model/Node.h>
 #include "../ReasonPtr.h"
 #include "ScopeMember.h"
@@ -51,8 +51,6 @@ public:
 	virtual ~ConstructorOverload();
 
 	void AddAssignment(const VariableAssignment & assignment);
-
-	virtual bool canBeChildOf(const Member * other) const;
 
 	ConstructorOverloadPtr Create(FunctionPtr home, bool isInline, const Access access,
 							   const bool isStatic,

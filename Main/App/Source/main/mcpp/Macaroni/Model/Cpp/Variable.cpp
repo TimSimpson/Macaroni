@@ -33,7 +33,7 @@ using Macaroni::Model::Node;
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 Variable::Variable(Node * parent, ReasonPtr reason, Access access, bool isStatic, const TypePtr type, std::string initializer)
-:ScopeMember(parent, "Variable", reason, access, isStatic),
+:ScopeMember(parent, reason, access, isStatic),
  initializer(initializer),
  type(type)
 {
@@ -44,11 +44,6 @@ Variable::~Variable()
 
 }
 
-
-bool Variable::canBeChildOf(const Member * other) const
-{
-	return dynamic_cast<const Scope *>(other) != nullptr;
-}
 
 VariablePtr Variable::Create(NodePtr host, AccessPtr access, bool isStatic, const TypePtr type, std::string initializer, ReasonPtr reason)
 {
@@ -93,12 +88,6 @@ VariablePtr Variable::Create(NodePtr host, AccessPtr access, bool isStatic, cons
 	}
 	// Re-use the previously set variable.
 	return VariablePtr(boost::dynamic_pointer_cast<Variable>(host->GetElement()));
-}
-
-bool Variable::DoesDefinitionReference(NodePtr node) const
-{
-	return type->GetNode() == node ? true
-		: this->Member::DoesDefinitionReference(node);
 }
 
 const char * Variable::GetTypeName() const

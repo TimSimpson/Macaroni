@@ -17,7 +17,7 @@
 #define MACARONI_MODEL_CPP_VARIABLE_H
 
 #include "../../ME.h"
-#include "../Member.h"
+#include <Macaroni/Model/Element.h>
 #include "../ReasonPtr.h"
 #include "ScopeMember.h"
 #include "VariablePtr.h"
@@ -37,10 +37,6 @@ public:
 	static VariablePtr Create(NodePtr home, AccessPtr access, bool isStatic, const TypePtr type, std::string initializer, Model::ReasonPtr reason);
 
 	virtual ~Variable();
-
-	virtual bool canBeChildOf(const Member * other) const;
-
-	virtual bool DoesDefinitionReference(NodePtr node) const;
 
 	virtual const char * GetTypeName() const;
 

@@ -5,7 +5,6 @@
 ~import Macaroni::Lua::LuaIncludes;
 ~import Macaroni::Lua::LuaProperty;
 ~import std::map;
-~import Macaroni::Model::Member;
 ~import Macaroni::Model::Node;
 ~import Macaroni::Model::NodePtr;
 ~import boost::optional;
@@ -40,7 +39,7 @@ class Enum : public Scope
 
     protected Enum(Target * target, Node * node, ReasonPtr reason,
                    bool isClass, TypePtr sizeType)
-    :   Scope(target, node, "Enum", reason),
+    :   Scope(target, node, reason),
         isClass(isClass),
         sizeType(sizeType)
     {
@@ -59,11 +58,6 @@ class Enum : public Scope
                          const optional<string> & value=boost::none)
     {
         values[key] = value;
-    }
-
-    virtual bool canBeChildOf(const Member * other) const
-    {
-        return dynamic_cast<const Enum *>(other) != nullptr;
     }
 
     public TypePtr GetSizeType()

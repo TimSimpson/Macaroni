@@ -2,7 +2,7 @@
 #define MACARONI_MODEL_CPP_TYPEINFO_H
 
 #include "../../ME.h"
-#include "../Member.h"
+#include <Macaroni/Model/Element.h>
 #include "../NodePtr.h"
 #include <sstream>
 
@@ -21,7 +21,7 @@ struct TypeInfo
 	TypeInfo();
 
 	bool operator==(const TypeInfo & other) const;
-	
+
 	void DescribeDifferences(const TypeInfo & info, std::stringstream & stream) const;
 };
 

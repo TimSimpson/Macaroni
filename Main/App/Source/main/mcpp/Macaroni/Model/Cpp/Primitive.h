@@ -19,8 +19,8 @@
 #include "../../ME.h"
 #include <string>
 #include <vector>
+#include <Macaroni/Model/Element.h>
 #include <boost/shared_ptr.hpp>
-#include "../Member.h"
 #include "PrimitivePtr.h"
 #include "ScopeMember.h"
 
@@ -34,10 +34,6 @@ public:
 	static PrimitivePtr Create(NodePtr home, ReasonPtr reason);
 
 	virtual ~Primitive();
-
-	//void AddCppPrimitives(ContextPtr context);
-
-	virtual bool canBeChildOf(const Member * other) const;
 
 	virtual const char * GetTypeName() const;
 

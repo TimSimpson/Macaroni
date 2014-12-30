@@ -37,51 +37,30 @@ BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 
 Constructor::Constructor(Node * home, Model::ReasonPtr reason)
-:Function(home, "Constructor", reason)
+:Function(home, reason)
 {
 }
 
 Constructor::~Constructor()
 {
 }
-//
-//void Constructor::AddAssignment(const VariableAssignment & assignment)
-//{
-//	assignments.push_back(assignment);
-//}
 
-bool Constructor::canBeChildOf(const Member * other) const
-{
-	return dynamic_cast<const Class *>(other) != nullptr;
-}
 
 ConstructorPtr Constructor::Create(NodePtr host, Model::ReasonPtr reason)
 {
-	if (!host->GetElement())
+	ConstructorPtr ptr = host->GetElement<ConstructorPtr>();
+	if (ptr)
 	{
-		return ConstructorPtr(new Constructor(host.get(), reason));
-	}
-	Member * member = host->GetElement<MemberPtr>().get();
-	Constructor * existingFunc = dynamic_cast<Constructor *>(member);
-	if (existingFunc == nullptr)
-	{
-		// Will throw an error message.
-		return ConstructorPtr(new Constructor(host.get(), reason));
+		// It's ok to reuse this.
+		return ptr;
 	}
 
-	// Re-use the previously set variable.
-	return ConstructorPtr(boost::dynamic_pointer_cast<Constructor>(host->GetElement()));
+	// If the pointer is null, it will create.
+	// If it isn't, the Element will throw as the Node is assigned
+	// to it, throwing anyway.
+	ConstructorPtr rtn(new Constructor(host.get(), reason));
+	return rtn;
 }
-//
-//const VariableAssignment & Constructor::GetAssignment(int index) const
-//{
-//	return assignments[index];
-//}
-//
-//int Constructor::GetAssignmentCount() const
-//{
-//	return assignments.size();
-//}
 
 const char * Constructor::GetTypeName() const
 {

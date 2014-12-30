@@ -17,9 +17,8 @@
 #define MACARONI_MODEL_BLOCK_CPP
 
 #include "Block.h"
+#include <Macaroni/Model/ElementPtr.h>
 #include <boost/foreach.hpp>
-#include "MemberPtr.h"
-#include "Member.h"
 #include "ModelInconsistencyException.h"
 #include "Node.h"
 #include <boost/optional.hpp>
@@ -35,19 +34,19 @@ BEGIN_NAMESPACE2(Macaroni, Model)
 
 void intrusive_ptr_add_ref(Block * p)
 {
-	intrusive_ptr_add_ref(dynamic_cast<Member *>(p));
+	intrusive_ptr_add_ref(dynamic_cast<Element *>(p));
 }
 
 void intrusive_ptr_release(Block * p)
 {
-	intrusive_ptr_release(dynamic_cast<Member *>(p));
+	intrusive_ptr_release(dynamic_cast<Element *>(p));
 }
 
 
 Block::Block(Target * target, Node * host, const std::string & id,
 			 const std::string & code, const ReasonPtr reasonCreated,
 			 optional<NodeListPtr> importedNodes)
-:	Member(host, "Block", reasonCreated),
+:	Element(host, reasonCreated),
 	code(code),
 	id(id),
 	imports(),
@@ -70,11 +69,6 @@ Block::Block(Target * target, Node * host, const std::string & id,
 
 Block::~Block()
 {
-}
-
-bool Block::canBeChildOf(const Member *) const
-{
-	return true;
 }
 
 BlockPtr Block::Create(TargetPtr target, NodePtr host, const std::string & id,

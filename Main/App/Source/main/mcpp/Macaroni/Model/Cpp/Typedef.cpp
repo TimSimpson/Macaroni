@@ -17,7 +17,7 @@
 #define MACARONI_MODEL_CPP_TYPEDEF_CPP
 
 #include "Typedef.h"
-#include "../Member.h"
+#include <Macaroni/Model/Element.h>
 #include "../Node.h"
 #include "ScopeMember.h"
 #include "../Type.h"
@@ -25,7 +25,7 @@
 #include <Macaroni/Model/Project/Target.h>
 #include <Macaroni/Model/Project/TargetPtr.h>
 
-using Macaroni::Model::Member;
+using Macaroni::Model::Element;
 using Macaroni::Model::Node;
 using Macaroni::Model::Reason;
 using Macaroni::Model::ReasonPtr;
@@ -38,22 +38,17 @@ BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 Typedef::Typedef(Library * library, Node * node, ReasonPtr reason,
 				 TypePtr type)
-:Scope(library, node, "Typedef", reason), type(type)
+:Scope(library, node, reason), type(type)
 {
 }
 
 Typedef::Typedef(Target * target, Node * node, ReasonPtr reason, TypePtr type)
-:Scope(target, node, "Typedef", reason), type(type)
+:Scope(target, node, reason), type(type)
 {
 }
 
 Typedef::~Typedef()
 {
-}
-
-bool Typedef::canBeChildOf(const Member * other) const
-{
-	return dynamic_cast<const Typedef *>(other) != nullptr;
 }
 
 

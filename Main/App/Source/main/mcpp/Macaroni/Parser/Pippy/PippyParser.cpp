@@ -2716,7 +2716,7 @@ public:
 			}
 			if (templateHome->Find(name))
 			{
-				throw ParserException(itr.GetSource(),
+				throw ParserException	(itr.GetSource(),
 					Messages::Get("CppParser.Template.NodeNameNotUnique",
 								  name));
 			}

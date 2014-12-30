@@ -19,10 +19,10 @@
 #include "../../ME.h"
 #include <string>
 #include <vector>
+#include <Macaroni/Model/Element.h>
 #include <Macaroni/Model/ElementPtr.h>
 #include <boost/shared_ptr.hpp>
 #include "../LibraryPtr.h"
-#include "../Member.h"
 #include "NamespacePtr.h"
 #include "Scope.h"
 #include <Macaroni/Model/Project/TargetPtr.h>
@@ -51,8 +51,6 @@ public:
 	//static NamespacePtr GetRoot();
 
 	virtual ~Namespace();
-
-	virtual bool canBeChildOf(const Member * other) const;
 
 	virtual const char * GetTypeName() const;
 

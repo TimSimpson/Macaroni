@@ -18,9 +18,9 @@
 
 #include "Node.h"
 #include <Macaroni/Model/Context.h>
+#include <Macaroni/Model/Element.h>
 #include <Macaroni/Exception.h>
 #include <Macaroni/Model/FileName.h>
-#include "Member.h"
 #include "ModelInconsistencyException.h"
 #include <Macaroni/Model/Reason.h>
 #include <memory>

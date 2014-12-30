@@ -18,7 +18,7 @@
 
 #include "../ME.h"
 #include "BlockPtr.h"
-#include "Member.h"
+#include <Macaroni/Model/Element.h>
 #include <boost/optional.hpp>
 #include <string>
 #include <Macaroni/Model/Project/TargetPtr.h>
@@ -29,7 +29,7 @@ BEGIN_NAMESPACE2(Macaroni, Model)
  * thrown in the direction of some generator.  Usually, blocks are directed
  * towards the h or cpp generators, which place them in the files they're
  * generating in the order they are found. */
-class Block : public Member
+class Block : public Element
 {
 friend void intrusive_ptr_add_ref(Block * p);
 friend void intrusive_ptr_release(Block * p);
@@ -39,8 +39,6 @@ public:
 						   const std::string & block,
 						   const ReasonPtr reasonCreate,
 					boost::optional<NodeListPtr> importedNodes=boost::none);
-
-	bool canBeChildOf(const Member *) const;
 
 	inline const std::string & GetCode() const
 	{

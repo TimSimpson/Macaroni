@@ -23,7 +23,6 @@
 #include <boost/optional.hpp>
 #include <Macaroni/Build/LibraryId.h>
 #include "LibraryPtr.h"
-#include "MemberPtr.h"
 #include "NodePtr.h"
 #include <Macaroni/IO/Path.h>
 #include <boost/filesystem/path.hpp>

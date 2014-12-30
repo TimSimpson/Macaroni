@@ -56,7 +56,7 @@ ConstructorOverload::ConstructorOverload(Node * home, Model::ReasonPtr reason,
 										 bool isInline, Access access,
 										 bool isExplicit,
 				   const boost::optional<ExceptionSpecifier> exceptionSpecifier)
-:FunctionOverload(home, "ConstructorOverload", reason, isInline, access, true,
+:FunctionOverload(home, reason, isInline, access, true,
 				  false, voidTypeInfo(home), false, exceptionSpecifier),
  assignments(),
  isExplicit(isExplicit)
@@ -71,12 +71,6 @@ void ConstructorOverload::AddAssignment(const VariableAssignment & assignment)
 {
 	assignments.push_back(assignment);
 }
-
-bool ConstructorOverload::canBeChildOf(const Member * other) const
-{
-	return dynamic_cast<const ConstructorOverload *>(other) != nullptr;
-}
-
 
 ConstructorOverloadPtr ConstructorOverload::Create(
 	NodePtr node, bool isInline, AccessPtr access, bool isExplicit,

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 ~import boost::shared_ptr;
+~import Macaroni::Model::Element;
 ~import Macaroni::Model::Cpp::FunctionOverload;
 ~import Macaroni::Model::Cpp::FunctionOverloadPtr;
-~import Macaroni::Model::Member;
 ~import Macaroni::Model::ModelInconsistencyException;
 ~import Macaroni::Model::Node;
 ~import Macaroni::Model::ReasonPtr;
@@ -35,15 +35,10 @@ typedef boost::intrusive_ptr<Function> FunctionPtr;
 
 
 /** Represents a function in any possible Scope. */
-class Function : public Macaroni::Model::Member
+class Function : public Element
 {
-    protected Function(Node * home, const char * typeName, ReasonPtr reason)
-    :   Member(home, typeName, reason)
-    {
-    }
-
-    private Function(Node * home, ReasonPtr reason)
-    :   Member(home, "Function", reason)
+    protected Function(Node * home, ReasonPtr reason)
+    :   Element(home, reason)
     {
     }
 
@@ -53,41 +48,16 @@ class Function : public Macaroni::Model::Member
 
     public static FunctionPtr Create(NodePtr host, ReasonPtr reason)
     {
-        if (!host->GetElement())
+        FunctionPtr ptr = host->GetElement<FunctionPtr>();
+        if (ptr)
         {
-            Function * fo = new Function(host.get(), reason);
-            return FunctionPtr(fo);
+            // It's OK to reuse this.
+            return ptr;
         }
-        Element * member = host->GetElement().get();
-        Function * existingFunc = dynamic_cast<Function *>(member);
-        if (existingFunc == nullptr)
-        {
-            // Will throw an error message.
-            return FunctionPtr(new Function(host.get(), reason));
-        }
-
-        FunctionPtr rtn;
-        rtn = boost::dynamic_pointer_cast<Function>(host->GetElement());
+        // If the Node already has an element, the Element constructor
+        // throws. So its OK to call it like this.
+        FunctionPtr rtn(new Function(host.get(), reason));
         return rtn;
-    }
-
-    public virtual bool canBeChildOf(const Macaroni::Model::Member * other) const
-    {
-        return dynamic_cast<const Scope *>(other) != nullptr;
-    }
-
-    public virtual bool DoesDefinitionReference(NodePtr node) const
-    {
-        for (unsigned int i = 0; i < getNode()->GetChildCount(); i ++)
-        {
-            FunctionOverloadPtr fo = getNode()->GetChild(i)
-                ->GetElement<FunctionOverloadPtr>();
-            if (fo && fo->DoesDefinitionReference(node))
-            {
-                return true;
-            }
-        }
-        return false;
     }
 
     public virtual const char * GetTypeName() const

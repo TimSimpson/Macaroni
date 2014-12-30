@@ -17,18 +17,23 @@
 #define MACARONI_MODEL_CPP_SCOPEMEMBER_H
 
 #include "../../ME.h"
+#include <Macaroni/Model/Element.h>
 #include <Macaroni/Model/Cpp/Access.h>
-#include "../Member.h"
 #include "ScopeMemberPtr.h"
 #include <string>
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
+//2014-12-30:
+//    This looks like some ancient idea I had before I really had a solid
+//    plan for how all this would work. Maybe it should be killed, or at
+//    least many of the classes inheriting from it should have their base
+//    changed.
 /** Concreate data concerning a Node.  In Macaroni, all nodes exist in a Scope
  * and are therefore ScopeMembers.  This class provides a link back to a node
  * which it uses to get certain useful data such as the name.  Methods for the
  * creation of new Model data remains in the Node. */
-class ScopeMember : public Model::Member
+class ScopeMember : public Model::Element
 {
 friend void intrusive_ptr_add_ref(ScopeMember * p);
 friend void intrusive_ptr_release(ScopeMember * p);
@@ -47,9 +52,9 @@ public:
 	}
 
 protected:
-	ScopeMember(Model::Node * node, const char * typeName, ReasonPtr reason);
+	ScopeMember(Model::Node * node, ReasonPtr reason);
 
-	ScopeMember(Model::Node * node, const char * typeName, ReasonPtr reason, Access access, bool isStatic);
+	ScopeMember(Model::Node * node, ReasonPtr reason, Access access, bool isStatic);
 
 	ScopeMember(const ScopeMember & other);
 

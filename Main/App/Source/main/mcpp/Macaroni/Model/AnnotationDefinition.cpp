@@ -17,29 +17,26 @@
 #define MACARONI_MODEL_ATTRIBUTEDEFINITION_CPP
 
 #include "AnnotationDefinition.h"
+#include <Macaroni/Model/ElementPtr.h>
 #include <Macaroni/Exception.h>
 #include "Node.h"
-#include "Member.h"
-#include "MemberPtr.h"
 #include "ModelInconsistencyException.h"
 #include <sstream>
-
-#define TYPE_NAME "AnnotationDefinition"
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
 void intrusive_ptr_add_ref(AnnotationDefinition * p)
 {
-	intrusive_ptr_add_ref((Member *)p);
+	intrusive_ptr_add_ref((Element *)p);
 }
 
 void intrusive_ptr_release(AnnotationDefinition * p)
 {
-	intrusive_ptr_release((Member *)p);
+	intrusive_ptr_release((Element *)p);
 }
 
 AnnotationDefinition::AnnotationDefinition(Node * node, TypeCode type, const ReasonPtr & reasonCreated)
-:Member(node, TYPE_NAME, reasonCreated), type(type)
+:Element(node, reasonCreated), type(type)
 {
 }
 
@@ -50,11 +47,6 @@ AnnotationDefinition::~AnnotationDefinition()
 AnnotationDefinitionPtr AnnotationDefinition::Create(NodePtr home, TypeCode type, const ReasonPtr &  reason)
 {
 	return AnnotationDefinitionPtr(new AnnotationDefinition(home.get(), type, reason));
-}
-
-bool AnnotationDefinition::canBeChildOf(const Member * other) const
-{
-	return true;
 }
 
 void AnnotationDefinition::Define(NodePtr node, TypeCode type, const ReasonPtr & reason)
@@ -122,7 +114,7 @@ const char * AnnotationDefinition::getAnnotationTypeName(TypeCode type)
 
 const char * AnnotationDefinition::GetTypeName() const
 {
-	return TYPE_NAME;
+	return "AnnotationDefinition";
 }
 
 END_NAMESPACE2

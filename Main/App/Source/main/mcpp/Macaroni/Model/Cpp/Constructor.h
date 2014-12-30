@@ -19,7 +19,7 @@
 #include "../../ME.h"
 #include "ConstructorPtr.h"
 #include <Macaroni/Model/Cpp/Function.h>
-#include "../Member.h"
+#include <Macaroni/Model/Element.h>
 #include "../ReasonPtr.h"
 #include "ScopeMember.h"
 #include "../SourcePtr.h"
@@ -41,21 +41,12 @@ public:
 
 	virtual ~Constructor();
 
-	//void AddAssignment(const VariableAssignment & assignment);
-
-	virtual bool canBeChildOf(const Member * other) const;
-
-	//const VariableAssignment & GetAssignment(int index) const;
-
-	//int GetAssignmentCount() const;
-
 	virtual const char * GetTypeName() const;
 
 private:
 
 	Constructor(Node * home, Model::ReasonPtr reason);
 
-	//std::vector<VariableAssignment> assignments;
 };
 
 END_NAMESPACE

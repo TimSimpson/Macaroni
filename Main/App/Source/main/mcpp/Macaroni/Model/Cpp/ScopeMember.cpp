@@ -22,13 +22,13 @@
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-ScopeMember::ScopeMember(Node * node, const char * typeName, ReasonPtr reason)
-:Member(node, typeName, reason), access(*(Access::Private())), isStatic(false)
+ScopeMember::ScopeMember(Node * node, ReasonPtr reason)
+:Element(node, reason), access(*(Access::Private())), isStatic(false)
 {
 }
 
-ScopeMember::ScopeMember(Node * node, const char * typeName, ReasonPtr reason, Access access, bool isStatic)
-:Member(node, typeName, reason), access(access), isStatic(isStatic)
+ScopeMember::ScopeMember(Node * node, ReasonPtr reason, Access access, bool isStatic)
+:Element(node, reason), access(access), isStatic(isStatic)
 {
 }
 

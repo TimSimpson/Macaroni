@@ -18,7 +18,7 @@
 
 #include "../ME.h"
 #include "AnnotationDefinitionPtr.h"
-#include "Member.h"
+#include <Macaroni/Model/Element.h>
 #include "NodePtr.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/variant.hpp>
@@ -30,7 +30,7 @@ BEGIN_NAMESPACE2(Macaroni, Model)
  * Defines an Annotation.  This is used to mark that the Node is used to refer
  * to an Annotation.
  */
-class AnnotationDefinition :  public Member
+class AnnotationDefinition :  public Element
 {
 friend void intrusive_ptr_add_ref(AnnotationDefinition * p);
 friend void intrusive_ptr_release(AnnotationDefinition * p);
@@ -49,8 +49,6 @@ public:
 	AnnotationDefinition(Node * node, TypeCode type, const ReasonPtr & reasonCreated);
 
 	~AnnotationDefinition();
-
-	virtual bool canBeChildOf(const Member * other) const;
 
 	static AnnotationDefinitionPtr Create(NodePtr home, TypeCode type, const ReasonPtr & reason);
 

@@ -30,7 +30,7 @@ using Macaroni::Model::Node;
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 Primitive::Primitive(Node * parent, ReasonPtr reason)
-:ScopeMember(parent, "Primitive", reason)
+:ScopeMember(parent, reason)
 {
 }
 
@@ -49,11 +49,6 @@ Primitive::~Primitive()
 		Primitive::Create(integer, Reason::Create(
 	}
 }*/
-
-bool Primitive::canBeChildOf(const Member * other) const
-{
-	return dynamic_cast<const Scope *>(other) != nullptr;
-}
 
 PrimitivePtr Primitive::Create(NodePtr parent, ReasonPtr reason)
 {

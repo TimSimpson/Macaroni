@@ -19,7 +19,7 @@
 #include "../../ME.h"
 #include <vector>
 #include "../LibraryElement.h"
-#include "../Member.h"
+#include <Macaroni/Model/Element.h>
 #include "../NodePtr.h"
 #include "ScopeMember.h"
 #include <Macaroni/Model/Project/TargetPtr.h>
@@ -49,8 +49,8 @@ public:
 	virtual void SwitchOwner(Macaroni::Model::Project::TargetPtr target);
 
 protected:
-	Scope(Library * library, Node * scope, const char * typeName, ReasonPtr reason);
-	Scope(Macaroni::Model::Project::Target * target, Node * scope, const char * typeName, ReasonPtr reason);
+	Scope(Library * library, Node * scope, ReasonPtr reason);
+	Scope(Macaroni::Model::Project::Target * target, Node * scope, ReasonPtr reason);
 	Scope(const Scope & other);
 	void operator=(const Scope & other);
 	virtual ~Scope(){}

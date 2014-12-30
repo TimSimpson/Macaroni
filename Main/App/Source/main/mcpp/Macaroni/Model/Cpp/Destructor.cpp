@@ -50,7 +50,7 @@ namespace
 Destructor::Destructor(Node * home, Model::ReasonPtr reason, bool isInline,
                        AccessPtr access, bool isVirtual,
                        const optional<ExceptionSpecifier> exceptionSpecifier)
-:Function(home, "Destructor", reason)
+:Function(home, reason)
 {
 	FunctionOverload::Create(this, isInline, access, false, isVirtual,
 		                     voidType(), false, exceptionSpecifier, reason);
@@ -58,11 +58,6 @@ Destructor::Destructor(Node * home, Model::ReasonPtr reason, bool isInline,
 
 Destructor::~Destructor()
 {
-}
-
-bool Destructor::canBeChildOf(const Member * other) const
-{
-	return dynamic_cast<const Class *>(other) != nullptr;
 }
 
 DestructorPtr Destructor::Create(NodePtr host, bool isInline, AccessPtr access,

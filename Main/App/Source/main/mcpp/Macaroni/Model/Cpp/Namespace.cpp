@@ -32,23 +32,18 @@ using Macaroni::Model::Project::TargetPtr;
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 Namespace::Namespace(Library * library, Node * parent, ReasonPtr reason)
-:Scope(library, parent, "Namespace", reason)
+:Scope(library, parent, reason)
 {
 }
 
 Namespace::Namespace(Target * target, Node * parent, ReasonPtr reason)
-:Scope(target, parent, "Namespace", reason)
+:Scope(target, parent, reason)
 {
 }
 
 Namespace::~Namespace()
 {
 
-}
-
-bool Namespace::canBeChildOf(const Member * other) const
-{
-	return dynamic_cast<const Namespace *>(other) != nullptr;
 }
 
 NamespacePtr Namespace::Create(LibraryPtr library, NodePtr parent, ReasonPtr reason)

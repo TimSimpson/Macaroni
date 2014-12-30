@@ -18,10 +18,10 @@
 
 #include "../../ME.h"
 #include "DestructorPtr.h"
+#include <Macaroni/Model/Element.h>
 #include <Macaroni/Model/Cpp/ExceptionSpecifier.h>
 #include <Macaroni/Model/Cpp/Function.h>
 #include <Macaroni/Model/Cpp/FunctionOverload.h>
-#include "../Member.h"
 #include "../ReasonPtr.h"
 #include "ScopeMember.h"
 #include "../SourcePtr.h"
@@ -44,8 +44,6 @@ public:
 								Model::ReasonPtr reason);
 
 	virtual ~Destructor();
-
-	virtual bool canBeChildOf(const Member * other) const;
 
 	/** Destructors can only have one overload so they are created with it,
 	    unlike Constructors or Functions which need to have them manually
