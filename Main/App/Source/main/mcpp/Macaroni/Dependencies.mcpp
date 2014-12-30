@@ -147,7 +147,6 @@ class Macaroni::IO::PathList
 
 
 class Macaroni::Parser::Pippy::PippyParser { ~hfile=<Macaroni/Parser/Pippy/PippyParser.h> };
-class Macaroni::Environment::Process { ~hfile=<Macaroni/Environment/Process.h> };
 class Macaroni::Environment::StringPair { ~hfile=<Macaroni/Environment/StringPair.h> };
 class Macaroni::Model::TypeLuaMetaData { ~hfile=<Macaroni/Model/TypeLua.h> };
 class Macaroni::Model::TypePtr {
