@@ -90,7 +90,6 @@ class Macaroni::Model::ContextPtr
 	@LuaClass [ SameAsNode=Macaroni::Model::Context ]
 	{ ~hfile=<Macaroni/Model/ContextPtr.h> };
 
-class Macaroni::Generator::Lua::DynamicGenerator { ~hfile=<Macaroni/Generator/Lua/DynamicGenerator.h> };
 class Macaroni::IO::FileNotFoundException { ~hfile=<Macaroni/IO/FileNotFoundException.h> };
 //class Macaroni::Model::FileName { ~hfile=<Macaroni/Model/FileName.h> }
 //class Macaroni::Model::FileNamePtr { ~hfile=<Macaroni/Model/FileNamePtr.h> }
