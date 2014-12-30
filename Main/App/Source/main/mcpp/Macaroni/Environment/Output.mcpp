@@ -18,7 +18,6 @@
 class Output {};
 
 typedef boost::intrusive_ptr<Output> OutputPtr
-	~hfile=<Macaroni/Environment/OutputPtr.h>
 	@UseLightDef true
 	@LuaClass [ SameAsNode = Output ]
 ;

@@ -25,6 +25,17 @@
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
+/* 2014-12-30
+ *	The primary purpose of this class is to denote an Element which must be
+ *  owned by a Target. For example, some elements, such as the C++ Primitives,
+ *  or Namespaces have no target. But for elements like Classes or Functions,
+ *  a Target is necessary in order to know where they should be generated.
+ *  Historically the name meant the Element had a scope, which is to say it
+ *  could "own" other Elements. With the Node system every Element can have
+ *  children or a parent (except for the root node or the floating nodes) so
+ *  the name is a bit confusing and reflects an earlier era in Macaroni's
+ *  development.
+ */
 class Scope : public ScopeMember
 {
 friend void intrusive_ptr_add_ref(Scope * p);
@@ -34,8 +45,6 @@ public:
 	NodePtr GetMember(int index) const;
 
 	virtual Macaroni::Model::Project::TargetPtr GetOwner() const;
-
-	virtual const char * GetTypeName() const = 0;
 
 	/** Returns true if this Scope's target is the given target or a child of
 	 *  the given target. */

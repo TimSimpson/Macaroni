@@ -144,21 +144,6 @@ END_NAMESPACE
 		{
 			lua_pushnil(L);
 		}
-
-		/*if (index == "Arguments")
-		{
-			createLUAGLUE_CLASSREFNAMEUserData(L, ptr);
-			luaL_getmetatable(L, PROPERTIES_METATABLENAME_ARGUMENTS);
-			lua_setmetatable(L, -2);
-			return 1;
-		}
-		else if (index == "ReturnType")
-		{
-			createLUAGLUE_CLASSREFNAMEUserData(L, ptr);
-			luaL_getmetatable(L, PROPERTIES_METATABLENAME_RETURNTYPE);
-			lua_setmetatable(L, -2);
-			return 1;
-		}*/
 		return 1;
 	}
 

@@ -24,11 +24,10 @@
 namespace Macaroni::Model::Cpp
 {
 
-class Access {}
+class Access {};
 
 typedef shared_ptr<Access> AccessPtr
 	@LuaClass [ SameAsNode = Access ]
-	~hfile=<Macaroni/Model/Cpp/AccessPtr.h>
 ;
 
 class Access
