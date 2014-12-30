@@ -18,8 +18,7 @@
 
 #include "../../ME.h"
 #include <Macaroni/Model/Context.h>
- #include <Macaroni/Model/ContextPtr.h>
-#include "CppContextPtr.h"
+#include <Macaroni/Model/ContextPtr.h>
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 

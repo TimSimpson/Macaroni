@@ -25,7 +25,6 @@
 ~import boost::format;
 ~import Macaroni::Model::Element;
 ~import Macaroni::Model::ElementPtr;
-~import Macaroni::Core::SmartPointee::Finalizer;
 ~import Macaroni::Model::Project::Group;
 ~import Macaroni::Model::Project::GroupPtr;
 ~import boost::intrusive_ptr;
@@ -493,17 +492,6 @@ class Target
 			TargetPtr ptr(t);
 			return ptr;
 		}
-
-		//public static void RemoveRef(InnerTargetList * p)
-		//{
-		//	intrusive_ptr_release(p->parent);
-		//}
-		//
-		//public virtual optional<Finalizer> RemoveReference()
-		//{
-		//	optional<SmartPointee::Finalizer> f(&RemoveRef);
-		//	return f;
-	    //}
 
 	};
 };

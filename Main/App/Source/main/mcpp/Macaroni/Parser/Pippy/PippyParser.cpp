@@ -90,7 +90,6 @@ using Macaroni::Model::Context;
 using Macaroni::Model::ContextPtr;
 using namespace Macaroni::Parser::Cpp;
 using Macaroni::Model::Cpp::CppContext;
-using Macaroni::Model::Cpp::CppContextPtr;
 using Macaroni::Model::Cpp::Destructor;
 using Macaroni::Model::Cpp::DestructorPtr;
 using Macaroni::Model::Cpp::Enum;

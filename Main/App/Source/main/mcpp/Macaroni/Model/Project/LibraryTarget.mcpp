@@ -53,8 +53,6 @@
 ~import Macaroni::Model::Project::FilesPtr;
 ~import Macaroni::Model::Project::FileList;
 ~import Macaroni::Model::Project::FileListPtr;
-~import Macaroni::IO::SimpleFileSet;
-~import Macaroni::IO::SimpleFileSetPtr;
 ~import Macaroni::Environment::Values::Table;
 ~import Macaroni::Environment::Values::TablePtr;
 ~import Macaroni::Model::Project::TargetFileSweeper;

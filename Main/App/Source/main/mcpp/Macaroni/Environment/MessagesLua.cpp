@@ -31,20 +31,6 @@
 
 #include "../LuaGlue.hpp"
 
-	/*static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr,
-									  const std::string & index)
-	{
-		ParserPtr p = boost::dynamic_pointer_cast<Parser>(ptr);
-		return ParserLuaMetaData::Index(L, p, index);
-	}
-
-	static int __tostring(lua_State * L)
-	{
-		LUAGLUE_CLASSREFNAME & ptr = getInstance(L);
-		lua_pushstring(L, "CppParser");
-		return 1;
-	}*/
-
 	static int Get(lua_State * L)
 	{
 		const char * key = luaL_checkstring(L, 1);
