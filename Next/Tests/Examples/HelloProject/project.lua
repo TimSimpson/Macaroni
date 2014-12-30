@@ -15,8 +15,11 @@ assert(project.Project.Group.Name, "Macaroni.Examples")
 -- Normally we'd pull this from an external file.
 -- load("Macaroni", "Boost-headers", "1.46.1")
 
+-- Added to init.lua:
+boost_version = properties.boost.version
+
 boost_headers = context:
-    Group("Macaroni"):Project("Boost-headers"):Version("1.55.0")
+    Group("Macaroni"):Project("Boost-headers"):Version(boost_version)
 assert(boost_headers:GetTarget("lib") == nil)
 -- boost_headers_lib = boost_headers:HeaderOnlyLibrary(
 --     { name = "lib",

@@ -1,6 +1,9 @@
 import("Macaroni", "ProjectTemplates", "1")
 require "SimpleProject"
 
+-- Added to init.lua:
+boost_version = properties.boost.version
+
 SimpleProject{
   group="Macaroni.Examples",
   project="Hello",
@@ -9,7 +12,7 @@ SimpleProject{
   src="source",
   target="target",
   dependencies = {
-    load("Macaroni", "Boost-headers", "1.55"):Target("lib"),
+    load("Macaroni", "Boost-headers", boost_version):Target("lib"),
     load("Macaroni", "CppStd", "2003"):Target("lib"),
   },
 };

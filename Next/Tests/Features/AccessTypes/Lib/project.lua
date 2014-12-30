@@ -10,6 +10,9 @@ other symbols if this idea turns out not be terrible) and make the publicly
 exposed headers simpler.
 ]]
 
+-- Added to init.lua:
+boost_version = properties.boost.version
+
 SimpleProject{
   group=upper.Group,
   project=upper.Name .. ".Lib",
@@ -18,7 +21,7 @@ SimpleProject{
   src="Source",
   target="target",
   dependencies = {
-    load("Macaroni", "Boost-headers", "1.55"):Target("lib"),
+    load("Macaroni", "Boost-headers", boost_version):Target("lib"),
     load("Macaroni", "CppStd", "2003"):Target("lib")
   },
   tests={
@@ -26,7 +29,7 @@ SimpleProject{
      "Test2.cpp"
   },
   testDependencies = {
-    load("Macaroni", "Boost-unit_test_framework", "1.55"):Target("lib"),
-    load("Macaroni", "Boost-test_exec_monitor", "1.55"):Target("lib"),
+    load("Macaroni", "Boost-unit_test_framework", boost_version):Target("lib"),
+    load("Macaroni", "Boost-test_exec_monitor", boost_version):Target("lib"),
   },
 };

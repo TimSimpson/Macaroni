@@ -10,7 +10,10 @@ bjam = plugins:Get("BoostBuild2")
 --------------------------------------------------------------------------------
 -- Dependencies
 --------------------------------------------------------------------------------
-boost  = load("Macaroni", "Boost-headers", "1.55"):Target("lib")
+-- Added to init.lua:
+boost_version = properties.boost.version
+
+boost  = load("Macaroni", "Boost-headers", boost_version):Target("lib")
 cppstd = load("Macaroni", "CppStd", "2003"):Target("lib")
 
 

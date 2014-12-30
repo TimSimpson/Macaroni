@@ -4,6 +4,9 @@ require "SimpleProject"
 upper = getUpperProject();
 print(upper)
 
+-- Added to init.lua:
+boost_version = properties.boost.version
+
 SimpleProject{
   group=upper.Group,
   project=upper.Name .. ".Annotations",
@@ -12,7 +15,7 @@ SimpleProject{
   src="Source",
   target="GeneratedSource",
   dependencies = {
-    load("Macaroni", "Boost-headers", "1.55"):Target("lib"),
+    load("Macaroni", "Boost-headers", boost_version):Target("lib"),
     load("Macaroni", "CppStd", "2003"):Target("lib")
   },
 };
