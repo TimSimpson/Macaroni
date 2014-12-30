@@ -3,6 +3,7 @@
 
 #include "../../ME.h"
 #include <Macaroni/Model/Context.h>
+#include <Macaroni/Model/ContextPtr.h>
 #include "../../Model/SourcePtr.h"
 #include <string>
 
@@ -20,7 +21,7 @@ public:
 	Model::NodePtr currentNode;
 	Model::NodePtr currentScope;
 
-	// The parser 
+	// The parser
 	std::string currentNamespaceName;
 
 	Model::SourcePtr GetCurrentSource();
@@ -34,18 +35,8 @@ public:
 	void SetCurrentSource(Model::SourcePtr source);
 
 private:
-	
-	Model::SourcePtr currentSource;
 
-/*protected:
-	ContextPtr context;
-	ClassPtr currentClass;
-	std::string currentClassName;
-	ImportPtr currentImport;
-	NamespacePtr currentNamespace;
-	std::string currentNamespaceName;
-	std::string currentBaseClassAccessKeyword;
-	std::vector<NamespacePtr> namespaceStack;*/
+	Model::SourcePtr currentSource;
 };
 
 END_NAMESPACE

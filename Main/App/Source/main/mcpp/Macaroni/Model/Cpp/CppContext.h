@@ -18,6 +18,7 @@
 
 #include "../../ME.h"
 #include <Macaroni/Model/Context.h>
+ #include <Macaroni/Model/ContextPtr.h>
 #include "CppContextPtr.h"
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
@@ -26,7 +27,7 @@ BEGIN_NAMESPACE(Macaroni, Model, Cpp)
  * such as Primitives. */
 class CppContext
 {
-public:	
+public:
 	/** Adds the C++ goodness to an existing context. */
 	static void CreateCppNodes(ContextPtr context);
 
@@ -35,7 +36,7 @@ public:
 
 private:
 	static void addPrimitive(NodePtr & primitiveNode, const char * name);
-}; 
+};
 
 END_NAMESPACE
 

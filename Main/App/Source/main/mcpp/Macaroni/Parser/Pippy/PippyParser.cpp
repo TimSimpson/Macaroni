@@ -105,8 +105,6 @@ using Macaroni::Model::Cpp::Function;
 using Macaroni::Model::Cpp::FunctionOverload;
 using Macaroni::Model::Cpp::FunctionOverloadPtr;
 using Macaroni::Model::Cpp::FunctionPtr;
-using Macaroni::Model::Library;
-using Macaroni::Model::LibraryPtr;
 using Macaroni::Model::Project::LibraryTarget;
 using Macaroni::Model::Project::LibraryTargetPtr;
 using Macaroni::Environment::Messages;
@@ -400,18 +398,16 @@ private:
 	std::string hFilesForNewNodes;
 	NodeListPtr importedNodes;
 	AccessPtr lastAccess;
-	LibraryPtr library;
 public:
 
-	ParserFunctions(ContextPtr context, LibraryPtr library, TargetPtr target)
+	ParserFunctions(ContextPtr context, TargetPtr target)
 		:context(context),
 		 currentAccess(Access::NotSpecified()),
 		 currentScope(context->GetRoot()),
 		 currentTarget(target),
 		 defaultTarget(target),
 		 importedNodes(new NodeList()),
-		 lastAccess(Access::NotSpecified()),
-		 library(library)
+		 lastAccess(Access::NotSpecified())
 	{
 		MACARONI_ASSERT(!!CppContext::GetPrimitives(context),
 			"Cpp nodes must be found to parse successfully.");
@@ -1873,11 +1869,10 @@ public:
 	static void FindNodeTest()
 	{
 		ContextPtr c(new Context("{ROOT}"));
-		LibraryPtr l = c->FindOrCreateLibrary("Tests", "FindNodeTest", "1");
 		CppContext::CreateCppNodes(c);
 
 		TargetPtr t;
-		ParserFunctions funcs(c, l, t);
+		ParserFunctions funcs(c, t);
 
 		// It is found.
 		NodePtr nodeInt = funcs.FindNode("signed int");
@@ -1902,10 +1897,9 @@ public:
 	{
 		ContextPtr c(new Context("{ROOT}"));
 		CppContext::CreateCppNodes(c);
-		LibraryPtr l = c->FindOrCreateLibrary("Tests", "FindNodeFromImportsTest", "1");
 
 		TargetPtr t;
-		ParserFunctions funcs(c, l, t);
+		ParserFunctions funcs(c, t);
 
 		// It is found.
 		NodePtr nodeInt = funcs.FindNodeFromImports(std::string("signed int"));
@@ -3291,27 +3285,11 @@ PippyParserPtr PippyParser::Create()
 	return PippyParserPtr(new PippyParser());
 }
 
-int PippyParser::Read(Model::LibraryPtr l, Model::SourcePtr source, const std::string & text)
-{
-	TargetPtr t;
-	return Read(l, t, source, text);
-}
 int PippyParser::Read(TargetPtr target, Model::SourcePtr source, const std::string & text)
 {
-	LibraryPtr l;
-	return Read(l, target, source, text);
-}
-
-int PippyParser::Read(Model::LibraryPtr l, TargetPtr target, Model::SourcePtr source, const std::string & text)
-{
-	ContextPtr context;
-	if (!!target) {
-		context = target->GetContext();
-	} else {
-		context = l->GetContext();
-	}
+	ContextPtr context = target->GetContext();
 	CppContext::CreateCppNodes(context);
-	ParserFunctions funcs(context, l, target);
+	ParserFunctions funcs(context, target);
 	Iterator itr(text.begin(),
 			   text.end(),
 			   source);

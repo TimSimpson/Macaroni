@@ -19,8 +19,6 @@
 ~import std::ifstream;
 ~import Macaroni::IO::FileSet;
 ~import Macaroni::IO::FileSetIterator;
-~import Macaroni::Model::Library;
-~import Macaroni::Model::LibraryPtr;
 ~import Macaroni::Parser::ParserPtr;
 ~import Macaroni::Model::SourcePtr;
 ~import Macaroni::Model::Project::TargetPtr;
@@ -38,11 +36,6 @@ class Parser
 	//TODO: Remove the library version eventually.
 	/** Returns lines read.  Throws Model::ModelInconsistencyException, or
 	 * Parser::ParserException. */
-	public virtual int Read(Model::LibraryPtr l, // Library to read into.
-					  Model::SourcePtr source, // Where the text begins.
-					  const std::string & text // Text.
-					  ) = 0;
-
 	public virtual int Read(Macaroni::Model::Project::TargetPtr target,
 	                      // ^-- Target to read stuff into.
 					  Model::SourcePtr source, // Where the text begins.

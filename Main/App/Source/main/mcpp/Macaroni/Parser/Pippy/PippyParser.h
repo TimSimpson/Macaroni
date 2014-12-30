@@ -33,15 +33,8 @@ public:
 
 	static PippyParserPtr Create();
 
-	virtual int Read(Model::LibraryPtr c, Model::SourcePtr source, const std::string & text);
-
 	virtual int Read(Macaroni::Model::Project::TargetPtr target,
 	                 Model::SourcePtr source, const std::string & text);
-
-	virtual int Read(Model::LibraryPtr l,
-	                 Macaroni::Model::Project::TargetPtr target,
-	                 Model::SourcePtr source, const std::string & text);
-
 
 	static void RunTests();
 

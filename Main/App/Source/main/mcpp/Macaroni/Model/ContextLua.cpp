@@ -84,32 +84,6 @@ namespace {
 
 struct ContextLuaFunctions
 {
-	static int findLibrary(lua_State * L)
-	{
-		L_BEGIN
-		ContextPtr context = getInstance(L);
-		std::string group(luaL_checkstring(L, 2));
-		std::string name(luaL_checkstring(L, 3));
-		std::string version(luaL_checkstring(L, 4));
-		LibraryPtr library = context->FindLibrary(group, name, version);
-		LibraryLuaMetaData::PutInstanceOnStack(L, library);
-		return 1;
-		L_END
-	}
-
-	static int findOrCreateLibrary(lua_State * L)
-	{
-		L_BEGIN
-		ContextPtr context = getInstance(L);
-		std::string group(luaL_checkstring(L, 2));
-		std::string name(luaL_checkstring(L, 3));
-		std::string version(luaL_checkstring(L, 4));
-		LibraryPtr library = context->FindOrCreateLibrary(group, name, version);
-		LibraryLuaMetaData::PutInstanceOnStack(L, library);
-		return 1;
-		L_END
-	}
-
 	static int findProjectVersion(lua_State * L)
 	{
 		L_BEGIN
@@ -210,11 +184,13 @@ struct ContextLuaFunctions
 
 		if (index == "FindLibrary")
 		{
-			lua_pushcfunction(L, findLibrary);
+			luaL_error(L, "FindLibrary is no longer supported. Please change "
+				          "your code.");
 		}
 		else if (index == "FindOrCreateLibrary")
 		{
-			lua_pushcfunction(L, findOrCreateLibrary);
+			luaL_error(L, "FindOrCreateLibrary is no longer supported. "
+				          "Please change your code.");
 		}
 		else if (index == "FindProjectVersion")
 		{
@@ -238,7 +214,8 @@ struct ContextLuaFunctions
 		}
 		else if (index == "RootLibrary")
 		{
-			LibraryLuaMetaData::PutInstanceOnStack(L, context->GetRootLibrary());
+			luaL_error(L, "RootLibrary is no longer supported. Please change "
+				          "your code.");
 		}
 		else
 		{
