@@ -20,15 +20,15 @@
 #include "../Node.h"
 #include <sstream>
 
+using boost::optional;
+
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-ScopeMember::ScopeMember(Node * node, ReasonPtr reason)
-:Element(node, reason), access(*(Access::Private())), isStatic(false)
-{
-}
-
-ScopeMember::ScopeMember(Node * node, ReasonPtr reason, Access access, bool isStatic)
-:Element(node, reason), access(access), isStatic(isStatic)
+ScopeMember::ScopeMember(Node * node, ReasonPtr reason,
+                         optional<Access> access, optional<bool> isStatic)
+:   Element(node, reason),
+    access(access.get_value_or( *(Access::Private())) ),
+    isStatic(isStatic.get_value_or(false))
 {
 }
 

@@ -19,6 +19,7 @@
 #include "../../ME.h"
 #include <Macaroni/Model/Element.h>
 #include <Macaroni/Model/Cpp/Access.h>
+#include <boost/optional.hpp>
 #include "ScopeMemberPtr.h"
 #include <string>
 
@@ -52,13 +53,13 @@ public:
 	}
 
 protected:
-	ScopeMember(Model::Node * node, ReasonPtr reason);
-
-	ScopeMember(Model::Node * node, ReasonPtr reason, Access access, bool isStatic);
+	ScopeMember(Model::Node * node, ReasonPtr reason,
+		        boost::optional<Access> access=boost::none,
+		        boost::optional<bool> isStatic=boost::none);
 
 	ScopeMember(const ScopeMember & other);
 
-	void operator=(const ScopeMember & other);
+	void operator=(const ScopeMember & other) = delete;
 
 	inline const Access & getAccess() const
 	{

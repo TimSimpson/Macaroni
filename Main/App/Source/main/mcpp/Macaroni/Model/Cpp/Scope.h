@@ -20,6 +20,7 @@
 #include <vector>
 #include <Macaroni/Model/Element.h>
 #include "../NodePtr.h"
+#include <boost/optional.hpp>
 #include "ScopeMember.h"
 #include <Macaroni/Model/Project/TargetPtr.h>
 
@@ -54,7 +55,8 @@ public:
 
 protected:
 	Scope(Macaroni::Model::Project::Target * target, Node * scope,
-		  ReasonPtr reason);
+		  ReasonPtr reason, boost::optional<Access> access=boost::none,
+		  boost::optional<bool> isStatic=boost::none);
 	Scope(const Scope & other);
 	void operator=(const Scope & other);
 	virtual ~Scope(){}

@@ -40,11 +40,11 @@ FileWriters = {
         end,
 
         --TODO: Make functions owned by Targets and then this will work.
-        -- Function = function(library, node, writer, unit)
-        --     gen = UnitFunctionGenerator.Write{node=node, unit=unit,
-        --         targetLibrary=library, writer=writer};
-
-        -- end,
+        FunctionOverload = function(library, node, writer, unit)
+            -- TODO: Actually do this!
+            --gen = UnitFunctionGenerator.Write{node=node,
+            --    targetLibrary=library, writer=writer};
+        end,
 
         Typedef = function(library, node, writer)
             gen = TypedefFileGenerator.new{node=node, targetLibrary=library,
@@ -70,6 +70,12 @@ FileWriters = {
                                         writer=writer};
             gen:parse()
             writer:Write('\n');
+        end,
+
+        FunctionOverload = function(library, node, writer, unit)
+            -- TODO: Actually do this!
+            --gen = UnitFunctionGenerator.Write{node=node,
+            --    targetLibrary=library, writer=writer};
         end,
     },
 };

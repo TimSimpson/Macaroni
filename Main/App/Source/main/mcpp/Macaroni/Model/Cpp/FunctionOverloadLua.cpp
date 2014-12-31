@@ -28,6 +28,8 @@
 #include <Macaroni/Model/SourceLuaMetaData.h>
 #include "VariableLua.h"
 #include "../TypeLua.h"
+#include <Macaroni/Model/Project/Target.h>
+#include <Macaroni/Model/Project/TargetLuaMetaData.h>
 
 #include <Macaroni/LuaCompat.h>
 
@@ -54,6 +56,8 @@ using Macaroni::Model::ReasonPtr;
 using Macaroni::Model::Source;
 using Macaroni::Model::SourceLuaMetaData;
 using Macaroni::Model::SourcePtr;
+using Macaroni::Model::Project::TargetPtr;
+using Macaroni::Model::Project::TargetLuaMetaData;
 using Macaroni::Model::Type;
 using Macaroni::Model::TypeLuaMetaData;
 
@@ -70,23 +74,28 @@ namespace
 				//static FunctionPtr Create(NodePtr home, bool isInline,
 				//	const Access access, const bool isStatic, const TypePtr rtnType,
 				//	bool constMember, Model::ReasonPtr reason);
-				ElementPtr memberPtr = FunctionLuaMetaData::GetInstance(L, 1);
+				TargetPtr target;
+				if (!lua_isnil(L, 1))
+				{
+					target = TargetLuaMetaData::GetInstance(L, 1);
+				}
+				ElementPtr memberPtr = FunctionLuaMetaData::GetInstance(L, 2);
 				FunctionPtr home =
 					boost::dynamic_pointer_cast<Function>(memberPtr);
 				if (!home)
 				{
 					luaL_error(L, "Expected first argument to be a Function.");
 				}
-				bool isInline = lua_toboolean(L, 2) != 0;
-				AccessPtr access = AccessLuaMetaData::GetInstance(L, 3);
-				bool isStatic = lua_toboolean(L, 4) != 0;
-				bool isVirtual = lua_toboolean(L, 5) != 0;
-				TypePtr rtnType = TypeLuaMetaData::GetInstance(L, 6);
-				bool constMember = lua_toboolean(L, 7) != 0;
+				bool isInline = lua_toboolean(L, 3) != 0;
+				AccessPtr access = AccessLuaMetaData::GetInstance(L, 4);
+				bool isStatic = lua_toboolean(L, 5) != 0;
+				bool isVirtual = lua_toboolean(L, 6) != 0;
+				TypePtr rtnType = TypeLuaMetaData::GetInstance(L, 7);
+				bool constMember = lua_toboolean(L, 8) != 0;
 				boost::optional<ExceptionSpecifier> exceptionSpecifier;
 				if (lua_isstring(L, 8))
 				{
-					const std::string value(lua_tostring(L, 8));
+					const std::string value(lua_tostring(L, 9));
 					if (value == "throws()")
 					{
 						exceptionSpecifier = ExceptionSpecifier::EmptyThrows();
@@ -100,14 +109,16 @@ namespace
 						exceptionSpecifier = ExceptionSpecifier::NoExcept();
 					}
 				}
-				ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 9);
-				FunctionOverloadPtr newFO = FunctionOverload::Create(home,
-													   isInline, access,
-													   isStatic, isVirtual,
-													   rtnType,
-													   constMember,
-													   exceptionSpecifier,
-													   reason);
+				ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 10);
+				FunctionOverloadPtr newFO = FunctionOverload::Create(
+					target,
+					home,
+					isInline, access,
+					isStatic, isVirtual,
+					rtnType,
+					constMember,
+					exceptionSpecifier,
+					reason);
 				ElementPtr rtnValue = boost::dynamic_pointer_cast<Element>(newFO);
 				ElementLuaMetaData::PutInstanceOnStack(L, rtnValue);
 				return 1;

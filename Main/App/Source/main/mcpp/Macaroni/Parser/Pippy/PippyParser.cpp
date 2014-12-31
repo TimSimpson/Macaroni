@@ -388,6 +388,7 @@ static Iterator createTestItr(const char * msgChars)
 class ParserFunctions
 {
 private:
+	int classDepth;
 	ContextPtr context;
 	AccessPtr currentAccess;
 	NodePtr currentScope;
@@ -399,7 +400,8 @@ private:
 public:
 
 	ParserFunctions(ContextPtr context, TargetPtr target)
-		:context(context),
+		:classDepth(0),
+		 context(context),
 		 currentAccess(Access::NotSpecified()),
 		 currentScope(context->GetRoot()),
 		 currentTarget(target),
@@ -756,6 +758,23 @@ public:
 			}
 		}
 
+		// Increment depth, and also decrement it.
+		struct DepthTracker {
+
+			int & depth;
+
+			DepthTracker(int & depth)
+			:	depth(depth)
+			{
+				++ depth;
+			}
+
+			~DepthTracker()
+			{
+				-- depth;
+			}
+		} classDepthTracker(this->classDepth);
+
 		// Once the parser has seen "class" it must see the correct
 		// grammar or there will be hell to pay.
 
@@ -819,6 +838,7 @@ public:
 		itr = newItr; // Success! :)
 		currentScope = oldScope;
 		currentAccess = lastAccess;
+
 		return true;
 	}
 
@@ -3221,8 +3241,17 @@ public:
 			ReasonPtr fReason = Reason::Create(CppAxioms::FunctionCreation(),
 											   oldItr.GetSource());
 			FunctionPtr function = Function::Create(node, fReason);
+
+			// If we are in a class, don't give this function a target.
+			// Otherwise give it one.
+			TargetPtr tHome;
+			if (classDepth < 1)
+			{
+				tHome = deduceTargetHome(currentScope);
+			}
 			FunctionOverloadPtr fOl =
-				FunctionOverload::Create(foNode, isInline, access, isStatic,
+				FunctionOverload::Create(tHome,
+					                     foNode, isInline, access, isStatic,
 				                         isVirtual, type,
 										 constMember, exceptionSpecifier,
 										 fReason);

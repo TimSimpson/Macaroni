@@ -23,6 +23,7 @@
 #include <Macaroni/Model/Project/Target.h>
 #include <Macaroni/Model/Project/TargetPtr.h>
 
+using boost::optional;
 using Macaroni::Model::Project::Target;
 using Macaroni::Model::Project::TargetPtr;
 
@@ -38,11 +39,15 @@ void intrusive_ptr_release(Scope * p)
 	intrusive_ptr_add_ref((ScopeMember *)p);
 }
 
-Scope::Scope(Target * target, Node * node, ReasonPtr reason)
-:ScopeMember(node, reason),
+Scope::Scope(Target * target, Node * node, ReasonPtr reason,
+	         optional<Access> access, optional<bool> isStatic)
+:ScopeMember(node, reason, access, isStatic),
  target(target)
 {
-	target->AddElement(this);
+	if (target)
+	{
+		target->AddElement(this);
+	}
 }
 
 NodePtr Scope::GetMember(int index) const
@@ -59,27 +64,29 @@ TargetPtr Scope::GetOwner() const
 	return target;
 }
 
-bool Scope::OwnedBy(Macaroni::Model::Project::TargetPtr target) const {
-	if (nullptr == this->target)
+bool Scope::OwnedBy(Macaroni::Model::Project::TargetPtr targetArg) const
+{
+	if (!this->target)
 	{
-		return (!target);
+		// Defer to base class behavior.
+		return Element::OwnedBy(targetArg);
 	}
-	if (!target)
+	if (!targetArg)
 	{
 		return false;
 	}
-	if (*target == *(this->target))
+	if (*targetArg == *(this->target))
 	{
 		return true;
 	}
-	return this->target->OwnedBy(target.get());
+	return this->target->OwnedBy(targetArg.get());
 }
 
 void Scope::SwitchOwner(Macaroni::Model::Project::TargetPtr newTarget)
 {
-	if (0 != target)
+	if (!this->target)
 	{
-		Target & from = *target;
+		Target & from = *(this->target);
 		Target & to = *newTarget;
 		this->target = newTarget.get();
 		Target::SwitchOwner(*this, from, to);
@@ -87,7 +94,7 @@ void Scope::SwitchOwner(Macaroni::Model::Project::TargetPtr newTarget)
 	else
 	{
 		this->target = newTarget.get();
-		target->AddElement(this);
+		this->target->AddElement(this);
 	}
 }
 

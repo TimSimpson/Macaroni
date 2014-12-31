@@ -53,6 +53,7 @@ local Source = require "Macaroni.Model.Source";
 local Type = require "Macaroni.Model.Type";
 local Variable = require "Macaroni.Model.Cpp.Variable";
 
+
 OPERATORS_CPP_TO_LUA =
 {
 	["=="]="__eq",
@@ -71,6 +72,16 @@ OPERATORS_CPP_TO_LUA =
 -- For obvious reasons, don't put any spaces or junk inside of the
 -- string below
 NEW_LINE = "\n";
+
+
+FunctionOverload_Create = function(a, b, c, d, e, f, g, h, i)
+	if MACARONI_VERSION~="0.2.3" then  -- Current
+		return FunctionOverload.Create(nil, a, b, c, d, e, f, g, h, i);
+	else -- Legacy
+		return FunctionOverload.Create(a, b, c, d, e, f, g, h, i);
+	end
+end
+
 
 local check = function(con, msg)
 	if (not con) then
@@ -1260,7 +1271,7 @@ namespace
 			local rtnType = Type.New(self.parent.Creators.intNode, { });
 			log:Write("Going to create Index " .. methodName);
 			local func = Function.Create(node, self.reason);
-			local fo1 = FunctionOverload.Create(func, false, Access.Public,
+			local fo1 = FunctionOverload_Create(func, false, Access.Public,
 			                                    true, false, rtnType,
 									            false, false, self.reason);
 			local dotGet = '->';
@@ -1301,7 +1312,7 @@ namespace
 			local rtnType = Type.New(self.parent.Creators.boolNode, { Pointer = false });
 			log:Write("Going to create IsType.");
 			local func = Function.Create(node, self.reason);
-			fo = FunctionOverload.Create(func, false, Access.Public, true,
+			fo = FunctionOverload_Create(func, false, Access.Public, true,
 										 false, rtnType,
 										 false, false, self.reason);
 			func = node.Member;
@@ -1343,7 +1354,7 @@ namespace
 			local rtnType = Type.New(self.parent.Creators.intNode, { });
 			log:Write("Going to create IsType.");
 			local func = Function.Create(node, self.reason);
-			local fo1 = FunctionOverload.Create(func, false, Access.Public,
+			local fo1 = FunctionOverload_Create(func, false, Access.Public,
 			                                    true, false, rtnType,
 										        false, false, self.reason);
 			func = node.Member;
@@ -1383,7 +1394,7 @@ namespace
 			local rtnType = Type.New(self.referenceType, { Reference = true });
 			log:Write("Going to create IsType.");
 			local func = Function.Create(node, self.reason);
-			local fo1 = FunctionOverload.Create(func, false, Access.Public,
+			local fo1 = FunctionOverload_Create(func, false, Access.Public,
 			                                    true, false, rtnType,
 										        false, false, self.reason);
 			func = node.Member;
@@ -1413,7 +1424,7 @@ namespace
 			local rtnType = Type.New(self.parent.Creators.boolNode, { });
 			log:Write("Going to create NewIndex.");
 			local func = Function.Create(node, self.reason);
-			local fo1 = FunctionOverload.Create(func, false, Access.Public,
+			local fo1 = FunctionOverload_Create(func, false, Access.Public,
 			                                    true, false, rtnType,
 									            false, false, self.reason);
 			func = node.Member;
@@ -1445,7 +1456,7 @@ namespace
 			local rtnType = Type.New(self.parent.Creators.voidNode, { });
 			log:Write("Going to create putInstanceOnStack.");
 			local func = Function.Create(node, self.reason);
-			local fo1 = FunctionOverload.Create(func, false, Access.Public,
+			local fo1 = FunctionOverload_Create(func, false, Access.Public,
 			                                    true, false, rtnType,
 										        false, false, self.reason);
 			func = node.Member;

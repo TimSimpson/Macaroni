@@ -28,6 +28,8 @@
 #include "Scope.h"
 #include "ScopeMember.h"
 #include <Macaroni/StringException.h>
+#include <Macaroni/Model/Project/Target.h>
+#include <Macaroni/Model/Project/TargetPtr.h>
 #include "Variable.h"
 #include <memory>
 #include <sstream>
@@ -52,7 +54,8 @@ Destructor::Destructor(Node * home, Model::ReasonPtr reason, bool isInline,
                        const optional<ExceptionSpecifier> exceptionSpecifier)
 :Function(home, reason)
 {
-	FunctionOverload::Create(this, isInline, access, false, isVirtual,
+	Macaroni::Model::Project::TargetPtr none;
+	FunctionOverload::Create(none, this, isInline, access, false, isVirtual,
 		                     voidType(), false, exceptionSpecifier, reason);
 }
 
@@ -105,12 +108,12 @@ const char * Destructor::GetTypeName() const
 
 void intrusive_ptr_add_ref(Destructor * p)
 {
-	intrusive_ptr_add_ref((ScopeMember *)p);
+	intrusive_ptr_add_ref((FunctionOverload *)p);
 }
 
 void intrusive_ptr_release(Destructor * p)
 {
-	intrusive_ptr_release((ScopeMember *)p);
+	intrusive_ptr_release((FunctionOverload *)p);
 }
 
 END_NAMESPACE

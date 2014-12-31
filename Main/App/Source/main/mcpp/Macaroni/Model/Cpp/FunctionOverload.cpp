@@ -21,22 +21,25 @@
 #include <Macaroni/Model/ModelInconsistencyException.h>
 #include <Macaroni/Model/Reason.h>
 #include <Macaroni/Model/Source.h>
+ #include <Macaroni/Model/Project/Target.h>
 #include <Macaroni/Model/Cpp/Variable.h>
 
 using Macaroni::Model::ModelInconsistencyException;
 using boost::optional;
+using Macaroni::Model::Project::Target;
 using Macaroni::Model::Project::TargetPtr;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 FunctionOverload::FunctionOverload
 (
+ Target * target,
  Node * home, Model::ReasonPtr reason, bool isInline,
  Access access, const bool isStatic, bool isVirtual,
  const TypePtr rtnTypeInfo, bool constMember,
  const optional<ExceptionSpecifier> exceptionSpecifier
 )
-:ScopeMember(home, reason, access, isStatic),
+:Scope(target, home, reason, access, isStatic),
  codeBlock(),
  codeBlockAddRedirect(false),
  constMember(constMember),
@@ -55,7 +58,8 @@ FunctionOverload::~FunctionOverload()
 {
 }
 
-FunctionOverloadPtr FunctionOverload::Create(FunctionPtr home,
+FunctionOverloadPtr FunctionOverload::Create(TargetPtr target,
+	                                         FunctionPtr home,
 											 bool isInline, const AccessPtr access,
 											 const bool isStatic,
 											 bool isVirtual,
@@ -64,27 +68,14 @@ FunctionOverloadPtr FunctionOverload::Create(FunctionPtr home,
 						  const optional<ExceptionSpecifier> exceptionSpecifier,
 											 Model::ReasonPtr reason)
 {
-	Function * fn = home.get();
-	return Create(fn, isInline, access, isStatic, isVirtual, rtnType,
-		          constMember, exceptionSpecifier, reason);
+	NodePtr foNode = home->GetNode()->CreateNextInSequence("Overload#");
+	return Create(target, foNode, isInline, access, isStatic, isVirtual,
+		          rtnType, constMember, exceptionSpecifier, reason);
 }
 
-FunctionOverloadPtr FunctionOverload::Create(Function * fn,
-											 bool isInline, const AccessPtr access,
-											 const bool isStatic,
-											 bool isVirtual,
-											 const TypePtr rtnType,
-											 bool constMember,
-						  const optional<ExceptionSpecifier> exceptionSpecifier,
-											 Model::ReasonPtr reason)
-{
-	Node * node = fn->GetNode().get();
-	NodePtr foNode = node->CreateNextInSequence("Overload#");
-	return Create(foNode, isInline, access, isStatic, isVirtual, rtnType,
-		          constMember, exceptionSpecifier, reason);
-}
 
-FunctionOverloadPtr FunctionOverload::Create(NodePtr foNode,
+FunctionOverloadPtr FunctionOverload::Create(TargetPtr target,
+	                                         NodePtr foNode,
 											 bool isInline, const AccessPtr access,
 											 const bool isStatic,
 											 bool isVirtual,
@@ -93,7 +84,8 @@ FunctionOverloadPtr FunctionOverload::Create(NodePtr foNode,
 						const optional<ExceptionSpecifier> exceptionSpecifier,
 											 Model::ReasonPtr reason)
 {
-	FunctionOverload * fo = new FunctionOverload(foNode.get(), reason,
+	FunctionOverload * fo = new FunctionOverload(target.get(),
+		foNode.get(), reason,
 		isInline, *access,
 		isStatic, isVirtual, rtnType, constMember, exceptionSpecifier);
 	return FunctionOverloadPtr(fo);
@@ -200,6 +192,7 @@ void FunctionOverload::setCodeDefinitionSource(SourcePtr startOfCode,
 	}
 	this->codeSource = startOfCode;
 }
+
 
 END_NAMESPACE
 

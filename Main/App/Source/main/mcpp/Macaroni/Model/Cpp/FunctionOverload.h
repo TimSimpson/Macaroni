@@ -23,7 +23,7 @@
 #include <Macaroni/Model/Cpp/FunctionOverloadPtr.h>
 #include <boost/optional.hpp>
 #include "../ReasonPtr.h"
-#include "ScopeMember.h"
+#include "Scope.h"
 #include "../SourcePtr.h"
 #include <Macaroni/Model/Project/TargetPtr.h>
 #include "../Type.h"
@@ -32,13 +32,14 @@
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 /** Represents a function in any possible Scope. */
-class FunctionOverload : public ScopeMember
+class FunctionOverload : public Scope
 {
 friend void intrusive_ptr_add_ref(FunctionOverload * p);
 friend void intrusive_ptr_release(FunctionOverload * p);
 
 public:
-	static FunctionOverloadPtr Create(NodePtr home, bool isInline,
+	static FunctionOverloadPtr Create(Macaroni::Model::Project::TargetPtr target,
+		                              NodePtr home, bool isInline,
 									  const AccessPtr access,
 									  const bool isStatic, bool isVirtual,
 									  const TypePtr rtnType,
@@ -46,21 +47,13 @@ public:
 					const boost::optional<ExceptionSpecifier> exceptionSpecifier,
 									  Model::ReasonPtr reason);
 
-	static FunctionOverloadPtr Create(FunctionPtr home, bool isInline,
+	static FunctionOverloadPtr Create(Macaroni::Model::Project::TargetPtr target,
+		                              FunctionPtr home, bool isInline,
 									  const AccessPtr access,
 									  const bool isStatic, bool isVirtual,
 									  const TypePtr rtnType,
 									  bool constMember,
 				const boost::optional<ExceptionSpecifier> exceptionSpecifier,
-									  Model::ReasonPtr reason);
-
-	static FunctionOverloadPtr Create(Function * home, bool isInline,
-									  const AccessPtr access,
-									  const bool isStatic,
-									  bool isVirtual,
-									  const TypePtr rtnType,
-									  bool constMember,
-				 const boost::optional<ExceptionSpecifier> exceptionSpecifier,
 									  Model::ReasonPtr reason);
 
 	virtual ~FunctionOverload();
@@ -154,7 +147,10 @@ public:
 protected:
 	//FunctionOverload(Node home, bool isInline, const Access access, const bool isStatic, const TypePtr rtnType, bool constMember, Model::ReasonPtr reason);
 
-	FunctionOverload(Node * home, Model::ReasonPtr reason, bool isInline, Access access, const bool isStatic, bool isVirtual, const TypePtr rtnTypeInfo, bool constMember,
+	FunctionOverload(Macaroni::Model::Project::Target * target,
+		Node * home, Model::ReasonPtr reason,
+		bool isInline, Access access, const bool isStatic, bool isVirtual,
+		const TypePtr rtnTypeInfo, bool constMember,
 		const boost::optional<ExceptionSpecifier> exceptionSpecifier);
 
 private:
