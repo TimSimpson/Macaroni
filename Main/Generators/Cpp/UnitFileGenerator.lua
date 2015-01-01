@@ -22,82 +22,178 @@ local TypeNames = Macaroni.Model.TypeNames;
 -- unit, building the header and cpp file for each one before proceeding.
 
 FileWriters = {
-    H = {
-        Block = function(library, node, writer, unit)
-            UnitBlockGenerator.Write{writer=writer, unit=unit, type="h"}
-        end,
+    Block = function(library, node, writer, type)
+        return UnitBlockGenerator.new{
+            writer=writer, node=node, type=type};
+    end,
 
-        Class = function(library, node, writer)
-            local gen = ClassHFileGenerator.new{
-                node = node, targetLibrary=library, writer=writer};
-            gen:parse()
-            writer:Write('\n'); -- avoid bunching up typedefs
-        end,
+    Class = function(library, node, writer, type)
+        return {
+            WriteHeaderDefinitions = function(self)
+                if type == "H" then
+--TODO: Fix this - currently it works around the fact that the WriteImplementation
+--      will write the internal header itself.
+                    local gen = ClassHFileGenerator.new{
+                        node = node, targetLibrary=library, writer=writer};
+                    gen:parse()
+                    writer:Write('\n'); -- avoid bunching up typedefs
+                else
+                    gen = ClassCppFileGenerator.new{
+                        node = node, targetLibrary=library, writer=writer};
+                    gen:WriteHeaderDefinitions()
+                end
+            end,
+            WriteImplementation = function(self)
+                gen = ClassCppFileGenerator.new{
+                    node = node, targetLibrary=library, writer=writer};
+                gen:WriteImplementation()
+                --writer:Write('\n'); -- avoid bunching up typedefs
+            end,
+            WriteTopBlocks = function(self)
+                if (type ~= "H") then
+                    gen = ClassCppFileGenerator.new{
+                        node = node, targetLibrary=library, writer=writer};
+                    gen:WriteTopBlocks()
+                end
+            end,
+            WriteBottomBlocks = function(self)
+                if (type ~= "H") then
+                    gen = ClassCppFileGenerator.new{
+                        node = node, targetLibrary=library, writer=writer};
+                    gen:WriteBottomBlocks()
+                end
+            end,
+            WriteIncludeStatements = function(self)
+                if (type ~= "H") then
+                    gen = ClassCppFileGenerator.new{
+                        node = node, targetLibrary=library, writer=writer};
+                    gen:WriteIncludeStatements()
+                end
+            end,
+            WriteImplementationIncludeStatements = function(self)
+                if (type ~= "H") then
+                    gen = ClassCppFileGenerator.new{
+                        node = node, targetLibrary=library, writer=writer};
+                    gen:WriteImplementationIncludeStatements()
+                end
+            end,
+            WriteUsingStatements = function(self)
+                if (type ~= "H") then
+                    gen = ClassCppFileGenerator.new{
+                        node = node, targetLibrary=library, writer=writer};
+                    gen:WriteUsingStatements()
+                end
+            end,
+            WritePreDefinitionBlocks = function(self)
+                if (type ~= "H") then
+                    gen = ClassCppFileGenerator.new{
+                        node = node, targetLibrary=library, writer=writer};
+                    gen:WritePreDefinitionBlocks()
+                end
+            end,
+        };
+    end,
 
-        Enum = function(library, node, writer)
-            local gen = EnumHFileGenerator.new{
-                node=node, targetLibrary=library, writer=writer};
-            gen:parse()
-            writer:Write('\n');
-        end,
+    Enum = function(library, node, writer, type)
+        return {
+            WriteHeaderDefinitions = function(self)
+                local gen = EnumHFileGenerator.new{
+                    node=node, targetLibrary=library, writer=writer};
+                gen:parse()
+                writer:Write('\n');
+            end,
+            WriteImplementation = function(self)
+                gen = EnumCppFileGenerator.new{node=node, targetLibrary=library,
+                                               writer=writer};
+                gen:parse()
+                writer:Write('\n');
+            end,
+            WriteTopBlocks = function(self)
+            end,
+            WriteBottomBlocks = function(self)
+            end,
+            WriteIncludeStatements = function(self)
+            end,
+            WriteImplementationIncludeStatements = function(self)
+            end,
+            WriteUsingStatements = function(self)
+            end,
+            WritePreDefinitionBlocks = function(self)
+            end,
+        }
+    end,
 
-        FunctionOverload = function(library, node, writer)
-            local gen = FunctionFileGenerator.new{
-                node = node,
-                targetLibrary=library,
-                writer=writer,
-                insertIntoNamespaces=true,
-                ownedByClass=false,
-                classPrefix=nil,
-            };
-            gen:WriteIncludeStatements()  --TODO: Move this all to the same part!
-            gen:WriteHeaderDefinition();
-            writer:Write('\n');
-        end,
+    FunctionOverload = function(library, node, writer, type)
+        return {
+            WriteHeaderDefinitions = function(self)
+                local gen = FunctionFileGenerator.new{
+                    node = node,
+                    targetLibrary=library,
+                    writer=writer,
+                    insertIntoNamespaces=true,
+                    ownedByClass=false,
+                    classPrefix=nil,
+                };
+                gen:WriteIncludeStatements()  --TODO: Move this all to the same part!
+                gen:WriteHeaderDefinition();
+                writer:Write('\n');
+            end,
+            WriteImplementation = function(self)
+                local gen = FunctionFileGenerator.new{
+                    node = node,
+                    targetLibrary=library,
+                    writer=writer,
+                    insertIntoNamespaces=true,
+                    ownedByClass=false,
+                    classPrefix=nil,
+                };
+                gen:WriteIncludeStatements()  --TODO: Move this all to the same part!
+                    -- TODO: Don't call this- actually write the definition, which
+                    --       may do this. :)
 
-        Typedef = function(library, node, writer)
-            gen = TypedefFileGenerator.new{node=node, targetLibrary=library,
-                                           writer=writer};
-            gen:parse();
-            writer:Write('\n'); -- avoid bunching up typedefs
-        end,
-    },
-    Cpp = {
-        Block = function(library, node, writer, unit)
-            UnitBlockGenerator.Write{writer=writer, unit=unit, type="cpp"}
-        end,
+                gen:WriteCppDefinition();
+                writer:Write('\n');
+            end,
+            WriteTopBlocks = function(self)
+            end,
+            WriteBottomBlocks = function(self)
+            end,
+            WriteIncludeStatements = function(self)
+            end,
+            WriteImplementationIncludeStatements = function(self)
+            end,
+            WriteUsingStatements = function(self)
+            end,
+            WritePreDefinitionBlocks = function(self)
+            end,
+        }
+    end,
 
-        Class = function(library, node, writer)
-            gen = ClassCppFileGenerator.new{node = node, targetLibrary=library,
-                                          writer=writer};
-            gen:parse()
-            writer:Write('\n'); -- avoid bunching up typedefs
-        end,
-
-        Enum = function(library, node, writer)
-            gen = EnumCppFileGenerator.new{node=node, targetLibrary=library,
-                                        writer=writer};
-            gen:parse()
-            writer:Write('\n');
-        end,
-
-        FunctionOverload = function(library, node, writer)
-            local gen = FunctionFileGenerator.new{
-                node = node,
-                targetLibrary=library,
-                writer=writer,
-                insertIntoNamespaces=true,
-                ownedByClass=false,
-                classPrefix=nil,
-            };
-            gen:WriteIncludeStatements()  --TODO: Move this all to the same part!
-                -- TODO: Don't call this- actually write the definition, which
-                --       may do this. :)
-
-            gen:WriteCppDefinition();
-            writer:Write('\n');
-        end,
-    },
+    Typedef = function(library, node, writer, type)
+        return {
+            WriteHeaderDefinitions = function(self)
+                gen = TypedefFileGenerator.new{node=node, targetLibrary=library,
+                                               writer=writer};
+                gen:parse();
+                writer:Write('\n'); -- avoid bunching up typedefs
+            end,
+            WriteImplementation = function(self)
+                -- do nothing
+            end,
+            WriteTopBlocks = function(self)
+            end,
+            WriteBottomBlocks = function(self)
+            end,
+            WriteIncludeStatements = function(self)
+            end,
+            WriteImplementationIncludeStatements = function(self)
+            end,
+            WriteUsingStatements = function(self)
+            end,
+            WritePreDefinitionBlocks = function(self)
+            end,
+        }
+    end,
 };
 
 
@@ -169,18 +265,18 @@ LibraryTargetGenerator = {
         if (library == nil) then
             error("No library argument given.");
         end
-        args = {}
-        setmetatable(args, LibraryTargetGenerator);
-        args.library = library;
+        self = {}
+        setmetatable(self, LibraryTargetGenerator);
+        self.library = library;
         -- if path == nil then
         --     error("Argument #2, 'path', cannot be nil.")
         -- end
-        -- args.rootPath = path;
+        -- self.rootPath = path;
         LibraryTargetGenerator.__index = function(t, k)
             local v = LibraryTargetGenerator[k];
             return v;
         end;
-        return args;
+        return self;
     end,
 
     IterateUnits = function (self, library, rootPath)
@@ -226,26 +322,50 @@ LibraryTargetGenerator = {
 
 UnitFileGenerator = {
 
-    new = function(args)
-        if (args.library == nil) then
+    new = function(self)
+        if (self.library == nil) then
             error("No library argument given.");
         end
-        if (args.unit == nil) then
+        if (self.unit == nil) then
             error("No library argument given.");
         end
-        if (args.rootPath == nil) then
+        if (self.rootPath == nil) then
             error("No root path argument given.");
         end
-        if (args.fileType == nil) then
+        if (self.fileType == nil) then
             error("No file type argument given.");
         end
-        args.libDecl = LibraryDecl(args.library)
-        setmetatable(args, UnitFileGenerator);
+        self.libDecl = LibraryDecl(self.library)
+        setmetatable(self, UnitFileGenerator);
         UnitFileGenerator.__index = function(t, k)
             local v = UnitFileGenerator[k];
             return v;
         end;
-        return args;
+        self.elements = CreateElementList(self.unit)
+        self.requiresFileProp = "Requires" .. self.fileType .. "File"
+        return self;
+    end,
+
+    foreachWriter = function(self, func)
+        for i, w in ipairs(self.elementWriters) do
+            if w[func] ~= nil then
+                w[func](w)
+            end
+        end
+    end,
+
+    requiresFile = function(self, element)
+        if MACARONI_VERSION ~= "0.2.3" then
+            -- TODO: Fix the bug in Block which makes it not understand if it
+            --       does or does not require a file property.
+            if element.TypeName == "Block" then
+                return true
+            else
+                return element[self.requiresFileProp]
+            end
+        else
+            return element[self.requiresFileProp]
+        end
     end,
 
     writeConfigFile = function(self)
@@ -253,7 +373,32 @@ UnitFileGenerator = {
     end,
 
     writeClosing = function(self)
+        self:foreachWriter('WriteBottomBlocks');
         WriteUnitFileClosing(self.unit, self.writer, self.fileType)
+    end,
+
+    writeForwardDeclarations = function(self)
+        self.writer:WriteLine("// Forward declaration necessary for anything which also depends on this.\n");
+
+        -- for i = 1, #elements do
+        --     log:Write(tostring(i) .. '=' .. tostring(elements[i]))
+        --     local element = elements[i]
+        --     if element[requiresFileProp] then
+        --         local node = element.Node
+        --         local typeName = node.TypeName
+
+        --         local func = FileWriters[self.fileType][typeName]
+        --         if func == nil then
+        --             error("No way to write the element " .. tostring(element)
+        --                   .. ". fileType=" .. tostring(self.fileType)
+        --                   .. ", typeName=" .. tostring(typeName))
+        --         end
+        --         func(self.library, node, self.writer, self.unit)
+        --     else
+        --         -- TODO: Find some way to disable the constant
+        --         --       generation of the cpp file.
+        --     end
+        -- end
     end,
 
     writeOpening = function(self)
@@ -268,21 +413,37 @@ UnitFileGenerator = {
         else
             -- Header file.
         end
-        -- In order for the global functions to work properly, this will be
-        -- necessary here. Otherwise every single stinkin' Element would need
-        -- to do this, and since there is one per library that would be
-        -- pretty darn crazy right?!!?!!
+
+        self:foreachWriter('WriteTopBlocks')
+
+        --TODO: Write "top" blocks
+        --self:writeConfigFile()
+    end,
+
+    writeHeader = function(self)
         self:writeConfigFile()
+        self:foreachWriter('WriteForwardDeclarations');
+        self:foreachWriter('WriteIncludeStatements')
+        self:foreachWriter('WriteForwardDeclarationsOfDependencies');
+        self:foreachWriter('WritePreDefinitionBlocks');
+        self:foreachWriter('WriteHeaderDefinitions');
+        self:foreachWriter('WritePostDefinitionBlocks');
+        -- for i, w in ipairs(self.elementWriters) do
+        --     self.elementWriters[i].WriteHeader()
+        -- end
+    end,
 
-        -- TODO: Write all block import statements.
-
+    writeImplementation = function(self)
+        self:writeHeader()
+        self:foreachWriter('WriteImplementationIncludeStatements')
+        self:foreachWriter('WriteUsingStatements')
+        self:foreachWriter('WriteImplementation')
     end,
 
 
     WriteFile = function(self)
         local fileProp = self.fileType .. "File"  -- HFile or CppFile
         local setFunc = "Set" .. self.fileType .. "FileRootDirectory"
-        local requiresFileProp = "Requires" .. self.fileType .. "File"
 
         -- The unit file will be some kind of relative path with an empty root
         -- path, such as "", "/Company/Namespace/blah.h".
@@ -299,28 +460,31 @@ UnitFileGenerator = {
                   .. tostring(self.unit[fileProp]));
         self.writer = self.unit[fileProp]:CreateFile();
 
-        self:writeOpening()
+        -- Initialize all of the Element writers
 
-        local elements = CreateElementList(self.unit)
-
-        for i = 1, #elements do
-            log:Write(tostring(i) .. '=' .. tostring(elements[i]))
-            local element = elements[i]
-            if element[requiresFileProp] then
+        self.elementWriters = {}
+        for i = 1, #self.elements do
+            local element = self.elements[i]
+            if self:requiresFile(element) then
                 local node = element.Node
                 local typeName = node.TypeName
-
-                local func = FileWriters[self.fileType][typeName]
+                local func = FileWriters[typeName]
                 if func == nil then
                     error("No way to write the element " .. tostring(element)
                           .. ". fileType=" .. tostring(self.fileType)
                           .. ", typeName=" .. tostring(typeName))
                 end
-                func(self.library, node, self.writer, self.unit)
-            else
-                -- TODO: Find some way to disable the constant
-                --       generation of the cpp file.
+                local writer = func(self.library, node, self.writer, self.fileType)
+                self.elementWriters[#self.elementWriters + 1] = writer
             end
+        end
+
+        self:writeOpening()
+
+        if self.fileType == "H" then
+            self:writeHeader()
+        else
+            self:writeImplementation()
         end
 
         self:writeClosing()

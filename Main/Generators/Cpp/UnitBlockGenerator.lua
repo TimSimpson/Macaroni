@@ -1,3 +1,4 @@
+require "Cpp/Common"
 require "Cpp/FileGenerator"
 require "Cpp/NodeInfo"
 
@@ -5,6 +6,16 @@ UnitBlockGenerator =
 {
     isNested = false,
     tabs = 0,
+
+    new = function(self)
+        assert(self.writer ~= nil);
+        assert(self.node.Element ~= nil);
+        setmetatable(self, UnitBlockGenerator)
+
+        self.block = self.node.Element
+        assert(self.block.TypeName == "Block")
+        return self
+    end,
 
     usingStatements = function(self, block)
         local imports = block.ImportedNodes;
@@ -14,53 +25,64 @@ UnitBlockGenerator =
         end
     end,
 
-    Write = function(args)
-        assert(args.writer ~= nil);
-        --assert(args.node.Member ~= nil);
-        assert(args.unit ~= nil);
-        assert(args.type ~= nil);
-
-        --local block = args.node.Member
-        --args.block = block
-        setmetatable(args, UnitBlockGenerator);
-
-        local elements = args.unit:CreateElementList()
-
-        topBlocks = {}
-        bottomBlocks = {}
-        middleBlocks = {}
-
-        for i = 1, #elements do
-            local element = elements[i]
-            local member = element.Node.Member
-            if element.Node.TypeName == "Block" then
-                if member.Id == "top" then
-                    topBlocks[#topBlocks + 1] = member
-                elseif member.Id == "bottom" then
-                    bottomBlocks[#bottomBlocks + 1] = member
-                elseif member.Id == args.type then -- cpp or h
-                    middleBlocks[#middleBlocks + 1] = member
-                end
-            end
+    WriteTopBlocks = function(self)
+        if self.block.Id == "top" then
+            self:writeBlockCodeBlock(self.block)
         end
+    end,
 
-        for i = 1, #topBlocks do
-            args:writeBlockCodeBlock(topBlocks[i])
+    WriteBottomBlocks = function(self)
+        if self.block.Id == "bottom" then
+            self:writeBlockCodeBlock(self.block)
         end
+    end,
 
-        for i = 1, #middleBlocks do
-            args:writeIncludes(middleBlocks[i])
-            args:usingStatements(middleBlocks[i])
+    WriteIncludeStatements = function(self)
+        if (self.block.Id == "h"
+            or self.block.Id == "h-predef"
+            or self.block.Id == "h-postdef")
+        then
+            self:writeIncludes(self.block)
         end
+    end,
 
-        for i = 1, #middleBlocks do
-            args:writeBlockCodeBlock(middleBlocks[i])
+    WriteImplementationIncludeStatements = function(self)
+        if self.block.Id == "cpp" or self.block.Id == "cpp-include" then
+            self:writeIncludes(self.block)
         end
-
-        for i = 1, #bottomBlocks do
-            args:writeBlockCodeBlock(bottomBlocks[i])
+        if self.block.Id == "cpp-include" then
+            self:writeBlockCodeBlock(self.block)
         end
+    end,
 
+    WriteUsingStatements = function(self)
+        if self.block.Id == "cpp" then
+            self:usingStatements(self.block)
+        end
+    end,
+
+    WritePreDefinitionBlocks = function(self)
+        if self.block.Id == "h-predef" then
+            self:writeBlockCodeBlock(self.block)
+        end
+    end,
+
+    WriteHeaderDefinitions = function(self)
+        if self.block.Id == "h" then
+            self:writeBlockCodeBlock(self.block)
+        end
+    end,
+
+    WritePostDefinitionBlocks = function(self)
+        if self.block.Id == "h-postdef" then
+            self:writeBlockCodeBlock(self.block)
+        end
+    end,
+
+    WriteImplementation = function(self)
+        if self.block.Id == "cpp" then
+            self:writeBlockCodeBlock(self.block)
+        end
     end,
 
     writeIncludes = function(self, block)

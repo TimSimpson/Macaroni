@@ -55,6 +55,18 @@ ClassCppFileGenerator = {
         return args;
     end,
 
+    -- New public methods called by UnitFileGenerator
+
+    WriteHeaderDefinitions = function(self)
+        self:writePrivateHeader();
+    end,
+
+    WriteImplementation = function(self)
+        self:parse()
+    end,
+
+    -- End new methods
+
     classBegin = function(self)
 
     end,
@@ -155,23 +167,8 @@ ClassCppFileGenerator = {
     end,
 
     includeStatements = function(self)
-		log:Write(tostring(self.node) .. ' INCLUDE STATEMENTS! *_*');
-        local class = self.node.Member;
-        local imports = class.ImportedNodes;
-        -- Put the include to this classes H file.
-
-        -- local hFile = '#include "' .. self.node.Name .. '.h"\n';
-        -- self:write(hFile);
-        self:writePrivateHeader();
-
-        for i = 1, #imports do
-            local import = imports[i];
-            if (import.Member ~= nil) then
-				self:writeInclude(import);
-			else
-				self:write('// Skipping hollow imported node "' .. import.FullName .. '"' .. "   \n");
-            end
-        end
+		self:writePrivateHeader();
+        self:writeImplementationIncludeStatements();
     end,
 
     iterateClassMembers = function(self, nodeChildren)
@@ -183,6 +180,7 @@ ClassCppFileGenerator = {
     end,
 
     -- Entry function.
+    -- TODO: Stop using this and delete it.
     parse = function(self)
         if (not self.isNested) then
             self:includeGuardHeader();
@@ -456,6 +454,10 @@ ClassCppFileGenerator = {
 		end
     end,
 
+    WriteBottomBlocks = function(self)
+        self:classBottomBlocks();
+    end,
+
     writeGlobalPrototype = function(self, foNode)
 		check(foNode.Member.Access.CppKeyword == "private",
 			  "Why write a prototype for a global method that is not " ..
@@ -470,9 +472,53 @@ ClassCppFileGenerator = {
 		end
     end,
 
+    WriteIncludeStatements = function(self)
+        -- TODO: The private header function is also writing this.
+        --       Change the h file writer so it can be written here instead.
+    end,
+
+    WriteImplementation = function(self)
+        if (not self.isNested) then
+            self:globals();
+            self:write('\n');
+            self:namespaceBegin(self.node.Node);
+            self:write('\n');
+        end
+        self:classBody();
+        if (not self.isNested) then
+            self:write('\n');
+            self:namespaceEnd(self.node.Node);
+            self:write('\n');
+        end
+    end,
+
+    WriteImplementationIncludeStatements = function(self)
+        self:writeImplementationIncludeStatements()
+        self:write('\n');
+        self:parseCppIncludeBlocks();
+    end,
+
+    writeImplementationIncludeStatements = function(self)
+        log:Write(tostring(self.node) .. ' INCLUDE STATEMENTS! *_*');
+        local class = self.node.Member;
+        local imports = class.ImportedNodes;
+
+        for i = 1, #imports do
+            local import = imports[i];
+            if (import.Member ~= nil) then
+                self:writeInclude(import);
+            else
+                self:write('// Skipping hollow imported node "' .. import.FullName .. '"' .. "   \n");
+            end
+        end
+    end,
+
     writeInclude = function(self, import)
         local statement = IncludeFiles.createStatementForNode(import);
         if (statement ~= nil) then self:write(statement); end
+    end,
+
+    WritePreDefinitionBlocks = function(self)
     end,
 
     writePrivateHeader = function(self)
@@ -491,8 +537,17 @@ ClassCppFileGenerator = {
 		self:write(" *--------------------------------------------------------------------------*/\n");
     end,
 
+    WriteTopBlocks = function(self)
+        self:classTopBlocks();
+    end,
+
     writeUsing = function(self, import)
         self:write(NodeInfoList[import].using);
+    end,
+
+    WriteUsingStatements = function(self)
+        self:usingStatements();
+        self:write('\n');
     end,
 
     usingStatements = function(self)
