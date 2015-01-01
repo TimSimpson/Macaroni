@@ -198,6 +198,9 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
     end,
 
     -- Entry function.
+    -- This is the old parse method, which is called by the class generator
+    -- itself. It is mostly decorated in favor of the public methods which
+    -- are capitilized.
     parse = function(self)
         check(self ~= nil, "Instance method called without self.");
         check(self.writer ~= nil, "Instance writer missing.");
@@ -412,6 +415,59 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         end
         text = text .. ': ';
         return text
+    end,
+
+    WriteBottomBlocks = function(self)
+        self:classBottomBlocks();
+    end,
+
+    WriteForwardDeclarations = function(self)
+        self:writeAfterTabs("// Forward declaration for " .. self.node.FullName .. ".\n");
+        if (not self.isNested) then
+            self:namespaceBegin(self.node.Node);
+        end
+        self:writeAfterTabs("class " .. self.node.Name .. ";\n");
+        if (not self.isNested) then
+            self:namespaceEnd(self.node.Node);
+            self:write('\n');
+        end
+    end,
+
+    WriteIncludeStatements = function(self)
+        self:includeStatements();
+        self:write('\n');
+    end,
+
+    WriteHeaderDefinitions = function(self)
+        local reason = self.node.Member.ReasonCreated;
+        local src = reason.Source;
+
+        self:classPublicGlobals();
+        self:write('\n');
+
+        self:namespaceBegin(self.node.Node);
+        self:write('\n');
+        self:classBody();
+        self:write('\n');
+        self:namespaceEnd(self.node.Node);
+        self:write('\n');
+    end,
+
+    WritePreDefinitionBlocks = function(self)
+        -- Apparently, the namespace isn't open here. I really wish I'd
+        -- thought for two seconds and made the name of this block
+        -- "h-include" to mirror "cpp-include". This makes no sense...
+        self:classIncludeStatementBlocks();
+    end,
+
+    WritePostDefinitionBlocks = function(self)
+        self:namespaceBegin(self.node.Node);
+        self:classPostDefBlocks();
+        self:namespaceEnd(self.node.Node);
+    end,
+
+    WriteTopBlocks = function(self)
+        self:classTopBlocks();
     end,
 
 };

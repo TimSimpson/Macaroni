@@ -28,70 +28,13 @@ FileWriters = {
     end,
 
     Class = function(library, node, writer, type)
-        return {
-            WriteHeaderDefinitions = function(self)
-                if type == "H" then
---TODO: Fix this - currently it works around the fact that the WriteImplementation
---      will write the internal header itself.
-                    local gen = ClassHFileGenerator.new{
-                        node = node, targetLibrary=library, writer=writer};
-                    gen:parse()
-                    writer:Write('\n'); -- avoid bunching up typedefs
-                else
-                    gen = ClassCppFileGenerator.new{
-                        node = node, targetLibrary=library, writer=writer};
-                    gen:WriteHeaderDefinitions()
-                end
-            end,
-            WriteImplementation = function(self)
-                gen = ClassCppFileGenerator.new{
-                    node = node, targetLibrary=library, writer=writer};
-                gen:WriteImplementation()
-                --writer:Write('\n'); -- avoid bunching up typedefs
-            end,
-            WriteTopBlocks = function(self)
-                if (type ~= "H") then
-                    gen = ClassCppFileGenerator.new{
-                        node = node, targetLibrary=library, writer=writer};
-                    gen:WriteTopBlocks()
-                end
-            end,
-            WriteBottomBlocks = function(self)
-                if (type ~= "H") then
-                    gen = ClassCppFileGenerator.new{
-                        node = node, targetLibrary=library, writer=writer};
-                    gen:WriteBottomBlocks()
-                end
-            end,
-            WriteIncludeStatements = function(self)
-                if (type ~= "H") then
-                    gen = ClassCppFileGenerator.new{
-                        node = node, targetLibrary=library, writer=writer};
-                    gen:WriteIncludeStatements()
-                end
-            end,
-            WriteImplementationIncludeStatements = function(self)
-                if (type ~= "H") then
-                    gen = ClassCppFileGenerator.new{
-                        node = node, targetLibrary=library, writer=writer};
-                    gen:WriteImplementationIncludeStatements()
-                end
-            end,
-            WriteUsingStatements = function(self)
-                if (type ~= "H") then
-                    gen = ClassCppFileGenerator.new{
-                        node = node, targetLibrary=library, writer=writer};
-                    gen:WriteUsingStatements()
-                end
-            end,
-            WritePreDefinitionBlocks = function(self)
-                if (type ~= "H") then
-                    gen = ClassCppFileGenerator.new{
-                        node = node, targetLibrary=library, writer=writer};
-                    gen:WritePreDefinitionBlocks()
-                end
-            end,
-        };
+        if type == "H" then
+             return ClassHFileGenerator.new{
+                node = node, targetLibrary=library, writer=writer};
+        else
+            return ClassCppFileGenerator.new{
+                node = node, targetLibrary=library, writer=writer};
+        end
     end,
 
     Enum = function(library, node, writer, type)
@@ -252,6 +195,11 @@ WriteUnitFileOpening = function(unit, writer, fileType)
     local guardName = UnitGuardName(unit, fileType)
     writer:WriteLine("#ifndef " .. guardName)
     writer:WriteLine("#define " .. guardName)
+    if fileType == "Cpp" then
+        local hGuardName = UnitGuardName(unit, "H")
+        writer:WriteLine("// Force the use of the Internal Header:")
+        writer:WriteLine("#define " .. hGuardName)
+    end
 end
 
 WriteUnitFileClosing = function(unit, writer, fileType)
@@ -434,7 +382,14 @@ UnitFileGenerator = {
     end,
 
     writeImplementation = function(self)
-        self:writeHeader()
+        self.writer:WriteLine("/*--------------------------------------------------------------------------*");
+        self.writer:WriteLine(" * Internal header.                                                         *");
+        self.writer:WriteLine(" *--------------------------------------------------------------------------*/");
+        self:writeHeader();
+        self.writer:WriteLine("\n");
+        self.writer:WriteLine("/*--------------------------------------------------------------------------*");
+        self.writer:WriteLine(" * Definition.                                                              *");
+        self.writer:WriteLine(" *--------------------------------------------------------------------------*/");
         self:foreachWriter('WriteImplementationIncludeStatements')
         self:foreachWriter('WriteUsingStatements')
         self:foreachWriter('WriteImplementation')

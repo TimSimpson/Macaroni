@@ -35,37 +35,29 @@ ClassCppFileGenerator = {
     tabs = 0,
     writer = nil,
 
-    new = function(args)
-        assert(args.node ~= nil);
-        log:Write(tostring(args.node) .. ' . .. . . . . . . .TIME TO ROCK!');
-        if (args.path == nil) then
-            assert(args.writer ~= nil);
+    new = function(self)
+        assert(self.node ~= nil);
+        log:Write(tostring(self.node) .. ' . .. . . . . . . .TIME TO ROCK!');
+        if (self.path == nil) then
+            assert(self.writer ~= nil);
         else
             --TODO: Somehow calling C++ NewFileWriter() method currently results in entire Lua call from C++ ending.
-            --local writer, errorMsg, errorNumber = io.open(args.path.AbsolutePath, 'w+'); --args.path:NewFileWriter();
+            --local writer, errorMsg, errorNumber = io.open(self.path.AbsolutePath, 'w+'); --self.path:NewFileWriter();
             --if (writer == nil) then
             --    error(tostring(errorNumber) .. " " .. errorMsg, 2);
             --end
-            args.writer = args.path:CreateFile();--writer;
+            self.writer = self.path:CreateFile();--writer;
         end
 
-        setmetatable(args, ClassCppFileGenerator);
-        args.libDecl = LibraryDecl(args.targetLibrary);
+        setmetatable(self, ClassCppFileGenerator);
+        self.libDecl = LibraryDecl(self.targetLibrary);
         log:Write("Created new ClassCppFileGenerator");
-        return args;
+
+        self.internalHeaderGenerator = ClassHFileGenerator.new{
+            node = self.node, internalDef=true,
+            targetLibrary=self.targetLibrary, writer = self.writer};
+        return self;
     end,
-
-    -- New public methods called by UnitFileGenerator
-
-    WriteHeaderDefinitions = function(self)
-        self:writePrivateHeader();
-    end,
-
-    WriteImplementation = function(self)
-        self:parse()
-    end,
-
-    -- End new methods
 
     classBegin = function(self)
 
@@ -458,6 +450,10 @@ ClassCppFileGenerator = {
         self:classBottomBlocks();
     end,
 
+    WriteForwardDeclarations = function(self)
+        self.internalHeaderGenerator:WriteForwardDeclarations();
+    end,
+
     writeGlobalPrototype = function(self, foNode)
 		check(foNode.Member.Access.CppKeyword == "private",
 			  "Why write a prototype for a global method that is not " ..
@@ -472,9 +468,12 @@ ClassCppFileGenerator = {
 		end
     end,
 
+    WriteHeaderDefinitions = function(self)
+        self.internalHeaderGenerator:WriteHeaderDefinitions();
+    end,
+
     WriteIncludeStatements = function(self)
-        -- TODO: The private header function is also writing this.
-        --       Change the h file writer so it can be written here instead.
+        self.internalHeaderGenerator:WriteIncludeStatements();
     end,
 
     WriteImplementation = function(self)
@@ -519,6 +518,11 @@ ClassCppFileGenerator = {
     end,
 
     WritePreDefinitionBlocks = function(self)
+        self.internalHeaderGenerator:WritePreDefinitionBlocks();
+    end,
+
+    WritePostDefinitionBlocks = function(self)
+        self.internalHeaderGenerator:WritePostDefinitionBlocks();
     end,
 
     writePrivateHeader = function(self)
@@ -526,11 +530,7 @@ ClassCppFileGenerator = {
 		self:write("/*--------------------------------------------------------------------------*\n");
 		self:write(" * Internal header.                                                         *\n");
 		self:write(" *--------------------------------------------------------------------------*/\n");
-        local cg = ClassHFileGenerator.new{node = self.node,
-                                           internalDef=true,
-		  						           targetLibrary=self.targetLibrary,
-										   writer = self.writer};
-		cg:parse();
+        self.internalHeaderGenerator:parse();
 		self:write("\n\n");
 		self:write("/*--------------------------------------------------------------------------*\n");
 		self:write(" * Definition.                                                              *\n");
