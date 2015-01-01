@@ -18,7 +18,6 @@ local TypeNames = Macaroni.Model.TypeNames;
 FunctionFileGenerator = {
 
     insertIntoNamespaces = false,
-    isHeader = true,
     isNested = false,
     node = nil,
     tabs = 0,
@@ -82,7 +81,8 @@ FunctionFileGenerator = {
             self:write(self.classPrefix)
             self:write(' ')
         end
-        self:writeFunctionOverloadDefinition(self.node, self.ownedByClass);
+        self:writeFunctionOverloadDefinition(self.node, self.ownedByClass,
+            false, true);
         self:writeFunctionHeaderBody(self.fo, false);
         if self.insertIntoNamespaces then
             self:namespaceEnd(self.functionNode.Node);
@@ -125,7 +125,7 @@ FunctionFileGenerator = {
         self:write(self.functionNode.Name);
 
         self:write("(");
-        self:writeArgumentList(self.node);
+        self:writeArgumentList(self.node, false);
         self:write(")");
 
         if (self.fo.Const) then

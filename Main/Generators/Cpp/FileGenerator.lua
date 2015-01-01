@@ -181,7 +181,11 @@ FileGenerator = {
     end,
 
     -- Given the Node of a Function, writes the argument list.
-    writeArgumentList = function(self, node)
+    writeArgumentList = function(self, node, writeDefaultArgs)
+        writeDefaultArgs = writeDefaultArgs
+        if (nil == writeDefaultArgs) then
+            writeDefaultArgs = self.isHeader
+        end
         local seenOne = false;
         local args = node.Element.Arguments
         for i = 1, #args do
@@ -195,7 +199,7 @@ FileGenerator = {
                 self:writeType(c.Member.Type);
                 self:write(" ");
                 self:write(c.Name);
-                if (self.isHeader and c.Member.Initializer ~= "") then
+                if (writeDefaultArgs and c.Member.Initializer ~= "") then
                     self:write(" = ");
                     self:write(c.Member.Initializer);
                 end
@@ -330,7 +334,7 @@ FileGenerator = {
     --[[ Writes a function overload definition, not including the Class name
          before the function name. ]]--
     writeFunctionOverloadDefinition = function(self, foNode,
-		calledFromClassWriter, calledForFriendDefinition)
+		calledFromClassWriter, calledForFriendDefinition, writeDefaultArgs)
 		-- foNode - the FunctionOverload node
 		-- calledFromClassWriter
 		-- calledForFriendDefinition - If true, then write the entire
@@ -358,7 +362,7 @@ FileGenerator = {
         else
             self:write(" (::" .. foNode.Node.FullName .. ") (");
         end
-        self:writeArgumentList(foNode);
+        self:writeArgumentList(foNode, writeDefaultArgs);
         self:write(")");
         if (func.Const) then
             self:write(" const");
