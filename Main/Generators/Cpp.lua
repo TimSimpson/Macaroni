@@ -140,8 +140,8 @@ function Generate(library, path)
     else
     -- New mode- Assume units have been created. Write files per unit.
         local rootGenPath = Path.New(path.AbsolutePath)
-        local ufGen = UnitFileGenerator.new(library);
-        ufGen:iterateUnits(library, rootGenPath);
+        local libGen = LibraryTargetGenerator.new(library);
+        libGen:IterateUnits(library, rootGenPath);
     end
 
     -- Write a centralized header file which can set macros for build options.

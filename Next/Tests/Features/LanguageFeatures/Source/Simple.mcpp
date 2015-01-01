@@ -1,13 +1,15 @@
 ~import std::string;
-~import std::cin;
+~import std::cout;
 
-// One day, I could introduce the "module" keyword to deal with this.
-// But ain't doing it now!
+~unit "Simple" type=exe;
+
+//TODO: Don't resort to a block here!
+~block "cpp" {}  // This is a work around to do the imports correctly...
 
 void SayHello(const string & greetingMessage)
 {
-	cin << "Hello. This is my greeting for you!\n";
-	cin << greetingMessage;
+	cout << "Hello. This is my greeting for you!\n";
+	cout << greetingMessage;
 }
 
 int main()

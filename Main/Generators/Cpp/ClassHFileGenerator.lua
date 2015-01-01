@@ -3,6 +3,7 @@ require "Macaroni.Model.Block";
 require "Cpp/Common";
 require "Cpp/ClassFileGenerator";
 require "Macaroni.Model.FileName";
+local FunctionGenerator = require "Cpp/FunctionFileGenerator";
 require "Macaroni.Model.Reason";
 require "Macaroni.Model.Cpp.ClassParent";
 require "Macaroni.Model.Cpp.ClassParentList";
@@ -11,6 +12,7 @@ require "Macaroni.Model.Source";
 
 local Access = require "Macaroni.Model.Cpp.Access";
 local Context = require "Macaroni.Model.Context";
+local FunctionHFileGenerator = FunctionGenerator.FunctionHFileGenerator
 local Node = require "Macaroni.Model.Node";
 local TypeNames = Macaroni.Model.TypeNames;
 
@@ -41,10 +43,6 @@ ClassHFileGenerator = {
         return args;
     end,
 
-
-    addTabs = function(self, tabCount)
-        self.tabs = self.tabs + tabCount;
-    end,
 
     classBegin = function(self)
 		self:writeAfterTabs("// Define class " .. self.node.Name .. "\n");
@@ -180,15 +178,6 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         end
     end,
 
-    getGuardName = function(self)
-        local guardName = "MACARONI_COMPILE_GUARD_" .. self.node:GetPrettyFullName("_") .. "_H";
-        return guardName;
-    end,
-
-    getNodeAlias = function(self, node)
-        return node.FullName;
-    end,
-
     includeStatements = function(self)
 		local section = DependencySection.new();
         section:add(self.node);
@@ -206,12 +195,6 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
 				self:write(NodeInfoList[s.node].useHeavyDef(self.targetLibrary));
             end
         end
-
-        --[[local statements = IncludeFiles.getHFileIncludeStatementsForNode(self.node);
-        self.writer:write("/* ~ Includes ~ */\n");
-        for i = 1, #statements do
-            self.writer:write(statements[i]);
-        end ]]--
     end,
 
     -- Entry function.
@@ -304,7 +287,7 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         self:writeArgumentList(node);
         self:write(")");
         self:writeFunctionExceptionSpecifier(node.Member);
-        self:writeFunctionBody(node.Member, true);
+        self:writeFunctionHeaderBody(node.Member, true);
     end,
 
     ["parse" .. TypeNames.Destructor] = function(self, node)
@@ -322,7 +305,7 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         self:writeArgumentList(overload);
         self:write(")");
         self:writeFunctionExceptionSpecifier(overload.Member);
-        self:writeFunctionBody(overload.Member, false);
+        self:writeFunctionHeaderBody(overload.Member, false);
     end,
 
     ["parse" .. TypeNames.Function] = function(self, node, insertIntoNamespaces)
@@ -340,30 +323,29 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
 
     ["parse".. TypeNames.FunctionOverload] = function(self, node,
                                                       insertIntoNamespaces)
-		if insertIntoNamespaces then
-			self:namespaceBegin(node.Node.Node);
-		end
-		local ownedByClass = (node.Node.Node == self.node)
-    	if (ownedByClass) then
-    		if not self.internalDef then
-    			if (not node.Member.Access.VisibleInHeader) then
-    				return
-    			end
-    		end
-    		self:writeTabs();
-            self:writeAccess(node.Member.Access);
-            if (node.Member.Virtual) then
-    			self:write("virtual ");
-    		end
-        else
-			self:writeTabs();
-        end
-        self:writeFunctionOverloadDefinition(node, ownedByClass);
+        local args = {
+            node = node,
+            targetLibrary=self.targetLibrary,
+            writer = self.writer,
+            insertIntoNamespaces=insertIntoNamespaces,
+            livesWithClass = true
+        };
 
-        self:writeFunctionBody(node.Member, false);
-		if insertIntoNamespaces then
-			self:namespaceEnd(node.Node.Node);
-		end
+        args.ownedByClass = (node.Node.Node == self.node)
+        if args.ownedByClass then
+            if ((not self.internalDef)
+                and (not node.Member.Access.VisibleInHeader)) then
+                return
+            end
+            args.classPrefix = self:writeAccessToString(node.Member.Access)
+            if (node.Member.Virtual) then
+                args.classPrefix = args.classPrefix .. "virtual";
+            end
+        end
+
+        local gen = FunctionFileGenerator.new(args);
+        gen:addTabs(self.tabs);
+        gen:WriteHeaderDefinition()
 	end,
 
     parseMember = function(self, node, insertIntoNamespaces)
@@ -420,32 +402,18 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
     end,
 
     writeAccess = function(self, access)
-		local text = access.CppKeyword
-		while #text < 10 do
-			text = text .. ' ';
-		end
-		text = text .. ': ';
-		self:write(text);
+		self:write(self:writeAccessToString(access));
     end,
 
-    writeFunctionBody = function(self, element, isCtor)
-        if element.IsPureVirtual == true then
-            self:write(" = 0;\n");
-        elseif element.UsesDefault == true then
-            self:write(" = default;\n");
-        elseif element.IsDeleted == true then
-            self:write(" = delete;\n");
-        elseif (not element.Inline) then
-            self:write(";\n");
-        else
-            if (isCtor) then
-                self:writeConstructorAssignments(element.Assignments);
-            end
-            self:write("\n");
-            self:writeTabs();
-            self:writeFunctionCodeBlock(element);
+    writeAccessToString = function(self, access)
+        local text = access.CppKeyword
+        while #text < 10 do
+            text = text .. ' ';
         end
+        text = text .. ': ';
+        return text
     end,
+
 };
 
 Util.linkToSubClass(FileGenerator, ClassHFileGenerator);

@@ -17,12 +17,14 @@ require "Macaroni.Model.Cpp.Access";
 require "Cpp/Common";
 require "Cpp/ClassFileGenerator";
 require "Cpp/ClassHFileGenerator";
+local FunctionGenerator = require "Cpp/FunctionFileGenerator";
 require "Cpp/NodeInfo"
 require "Cpp/DependencySection";
 require "Cpp/LibraryConfigGenerator";
 
 local Access = require "Macaroni.Model.Cpp.Access";
 local Context = require "Macaroni.Model.Context";
+local FunctionCppFileGenerator = FunctionGenerator.FunctionCppFileGenerator
 local Node = require "Macaroni.Model.Node";
 local TypeNames = Macaroni.Model.TypeNames;
 
@@ -371,71 +373,28 @@ ClassCppFileGenerator = {
 
 	["parse" .. TypeNames.FunctionOverload] = function(self, node,
 	                                                   insertIntoNamespaces)
-        if MACARONI_VERSION ~= "0.2.3" then
-            if (not node.Member.RequiresCppFile) then
-                return;
-            end
-        else -- START LEGACY STUFF
-            if (node.Member.Inline or node.Member.IsPureVirtual) then
-                self:write("//~<(Skipping inline constructor.)\n");
-                return;
-            end
-            if (not node.Member.HasCodeBlock) then
-                self:write('//~<(Skipping constructor with no code block "' .. node.FullName .. '")\n');
-                return;
-            end
-        end -- END LEGACY STUFF
+        local args = {
+            node = node,
+            targetLibrary=self.targetLibrary,
+            writer = self.writer,
+            insertIntoNamespaces=insertIntoNamespaces,
+            livesWithClass = true,
+            isNested=isNested,
+            ownedByClass=true,
+        };
 
-        if insertIntoNamespaces then
-			self:namespaceBegin(node.Node.Node);
-		end
-        if node.Member.Access.VisibleInLibrary and self.libDecl then
-			self:writeTabs();
-			self:write(self.libDecl .. "\n");
-		end
-        self:writeTabs();
-        local func = node.Member;
-        self:writeType(func.ReturnType, not insertIntoNamespaces);
-        self:write(" ");
+        -- Add the class prefix if necessary.
         if (not self:isFunctionOverloadNodeGlobal(node)) then
+            args.classPrefix = ""
             if self.isNested then -- Qualify child class via parent name.
-                self:write(self.parent.Name .. "::");
+                args.classPrefix = self.parent.Name .. "::"
             end
-            self:write(self.node.Name .. "::" .. node.Node.Name);
-        else
-            self:write(node.Node.Name);
+            args.classPrefix = args.classPrefix .. self.node.Name .. "::";
         end
-        self:write("(");
-        self:writeArgumentList(node);
-        self:write(")");
-        if (func.Const) then
-            self:write(" const");
-        end
-        if MACARONI_VERSION ~= "0.1.0.27" then
-            if (func.ExceptionSpecifier) then
-                self:write(" " .. func.ExceptionSpecifier);
-            end
-        else
-            if (func.ThrowSpecifier) then
-                self:write(" throw()");
-            end
-        end
-        self:write("\n");
 
-        --self:writeTabs();
-        --self:write("{\n");
-        --self:addTabs(1);
-        --
-        --self:writeTabs();
-        --self:write(node.Member.CodeBlock .. "\n");
-        --
-        --self:addTabs(-1);
-        --self:writeTabs();
-        --self:write("}\n");
-        self:writeFunctionCodeBlock(node.Member);
-        if insertIntoNamespaces then
-			self:namespaceEnd(node.Node.Node);
-		end
+        local gen = FunctionFileGenerator.new(args);
+        gen:addTabs(self.tabs);
+        gen:WriteCppDefinition()
     end,
 
     parseMember = function(self, node, insertIntoNamespaces)
@@ -514,14 +473,6 @@ ClassCppFileGenerator = {
     writeInclude = function(self, import)
         local statement = IncludeFiles.createStatementForNode(import);
         if (statement ~= nil) then self:write(statement); end
-    end,
-
-    writeType = function(self, type, attemptShortName)
-        check(self ~= nil, "Member method called without instance.");
-        check(type ~= nil, 'Argument 2 "type" can not be null.');
-        local typeUtil = TypeUtil.new();
-        local str = typeUtil:createTypeDefinition(type, attemptShortName);
-        self:write(str);
     end,
 
     writePrivateHeader = function(self)

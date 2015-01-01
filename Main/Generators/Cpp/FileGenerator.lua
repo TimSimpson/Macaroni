@@ -21,12 +21,6 @@ local Node = require "Macaroni.Model.Node";
 local TypeNames = Macaroni.Model.TypeNames;
 
 
-writerInfo = {}
-writerInfoMetaTable = {}
-setmetatable(writerInfo, writerInfoMetaTable)
-writerInfoMetaTable.__mode = "k"
-
-
 FileGenerator = {
     addTabs = function(self, tabCount)
         self.tabs = self.tabs + tabCount;
@@ -56,23 +50,17 @@ FileGenerator = {
         end
     end,
 
+    getGuardName = function(self)
+        local guardName = "MACARONI_COMPILE_GUARD_" .. self.node:GetPrettyFullName("_") .. "_H";
+        return guardName;
+    end,
+
     getNodeAlias = function(self, node) -- The Alias of a Node for this kind of file.
         return node.FullName;
     end,
 
     includeConfigFile = function(self)
-        local wrotePragma = writerInfo[self.writer]
-        if (not wrotePragma and
-            BoostConfigIsAvailable(self.targetLibrary)) then
-            self:write('\n');
-            self:writeAfterTabs("#include <"
-                       .. LibraryConfigFile(self.targetLibrary)
-                       .. ">\n");
-            self:writeAfterTabs("#ifdef BOOST_HAS_PRAGMA_ONCE\n")
-            self:writeAfterTabs("    #pragma once\n")
-            self:writeAfterTabs("#endif\n\n")
-            writerInfo[self.writer] = true
-        end
+        WriteLibraryConfigFileInclude(self.targetLibrary, self.writer)
     end,
 
     includeGuardFooter = function(self)
@@ -275,6 +263,26 @@ FileGenerator = {
         end
     end,
 
+    writeFunctionHeaderBody = function(self, element, isCtor)
+        -- The function body as it is seen (or not seen) in the header.
+        if element.IsPureVirtual == true then
+            self:write(" = 0;\n");
+        elseif element.UsesDefault == true then
+            self:write(" = default;\n");
+        elseif element.IsDeleted == true then
+            self:write(" = delete;\n");
+        elseif (not element.Inline) then
+            self:write(";\n");
+        else
+            if (isCtor) then
+                self:writeConstructorAssignments(element.Assignments);
+            end
+            self:write("\n");
+            self:writeTabs();
+            self:writeFunctionCodeBlock(element);
+        end
+    end,
+
     writeFunctionExceptionSpecifier = function(self, element)
         if MACARONI_VERSION ~= "0.1.0.27" then
             if (element.ExceptionSpecifier) then
@@ -358,11 +366,12 @@ FileGenerator = {
         self:writeFunctionExceptionSpecifier(func)
     end,
 
-    writeType = function(self, type)
+    writeType = function(self, type, attemptShortNameArg)
         check(self ~= nil, "Member method called without instance.");
         check(type ~= nil, 'Argument 2 "type" can not be null.');
+        attemptShortNameArg = attemptShortNameArg or self.attemptShortName
         local typeUtil = TypeUtil.new();
-        local str = typeUtil:createTypeDefinition(type, self.attemptShortName);
+        local str = typeUtil:createTypeDefinition(type, attemptShortNameArg);
         self:write(str);
     end,
 

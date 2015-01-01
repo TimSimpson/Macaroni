@@ -4,7 +4,7 @@
 
 ~namespace og;
 
-void hi() {
+public void hi() {
     int five = 5;
 }
 

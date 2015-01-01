@@ -4,6 +4,8 @@ require "Plugin"
 
 _BoostConfigIsAvailable = nil
 
+
+
 BoostConfigIsAvailable = function(library) -- context)
 	-- The thinking here is that if anything from boost is defined then the
 	-- headers should be on the path and we can safely assume boost/config is
@@ -26,6 +28,27 @@ LibraryConfigFile = function(library)
 		return "Config_" ..
 			(library.ShortName or library:GetVersionFreeCId()) .. ".h";
 	end
+end
+
+-- Keeps us from writing pragma stuff too many times...
+local writerInfo = {}
+local writerInfoMetaTable = {}
+setmetatable(writerInfo, writerInfoMetaTable)
+writerInfoMetaTable.__mode = "k"
+
+
+WriteLibraryConfigFileInclude = function(targetLibrary, writer)
+	local wrotePragma = writerInfo[writer]
+    if (not wrotePragma and
+        BoostConfigIsAvailable(targetLibrary)) then
+        writer:WriteLine("\n#include <"
+                   .. LibraryConfigFile(targetLibrary)
+                   .. ">");
+        writer:WriteLine("#ifdef BOOST_HAS_PRAGMA_ONCE")
+        writer:WriteLine("    #pragma once")
+        writer:WriteLine("#endif\n")
+        writerInfo[writer] = true
+    end
 end
 
 LibraryPchFile = function(library)

@@ -8,8 +8,8 @@ namespace Macaroni::Tests::ConstsTests
 	{
 		private int feet;
 
-		public Cat() 
-			: feet(4) 
+		public Cat()
+			: feet(4)
 		{
 		}
 
@@ -25,7 +25,7 @@ namespace Macaroni::Tests::ConstsTests
 
 		public Dog(const Cat & cat)
 			:cat(cat)
-		{					
+		{
 		}
 
 		public int GetCatFeet() const
@@ -35,10 +35,16 @@ namespace Macaroni::Tests::ConstsTests
 
 	};
 
-	public void TestMain() 
+	~unit TestMain
 	{
-		Cat cat;
-		Dog dog(cat);
-		dog.GetCatFeet();
+		~import Macaroni::Tests::ConstsTests::Cat;
+		~import Macaroni::Tests::ConstsTests::Dog;
+		~block "cpp" {} // Just to get imports to work. For now...
+		public void TestMain()
+		{
+			Cat cat;
+			Dog dog(cat);
+			dog.GetCatFeet();
+		}
 	}
 }
