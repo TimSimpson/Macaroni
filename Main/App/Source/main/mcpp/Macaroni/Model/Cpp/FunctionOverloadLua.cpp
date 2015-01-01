@@ -258,8 +258,8 @@ int FunctionOverloadLuaMetaData::Index(lua_State * L,
 		lua_pushboolean(L, ptr->IsVirtual());
 		return 1;
 	}
-	ElementPtr ePtr = ptr;
-	return ElementLuaMetaData::Index(L, ePtr, index);
+	lua_pushnil(L);
+	return 1;
 }
 
 
