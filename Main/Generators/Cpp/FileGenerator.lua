@@ -370,6 +370,15 @@ FileGenerator = {
         self:writeFunctionExceptionSpecifier(func)
     end,
 
+    writeImplementationInclude = function(self, import)
+        local statement = IncludeFiles.createStatementForNode(import);
+        if (statement ~= nil) then self:write(statement); end
+    end,
+
+    writeUsing = function(self, import)
+        self:write(NodeInfoList[import].using);
+    end,
+
     writeType = function(self, type, attemptShortNameArg)
         check(self ~= nil, "Member method called without instance.");
         check(type ~= nil, 'Argument 2 "type" can not be null.');

@@ -55,8 +55,11 @@ Destructor::Destructor(Node * home, Model::ReasonPtr reason, bool isInline,
 :Function(home, reason)
 {
 	Macaroni::Model::Project::TargetPtr none;
-	FunctionOverload::Create(none, this, isInline, access, false, isVirtual,
-		                     voidType(), false, exceptionSpecifier, reason);
+	FunctionOverload::Create(
+		none, FunctionOverload::CreateNewFunctionOverloadNode(this),
+		isInline, access, false, isVirtual,
+		voidType(), false, exceptionSpecifier, reason,
+		boost::none);
 }
 
 Destructor::~Destructor()

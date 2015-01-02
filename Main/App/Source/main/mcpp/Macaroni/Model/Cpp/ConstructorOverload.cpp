@@ -57,7 +57,8 @@ ConstructorOverload::ConstructorOverload(Node * home, Model::ReasonPtr reason,
 										 bool isExplicit,
 				   const boost::optional<ExceptionSpecifier> exceptionSpecifier)
 :FunctionOverload(nullptr, home, reason, isInline, access, true,
-				  false, voidTypeInfo(home), false, exceptionSpecifier),
+				  false, voidTypeInfo(home), false, exceptionSpecifier,
+				  boost::none),
  assignments(),
  isExplicit(isExplicit)
 {

@@ -38,23 +38,19 @@ friend void intrusive_ptr_add_ref(FunctionOverload * p);
 friend void intrusive_ptr_release(FunctionOverload * p);
 
 public:
-	static FunctionOverloadPtr Create(Macaroni::Model::Project::TargetPtr target,
-		                              NodePtr home, bool isInline,
-									  const AccessPtr access,
-									  const bool isStatic, bool isVirtual,
-									  const TypePtr rtnType,
-									  bool constMember,
-					const boost::optional<ExceptionSpecifier> exceptionSpecifier,
-									  Model::ReasonPtr reason);
+	static FunctionOverloadPtr Create(
+		Macaroni::Model::Project::TargetPtr target,
+		NodePtr home, bool isInline,
+		const AccessPtr access,
+		const bool isStatic, bool isVirtual,
+		const TypePtr rtnType,
+		bool constMember,
+		const boost::optional<ExceptionSpecifier> exceptionSpecifier,
+		Model::ReasonPtr reason,
+		boost::optional<Macaroni::Model::NodeListPtr> imports=boost::none
+	);
 
-	static FunctionOverloadPtr Create(Macaroni::Model::Project::TargetPtr target,
-		                              FunctionPtr home, bool isInline,
-									  const AccessPtr access,
-									  const bool isStatic, bool isVirtual,
-									  const TypePtr rtnType,
-									  bool constMember,
-				const boost::optional<ExceptionSpecifier> exceptionSpecifier,
-									  Model::ReasonPtr reason);
+	static NodePtr CreateNewFunctionOverloadNode(FunctionPtr home);
 
 	virtual ~FunctionOverload();
 
@@ -63,6 +59,8 @@ public:
 	Model::NodeListPtr GetArguments() const;
 
 	const std::string & GetCodeBlock() const;
+
+	NodeListPtr GetImportedNodes() const;
 
 	inline bool CodeBlockShouldAddRedirect() const
 	{
@@ -151,7 +149,8 @@ protected:
 		Node * home, Model::ReasonPtr reason,
 		bool isInline, Access access, const bool isStatic, bool isVirtual,
 		const TypePtr rtnTypeInfo, bool constMember,
-		const boost::optional<ExceptionSpecifier> exceptionSpecifier);
+		const boost::optional<ExceptionSpecifier> exceptionSpecifier,
+		boost::optional<Macaroni::Model::NodeListPtr> imports);
 
 private:
 
@@ -164,6 +163,8 @@ private:
 	bool constMember;
 
 	const boost::optional<ExceptionSpecifier> exceptionSpecifier;
+
+	boost::optional<Macaroni::Model::NakedNodeList> imports;
 
 	const bool isInline;
 

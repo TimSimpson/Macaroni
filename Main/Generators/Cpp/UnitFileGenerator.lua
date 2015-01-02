@@ -67,49 +67,13 @@ FileWriters = {
     end,
 
     FunctionOverload = function(library, node, writer, type)
-        return {
-            WriteHeaderDefinitions = function(self)
-                local gen = FunctionFileGenerator.new{
-                    node = node,
-                    targetLibrary=library,
-                    writer=writer,
-                    insertIntoNamespaces=true,
-                    ownedByClass=false,
-                    classPrefix=nil,
-                };
-                gen:WriteIncludeStatements()  --TODO: Move this all to the same part!
-                gen:WriteHeaderDefinition();
-                writer:Write('\n');
-            end,
-            WriteImplementation = function(self)
-                local gen = FunctionFileGenerator.new{
-                    node = node,
-                    targetLibrary=library,
-                    writer=writer,
-                    insertIntoNamespaces=true,
-                    ownedByClass=false,
-                    classPrefix=nil,
-                };
-                gen:WriteIncludeStatements()  --TODO: Move this all to the same part!
-                    -- TODO: Don't call this- actually write the definition, which
-                    --       may do this. :)
-
-                gen:WriteCppDefinition();
-                writer:Write('\n');
-            end,
-            WriteTopBlocks = function(self)
-            end,
-            WriteBottomBlocks = function(self)
-            end,
-            WriteIncludeStatements = function(self)
-            end,
-            WriteImplementationIncludeStatements = function(self)
-            end,
-            WriteUsingStatements = function(self)
-            end,
-            WritePreDefinitionBlocks = function(self)
-            end,
-        }
+        return FunctionFileGenerator.new{
+                node = node, targetLibrary=library, writer=writer,
+                fileType = type,
+                insertIntoNamespaces=true,
+                ownedByClass=false,
+                classPrefix=nil,
+        };
     end,
 
     Typedef = function(library, node, writer, type)

@@ -371,6 +371,7 @@ ClassCppFileGenerator = {
             livesWithClass = true,
             isNested=isNested,
             ownedByClass=true,
+            fileType="Cpp",
         };
 
         -- Add the class prefix if necessary.
@@ -384,7 +385,7 @@ ClassCppFileGenerator = {
 
         local gen = FunctionFileGenerator.new(args);
         gen:addTabs(self.tabs);
-        gen:WriteCppDefinition()
+        gen:WriteImplementation()
     end,
 
     parseMember = function(self, node, insertIntoNamespaces)
@@ -505,16 +506,11 @@ ClassCppFileGenerator = {
         for i = 1, #imports do
             local import = imports[i];
             if (import.Member ~= nil) then
-                self:writeInclude(import);
+                self:writeImplementationInclude(import);
             else
                 self:write('// Skipping hollow imported node "' .. import.FullName .. '"' .. "   \n");
             end
         end
-    end,
-
-    writeInclude = function(self, import)
-        local statement = IncludeFiles.createStatementForNode(import);
-        if (statement ~= nil) then self:write(statement); end
     end,
 
     WritePreDefinitionBlocks = function(self)
@@ -539,10 +535,6 @@ ClassCppFileGenerator = {
 
     WriteTopBlocks = function(self)
         self:classTopBlocks();
-    end,
-
-    writeUsing = function(self, import)
-        self:write(NodeInfoList[import].using);
     end,
 
     WriteUsingStatements = function(self)

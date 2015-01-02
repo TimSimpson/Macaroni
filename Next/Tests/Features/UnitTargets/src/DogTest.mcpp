@@ -2,21 +2,18 @@
     type=test
 ;
 
-//TODO:
 ~import std::cout;
 ~import og::Dog;
 ~import og::Frog;
 
-~block "cpp"
+public int main()
 {
-    int main(const char * * args, int argc)
-    {
-        std::cout << "HELLO DOGGY.";
-        Dog dog;
-        std::cout << "Dogs have " << dog.GetLegs() << " leg(s)." << std::endl;
-        Frog frog(4);
-        std::cout << "Never forget these mystical words:\""
-                  << frog.saying() << "\"." << std::endl;
-        return 0;
-    }
+    std::cout << "HELLO DOGGY.";
+    Dog dog;
+    std::cout << "Dogs have " << dog.GetLegs() << " leg(s)." << std::endl;
+    Frog frog(4);
+    std::cout << "Never forget these mystical words:\""
+              << frog.saying() << "\"." << std::endl;
+    return 0;
 }
+

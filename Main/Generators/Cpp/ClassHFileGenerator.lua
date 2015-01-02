@@ -331,8 +331,13 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
             targetLibrary=self.targetLibrary,
             writer = self.writer,
             insertIntoNamespaces=insertIntoNamespaces,
-            livesWithClass = true
+            livesWithClass = true,
         };
+        if self.internalDef then
+            args.fileType = "Cpp"
+        else
+            args.fileType = "H"
+        end
 
         args.ownedByClass = (node.Node.Node == self.node)
         if args.ownedByClass then
@@ -348,7 +353,7 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
 
         local gen = FunctionFileGenerator.new(args);
         gen:addTabs(self.tabs);
-        gen:WriteHeaderDefinition()
+        gen:WriteHeaderDefinitions()
 	end,
 
     parseMember = function(self, node, insertIntoNamespaces)

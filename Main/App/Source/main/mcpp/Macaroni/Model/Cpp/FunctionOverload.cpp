@@ -25,6 +25,7 @@
 #include <Macaroni/Model/Cpp/Variable.h>
 
 using Macaroni::Model::ModelInconsistencyException;
+using Macaroni::Model::NakedNodeList;
 using boost::optional;
 using Macaroni::Model::Project::Target;
 using Macaroni::Model::Project::TargetPtr;
@@ -37,13 +38,15 @@ FunctionOverload::FunctionOverload
  Node * home, Model::ReasonPtr reason, bool isInline,
  Access access, const bool isStatic, bool isVirtual,
  const TypePtr rtnTypeInfo, bool constMember,
- const optional<ExceptionSpecifier> exceptionSpecifier
+ const optional<ExceptionSpecifier> exceptionSpecifier,
+ optional<NodeListPtr> importedNodes=boost::none
 )
 :Scope(target, home, reason, access, isStatic),
  codeBlock(),
  codeBlockAddRedirect(false),
  constMember(constMember),
  codeSource(),
+ imports(),
  isInline(isInline),
  isPureVirtual(false),
  isVirtual(isVirtual),
@@ -52,43 +55,45 @@ FunctionOverload::FunctionOverload
  usesDefaultKeyword(false),
  usesDeleteKeyword(false)
 {
+	if (importedNodes)
+	{
+		imports = NakedNodeList{};
+		NodeListPtr & list  = importedNodes.get();
+		for(NodePtr & n : *list)
+		{
+			(imports.get()).push_back(n.get());
+		}
+	}
 }
 
 FunctionOverload::~FunctionOverload()
 {
 }
 
-FunctionOverloadPtr FunctionOverload::Create(TargetPtr target,
-	                                         FunctionPtr home,
-											 bool isInline, const AccessPtr access,
-											 const bool isStatic,
-											 bool isVirtual,
-											 const TypePtr rtnType,
-											 bool constMember,
-						  const optional<ExceptionSpecifier> exceptionSpecifier,
-											 Model::ReasonPtr reason)
-{
-	NodePtr foNode = home->GetNode()->CreateNextInSequence("Overload#");
-	return Create(target, foNode, isInline, access, isStatic, isVirtual,
-		          rtnType, constMember, exceptionSpecifier, reason);
-}
-
-
-FunctionOverloadPtr FunctionOverload::Create(TargetPtr target,
-	                                         NodePtr foNode,
-											 bool isInline, const AccessPtr access,
-											 const bool isStatic,
-											 bool isVirtual,
-											 const TypePtr rtnType,
-											 bool constMember,
-						const optional<ExceptionSpecifier> exceptionSpecifier,
-											 Model::ReasonPtr reason)
+FunctionOverloadPtr FunctionOverload::Create(
+	TargetPtr target,
+	NodePtr foNode,
+	bool isInline, const AccessPtr access,
+	const bool isStatic,
+	bool isVirtual,
+	const TypePtr rtnType,
+	bool constMember,
+	const optional<ExceptionSpecifier> exceptionSpecifier,
+	Model::ReasonPtr reason,
+	optional<Macaroni::Model::NodeListPtr> imports
+)
 {
 	FunctionOverload * fo = new FunctionOverload(target.get(),
 		foNode.get(), reason,
 		isInline, *access,
-		isStatic, isVirtual, rtnType, constMember, exceptionSpecifier);
+		isStatic, isVirtual, rtnType, constMember, exceptionSpecifier, imports);
 	return FunctionOverloadPtr(fo);
+}
+
+NodePtr FunctionOverload::CreateNewFunctionOverloadNode(FunctionPtr home)
+{
+	NodePtr foNode = home->GetNode()->CreateNextInSequence("Overload#");
+	return foNode;
 }
 
 NodeListPtr FunctionOverload::GetArguments() const
@@ -110,6 +115,24 @@ NodeListPtr FunctionOverload::GetArguments() const
 const std::string & FunctionOverload::GetCodeBlock() const
 {
 	return codeBlock;
+}
+
+NodeListPtr FunctionOverload::GetImportedNodes() const
+{
+	if (imports)
+	{
+		NodeListPtr rtnList(new NodeList());
+		const NakedNodeList & list = imports.get();
+		for (::Macaroni::Model::Node * n : list)
+		{
+			rtnList->push_back(NodePtr(n));
+		}
+		return rtnList;
+	}
+	else
+	{
+		return NodeListPtr{};
+	}
 }
 
 const char * FunctionOverload::GetTypeName() const

@@ -23,27 +23,34 @@ FunctionFileGenerator = {
     tabs = 0,
     writer = nil,
 
-    new = function(args)
-        assert(args.node ~= nil);
-        assert(args.targetLibrary ~= nil);
-        args.functionNode = args.node.Node
-        assert(args.functionNode ~= nil);
-        args.fo = args.node.Element
-        assert(args.fo.TypeName == TypeNames.FunctionOverload)
-        if (args.path == nil) then
-            assert(args.writer ~= nil);
-        else
-            --TODO: Somehow calling C++ NewFileWriter() method currently results in entire Lua call from C++ ending.
-            --local writer, errorMsg, errorNumber = io.open(args.path.AbsolutePath, 'w+'); --args.path:NewFileWriter();
-            --if (writer == nil) then
-            --    error(tostring(errorNumber) .. " " .. errorMsg, 2);
-            --end
-            args.writer = args.path:CreateFile();--writer;
-        end
+    new = function(self)
+        assert(self.node ~= nil);
+        assert(self.targetLibrary ~= nil);
+        self.functionNode = self.node.Node
+        assert(self.functionNode ~= nil);
+        self.fo = self.node.Element
+        assert(self.fo.TypeName == TypeNames.FunctionOverload)
+        assert(self.writer ~= nil)
+        assert(self.fileType ~= nil)
+        setmetatable(self, FunctionFileGenerator);
+        self.libDecl = LibraryDecl(self.targetLibrary);
+        return self;
+    end,
 
-        setmetatable(args, FunctionFileGenerator);
-        args.libDecl = LibraryDecl(args.targetLibrary);
-        return args;
+    WriteForwardDeclarations = nil,  -- Only types do this.
+
+    WriteImplementationIncludeStatements = function(self)
+        local imports = self.fo.ImportedNodes;
+        if imports then
+            for i = 1, #imports do
+                local import = imports[i];
+                if (import.Member ~= nil) then
+                    self:writeImplementationInclude(import);
+                else
+                    self:write('// Skipping hollow imported node "' .. import.FullName .. '"' .. "   \n");
+                end
+            end
+        end
     end,
 
     WriteIncludeStatements = function(self)
@@ -63,8 +70,11 @@ FunctionFileGenerator = {
         end
     end,
 
-    -- Entry function.
-    WriteHeaderDefinition = function(self)
+    WriteForwardDeclarationsOfDependencies = function(self)
+        -- TODO: THIS!
+    end,
+
+    WriteHeaderDefinitions = function(self)
         check(self ~= nil, "Instance method called without self.");
         check(self.writer ~= nil, "Instance writer missing.");
 
@@ -89,7 +99,7 @@ FunctionFileGenerator = {
         end
     end,
 
-    WriteCppDefinition = function(self)
+    WriteImplementation = function(self)
         check(self ~= nil, "Instance method called without self.");
 
         if MACARONI_VERSION ~= "0.2.3" then
@@ -146,6 +156,18 @@ FunctionFileGenerator = {
         self:writeFunctionCodeBlock(self.fo);
         if self.insertIntoNamespaces then
             self:namespaceEnd(self.node.Node.Node);
+        end
+    end,
+
+    WritePreDefinitionBlocks = nil,  -- Functions don't own blocks.
+
+    WritePostDefinitionBlocks = nil,  -- Functions don't own blocks.
+
+    WriteUsingStatements = function(self)
+        local imports = self.fo.ImportedNodes;
+        for i = 1, #imports do
+            local import = imports[i];
+            self:writeUsing(import);
         end
     end,
 

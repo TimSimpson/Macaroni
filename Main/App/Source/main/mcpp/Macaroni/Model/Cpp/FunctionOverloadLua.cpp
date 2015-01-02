@@ -112,7 +112,7 @@ namespace
 				ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 10);
 				FunctionOverloadPtr newFO = FunctionOverload::Create(
 					target,
-					home,
+					FunctionOverload::CreateNewFunctionOverloadNode(home),
 					isInline, access,
 					isStatic, isVirtual,
 					rtnType,
@@ -204,6 +204,12 @@ int FunctionOverloadLuaMetaData::Index(lua_State * L,
 	else if (index == "HasCodeBlock")
 	{
 		lua_pushboolean(L, ptr->HasCodeBlock());
+		return 1;
+	}
+	else if (index == "ImportedNodes")
+	{
+		NodeListPtr list = ptr->GetImportedNodes();
+		NodeListLuaMetaData::PutInstanceOnStack(L, list);
 		return 1;
 	}
 	else if (index == "Inline")

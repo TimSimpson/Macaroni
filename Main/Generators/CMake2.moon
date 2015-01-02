@@ -1,4 +1,4 @@
-class Thing
+dfgfdclass Thing
   name: "unknown"
 
 class Person extends Thing

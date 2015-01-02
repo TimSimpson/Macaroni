@@ -3245,16 +3245,20 @@ public:
 			// If we are in a class, don't give this function a target.
 			// Otherwise give it one.
 			TargetPtr tHome;
+			boost::optional<NodeListPtr> imports = boost::none;
 			if (classDepth < 1)
 			{
+				imports = importedNodes;
 				tHome = deduceTargetHome(currentScope);
 			}
+
+
 			FunctionOverloadPtr fOl =
 				FunctionOverload::Create(tHome,
 					                     foNode, isInline, access, isStatic,
 				                         isVirtual, type,
 										 constMember, exceptionSpecifier,
-										 fReason);
+										 fReason, imports);
 
 			defInfo.ApplyToFunction(fOl);
 
