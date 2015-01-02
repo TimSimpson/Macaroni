@@ -82,16 +82,21 @@ class Class : public Scope
 
     private Macaroni::Model::Cpp::ClassParentListPtr parents;
 
+    private Node * templateParameterList;
+
+
     protected Class(Target * target, Node * parent,
                     bool isStruct, Access access,
-                    NodeListPtr importedNodes, ReasonPtr reason)
+                    NodeListPtr importedNodes, ReasonPtr reason,
+                    Node * templateParameterList)
     :   Scope(target, parent, reason),
         access(access),
         friends(new NodeList()),
         globals(new NodeList()),
         imports(importedNodes),
         isStruct(isStruct),
-        parents(new ClassParentList())
+        parents(new ClassParentList()),
+        templateParameterList(templateParameterList)
     {
     }
 
@@ -103,7 +108,8 @@ class Class : public Scope
 
     public static ClassPtr Create(TargetPtr target, NodePtr parent,
                                   bool isStruct, AccessPtr access,
-                                  NodeListPtr importedNodes, ReasonPtr reason)
+                                  NodeListPtr importedNodes, ReasonPtr reason,
+                                  NodePtr templateParameterList=NodePtr{})
     {
         ElementPtr existingMember = parent->GetElement();
         if (!!existingMember)
@@ -121,7 +127,8 @@ class Class : public Scope
             return existingClass;
         }
         ClassPtr other = boost::dynamic_pointer_cast<Class>(existingMember);
-        ClassPtr ptr(new Class(target.get(), parent.get(), isStruct, *access, importedNodes, reason));
+        ClassPtr ptr(new Class(target.get(), parent.get(), isStruct, *access,
+            importedNodes, reason, templateParameterList.get()));
         return ptr;
     }
 
@@ -179,6 +186,12 @@ class Class : public Scope
         return imports;
     }
 
+    public NodePtr GetTemplateParameterList()
+    {
+        NodePtr rtnValue(templateParameterList);
+        return rtnValue;
+    }
+
     public virtual const char * GetTypeName() const
     {
         return "Class";
@@ -192,6 +205,11 @@ class Class : public Scope
     public ~global ~friend void intrusive_ptr_release(Class * p)
     {
         intrusive_ptr_release((ScopeMember *)p);
+    }
+
+    public bool IsInline() const
+    {
+        return nullptr != templateParameterList;
     }
 
     /** Returns true if the given member is an instance of Class. */

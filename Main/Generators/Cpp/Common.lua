@@ -240,6 +240,25 @@ IncludeFiles = {
     end
 }
 
+WriteTemplateParameterList = function(tplOwningElement, writer)
+    local tpl = tplOwningElement.TemplateParameterList;
+    if tpl == nil then
+        return;
+    end
+    writer("template<");
+    local seenOne = false;
+    for i = 1, #tpl.Children do
+        local tn = tpl.Children[i]
+        if tn.TypeName == Macaroni.Model.TypeNames.TemplateTypename then
+            if seenOne then
+                writer(", ");
+            end
+            writer("typename " .. tn.Name);
+        end
+    end
+    writer(">");
+end
+
 TypeUtil = {
     new = function()
         local self = {};

@@ -740,7 +740,7 @@ public:
 
 	// looks for "class [complexName]{}" Ignores whitespace.
 	// Modifies itr argument if match is found.
-	bool Class(Iterator & itr)
+	bool Class(Iterator & itr, NodePtr templateHome=NodePtr{})
 	{
 		Iterator newItr = itr;
 		ConsumeWhitespace(newItr);
@@ -802,8 +802,14 @@ public:
 		TargetPtr tHome = deduceTargetHome(currentScope);
 		newClass = Class::Create(
 			tHome, currentScope, isStruct, access, importedNodes,
-			Reason::Create(CppAxioms::ClassCreation(), newItr.GetSource()));
+			Reason::Create(CppAxioms::ClassCreation(), newItr.GetSource()),
+			templateHome);
 
+		if (templateHome)
+		{
+			// Move the template to their real home...
+			context->LandFloater(currentScope);
+		}
 
 		ClassParents(newItr, newClass);
 
@@ -2682,6 +2688,7 @@ public:
 
 		ConsumeWhitespace(itr);
 		if (! (ConstructorOrDestructor(itr, templateHome)
+			   || Class(itr, templateHome)
 		       || VariableOrFunction(itr, templateHome)))
 		{
 			throw ParserException(itr.GetSource(),

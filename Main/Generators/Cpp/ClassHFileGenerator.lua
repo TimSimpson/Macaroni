@@ -24,38 +24,44 @@ ClassHFileGenerator = {
     tabs = 0,
     writer = nil,
 
-    new = function(args)
-        assert(args.node ~= nil);
-        assert(args.targetLibrary ~= nil);
-        if (args.path == nil) then
-            assert(args.writer ~= nil);
+    new = function(self)
+        assert(self.node ~= nil);
+        assert(self.targetLibrary ~= nil);
+        if (self.path == nil) then
+            assert(self.writer ~= nil);
         else
             --TODO: Somehow calling C++ NewFileWriter() method currently results in entire Lua call from C++ ending.
-            --local writer, errorMsg, errorNumber = io.open(args.path.AbsolutePath, 'w+'); --args.path:NewFileWriter();
+            --local writer, errorMsg, errorNumber = io.open(self.path.AbsolutePath, 'w+'); --self.path:NewFileWriter();
             --if (writer == nil) then
             --    error(tostring(errorNumber) .. " " .. errorMsg, 2);
             --end
-            args.writer = args.path:CreateFile();--writer;
+            self.writer = self.path:CreateFile();--writer;
         end
 
-        setmetatable(args, ClassHFileGenerator);
-        args.libDecl = LibraryDecl(args.targetLibrary);
-        return args;
+        setmetatable(self, ClassHFileGenerator);
+        self.libDecl = LibraryDecl(self.targetLibrary);
+        self.cls = self.node.Member
+        return self;
     end,
 
 
     classBegin = function(self)
 		self:writeAfterTabs("// Define class " .. self.node.Name .. "\n");
-        if self.node.Member.IsStruct then
+
+        self:writeTemplateParameterList(self.cls);
+
+        if self.cls.IsStruct then
             self:writeAfterTabs("struct ")
         else
             self:writeAfterTabs("class ")
         end
-        if self.libDecl then
+        if self.libDecl
+           and self.cls.TemplateParameterList == nil
+        then
 			self:write(self.libDecl .. " ");
         end
         self:write(self.node.Name .. "\n");
-        parents = self.node.Member.Parents
+        parents = self.cls.Parents
 		if #parents > 0 then
 			self:classParents(parents)
 		end
@@ -129,10 +135,10 @@ ClassHFileGenerator = {
     end,
 
     classPublicGlobals = function(self)
-        assert(self.node.Member ~= nil
+        assert(self.cls ~= nil
                and
-               self.node.Member.TypeName == TypeNames.Class);
-        local globals = self.node.Member.GlobalNodes;
+               self.cls.TypeName == TypeNames.Class);
+        local globals = self.cls.GlobalNodes;
         if CPP_GENERATE_VERBOSE then
 			self:writeAfterTabs("/* Public Global Members */\n");
 		end
@@ -140,10 +146,10 @@ ClassHFileGenerator = {
     end,
 
     classFriends = function(self)
-        assert(self.node.Member ~= nil
+        assert(self.cls ~= nil
                and
-               self.node.Member.TypeName == TypeNames.Class);
-        local friends = self.node.Member.FriendNodes;
+               self.cls.TypeName == TypeNames.Class);
+        local friends = self.cls.FriendNodes;
         for i=1, #friends do
             friend = friends[i];
             if (friend.Member ~= nil
@@ -180,7 +186,7 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
     includeStatements = function(self)
 		local section = DependencySection.new();
         section:add(self.node);
-        local globals = self.node.Member.GlobalNodes;
+        local globals = self.cls.GlobalNodes;
         for i = 1, #globals do
 			section:add(globals[i]);
         end
@@ -189,9 +195,9 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         for i = 1, #section.list do
             local s = section.list[i];
             if (s.heavy == false) then
-				self:write(NodeInfoList[s.node].useLightDef(self.targetLibrary));
+                self:write(NodeInfoList[s.node].useLightDef(self.targetLibrary));
             else
-				self:write(NodeInfoList[s.node].useHeavyDef(self.targetLibrary));
+                self:write(NodeInfoList[s.node].useHeavyDef(self.targetLibrary));
             end
         end
     end,
@@ -211,7 +217,7 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
             end
         end
 
-        local reason = self.node.Member.ReasonCreated;
+        local reason = self.cls.ReasonCreated;
         local src = reason.Source;
 
         self:writeAfterTabs("// This class was originally defined in " .. tostring(src.FileName) .. "\n");
@@ -222,13 +228,14 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
 
         self:writeAfterTabs("// Forward declaration necessary for anything which also depends on this.\n");
 
-        if (not self.isNested) then
-            self:namespaceBegin(self.node.Node);
-        end
-        self:writeAfterTabs("class " .. self.node.Name .. ";\n");
-        if (not self.isNested) then
-            self:namespaceEnd(self.node.Node);
-        end
+        self:write(NodeInfoList[self.node].useLightDefNoNs(self.targetLibrary))
+        -- if (not self.isNested) then
+        --     self:namespaceBegin(self.node.Node);
+        -- end
+        -- self:writeAfterTabs("class " .. self.node.Name .. ";\n");
+        -- if (not self.isNested) then
+        --     self:namespaceEnd(self.node.Node);
+        -- end
         self:writeAfterTabs("\n");
 
         if (not self.isNested) then

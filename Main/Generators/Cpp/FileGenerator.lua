@@ -387,22 +387,9 @@ FileGenerator = {
     end,
 
     writeTemplateParameterList = function(self, tplOwningElement)
-        local tpl = tplOwningElement.TemplateParameterList;
-        if tpl == nil then
-            return;
-        end
-        self:write("template<");
-        local seenOne = false;
-        for i = 1, #tpl.Children do
-            local tn = tpl.Children[i]
-            if tn.TypeName == TypeNames.TemplateTypename then
-                if seenOne then
-                    self:write(", ");
-                end
-                self:write("typename " .. tn.Name);
-            end
-        end
-        self:write(">\n");
+        WriteTemplateParameterList(tplOwningElement,
+                                   function(arg) self:write(arg) end);
+        self:write("\n");
         self:writeTabs();
     end,
 

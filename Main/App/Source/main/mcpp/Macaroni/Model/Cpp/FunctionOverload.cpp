@@ -16,6 +16,8 @@
 #ifndef MACARONI_MODEL_CPP_FUNCTIONOVERLOAD_CPP
 #define MACARONI_MODEL_CPP_FUNCTIONOVERLOAD_CPP
 
+#include <Macaroni/Model/Cpp/Class.h>
+#include <Macaroni/Model/Cpp/ClassPtr.h>
 #include "FunctionOverload.h"
 #include <boost/format.hpp>
 #include <Macaroni/Model/ModelInconsistencyException.h>
@@ -31,6 +33,19 @@ using Macaroni::Model::Project::Target;
 using Macaroni::Model::Project::TargetPtr;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
+
+namespace
+{
+	bool isInTemplateClass(Node & node)
+	{
+		MACARONI_ASSERT(node.GetNode(), "Must have function Node as parent.");
+		MACARONI_ASSERT(node.GetNode()->GetNode(),
+			            "Function node must live somewhere.");
+		ClassPtr cls = node.GetNode()->GetNode()->GetElement<ClassPtr>();
+		return (cls && cls->GetTemplateParameterList());
+	}
+}
+
 
 FunctionOverload::FunctionOverload
 (
@@ -50,6 +65,7 @@ FunctionOverload::FunctionOverload
  imports(),
  isInline(isInline),
  isPureVirtual(false),
+ isTemplateClassMethod(isInTemplateClass(*home)),
  isVirtual(isVirtual),
  returnType(rtnTypeInfo),
  exceptionSpecifier(exceptionSpecifier),
@@ -166,7 +182,8 @@ void intrusive_ptr_release(FunctionOverload * p)
 
 bool FunctionOverload::IsInline() const
 {
-	return isInline || nullptr != templateParameterList;
+	return isInline || nullptr != templateParameterList
+		|| isTemplateClassMethod;
 }
 
 bool FunctionOverload::RequiresCppFile() const

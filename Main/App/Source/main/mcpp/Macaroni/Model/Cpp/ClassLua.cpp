@@ -116,7 +116,11 @@ END_NAMESPACE
 	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr,
 									  const std::string & index)
 	{
-		if (index == "IsStruct")
+		if (index == "Inline")
+		{
+			lua_pushboolean(L, ptr->IsInline() ? 1 : 0);
+		}
+		else if (index == "IsStruct")
 		{
 			lua_pushboolean(L, ptr->IsStruct() ? 1 : 0);
 		}
@@ -139,6 +143,12 @@ END_NAMESPACE
 		{
 			ClassParentListPtr list = ptr->GetParents();
 			ClassParentListLuaMetaData::PutInstanceOnStack(L, list);
+		}
+		else if (index == "TemplateParameterList")
+		{
+			NodePtr tpl = ptr->GetTemplateParameterList();
+			NodeLuaMetaData::PutInstanceOnStack(L, tpl);
+			return 1;
 		}
 		else
 		{

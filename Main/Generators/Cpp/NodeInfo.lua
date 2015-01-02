@@ -62,7 +62,8 @@ NodeInfo = {
         self.dependencies = self:createDependencyList(self.node);
         self.headerFile = self:createHeaderFile(self.node);
         self._heavyDef = self:createHeavyDef(self.node);
-        self._lightDef, self._lightIsHeavy = self:createLightDef(self.node);
+        self._lightDef, self._lightIsHeavy, self._lightDefNoNs
+            = self:createLightDef(self.node);
         self.using = self:createUsingStatement(self.node);
         self.useHeavyDef = function(target)
             DependencyUseObserver.notify(target, self, true, self._heavyDef)
@@ -72,6 +73,9 @@ NodeInfo = {
             -- Nothing uses this so let's disable it for now.
             DependencyUseObserver.notify(target, self, self._lightIsHeavy, self._lightDef)
             return self._lightDef
+        end
+        self.useLightDefNoNs = function(target)
+            return self._lightDefNoNs;
         end
         return self;
     end,
@@ -196,18 +200,25 @@ NodeInfo = {
         local generateWarning = true;
         if (node.Member ~= nil) then
             if (node.Member.TypeName == TypeNames.Class) then
-				local rtn = '';
-				if not self:isUnderClass(node) then
-					rtn = self:beginNs(node.Node);
-					rtn = rtn ..  'class ' .. node.Name .. ';\n';
-					rtn = rtn .. self:endNs(node.Node);
-				else
-					rtn = "/* ~< I don't know how to make a light definition "
-						.. "for nested class " .. node.FullName .. "!) */";
-				end
-                return rtn, false;
+                if self:isUnderClass(node) then
+                    -- Use the parent Node's light def instead.
+                    node = self:findParentClass(node)
+                end
+
+                local bigRtn = self:beginNs(node.Node);
+                local rtn = '';
+                WriteTemplateParameterList(
+                    node.Element,
+                    function(arg)
+                        rtn = rtn .. arg;
+                    end
+                );
+				rtn = rtn ..  'class ' .. node.Name .. ';\n';
+                bigRtn = self:beginNs(node.Node) .. rtn ..self:endNs(node.Node);
+
+                return bigRtn, false, rtn;
             elseif (node.Member.TypeName == TypeNames.Primitive) then
-                return "", false; -- Ignore
+                return "", false, ""; -- Ignore
             elseif (node.Member.TypeName == TypeNames.Typedef) then
 				return self:createHeavyDef(node), true;
                 --local typeUtil = TypeUtil.new();
@@ -254,6 +265,13 @@ NodeInfo = {
 				return true;
 			end
         end
+    end,
+
+    findParentClass = function(self, node)
+        while(node.Node ~= nil and node.Node.TypeName == TypeNames.Class) do
+            node = node.Node
+        end
+        return node
     end,
 
     useLightDef = function(self, node)

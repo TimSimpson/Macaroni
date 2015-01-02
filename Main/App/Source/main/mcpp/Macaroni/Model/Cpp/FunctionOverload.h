@@ -176,6 +176,8 @@ private:
 
 	bool isPureVirtual;
 
+	bool isTemplateClassMethod;
+
 	const bool isVirtual;
 
 	Macaroni::Model::ReasonPtr reasonCreated;

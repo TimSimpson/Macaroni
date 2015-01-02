@@ -52,7 +52,7 @@ ClassCppFileGenerator = {
         setmetatable(self, ClassCppFileGenerator);
         self.libDecl = LibraryDecl(self.targetLibrary);
         log:Write("Created new ClassCppFileGenerator");
-
+        self.cls = self.node.Element
         self.internalHeaderGenerator = ClassHFileGenerator.new{
             node = self.node, internalDef=true,
             targetLibrary=self.targetLibrary, writer = self.writer};
@@ -83,7 +83,7 @@ ClassCppFileGenerator = {
     end,
 
     globals = function(self)
-		local globalNodes = self.node.Member.GlobalNodes;
+		local globalNodes = self.cls.GlobalNodes;
 		local privateCount = 0;
 		local hiddenCount = 0;
 		local publicCount = 0;
@@ -115,7 +115,7 @@ ClassCppFileGenerator = {
 			self:writeVerbose("/* Prototypes */\n");
 			self:globalPrototypes(Access.Hidden);
 			self:writeVerbose("/* Implementation */\n");
-			self:iterateMembers(self.node.Member.GlobalNodes, Access.Hidden);
+			self:iterateMembers(self.cls.GlobalNodes, Access.Hidden);
 			self:addTabs(-1);
 			self:write("}\n");
 			self:write("// End of anonymous namespace.\n");
@@ -125,20 +125,20 @@ ClassCppFileGenerator = {
         if privateCount > 0 then
 			self:write([[/* Implementation of "Private" adopted global functions and variables. */]]
 					   .. "\n");
-			self:iterateGlobalMembers(self.node.Member.GlobalNodes, Access.Private);
+			self:iterateGlobalMembers(self.cls.GlobalNodes, Access.Private);
 			self:write("\n");
 		end
 
 		if publicCount > 0 then
 			self:write([[/* "Public" adopted global functions and variables. */]]
 					   .. "\n");
-			self:iterateGlobalMembers(self.node.Member.GlobalNodes, Access.Public);
+			self:iterateGlobalMembers(self.cls.GlobalNodes, Access.Public);
 			self:write("\n");
 		end
     end,
 
     globalPrototypes = function(self, access)
-        local globals = self.node.Member.GlobalNodes;
+        local globals = self.cls.GlobalNodes;
         for i=1, #globals do
             local node = globals[i];
             if (node.Member ~= nil) then
@@ -478,17 +478,19 @@ ClassCppFileGenerator = {
     end,
 
     WriteImplementation = function(self)
-        if (not self.isNested) then
-            self:globals();
-            self:write('\n');
-            self:namespaceBegin(self.node.Node);
-            self:write('\n');
-        end
-        self:classBody();
-        if (not self.isNested) then
-            self:write('\n');
-            self:namespaceEnd(self.node.Node);
-            self:write('\n');
+        if not self.cls.Inline then
+            if (not self.isNested) then
+                self:globals();
+                self:write('\n');
+                self:namespaceBegin(self.node.Node);
+                self:write('\n');
+            end
+            self:classBody();
+            if (not self.isNested) then
+                self:write('\n');
+                self:namespaceEnd(self.node.Node);
+                self:write('\n');
+            end
         end
     end,
 
@@ -500,7 +502,7 @@ ClassCppFileGenerator = {
 
     writeImplementationIncludeStatements = function(self)
         log:Write(tostring(self.node) .. ' INCLUDE STATEMENTS! *_*');
-        local class = self.node.Member;
+        local class = self.cls;
         local imports = class.ImportedNodes;
 
         for i = 1, #imports do
@@ -543,7 +545,7 @@ ClassCppFileGenerator = {
     end,
 
     usingStatements = function(self)
-		local class = self.node.Member;
+		local class = self.cls;
         local imports = class.ImportedNodes;
         for i = 1, #imports do
             local import = imports[i];
