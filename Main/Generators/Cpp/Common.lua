@@ -35,6 +35,7 @@ Macaroni.Model.TypeNames =
     Namespace = "Namespace",
     Primitive="Primitive",
     Typedef="Typedef",
+    TemplateTypename="TemplateTypename",
     Variable="Variable"
 };
 
@@ -262,7 +263,9 @@ TypeUtil = {
             rtnStr = rtnStr .. "const ";
         end
         local typeArguments = type.TypeArguments;
-        if (self:forceShortName(type, attemptShortName)) then
+        if (type.Node.TypeName == Macaroni.Model.TypeNames.TemplateTypename
+            or self:forceShortName(type, attemptShortName))
+        then
             rtnStr = rtnStr .. type.Node.Name;
         else
             if (typeArguments == nil) then

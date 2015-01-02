@@ -39,6 +39,7 @@ FunctionOverload::FunctionOverload
  Access access, const bool isStatic, bool isVirtual,
  const TypePtr rtnTypeInfo, bool constMember,
  const optional<ExceptionSpecifier> exceptionSpecifier,
+ Node * templateParameterList,
  optional<NodeListPtr> importedNodes=boost::none
 )
 :Scope(target, home, reason, access, isStatic),
@@ -52,6 +53,7 @@ FunctionOverload::FunctionOverload
  isVirtual(isVirtual),
  returnType(rtnTypeInfo),
  exceptionSpecifier(exceptionSpecifier),
+ templateParameterList(templateParameterList),
  usesDefaultKeyword(false),
  usesDeleteKeyword(false)
 {
@@ -80,13 +82,15 @@ FunctionOverloadPtr FunctionOverload::Create(
 	bool constMember,
 	const optional<ExceptionSpecifier> exceptionSpecifier,
 	Model::ReasonPtr reason,
+	NodePtr templateParameterList,
 	optional<Macaroni::Model::NodeListPtr> imports
 )
 {
 	FunctionOverload * fo = new FunctionOverload(target.get(),
 		foNode.get(), reason,
 		isInline, *access,
-		isStatic, isVirtual, rtnType, constMember, exceptionSpecifier, imports);
+		isStatic, isVirtual, rtnType, constMember, exceptionSpecifier,
+		templateParameterList.get(), imports);
 	return FunctionOverloadPtr(fo);
 }
 
@@ -135,6 +139,11 @@ NodeListPtr FunctionOverload::GetImportedNodes() const
 	}
 }
 
+NodePtr FunctionOverload::GetTemplateParameterList()
+{
+	return templateParameterList;
+}
+
 const char * FunctionOverload::GetTypeName() const
 {
 	return "FunctionOverload";
@@ -153,6 +162,11 @@ void intrusive_ptr_add_ref(FunctionOverload * p)
 void intrusive_ptr_release(FunctionOverload * p)
 {
 	intrusive_ptr_release((ScopeMember *)p);
+}
+
+bool FunctionOverload::IsInline() const
+{
+	return isInline || nullptr != templateParameterList;
 }
 
 bool FunctionOverload::RequiresCppFile() const

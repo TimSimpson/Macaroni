@@ -59,6 +59,7 @@ Destructor::Destructor(Node * home, Model::ReasonPtr reason, bool isInline,
 		none, FunctionOverload::CreateNewFunctionOverloadNode(this),
 		isInline, access, false, isVirtual,
 		voidType(), false, exceptionSpecifier, reason,
+		NodePtr{},
 		boost::none);
 }
 

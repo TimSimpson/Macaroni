@@ -1,0 +1,61 @@
+~import Macaroni::Model::Element;
+~import boost::intrusive_ptr;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+
+~namespace Macaroni::Model::Cpp;
+
+
+class TemplateTypename {};
+
+typedef boost::intrusive_ptr<TemplateTypename> TemplateTypenamePtr
+    @LuaClass [ SameAsNode=TemplateTypename ]
+;
+
+
+class TemplateTypename : public Element
+    @LuaClass
+    [
+        ReferenceType = TemplateTypenamePtr,
+    ]
+{
+    private TemplateTypename(Node * host, const ReasonPtr reasonCreated)
+    :   Element(host, reasonCreated)
+    {
+    }
+
+    public static TemplateTypenamePtr Create(
+        NodePtr host, const ReasonPtr reasonCreated
+    )
+    {
+        TemplateTypenamePtr ptr(
+            new TemplateTypename(host.get(), reasonCreated)
+        );
+        return ptr;
+    }
+
+    public ~global ~friend void intrusive_ptr_add_ref(TemplateTypename * p)
+    {
+        intrusive_ptr_add_ref(static_cast<Element *>(p));
+    }
+
+    public ~global ~friend void intrusive_ptr_release(TemplateTypename * p)
+    {
+        intrusive_ptr_release(static_cast<Element *>(p));
+    }
+
+    public virtual bool RequiresCppFile() const
+    {
+        return false;
+    }
+
+    public virtual bool RequiresHFile() const
+    {
+        return false;
+    }
+
+    public virtual const char * GetTypeName() const
+    {
+        return "TemplateTypename";
+    }
+};

@@ -17,6 +17,8 @@ local TypeNames = Macaroni.Model.TypeNames;
 
 FunctionFileGenerator = {
 
+    accessPrefix = "",
+    classPrefix = "",
     insertIntoNamespaces = false,
     isNested = false,
     node = nil,
@@ -85,6 +87,14 @@ FunctionFileGenerator = {
             self:namespaceBegin(self.functionNode.Node);
         end
         self:writeTabs();
+
+        if (self.accessPrefix) then
+            self:write(self.accessPrefix)
+            self:write(' ')
+        end
+
+        -- Talk a trip to template town.
+        self:writeTemplateParameterList(self.fo);
 
         -- classPrefix can be something like "public: virtual"
         if (self.classPrefix) then

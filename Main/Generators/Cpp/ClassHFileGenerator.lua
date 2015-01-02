@@ -96,7 +96,6 @@ ClassHFileGenerator = {
     end,
 
     classEnd = function(self)
-		self:write('\n');
 		self:addTabs(-1);
         self:writeAfterTabs("}; // End of class " .. self.node.Name .. "\n");
     end,
@@ -280,8 +279,17 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
     ["parse" .. TypeNames.ConstructorOverload] = function(self, node)
         self:writeTabs();
         self:writeAccess(node.Member.Access);
-        if (node.Member.Inline) then
-            self:write("inline ");
+
+        self:writeTemplateParameterList(node.Member);
+
+        if MACARONI_VERSION=="0.2.3" then
+            if (node.Member.Inline) then
+                self:write("inline ");
+            end
+        else
+            if (node.Member.UsesInlineKeyword) then
+                self:write("inline ");
+            end
         end
         if node.Member.Explicit then
             self:write("explicit ")
@@ -291,6 +299,7 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         self:write(")");
         self:writeFunctionExceptionSpecifier(node.Member);
         self:writeFunctionHeaderBody(node.Member, true);
+        self:write("\n");
     end,
 
     ["parse" .. TypeNames.Destructor] = function(self, node)
@@ -309,6 +318,7 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         self:write(")");
         self:writeFunctionExceptionSpecifier(overload.Member);
         self:writeFunctionHeaderBody(overload.Member, false);
+        self:write("\n");
     end,
 
     ["parse" .. TypeNames.Function] = function(self, node, insertIntoNamespaces)
@@ -345,15 +355,16 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
                 and (not node.Member.Access.VisibleInHeader)) then
                 return
             end
-            args.classPrefix = self:writeAccessToString(node.Member.Access)
+            args.accessPrefix = self:writeAccessToString(node.Member.Access)
             if (node.Member.Virtual) then
-                args.classPrefix = args.classPrefix .. "virtual";
+                args.classPrefix = "virtual";
             end
         end
 
         local gen = FunctionFileGenerator.new(args);
         gen:addTabs(self.tabs);
         gen:WriteHeaderDefinitions()
+        self:write("\n");
 	end,
 
     parseMember = function(self, node, insertIntoNamespaces)

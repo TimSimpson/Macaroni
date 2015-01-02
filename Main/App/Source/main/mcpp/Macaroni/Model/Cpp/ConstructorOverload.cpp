@@ -52,12 +52,18 @@ namespace
 	}
 };
 
-ConstructorOverload::ConstructorOverload(Node * home, Model::ReasonPtr reason,
-										 bool isInline, Access access,
-										 bool isExplicit,
-				   const boost::optional<ExceptionSpecifier> exceptionSpecifier)
+ConstructorOverload::ConstructorOverload(
+	Node * home,
+	Model::ReasonPtr reason,
+	bool isInline,
+	Access access,
+	bool isExplicit,
+	const boost::optional<ExceptionSpecifier> exceptionSpecifier,
+	Node * templateParameterList
+)
 :FunctionOverload(nullptr, home, reason, isInline, access, true,
 				  false, voidTypeInfo(home), false, exceptionSpecifier,
+				  templateParameterList,
 				  boost::none),
  assignments(),
  isExplicit(isExplicit)
@@ -76,10 +82,11 @@ void ConstructorOverload::AddAssignment(const VariableAssignment & assignment)
 ConstructorOverloadPtr ConstructorOverload::Create(
 	NodePtr node, bool isInline, AccessPtr access, bool isExplicit,
 	const boost::optional<ExceptionSpecifier> exceptionSpecifier,
-	Model::ReasonPtr reason)
+	Model::ReasonPtr reason, NodePtr templateParameterList)
 {
 	ConstructorOverload * co = new ConstructorOverload(
-		node.get(), reason, isInline, *access, isExplicit, exceptionSpecifier);
+		node.get(), reason, isInline, *access, isExplicit, exceptionSpecifier,
+		templateParameterList.get());
 	return ConstructorOverloadPtr(co);
 }
 

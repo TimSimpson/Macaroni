@@ -263,13 +263,17 @@ DependencyList = {
             end
         elseif (member.TypeName == TypeNames.Primitive) then
             -- Ignore! :D
+        elseif (member.TypeName == TypeNames.TemplateTypename) then
+            -- Ignore! :D
         elseif (member.TypeName == TypeNames.Typedef) then
             -- The typedef itself always gets a light dependency.
             self:addLightDependencyNode(node);
             -- But then we have to iterate its underlying types also.
             self:addDependenciesForType(member.Type, traveller);
         else
-            error("addDependencyNode was passed " .. tostring(node.FullName) .. ", which is not a type but " .. node.Member.TypeName .. ".", 2);
+            error("addDependencyNode was passed " .. tostring(node.FullName)
+                  .. ", which is not a type but " .. node.Member.TypeName
+                  .. ".", 2);
         end
     end,
 

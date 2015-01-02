@@ -40,6 +40,8 @@ namespace CppAxioms
 	AxiomPtr PrimitiveSignedInt();
 	AxiomPtr PrimitiveUnsignedInt();
 	AxiomPtr SetExistingHFilePath();
+	AxiomPtr TemplateTypenameCreation();
+	AxiomPtr TemplateParameterListCreation();
 	AxiomPtr TypedefCreation();
 	AxiomPtr VariableScopeCreation();
 };

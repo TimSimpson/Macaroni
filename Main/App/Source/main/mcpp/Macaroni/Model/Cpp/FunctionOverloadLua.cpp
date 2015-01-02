@@ -240,6 +240,12 @@ int FunctionOverloadLuaMetaData::Index(lua_State * L,
 		lua_pushcfunction(L, FunctionOverloadLuaFunctions::SetCodeBlock);
 		return 1;
 	}
+	else if (index == "TemplateParameterList")
+	{
+		NodePtr tpl = ptr->GetTemplateParameterList();
+		NodeLuaMetaData::PutInstanceOnStack(L, tpl);
+		return 1;
+	}
 	else if (index == "ExceptionSpecifier")
 	{
 		auto es = ptr->GetExceptionSpecifier();
@@ -257,6 +263,11 @@ int FunctionOverloadLuaMetaData::Index(lua_State * L,
 	else if (index == "UsesDefault")
 	{
 		lua_pushboolean(L, ptr->UsesDefault());
+		return 1;
+	}
+	else if (index == "UsesInlineKeyword")
+	{
+		lua_pushboolean(L, ptr->UsesInlineKeyword());
 		return 1;
 	}
 	else if (index == "Virtual")

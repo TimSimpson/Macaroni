@@ -57,6 +57,8 @@
 #include <Macaroni/StringException.h>
 #include <Macaroni/Model/Project/Target.h>
 #include <Macaroni/Model/Project/TargetPtr.h>
+#include <Macaroni/Model/Cpp/TemplateTypename.h>
+#include <Macaroni/Model/Cpp/TemplateParameterList.h>
 #include <Macaroni/Model/Type.h>
 #include <Macaroni/Model/TypeArgument.h>
 #include <Macaroni/Model/TypeModifiers.h>
@@ -122,6 +124,8 @@ using Macaroni::Model::SourcePtr;
 using Macaroni::StringException;
 using Macaroni::Model::Project::Target;
 using Macaroni::Model::Project::TargetPtr;
+using Macaroni::Model::Cpp::TemplateTypename;
+using Macaroni::Model::Cpp::TemplateParameterList;
 using Macaroni::Model::Type;
 using Macaroni::Model::TypeArgument;
 using Macaroni::Model::TypeArgumentList;
@@ -391,6 +395,7 @@ private:
 	int classDepth;
 	ContextPtr context;
 	AccessPtr currentAccess;
+	NodeList currentTemplateParameters;
 	NodePtr currentScope;
 	TargetPtr currentTarget;
 	TargetPtr defaultTarget;
@@ -403,6 +408,7 @@ public:
 		:classDepth(0),
 		 context(context),
 		 currentAccess(Access::NotSpecified()),
+		 currentTemplateParameters(),
 		 currentScope(context->GetRoot()),
 		 currentTarget(target),
 		 defaultTarget(target),
@@ -1017,7 +1023,8 @@ public:
 		Assert(ComplexName(createTestItr("::cat::13")) == 7);
 	}
 
-	bool ConstructorOrDestructor(Iterator & itr)
+
+	bool ConstructorOrDestructor(Iterator & itr, NodePtr templateHome=NodePtr{})
 	{
 		using namespace Macaroni::Model::Cpp;
 
@@ -1094,10 +1101,16 @@ public:
 		if (!tilda)
 		{
 			fOlNode = ConstructorOverload::CreateNode(ctorNode);
+			if (templateHome)
+			{
+				// Move the template to their real home...
+				context->LandFloater(fOlNode);
+			}
 		} // end !tilda
 		else
 		{
 			fOlNode = ctorNode;
+
 		}
 		// End create
 
@@ -1121,11 +1134,16 @@ public:
 			ConstructorOverloadPtr ctorOl =
 				ConstructorOverload::Create(fOlNode, isInline, access,
 				                            isExplicit, exceptionSpecifier,
-				                            ctorReason);
+				                            ctorReason, templateHome);
 			fOlPtr = boost::dynamic_pointer_cast<FunctionOverload>(ctorOl);
 		} // end !tilda
 		else
 		{
+			if (templateHome)
+			{
+				throw ParserException(itr.GetSource(),
+					Messages::Get("CppAxioms.DestructorCreation.TemplateNotAllowed"));
+			}
 			DestructorPtr dtor = Destructor::Create(ctorNode,  isInline, access,
 				isVirtual, exceptionSpecifier,
 				Reason::Create(CppAxioms::DtorCreation(), itr.GetSource()));
@@ -1782,7 +1800,13 @@ public:
 			}
 		}
 		return result;*/
-		return FindNodeFromScope(complexName);
+		NodePtr rtnValue;
+		rtnValue = FindNodeFromTemplateParameters(complexName);
+		if (!rtnValue)
+		{
+			rtnValue = FindNodeFromScope(complexName);
+		}
+		return rtnValue;
 	}
 
 	NodePtr FindNodeFromImports(const std::string & complexName)
@@ -1882,6 +1906,21 @@ public:
 		return rtnValue;
 	}
 
+	NodePtr FindNodeFromTemplateParameters(const std::string & complexName)
+	{
+		NodePtr rtnValue;
+		for (int i = this->currentTemplateParameters.size() - 1;
+			 i >= 0; --i)
+		{
+			NodePtr & tN = this->currentTemplateParameters[i];
+			rtnValue = tN->Find(complexName);
+			if (rtnValue)
+			{
+				break;
+			}
+		}
+		return rtnValue;
+	}
 
 
 	static void FindNodeTest()
@@ -2555,6 +2594,7 @@ public:
 		// Take whatever you can get, replace the iter
 		while (Directives(itr)
 				|| Block(itr)
+				|| Template(itr)
 				|| ConstructorOrDestructor(itr)
 				|| FriendDeclaration(itr)
 				|| Namespace(itr)
@@ -2630,6 +2670,28 @@ public:
 		return itr.ConsumeWord("static");
 	}
 
+	bool Template(Iterator & itr)
+	{
+		NodePtr templateHome = TemplateParameters(itr);
+		if (!templateHome)
+		{
+			return false;
+		}
+
+		this->currentTemplateParameters.push_back(templateHome);
+
+		ConsumeWhitespace(itr);
+		if (! (ConstructorOrDestructor(itr, templateHome)
+		       || VariableOrFunction(itr, templateHome)))
+		{
+			throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.Template.ExpectedClassOrFunction"));
+		}
+
+		this->currentTemplateParameters.pop_back();
+		return true;
+	}
+
 	NodePtr TemplateParameters(Iterator & itr)
 	{
 		ConsumeWhitespace(itr);
@@ -2640,6 +2702,12 @@ public:
 		}
 		// Comitted.
 		NodePtr templateHome = context->CreateFloater("$t");
+		TemplateParameterList::Create(
+			templateHome,
+			Reason::Create(CppAxioms::TemplateParameterListCreation(),
+						   itr.GetSource())
+		);
+
 		itr.ConsumeWhitespace();
 		if (!itr.ConsumeChar('<'))
 		{
@@ -2647,11 +2715,11 @@ public:
 					Messages::Get("CppParser.Template.ExpectedLT"));
 		}
 		itr.ConsumeWhitespace();
-		TemplateParameterList(templateHome, itr, 1);
+		TemplateParameterListParse(templateHome, itr, 1);
 		return templateHome;
 	}
 
-	void TemplateParameterList(NodePtr templateHome, Iterator & itr,
+	void TemplateParameterListParse(NodePtr templateHome, Iterator & itr,
 		                       int bracketLevel)
 	{
 		while(!itr.ConsumeChar('>'))
@@ -2681,13 +2749,16 @@ public:
 			}
 			if (templateHome->Find(name))
 			{
-				throw ParserException	(itr.GetSource(),
+				throw ParserException(itr.GetSource(),
 					Messages::Get("CppParser.Template.NodeNameNotUnique",
 								  name));
 			}
 			NodePtr typeNameNode = templateHome->FindOrCreate(name);
-			//MARIO:
-			// TemplateTypename::Create(target, typeNameNode, )
+			TemplateTypename::Create(
+				typeNameNode,
+				Reason::Create(CppAxioms::TemplateTypenameCreation(),
+							   itr.GetSource())
+			);
 			return true;
 		}
 		else
@@ -3117,10 +3188,8 @@ public:
 	 * with a semicolon.  Returns false if nothing is found.
 	 * If it finds something it creates the variable within currentScope, and
 	 * may define additional nodes if the variable's name is complex. */
-	bool VariableOrFunction(Iterator & itr)
+	bool VariableOrFunction(Iterator & itr, NodePtr templateHome=NodePtr{})
 	{
-		NodePtr templateHome = TemplateParameters(itr);
-
 		using namespace Macaroni::Model::Cpp;
 
 		AccessPtr access = Access::NotSpecified();
@@ -3258,7 +3327,7 @@ public:
 					                     foNode, isInline, access, isStatic,
 				                         isVirtual, type,
 										 constMember, exceptionSpecifier,
-										 fReason, imports);
+										 fReason, templateHome, imports);
 
 			defInfo.ApplyToFunction(fOl);
 

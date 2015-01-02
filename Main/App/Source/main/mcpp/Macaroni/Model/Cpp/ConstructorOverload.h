@@ -46,18 +46,12 @@ public:
 		bool isInline, AccessPtr access,
 		bool isExplicit,
 		const boost::optional<ExceptionSpecifier> exceptionSpecifier,
-		Model::ReasonPtr reason);
+		Model::ReasonPtr reason,
+		Model::NodePtr templateParameterList);
 
 	virtual ~ConstructorOverload();
 
 	void AddAssignment(const VariableAssignment & assignment);
-
-	ConstructorOverloadPtr Create(FunctionPtr home, bool isInline, const Access access,
-							   const bool isStatic,
-							   const TypePtr rtnType,
-							   bool constMember,
-				   const boost::optional<ExceptionSpecifier> exceptionSpecifier,
-							   Model::ReasonPtr reason);
 
 	/** Creates a new Node under the given Node where the overload will be. */
 	static NodePtr CreateNode(NodePtr ctorHomeNode);
@@ -75,9 +69,15 @@ public:
 
 private:
 
-	ConstructorOverload(Model::Node * home, Model::ReasonPtr reason,
-		                bool isInline, Access access, bool isExplicit,
-		           const boost::optional<ExceptionSpecifier> exceptionSpecifier);
+	ConstructorOverload(
+		Model::Node * home,
+		Model::ReasonPtr reason,
+		bool isInline,
+		Access access,
+		bool isExplicit,
+	    const boost::optional<ExceptionSpecifier> exceptionSpecifier,
+		Model::Node * templateParameterList
+	);
 
 	std::vector<VariableAssignment> assignments;
 

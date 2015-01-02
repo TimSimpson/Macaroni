@@ -96,6 +96,16 @@ AxiomPtr SetExistingHFilePath()
 	return AxiomPtr(new CppAxiom("CppAxioms.SetExistingHFilePath"));
 }
 
+AxiomPtr TemplateTypenameCreation()
+{
+	return AxiomPtr(new CppAxiom("CppAxioms.TemplateTypenameCreation"));
+}
+
+AxiomPtr TemplateParameterListCreation()
+{
+	return AxiomPtr(new CppAxiom("CppAxioms.TemplateParameterListCreation"));
+}
+
 AxiomPtr TypedefCreation()
 {
 	return AxiomPtr(new CppAxiom("CppAxioms.TypedefCreation"));

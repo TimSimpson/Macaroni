@@ -47,6 +47,7 @@ public:
 		bool constMember,
 		const boost::optional<ExceptionSpecifier> exceptionSpecifier,
 		Model::ReasonPtr reason,
+		NodePtr templateParameterList=NodePtr{},
 		boost::optional<Macaroni::Model::NodeListPtr> imports=boost::none
 	);
 
@@ -83,6 +84,8 @@ public:
 		return returnType;
 	}
 
+	Model::NodePtr GetTemplateParameterList();
+
 	virtual const char * GetTypeName() const;
 
 	bool HasCodeBlock() const;
@@ -98,10 +101,7 @@ public:
 		return usesDeleteKeyword;
 	}
 
-	inline bool IsInline() const
-	{
-		return isInline;
-	}
+	bool IsInline() const;
 
 	inline bool IsPureVirtual() const
 	{
@@ -142,6 +142,11 @@ public:
 		return usesDefaultKeyword;
 	}
 
+	inline bool UsesInlineKeyword() const
+	{
+		return isInline;
+	}
+
 protected:
 	//FunctionOverload(Node home, bool isInline, const Access access, const bool isStatic, const TypePtr rtnType, bool constMember, Model::ReasonPtr reason);
 
@@ -150,6 +155,7 @@ protected:
 		bool isInline, Access access, const bool isStatic, bool isVirtual,
 		const TypePtr rtnTypeInfo, bool constMember,
 		const boost::optional<ExceptionSpecifier> exceptionSpecifier,
+		Node * templateParameterList,
 		boost::optional<Macaroni::Model::NodeListPtr> imports);
 
 private:
@@ -179,6 +185,8 @@ private:
 	// Ensures the function wasn't already set and does error checking
 	// before another function finishes.
 	void setCodeDefinitionSource(SourcePtr startOfCode, const char * const msg);
+
+	Node * templateParameterList;
 
 	bool usesDefaultKeyword;
 

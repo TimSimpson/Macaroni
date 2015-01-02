@@ -152,7 +152,7 @@ FileGenerator = {
         self:writeTabs();
         local variable = node.Member;
         self:writeType(variable.Type);
-        self:write(node.Name .. ";\n");
+        self:write(node.Name .. ";\n\n");
     end,
 
     write = function(self, text)
@@ -353,9 +353,16 @@ FileGenerator = {
         if (foNode.Member.Static) then
             self:write("static ");
         end
-        if (foNode.Member.Inline) then
-            self:write("inline ");
+        if MACARONI_VERSION=="0.2.3" then
+            if (foNode.Member.Inline) then
+                self:write("inline ");
+            end
+        else
+            if (foNode.Member.UsesInlineKeyword) then
+                self:write("inline ");
+            end
         end
+
         self:writeType(func.ReturnType);
         if not calledForFriendDefinition then
             self:write(" " .. foNode.Node.Name .. "(");
@@ -377,6 +384,26 @@ FileGenerator = {
 
     writeUsing = function(self, import)
         self:write(NodeInfoList[import].using);
+    end,
+
+    writeTemplateParameterList = function(self, tplOwningElement)
+        local tpl = tplOwningElement.TemplateParameterList;
+        if tpl == nil then
+            return;
+        end
+        self:write("template<");
+        local seenOne = false;
+        for i = 1, #tpl.Children do
+            local tn = tpl.Children[i]
+            if tn.TypeName == TypeNames.TemplateTypename then
+                if seenOne then
+                    self:write(", ");
+                end
+                self:write("typename " .. tn.Name);
+            end
+        end
+        self:write(">\n");
+        self:writeTabs();
     end,
 
     writeType = function(self, type, attemptShortNameArg)

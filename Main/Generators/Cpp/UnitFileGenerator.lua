@@ -347,12 +347,12 @@ UnitFileGenerator = {
 
     writeImplementation = function(self)
         self.writer:WriteLine("/*--------------------------------------------------------------------------*");
-        self.writer:WriteLine(" * Internal header.                                                         *");
+        self.writer:WriteLine(" * Internal Header                                                         *");
         self.writer:WriteLine(" *--------------------------------------------------------------------------*/");
         self:writeHeader();
         self.writer:WriteLine("\n");
         self.writer:WriteLine("/*--------------------------------------------------------------------------*");
-        self.writer:WriteLine(" * Definition.                                                              *");
+        self.writer:WriteLine(" * Implementation                                                        *");
         self.writer:WriteLine(" *--------------------------------------------------------------------------*/");
         self:foreachWriter('WriteImplementationIncludeStatements')
         self:foreachWriter('WriteUsingStatements')
