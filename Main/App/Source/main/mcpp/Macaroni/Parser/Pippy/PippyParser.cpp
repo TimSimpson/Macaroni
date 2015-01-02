@@ -2470,6 +2470,12 @@ public:
 		return true;
 	}
 
+	bool OverrideKeyword(Iterator & itr)
+	{
+		itr.ConsumeWhitespace();
+		return itr.ConsumeWord("override");
+	}
+
 	/** Determines what exception specifier, if any, exists here. */
 	boost::optional<ExceptionSpecifier> ParseExceptionSpecifier(Iterator & itr)
 	{
@@ -3300,10 +3306,12 @@ public:
 			FunctionArgumentList(itr);
 
 			bool constMember = false;
+			bool overrideKeyword = false;
 			boost::optional<ExceptionSpecifier> exceptionSpecifier = boost::none;
 
 			while(
 				(!constMember && (constMember = ConstKeyword(itr)))
+			 || (!overrideKeyword && (overrideKeyword = OverrideKeyword(itr)))
 			 || (!exceptionSpecifier
 			 	 && (exceptionSpecifier = ParseExceptionSpecifier(itr)))
 			){}
@@ -3333,7 +3341,8 @@ public:
 				FunctionOverload::Create(tHome,
 					                     foNode, isInline, access, isStatic,
 				                         isVirtual, type,
-										 constMember, exceptionSpecifier,
+										 constMember, overrideKeyword,
+										 exceptionSpecifier,
 										 fReason, templateHome, imports);
 
 			defInfo.ApplyToFunction(fOl);

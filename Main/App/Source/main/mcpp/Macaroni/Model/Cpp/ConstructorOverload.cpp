@@ -62,7 +62,7 @@ ConstructorOverload::ConstructorOverload(
 	Node * templateParameterList
 )
 :FunctionOverload(nullptr, home, reason, isInline, access, true,
-				  false, voidTypeInfo(home), false, exceptionSpecifier,
+				  false, voidTypeInfo(home), false, false, exceptionSpecifier,
 				  templateParameterList,
 				  boost::none),
  assignments(),

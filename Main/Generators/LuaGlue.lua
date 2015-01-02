@@ -74,11 +74,14 @@ OPERATORS_CPP_TO_LUA =
 NEW_LINE = "\n";
 
 
-FunctionOverload_Create = function(a, b, c, d, e, f, g, h, i)
+FunctionOverload_Create = function(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11)
 	if MACARONI_VERSION~="0.2.3" then  -- Current
-		return FunctionOverload.Create(nil, a, b, c, d, e, f, g, h, i);
+		-- Pass in nothing for Target and false for override keyword.
+		return FunctionOverload.Create(nil, a1, a2, a3, a4, a5, a6, a7, a8,
+			                           false, a9, a10, a11);
 	else -- Legacy
-		return FunctionOverload.Create(a, b, c, d, e, f, g, h, i);
+		return FunctionOverload.Create(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10,
+			                           a11);
 	end
 end
 

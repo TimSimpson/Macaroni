@@ -44,7 +44,7 @@ public:
 		const AccessPtr access,
 		const bool isStatic, bool isVirtual,
 		const TypePtr rtnType,
-		bool constMember,
+		bool constMember, bool overrideKeyword,
 		const boost::optional<ExceptionSpecifier> exceptionSpecifier,
 		Model::ReasonPtr reason,
 		NodePtr templateParameterList=NodePtr{},
@@ -147,13 +147,18 @@ public:
 		return isInline;
 	}
 
+	inline bool UsesOverrideKeyword() const
+	{
+		return overrideKeyword;
+	}
+
 protected:
 	//FunctionOverload(Node home, bool isInline, const Access access, const bool isStatic, const TypePtr rtnType, bool constMember, Model::ReasonPtr reason);
 
 	FunctionOverload(Macaroni::Model::Project::Target * target,
 		Node * home, Model::ReasonPtr reason,
 		bool isInline, Access access, const bool isStatic, bool isVirtual,
-		const TypePtr rtnTypeInfo, bool constMember,
+		const TypePtr rtnTypeInfo, bool constMember, bool overrideKeyword,
 		const boost::optional<ExceptionSpecifier> exceptionSpecifier,
 		Node * templateParameterList,
 		boost::optional<Macaroni::Model::NodeListPtr> imports);
@@ -166,7 +171,7 @@ private:
 
 	SourcePtr codeSource;
 
-	bool constMember;
+	const bool constMember;
 
 	const boost::optional<ExceptionSpecifier> exceptionSpecifier;
 
@@ -179,6 +184,8 @@ private:
 	bool isTemplateClassMethod;
 
 	const bool isVirtual;
+
+	const bool overrideKeyword;
 
 	Macaroni::Model::ReasonPtr reasonCreated;
 

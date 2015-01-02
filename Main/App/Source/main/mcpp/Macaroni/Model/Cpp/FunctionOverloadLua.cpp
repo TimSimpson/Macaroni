@@ -92,10 +92,11 @@ namespace
 				bool isVirtual = lua_toboolean(L, 6) != 0;
 				TypePtr rtnType = TypeLuaMetaData::GetInstance(L, 7);
 				bool constMember = lua_toboolean(L, 8) != 0;
+				bool overrideKeyword = lua_toboolean(L, 9) != 0;
 				boost::optional<ExceptionSpecifier> exceptionSpecifier;
-				if (lua_isstring(L, 8))
+				if (lua_isstring(L, 10))
 				{
-					const std::string value(lua_tostring(L, 9));
+					const std::string value(lua_tostring(L, 10));
 					if (value == "throws()")
 					{
 						exceptionSpecifier = ExceptionSpecifier::EmptyThrows();
@@ -109,7 +110,7 @@ namespace
 						exceptionSpecifier = ExceptionSpecifier::NoExcept();
 					}
 				}
-				ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 10);
+				ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 11);
 				FunctionOverloadPtr newFO = FunctionOverload::Create(
 					target,
 					FunctionOverload::CreateNewFunctionOverloadNode(home),
@@ -117,6 +118,7 @@ namespace
 					isStatic, isVirtual,
 					rtnType,
 					constMember,
+					overrideKeyword,
 					exceptionSpecifier,
 					reason);
 				ElementPtr rtnValue = boost::dynamic_pointer_cast<Element>(newFO);
@@ -263,6 +265,11 @@ int FunctionOverloadLuaMetaData::Index(lua_State * L,
 	else if (index == "UsesDefault")
 	{
 		lua_pushboolean(L, ptr->UsesDefault());
+		return 1;
+	}
+	else if (index == "UsesOverrideKeyword")
+	{
+		lua_pushboolean(L, ptr->UsesOverrideKeyword());
 		return 1;
 	}
 	else if (index == "UsesInlineKeyword")

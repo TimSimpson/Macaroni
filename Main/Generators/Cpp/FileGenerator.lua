@@ -374,6 +374,9 @@ FileGenerator = {
         if (func.Const) then
             self:write(" const");
         end
+        if (func.UsesOverrideKeyword) then
+            self:write(" override");
+        end
         self:writeFunctionExceptionSpecifier(func)
     end,
 

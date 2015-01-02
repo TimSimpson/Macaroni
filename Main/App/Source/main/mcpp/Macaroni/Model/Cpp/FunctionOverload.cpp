@@ -52,7 +52,7 @@ FunctionOverload::FunctionOverload
  Target * target,
  Node * home, Model::ReasonPtr reason, bool isInline,
  Access access, const bool isStatic, bool isVirtual,
- const TypePtr rtnTypeInfo, bool constMember,
+ const TypePtr rtnTypeInfo, bool constMember, bool overrideKeyword,
  const optional<ExceptionSpecifier> exceptionSpecifier,
  Node * templateParameterList,
  optional<NodeListPtr> importedNodes=boost::none
@@ -67,6 +67,7 @@ FunctionOverload::FunctionOverload
  isPureVirtual(false),
  isTemplateClassMethod(isInTemplateClass(*home)),
  isVirtual(isVirtual),
+ overrideKeyword(overrideKeyword),
  returnType(rtnTypeInfo),
  exceptionSpecifier(exceptionSpecifier),
  templateParameterList(templateParameterList),
@@ -95,7 +96,7 @@ FunctionOverloadPtr FunctionOverload::Create(
 	const bool isStatic,
 	bool isVirtual,
 	const TypePtr rtnType,
-	bool constMember,
+	bool constMember, bool overrideKeyword,
 	const optional<ExceptionSpecifier> exceptionSpecifier,
 	Model::ReasonPtr reason,
 	NodePtr templateParameterList,
@@ -105,7 +106,8 @@ FunctionOverloadPtr FunctionOverload::Create(
 	FunctionOverload * fo = new FunctionOverload(target.get(),
 		foNode.get(), reason,
 		isInline, *access,
-		isStatic, isVirtual, rtnType, constMember, exceptionSpecifier,
+		isStatic, isVirtual, rtnType, constMember, overrideKeyword,
+		exceptionSpecifier,
 		templateParameterList.get(), imports);
 	return FunctionOverloadPtr(fo);
 }
