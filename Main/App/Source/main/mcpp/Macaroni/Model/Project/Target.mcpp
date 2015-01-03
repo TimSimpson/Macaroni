@@ -194,6 +194,12 @@ class Target
 		dependencies.push_back(dependency);
 	}
 
+	public void AddDependency(TargetPtr dependency)
+		@LuaFunction "AddDependency"
+	{
+		AddDependency(dependency.get());
+	}
+
 	/** Establishes this target as the owner of the element. */
 	public void AddElement(Element * element)
 	{

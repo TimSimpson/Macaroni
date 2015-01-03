@@ -216,6 +216,33 @@ function SimpleProject(args)
             addTestTarget(testPath)
         end
     end
+
+    local addTestDepsToExistingTargets = function()
+        -- Add the extra test dependencies to all tests defined by this
+        -- project.
+        if MACARONI_VERSION == "0.2.3" then
+            return
+        end
+        for i=1, #lProject.Targets do
+            local target = lProject.Targets[i]
+            if target.TypeName == "test" then
+                for i, v in ipairs(args.testDependencies) do
+                    local add = true
+                    for j=1, #target.Dependencies do
+                        if target.Dependencies[j] == v then
+                            add = false;
+                            break;
+                        end
+                    end
+                    if add then
+                        target:AddDependency(v)
+                    end
+                end
+            end
+        end
+    end
+
+    addTestDepsToExistingTargets()
     addTestTargets(args.tests)
 
     -- This always runs, even if the user hasn't selected anything.
