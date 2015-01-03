@@ -36,6 +36,7 @@ public:
 	static TypedefPtr Create(Macaroni::Model::Project::TargetPtr target,
 		                     Macaroni::Model::NodePtr home,
 		                     Macaroni::Model::ReasonPtr reason,
+		                     Access access,
 		                     TypePtr type);
 
 	~Typedef();
@@ -50,6 +51,7 @@ protected:
 	Typedef(Macaroni::Model::Project::Target * target,
 		    Macaroni::Model::Node *		home,
 		    Macaroni::Model::ReasonPtr	reason,
+		    Access access,
 		    Macaroni::Model::TypePtr	type);
 
 private:

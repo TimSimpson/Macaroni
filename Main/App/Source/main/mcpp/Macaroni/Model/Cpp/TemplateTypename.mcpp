@@ -2,6 +2,7 @@
 ~import boost::intrusive_ptr;
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaProperty;
 
 ~namespace Macaroni::Model::Cpp;
 
@@ -19,17 +20,21 @@ class TemplateTypename : public Element
         ReferenceType = TemplateTypenamePtr,
     ]
 {
-    private TemplateTypename(Node * host, const ReasonPtr reasonCreated)
-    :   Element(host, reasonCreated)
+    private const bool isPack;
+
+    private TemplateTypename(Node * host, bool isPack,
+                             const ReasonPtr reasonCreated)
+    :   Element(host, reasonCreated),
+        isPack(isPack)
     {
     }
 
     public static TemplateTypenamePtr Create(
-        NodePtr host, const ReasonPtr reasonCreated
+        NodePtr host, bool isPack, const ReasonPtr reasonCreated
     )
     {
         TemplateTypenamePtr ptr(
-            new TemplateTypename(host.get(), reasonCreated)
+            new TemplateTypename(host.get(), isPack, reasonCreated)
         );
         return ptr;
     }
@@ -42,6 +47,12 @@ class TemplateTypename : public Element
     public ~global ~friend void intrusive_ptr_release(TemplateTypename * p)
     {
         intrusive_ptr_release(static_cast<Element *>(p));
+    }
+
+    public bool IsParameterPack() const
+        @LuaProperty "IsParameterPack"
+    {
+        return isPack;
     }
 
     public virtual bool RequiresCppFile() const

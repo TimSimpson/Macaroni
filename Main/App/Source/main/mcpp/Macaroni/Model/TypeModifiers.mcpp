@@ -29,6 +29,7 @@ namespace Macaroni::Model {
 		private bool _const;
 		private bool _constPointer;
 		private bool _light;
+		private bool _isParameterPack;
 		private bool _pointer;
 		private bool _reference;
 		private bool _rvalue;
@@ -36,6 +37,7 @@ namespace Macaroni::Model {
 		public TypeModifiers()
 			: _const(false), _constPointer(false),
 			  _light(false),
+			  _isParameterPack(false),
 			  _pointer(false), _reference(false),
 			  _rvalue(false)
 		{
@@ -52,7 +54,8 @@ namespace Macaroni::Model {
 			return this->Const() == other.Const()
 				&& this->ConstPointer() == other.ConstPointer()
 				&& this->Pointer() == other.Pointer()
-				&& this->Reference() == other.Reference();
+				&& this->Reference() == other.Reference()
+				&& this->IsParameterPack() == other.IsParameterPack();
 		}
 
 		public inline bool Const() const
@@ -122,6 +125,17 @@ namespace Macaroni::Model {
 			_rvalue = value;
 		}
 
+		public void SetIsParameterPack(bool value)
+		{
+			_isParameterPack = value;
+		}
+
+		public inline bool IsParameterPack() const
+			@LuaProperty "IsParameterPack"
+		{
+			return _isParameterPack;
+		}
+
 		public bool MayOnlyNeedForwardDeclaration()
 			@LuaProperty "MayOnlyNeedForwardDeclaration"
 		{
@@ -139,6 +153,7 @@ namespace Macaroni::Model {
 			   << (Pointer() ? " *" : "")
 			   << (RvalueReference() ? " &&" : (Reference() ? " &" : ""))
 			   << (ConstPointer() ? " const" : "")
+			   << (IsParameterPack() ? "..." : "")
 				;
 			return ss.str();
 		}

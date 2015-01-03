@@ -77,6 +77,7 @@ CppParser.Template.ExpectedClassOrFunction=Expected a class or function to follo
 CppParser.Template.ExpectedLT=Expected "<" following keyword "template."
 CppParser.Template.ExpectedTypenameName=Expected a simple name following "typename" inside a template parameter list.
 CppParser.Template.NodeNameNotUnique=The name {0} cannot be used as it was used previously in this template parameter list.
+CppParser.Template.ExpectedComma=Expected a comma to extend a parameter list here or '>' to end it.
 CppParser.Template.UnexpectedSyntax=Unexpected syntax inside template parameter list (Macaroni may not yet support what you are trying to do).
 CppParser.ThrowSpecifier.MissingFirstParanthesis=Expected to see a pair of paranthesis following throw specifier.
 CppParser.ThrowSpecifier.MissingSecondParanthesis=Expected to see end of paranthesis for throw specifier here (note: unfortunately Macaroni has not implemented non-empty type specifiers).

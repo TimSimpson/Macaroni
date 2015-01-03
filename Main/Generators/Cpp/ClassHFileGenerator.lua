@@ -8,6 +8,7 @@ require "Macaroni.Model.Reason";
 require "Macaroni.Model.Cpp.ClassParent";
 require "Macaroni.Model.Cpp.ClassParentList";
 require "Macaroni.Model.Source";
+local TypedefFileGenerator = require "Cpp/TypedefFileGenerator";
 
 
 local Access = require "Macaroni.Model.Cpp.Access";
@@ -15,6 +16,7 @@ local Context = require "Macaroni.Model.Context";
 local FunctionHFileGenerator = FunctionGenerator.FunctionHFileGenerator
 local Node = require "Macaroni.Model.Node";
 local TypeNames = Macaroni.Model.TypeNames;
+local TypedefFileGenerator = TypedefFileGenerator.TypedefFileGenerator
 
 ClassHFileGenerator = {
 
@@ -226,9 +228,7 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
            self:includeConfigFile();
         end
 
-        self:writeAfterTabs("// Forward declaration necessary for anything which also depends on this.\n");
-
-        self:write(NodeInfoList[self.node].useLightDefNoNs(self.targetLibrary))
+        self:WriteForwardDeclarations()
         -- if (not self.isNested) then
         --     self:namespaceBegin(self.node.Node);
         -- end
@@ -374,6 +374,10 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         self:write("\n");
 	end,
 
+    parseTemplateParameterList = function(self)
+        -- ignore
+    end,
+
     parseMember = function(self, node, insertIntoNamespaces)
         local m = node.Member;
         if (m == nil) then
@@ -419,11 +423,17 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
     end,
 
     ["parse" .. TypeNames.Typedef] = function(self, node)
-        self:writeTabs();
-        local typedef = node.Member;
-        self:write("typedef ");
-        self:writeType(typedef.Type);
-        self:write(node.Name .. ";\n");
+        args.accessPrefix = self:writeAccessToString(node.Member.Access)
+         local args = {
+            accessPrefix = self:writeAccessToString(node.Element.Access),
+            node = node,
+            targetLibrary=self.targetLibrary,
+            writer = self.writer,
+            insideClass=true,
+            tabs = self.tabs,
+        };
+        local gen = TypedefFileGenerator.new(args);
+        gen:WriteHeaderDefinitions()
     end,
 
     ["parse" .. TypeNames.Variable] = function(self, node, insertIntoNamespaces)
@@ -466,7 +476,9 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         if (not self.isNested) then
             self:namespaceBegin(self.node.Node);
         end
-        self:writeAfterTabs("class " .. self.node.Name .. ";\n");
+
+        self:write(NodeInfoList[self.node].useLightDefNoNs(self.targetLibrary));
+
         if (not self.isNested) then
             self:namespaceEnd(self.node.Node);
             self:write('\n');

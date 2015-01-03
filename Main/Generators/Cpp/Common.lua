@@ -253,7 +253,12 @@ WriteTemplateParameterList = function(tplOwningElement, writer)
             if seenOne then
                 writer(", ");
             end
-            writer("typename " .. tn.Name);
+            seenOne = true;
+            writer("typename ");
+            if tn.Element.IsParameterPack then
+                writer("... ");
+            end
+            writer(tn.Name);
         end
     end
     writer(">");
@@ -274,11 +279,12 @@ TypeUtil = {
         check(self ~= nil, "Member method called without instance.");
         check(type ~= nil, 'Argument 2 "type" can not be null.');
 
+        local modifiers = type.Modifiers
         local rtnStr = "";
         if (type == nil) then
             error("Type argument cannot be nil.", 2);
         end
-        if (type.Const) then
+        if (modifiers.Const) then
             rtnStr = rtnStr .. "const ";
         end
         local typeArguments = type.TypeArguments;
@@ -314,16 +320,19 @@ TypeUtil = {
             end
         end
         rtnStr = rtnStr .. ' ';
-        if (type.Pointer) then
+        if (modifiers.Pointer) then
             rtnStr = rtnStr .. "* ";
         end
-        if type.RvalueReference then
+        if modifiers.RvalueReference then
             rtnStr = rtnStr .. "&& ";
-        elseif type.Reference then
+        elseif modifiers.Reference then
             rtnStr = rtnStr .. "& ";
         end
-        if (type.ConstPointer) then
+        if (modifiers.ConstPointer) then
             rtnStr = rtnStr .. "const ";
+        end
+        if (modifiers.IsParameterPack) then
+            rtnStr = rtnStr .. "... ";
         end
 
         return rtnStr;

@@ -36,8 +36,9 @@ using Macaroni::Model::TypePtr;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-Typedef::Typedef(Target * target, Node * node, ReasonPtr reason, TypePtr type)
-:Scope(target, node, reason), type(type)
+Typedef::Typedef(Target * target, Node * node, ReasonPtr reason, Access access,
+                 TypePtr type)
+:Scope(target, node, reason, access), type(type)
 {
 }
 
@@ -46,9 +47,9 @@ Typedef::~Typedef()
 }
 
 TypedefPtr Typedef::Create(TargetPtr target, NodePtr home, ReasonPtr reason,
-						   TypePtr type)
+						   Access access, TypePtr type)
 {
-	return TypedefPtr(new Typedef(target.get(), home.get(), reason, type));
+	return TypedefPtr(new Typedef(target.get(), home.get(), reason, access, type));
 }
 
 TypePtr Typedef::GetType() const

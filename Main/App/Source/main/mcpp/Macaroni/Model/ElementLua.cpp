@@ -39,6 +39,8 @@
 #include <Macaroni/Model/Project/Target.h>
 #include <Macaroni/Model/Project/TargetPtr.h>
 #include <Macaroni/Model/Project/TargetLuaMetaData.h>
+ #include <Macaroni/Model/Cpp/TemplateTypename.h>
+#include <Macaroni/Model/Cpp/TemplateTypenameLuaMetaData.h>
 
 #define LUAGLUE_STARTNAMESPACE BEGIN_NAMESPACE2(Macaroni, Model)
 #define LUAGLUE_ENDNAMESPACE	END_NAMESPACE2
@@ -217,6 +219,14 @@
 		if (!!boost::dynamic_pointer_cast<Cpp::Constructor>(ptr))
 		{
 			int rtnCnt = Cpp::ConstructorLuaMetaData::Index(L, boost::dynamic_pointer_cast<Cpp::Constructor>(ptr), index);
+			if (rtnCnt > 0)
+			{
+				return rtnCnt;
+			}
+		}
+		if (!!boost::dynamic_pointer_cast<Cpp::TemplateTypename>(ptr))
+		{
+			int rtnCnt = Cpp::TemplateTypenameLuaMetaData::Index(L, boost::dynamic_pointer_cast<Cpp::TemplateTypename>(ptr), index);
 			if (rtnCnt > 0)
 			{
 				return rtnCnt;

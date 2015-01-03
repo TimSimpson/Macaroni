@@ -11,8 +11,8 @@ local TypeNames = Macaroni.Model.TypeNames;
 
 TypedefFileGenerator = {
 
+    accessPrefix = nil,
     insideClass = false,
-    isNested = false,
     node = nil,
     tabs = 0,
     writer = nil,
@@ -67,6 +67,11 @@ TypedefFileGenerator = {
         end
 
         self:writeTabs();
+        if self.accessPrefix then
+            self:write(self.accessPrefix);
+            self:write("\n");
+            self:writeTabs();
+        end
         self:write("typedef ");
         self:writeType(self.typedef.Type);
         self:write(self.node.Name .. ";\n");
@@ -80,3 +85,7 @@ TypedefFileGenerator = {
 };
 
 Util.linkToSubClass(FileGenerator, TypedefFileGenerator);
+
+return {
+    TypedefFileGenerator=TypedefFileGenerator,
+}

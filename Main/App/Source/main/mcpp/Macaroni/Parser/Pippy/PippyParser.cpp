@@ -2735,8 +2735,19 @@ public:
 	void TemplateParameterListParse(NodePtr templateHome, Iterator & itr,
 		                       int bracketLevel)
 	{
+		bool seenOne = false;
 		while(!itr.ConsumeChar('>'))
 		{
+			if (seenOne)
+			{
+				if (!itr.ConsumeChar(','))
+				{
+					throw ParserException(itr.GetSource(),
+						Messages::Get("CppParser.Template.ExpectedComma"));
+				}
+				itr.ConsumeWhitespace();
+			}
+			seenOne = true;
 			if (TemplateParameterTypeName(templateHome, itr))
 			{
 				itr.ConsumeWhitespace();
@@ -2754,6 +2765,11 @@ public:
 		if (itr.ConsumeWord("typename"))
 		{
 			itr.ConsumeWhitespace();
+
+			const bool dots = itr.ConsumeWord("...");
+
+			itr.ConsumeWhitespace();
+
 			std::string name;
 			if (!ConsumeSimpleName(itr, name))
 			{
@@ -2768,7 +2784,7 @@ public:
 			}
 			NodePtr typeNameNode = templateHome->FindOrCreate(name);
 			TemplateTypename::Create(
-				typeNameNode,
+				typeNameNode, dots,
 				Reason::Create(CppAxioms::TemplateTypenameCreation(),
 							   itr.GetSource())
 			);
@@ -2871,6 +2887,12 @@ public:
 			ConsumeWhitespace(itr);
 		}
 
+		if (itr.ConsumeWord("..."))
+		{
+			modifiers.SetIsParameterPack(true);
+			ConsumeWhitespace(itr);
+		}
+
 		// At this point we can be sure we've seen everything.
 		info.reset(new Model::Type(mainNode, modifiers, typeArgumentList));
 		return true;
@@ -2882,6 +2904,17 @@ public:
 	{
 		Iterator newItr = itr;
 		ConsumeWhitespace(newItr);
+
+		AccessPtr access = AccessKeyword(newItr);
+		if (*access == *Access::NotSpecified())
+		{
+			access = currentAccess;
+		}
+		else
+		{
+			newItr.ConsumeWhitespace();
+		}
+
 		if (!newItr.ConsumeWord("typedef"))
 		{
 			return false;
@@ -2908,6 +2941,7 @@ public:
 		TargetPtr tHome = deduceTargetHome(typedefNode);
 		Typedef::Create(tHome, typedefNode,
 			Reason::Create(CppAxioms::TypedefCreation(), newItr.GetSource()),
+			*access,
 			type);
 
 		ConsumeWhitespace(newItr);
