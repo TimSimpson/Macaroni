@@ -86,24 +86,16 @@ class Macaroni::Environment::ProjectLoader
         #include <Macaroni/Environment/ProjectEnvironment.h>
     }
 
-    typedef map<string, ProjectEnvironmentPtr> ProjectFileMemory;
-    typedef map<ProjectVersionId, path> ProjectFileMemory2;
-
-    ~block "h"
+    struct ProjectVersionCompare
     {
-        struct ProjectVersionCompare
-        {
-            bool operator() (
-                const Macaroni::Model::Project::ProjectVersionId & a,
-                const Macaroni::Model::Project::ProjectVersionId & b) const;
-        };
+        bool operator() (
+            const Macaroni::Model::Project::ProjectVersionId & a,
+            const Macaroni::Model::Project::ProjectVersionId & b) const;
+    };
 
-        // A bug in Macaroni necessitates this. :(
-        typedef std::map<std::string, ProjectEnvironmentPtr> ProjectFileMemory;
-        typedef std::map<Macaroni::Model::Project::ProjectVersionId,
-                         boost::filesystem::path,
-                         ProjectVersionCompare> ProjectFileMemory2;
-    }
+    typedef map<string, ProjectEnvironmentPtr> ProjectFileMemory;
+    typedef map<ProjectVersionId, path, ProjectVersionCompare> ProjectFileMemory2;
+
 
     ~block "cpp"
     {

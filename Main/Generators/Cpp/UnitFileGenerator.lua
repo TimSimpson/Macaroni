@@ -54,29 +54,8 @@ FileWriters = {
     end,
 
     Typedef = function(library, node, writer, type)
-        return {
-            WriteHeaderDefinitions = function(self)
-                gen = TypedefFileGenerator.new{node=node, targetLibrary=library,
-                                               writer=writer};
-                gen:parse();
-                writer:Write('\n'); -- avoid bunching up typedefs
-            end,
-            WriteImplementation = function(self)
-                -- do nothing
-            end,
-            WriteTopBlocks = function(self)
-            end,
-            WriteBottomBlocks = function(self)
-            end,
-            WriteIncludeStatements = function(self)
-            end,
-            WriteImplementationIncludeStatements = function(self)
-            end,
-            WriteUsingStatements = function(self)
-            end,
-            WritePreDefinitionBlocks = function(self)
-            end,
-        }
+        return TypedefFileGenerator.new{node=node, targetLibrary=library,
+                                        writer=writer};
     end,
 };
 

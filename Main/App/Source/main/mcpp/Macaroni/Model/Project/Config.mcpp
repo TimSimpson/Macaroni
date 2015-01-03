@@ -24,13 +24,7 @@ class Config::Variant
 	~hfile = <Macaroni/Model/Project/Config.h>
 };
 
-typedef optional<Config::Variant ~l> Config::VariantOption
-	@LuaClass [
-		SameAsNode = Config
-	]
-	@UseLightDef true
-	~hfile = <Macaroni/Model/Project/Config.h>
-;
+
 
 class ConfigLuaMetaData{};
 
@@ -66,8 +60,15 @@ class Config
 			DEBUG,
 			RELEASE
 		};
-		typedef boost::optional<Variant> VariantOption;
 	}
+
+	typedef optional<Config::Variant ~l> VariantOption
+		@LuaClass [
+			SameAsNode = Config
+		]
+		@UseLightDef true
+		~hfile = <Macaroni/Model/Project/Config.h>
+	;
 
 	private int referenceCount;
 	private VariantOption variant;
