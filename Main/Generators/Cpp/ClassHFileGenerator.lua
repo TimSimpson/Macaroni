@@ -404,9 +404,26 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         end
     end,
 
+    ["parse" .. TypeNames.Enum] = function(self, node)
+        self:writeTabs();
+        local gen = EnumFileGenerator.new{
+            node=node, targetLibrary=self.targetLibrary, writer=self.writer,
+            insideClass=true
+        };
+        gen:WriteHeaderDefinitions();
+    end,
+
     ["parse" .. TypeNames.Namespace] = function(self)
         self:writeTabs();
         self:write("//TODO: Create parseNamespace functionality for Namespaces within classes.");
+    end,
+
+    ["parse" .. TypeNames.Typedef] = function(self, node)
+        self:writeTabs();
+        local typedef = node.Member;
+        self:write("typedef ");
+        self:writeType(typedef.Type);
+        self:write(node.Name .. ";\n");
     end,
 
     ["parse" .. TypeNames.Variable] = function(self, node, insertIntoNamespaces)

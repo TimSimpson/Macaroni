@@ -2,15 +2,15 @@ require "Cpp/Common";
 require "Plugin";
 require "Cpp/ClassCppFileGenerator";
 require "Cpp/ClassHFileGenerator";
-local CppEnumFileGenerator = require "Cpp/EnumFileGenerator";
+local EnumFileGenerator = require "Cpp/EnumFileGenerator";
 local FunctionGenerator = require "Cpp/FunctionFileGenerator";
 require "Cpp/TypedefFileGenerator";
 require "Cpp/UnitBlockGenerator";
 
 local Access = require "Macaroni.Model.Cpp.Access";
 local Context = require "Macaroni.Model.Context";
-local EnumHFileGenerator = CppEnumFileGenerator.EnumHFileGenerator
-local EnumCppFileGenerator = CppEnumFileGenerator.EnumCppFileGenerator
+local EnumFileGenerator = EnumFileGenerator.EnumFileGenerator
+local EnumCppFileGenerator = EnumFileGenerator.EnumCppFileGenerator
 local FunctionFileGenerator = FunctionGenerator.FunctionFileGenerator
 local Node = require "Macaroni.Model.Node";
 local TypeNames = Macaroni.Model.TypeNames;
@@ -38,32 +38,9 @@ FileWriters = {
     end,
 
     Enum = function(library, node, writer, type)
-        return {
-            WriteHeaderDefinitions = function(self)
-                local gen = EnumHFileGenerator.new{
-                    node=node, targetLibrary=library, writer=writer};
-                gen:parse()
-                writer:Write('\n');
-            end,
-            WriteImplementation = function(self)
-                gen = EnumCppFileGenerator.new{node=node, targetLibrary=library,
-                                               writer=writer};
-                gen:parse()
-                writer:Write('\n');
-            end,
-            WriteTopBlocks = function(self)
-            end,
-            WriteBottomBlocks = function(self)
-            end,
-            WriteIncludeStatements = function(self)
-            end,
-            WriteImplementationIncludeStatements = function(self)
-            end,
-            WriteUsingStatements = function(self)
-            end,
-            WritePreDefinitionBlocks = function(self)
-            end,
-        }
+        return EnumFileGenerator.new{
+            node=node, targetLibrary=library, writer=writer,
+        };
     end,
 
     FunctionOverload = function(library, node, writer, type)

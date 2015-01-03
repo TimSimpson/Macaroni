@@ -12,6 +12,7 @@ ParentProject{
     "Annotations",
     "ConstructorOverloading",
     "Destructors",
+    "Enum",
     "GlobalKeyword",
     "Inheritance",
     "LanguageFeatures",

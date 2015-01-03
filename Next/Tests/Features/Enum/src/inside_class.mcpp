@@ -1,0 +1,24 @@
+class EnumHolder
+{
+    enum SecretEnum
+    {
+        A,
+        B,
+        C
+    };
+
+    const char * SecretAnswer(SecretEnum e)
+    {
+        switch(e)
+        {
+            case A:
+                return "A";
+            case B:
+                return "B";
+            case C:
+                return "C";
+            default:
+                return "None";
+        }
+    }
+};
