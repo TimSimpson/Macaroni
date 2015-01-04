@@ -2,7 +2,7 @@
 ~import Macaroni::Cpp::UseLightDef;
 
 
-class boost::shared_ptr @UseLightDef true { ~hfile=<boost/shared_ptr.hpp> };
+class boost::shared_ptr { ~hfile=<boost/shared_ptr.hpp> };
 
 //MDOC-BEGIN:ex1
 class MyClassA
@@ -46,10 +46,12 @@ class MyClassC
 };
 
 //MDOC-BEGIN:sp1
-typedef boost::shared_ptr<MyClassA> MyClassPtrH;
+typedef boost::shared_ptr<MyClassA> MyClassPtrH
+     @UseLightDef true ;
 //MDOC-END:sp1
 //MDOC-BEGIN:sp2
-typedef boost::shared_ptr<MyClassA ~l> MyClassPtrL;
+typedef boost::shared_ptr<MyClassA ~l> MyClassPtrL
+     @UseLightDef true ;
 //MDOC-END:sp2
 
 class MyClassD

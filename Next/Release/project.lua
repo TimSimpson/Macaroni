@@ -9,7 +9,7 @@ local Path = require "Macaroni.IO.Path";
 sources = { "source/scripts", "source/www" }
 outputPath = "target"
 
-local version = "0.2.3"
+local version = "0.3.0"
 project = context:Group("Macaroni")
                  :Project("Macaroni.Release")
                  :Version(version)
@@ -61,7 +61,7 @@ end
 
 function createDistributionDirectory(jamConfig, weirdTag, ext, dstDir, errorHint)
     local macaroniBinary = newPath(
-        "../../Main/App/GeneratedSource/bin/" .. jamConfig
+        "../../Main/App/PureCpp/bin/" .. jamConfig
          .. "/link-static/threading-multi"):NewPath("/macaroni"
         .. weirdTag .. ext)
     if not macaroniBinary.Exists then
@@ -90,14 +90,14 @@ function createDistributionArgs(args)
     if args.windows then
         distArgs = {
                 binPath = "msvc-12.0", ext = ".exe", tag = "-windows",
-                weirdTag = "",
+                weirdTag = "_p",
                 errorHint = [[
     Enter the pure Cpp directory in Windows and execute:
-    bjam -d+2 -j8 --toolset=msvc-12.0 link=static threading=multi address-model=32]]
+    bjam -d+2 -j8 --toolset=msvc-12.0 link=static threading=multi address-model=32 release]]
                }
     else
         distArgs = {
-                 binPath = "gcc-4.7", ext = "", tag="-ubuntu", weirdTag = "_p",
+                 binPath = "gcc-linux", ext = "", tag="-ubuntu", weirdTag = "_p",
                  errorHint = [[
     In the Ubuntu ]] .. tostring(args.bits) .. [[ VM, execute
     /vagrant/mbuild build.sh]]

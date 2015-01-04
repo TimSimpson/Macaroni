@@ -8,6 +8,10 @@ print(upper)
 local luaGlue = plugins:Get("LuaGlue");
 --MDOC-END pluginGet
 
+
+boost_version = properties.boost.version
+
+
 SimpleBoostProject{
   group=upper.Group,
   project=upper.Name .. ".LuaGlue",
@@ -18,6 +22,7 @@ SimpleBoostProject{
   target="target",
   dependencies = {
     load("Macaroni", "Lua", "5.2.3"):Target("lib"),
+    load("Macaroni", "Boost-headers", boost_version):Target("lib"),
   },
   exes={
     "Main.cpp"

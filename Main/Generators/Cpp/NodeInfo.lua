@@ -171,16 +171,17 @@ NodeInfo = {
         check(self ~= nil, "Member method called without self.");
         check(node ~= nil, "Argument one must be node.");
         if (node.IsRoot) then
-			return "", false; -- Ignore
+			return "", false, ""; -- Ignore
         end
         if (node.HFilePath ~= nil) then
+            local ignore = true;
             local attr = node.Annotations["Macaroni::Cpp::LightDef"];
             if (attr ~= nil) then
                 if not attr.IsString then
                     error("The node " .. node.FullName .. " annotation value "
                           .. "LightDef must be a string.");
                 end
-                return attr.ValueAsString;
+                return attr.ValueAsString, false, attr.ValueAsString;
             end
 			local attr = node.Annotations["Macaroni::Cpp::UseLightDef"];
 			if (attr ~= nil) then
@@ -194,7 +195,7 @@ NodeInfo = {
 			end
 			if ignore then
 				-- For header files are forced to use this... :(
-				return self:createHeavyDef(node), true;
+				return self:createHeavyDef(node), true, self:createHeavyDef(node);
 			end
         end
         local generateWarning = true;
@@ -272,26 +273,6 @@ NodeInfo = {
             node = node.Node
         end
         return node
-    end,
-
-    useLightDef = function(self, node)
-		-- Gives an answer as to whether the light def can be used for this
-		-- node. If there's no header file, we have no choice- we HAVE to use
-		-- it, becuase we're generating it anyway and there's no reason not to.
-		-- If we have a header file but "UseLightDef" is defined, we should
-		-- use the light def anyway.
-		if node.HFilePath == nil then
-			return true;
-		end
-		local attr = node.Annotations["Macaroni::Cpp::UseLightDef"];
-		if (attr ~= nil) then
-			if not attr.IsBool then
-				error("The node " .. node.FullName .. " annotation value "
-					  .. "UseLightDef must be a boolean.");
-			end
-			return attr.ValueAsBool;
-		end
-		return false;
     end,
 
 };

@@ -11,6 +11,7 @@ ParentProject{
     "AccessTypes",
     "Annotations",
     "ConstructorOverloading",
+    "Dependencies",
     "Destructors",
     "Enum",
     "GlobalKeyword",
