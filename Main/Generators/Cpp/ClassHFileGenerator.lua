@@ -226,9 +226,10 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
 
         if not self.isNested then
            self:includeConfigFile();
+
+           self:WriteForwardDeclarations()
         end
 
-        self:WriteForwardDeclarations()
         -- if (not self.isNested) then
         --     self:namespaceBegin(self.node.Node);
         -- end

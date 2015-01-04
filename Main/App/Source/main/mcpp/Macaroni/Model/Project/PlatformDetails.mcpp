@@ -1,5 +1,4 @@
 ~import boost::format;
-~import boost::flyweight;
 ~import boost::optional;
 ~import boost::shared_ptr;
 ~import Macaroni::Lua::LuaClass;
@@ -15,7 +14,7 @@
 ~namespace Macaroni::Model::Project;
 
 
-typedef boost::flyweight<std::string> PlatformName;
+typedef std::string PlatformName;
 
 class PlatformList{};
 
@@ -36,7 +35,7 @@ class PlatformList : public std::vector<PlatformName>
             {
                 luaL_error(L, "Index out of bounds.");
             }
-            lua_pushstring(L, instance->operator[](key - 1).get().c_str());
+            lua_pushstring(L, instance->operator[](key - 1).c_str());
             return 1;
         }
     }

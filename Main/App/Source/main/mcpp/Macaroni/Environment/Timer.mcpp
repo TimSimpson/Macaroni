@@ -29,12 +29,12 @@ class Timer
     ~block "h" {
         private: static Integer initHighFreqTime;
 
-        private: static std::chrono::steady_clock::time_point initTime;
+        private: static std::chrono::high_resolution_clock::time_point initTime;
 
     }
     ~block "cpp" {
         Timer::Integer Timer::initHighFreqTime;
-        std::chrono::steady_clock::time_point Timer::initTime;
+        std::chrono::high_resolution_clock::time_point Timer::initTime;
     }
 
     ~block "cpp"

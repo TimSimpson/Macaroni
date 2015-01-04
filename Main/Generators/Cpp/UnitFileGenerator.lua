@@ -237,7 +237,8 @@ UnitFileGenerator = {
     end,
 
     writeConfigFile = function(self)
-        WriteLibraryConfigFileInclude(self.library, self.writer)
+        WriteLibraryConfigFileInclude(self.library, self.writer,
+                                      self.fileType~="Cpp")
     end,
 
     writeClosing = function(self)

@@ -69,9 +69,8 @@ class Messages
         {
             string next;
 
-            do
+            while(std::getline(file, next))
             {
-                std::getline(file, next);
                 int index = next.find_first_of("=");
                 if (next.size() > 0 && next[0] != '#')
                 {
@@ -80,7 +79,7 @@ class Messages
                                                       next.size() - index);
                     add(key, content);
                 }
-            } while(!file.eof());
+            }
         }
         else
         {

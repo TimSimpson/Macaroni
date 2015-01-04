@@ -1,19 +1,15 @@
 #!/bin/bash
-if [ "$CPU_BITS" == "" ]
-then
-    echo "Error - CPU_BITS not set."
-    exit 5
-fi
 
 set -e
 
-TOOLS_ROOT=$HOME/Tools
-export BOOST_ROOT=${BOOST_ROOT:-$TOOLS_ROOT/boost/boost_1_52_0}
-export LUA_ROOT=$TOOLS_ROOT/lua/lua-5.1.4
+CPU_BITS=${CPU_BITS:-32}
+TOOLS_ROOT=${TOOLS_ROOT:-$HOME/Tools}
+export BOOST_ROOT=${BOOST_ROOT:-$TOOLS_ROOT/boost/boost_1_57_0}
+export LUA_ROOT=${LUA_ROOT:-$TOOLS_ROOT/lua/lua-5.1.4}
 MACARONI_SOURCE=${MACARONI_SOURCE:-/macaroni}
 MACARONI_PURECPP_SOURCE=${MACARONI_PURECPP_SOURCE:-MACARONI_SOURCE/Main/App/PureCpp}
-MACARONI_EXE=$MACARONI_SOURCE/Main/App/PureCpp/bin/gcc-4.7/debug/address-model-$CPU_BITS/link-static/threading-multi/macaroni_p
-export PATH=$PATH:$BOOST_ROOT
+MACARONI_EXE=$MACARONI_SOURCE/Main/App/PureCpp/bin/gcc-linux/debug/address-model-$CPU_BITS/link-static/threading-multi/macaroni_p
+PATH=$PATH:$BOOST_ROOT
 export PATH=$PATH:$BOOST_ROOT/stage/lib
 
 function explain_vars() {
@@ -36,20 +32,20 @@ function install_gcc() {
     sudo apt-get install -y python-software-properties
     sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
     sudo apt-get update
-    sudo apt-get install -y gcc-4.7
-    sudo apt-get install -y g++-4.7
-    # Now make sure the default gcc and G++ are 4.7.
-    sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.7 100
-    sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.7 100
-    sudo update-alternatives --install /usr/bin/cpp cpp-bin /usr/bin/cpp-4.7 100
-    sudo update-alternatives --set g++ /usr/bin/g++-4.7
-    sudo update-alternatives --set gcc /usr/bin/gcc-4.7
-    sudo update-alternatives --set cpp-bin /usr/bin/cpp-4.7
+    sudo apt-get install -y gcc-4.8
+    sudo apt-get install -y g++-4.8
+    # Now make sure the default gcc and G++ are 4.8.
+    sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 100
+    sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 100
+    sudo update-alternatives --install /usr/bin/cpp cpp-bin /usr/bin/cpp-4.8 100
+    sudo update-alternatives --set g++ /usr/bin/g++-4.8
+    sudo update-alternatives --set gcc /usr/bin/gcc-4.8
+    sudo update-alternatives --set cpp-bin /usr/bin/cpp-4.8
 
     # I think this is needed to compile 32 and 64 bit versions.
     sudo apt-get install gcc-multilib
-    sudo apt-get install gcc-4.7-multilib
-    sudo apt-get install g++-4.7-multilib
+    sudo apt-get install gcc-4.8-multilib
+    sudo apt-get install g++-4.8-multilib
 }
 
 function invoke_b2() {
@@ -81,37 +77,34 @@ function install_lua() {
     rm $TOOLS_ROOT/lua/lua-5.1.4.tar.gz
 }
 
-function cmd_install() {
-    install_gcc
-    install_boost
-    install_lua
-}
-
 function create_user_config() {
     echo "
 using boost
-    :   1.52
-    :  # <include>$BOOST_ROOT
-       # <library>$BOOST_ROOT/stage/lib
+    :   1.57
     ;
+
+using gcc
+        : linux
+        : g++
+        : <cxxflags>"--std=c++11"
+        ;
 " > ~/user-config.jam
 }
 
 
-function init_build() {
+function cmd_install() {
+    install_gcc
+    install_boost
+    install_lua
     create_user_config
-    cd $MACARONI_SOURCE/Main/App/PureCpp
-    # export CPLUS_INCLUDE_PATH=$BOOST_ROOT
-    # export LD_LIBRARY_PATH=$BOOST_ROOT/stage/lib
-    # export LIBRARY_PATH=$BOOST_ROOT/stage/lib
-    # export BOOST_LIB_SUFFIX=-gcc47-mt-1_52
 }
 
+
 function _build() {
-    init_build
+    cd $MACARONI_SOURCE/Main/App/PureCpp
     bjam -d+2 -q \
         address-model=$CPU_BITS \
-        --toolset=gcc cxxflags=-std=gnu++11 link=static \
+        --toolset=gcc-linux link=static \
         threading=multi $_EXTRA_BUILD_OPTIONS $@
 }
 function cmd_build() {
@@ -136,7 +129,7 @@ properties =
 {
   boost =
   {
-    ['1.52'] =
+    ['1.57'] =
     {
       include=[[$BOOST_ROOT]],
       lib=[[$BOOST_ROOT/stage/lib]],
@@ -145,21 +138,21 @@ properties =
   },
   lua =
   {
-    ['5.1.4'] =
+    ['5.2.3'] =
     {
       include = [[$LUA_ROOT/src]],
       source = [[$TOOLS_ROOT/lua/src]],
     },
   },
 }
-properties.boost.current = properties.boost['1.52'];
+properties.boost.current = properties.boost['1.57'];
 properties.bjam_options = '-d+2 -q ';
-properties.boost.version = '1.52';
+properties.boost.version = '1.57';
 " > ~/Macaroni/init.lua
 }
 
 function cavatappi_args() {
-    echo "--generatorPath $MACARONI_SOURCE/Main/Generators --libraryRepoPath $MACARONI_SOURCE/Main/Libraries --messagesPath $MACARONI_SOURCE/Main/App/Source/main/resources cavatappi $@"
+    echo "--generatorPath $MACARONI_SOURCE/Main/Generators --libraryRepoPath $MACARONI_SOURCE/Main/Libraries --messagesPath $MACARONI_SOURCE/Main/App/Source/main/resources $@"
 }
 
 function cmd_run() {
@@ -190,6 +183,8 @@ function cmd_help() {
 Here are the valid commands, in order they should be run:
 
     install   - Installs the GCC compiler and Boost libraries.
+                Only do this if you haven't already set this stuff up yourself
+                or it might screw with files you've customized.
     build     - Builds Macaroni
     unit-test - Runs the unit tests.
     debug     - Runs Macaroni in debug mode.

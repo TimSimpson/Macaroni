@@ -160,81 +160,84 @@
 			return 1;
 		}
 
-		if (!!boost::dynamic_pointer_cast<Block>(ptr))
+		Element * nakedPtr = ptr.get();
+		if (!!dynamic_cast<Block *>(nakedPtr))
 		{
-			int rtnCnt = BlockLuaMetaData::Index(L, boost::dynamic_pointer_cast<Block>(ptr), index);
+			int rtnCnt = BlockLuaMetaData::Index(L, dynamic_cast<Block *>(nakedPtr), index);
 			if (rtnCnt > 0)
 			{
 				return rtnCnt;
 			}
 		}
-		if (!!boost::dynamic_pointer_cast<Cpp::Class>(ptr))
+		if (!!dynamic_cast<Cpp::Class *>(nakedPtr))
 		{
-			int rtnCnt = Cpp::ClassLuaMetaData::Index(L, boost::dynamic_pointer_cast<Cpp::Class>(ptr), index);
+			int rtnCnt = Cpp::ClassLuaMetaData::Index(L, dynamic_cast<Cpp::Class *>(nakedPtr), index);
 			if (rtnCnt > 0)
 			{
 				return rtnCnt;
 			}
 		}
-		if (!!boost::dynamic_pointer_cast<Cpp::Enum>(ptr))
+		if (!!dynamic_cast<Cpp::Enum *>(nakedPtr))
 		{
-			int rtnCnt = Cpp::EnumLuaMetaData::Index(L, boost::dynamic_pointer_cast<Cpp::Enum>(ptr), index);
+			Cpp::EnumPtr sp(dynamic_cast<Cpp::Enum *>(nakedPtr));
+			int rtnCnt = Cpp::EnumLuaMetaData::Index(L, sp, index);
 			if (rtnCnt > 0)
 			{
 				return rtnCnt;
 			}
 		}
-		if (!!boost::dynamic_pointer_cast<Cpp::Variable>(ptr))
+		if (!!dynamic_cast<Cpp::Variable *>(nakedPtr))
 		{
-			int rtnCnt = Cpp::VariableLuaMetaData::Index(L, boost::dynamic_pointer_cast<Cpp::Variable>(ptr), index);
+			int rtnCnt = Cpp::VariableLuaMetaData::Index(L, dynamic_cast<Cpp::Variable *>(nakedPtr), index);
 			if (rtnCnt > 0)
 			{
 				return rtnCnt;
 			}
 		}
-		if (!!boost::dynamic_pointer_cast<Cpp::Function>(ptr))
+		if (!!dynamic_cast<Cpp::Function *>(nakedPtr))
 		{
-			int rtnCnt = Cpp::FunctionLuaMetaData::Index(L, boost::dynamic_pointer_cast<Cpp::Function>(ptr), index);
+			int rtnCnt = Cpp::FunctionLuaMetaData::Index(L, dynamic_cast<Cpp::Function *>(nakedPtr), index);
 			if (rtnCnt > 0)
 			{
 				return rtnCnt;
 			}
 		}
-		if (!!boost::dynamic_pointer_cast<Cpp::ConstructorOverload>(ptr))
+		if (!!dynamic_cast<Cpp::ConstructorOverload *>(nakedPtr))
 		{
-			int rtnCnt = Cpp::ConstructorOverloadLuaMetaData::Index(L, boost::dynamic_pointer_cast<Cpp::ConstructorOverload>(ptr), index);
+			int rtnCnt = Cpp::ConstructorOverloadLuaMetaData::Index(L, dynamic_cast<Cpp::ConstructorOverload *>(nakedPtr), index);
 			if (rtnCnt > 0)
 			{
 				return rtnCnt;
 			}
 		}
-		if (!!boost::dynamic_pointer_cast<Cpp::FunctionOverload>(ptr))
+		if (!!dynamic_cast<Cpp::FunctionOverload *>(nakedPtr))
 		{
-			int rtnCnt = Cpp::FunctionOverloadLuaMetaData::Index(L, boost::dynamic_pointer_cast<Cpp::FunctionOverload>(ptr), index);
+			int rtnCnt = Cpp::FunctionOverloadLuaMetaData::Index(L, dynamic_cast<Cpp::FunctionOverload *>(nakedPtr), index);
 			if (rtnCnt > 0)
 			{
 				return rtnCnt;
 			}
 		}
-		if (!!boost::dynamic_pointer_cast<Cpp::Constructor>(ptr))
+		if (!!dynamic_cast<Cpp::Constructor *>(nakedPtr))
 		{
-			int rtnCnt = Cpp::ConstructorLuaMetaData::Index(L, boost::dynamic_pointer_cast<Cpp::Constructor>(ptr), index);
+			int rtnCnt = Cpp::ConstructorLuaMetaData::Index(L, dynamic_cast<Cpp::Constructor *>(nakedPtr), index);
 			if (rtnCnt > 0)
 			{
 				return rtnCnt;
 			}
 		}
-		if (!!boost::dynamic_pointer_cast<Cpp::TemplateTypename>(ptr))
+		if (!!dynamic_cast<Cpp::TemplateTypename *>(nakedPtr))
 		{
-			int rtnCnt = Cpp::TemplateTypenameLuaMetaData::Index(L, boost::dynamic_pointer_cast<Cpp::TemplateTypename>(ptr), index);
+			Cpp::TemplateTypenamePtr sp(dynamic_cast<Cpp::TemplateTypename *>(nakedPtr));
+			int rtnCnt = Cpp::TemplateTypenameLuaMetaData::Index(L, sp, index);
 			if (rtnCnt > 0)
 			{
 				return rtnCnt;
 			}
 		}
-		if (!!boost::dynamic_pointer_cast<Cpp::Typedef>(ptr))
+		if (!!dynamic_cast<Cpp::Typedef *>(nakedPtr))
 		{
-			int rtnCnt = Cpp::TypedefLuaMetaData::Index(L, boost::dynamic_pointer_cast<Cpp::Typedef>(ptr), index);
+			int rtnCnt = Cpp::TypedefLuaMetaData::Index(L, dynamic_cast<Cpp::Typedef *>(nakedPtr), index);
 			if (rtnCnt > 0)
 			{
 				return rtnCnt;

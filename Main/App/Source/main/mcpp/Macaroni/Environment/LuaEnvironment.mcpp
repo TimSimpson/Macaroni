@@ -50,7 +50,7 @@ class LuaEnvironment
     ~block "h-predef" {
         #include <Macaroni/Environment/Values/AnyPtr.h>
         #include <Macaroni/Environment/Values/Table.h>
-        #include <Macaroni/lua.h>
+        #include <Macaroni/Lua.h>
         #include <Macaroni/ME.h>
     }
     ~block "cpp-include" {

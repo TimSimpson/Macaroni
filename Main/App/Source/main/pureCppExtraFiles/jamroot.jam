@@ -40,7 +40,7 @@
 ################################################################################
 
 import boost ;
-boost.use-project 1.55 ;
+boost.use-project 1.57 ;
 
 alias sources
 	:	[ glob-tree *.c	: .svn ]
@@ -50,6 +50,7 @@ alias sources
 		  lua.cpp lu.cpp.cpp luac.cpp
 		  ]
 		/boost//filesystem
+		/boost//program_options
 		/boost//regex
 		/boost//system
 	:	<include>./

@@ -361,7 +361,7 @@ class Table : public Any
 			SetAndGiveReference(name, v);
 		}
 
-		template<typename typename Head, typename... Tail>
+		template<typename Head, typename... Tail>
 		void AddValues(const boost::variant<int, std::string> & name,
 			           Head value, Tail... rest)
 		{

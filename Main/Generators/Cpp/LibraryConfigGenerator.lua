@@ -37,16 +37,18 @@ setmetatable(writerInfo, writerInfoMetaTable)
 writerInfoMetaTable.__mode = "k"
 
 
-WriteLibraryConfigFileInclude = function(targetLibrary, writer)
+WriteLibraryConfigFileInclude = function(targetLibrary, writer, inCpp)
 	local wrotePragma = writerInfo[writer]
     if (not wrotePragma and
         BoostConfigIsAvailable(targetLibrary)) then
         writer:WriteLine("\n#include <"
                    .. LibraryConfigFile(targetLibrary)
                    .. ">");
-        writer:WriteLine("#ifdef BOOST_HAS_PRAGMA_ONCE")
-        writer:WriteLine("    #pragma once")
-        writer:WriteLine("#endif\n")
+        if inCpp then
+	        writer:WriteLine("#ifdef BOOST_HAS_PRAGMA_ONCE")
+	        writer:WriteLine("    #pragma once")
+	        writer:WriteLine("#endif\n")
+	    end
         writerInfo[writer] = true
     end
 end
