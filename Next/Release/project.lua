@@ -221,7 +221,7 @@ function build()
     -- createDistribution{windows=true,  release=false, bits=32 };
     createDistribution{windows=true,  release=true, bits=32  };
     --createDistribution{windows=false, release=false, bits=32 };
-    --- createDistribution{windows=false, release=true,  bits=32 };
+    createDistribution{windows=false, release=true,  bits=32 };
     -- createDistribution{windows=false, release=false, bits=64 };
     -- createDistribution{windows=false, release=true,  bits=64 };
 end
