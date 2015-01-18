@@ -54,16 +54,6 @@ class boost::variant { ~hfile=<boost/variant.hpp> };
 
 class Macaroni::Containers::AssignVectorToConstElementVector { ~hfile=<Macaroni/Containers.h.> } //TODO: Make function
 
-class Macaroni::Model::AxiomLuaMetaData { ~hfile=<Macaroni/Model/AxiomLua.h> };
-class Macaroni::Model::AxiomPtr { ~hfile=<Macaroni/Model/AxiomPtr.h> };
-class Macaroni::Model::Axiom
-	@LuaClass
-	[
-		LuaGlueClass = Macaroni::Model::AxiomLuaMetaData,
-		ReferenceType = Macaroni::Model::AxiomPtr,
-	]
-	{ ~hfile=<Macaroni/Model/Axiom.h> }
-class Macaroni::Model::AxiomPtr @LuaClass [ SameAsNode=Axiom ] {}
 
 class MACARONI_CHECK { ~hfile=<Macaroni/ME.h> };
 class Macaroni::Model::Cpp::ClassLuaMetaData { ~hfile=<Macaroni/Model/Cpp/ClassLua.h> };

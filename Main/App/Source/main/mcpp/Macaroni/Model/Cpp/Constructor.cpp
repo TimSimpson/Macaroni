@@ -18,7 +18,7 @@
 
 #include <Macaroni/Model/Cpp/Class.h>
 #include "Constructor.h"
-#include "Primitive.h"
+#include <Macaroni/Model/Cpp/Primitive.h>
 #include <Macaroni/Exception.h>
 #include <Macaroni/Model/ModelInconsistencyException.h>
 #include "Namespace.h"

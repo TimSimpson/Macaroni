@@ -19,7 +19,6 @@
 #include <Macaroni/Environment/LuaEnvironment.h>
 #include <Macaroni/Model/AnnotationTableLua.h>
 #include <Macaroni/Model/AnnotationValueLua.h>
-#include <Macaroni/Model/AxiomLua.h>
 #include <Macaroni/Model/BlockLua.h>
 #include <Macaroni/Model/Cpp/ClassLua.h>
 #include <Macaroni/Model/Cpp/ClassParentListLuaMetaData.h>

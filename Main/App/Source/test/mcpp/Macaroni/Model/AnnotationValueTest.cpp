@@ -23,7 +23,7 @@
 #include <Macaroni/Model/Axiom.h>
 #include <Macaroni/Model/Context.h>
 #include <Macaroni/Model/FileName.h>
-#include <Macaroni/Parser/Macaroni/MacaroniAxioms.h>
+#include <Macaroni/Parser/MacaroniAxioms.h>
 #include <Macaroni/Model/Member.h>
 #include <Macaroni/Model/ModelInconsistencyException.h>
 #include <Macaroni/Model/Node.h>
@@ -53,7 +53,7 @@ using Macaroni::Model::SourcePtr;
 
 static ReasonPtr createReason()
 {
-	AxiomPtr axiom = Macaroni::Parser::Macaroni::MacaroniAxioms::AnnotationImplicitDefinition();
+	AxiomPtr axiom = Macaroni::Parser::MacaroniAxioms::AnnotationImplicitDefinition();
 	SourcePtr source = Source::Create(FileName::Create("TestFake.cpp"), 1, 37);
 	ReasonPtr reason = Reason::Create(axiom, source);
 	return reason;

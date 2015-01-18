@@ -1,0 +1,131 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+~import Macaroni::Model::Axiom;
+~import Macaroni::Model::AxiomPtr;
+
+~unit "Macaroni/Parser/Cpp/CppAxioms";
+
+namespace Macaroni::Parser::Cpp::CppAxioms
+{
+    public AxiomPtr AnnotationValueCreation()
+    {
+        AxiomPtr p{new Axiom{"CppAxioms.AnnotationValueCreation"}};
+        return p;
+    }
+
+    public AxiomPtr BlockCreation()
+    {
+        AxiomPtr p{new Axiom{"CppAxioms.BlockCreation"}};
+        return p;
+    }
+
+    public AxiomPtr ClassCreation()
+    {
+        AxiomPtr p{new Axiom{"CppAxioms.ClassCreation"}};
+        return p;
+    }
+
+    public AxiomPtr CtorCreation()
+    {
+        AxiomPtr p{new Axiom{"CppAxioms.ConstructorCreation"}};
+        return p;
+    }
+
+    public AxiomPtr DtorCreation()
+    {
+        AxiomPtr p{new Axiom{"CppAxioms.DestructorCreation"}};
+        return p;
+    }
+
+    public AxiomPtr EnumCreation()
+    {
+        AxiomPtr p{new Axiom{"CppAxioms.EnumCreation"}};
+        return p;
+    }
+
+    public AxiomPtr FunctionCreation()
+    {
+        AxiomPtr p{new Axiom{"CppAxioms.FunctionCreation"}};
+        return p;
+    }
+
+    public AxiomPtr NamespaceCreation()
+    {
+        AxiomPtr p{new Axiom{"CppAxioms.NamespaceCreation"}};
+        return p;
+    }
+
+    public AxiomPtr PrimitiveChar()
+    {
+        AxiomPtr p{new Axiom{"CppAxioms.PrimitiveChar"}};
+        return p;
+    }
+
+    public AxiomPtr PrimitiveDouble()
+    {
+        AxiomPtr p{new Axiom{"CppAxioms.PrimitiveDouble"}};
+        return p;
+    }
+
+    public AxiomPtr PrimitiveFloat()
+    {
+        AxiomPtr p{new Axiom{"CppAxioms.PrimitiveFloat"}};
+        return p;
+    }
+
+    public AxiomPtr PrimitiveSignedInt()
+    {
+        AxiomPtr p{new Axiom{"CppAxioms.PrimitiveSignedInt"}};
+        return p;
+    }
+
+    public AxiomPtr PrimitiveUnsignedInt()
+    {
+        AxiomPtr p{new Axiom{"CppAxioms.PrimitiveUnsignedInt"}};
+        return p;
+    }
+
+    public AxiomPtr SetExistingHFilePath()
+    {
+        AxiomPtr p{new Axiom{"CppAxioms.SetExistingHFilePath"}};
+        return p;
+    }
+
+    public AxiomPtr TemplateTypenameCreation()
+    {
+        AxiomPtr p{new Axiom{"CppAxioms.TemplateTypenameCreation"}};
+        return p;
+    }
+
+    public AxiomPtr TemplateParameterListCreation()
+    {
+        AxiomPtr p{new Axiom{"CppAxioms.TemplateParameterListCreation"}};
+        return p;
+    }
+
+    public AxiomPtr TypedefCreation()
+    {
+        AxiomPtr p{new Axiom{"CppAxioms.TypedefCreation"}};
+        return p;
+    }
+
+    public AxiomPtr VariableScopeCreation()
+    {
+        AxiomPtr p{new Axiom{"CppAxioms.VariableScopeCreation"}};
+        return p;
+    }
+
+}

@@ -27,10 +27,10 @@
 ~import Macaroni::Cpp::UseLightDef;
 
 namespace Macaroni::Model {
-	
-class Reason {}
 
-typedef boost::intrusive_ptr<Reason> ReasonPtr 
+class Reason {};
+
+typedef boost::intrusive_ptr<Reason> ReasonPtr
 	~hfile=<Macaroni/Model/ReasonPtr.h>
 	@UseLightDef true
 	@LuaClass [ SameAsNode = Reason ]
@@ -43,26 +43,26 @@ class Reason
 {
 	private AxiomPtr axiom;
 	private int referenceCount;
-	private SourcePtr source;	
-	
+	private SourcePtr source;
+
 	protected Reason(AxiomPtr axiom, SourcePtr source)
-	:	axiom(axiom), 
-		referenceCount(0), 
+	:	axiom(axiom),
+		referenceCount(0),
 		source(source)
 	{
 	}
 
 	protected ~Reason()
-	{		
+	{
 	}
-	
+
 	public bool operator== (const Reason & other) const
 		@LuaOperator "__eq"
 	{
 		return *(this->axiom) == *(other.axiom)
 			&& *(this->source) == *(other.source);
 	}
-	
+
 	public static ReasonPtr Create(AxiomPtr axiom, SourcePtr source)
 		@LuaFunction "Create"
 	{
@@ -75,7 +75,7 @@ class Reason
 		return axiom;
 	}
 
-	
+
 	public inline int GetReferenceCount()
 		@LuaProperty "ReferenceCount"
 	{
@@ -102,7 +102,7 @@ class Reason
 		}
 	}
 
-	
+
 	public const std::string ToString() const
 		@LuaOperator "__tostring"
 	{
@@ -123,11 +123,11 @@ class Reason
 		else
 		{
 			ss << "[Axiom was null!]";
-		}	
+		}
 		return ss.str();
 	}
 
-	
+
 }; // end class
 
 } // end ns

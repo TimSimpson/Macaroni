@@ -1,0 +1,45 @@
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Environment::Messages;
+~import boost::shared_ptr;
+~import std::string;
+
+
+~namespace Macaroni::Model;
+
+class Axiom {};
+
+typedef boost::shared_ptr<Axiom> AxiomPtr
+    @LuaClass [ SameAsNode=Axiom ]
+;
+
+
+class Axiom
+    @LuaClass [ ReferenceType = Macaroni::Model::AxiomPtr ]
+{
+    private std::string msgKey;
+
+    public Axiom(const std::string & msgKey)
+    :   msgKey(msgKey)
+    {}
+
+    public bool operator== (const Axiom & other) const
+        @LuaOperator "__eq"
+    {
+        return this->msgKey == other.msgKey;
+    }
+
+    public static AxiomPtr LuaCreate(const string & words)
+        @LuaFunction "LuaCreate"
+    {
+        AxiomPtr p{new Axiom{words}};
+        return p;
+    }
+
+    public const std::string ToString() const
+        @LuaOperator "__tostring"
+    {
+        return Messages::Get(msgKey.c_str());
+    }
+};

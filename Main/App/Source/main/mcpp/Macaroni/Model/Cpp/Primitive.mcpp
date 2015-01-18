@@ -1,0 +1,58 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+~import boost::intrusive_ptr;
+~import Macaroni::Model::Node;
+~import Macaroni::Model::ReasonPtr;
+~import Macaroni::Model::Cpp::ScopeMember;
+
+
+~namespace Macaroni::Model::Cpp;
+
+class Primitive {};
+
+typedef boost::intrusive_ptr<Primitive> PrimitivePtr;
+
+class Primitive : public ScopeMember
+{
+    protected Primitive(Node * home, ReasonPtr reason)
+    :   ScopeMember(home, reason)
+    {
+    }
+
+    public static PrimitivePtr Create(NodePtr home, ReasonPtr reason)
+    {
+        return PrimitivePtr(new Primitive(home.get(), reason));
+    }
+
+    public virtual ~Primitive()
+    {
+    }
+
+    public virtual const char * GetTypeName() const
+    {
+        return "Primitive";
+    }
+
+    public ~global ~friend void intrusive_ptr_add_ref(Primitive * p)
+    {
+        intrusive_ptr_add_ref((ScopeMember *)p);
+    }
+
+    public ~global ~friend void intrusive_ptr_release(Primitive * p)
+    {
+        intrusive_ptr_release((ScopeMember *)p);
+    }
+};

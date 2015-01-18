@@ -1,0 +1,84 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+~import Macaroni::Model::Axiom;
+~import Macaroni::Model::AxiomPtr;
+~import Macaroni::Model::Context;
+~import Macaroni::Model::ContextPtr;
+~import Macaroni::Model::FileName;
+~import boost::format;
+~import Macaroni::Model::MessageAxiom;
+~import Macaroni::Model::Namespace;
+~import Macaroni::Model::Node;
+~import Macaroni::Model::Cpp::Primitive;
+~import Macaroni::Model::Reason;
+~import Macaroni::Model::Source;
+~import std::sstream;
+
+
+~namespace Macaroni::Model::Cpp;
+
+
+/** This class has static methods for creating a Context with C++ specific nodes
+ * such as Primitives. */
+class CppContext
+{
+    /** Adds the C++ goodness to an existing context. */
+    public static void CreateCppNodes(ContextPtr context)
+    {
+        NodePtr primitiveRoot = context->GetRoot()
+            ->FindOrCreate("{C++ Primitives}");
+        if (0 == primitiveRoot->GetChildCount())
+        {
+            addPrimitive(primitiveRoot, "bool");
+            addPrimitive(primitiveRoot, "char");
+            addPrimitive(primitiveRoot, "signed char");
+            addPrimitive(primitiveRoot, "unsigned char");
+            addPrimitive(primitiveRoot, "double");
+            addPrimitive(primitiveRoot, "float");
+            addPrimitive(primitiveRoot, "signed int");
+            addPrimitive(primitiveRoot, "unsigned int");
+            addPrimitive(primitiveRoot, "long");
+            addPrimitive(primitiveRoot, "signed long");
+            addPrimitive(primitiveRoot, "unsigned long");
+            addPrimitive(primitiveRoot, "short");
+            addPrimitive(primitiveRoot, "signed short");
+            addPrimitive(primitiveRoot, "unsigned short");
+            addPrimitive(primitiveRoot, "size_t");
+            addPrimitive(primitiveRoot, "int");
+            addPrimitive(primitiveRoot, "void");
+            addPrimitive(primitiveRoot, "wchar_t");
+        }
+    }
+
+    ~hidden static void addPrimitive(NodePtr & node, const char * name)
+    {
+        static FileNamePtr file = FileName::CreateNonPhysical("Cpp Parser");
+        static SourcePtr src = Source::Create(file, 0, 0);
+
+        NodePtr primitive = node->FindOrCreate(name);
+        std::stringstream ss;
+
+        AxiomPtr axiom{new Axiom{str(format("CppAxioms.Primitive.%s") % name)}};
+        Primitive::Create(primitive, Reason::Create(axiom, src));
+    }
+
+    /** Returns a secret node which stores primitives. */
+    public static NodePtr GetPrimitives(ContextPtr context)
+    {
+        return context->GetRoot()->Find("{C++ Primitives}");
+    }
+
+};

@@ -19,7 +19,7 @@
 #include <Macaroni/Model/Cpp/Class.h>
 #include "Destructor.h"
 #include "FunctionOverload.h"
-#include "Primitive.h"
+#include <Macaroni/Model/Cpp/Primitive.h>
 #include <Macaroni/Exception.h>
 #include "../ModelInconsistencyException.h"
 #include "Namespace.h"

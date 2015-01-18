@@ -9,7 +9,7 @@ local Path = require "Macaroni.IO.Path";
 sources = { "source/scripts", "source/www" }
 outputPath = "target"
 
-local version = "0.3.0"
+local version = "0.3.1"
 project = context:Group("Macaroni")
                  :Project("Macaroni.Release")
                  :Version(version)
@@ -224,6 +224,10 @@ function build()
     createDistribution{windows=false, release=true,  bits=32 };
     -- createDistribution{windows=false, release=false, bits=64 };
     -- createDistribution{windows=false, release=true,  bits=64 };
+end
+
+function document()
+    -- Ignore
 end
 
 function install()
