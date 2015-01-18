@@ -72,6 +72,8 @@ class FunctionOverload : public Scope
 
 	private Node * templateParameterList;
 
+	private optional<string> trailingReturnType;
+
 	private bool usesDefaultKeyword;
 
 	private bool usesDeleteKeyword;
@@ -79,15 +81,16 @@ class FunctionOverload : public Scope
 	protected FunctionOverload(Target * target,
 		Node * home, Model::ReasonPtr reason, bool isInline,
 		Access access, const bool isStatic, bool isVirtual,
-		const TypePtr rtnTypeInfo, bool constMember, bool overrideKeyword,
+		const TypePtr rtnTypeInfo, bool konstMember, bool overrideKeyword,
 		const optional<ExceptionSpecifier> exceptionSpecifier,
 		Node * templateParameterList,
+		optional<string> trailingReturnType=boost::none,
 		optional<NodeListPtr> importedNodes=boost::none
 	)
 	:	Scope(target, home, reason, access, isStatic),
 		codeBlock(),
 		codeBlockAddRedirect(false),
-		constMember(constMember),
+		constMember(konstMember),
 		codeSource(),
 		imports(),
 		isInline(isInline),
@@ -98,6 +101,7 @@ class FunctionOverload : public Scope
 		returnType(rtnTypeInfo),
 		exceptionSpecifier(exceptionSpecifier),
 		templateParameterList(templateParameterList),
+		trailingReturnType(trailingReturnType),
 		usesDefaultKeyword(false),
 		usesDeleteKeyword(false)
 	{
@@ -129,6 +133,7 @@ class FunctionOverload : public Scope
 		const optional<ExceptionSpecifier> exceptionSpecifier,
 		Model::ReasonPtr reason,
 		NodePtr templateParameterList=NodePtr{},
+		optional<string> trailingReturnType = boost::none,
 		optional<NodeListPtr> imports=boost::none
 	)
 	{
@@ -137,7 +142,7 @@ class FunctionOverload : public Scope
 			isInline, *access,
 			isStatic, isVirtual, rtnType, konstMember, overrideKeyword,
 			exceptionSpecifier,
-			templateParameterList.get(), imports);
+			templateParameterList.get(), trailingReturnType, imports);
 		return FunctionOverloadPtr(fo);
 	}
 
@@ -211,6 +216,11 @@ class FunctionOverload : public Scope
 	public Model::NodePtr GetTemplateParameterList()
 	{
 		return templateParameterList;
+	}
+
+	public optional<string> GetTrailingReturnType() const
+	{
+		return trailingReturnType;
 	}
 
 	public virtual const char * GetTypeName() const

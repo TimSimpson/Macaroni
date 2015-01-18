@@ -248,6 +248,16 @@ int FunctionOverloadLuaMetaData::Index(lua_State * L,
 		NodeLuaMetaData::PutInstanceOnStack(L, tpl);
 		return 1;
 	}
+	else if (index == "TrailingReturnType")
+	{
+		const auto trt = ptr->GetTrailingReturnType();
+		if (trt) {
+			lua_pushstring(L, trt.get().c_str());
+		} else {
+			lua_pushnil(L);
+		}
+		return 1;
+	}
 	else if (index == "ExceptionSpecifier")
 	{
 		auto es = ptr->GetExceptionSpecifier();

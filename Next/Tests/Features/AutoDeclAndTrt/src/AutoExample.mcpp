@@ -1,0 +1,32 @@
+~import std::string;
+
+template<typename T>
+class Automobile
+{
+    T wheels;
+
+    public Automobile(T wheels)
+    :   wheels(wheels)
+    {}
+
+    public auto Wheels() const -> T
+    {
+        return wheels;
+    }
+
+
+};
+
+
+
+~unit "AutomobileTest" type=test
+{
+    ~import Automobile;
+    ~import std::cout;
+
+    int main()
+    {
+        Automobile<int> a = {4};
+        cout << "The automobile has " << a.Wheels() << " wheels.";
+    }
+}

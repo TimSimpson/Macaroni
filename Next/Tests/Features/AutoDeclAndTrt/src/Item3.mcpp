@@ -1,0 +1,13 @@
+~unit Item3;
+
+//MDOC-BEGIN Item3
+// This comes from an example in Item 3 in the book "Effective Modern C++" by
+// Scott Meyers. Used without permission. I'm no lawyer but I'm guessing this
+// is covered under fair use- how else can I be certain this snippet will work?
+
+template<typename Container, typename Index>
+decltype(auto) authAndAccess(Container && c, Index i)
+{
+    return std::forward<Container>(c)[i];
+}
+//MDOC-END Item3

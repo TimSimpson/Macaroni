@@ -1,0 +1,30 @@
+~unit PointlessAuto;
+
+//MDOC-BEGIN Auto
+template<typename T>
+auto say_hi(T arg)
+{
+    return T("hi!");
+}
+//MDOC-END Auto
+
+//MDOC-BEGIN DeclTypeAuto
+template<typename T>
+decltype(auto) say_hi(T arg)
+{
+    return T("hi!");
+}
+//MDOC-END DeclTypeAuto
+
+//MDOC-BEGIN Junk
+template<typename T>
+decltype(auto) say_hi(T arg) -> As you can see,
+                                Macaroni has no idea
+                                that this isn't
+                                real C++ code!
+{
+    Of course, neither is this.
+}
+//MDOC-END Junk
+
+

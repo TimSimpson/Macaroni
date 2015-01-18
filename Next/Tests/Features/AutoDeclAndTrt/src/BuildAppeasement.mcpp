@@ -1,0 +1,7 @@
+class WithoutAnyFilesInJustTheImplBoostBuildWillFail
+{
+    int five()
+    {
+        return 5;
+    }
+};

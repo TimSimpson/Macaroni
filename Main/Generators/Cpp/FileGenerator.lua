@@ -345,11 +345,14 @@ FileGenerator = {
     	check(foNode.Member ~= nil, "functionNode must have instance");
     	check(foNode.Member.TypeName == "FunctionOverload", "Node must be FunctionOverload");
         -- self:writeTabs();
-        if foNode.Member.Access.VisibleInLibrary and self.libDecl
-            and not calledFromClassWriter then
-			self:write(self.libDecl .. " ");
-        end
         local func = foNode.Member;
+        if foNode.Member.Access.VisibleInLibrary and self.libDecl
+            and not calledFromClassWriter
+            and func.TemplateParameterList == nil
+        then
+			self:write(self.libDecl .. "\n");
+            self:writeTabs();
+        end
         if (foNode.Member.Static) then
             self:write("static ");
         end
@@ -378,6 +381,11 @@ FileGenerator = {
             self:write(" override");
         end
         self:writeFunctionExceptionSpecifier(func)
+        local trt = func.TrailingReturnType;
+        if trt then
+            self:write(" -> ");
+            self:write(trt);
+        end
     end,
 
     writeImplementationInclude = function(self, import)

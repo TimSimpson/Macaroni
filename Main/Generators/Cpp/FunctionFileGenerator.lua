@@ -161,6 +161,11 @@ FunctionFileGenerator = {
                 self:write(" throw()");
             end
         end
+        local trt = self.fo.TrailingReturnType;
+        if trt then
+            self:write(" -> ");
+            self:write(trt);
+        end
         self:write("\n");
 
         self:writeFunctionCodeBlock(self.fo);

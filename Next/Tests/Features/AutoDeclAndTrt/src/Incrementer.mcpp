@@ -1,0 +1,31 @@
+~unit Incrementer {
+
+// Appease Sublime Text plugin with a semicolon;
+
+
+//MDOC-BEGIN odd
+template<typename T>
+auto return_odd_type(T arg) -> decltype(T{5}.some_func())
+{
+    return T{5}.some_func();
+}
+//MDOC-END odd
+
+class OddType {
+    public OddType(int a){}
+    public char * some_func() { return nullptr; }
+};
+
+}
+
+~unit IncrementerTest type=test
+{
+    ~block "cpp" { #include <Incrementer.h>; }
+
+    int main()
+    {
+        OddType ot{7};
+        auto a = return_odd_type(ot);
+        char * b = a;
+    }
+}

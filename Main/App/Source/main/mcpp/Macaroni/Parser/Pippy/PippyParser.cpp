@@ -59,6 +59,7 @@
 #include <Macaroni/Model/Project/TargetPtr.h>
 #include <Macaroni/Model/Cpp/TemplateTypename.h>
 #include <Macaroni/Model/Cpp/TemplateParameterList.h>
+#include <boost/algorithm/string/trim.hpp>
 #include <Macaroni/Model/Type.h>
 #include <Macaroni/Model/TypeArgument.h>
 #include <Macaroni/Model/TypeModifiers.h>
@@ -1317,7 +1318,7 @@ public:
 	 *  its depth.
 	 **/
 	void ConsumeExpression(Iterator & itr, const char * stopAtChars,
-		                   std::string & code)
+		                   std::string & code, bool forTrailingReturnType=false)
 	{
 		Iterator exceptionItr = itr;
 
@@ -1331,7 +1332,10 @@ public:
 			{
 				blocks.push_back('(');
 			}
-			else if (c == '{')
+			// Allow a new open brace but only if the block size has already
+			// gone past zero due to something like an open paranthesis.
+			else if ((!forTrailingReturnType || blocks.size() > 0)
+				     && c == '{')
 			{
 				blocks.push_back('{');
 			}
@@ -1344,6 +1348,13 @@ public:
 					)
 			{
 				blocks.pop_back();
+			}
+			else if (forTrailingReturnType && blocks.size() > 0)
+			{
+				// Never let this get past here if the block size is greater
+				// than zero; otherwise certain lambdas can't be put into
+				// decltypes in the trailing return type.
+				// TODO: Maybe this option should be in place for everything?
 			}
 			else
 			{
@@ -1598,6 +1609,20 @@ public:
 			<< " has exceded the maximum number of blocks allowed by the "
 			<< "Parser (" << maxBlocks << ").";
 		throw ParserException(itr.GetSource(), ss.str());
+	}
+
+	bool DeclTypeAutoHack(Iterator & itr, NodePtr & mainNode,
+						  TypeArgumentListPtr & typeArgumentList)
+	{
+		if (!itr.ConsumeWord("decltype(auto)"))
+		{
+			return false;
+		}
+		mainNode = CppContext::GetPrimitives(context)->Find("decltype(auto)");
+		MACARONI_ASSERT(nullptr != mainNode.get(),
+			            "decltype(auto) node not found!");
+		typeArgumentList.reset(new TypeArgumentList());
+		return true;
 	}
 
 	/** Determines where an element should live.
@@ -2802,6 +2827,19 @@ public:
 		}
 	}
 
+	boost::optional<std::string> TrailingReturnType(Iterator & itr)
+	{
+		if (!itr.ConsumeWord("->"))
+		{
+			return boost::none;
+		}
+		ConsumeWhitespace(itr);
+		std::string expr;
+		ConsumeExpression(itr, ";{", expr, true);
+		boost::trim_right(expr);
+		return expr;
+	}
+
 	/** Consumes type info into the form of Type, in the format of
 	 * [const] [TypeNodeAndArgs] [*] [const] [&]
 	 * and sets the new (or, potentially later, found) Type object in "info."
@@ -2824,7 +2862,12 @@ public:
 		}
 
 		Iterator beforeTypeInfoItr = newItr;
-		if (!ConsumeTypeMainNodeAndArguments(newItr, mainNode, typeArgumentList))
+		if (!(
+				DeclTypeAutoHack(newItr, mainNode, typeArgumentList)
+				||
+				ConsumeTypeMainNodeAndArguments(newItr, mainNode,
+					                            typeArgumentList)
+			))
 		{
 			if (modifiers.Const())
 			{
@@ -3146,9 +3189,18 @@ public:
 		utp.release();
 
 
+		// Now parse everything that is found under this target.
+		lastAccess = currentAccess;
+		// By default, functions and classes in a unit will be "public,"
+		// which just means they'll be found in the header files, which is
+		// what most C++ users probably want.
+		currentAccess = Access::Public();
+
 		ConsumeWhitespace(newItr);
 		ScopeFiller(newItr);
 		ConsumeWhitespace(newItr);
+
+		currentAccess = lastAccess;
 
 		if (withBraces)
 		{
@@ -3374,6 +3426,8 @@ public:
 			 	 && (exceptionSpecifier = ParseExceptionSpecifier(itr)))
 			){}
 
+			auto trailingReturnType = TrailingReturnType(itr);
+
 			while(Annotation(itr));
 
 			currentScope = oldScope;
@@ -3401,7 +3455,9 @@ public:
 				                         isVirtual, type,
 										 constMember, overrideKeyword,
 										 exceptionSpecifier,
-										 fReason, templateHome, imports);
+										 fReason, templateHome,
+										 trailingReturnType,
+										 imports);
 
 			defInfo.ApplyToFunction(fOl);
 

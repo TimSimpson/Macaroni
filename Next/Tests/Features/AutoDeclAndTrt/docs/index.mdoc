@@ -1,0 +1,71 @@
+Auto, DeclType and Trailing Return Types
+****************************************
+
+Macaroni features some support for the auto and decltype keywords as well as
+trailing return types. However because Macaroni is not a real C++ compiler its
+important to understand how it treats them. Remember that Macaroni *never* looks
+inside of blocks of function code and therefore is completely ignorant to what
+the real types of auto could be.
+
+Auto
+----
+Macaroni views the "auto" keyword as a C++ primitive data type, similar to "bool"
+or "unsigned int". This means that the Macaroni model forever views the data type
+of functions or variables using this as "auto". However that is usually ok.
+
+
+.. code-block:: c++
+
+<~#dumpi <src/Example.mcpp> "Auto" ~>
+
+
+DeclType
+--------
+As of 2015-01-18, Macaroni has no support for the "decltype" keyword beyond
+a hack that allows the decltype rules to be used for auto.
+
+Fully supporting decltype would mean having to parse full C++ expressions, which, needless to say, would be difficult. An alternative would be to allow any C++
+code inside a decltype statement which Macaroni could then simply record and
+replay, which may ultimately be done.
+
+Today however decltype can be used inside of functions or trailing return type
+expressions, both of which are unparsed by Macaroni and simply copy and pasted
+into the generated source.
+
+There is one use case which is trickier: when you want to use the decltype
+rules for auto. To satisfy this use case, Macaroni pretends "decltype(auto)"
+(with that exact spacing) is a primitive C++ type like "char" or "double", which
+allows it to be used for a return type.
+
+.. code-block:: c++
+
+<~#dumpi <src/Example.mcpp> "DeclTypeAuto" ~>
+
+Trailing Return Types
+---------------------
+Macaroni offers support for trailing return types which it handles similar to
+function code blocks or the initializer list elements. Which is to say it does
+not parse them but just copy and pastes them into the generated source.
+
+This facility allows the example from Item 3 of "Effective Modern C++" by
+Scott Meyers to parse and generate correctly in Macaroni:
+
+.. code-block:: c++
+
+<~#dumpi <src/Item3.mcpp> "Item3" ~>
+
+This complete ignorance of most of C++'s syntax also allows the code below to
+be generated (where it will of course not compile).
+
+.. code-block:: c++
+
+<~#dumpi <src/Example.mcpp> "Junk" ~>
+
+Macaroni includes everything from the starting arrow ("->") until the first
+semicolon or brace to be part of the expression. However it will include
+braces if they appear in a paranthesis, which allows for code like this:
+
+.. code-block:: c++
+
+<~#dumpi <src/Incrementer.mcpp> "odd" ~>
+
