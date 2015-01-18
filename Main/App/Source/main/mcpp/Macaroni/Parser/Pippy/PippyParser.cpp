@@ -356,6 +356,12 @@ public:
 		Assert(!IsDigit('/'));
 	}
 
+	bool IsAtSamePositionAs(const Iterator & other)
+	{
+		return this->column == other.column
+			&& this->line == other.line;
+	}
+
 	static void RunTests()
 	{
 		IsAlphaTests();
@@ -2845,15 +2851,11 @@ public:
 		itr = newItr;
 
 		ConsumeWhitespace(itr);
+		boost::optional<Iterator> postConstItr;
+		Iterator preConstItr = itr;
 		if (itr.ConsumeWord("const"))
 		{
-			if (modifiers.Const())
-			{
-				// Appeared twice!? How dare it!
-				throw ParserException(itr.GetSource(0, -5),
-					Messages::Get("CppParser.Variable.ConstSeenTwice"));
-			}
-			modifiers.SetConst(true);
+			postConstItr = itr;
 			ConsumeWhitespace(itr);
 		}
 
@@ -2891,6 +2893,28 @@ public:
 		{
 			modifiers.SetIsParameterPack(true);
 			ConsumeWhitespace(itr);
+		}
+
+		// If there was no whitespace following const, we have a problem.
+		if (postConstItr)
+		{
+			if (postConstItr.get().IsAtSamePositionAs(itr))
+			{
+				// If we didn't see anything else after "const", not even space,
+				// then this wasn't const- it was the variable name.
+				// I guess its time to write a lexer... :)
+				itr = preConstItr;
+			}
+			else
+			{
+				if (modifiers.Const())
+				{
+					// Appeared twice!? How dare it!
+					throw ParserException(postConstItr.get().GetSource(0, -5),
+						Messages::Get("CppParser.Variable.ConstSeenTwice"));
+				}
+				modifiers.SetConst(true);
+			}
 		}
 
 		// At this point we can be sure we've seen everything.

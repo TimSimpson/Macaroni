@@ -98,6 +98,7 @@ CppParser.Unit.TypeNoEquals=Expected to see an equals sign following the ~type.
 CppParser.Unit.TypeNoName=Expected to see a name following "~type =".
 CppParser.Variable.ConstMaybeBeforeVar=Identifier was expected following keyword "const."
 CppParser.Variable.ConstSeenTwice=Identifier was expected following keyword "const."
+CppParser.Variable.ConstSeenWithoutSpace=No space was seen following const.
 CppParser.Variable.FriendNotAllowedForArg=Keyword "~friend" is not allowed for function arguments.
 CppParser.Variable.GlobalHomeNodeSpecifierMakesNoSenseWhenHidden=Specifying a home node with the ~global keyword doesn't make sense when the acess is ~hidden, because the Node will always be forced into the anonymous namespace of the CPP file.
 CppParser.Variable.GlobalNotAllowedForArg=Keyword "~global" is not allowed for function arguments.
