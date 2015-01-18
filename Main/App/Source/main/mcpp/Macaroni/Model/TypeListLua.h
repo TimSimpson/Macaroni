@@ -17,7 +17,10 @@
 #define MACARONI_MODEL_TYPELISTLUA_H
 
 #include "../ME.h"
-#include "Type.h"
+#include <Macaroni/Model/Type.h>
+#include <Macaroni/Model/TypeList.h>
+#include <Macaroni/Model/TypeListPtr.h>
+#include <Macaroni/Model/TypePtr.h>
 
 struct lua_State;
 

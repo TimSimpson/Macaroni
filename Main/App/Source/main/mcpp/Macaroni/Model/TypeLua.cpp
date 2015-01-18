@@ -19,7 +19,8 @@
 #include "Node.h"
 #include "NodeLua.h"
 #include "NodeListLua.h"
-#include "Type.h"
+#include <Macaroni/Model/Type.h>
+#include <Macaroni/Model/TypePtr.h>
 #include "TypeArgumentListLua.h"
 #include <Macaroni/Model/TypeModifiersLuaMetaData.h>
 #include "TypeLua.h"

@@ -26,7 +26,7 @@
 #include "Scope.h"
 #include "../SourcePtr.h"
 #include <Macaroni/Model/Project/TargetPtr.h>
-#include "../Type.h"
+#include <Macaroni/Model/Type.h>
 #include "VariablePtr.h"
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)

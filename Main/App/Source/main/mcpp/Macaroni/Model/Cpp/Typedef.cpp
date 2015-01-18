@@ -20,7 +20,7 @@
 #include <Macaroni/Model/Element.h>
 #include "../Node.h"
 #include "ScopeMember.h"
-#include "../Type.h"
+#include <Macaroni/Model/Type.h>
 #include "Typedef.h"
 #include <Macaroni/Model/Project/Target.h>
 #include <Macaroni/Model/Project/TargetPtr.h>

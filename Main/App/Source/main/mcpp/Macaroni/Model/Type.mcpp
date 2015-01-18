@@ -1,0 +1,199 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Model::Node;
+~import boost::shared_ptr;
+~import Macaroni::Model::TypeArgument;
+~import Macaroni::Model::TypeArgumentList;
+~import Macaroni::Model::TypeArgumentListPtr;
+~import Macaroni::Model::TypeArgumentPtr;
+~import Macaroni::Model::TypeModifiers;
+~import std::vector;
+
+
+~namespace Macaroni::Model;
+
+
+class Type {};
+
+// TODO: This is a horrible memory leak.  This thing needs to be connected to
+// the Context somehow with an intrusive ptr.
+typedef boost::shared_ptr<Type> TypePtr
+	@LuaClass
+	[
+		LuaGlueClass = Macaroni::Model::TypeLuaMetaData,
+		ReferenceType = Macaroni::Model::TypePtr,
+	]
+;
+typedef std::vector<TypePtr> TypeList;
+typedef boost::shared_ptr<TypeList> TypeListPtr;
+
+
+//TODO: This HAS to start living in the Context.  It is a memory leak... can't
+// believe I didn't notice it at the time.
+/** Represents a Type.  A type does not exist in the Node system, but does
+ * point to a Node.
+ * This may also store a list of TypeArguments, where each element points to
+ * a Node that relates to the type node, with additional nodes offering
+ * argument data. */
+class Type
+	@LuaClass
+	[
+		LuaGlueClass = Macaroni::Model::TypeLuaMetaData,
+		ReferenceType = Macaroni::Model::TypePtr,
+	]
+{
+	private NodePtr type;
+	private TypeArgumentListPtr typeArguments;
+	private TypeModifiers modifiers;
+
+	public Type(NodePtr type, TypeModifiers modifiers)
+	:	type(type),
+		typeArguments(new TypeArgumentList()),
+		modifiers(modifiers)
+	{
+	}
+
+	public Type(NodePtr type, TypeModifiers modifiers,
+		        TypeArgumentListPtr typeArguments)
+	:	type(type),
+		typeArguments(typeArguments),
+		modifiers(modifiers)
+	{
+	}
+
+	public ~Type()
+	{
+	}
+
+	public bool operator== (const Type & other) const
+	{
+		return this->modifiers == other.modifiers
+			   && type == other.type
+			   && TypeArgument::ListIsEqual(*this->GetTypeArguments(),
+			                                *other.GetTypeArguments());
+	}
+
+	public void DescribeDifferences(const TypePtr other,
+		                            std::stringstream & stream) const
+	{
+		if (this->IsConst() && !other->IsConst())
+		{
+			stream << "Previous definition was const.";
+		}
+		if (this->IsConstPointer() && !other->IsConstPointer())
+		{
+			stream << "Previous definition was const pointer.";
+		}
+		if (this->IsPointer() && !other->IsPointer())
+		{
+			stream << "Previous definition was pointer.";
+		}
+		if (this->IsReference() && !other->IsReference())
+		{
+			stream << "Previous definition was reference.";
+		}
+		if (this->IsRvalueReference() && !other->IsRvalueReference())
+		{
+			stream << "Previous definition was rvalue reference.";
+		}
+		if (this->GetNode()->GetFullName() != other->GetNode()->GetFullName())
+		{
+			stream << "Previous definition was "
+				<< this->GetNode()->GetFullName()
+				<< " but the other is "
+				<< other->GetNode()->GetFullName()
+				<< ".";
+		}
+		stream << "(BTW, type arguments not yet implemented by this function)";
+	}
+
+	public inline NodePtr GetNode() const
+	{
+		return type;
+	}
+
+	public inline TypeArgumentListPtr GetTypeArguments() const
+	{
+		return typeArguments;
+	}
+
+	public inline bool IsConst() const
+	{
+		return modifiers.Const();
+	}
+
+	public inline bool IsConstPointer() const
+	{
+		return modifiers.ConstPointer();
+	}
+
+	/** Light means that the type is a "light dependency", which means it can
+	 * be satisfied with a forward reference. The '~light' keyword is used
+	 * for this. It useful with complex template types Macaroni isn't smart
+	 * enough to understand which end up just needing forward references. */
+	public inline bool IsLight() const
+	{
+		return modifiers.Light();
+	}
+
+	public inline bool IsPointer() const
+	{
+		return modifiers.Pointer();
+	}
+
+	public inline bool IsReference() const
+	{
+		return modifiers.Reference();
+	}
+
+	public inline bool IsRvalueReference() const
+	{
+		return modifiers.RvalueReference();
+	}
+
+	public const TypeModifiers & GetModifiers() const
+	{
+		return modifiers;
+	}
+
+	public static bool ListContains(const TypeList & list, const Type & target)
+	{
+		for(const TypePtr e : list)
+		{
+			Type & a = *e.get();
+			if (a.operator ==(target))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static bool ListIsEqual(TypeList list1, TypeList list2)
+	{
+		for(TypePtr element : list1)
+		{
+			if (!ListContains(list2, *element))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+};

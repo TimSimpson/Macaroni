@@ -21,6 +21,7 @@
 #include "FunctionOverload.h"
 #include <boost/format.hpp>
 #include <Macaroni/Model/ModelInconsistencyException.h>
+#include <Macaroni/Model/Node.h>
 #include <Macaroni/Model/Reason.h>
 #include <Macaroni/Model/Source.h>
  #include <Macaroni/Model/Project/Target.h>

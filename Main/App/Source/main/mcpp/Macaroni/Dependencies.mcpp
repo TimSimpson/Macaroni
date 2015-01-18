@@ -139,23 +139,7 @@ class Macaroni::IO::PathList
 class Macaroni::Parser::Pippy::PippyParser { ~hfile=<Macaroni/Parser/Pippy/PippyParser.h> };
 class Macaroni::Environment::StringPair { ~hfile=<Macaroni/Environment/StringPair.h> };
 class Macaroni::Model::TypeLuaMetaData { ~hfile=<Macaroni/Model/TypeLua.h> };
-class Macaroni::Model::TypePtr {
-	~hfile=<Macaroni/Model/TypePtr.h>
-	@LuaClass
-	[
-		LuaGlueClass = Macaroni::Model::TypeLuaMetaData,
-		ReferenceType = Macaroni::Model::TypePtr,
-	]
-};
-class Macaroni::Model::Type
-{
-	~hfile=<Macaroni/Model/Type.h>
-	@LuaClass
-	[
-		LuaGlueClass = Macaroni::Model::TypeLuaMetaData,
-		ReferenceType = Macaroni::Model::TypePtr,
-	]
-};
+
 class MACARONI_THROW { ~hfile=<Macaroni/ME.h> };
 class Macaroni::Containers::VectorOfConstString { ~hfile=<Macaroni/Containers.h> };
 class MACARONI_VE_CONST { ~hfile=<Macaroni/ME.h> };

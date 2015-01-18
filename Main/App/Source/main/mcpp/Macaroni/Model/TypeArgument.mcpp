@@ -1,0 +1,107 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+~import Macaroni::Model::Node;
+~import boost::shared_ptr;
+~import Macaroni::Model::Type;
+~import Macaroni::Model::TypeList;
+~import Macaroni::Model::TypeListPtr;
+~import Macaroni::Model::TypePtr;
+~import std::vector;
+
+~namespace Macaroni::Model;
+
+
+/** Connects a type to a NodeList of arguments for that type. */
+
+// TODO: Why did I make this *and* the type class? Couldn't type have just
+// had an argumentList of itself? I am completely dumbfounded by the realization
+// they are the same.
+
+class TypeArgument {};
+
+typedef boost::shared_ptr<TypeArgument> TypeArgumentPtr;
+
+typedef std::vector<TypeArgumentPtr> TypeArgumentList;
+
+typedef boost::shared_ptr<TypeArgumentList> TypeArgumentListPtr;
+
+class TypeArgument
+{
+	private TypeListPtr arguments;
+	private NodePtr node;
+
+	public TypeArgument(NodePtr type)
+	:	arguments(new TypeList()),
+		node(type)
+	{
+	}
+
+	public TypeArgument(NodePtr type, TypeListPtr typeArguments)
+	:	arguments(typeArguments),
+		node(type)
+	{
+	}
+
+	public ~TypeArgument()
+	{
+	}
+
+	public bool operator==(const TypeArgument & other) const
+	{
+		if (this->node->GetFullName() != other.GetNode()->GetFullName())
+		{
+			return false;
+		}
+		return Type::ListIsEqual(*this->GetArguments(), *other.GetArguments());
+	}
+
+	public TypeListPtr GetArguments() const
+	{
+		return arguments;
+	}
+
+	public NodePtr GetNode() const
+	{
+		return node;
+	}
+
+	public static bool ListContains(const TypeArgumentList & list,
+		                            const TypeArgument & target)
+	{
+		for (TypeArgumentPtr element : list)
+		{
+			TypeArgument & elementRef = *(element.get());
+			if (elementRef.operator ==(target))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static bool ListIsEqual(TypeArgumentList & list1,
+		                           TypeArgumentList & list2)
+	{
+		for (TypeArgumentPtr element : list1)
+		{
+			if (!ListContains(list2, *element))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+};

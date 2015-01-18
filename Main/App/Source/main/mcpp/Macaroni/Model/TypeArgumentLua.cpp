@@ -20,8 +20,10 @@
 #include "NodeLua.h"
 #include "NodeListLua.h"
 #include "TypeArgumentLua.h"
-#include "TypeArgument.h"
-#include "Type.h"
+#include <Macaroni/Model/TypeArgument.h>
+#include <Macaroni/Model/TypeArgumentPtr.h>
+#include <Macaroni/Model/Type.h>
+#include <Macaroni/Model/TypePtr.h>
 #include "TypeLua.h"
 #include "TypeListLua.h"
 #include <sstream>
@@ -40,12 +42,12 @@
 #include "../LuaGlue.hpp"
 
 	static int __new(lua_State * L)
-	{		
+	{
 		if (!NodeLuaMetaData::IsType(L, 1))
-		{			
+		{
 			luaL_error(L, "Expected a Node for argument #1 in TypeArgument creator.");
 		}
-		NodePtr node = NodeLuaMetaData::GetInstance(L, 1);		
+		NodePtr node = NodeLuaMetaData::GetInstance(L, 1);
 
 		TypeArgumentPtr typeArgument;
 
@@ -58,14 +60,14 @@
 		{
 			typeArgument.reset(new TypeArgument(node));
 		}
-		
+
 		TypeArgumentLuaMetaData::PutInstanceOnStack(L, typeArgument);
 		return 1;
 	}
 
-	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr, 
+	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr,
 									  const std::string & index)
-	{		
+	{
 		if (index == "Arguments")
 		{
 			TypeListPtr typeList = ptr->GetArguments();
@@ -77,7 +79,7 @@
 			NodeLuaMetaData::PutInstanceOnStack(L, ptr->GetNode());
 			return 1;
 		}
-		lua_pushnil(L);			
+		lua_pushnil(L);
 		return 1;
 	}
 
@@ -87,13 +89,13 @@
 		std::stringstream ss;
 		ss << "(";
 		ss << ptr->GetNode()->GetFullName();
-		ss << " [TODO-list arguments here])";			
+		ss << " [TODO-list arguments here])";
 		lua_pushstring(L, ss.str().c_str());
 		return 1;
-	}	
+	}
 
 	#define LUAGLUE_ADDITIONALMETATABLEMETHODS \
-		{"__tostring", LUAGLUE_HELPERCLASS::__tostring}, 
+		{"__tostring", LUAGLUE_HELPERCLASS::__tostring},
 
 	#define LUAGLUE_ADDITIONALTABLEMETHODS \
 		{"New", LUAGLUE_HELPERCLASS::__new},

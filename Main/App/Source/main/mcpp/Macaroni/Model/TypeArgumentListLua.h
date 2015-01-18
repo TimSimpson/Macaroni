@@ -17,7 +17,7 @@
 #define MACARONI_MODEL_TYPEARGUMENTLISTLUA_H
 
 #include "../ME.h"
-#include "TypeArgumentPtr.h"
+#include <Macaroni/Model/TypeArgumentPtr.h>
 
 struct lua_State;
 

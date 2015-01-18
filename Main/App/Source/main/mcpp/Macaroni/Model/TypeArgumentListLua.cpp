@@ -20,7 +20,8 @@
 #include "NodeLua.h"
 #include "NodeListLua.h"
 #include "TypeArgumentLua.h"
-#include "TypeArgument.h"
+#include <Macaroni/Model/TypeArgument.h>
+#include <Macaroni/Model/TypeArgumentPtr.h>
 #include "TypeArgumentListLua.h"
 #include <sstream>
 
@@ -38,7 +39,7 @@
 #include "../LuaGlue.hpp"
 
 	static int __new(lua_State * L)
-	{		
+	{
 		luaL_checktype(L, 1, LUA_TTABLE);
 
 		TypeArgumentListPtr typeArgs(new TypeArgumentList());
@@ -69,16 +70,16 @@
 			else
 			{
 				stop = true;
-			}			
+			}
 		}
 
 		TypeArgumentListLuaMetaData::PutInstanceOnStack(L, typeArgs);
 		return 1;
 	}
 
-	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr, 
+	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr,
 									  const std::string & indexString)
-	{	
+	{
 		unsigned int index = luaL_checkinteger(L, 2);
 		if (index > 0 && index <= ptr->size())
 		{
@@ -87,7 +88,7 @@
 			TypeArgumentLuaMetaData::PutInstanceOnStack(L, node);
 			return 1;
 		}
-		lua_pushnil(L);			
+		lua_pushnil(L);
 		return 1;
 	}
 
@@ -104,15 +105,15 @@
 		//TODO: This- >TypeArgumentListPtr & ptr = getInstance(L);
 		getInstance(L);
 		std::stringstream ss;
-	
-		ss << " [TODO-stuff])";			
+
+		ss << " [TODO-stuff])";
 		lua_pushstring(L, ss.str().c_str());
 		return 1;
-	}	
+	}
 
 	#define LUAGLUE_ADDITIONALMETATABLEMETHODS \
 		{"__len", LUAGLUE_HELPERCLASS::__len},	\
-		{"__tostring", LUAGLUE_HELPERCLASS::__tostring}, 
+		{"__tostring", LUAGLUE_HELPERCLASS::__tostring},
 
 	#define LUAGLUE_ADDITIONALTABLEMETHODS \
 		{"New", LUAGLUE_HELPERCLASS::__new},

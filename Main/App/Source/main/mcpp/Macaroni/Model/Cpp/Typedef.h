@@ -20,7 +20,7 @@
 #include <Macaroni/Model/Element.h>
 #include "../Node.h"
 #include "Scope.h"
-#include "../TypePtr.h"
+#include <Macaroni/Model/TypePtr.h>
 #include "TypedefPtr.h"
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)

@@ -42,6 +42,7 @@
 ~import Macaroni::Model::Cpp::ScopeMember;
 ~import Macaroni::Model::SourcePtr;
 ~import Macaroni::Model::Type;
+~import Macaroni::Model::TypePtr;
 ~import Macaroni::Cpp::UseLightDef;
 ~import Macaroni::Model::Cpp::Variable;
 ~import Macaroni::Model::Cpp::VariablePtr;

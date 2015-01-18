@@ -21,7 +21,8 @@
 #include "../ReasonPtr.h"
 #include "ScopeMember.h"
 #include "VariablePtr.h"
-#include "../Type.h"
+#include <Macaroni/Model/Type.h>
+#include <Macaroni/Model/TypePtr.h>
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 

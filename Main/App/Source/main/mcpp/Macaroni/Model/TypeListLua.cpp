@@ -20,7 +20,8 @@
 #include "Node.h"
 #include "NodeLua.h"
 #include <sstream>
-#include "Type.h"
+#include <Macaroni/Model/Type.h>
+#include <Macaroni/Model/TypePtr.h>
 #include "TypeLua.h"
 
 #define LUAGLUE_STARTNAMESPACE			BEGIN_NAMESPACE2(Macaroni, Model)
@@ -30,23 +31,23 @@
 #define LUAGLUE_CLASSFULLLUANAME		"Macaroni.Model.TypeList"
 #define LUAGLUE_CLASSFULLCPPNAME		Macaroni::Model::TypeList
 #define LUAGLUE_REGISTRATIONCLASSNAME	TypeListLuaMetaData
-#define LUAGLUE_OPENOTHERMODULES		//Macaroni::Model::TypeListLuaMetaData::OpenInLua(L); 
+#define LUAGLUE_OPENOTHERMODULES		//Macaroni::Model::TypeListLuaMetaData::OpenInLua(L);
 #define LUAGLUE_CREATEMETATABLE			YESPLEASE
 #define LUAGLUE_HELPERCLASS				TypeListLuaGlueHelperClass
 
 #include "../LuaGlue.hpp"
 
-	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr, 
+	static int __index(lua_State * L, const LUAGLUE_CLASSREFNAME & ptr,
 									  const std::string & indexAsString)
-	{		
+	{
 		unsigned int index = luaL_checkinteger(L, 2);
 		if (index > 0 && index <= ptr->size())
 		{
-			index --;			
+			index --;
 			TypeLuaMetaData::PutInstanceOnStack(L, (*ptr)[index]);
 			return 1;
 		}
-		lua_pushnil(L);			
+		lua_pushnil(L);
 		return 1;
 	}
 
@@ -66,10 +67,10 @@
 		TypeListPtr typeList(new TypeList());
 
 		bool stop = false;
-		int index = 0;		
+		int index = 0;
 		while(!stop)
 		{
-			index ++;			
+			index ++;
 			lua_pushnumber(L, index);
 			lua_gettable(L, 1);
 			if (!lua_isnil(L, -1))
@@ -83,7 +84,7 @@
 				{
 					std::stringstream ss;
 					ss << "When constructing new TypeList, array argument "
-					   << "had unexpected type at index " << index 
+					   << "had unexpected type at index " << index
 					   << ". All types in array are expected to be Types.";
 					luaL_error(L, ss.str().c_str());
 				}
@@ -106,11 +107,11 @@
 		ss << "TypeList";
 		lua_pushstring(L, ss.str().c_str());
 		return 1;
-	}	
+	}
 
 	#define LUAGLUE_ADDITIONALMETATABLEMETHODS \
 		{"__len", LUAGLUE_HELPERCLASS::__len}, \
-		{"__tostring", LUAGLUE_HELPERCLASS::__tostring}, 
+		{"__tostring", LUAGLUE_HELPERCLASS::__tostring},
 
 	#define LUAGLUE_ADDITIONALTABLEMETHODS \
 		{"New", LUAGLUE_HELPERCLASS::__new},
