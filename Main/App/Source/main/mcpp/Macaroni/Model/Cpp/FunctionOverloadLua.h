@@ -16,7 +16,8 @@
 #ifndef MACARONI_MODEL_CPP_FUNCTIONOVERLOADLUA_H
 #define MACARONI_MODEL_CPP_FUNCTIONOVERLOADLUA_H
 
-#include "FunctionOverload.h"
+#include <Macaroni/Model/Cpp/FunctionOverload.h>
+#include <Macaroni/Model/Cpp/FunctionOverloadPtr.h>
 #include <Macaroni/Model/Element.h>
 
 struct lua_State;
@@ -24,7 +25,7 @@ struct lua_State;
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 struct FunctionOverloadLuaMetaData
-{	
+{
 	static bool IsType(lua_State * L, int index);
 	static int OpenInLua(lua_State * L);
 	static ElementPtr & GetInstance(lua_State * L, int index);

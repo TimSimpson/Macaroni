@@ -84,8 +84,6 @@ class Macaroni::IO::FileNotFoundException { ~hfile=<Macaroni/IO/FileNotFoundExce
 //class Macaroni::Model::FileName { ~hfile=<Macaroni/Model/FileName.h> }
 //class Macaroni::Model::FileNamePtr { ~hfile=<Macaroni/Model/FileNamePtr.h> }
 //class Macaroni::IO::FileSet { ~hfile=<Macaroni/IO/FileSet.h> };
-class Macaroni::Model::Cpp::FunctionOverload { ~hfile=<Macaroni/Model/Cpp/FunctionOverload.h> };
-class Macaroni::Model::Cpp::FunctionOverloadPtr { ~hfile=<Macaroni/Model/Cpp/FunctionOverloadPtr.h> };
 class Macaroni::Model::Cpp::Scope { ~hfile=<Macaroni/Model/Cpp/Scope.h> };
 class Macaroni::Model::Cpp::ScopeMember { ~hfile=<Macaroni/Model/Cpp/ScopeMember.h> };
 class MACARONI_FAIL { ~hfile=<Macaroni/ME.h> };
@@ -93,6 +91,8 @@ class Macaroni::Model::Member { ~hfile=<Macaroni/Model/Member.h> };
 
 class Macaroni::Model::ModelInconsistencyException
 { ~hfile=<Macaroni/Model/ModelInconsistencyException.h> };
+
+class Macaroni::Model::NakedNodeList { ~hfile=<Macaroni/Model/NodePtr.h> };
 
 ~import Macaroni::Model::Node;
 class Macaroni::Model::NodePtr
@@ -141,6 +141,8 @@ class Macaroni::Environment::StringPair { ~hfile=<Macaroni/Environment/StringPai
 class Macaroni::Model::TypeLuaMetaData { ~hfile=<Macaroni/Model/TypeLua.h> };
 
 class MACARONI_THROW { ~hfile=<Macaroni/ME.h> };
+
+class Macaroni::Model::Cpp::Variable { ~hfile=<Macaroni/Model/Cpp/Variable.h> };
 class Macaroni::Containers::VectorOfConstString { ~hfile=<Macaroni/Containers.h> };
 class MACARONI_VE_CONST { ~hfile=<Macaroni/ME.h> };
 

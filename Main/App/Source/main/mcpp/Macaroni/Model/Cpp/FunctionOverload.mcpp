@@ -1,0 +1,361 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+~import Macaroni::Model::Cpp::Class;
+~import Macaroni::Model::Cpp::ClassPtr;
+~import boost::format;
+~import Macaroni::Model::Element;
+~import Macaroni::Model::Cpp::ExceptionSpecifier;
+~import Macaroni::Model::Cpp::Function;
+~import Macaroni::Model::ModelInconsistencyException;
+~import Macaroni::Model::NakedNodeList;
+~import Macaroni::Model::Node;
+~import boost::optional;
+~import Macaroni::Model::Reason;
+~import Macaroni::Model::ReasonPtr;
+~import Macaroni::Model::Cpp::Scope;
+~import Macaroni::Model::Source;
+~import Macaroni::Model::SourcePtr;
+~import std::string;
+~import Macaroni::Model::Project::Target;
+~import Macaroni::Model::Project::TargetPtr;
+~import Macaroni::Model::Type;
+~import Macaroni::Model::Cpp::Variable;
+~import Macaroni::Model::Cpp::VariablePtr;
+
+~namespace Macaroni::Model::Cpp;
+
+class FunctionOverload {};
+
+typedef boost::intrusive_ptr<FunctionOverload> FunctionOverloadPtr;
+
+/** Represents a function in any possible Scope. */
+class FunctionOverload : public Scope
+{
+	private std::string codeBlock;
+
+	private bool codeBlockAddRedirect;
+
+	private SourcePtr codeSource;
+
+    private bool const constMember;
+
+	private const boost::optional<ExceptionSpecifier> exceptionSpecifier;
+
+	private optional<NakedNodeList> imports;
+
+	private const bool isInline;
+
+	private bool isPureVirtual;
+
+	private bool isTemplateClassMethod;
+
+	private const bool isVirtual;
+
+	private const bool overrideKeyword;
+
+	private Macaroni::Model::ReasonPtr reasonCreated;
+
+	private TypePtr returnType;
+
+	private Node * templateParameterList;
+
+	private bool usesDefaultKeyword;
+
+	private bool usesDeleteKeyword;
+
+	protected FunctionOverload(Target * target,
+		Node * home, Model::ReasonPtr reason, bool isInline,
+		Access access, const bool isStatic, bool isVirtual,
+		const TypePtr rtnTypeInfo, bool constMember, bool overrideKeyword,
+		const optional<ExceptionSpecifier> exceptionSpecifier,
+		Node * templateParameterList,
+		optional<NodeListPtr> importedNodes=boost::none
+	)
+	:	Scope(target, home, reason, access, isStatic),
+		codeBlock(),
+		codeBlockAddRedirect(false),
+		constMember(constMember),
+		codeSource(),
+		imports(),
+		isInline(isInline),
+		isPureVirtual(false),
+		isTemplateClassMethod(isInTemplateClass(*home)),
+		isVirtual(isVirtual),
+		overrideKeyword(overrideKeyword),
+		returnType(rtnTypeInfo),
+		exceptionSpecifier(exceptionSpecifier),
+		templateParameterList(templateParameterList),
+		usesDefaultKeyword(false),
+		usesDeleteKeyword(false)
+	{
+		if (importedNodes)
+		{
+			imports = NakedNodeList{};
+			NodeListPtr & list  = importedNodes.get();
+			for(NodePtr & n : *list)
+			{
+				(imports.get()).push_back(n.get());
+			}
+		}
+	}
+
+	public virtual ~FunctionOverload()
+	{
+	}
+
+	public static FunctionOverloadPtr Create(
+		TargetPtr target,
+		NodePtr foNode,
+		bool isInline,
+		const AccessPtr access,
+		const bool isStatic,
+		bool isVirtual,
+		const TypePtr rtnType,
+		bool konstMember,
+		bool overrideKeyword,
+		const optional<ExceptionSpecifier> exceptionSpecifier,
+		Model::ReasonPtr reason,
+		NodePtr templateParameterList=NodePtr{},
+		optional<NodeListPtr> imports=boost::none
+	)
+	{
+		FunctionOverload * fo = new FunctionOverload(target.get(),
+			foNode.get(), reason,
+			isInline, *access,
+			isStatic, isVirtual, rtnType, konstMember, overrideKeyword,
+			exceptionSpecifier,
+			templateParameterList.get(), imports);
+		return FunctionOverloadPtr(fo);
+	}
+
+	public static NodePtr CreateNewFunctionOverloadNode(FunctionPtr home)
+	{
+		NodePtr foNode = home->GetNode()->CreateNextInSequence("Overload#");
+		return foNode;
+	}
+
+	/** Clears the given list and fills it with the Argument nodes. */
+	public Model::NodeListPtr GetArguments() const
+	{
+		NodeListPtr argList(new NodeList());
+		NodeListPtr args(new NodeList());
+		for (unsigned int i = 0; i < getNode()->GetChildCount(); i ++)
+		{
+			NodePtr child = getNode()->GetChild(i);
+			ElementPtr element = child->GetElement();
+			if (element && nullptr != boost::dynamic_pointer_cast<Variable>(element))
+			{
+				argList->push_back(child);
+			}
+		}
+		return argList;
+	}
+
+	public const std::string & GetCodeBlock() const
+	{
+		return codeBlock;
+	}
+
+	public NodeListPtr GetImportedNodes() const
+	{
+		if (imports)
+		{
+			NodeListPtr rtnList(new NodeList());
+			const NakedNodeList & list = imports.get();
+			for (::Macaroni::Model::Node * n : list)
+			{
+				rtnList->push_back(NodePtr(n));
+			}
+			return rtnList;
+		}
+		else
+		{
+			return NodeListPtr{};
+		}
+	}
+
+	public inline bool CodeBlockShouldAddRedirect() const
+	{
+		return codeBlockAddRedirect;
+	}
+
+	public SourcePtr GetCodeSource() const
+	{
+		return codeSource;
+	}
+
+	public inline const boost::optional<ExceptionSpecifier> GetExceptionSpecifier()
+	const
+	{
+		return exceptionSpecifier;
+	}
+
+	public inline const TypePtr GetReturnType() const
+	{
+		return returnType;
+	}
+
+	public Model::NodePtr GetTemplateParameterList()
+	{
+		return templateParameterList;
+	}
+
+	public virtual const char * GetTypeName() const
+	{
+		return "FunctionOverload";
+	}
+
+	public bool HasCodeBlock() const
+	{
+		return (!!codeSource);
+	}
+
+	~hidden static bool isInTemplateClass(Node & node)
+	{
+		MACARONI_ASSERT(node.GetNode(), "Must have function Node as parent.");
+		MACARONI_ASSERT(node.GetNode()->GetNode(),
+			            "Function node must live somewhere.");
+		ClassPtr cls = node.GetNode()->GetNode()->GetElement<ClassPtr>();
+		return (cls && cls->GetTemplateParameterList());
+	}
+
+	public ~global ~friend void intrusive_ptr_add_ref(FunctionOverload * p)
+	{
+		intrusive_ptr_add_ref((ScopeMember *)p);
+	}
+
+	public ~global ~friend void intrusive_ptr_release(FunctionOverload * p)
+	{
+		intrusive_ptr_release((ScopeMember *)p);
+	}
+
+	public inline bool IsConst() const
+	{
+		return constMember;
+	}
+
+	/** Uses the delete keyword. */
+	public inline bool IsDeleted() const
+	{
+		return usesDeleteKeyword;
+	}
+
+	public bool IsInline() const
+	{
+		return isInline || nullptr != templateParameterList
+			|| isTemplateClassMethod;
+	}
+
+	public inline bool IsPureVirtual() const
+	{
+		return isPureVirtual;
+	}
+
+	public inline bool IsVirtual() const
+	{
+		return isVirtual;
+	}
+
+	public virtual bool RequiresCppFile() const
+	{
+		return HasCodeBlock() && !(
+			IsInline() || IsPureVirtual() || UsesDefault() || IsDeleted()
+		);
+	}
+
+	public virtual bool RequiresHFile() const
+	{
+		return getAccess().VisibleInHeader();
+	}
+
+	/** Attaches code to this function. If code was already attached, throws a
+	 * ModelInconsistencyException.
+	 * If codeBlockAddRedirect is true, it will modify the generated source so
+	 * that errors produced in the C++ file will be redirected to the original
+	 * Macaroni source code.
+	 */
+	public void SetCodeBlock(std::string & code, SourcePtr startOfCode,
+		                     bool codeBlockAddRedirect)
+	{
+		setCodeDefinitionSource(startOfCode,
+			"Cannot create a code block for function %s because one was "
+			"already defined at %s.");
+		codeBlock = code;
+		this->codeBlockAddRedirect = codeBlockAddRedirect;
+	}
+
+	// Ensures the function wasn't already set and does error checking
+	// before another function finishes.
+	private void setCodeDefinitionSource(SourcePtr startOfCode,
+		                                 const char * const msg)
+	{
+		if (!!codeSource)
+		{
+			std::string text = str(format(msg)
+				% this->getNode()->GetFullName() % codeSource->ToString());
+			throw ModelInconsistencyException(startOfCode, text);
+		}
+		this->codeSource = startOfCode;
+	}
+
+	/** Specifies that this function has the "default" keyword. */
+	public void SetDefault(SourcePtr startOfCode)
+	{
+		setCodeDefinitionSource(startOfCode,
+			"Cannot set function %s to use the default keyword because it already "
+			"was defined at %s.");
+		this->codeSource = startOfCode;
+		this->usesDefaultKeyword = true;
+	}
+
+	/** Specifies this function is deleted. */
+	public void SetDelete(SourcePtr startOfCode)
+	{
+		setCodeDefinitionSource(startOfCode,
+			"Cannot set function %s to use the delete keyword because it already "
+			"was defined at %s.");
+		this->codeSource = startOfCode;
+		this->usesDeleteKeyword = true;
+	}
+
+	/** Specifies that this function overload is a "pure virtual function"
+	 *  which means it ends in "= 0". */
+	public void SetPureVirtual(SourcePtr startOfCode)
+	{
+		setCodeDefinitionSource(startOfCode,
+			"Cannot set function %s as pure virtual because it already "
+			"was defined at %s.");
+		this->codeSource = startOfCode;
+		this->isPureVirtual = true;
+	}
+
+	/** Uses the default keyword. */
+	public inline bool UsesDefault() const
+	{
+		return usesDefaultKeyword;
+	}
+
+	public inline bool UsesInlineKeyword() const
+	{
+		return isInline;
+	}
+
+	public inline bool UsesOverrideKeyword() const
+	{
+		return overrideKeyword;
+	}
+
+};

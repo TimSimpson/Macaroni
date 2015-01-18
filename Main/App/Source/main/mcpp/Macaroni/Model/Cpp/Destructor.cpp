@@ -18,7 +18,8 @@
 
 #include <Macaroni/Model/Cpp/Class.h>
 #include "Destructor.h"
-#include "FunctionOverload.h"
+#include <Macaroni/Model/Cpp/FunctionOverload.h>
+#include <Macaroni/Model/Cpp/FunctionOverloadPtr.h>
 #include <Macaroni/Model/Cpp/Primitive.h>
 #include <Macaroni/Exception.h>
 #include "../ModelInconsistencyException.h"
