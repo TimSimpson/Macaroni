@@ -42,6 +42,8 @@ class CppContext
             ->FindOrCreate("{C++ Primitives}");
         if (0 == primitiveRoot->GetChildCount())
         {
+            addPrimitive(primitiveRoot, "auto");
+            addPrimitive(primitiveRoot, "decltype(auto)");
             addPrimitive(primitiveRoot, "bool");
             addPrimitive(primitiveRoot, "char");
             addPrimitive(primitiveRoot, "signed char");
