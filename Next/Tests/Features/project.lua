@@ -10,6 +10,7 @@ ParentProject{
   children={
     "AccessTypes",
     "Annotations",
+    "AutoDeclAndTrt",
     "ConstructorOverloading",
     "Dependencies",
     "Destructors",

@@ -142,6 +142,7 @@ function loadWebSiteExamples()
     -- Loads projects which are referenced by the web site.
     load("Macaroni.Examples", "Hello", "1.0.0.0")
     load("Macaroni.Examples", "Blocks", "1.0.0.0")
+    load("Macaroni", "Macaroni.Tests.Features.AutoDeclAndTrt", version)
     load("Macaroni", "Macaroni.Tests.Features.AccessTypes.Lib", version)
     load("Macaroni", "Macaroni.Tests.Features.LuaGlue", version)
 end
@@ -188,6 +189,8 @@ function buildWebSite()
 
     addDocs("Macaroni.Examples", "Blocks", "1.0.0.0",
             "reference/code/blocks")
+    addDocs("Macaroni", "Macaroni.Tests.Features.AutoDeclAndTrt", version,
+            "reference/code/autoDeclAndTrt")
     addDocs("Macaroni", "Macaroni.Tests.Features.Dependencies", "DEV",
             "reference/code/dependencies")
     addDocs("Macaroni", "Macaroni.Tests.Features.Enum", "DEV",
