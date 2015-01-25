@@ -44,7 +44,6 @@
 #include <Macaroni/Model/Cpp/TypedefLua.h>
 #include <Macaroni/Model/TypeListLua.h>
 #include <Macaroni/Model/Cpp/VariableLua.h>
-#include <Macaroni/Model/Cpp/VariableAssignmentLua.h>
 #include <Macaroni/VersionNo.h>
 #include <LuaModulesInclude_Macaroni___Macaroni_46_App___lib.h>
 //#include <lfs.h>

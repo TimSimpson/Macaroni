@@ -23,12 +23,13 @@
 #include "FunctionLua.h"
 #include "FunctionOverloadLua.h"
 #include "../ModelInconsistencyException.h"
+#include "../Node.h"
 #include "../NodeLua.h"
 #include "../NodeListLua.h"
 #include <Macaroni/Model/ReasonLuaMetaData.h>
 #include <Macaroni/Model/SourceLuaMetaData.h>
 #include "VariableLua.h"
-#include "VariableAssignmentLua.h"
+#include <Macaroni/Model/Cpp/VariableAssignmentLuaMetaData.h>
 #include "../TypeLua.h"
 #include <Macaroni/LuaCompat.h>
 

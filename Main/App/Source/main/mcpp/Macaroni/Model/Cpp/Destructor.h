@@ -27,7 +27,7 @@
 #include "../SourcePtr.h"
 #include "TypeInfo.h"
 #include "VariablePtr.h"
-#include "VariableAssignment.h"
+#include <Macaroni/Model/Cpp/VariableAssignment.h>
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 

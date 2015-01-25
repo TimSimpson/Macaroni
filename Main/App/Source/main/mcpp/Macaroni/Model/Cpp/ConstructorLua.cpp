@@ -23,7 +23,7 @@
 #include "../NodeListLua.h"
 #include "TypeInfoLua.h"
 #include "VariableLua.h"
-#include "VariableAssignmentLua.h"
+#include <Macaroni/Model/Cpp/VariableAssignmentLuaMetaData.h>
 
 #include <Macaroni/Lua.h>
 

@@ -16,14 +16,16 @@
 #ifndef MACARONI_MODEL_CPP_CONSTRUCTOROVERLOADLUA_H
 #define MACARONI_MODEL_CPP_CONSTRUCTOROVERLOADLUA_H
 
-#include "ConstructorOverload.h"
+#include <Macaroni/Model/Element.h>
+#include <Macaroni/Model/ElementPtr.h>
+#include <Macaroni/Model/Cpp/ConstructorOverload.h>
 
 struct lua_State;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 struct ConstructorOverloadLuaMetaData
-{	
+{
 	static int AssignmentListOpenInLua(lua_State * L);
 	static bool IsType(lua_State * L, int index);
 	static int OpenInLua(lua_State * L);
