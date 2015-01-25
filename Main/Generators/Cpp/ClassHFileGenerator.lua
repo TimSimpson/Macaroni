@@ -324,6 +324,9 @@ of those functions.  If this isn't possible, resort to a ~block. :( */]] .. '\n'
         self:write('~' .. self.node.Name .. "(");
         self:writeArgumentList(overload);
         self:write(")");
+        if (overload.Member.UsesOverrideKeyword) then
+            self:write(" override");
+        end
         self:writeFunctionExceptionSpecifier(overload.Member);
         self:writeFunctionHeaderBody(overload.Member, false);
         self:write("\n");

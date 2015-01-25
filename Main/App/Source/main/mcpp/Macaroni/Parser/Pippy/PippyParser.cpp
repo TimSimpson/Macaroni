@@ -1134,6 +1134,8 @@ public:
 
 		currentScope = oldScope;
 
+		auto overrideKeyword = OverrideKeyword(newItr);
+
 		boost::optional<ExceptionSpecifier> exceptionSpecifier
 			= ParseExceptionSpecifier(newItr);
 
@@ -1146,7 +1148,8 @@ public:
 			//isInline, access,
 			ConstructorOverloadPtr ctorOl =
 				ConstructorOverload::Create(fOlNode, isInline, access,
-				                            isExplicit, exceptionSpecifier,
+				                            isExplicit,
+				                            exceptionSpecifier,
 				                            ctorReason, templateHome);
 			fOlPtr = boost::dynamic_pointer_cast<FunctionOverload>(ctorOl);
 		} // end !tilda
@@ -1158,7 +1161,7 @@ public:
 					Messages::Get("CppAxioms.DestructorCreation.TemplateNotAllowed"));
 			}
 			DestructorPtr dtor = Destructor::Create(ctorNode,  isInline, access,
-				isVirtual, exceptionSpecifier,
+				isVirtual, overrideKeyword, exceptionSpecifier,
 				Reason::Create(CppAxioms::DtorCreation(), itr.GetSource()));
 			fOlPtr = dtor->GetFunctionOverload();
 		}

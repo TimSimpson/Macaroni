@@ -40,6 +40,7 @@ public:
 
 	static DestructorPtr Create(NodePtr home, bool isInline, AccessPtr access,
 		                        bool isVirtual,
+		                        bool overrideKeyword,
 		           const boost::optional<ExceptionSpecifier> exceptionSpecifier,
 								Model::ReasonPtr reason);
 
@@ -56,6 +57,7 @@ private:
 
 	Destructor(Node * home, Model::ReasonPtr reason, bool isInline,
 		       AccessPtr access, bool isVirtual,
+		       bool overrideKeyword,
 		       const boost::optional<ExceptionSpecifier> exceptionSpecifier);
 
 };

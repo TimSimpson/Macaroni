@@ -52,6 +52,7 @@ namespace
 
 Destructor::Destructor(Node * home, Model::ReasonPtr reason, bool isInline,
                        AccessPtr access, bool isVirtual,
+                       bool overrideKeyword,
                        const optional<ExceptionSpecifier> exceptionSpecifier)
 :Function(home, reason)
 {
@@ -59,7 +60,7 @@ Destructor::Destructor(Node * home, Model::ReasonPtr reason, bool isInline,
 	FunctionOverload::Create(
 		none, FunctionOverload::CreateNewFunctionOverloadNode(this),
 		isInline, access, false, isVirtual,
-		voidType(), false, false, exceptionSpecifier, reason,
+		voidType(), false, overrideKeyword, exceptionSpecifier, reason,
 		NodePtr{},
 		boost::none);
 }
@@ -69,14 +70,14 @@ Destructor::~Destructor()
 }
 
 DestructorPtr Destructor::Create(NodePtr host, bool isInline, AccessPtr access,
-								 bool isVirtual,
+								 bool isVirtual, bool overrideKeyword,
 					 const optional<ExceptionSpecifier> exceptionSpecifier,
 								 Model::ReasonPtr reason)
 {
 	if (!host->GetElement())
 	{
 		return DestructorPtr(new Destructor(host.get(), reason, isInline,
-			                                access, isVirtual,
+			                                access, isVirtual, overrideKeyword,
 			                                exceptionSpecifier));
 	}
 	DestructorPtr dPtr = host->GetElement<DestructorPtr>();
@@ -85,7 +86,7 @@ DestructorPtr Destructor::Create(NodePtr host, bool isInline, AccessPtr access,
 		// Something already exists here, and it isn't a destructor.
 		// Will throw an error message.
 		return DestructorPtr(new Destructor(host.get(), reason, isInline,
-			access, isVirtual, exceptionSpecifier));
+			access, isVirtual, overrideKeyword, exceptionSpecifier));
 	}
 	// Re-use previously set variable.
 	return dPtr;
