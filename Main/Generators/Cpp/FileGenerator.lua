@@ -377,10 +377,10 @@ FileGenerator = {
         if (func.Const) then
             self:write(" const");
         end
+        self:writeFunctionExceptionSpecifier(func)
         if (func.UsesOverrideKeyword) then
             self:write(" override");
         end
-        self:writeFunctionExceptionSpecifier(func)
         local trt = func.TrailingReturnType;
         if trt then
             self:write(" -> ");
