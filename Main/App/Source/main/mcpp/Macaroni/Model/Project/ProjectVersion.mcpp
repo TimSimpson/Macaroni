@@ -276,7 +276,7 @@ class Macaroni::Model::Project::ProjectVersion
 		typedef InnerTargetList<ProjectVersion, ProjectVersionPtr> PVTargetList;
 	}
 
-	public virtual const TargetListPtr GetTargets()
+	public const TargetListPtr GetTargets()
 		@LuaProperty "Targets"
 	{
 		TargetListPtr ptr(new PVTargetList(this, &targets));

@@ -38,7 +38,7 @@ class Resource : public virtual Macaroni::Model::Project::Target
     {
     }
 
-    public virtual ~Resource()
+    public virtual ~Resource() //TODO: override
     {
         int five = 5;
     }
@@ -62,10 +62,10 @@ class Resource : public virtual Macaroni::Model::Project::Target
         return files;
     }
 
-    protected virtual int LuaIndex(lua_State * L, const string & name)
+    protected int LuaIndex(lua_State * L, const string & name) override
     {
         ResourcePtr me(this);
         return ResourceLuaMetaData::Index(L, me, name);
     }
 
-}
+};

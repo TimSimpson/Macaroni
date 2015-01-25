@@ -93,21 +93,14 @@ class StringException : public Exception
 		return *this;
 	}
 
-	~block "h"
-	{
-		public: virtual ~StringException() BOOST_NOEXCEPT;
-	}
-	~block "cpp"
-	{
-		StringException::~StringException() BOOST_NOEXCEPT {}
-	}
+	public virtual ~StringException() BOOST_NOEXCEPT = default; //TODO: override
 
-	public virtual const char* what() const BOOST_NOEXCEPT
+	public const char* what() const BOOST_NOEXCEPT override
     {
 		return message.c_str();
     }
 
-    public virtual const optional<InternalSource> & where() const BOOST_NOEXCEPT
+    public const optional<InternalSource> & where() const BOOST_NOEXCEPT override
     {
     	return source;
     }

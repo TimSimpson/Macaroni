@@ -39,7 +39,7 @@ class Constructor : public Function
     {
     }
 
-    public virtual ~Constructor() = default;
+    public virtual ~Constructor() = default; //TODO: override
 
 	public static ConstructorPtr Create(NodePtr host, Model::ReasonPtr reason)
     {
@@ -57,7 +57,7 @@ class Constructor : public Function
         return rtn;
     }
 
-	public virtual const char * GetTypeName() const
+	public const char * GetTypeName() const override
     {
         return "Constructor";
     }

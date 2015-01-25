@@ -37,9 +37,9 @@ public:
 
 	static VariablePtr Create(NodePtr home, AccessPtr access, bool isStatic, const TypePtr type, std::string initializer, Model::ReasonPtr reason);
 
-	virtual ~Variable();
+	~Variable() override;
 
-	virtual const char * GetTypeName() const;
+	const char * GetTypeName() const override;
 
 	inline const TypePtr GetType() const
 	{
@@ -51,9 +51,9 @@ public:
 		return initializer;
 	}
 
-	virtual bool RequiresCppFile() const;
+	bool RequiresCppFile() const override;
 
-	virtual bool RequiresHFile() const;
+	bool RequiresHFile() const override;
 
 private:
 

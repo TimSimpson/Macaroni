@@ -51,14 +51,8 @@ class ParserException : public Exception
 		}
 	}
 
-	~block "h"
-	{
-		public: virtual ~ParserException() BOOST_NOEXCEPT;
-	}
-	~block "cpp"
-	{
-		ParserException::~ParserException() BOOST_NOEXCEPT {}
-	}
+	public virtual ~ParserException() BOOST_NOEXCEPT = default; //TODO: override
+
 
 	/** Returns the SourcePtr (which is richer than InternalSource). */
 	public SourcePtr GetSource() const
@@ -74,12 +68,12 @@ class ParserException : public Exception
 
 	/** Gives the source (in Macaroni code parsed at runtime) plus the message.
 	 */
-	public virtual const char * what() const BOOST_NOEXCEPT
+	public const char * what() const BOOST_NOEXCEPT override
 	{
 		return whatString.c_str();
 	}
 
-	public virtual const optional<InternalSource> & where() const BOOST_NOEXCEPT
+	public const optional<InternalSource> & where() const BOOST_NOEXCEPT override
 	{
 		return internalSource;
 	}

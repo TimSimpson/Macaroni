@@ -109,7 +109,7 @@ class LibraryTarget : public virtual Macaroni::Model::Project::Target
 	//	return ptr;
 	//}	*/
 
-	public virtual void AddMacaroniFile(const Path & p)
+	public void AddMacaroniFile(const Path & p)
 	{
 		PathPtr ptr(new Path(p));
 		macaroniCode->push_back(ptr);
@@ -231,8 +231,8 @@ class LibraryTarget : public virtual Macaroni::Model::Project::Target
 		}
 	}
 
-	public virtual  ArtifactListPtr FindArtifacts(
-		const string & name, ConfigPtr config)
+	public ArtifactListPtr FindArtifacts(
+		const string & name, ConfigPtr config) override
 	{
 		ArtifactListPtr results;
 		BOOST_FOREACH(ArtifactPtr artifact, *artifacts)
@@ -248,30 +248,30 @@ class LibraryTarget : public virtual Macaroni::Model::Project::Target
 		return results;
 	}
 
-	public virtual ArtifactListPtr GetArtifacts()
+	public ArtifactListPtr GetArtifacts() override
 		@LuaProperty "Artifacts"
 	{
 		return artifacts;
 	}
 
-	public virtual PathListPtr GetHeaders()
+	public PathListPtr GetHeaders()
 		@LuaProperty "Headers"
 	{
 		return headers;
 	}
 
-	public virtual PathListPtr GetMacaroniCode()
+	public PathListPtr GetMacaroniCode()
 		@LuaProperty "MacaroniCode"
 	{
 		return headers;
 	}
 
-	public virtual const char * GetTypeName() const
+	public const char * GetTypeName() const override
 	{
 		return "lib";
 	}
 
-	protected virtual int LuaIndex(lua_State * L, const string & name)
+	protected int LuaIndex(lua_State * L, const string & name) override
 	{
 		LibraryTargetPtr me(this);
 		return LibraryTargetLuaMetaData::Index(L, me, name);

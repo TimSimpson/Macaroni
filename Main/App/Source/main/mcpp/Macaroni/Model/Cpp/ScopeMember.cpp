@@ -32,10 +32,6 @@ ScopeMember::ScopeMember(Node * node, ReasonPtr reason,
 {
 }
 
-ScopeMember::~ScopeMember()
-{
-}
-
 AccessPtr ScopeMember::GetAccess() const
 {
 	AccessPtr aPtr(new Access(this->access));

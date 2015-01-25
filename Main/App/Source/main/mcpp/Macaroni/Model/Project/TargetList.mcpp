@@ -51,7 +51,7 @@ class TargetList
 
 	public virtual TargetPtr GetItem(int index) const = 0;
 
-	public virtual string ToString() const
+	public string ToString() const
 		@LuaOperator "__tostring"
 	{
 		return str(format("TargetList, size %d") % GetCount());
@@ -79,12 +79,12 @@ class TargetList
 			{
 			}
 
-			virtual int GetCount() const
+			int GetCount() const override
 			{
 				return vec->size();
 			}
 
-			virtual TargetPtr GetItem(int index) const
+			TargetPtr GetItem(int index) const override
 			{
 				Target * t = (*vec)[index];
 				TargetPtr ptr(t);

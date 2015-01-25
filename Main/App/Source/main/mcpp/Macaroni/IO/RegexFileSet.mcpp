@@ -142,7 +142,7 @@ class RegexFileSet : public FileSet
 
 	/** Gets the core path used for this FileSet (or nil).
 	 *  This is only useful for FileSets which have a core path. */
-	public virtual PathPtr GetRootPath() const
+	public PathPtr GetRootPath() const override
 		@LuaProperty "RootPath"
 	{
 		PathPtr ptr(new Path(GetRoot()));
@@ -155,13 +155,13 @@ class RegexFileSet : public FileSet
 		return regExp.str();
 	}
 
-	public virtual bool IsRelativePath() const
+	public bool IsRelativePath() const override
 		@LuaProperty "IsRelativePath"
 	{
 		return false;
 	}
 
-	public virtual string ToString() const
+	public string ToString() const override
 		@LuaOperator "__tostring"
 	{
 		return str(format("%s %s") % this->GetRoot() % this->GetRegex());
@@ -223,14 +223,14 @@ class RelativeFileSet : public RegexFileSet
 	{
 	}
 
-	public virtual PathPtr GetRelativePath() const
+	public PathPtr GetRelativePath() const
 	{
 		PathPtr ptr(new Path(this->rootOfRoot, this->GetRoot()));
 		return ptr;
 
 	}
 
-	public virtual bool IsRelativePath() const
+	public bool IsRelativePath() const override
 	{
 		return true;
 	}

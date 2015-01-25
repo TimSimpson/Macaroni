@@ -120,17 +120,17 @@ class Enum : public Scope
     {
     }
 
-    public virtual bool RequiresHFile() const
+    public bool RequiresHFile() const override
     {
         return true;
     }
 
-    public virtual bool RequiresCppFile() const
+    public bool RequiresCppFile() const override
     {
         return true;
     }
 
-    public virtual const char * GetTypeName() const
+    public const char * GetTypeName() const override
     {
         return "Enum";
     }

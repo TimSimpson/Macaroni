@@ -45,7 +45,7 @@ public:
 		return source;
 	}
 
-	virtual const char * what() const BOOST_NOEXCEPT
+	const char * what() const BOOST_NOEXCEPT override
 	{
 		return GetMessage().c_str();
 	}

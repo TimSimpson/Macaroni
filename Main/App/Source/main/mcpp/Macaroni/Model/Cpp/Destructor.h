@@ -44,14 +44,14 @@ public:
 		           const boost::optional<ExceptionSpecifier> exceptionSpecifier,
 								Model::ReasonPtr reason);
 
-	virtual ~Destructor();
+	~Destructor() override = default;
 
 	/** Destructors can only have one overload so they are created with it,
 	    unlike Constructors or Functions which need to have them manually
 		added.  This helper just returns it. */
 	FunctionOverloadPtr GetFunctionOverload();
 
-	virtual const char * GetTypeName() const;
+	const char * GetTypeName() const override;
 
 private:
 

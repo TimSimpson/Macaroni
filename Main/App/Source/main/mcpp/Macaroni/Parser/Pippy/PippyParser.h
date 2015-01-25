@@ -32,8 +32,8 @@ public:
 
 	static PippyParserPtr Create();
 
-	virtual int Read(Macaroni::Model::Project::TargetPtr target,
-	                 Model::SourcePtr source, const std::string & text);
+	int Read(Macaroni::Model::Project::TargetPtr target,
+	         Model::SourcePtr source, const std::string & text) override;
 
 	static void RunTests();
 

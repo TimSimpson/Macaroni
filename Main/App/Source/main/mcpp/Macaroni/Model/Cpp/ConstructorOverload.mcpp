@@ -67,7 +67,7 @@ class ConstructorOverload : public FunctionOverload
 	{
 	}
 
-	public virtual ~ConstructorOverload() = default;
+	public virtual ~ConstructorOverload() = default; //TODO: override
 
 	public void AddAssignment(const VariableAssignment & assignment)
 	{
@@ -105,7 +105,7 @@ class ConstructorOverload : public FunctionOverload
 		return assignments.size();
 	}
 
-	public virtual const char * GetTypeName() const
+	public const char * GetTypeName() const override
 	{
 		return "ConstructorOverload";
 	}

@@ -43,9 +43,9 @@ public:
 
 	Macaroni::Model::TypePtr GetType() const;
 
-	virtual const char * GetTypeName() const;
+	const char * GetTypeName() const override;
 
-	virtual bool RequiresHFile() const;
+	bool RequiresHFile() const override;
 
 protected:
 	Typedef(Macaroni::Model::Project::Target * target,

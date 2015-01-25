@@ -23,14 +23,7 @@
 /** The base type of Exceptions Macaroni throws. */
 class Exception : public std::exception
 {
-	~block "h"
-	{
-		public: virtual ~Exception() BOOST_NOEXCEPT;
-	}
-	~block "cpp"
-	{
-		Exception::~Exception() BOOST_NOEXCEPT {}
-	}
+	public virtual ~Exception() BOOST_NOEXCEPT = default; //TODO: override
 
 	/** This typically returns a nicer message than "what" since it may format
 	 *  the string or do stuff after the stack is unwound. */
@@ -39,7 +32,7 @@ class Exception : public std::exception
 		return what();
 	}
 
-	public virtual const char * what() const BOOST_NOEXCEPT = 0;
+	public const char * what() const BOOST_NOEXCEPT override = 0;
 
 	public virtual const optional<InternalSource> & where() const
 		BOOST_NOEXCEPT = 0;

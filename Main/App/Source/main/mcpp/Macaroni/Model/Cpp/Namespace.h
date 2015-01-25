@@ -37,9 +37,9 @@ public:
 	static NamespacePtr Create(Macaroni::Model::Project::TargetPtr target,
 		NodePtr home, ReasonPtr reason);
 
-	virtual ~Namespace();
+	virtual ~Namespace() override;
 
-	virtual const char * GetTypeName() const;
+	virtual const char * GetTypeName() const override;
 
 	/** Returns true if the given member is an instance of Class. */
 	static bool IsInstance(Model::ElementPtr other);

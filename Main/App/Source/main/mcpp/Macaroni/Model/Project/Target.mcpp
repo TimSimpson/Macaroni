@@ -154,9 +154,7 @@ class Target
 		platformList.reset(new PlatformList());
 	}
 
-	public virtual ~Target()
-	{
-	}
+	public virtual ~Target() = default;
 
 	public bool operator==(const Target & target) const
 		@LuaOperator "__eq"

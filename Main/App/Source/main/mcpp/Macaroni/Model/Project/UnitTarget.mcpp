@@ -119,7 +119,7 @@ class UnitTarget : public Target
 		return hFile;
 	}
 
-	public virtual const char * GetTypeName() const
+	public const char * GetTypeName() const override
 	{
 		return "unit";
 	}

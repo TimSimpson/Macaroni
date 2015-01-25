@@ -65,10 +65,6 @@ Destructor::Destructor(Node * home, Model::ReasonPtr reason, bool isInline,
 		boost::none);
 }
 
-Destructor::~Destructor()
-{
-}
-
 DestructorPtr Destructor::Create(NodePtr host, bool isInline, AccessPtr access,
 								 bool isVirtual, bool overrideKeyword,
 					 const optional<ExceptionSpecifier> exceptionSpecifier,

@@ -44,17 +44,17 @@ class TemplateParameterList : public Element
         intrusive_ptr_release(static_cast<Element *>(p));
     }
 
-    public virtual bool RequiresCppFile() const
+    public bool RequiresCppFile() const override
     {
         return false;
     }
 
-    public virtual bool RequiresHFile() const
+    public bool RequiresHFile() const override
     {
         return false;
     }
 
-    public virtual const char * GetTypeName() const
+    public const char * GetTypeName() const override
     {
         return "TemplateParameterList";
     }

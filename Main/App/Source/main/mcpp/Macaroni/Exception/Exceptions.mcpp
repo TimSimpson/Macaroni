@@ -46,18 +46,11 @@ class SimpleException : public Macaroni::Exception
 	{
 	}
 
-	~block "h"
-	{
-		public: virtual ~SimpleException() BOOST_NOEXCEPT;
-	}
-	~block "cpp"
-	{
-		SimpleException::~SimpleException() BOOST_NOEXCEPT {}
-	}
+	public virtual ~SimpleException() BOOST_NOEXCEPT = default; //TODO: override
 
 	public virtual const char * what() const BOOST_NOEXCEPT = 0;
 
-	public virtual const optional<InternalSource> & where() const BOOST_NOEXCEPT
+	public const optional<InternalSource> & where() const BOOST_NOEXCEPT override
 	{
 		return source;
 	}
@@ -93,16 +86,9 @@ class SimpleIntException : public SimpleException
 	{
 	}
 
-	~block "h"
-	{
-		public: virtual ~SimpleIntException() BOOST_NOEXCEPT;
-	}
-	~block "cpp"
-	{
-		SimpleIntException::~SimpleIntException() BOOST_NOEXCEPT {}
-	}
+	public virtual ~SimpleIntException() BOOST_NOEXCEPT = default; //TODO: override
 
-	public virtual string message() const
+	public string message() const override
 	{
 		return str(format(what()) % value);
 	}
@@ -175,16 +161,9 @@ class SimpleStringException : public SimpleException
 		return *this;
 	}
 
-	~block "h"
-	{
-		public: virtual ~SimpleStringException() BOOST_NOEXCEPT;
-	}
-	~block "cpp"
-	{
-		SimpleStringException::~SimpleStringException() BOOST_NOEXCEPT {}
-	}
+	public virtual ~SimpleStringException() BOOST_NOEXCEPT = default; //TODO: override
 
-	public virtual string message() const
+	public string message() const override
 	{
 		return str(format(what()) % value);
 	}

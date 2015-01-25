@@ -40,18 +40,18 @@ class FileSet
 	@LuaClass [
 		ReferenceType = FileSetPtr
 	]
-	@LuaIncludes ={		
+	@LuaIncludes ={
 		#include <Macaroni/IO/RegexFileSetLuaMetaData.h>
 	}
 	@LuaIndexExtraCode ={
 		string index_0(luaL_checkstring(L, 2));
-		FileSet * fs = instance.get();		
+		FileSet * fs = instance.get();
 		RegexFileSetPtr rfs = boost::dynamic_pointer_cast<RegexFileSet>(
 			instance);
 		if (rfs)
 		{
 			int result = RegexFileSetLuaMetaData::Index(L, rfs, index_0);
-			if (result > 0) 
+			if (result > 0)
 			{
 				return result;
 			}
@@ -68,9 +68,9 @@ class FileSet
 	{
 	}
 
-	public virtual ~FileSet() {}
+	public virtual ~FileSet() = default;
 
-	/** Creates a set of files given by a Regex applied to some path. 
+	/** Creates a set of files given by a Regex applied to some path.
 	 *  Every file in the set will be relative to the path argument. */
 	public static FileSetPtr CreateRegex(const string & pathStr,
 		                                 const string & regex)
@@ -81,8 +81,8 @@ class FileSet
 		return ptr;
 	}
 
-	/** Creates a set of files given by a regex applied to some relative path. 
-	 *  Every file in the set will be relative to the root path of the 
+	/** Creates a set of files given by a regex applied to some relative path.
+	 *  Every file in the set will be relative to the root path of the
 	 *  relative path argument. */
 	public static FileSetPtr CreateRelative(PathPtr relativePath,
 		                                    const string & regex)
@@ -91,7 +91,7 @@ class FileSet
 		FileSetPtr ptr(new RelativeFileSet(*relativePath, regex.c_str()));
 		return ptr;
 	}
-	
+
 	/** Returns the paths as a list, not an iterator. This is mainly
 	 *  useful from Lua code. */
 	public virtual PathListPtr GetPaths() const
@@ -99,13 +99,13 @@ class FileSet
 
 	/////** If this FileSet is relative to some central directory, this returns a
 	//// *  relative Path showing the connection.
-	//// *  Example: If a user specifies a directory for iteration, such as 
+	//// *  Example: If a user specifies a directory for iteration, such as
 	//// *  "src/code", then this would return a relative path where the root was
 	//// *  "./" and the path was "./src/code". This is used in certain plugins. */
 	////public virtual PathPtr GetRelativePath() const
 	////	@LuaProperty "RelativePath" = 0;
 
-	/** Gets the core path used for this FileSet (or nil). 
+	/** Gets the core path used for this FileSet (or nil).
 	 *  This is only useful for FileSets which have a core path. */
 	public virtual PathPtr GetRootPath() const
 		@LuaProperty "RootPath" = 0;
@@ -122,7 +122,7 @@ class FileSet
 			delete p;
 		}
 	}
-	
+
 	/** True if this FileSet was created with a relative path.
 	 *  If false, "RootPath" for this will be an absolute. Otherwise, RootPath
 	 *  will itself be a relative path which has its own root path.

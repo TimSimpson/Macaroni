@@ -193,8 +193,8 @@ class ExeTarget : public virtual LibraryTarget
 		return Create(lib, name, "test", sources);
 	}
 
-	public virtual const char * GetTypeName() const
+	public const char * GetTypeName() const override
 	{
 		return subType.c_str();
 	}
-}
+};

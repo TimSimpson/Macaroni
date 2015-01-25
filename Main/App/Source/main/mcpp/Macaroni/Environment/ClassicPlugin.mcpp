@@ -400,7 +400,7 @@ class ClassicPlugin : public Plugin
 		this->properties = properties;
 	}
 
-	public virtual string ToString()
+	public string ToString() override
 	{
 		return str(format("Lua source file: %s") % luaFilePath);
 	}

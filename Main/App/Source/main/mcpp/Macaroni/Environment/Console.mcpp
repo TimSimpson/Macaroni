@@ -140,13 +140,13 @@ class Console : public virtual Input, public virtual Output
 	{
 	}
 
-	public virtual ~Console()
+	public virtual ~Console() //TODO: override
 	{
 		// Make sure we don't exit the program and leave a goofy color on.
 		platformConsole->SetNormal();
 	}
 
-	protected virtual void addReference()
+	protected void addReference() override
 	{
 		referenceCount ++;
 	}
@@ -156,7 +156,7 @@ class Console : public virtual Input, public virtual Output
 		return new Console(*this);
 	}
 
-	public virtual void End()
+	public void End() override
 	{
 		open = false;
 	}
@@ -190,8 +190,8 @@ class Console : public virtual Input, public virtual Output
 		}
 	}
 
-	protected virtual void WriteAnything(LEVEL level, const char * msg,
-		                                 bool newLine)
+	protected void WriteAnything(LEVEL level, const char * msg,
+		                         bool newLine) override
 	{
 		#ifdef MACARONI_COMPILE_TARGET_WINDOWS
 			// Really, Windows? :(
@@ -236,20 +236,21 @@ class Console : public virtual Input, public virtual Output
 		}
 	}
 
-	public virtual void ReadString(string & input) const
+	public void ReadString(string & input) const override
 	{
 		cout << ">>";
 		getline(cin, input);
 	}
 
-	protected virtual bool releaseReference()
+	protected bool releaseReference() override
 	{
 		referenceCount --;
 		return referenceCount <= 0;
 	}
 
 	/* Starts a new Output. */
-	public virtual OutputPtr Start(const char * name) {
+	public OutputPtr Start(const char * name) override
+	{
 		OutputPtr ptr(new Console(indentLevel + 1));
 		return ptr;
 	}

@@ -43,6 +43,8 @@ class Element
 			"Reason created must be set by base class.");
 	}
 
+	public virtual ~Element() = default;
+
 	public bool operator==(const Element & other) const
 	{
 		return this == &other;

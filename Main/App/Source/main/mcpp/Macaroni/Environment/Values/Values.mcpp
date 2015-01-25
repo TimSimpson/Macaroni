@@ -115,7 +115,7 @@ class Bool : public Any
 		return value;
 	}
 
-	public virtual void ToLua(lua_State * L)
+	public void ToLua(lua_State * L) override
 	{
 		lua_pushboolean(L, value ? 1 : 0);
 	}
@@ -160,7 +160,7 @@ class Double : public Any
 		return any;
 	}
 
-	public virtual void ToLua(lua_State * L)
+	public void ToLua(lua_State * L) override
 	{
 		lua_pushnumber(L, value);
 	}
@@ -190,7 +190,7 @@ class Null : public Any
 		return any;
 	}
 
-	public virtual void ToLua(lua_State * L)
+	public void ToLua(lua_State * L) override
 	{
 		lua_pushnil(L);
 	}
@@ -260,7 +260,7 @@ class String : public Any
 		return any;
 	}
 
-	public virtual void ToLua(lua_State * L)
+	public void ToLua(lua_State * L) override
 	{
 		lua_pushstring(L, value.c_str());
 	}
@@ -601,7 +601,7 @@ class Table : public Any
 		}
 	}
 
-	public virtual void ToLua(lua_State * L)
+	public void ToLua(lua_State * L) override
 	{
 		lua_newtable(L);
 		TableMerge(L);

@@ -102,10 +102,7 @@ class Class : public Scope
     }
 
 
-    public virtual ~Class()
-    {
-
-    }
+    public virtual ~Class() = default; // TODO: override
 
     public static ClassPtr Create(TargetPtr target, NodePtr parent,
                                   bool isStruct, AccessPtr access,
@@ -193,7 +190,7 @@ class Class : public Scope
         return rtnValue;
     }
 
-    public virtual const char * GetTypeName() const
+    public const char * GetTypeName() const override
     {
         return "Class";
     }

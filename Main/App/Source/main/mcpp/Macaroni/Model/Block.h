@@ -54,9 +54,9 @@ public:
 
 	Macaroni::Model::Project::TargetPtr GetOwner() const;
 
-	virtual bool RequiresCppFile() const;
+	bool RequiresCppFile() const override;
 
-	virtual bool RequiresHFile() const;
+	bool RequiresHFile() const override;
 
 private:
 	Block(Macaroni::Model::Project::Target * target, Node * host,
@@ -68,7 +68,7 @@ private:
 
 	std::string code;
 
-	virtual const char * GetTypeName() const;
+	const char * GetTypeName() const override;
 
 	std::string id;
 

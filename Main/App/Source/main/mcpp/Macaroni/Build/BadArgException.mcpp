@@ -10,7 +10,7 @@ class BadArgException : public SimpleException
     {
     }
 
-    public virtual const char * what() const BOOST_NOEXCEPT
+    public const char * what() const BOOST_NOEXCEPT override
     {
         return "The argument was missing or incorrect.";
     }

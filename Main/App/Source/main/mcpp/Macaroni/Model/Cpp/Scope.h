@@ -45,13 +45,13 @@ friend void intrusive_ptr_release(Scope * p);
 public:
 	NodePtr GetMember(int index) const;
 
-	virtual Macaroni::Model::Project::TargetPtr GetOwner() const;
+	Macaroni::Model::Project::TargetPtr GetOwner() const override;
 
 	/** Returns true if this Scope's target is the given target or a child of
 	 *  the given target. */
-	virtual bool OwnedBy(Macaroni::Model::Project::TargetPtr target) const;
+	bool OwnedBy(Macaroni::Model::Project::TargetPtr target) const override;
 
-	virtual void SwitchOwner(Macaroni::Model::Project::TargetPtr target);
+	void SwitchOwner(Macaroni::Model::Project::TargetPtr target) override;
 
 protected:
 	Scope(Macaroni::Model::Project::Target * target, Node * scope,
@@ -59,7 +59,7 @@ protected:
 		  boost::optional<bool> isStatic=boost::none);
 	Scope(const Scope & other);
 	void operator=(const Scope & other);
-	virtual ~Scope(){}
+	virtual ~Scope() override = default;
 
 private:
 	Macaroni::Model::Project::Target * target;

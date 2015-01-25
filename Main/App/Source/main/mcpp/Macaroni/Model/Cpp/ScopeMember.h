@@ -39,7 +39,7 @@ class ScopeMember : public Model::Element
 friend void intrusive_ptr_add_ref(ScopeMember * p);
 friend void intrusive_ptr_release(ScopeMember * p);
 public:
-	virtual ~ScopeMember();
+	~ScopeMember() override = default;
 
 	const std::string & GetName() const;
 

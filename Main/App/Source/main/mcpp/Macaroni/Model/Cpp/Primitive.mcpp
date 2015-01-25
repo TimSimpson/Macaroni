@@ -37,11 +37,9 @@ class Primitive : public ScopeMember
         return PrimitivePtr(new Primitive(home.get(), reason));
     }
 
-    public virtual ~Primitive()
-    {
-    }
+    public virtual ~Primitive() = default; //TODO: override
 
-    public virtual const char * GetTypeName() const
+    public const char * GetTypeName() const override
     {
         return "Primitive";
     }

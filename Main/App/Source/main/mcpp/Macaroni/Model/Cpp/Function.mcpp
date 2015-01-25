@@ -42,9 +42,7 @@ class Function : public Element
     {
     }
 
-    public virtual ~Function()
-    {
-    }
+    public virtual ~Function() = default; //TODO: override
 
     public static FunctionPtr Create(NodePtr host, ReasonPtr reason)
     {
@@ -60,7 +58,7 @@ class Function : public Element
         return rtn;
     }
 
-    public virtual const char * GetTypeName() const
+    public const char * GetTypeName() const override
     {
         return "Function";
     }
@@ -75,7 +73,7 @@ class Function : public Element
         intrusive_ptr_release((ScopeMember *)p);
     }
 
-    public virtual bool RequiresCppFile() const
+    public bool RequiresCppFile() const override
     {
         Node & node = *GetNode();
         for (size_t i = 0; i < node.GetChildCount(); i ++)
@@ -89,7 +87,7 @@ class Function : public Element
         return false;
     }
 
-    public virtual bool RequiresHFile() const
+    public bool RequiresHFile() const override
     {
         Node & node = *GetNode();
         for (size_t i = 0; i < node.GetChildCount(); i ++)

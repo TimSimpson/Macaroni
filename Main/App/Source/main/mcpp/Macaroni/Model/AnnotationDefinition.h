@@ -64,7 +64,7 @@ public:
 		return type;
 	}
 
-	virtual const char * GetTypeName() const;
+	const char * GetTypeName() const override;
 
 private:
 	static const char * getAnnotationTypeName(TypeCode type);
