@@ -16,14 +16,14 @@
 #ifndef MACARONI_MODEL_CPP_CONSTRUCTORLUA_H
 #define MACARONI_MODEL_CPP_CONSTRUCTORLUA_H
 
-#include "Constructor.h"
+#include <Macaroni/Model/Cpp/Constructor.h>
 
 struct lua_State;
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
 struct ConstructorLuaMetaData
-{	
+{
 	//static int AssignmentListOpenInLua(lua_State * L);
 	//static bool IsType(lua_State * L, int index);
 	//static int OpenInLua(lua_State * L);

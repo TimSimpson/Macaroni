@@ -31,10 +31,11 @@ typedef boost::intrusive_ptr<FileName> FileNamePtr
 	@UseLightDef true
 ;
 
+
 /** Represents any file name which could be the Source of Model information. */
 class FileName
 	@LuaClass [ ReferenceType = FileNamePtr ]
-{	
+{
 	private Path path;
 	private const bool real;
 	private int referenceCount;
@@ -63,7 +64,7 @@ class FileName
 	{
 		return this->path == other.path;
 	}
- 
+
 	public static FileNamePtr Create(const Path & path)
 		@LuaFunction "Create"
 	{

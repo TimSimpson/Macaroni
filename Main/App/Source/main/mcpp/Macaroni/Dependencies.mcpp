@@ -76,9 +76,6 @@ class Macaroni::Model::Cpp::Class
 	]
 };*/
 
-class Macaroni::Model::Cpp::Constructor { ~hfile=<Macaroni/Model/Cpp/Constructor.h> };
-class Macaroni::Model::Cpp::ConstructorPtr { ~hfile=<Macaroni/Model/Cpp/ConstructorPtr.h> };
-
 class Macaroni::Model::ContextLuaMetaData { ~hfile=<Macaroni/Model/ContextLua.h> };
 class Macaroni::Model::ContextPtr
 	@LuaClass [ SameAsNode=Macaroni::Model::Context ]
