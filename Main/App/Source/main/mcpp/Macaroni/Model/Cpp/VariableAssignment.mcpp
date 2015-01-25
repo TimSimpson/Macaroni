@@ -16,6 +16,7 @@
 ~import boost::format;
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Lua::LuaProperty;
 ~import Macaroni::Model::Node;
 ~import Macaroni::Model::NodePtr;
 ~import boost::shared_ptr;
@@ -36,8 +37,20 @@ class VariableAssignment
     @LuaClass [ ReferenceType = VariableAssignmentPtr ]
 {
 public:
-	std::string Expression;
-	Model::NodePtr Variable;
+	string Expression;
+	NodePtr Variable;
+
+    public string GetExpression()
+        @LuaProperty "Expression"
+    {
+        return Expression;
+    }
+
+    public NodePtr GetVariable()
+        @LuaProperty "Variable"
+    {
+        return Variable;
+    }
 
     public string ToString()
         @LuaOperator "__tostring"
