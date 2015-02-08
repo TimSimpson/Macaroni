@@ -19,7 +19,7 @@
 #include <Macaroni/Model/Cpp/Primitive.h>
 #include <Macaroni/Exception.h>
 #include "../ModelInconsistencyException.h"
-#include "Namespace.h"
+#include <Macaroni/Model/Cpp/Namespace.h>
 #include "../Node.h"
 #include "Scope.h"
 #include "ScopeMember.h"
