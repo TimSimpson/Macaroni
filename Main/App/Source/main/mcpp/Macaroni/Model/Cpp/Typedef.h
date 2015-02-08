@@ -19,7 +19,7 @@
 #include "../../ME.h"
 #include <Macaroni/Model/Element.h>
 #include "../Node.h"
-#include "Scope.h"
+#include <Macaroni/Model/Cpp/Scope.h>
 #include <Macaroni/Model/TypePtr.h>
 #include "TypedefPtr.h"
 

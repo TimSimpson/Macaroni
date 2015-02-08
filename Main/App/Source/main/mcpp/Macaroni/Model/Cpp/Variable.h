@@ -19,7 +19,7 @@
 #include "../../ME.h"
 #include <Macaroni/Model/Element.h>
 #include "../ReasonPtr.h"
-#include "ScopeMember.h"
+#include <Macaroni/Model/Cpp/ScopeMember.h>
 #include "VariablePtr.h"
 #include <Macaroni/Model/Type.h>
 #include <Macaroni/Model/TypePtr.h>

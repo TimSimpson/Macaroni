@@ -19,7 +19,7 @@
 #include "Typedef.h"
 #include <Macaroni/Model/Element.h>
 #include "../Node.h"
-#include "ScopeMember.h"
+#include <Macaroni/Model/Cpp/ScopeMember.h>
 #include <Macaroni/Model/Type.h>
 #include "Typedef.h"
 #include <Macaroni/Model/Project/Target.h>

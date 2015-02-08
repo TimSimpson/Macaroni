@@ -1,0 +1,130 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+~import Macaroni::Model::Element;
+~import Macaroni::Exception;
+~import boost::intrusive_ptr;
+~import Macaroni::Model::Node;
+~import Macaroni::Model::NodePtr;
+~import boost::optional;
+~import Macaroni::Model::Cpp::ScopeMember;
+~import Macaroni::StringException;
+~import Macaroni::Model::Project::Target;
+~import Macaroni::Model::Project::TargetPtr;
+~import std::vector;
+
+
+~namespace Macaroni::Model::Cpp;
+
+
+class Scope{};
+
+typedef intrusive_ptr<Scope> ScopePtr;
+
+/* 2014-12-30
+ *	The primary purpose of this class is to denote an Element which must be
+ *  owned by a Target. For example, some elements, such as the C++ Primitives,
+ *  or Namespaces have no target. But for elements like Classes or Functions,
+ *  a Target is necessary in order to know where they should be generated.
+ *  Historically the name meant the Element had a scope, which is to say it
+ *  could "own" other Elements. With the Node system every Element can have
+ *  children or a parent (except for the root node or the floating nodes) so
+ *  the name is a bit confusing and reflects an earlier era in Macaroni's
+ *  development.
+ */
+class Scope : public ScopeMember
+{
+	private Target * target;
+
+	protected Scope(Target * target, Node * node, ReasonPtr reason,
+	         		optional<Access> access=boost::none,
+	         		optional<bool> isStatic=boost::none)
+	:	ScopeMember(node, reason, access, isStatic),
+	 	target(target)
+	{
+		if (target)
+		{
+			target->AddElement(this);
+		}
+	}
+
+	protected Scope(const Scope & other) = delete;
+
+	protected virtual ~Scope() = default; //TODO: override
+
+	protected void operator=(const Scope & other) = delete;
+
+
+	public NodePtr GetMember(int index) const
+	{
+		return getNode()->GetChild(index);
+	}
+
+	public TargetPtr GetOwner() const override
+	{
+		if (!target)
+		{
+			return Element::GetOwner();
+		}
+		return target;
+	}
+
+	public ~global ~friend void intrusive_ptr_add_ref(Scope * p)
+	{
+		intrusive_ptr_add_ref((ScopeMember *)p);
+	}
+
+	public ~global ~friend void intrusive_ptr_release(Scope * p)
+	{
+		intrusive_ptr_add_ref((ScopeMember *)p);
+	}
+
+	/** Returns true if this Scope's target is the given target or a child of
+	 *  the given target. */
+	public bool OwnedBy(TargetPtr targetArg) const override
+	{
+		if (!this->target)
+		{
+			// Defer to base class behavior.
+			return Element::OwnedBy(targetArg);
+		}
+		if (!targetArg)
+		{
+			return false;
+		}
+		if (*targetArg == *(this->target))
+		{
+			return true;
+		}
+		return this->target->OwnedBy(targetArg.get());
+	}
+
+	public void SwitchOwner(TargetPtr newTarget) override
+	{
+		if (!this->target)
+		{
+			Target & from = *(this->target);
+			Target & to = *newTarget;
+			this->target = newTarget.get();
+			Target::SwitchOwner(*this, from, to);
+		}
+		else
+		{
+			this->target = newTarget.get();
+			this->target->AddElement(this);
+		}
+	}
+};

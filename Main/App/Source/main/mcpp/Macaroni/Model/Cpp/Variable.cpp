@@ -21,8 +21,8 @@
 #include "../ModelInconsistencyException.h"
 #include <Macaroni/Model/Cpp/Namespace.h>
 #include "../Node.h"
-#include "Scope.h"
-#include "ScopeMember.h"
+#include <Macaroni/Model/Cpp/Scope.h>
+#include <Macaroni/Model/Cpp/ScopeMember.h>
 #include "Variable.h"
 #include <memory>
 #include <sstream>

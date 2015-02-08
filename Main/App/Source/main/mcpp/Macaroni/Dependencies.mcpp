@@ -85,8 +85,6 @@ class Macaroni::IO::FileNotFoundException { ~hfile=<Macaroni/IO/FileNotFoundExce
 //class Macaroni::Model::FileName { ~hfile=<Macaroni/Model/FileName.h> }
 //class Macaroni::Model::FileNamePtr { ~hfile=<Macaroni/Model/FileNamePtr.h> }
 //class Macaroni::IO::FileSet { ~hfile=<Macaroni/IO/FileSet.h> };
-class Macaroni::Model::Cpp::Scope { ~hfile=<Macaroni/Model/Cpp/Scope.h> };
-class Macaroni::Model::Cpp::ScopeMember { ~hfile=<Macaroni/Model/Cpp/ScopeMember.h> };
 class MACARONI_FAIL { ~hfile=<Macaroni/ME.h> };
 class Macaroni::Model::Member { ~hfile=<Macaroni/Model/Member.h> };
 

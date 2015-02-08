@@ -32,6 +32,8 @@
 #include "NodeLua.h"
 #include <Macaroni/Model/ReasonLuaMetaData.h>
 #include <Macaroni/Model/Cpp/Scope.h>
+#include <Macaroni/Model/Cpp/ScopeMember.h>
+#include <Macaroni/Model/Cpp/ScopeMemberPtr.h>
 #include <sstream>
 #include "Cpp/Typedef.h"
 #include "Cpp/TypedefLua.h"
