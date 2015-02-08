@@ -1,0 +1,129 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+~import boost::intrusive_ptr;
+~import Macaroni::Model::Cpp::Class;
+~import Macaroni::Model::Cpp::DestructorPtr;
+~import Macaroni::Model::Element;
+~import Macaroni::Exception;
+~import Macaroni::Model::Cpp::ExceptionSpecifier;
+~import Macaroni::Model::Cpp::Function;
+~import Macaroni::Model::Cpp::FunctionOverload;
+~import Macaroni::Model::Cpp::FunctionOverloadPtr;
+~import Macaroni::Model::ModelInconsistencyException;
+~import Macaroni::Model::Namespace;
+~import Macaroni::Model::Node;
+~import boost::optional;
+~import Macaroni::Model::Reason;
+~import Macaroni::Model::ReasonPtr;
+~import Macaroni::Model::Cpp::ScopeMember;
+~import Macaroni::Model::Cpp::Scope;
+~import Macaroni::Model::Cpp::ScopeMember;
+~import Macaroni::StringException;
+~import Macaroni::Model::SourcePtr;
+~import std::stringstream;
+~import Macaroni::Model::Project::Target;
+~import Macaroni::Model::Project::TargetPtr;
+~import Macaroni::Model::Cpp::TypeInfo;
+~import Macaroni::Model::Cpp::VariablePtr;
+~import Macaroni::Model::Cpp::VariableAssignment;
+
+~namespace Macaroni::Model::Cpp;
+
+class Destructor {};
+
+typedef boost::intrusive_ptr<Destructor> DestructorPtr;
+
+class Destructor : public Function
+{
+    private Destructor(Node * home, ReasonPtr reason, bool isInline,
+                       AccessPtr access, bool isVirtual,
+                       bool overrideKeyword,
+                       const optional<ExceptionSpecifier> exceptionSpecifier)
+    :   Function(home, reason)
+    {
+        TargetPtr none;
+        FunctionOverload::Create(
+            none, FunctionOverload::CreateNewFunctionOverloadNode(this),
+            isInline, access, false, isVirtual,
+            voidType(), false, overrideKeyword, exceptionSpecifier, reason,
+            NodePtr{},
+            boost::none);
+    }
+
+    public virtual ~Destructor() = default; //TODO: override
+
+    public static DestructorPtr Create(
+        NodePtr home, bool isInline, AccessPtr access, bool isVirtual,
+        bool overrideKeyword,
+        const optional<ExceptionSpecifier> exceptionSpecifier,
+        ReasonPtr reason)
+    {
+        if (!home->GetElement())
+        {
+            return DestructorPtr(new Destructor(home.get(), reason, isInline,
+                                                access, isVirtual,
+                                                overrideKeyword,
+                                                exceptionSpecifier));
+        }
+        DestructorPtr dPtr = home->GetElement<DestructorPtr>();
+        if (!dPtr)
+        {
+            // Something already exists here, and it isn't a destructor.
+            // Will throw an error message.
+            return DestructorPtr(new Destructor(home.get(), reason, isInline,
+                access, isVirtual, overrideKeyword, exceptionSpecifier));
+        }
+        // Re-use previously set variable.
+        return dPtr;
+    }
+
+    /** Destructors can only have one overload so they are created with it,
+        unlike Constructors or Functions which need to have them manually
+        added.  This helper just returns it. */
+    public FunctionOverloadPtr GetFunctionOverload()
+    {
+        Node * node = this->getNode();
+        NodePtr nodePtr = node->Find("Overload#0");
+        FunctionOverloadPtr fol = nodePtr->GetElement<FunctionOverloadPtr>();
+        if (!fol)
+        {
+            throw Macaroni::StringException("Tried to grab the destructors "
+                "FunctionOverload, but somehow it was a different member.");
+        }
+        return fol;
+    }
+
+    public const char * GetTypeName() const override
+    {
+        return "Destructor";
+    }
+
+    public ~global ~friend void intrusive_ptr_add_ref(Destructor * p)
+    {
+        intrusive_ptr_add_ref((FunctionOverload *)p);
+    }
+
+    public ~global ~friend void intrusive_ptr_release(Destructor * p)
+    {
+        intrusive_ptr_release((FunctionOverload *)p);
+    }
+
+    ~hidden static inline TypePtr voidType()
+    {
+        TypeModifiers modifiers;
+        return TypePtr(new Type(NodePtr(), modifiers));
+    }
+};
