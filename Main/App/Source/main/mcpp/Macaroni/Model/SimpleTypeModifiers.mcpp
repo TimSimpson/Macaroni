@@ -1,0 +1,228 @@
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Lua::LuaProperty;
+~import boost::optional;
+~import MACARONI_THROW;
+~import std::string;
+~import std::stringstream;
+~import std::unique_ptr;
+
+~namespace Macaroni::Model;
+
+
+class SimpleTypeModifiers {};
+
+typedef boost::shared_ptr<SimpleTypeModifiers> SimpleTypeModifiersPtr
+    @LuaClass
+    [
+        SameAsNode=SimpleTypeModifiers
+    ]
+;
+
+class SimpleTypeModifiers
+    @LuaClass [ ReferenceType = SimpleTypeModifiersPtr ]
+{
+    private bool _const;
+    private bool _mutable;
+    private unique_ptr<SimpleTypeModifiers> _pointer;
+    private bool _volatile;
+
+
+    public SimpleTypeModifiers()
+        : _const(false),
+          _mutable(false),
+          _pointer(),
+          _volatile(false)
+    {
+    }
+
+    public SimpleTypeModifiers(const SimpleTypeModifiers & other)
+    :   _const(other._const),
+        _mutable(other._mutable),
+        _pointer(),
+        _volatile(other._volatile)
+    {
+        if (other._pointer)
+        {
+            this->_pointer = std::make_unique<SimpleTypeModifiers>(
+                *other._pointer);
+        }
+    }
+
+    //TODO: Funny, this is item 22 from Effective Modern C++ that I read only
+    //      last night. Macaroni should be able to fix this problem in a nicer
+    //      way somehow. Maybe with "~cppdefault" or something terrible?
+
+    ~block "h" {
+    public:
+        // This is the correct code, but I can't use it since msvc-12.0 is dumb.
+        //SimpleTypeModifiers(SimpleTypeModifiers && other);
+        //SimpleTypeModifiers & operator=(SimpleTypeModifiers&& other);
+        ~SimpleTypeModifiers();
+    }
+
+    ~block "cpp" {
+        // This is the correct code, but I can't use it since msvc-12.0 is dumb.
+        //SimpleTypeModifiers::SimpleTypeModifiers(SimpleTypeModifiers && other) = default;
+        //SimpleTypeModifiers & SimpleTypeModifiers::operator=(SimpleTypeModifiers&& other) = default;
+        SimpleTypeModifiers::~SimpleTypeModifiers() = default;
+    }
+
+    // msvc-12.0 can't generate these. Truly these are desperate times.
+
+    public SimpleTypeModifiers(SimpleTypeModifiers && other)
+    :   _const(other._const),
+        _mutable(other._mutable),
+        _pointer(std::move(other._pointer)),
+        _volatile(other._volatile)
+    {
+    }
+
+     public SimpleTypeModifiers & operator=(SimpleTypeModifiers& other)
+    {
+        this->_const = other._const;
+        this->_mutable = other._mutable;
+        if (other._pointer)
+        {
+            this->_pointer = std::make_unique<SimpleTypeModifiers>(
+                *other._pointer);
+        }
+        else
+        {
+            this->_pointer = nullptr;
+        }
+        this->_volatile = other._volatile;
+        return *this;
+    }
+
+    public SimpleTypeModifiers & operator=(SimpleTypeModifiers&& other)
+    {
+        this->_const = other._const;
+        this->_mutable = other._mutable;
+        this->_pointer = std::move(other._pointer);
+        this->_volatile = other._volatile;
+        return *this;
+    }
+
+    public bool operator== (const SimpleTypeModifiers & other) const
+        @LuaOperator "__eq"
+    {
+        bool pInfo = (
+               (nullptr == this->_pointer && nullptr == other._pointer)
+            || (nullptr != this->_pointer && nullptr != other._pointer
+                && *this->_pointer == *other._pointer)
+        );
+
+        return this->Const() == other.Const()
+            && this->Mutable() == other.Mutable()
+            && this->Volatile() == other.Volatile()
+            && pInfo;
+    }
+
+    public inline bool Const() const BOOST_NOEXCEPT
+        @LuaProperty "Const"
+    {
+        return _const;
+    }
+
+    public bool HasCvQualifier(CvQualifier cvq) BOOST_NOEXCEPT
+    {
+        switch(cvq)
+        {
+            case CvQualifier::Const:
+                return Const();
+            case CvQualifier::Mutable:
+                return Mutable();
+            case CvQualifier::Volatile:
+                return Volatile();
+            default:
+                return false;  // No, *YOU'RE* unreachable.
+        }
+    }
+
+    public void SetCvQualifier(CvQualifier cvq) BOOST_NOEXCEPT
+    {
+        switch(cvq)
+        {
+            case CvQualifier::Const:
+                SetConst(true);
+                return;
+            case CvQualifier::Mutable:
+                SetMutable(true);
+                return;
+            case CvQualifier::Volatile:
+                SetVolatile(true);
+                return;
+            default:
+                return;
+        }
+    }
+
+    public inline void SetConst(const bool value) BOOST_NOEXCEPT
+    {
+        _const = value;
+    }
+
+    public inline bool ConstPointer() const BOOST_NOEXCEPT
+        @LuaProperty "ConstPointer"
+    {
+        return this->_pointer && this->_pointer->Const();
+    }
+
+    public inline bool Mutable() const BOOST_NOEXCEPT
+        @LuaProperty "Mutable"
+    {
+        return _mutable;
+    }
+
+    public inline void SetMutable(const bool value) BOOST_NOEXCEPT
+    {
+        _mutable = value;
+    }
+
+    public inline SimpleTypeModifiersPtr Pointer() const BOOST_NOEXCEPT
+        @LuaProperty "Pointer"
+    {
+        if (_pointer)
+        {
+            return SimpleTypeModifiersPtr{new SimpleTypeModifiers(*_pointer)};
+        }
+        else
+        {
+            return SimpleTypeModifiersPtr{};
+        }
+    }
+
+    public inline void SetPointer(SimpleTypeModifiers pointerInfo)
+    {
+        _pointer = std::make_unique<SimpleTypeModifiers>(pointerInfo);
+    }
+
+    public bool MayOnlyNeedForwardDeclaration()
+        @LuaProperty "MayOnlyNeedForwardDeclaration"
+    {
+        return _pointer.get() != nullptr;
+    }
+
+    public string ToString()
+        @LuaOperator "__tostring"
+    {
+        stringstream ss;
+        ss << (Pointer() ? " *" : "")
+           << (Const() ? " const" : "")
+            ;
+        return ss.str();
+    }
+
+    public inline bool Volatile() const BOOST_NOEXCEPT
+        @LuaProperty "Volatile"
+    {
+        return _volatile;
+    }
+
+    public inline void SetVolatile(const bool value) BOOST_NOEXCEPT
+    {
+        _volatile = value;
+    }
+}

@@ -145,5 +145,5 @@ class Macaroni::Model::Cpp::Variable { ~hfile=<Macaroni/Model/Cpp/Variable.h> };
 class Macaroni::Containers::VectorOfConstString { ~hfile=<Macaroni/Containers.h> };
 class MACARONI_VE_CONST { ~hfile=<Macaroni/ME.h> };
 
-
+class std::unique_ptr { ~hfile=<memory> };
 

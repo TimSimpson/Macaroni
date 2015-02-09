@@ -30,6 +30,7 @@
 #include <Macaroni/Model/Context.h>
 #include <Macaroni/Parser/Cpp/CppAxioms.h>
 #include <Macaroni/Model/Cpp/CppContext.h>
+#include <Macaroni/Model/CvQualifier.h>
 #include <Macaroni/Model/Cpp/Destructor.h>
 #include <Macaroni/Model/Cpp/DestructorPtr.h>
 #include <Macaroni/Model/Cpp/Enum.h>
@@ -53,6 +54,7 @@
 #include <Macaroni/IO/Path.h>
 #include <Macaroni/Model/Cpp/Primitive.h>
 #include <Macaroni/Model/Reason.h>
+#include <Macaroni/Model/SimpleTypeModifiers.h>
 #include <Macaroni/Model/Source.h>
 #include <Macaroni/StringException.h>
 #include <Macaroni/Model/Project/Target.h>
@@ -93,6 +95,7 @@ using Macaroni::Model::Context;
 using Macaroni::Model::ContextPtr;
 using namespace Macaroni::Parser::Cpp;
 using Macaroni::Model::Cpp::CppContext;
+using Macaroni::Model::CvQualifier;
 using Macaroni::Model::Cpp::Destructor;
 using Macaroni::Model::Cpp::DestructorPtr;
 using Macaroni::Model::Cpp::Enum;
@@ -120,6 +123,7 @@ using Macaroni::IO::PathListPtr;
 using Macaroni::Model::Cpp::Primitive;
 using Macaroni::Model::Reason;
 using Macaroni::Model::ReasonPtr;
+using Macaroni::Model::SimpleTypeModifiers;
 using Macaroni::Model::Source;
 using Macaroni::Model::SourcePtr;
 using Macaroni::StringException;
@@ -2843,6 +2847,112 @@ public:
 		return expr;
 	}
 
+
+	boost::optional<CvQualifier> TypeCvQualifiers(Iterator & itr)
+	{
+		ConsumeWhitespace(itr);
+
+		if (itr.ConsumeWord("const") && !(itr.IsAlpha() || itr.IsDigit()))
+		{
+			ConsumeWhitespace(itr);
+			return CvQualifier::Const;
+		}
+		else if (itr.ConsumeWord("mutable") && !(itr.IsAlpha() || itr.IsDigit()))
+		{
+			ConsumeWhitespace(itr);
+			return CvQualifier::Mutable;
+		}
+		else if (itr.ConsumeWord("volatile") && !(itr.IsAlpha() || itr.IsDigit()))
+		{
+			ConsumeWhitespace(itr);
+			return CvQualifier::Volatile;
+		}
+		else
+		{
+			return boost::none;
+		}
+	}
+
+	/* Grabs the type modifiers, like const or mutable.
+	 * Sets the modifiers, returns True if it found anything.
+	 * */
+	bool SimpleTypeModifiers1(Iterator & itr, SimpleTypeModifiers & modifiers)
+	{
+		ConsumeWhitespace(itr);
+		decltype(TypeCvQualifiers(itr)) cvq;
+		bool sawSomething = false;
+		while(boost::none != (cvq = TypeCvQualifiers(itr)))
+		{
+			if (modifiers.HasCvQualifier(cvq.get()))
+			{
+				throw ParserException(itr.GetSource(),
+						Messages::Get("CppParser.Variable.CvQualifierSeenTwice"));
+			}
+			modifiers.SetCvQualifier(cvq.get());
+			ConsumeWhitespace(itr);
+			sawSomething = true;
+		}
+		return sawSomething;
+	}
+
+	/** Just like above, but includes pointers. This can be used after you've
+	 *  seen the type. */
+	bool SimpleTypeModifiers2(Iterator & itr, SimpleTypeModifiers & modifiers)
+	{
+		bool sawSomething = SimpleTypeModifiers1(itr, modifiers);
+
+		// Now, we check for a pointer.
+		if (itr.ConsumeChar('*'))
+		{
+			ConsumeWhitespace(itr);
+			SimpleTypeModifiers pointerInfo;
+			SimpleTypeModifiers2(itr, pointerInfo);
+			modifiers.SetPointer(pointerInfo);
+			sawSomething = true;
+		}
+
+		return sawSomething;
+	}
+
+	/** Just like above, except that this sucker can also determine if the
+	 *  type is a reference or pointer. So where it is called is different
+	 *  from TypeModifiers1. */
+	bool TypeModifiers2(Iterator & itr, TypeModifiers & modifiers)
+	{
+		bool sawSomething = SimpleTypeModifiers1(itr, modifiers);
+
+		// See if this is a "light" reference.
+		if (itr.ConsumeWord("~l"))
+		{
+			modifiers.SetLight(true);
+			ConsumeWhitespace(itr);
+			sawSomething = true;
+		}
+
+		sawSomething = SimpleTypeModifiers2(itr, modifiers);
+
+		// Now, we check for reference.
+		if (itr.ConsumeChar('&'))
+		{
+			modifiers.SetReference(true);
+			if (itr.ConsumeChar('&'))
+			{
+				modifiers.SetRvalueReference(true);
+			}
+			ConsumeWhitespace(itr);
+			sawSomething = true;
+		}
+
+		if (itr.ConsumeWord("..."))
+		{
+			modifiers.SetIsParameterPack(true);
+			ConsumeWhitespace(itr);
+			sawSomething = true;
+		}
+
+		return sawSomething;
+	}
+
 	/** Consumes type info into the form of Type, in the format of
 	 * [const] [TypeNodeAndArgs] [*] [const] [&]
 	 * and sets the new (or, potentially later, found) Type object in "info."
@@ -2857,12 +2967,7 @@ public:
 		TypeModifiers modifiers;
 		TypeArgumentListPtr typeArgumentList;
 
-		ConsumeWhitespace(newItr);
-		if (newItr.ConsumeWord("const"))
-		{
-			modifiers.SetConst(true);
-			ConsumeWhitespace(newItr);
-		}
+		bool sawSomething = SimpleTypeModifiers1(newItr, modifiers);
 
 		Iterator beforeTypeInfoItr = newItr;
 		if (!(
@@ -2872,11 +2977,11 @@ public:
 					                            typeArgumentList)
 			))
 		{
-			if (modifiers.Const())
+			if (sawSomething)
 			{
-				// If we saw const, they're committed.
+				// If we saw a CV qualifier, they're committed.
 				throw ParserException(newItr.GetSource(),
-					Messages::Get("CppParser.Variable.ConstMaybeBeforeVar"));
+					Messages::Get("CppParser.Variable.CvQualifierMaybeBeforeVar"));
 			}
 			else
 			{
@@ -2897,71 +3002,9 @@ public:
 		itr = newItr;
 
 		ConsumeWhitespace(itr);
-		boost::optional<Iterator> postConstItr;
-		Iterator preConstItr = itr;
-		if (itr.ConsumeWord("const"))
-		{
-			postConstItr = itr;
-			ConsumeWhitespace(itr);
-		}
 
-		// See if this is a "light" reference.
-		if (itr.ConsumeWord("~l"))
-		{
-			modifiers.SetLight(true);
-			ConsumeWhitespace(itr);
-		}
-
-		// Now, we check for reference.
-		if (itr.ConsumeChar('*'))
-		{
-			modifiers.SetPointer(true);
-			ConsumeWhitespace(itr);
-			if (itr.ConsumeWord("const"))
-			{
-				modifiers.SetConstPointer(true);
-				ConsumeWhitespace(itr);
-			}
-		}
-
-		// Now, we check for reference.
-		if (itr.ConsumeChar('&'))
-		{
-			modifiers.SetReference(true);
-			if (itr.ConsumeChar('&'))
-			{
-				modifiers.SetRvalueReference(true);
-			}
-			ConsumeWhitespace(itr);
-		}
-
-		if (itr.ConsumeWord("..."))
-		{
-			modifiers.SetIsParameterPack(true);
-			ConsumeWhitespace(itr);
-		}
-
-		// If there was no whitespace following const, we have a problem.
-		if (postConstItr)
-		{
-			if (postConstItr.get().IsAtSamePositionAs(itr))
-			{
-				// If we didn't see anything else after "const", not even space,
-				// then this wasn't const- it was the variable name.
-				// I guess its time to write a lexer... :)
-				itr = preConstItr;
-			}
-			else
-			{
-				if (modifiers.Const())
-				{
-					// Appeared twice!? How dare it!
-					throw ParserException(postConstItr.get().GetSource(0, -5),
-						Messages::Get("CppParser.Variable.ConstSeenTwice"));
-				}
-				modifiers.SetConst(true);
-			}
-		}
+		// Call this again.
+		TypeModifiers2(itr, modifiers);
 
 		// At this point we can be sure we've seen everything.
 		info.reset(new Model::Type(mainNode, modifiers, typeArgumentList));

@@ -1,0 +1,8 @@
+~namespace Macaroni::Model;
+
+enum class CvQualifier
+{
+    Const,
+    Volatile,
+    Mutable
+};

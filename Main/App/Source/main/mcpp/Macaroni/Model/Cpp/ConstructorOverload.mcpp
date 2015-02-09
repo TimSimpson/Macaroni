@@ -126,7 +126,7 @@ class ConstructorOverload : public FunctionOverload
 		return isExplicit;
 	}
 
-	static ~hidden inline TypePtr voidTypeInfo(Node * home)
+	static ~hidden TypePtr voidTypeInfo(Node * home)
 	{
 		TypeModifiers modifiers;
 		NodePtr node(home);

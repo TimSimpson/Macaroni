@@ -225,6 +225,9 @@ build = function()
   local callBjam = function()
       local cmd = "bjam link=static threading=multi " -- cxxflags=-std=gnu++11 "
                   .. properties.bjam_options .. " " .. targetDir.AbsolutePath
+      for i,v in ipairs(properties.buildOptions) do
+        cmd = cmd .. " " .. v
+      end
       output:WriteLine(cmd)
       local success, exit, number = os.execute(cmd)
       if (not success or exit ~= "exit" or number ~= 0) then

@@ -18,6 +18,7 @@
 
 #include "../ME.h"
 #include <Macaroni/Model/TypeArgumentPtr.h>
+#include <Macaroni/Model/TypeArgumentListPtr.h>
 
 struct lua_State;
 

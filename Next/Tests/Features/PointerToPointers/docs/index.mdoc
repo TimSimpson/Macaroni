@@ -1,0 +1,73 @@
+Type Modifiers
+**************
+
+Pointers to Pointers
+--------------------
+
+Macaroni supports pointers to pointers, making it possible to create typical
+main methods in C++:
+
+.. code-block:: c++
+
+<~#dumpi <src/ExampleMain.mcpp>  "main" ~>
+
+CV Qualifiers
+-------------
+
+Type qualifiers such as "const" can be added for each element of the type. In other words, for every "*" there can be another use of a qualifier keyword:
+
+.. code-block:: c++
+
+<~#dumpi <src/PointerToPointer.mcpp>  "ptrToPtr" ~>
+
+In addition to "const", "mutable", and "volatile" are also supported:
+
+.. code-block:: c++
+
+<~#dumpi <src/MutableMutants.mcpp>  "mutant" ~>
+
+
+Additional Type Qualifiers
+--------------------------
+
+More modern qualifiers are also supported, those these can only appear once and must be to the right of all the cv qualifiers and pointer symbols. These include the symbols for references, rvalue references, and parameter packs:
+
+.. code-block:: c++
+
+<~#dumpi <src/ModernQualifiers.mcpp>  "mq" ~>
+
+
+The ~l Qualifier
+----------------
+
+Macaroni also adds an odd "~l" qualifier, which tells generated code to use a "light" reference. It must appear to the left of all of the cv qualifier stuff, save for the first appearance of const that may appear before it. It must also follow the type. An example is "const char ~l c;".
+
+The goal of this is to establish when a template that may appear to need to include the entirety of the header files for some node actually only needs a forward ref. An example is easier to explain:
+
+
+.. code-block:: c++
+
+    ~import std::shared_ptr;
+
+    class MyClass {};
+
+    typedef shared_ptr<MyClass> MyClassHeavyPtr;
+
+
+The example above will try to pull all of MyClass's definition in anywhere MyClassHeavyPtr is used. The reasoning is that shared_ptr is not Macaroni code, so Macaroni has no idea that it the definition of MyClass won't be used and must assume the worst.
+
+This situation can be resolved as follows:
+
+.. code-block:: c++
+
+    ~import std::shared_ptr;
+
+    class MyClass {};
+
+    typedef shared_ptr<MyClass ~l> MyClassLitePtr;
+
+Now classes using the header for MyClassLitePtr won't also get the header for MyClass.
+
+.. note:
+
+    It may strike you that putting a special qualifier everywhere you use a template forces you to duplicate knowledge of how that template operates everywhere. This is correct. In the future the plan is to deprecate ~l and replace it with something better that would make it easier for Macaroni to generate correctly generate the most efficient code with less work.

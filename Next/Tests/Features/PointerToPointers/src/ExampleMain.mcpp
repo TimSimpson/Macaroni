@@ -1,0 +1,16 @@
+//MDOC-BEGIN main
+~unit ExampleMain type=exe;
+
+~import std::cout;
+
+int main(int argc, char * * args)
+{
+    cout << "Hello, (almost) standard main signature." << std::endl;
+    for (int index = 0; index < argc; ++ index)
+    {
+        cout << "\tArg " << index << "=" << args[index] << std::endl;
+    }
+    cout << "~The End~" << std::endl;
+    return 0;
+}
+//MDOC-End main

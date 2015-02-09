@@ -1,0 +1,31 @@
+//MDOC-BEGIN mutant
+~import std::string;
+
+class Mutant
+{
+    ~block "h-predef"
+    {
+        #include <type_traits>
+    }
+
+    mutable string name;
+    volatile int mutantPowers;
+
+    public string GetName() const
+    {
+        // Illegal in const member unless name is mutable.
+        name = "Mutating name!";
+        return name;
+    }
+
+    ~block "h"
+    {
+        static_assert(std::is_same<decltype(name), mutable std::string>::value,
+                      "mutable is not working!");
+        static_assert(std::is_same<decltype(mutantPowers), volatile int>::value,
+                      "volatile is not working!");
+    }
+};
+//MDOC-END mutant
+
+

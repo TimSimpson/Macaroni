@@ -1,0 +1,21 @@
+
+class ModernQualifiers
+{
+//MDOC-BEGIN: mq
+template<typename Function, typename... Parameters>
+auto call_f(Function & f, Parameters&&... args)
+    -> decltype(f(args...))
+{
+    auto r = f(args...);
+    return r;
+}
+
+void Test()
+{
+    auto f = [](int a, int b) { return a + b; };
+    auto result = call_f(f, 1, 2);
+
+}
+//MDOC-END: mq
+};
+

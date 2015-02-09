@@ -21,6 +21,7 @@ ParentProject{
     "Lua",
     "NamespaceStatement",
     --"OperatorOverloading",
+    "PointerToPointers",
     "UnitTargets",
   }
 }

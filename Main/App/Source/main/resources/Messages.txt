@@ -96,8 +96,8 @@ CppParser.Unit.PlatformNoEquals=Missing equals after unit platform keyword.
 CppParser.Unit.StatementEof=Expected EOF at line {0}.
 CppParser.Unit.TypeNoEquals=Expected to see an equals sign following the ~type.
 CppParser.Unit.TypeNoName=Expected to see a name following "~type =".
-CppParser.Variable.ConstMaybeBeforeVar=Identifier was expected following keyword "const."
-CppParser.Variable.ConstSeenTwice=Identifier was expected following keyword "const."
+CppParser.Variable.CvQualifierMaybeBeforeVar=Identifier was expected following keyword a cv qualifier ("const", "mutable", or "volatile").
+CppParser.Variable.CvQualifierSeenTwice=The const qualifier keyword was seen twice in this location. Did you mean to put it before or after another symbol?
 CppParser.Variable.ConstSeenWithoutSpace=No space was seen following const.
 CppParser.Variable.FriendNotAllowedForArg=Keyword "~friend" is not allowed for function arguments.
 CppParser.Variable.GlobalHomeNodeSpecifierMakesNoSenseWhenHidden=Specifying a home node with the ~global keyword doesn't make sense when the acess is ~hidden, because the Node will always be forced into the anonymous namespace of the CPP file.

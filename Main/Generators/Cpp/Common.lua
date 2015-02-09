@@ -272,6 +272,26 @@ TypeUtil = {
         return self;
     end,
 
+    createSimpleTypeDefinition = function(self, simpleMods)
+        rtnStr = ''
+        if (simpleMods.Const) then
+            rtnStr = rtnStr .. " const ";
+        end
+        if (simpleMods.Mutable) then
+            rtnStr = rtnStr .. " mutable ";
+        end
+        if (simpleMods.Volatile) then
+            rtnStr = rtnStr .. " volatile ";
+        end
+        rtnStr = rtnStr .. ' ';
+        if nil ~= simpleMods.Pointer then
+            rtnStr = rtnStr .. "* ";
+            rtnStr = rtnStr
+                .. self:createSimpleTypeDefinition(simpleMods.Pointer)
+        end
+        return rtnStr;
+    end,
+
     -- Returns a String with code defining the type.  If attemptShortName is
     -- true, it will not use the full name of the Type node.  If the type is
     -- complex, full names are used regardless.
@@ -283,9 +303,6 @@ TypeUtil = {
         local rtnStr = "";
         if (type == nil) then
             error("Type argument cannot be nil.", 2);
-        end
-        if (modifiers.Const) then
-            rtnStr = rtnStr .. "const ";
         end
         local typeArguments = type.TypeArguments;
         if (type.Node.TypeName == Macaroni.Model.TypeNames.TemplateTypename
@@ -319,20 +336,30 @@ TypeUtil = {
                 end
             end
         end
+
         rtnStr = rtnStr .. ' ';
-        if (modifiers.Pointer) then
-            rtnStr = rtnStr .. "* ";
+
+        if MACARONI_VERSION~="0.3.0" then
+            rtnStr = rtnStr .. self:createSimpleTypeDefinition(modifiers);
+        else
+            if (modifiers.Const) then
+                rtnStr = rtnStr .. " const ";
+            end
+            if (modifiers.Pointer) then
+                rtnStr = rtnStr .. " * ";
+            end
+            if (modifiers.ConstPointer) then
+                rtnStr = rtnStr .. " const ";
+            end
         end
+
         if modifiers.RvalueReference then
-            rtnStr = rtnStr .. "&& ";
+            rtnStr = rtnStr .. " && ";
         elseif modifiers.Reference then
-            rtnStr = rtnStr .. "& ";
-        end
-        if (modifiers.ConstPointer) then
-            rtnStr = rtnStr .. "const ";
+            rtnStr = rtnStr .. " & ";
         end
         if (modifiers.IsParameterPack) then
-            rtnStr = rtnStr .. "... ";
+            rtnStr = rtnStr .. " ... ";
         end
 
         return rtnStr;

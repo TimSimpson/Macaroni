@@ -1,0 +1,45 @@
+class PointerToPointers
+{
+    ~block "h-predef"
+    {
+        #include <type_traits>
+    }
+
+    int five()
+    {
+        int f = 5;
+        return 5;
+    }
+
+    char * ptr;
+
+    char * * ptr2;
+
+    ~block "h"
+    {
+        static_assert(std::is_same<decltype(ptr2),
+                                   char * *>::value,
+                      "Pointer to pointer failed!");
+    }
+
+    const char * * cptr2;
+
+    ~block "h"
+    {
+        static_assert(std::is_same<decltype(cptr2),
+                                   const char * *>::value,
+                      "Pointer to pointer failed!");
+    }
+
+    //MDOC-BEGIN ptrToPtr
+    const char * const * cptr3;
+
+    ~block "h"
+    {
+        static_assert(std::is_same<decltype(cptr3),
+                                   const char * const *>::value,
+                      "Pointer to pointer failed!");
+    }
+    //MDOC-END ptrToPtr
+
+};

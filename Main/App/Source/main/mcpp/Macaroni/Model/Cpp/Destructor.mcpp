@@ -36,6 +36,8 @@
 ~import std::stringstream;
 ~import Macaroni::Model::Project::Target;
 ~import Macaroni::Model::Project::TargetPtr;
+~import Macaroni::Model::TypeModifiers;
+~import Macaroni::Model::Type;
 ~import Macaroni::Model::Cpp::TypeInfo;
 ~import Macaroni::Model::Cpp::VariablePtr;
 ~import Macaroni::Model::Cpp::VariableAssignment;
@@ -121,7 +123,7 @@ class Destructor : public Function
         intrusive_ptr_release((FunctionOverload *)p);
     }
 
-    ~hidden static inline TypePtr voidType()
+    ~hidden static TypePtr voidType()
     {
         TypeModifiers modifiers;
         return TypePtr(new Type(NodePtr(), modifiers));

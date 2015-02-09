@@ -33,7 +33,7 @@ class Type {};
 
 // TODO: This is a horrible memory leak.  This thing needs to be connected to
 // the Context somehow with an intrusive ptr.
-typedef boost::shared_ptr<Type> TypePtr
+typedef boost::shared_ptr<Type ~l> TypePtr
 	@LuaClass
 	[
 		LuaGlueClass = Macaroni::Model::TypeLuaMetaData,
@@ -154,7 +154,7 @@ class Type
 
 	public inline bool IsPointer() const
 	{
-		return modifiers.Pointer();
+		return !!modifiers.Pointer();
 	}
 
 	public inline bool IsReference() const

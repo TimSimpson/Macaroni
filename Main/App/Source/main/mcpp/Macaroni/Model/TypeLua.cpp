@@ -24,6 +24,7 @@
 #include "TypeArgumentListLua.h"
 #include <Macaroni/Model/TypeModifiersLuaMetaData.h>
 #include "TypeLua.h"
+#include <Macaroni/Model/SimpleTypeModifiers.h>
 #include <Macaroni/Model/TypeModifiers.h>
 #include <sstream>
 
@@ -107,6 +108,8 @@
 			luaL_checktype(L, tableIndex, LUA_TTABLE);
 
 			lua_pushnil(L); // p39, start of table iteratin'
+			bool constPointer = false;
+			bool pointer = false;
 			while(lua_next(L, tableIndex) != 0)
 			{
 				std::string key(luaL_checkstring(L, -2)); // key
@@ -117,17 +120,26 @@
 				}
 				else if (key == "ConstPointer")
 				{
-					modifiers.SetConstPointer(value);
+					constPointer = value;
 				}
 				else if (key == "Pointer")
 				{
-					modifiers.SetPointer(value);
+					pointer = value;
 				}
 				else if (key == "Reference")
 				{
 					modifiers.SetReference(value);
 				}
 				lua_pop(L, 1);
+			}
+			if (constPointer || pointer)
+			{
+				SimpleTypeModifiers pointerInfo;
+				if (constPointer)
+				{
+					pointerInfo.SetConst(true);
+				}
+				modifiers.SetPointer(pointerInfo);
 			}
 		}
 

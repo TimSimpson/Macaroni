@@ -17,146 +17,151 @@
 ~import Macaroni::Lua::LuaFunction;
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
+~import boost::optional;
 ~import MACARONI_THROW;
+~import Macaroni::Model::SimpleTypeModifiers;
+~import Macaroni::Model::SimpleTypeModifiersPtr;
 ~import std::string;
 ~import std::stringstream;
+~import std::unique_ptr;
 
-namespace Macaroni::Model {
+~namespace Macaroni::Model;
 
-	class TypeModifiers
-		@LuaClass [ ReferenceType = TypeModifiers ]
+
+class TypeModifiers : public SimpleTypeModifiers
+	@LuaClass [ ReferenceType = TypeModifiers ]
+{
+	private bool _light;
+	private bool _isParameterPack;
+	private bool _reference;
+	private bool _rvalue;
+
+	public TypeModifiers()
+	:	SimpleTypeModifiers(),
+		_light(false),
+		_isParameterPack(false),
+		_reference(false),
+		_rvalue(false)
 	{
-		private bool _const;
-		private bool _constPointer;
-		private bool _light;
-		private bool _isParameterPack;
-		private bool _pointer;
-		private bool _reference;
-		private bool _rvalue;
+	}
 
-		public TypeModifiers()
-			: _const(false), _constPointer(false),
-			  _light(false),
-			  _isParameterPack(false),
-			  _pointer(false), _reference(false),
-			  _rvalue(false)
-		{
-			if (ConstPointer() && !Pointer())
-			{
-				MACARONI_THROW("Cannot use 'ConstPointer' type modifier if the "
-				               "'Pointer' modifier is not also set.");
-			}
-		}
+	public TypeModifiers(const TypeModifiers & other)
+	:	SimpleTypeModifiers(other),
+	    _light(other._light),
+		_isParameterPack(other._isParameterPack),
+		_reference(other._reference),
+		_rvalue(other._rvalue)
+	{
+	}
 
-		public bool operator== (const TypeModifiers & other) const
-			@LuaOperator "__eq"
-		{
-			return this->Const() == other.Const()
-				&& this->ConstPointer() == other.ConstPointer()
-				&& this->Pointer() == other.Pointer()
-				&& this->Reference() == other.Reference()
-				&& this->IsParameterPack() == other.IsParameterPack();
-		}
+	// The destructor isn't virtual because there's no special things to do
+	// to clean up this class since it's all dumb data.
+	public ~TypeModifiers() = default;
 
-		public inline bool Const() const
-			@LuaProperty "Const"
-		{
-			return _const;
-		}
+	public bool operator== (const TypeModifiers & other) const
+		@LuaOperator "__eq"
+	{
+		return SimpleTypeModifiers::operator==(other)
+		    && this->Reference() == other.Reference()
+			&& this->IsParameterPack() == other.IsParameterPack()
+			&& this->Light() == other.Light()
+			&& this->RvalueReference() == other.RvalueReference();
+	}
 
-		public inline void SetConst(bool value)
-		{
-			_const = value;
-		}
+	public inline bool Const() const BOOST_NOEXCEPT
+		@LuaProperty "Const"
+	{
+		return SimpleTypeModifiers::Const();
+	}
 
-		public inline bool ConstPointer() const
-			@LuaProperty "ConstPointer"
-		{
-			return _constPointer;
-		}
+	public inline bool ConstPointer() const BOOST_NOEXCEPT
+		@LuaProperty "ConstPointer"
+	{
+		return SimpleTypeModifiers::ConstPointer();
+	}
 
-		public inline void SetLight(bool value)
-		{
-			_light = value;
-		}
+	public inline bool Light() const BOOST_NOEXCEPT
+		@LuaProperty "Light"
+	{
+		return _light;
+	}
 
-		public inline bool Light() const
-			@LuaProperty "Light"
-		{
-			return _light;
-		}
+	public inline void SetLight(const bool value) BOOST_NOEXCEPT
+	{
+		this->_light = value;
+	}
 
-		public inline void SetConstPointer(bool value)
-		{
-			_constPointer = value;
-		}
+	public inline bool Mutable() const BOOST_NOEXCEPT
+		@LuaProperty "Mutable"
+	{
+		return SimpleTypeModifiers::Mutable();
+	}
 
+	public inline Macaroni::Model::SimpleTypeModifiersPtr Pointer()
+		const BOOST_NOEXCEPT
+		@LuaProperty "Pointer"
+	{
+		return SimpleTypeModifiers::Pointer();
+	}
 
-		public inline bool Pointer() const
-			@LuaProperty "Pointer"
-		{
-			return _pointer;
-		}
+	public inline bool Reference() const BOOST_NOEXCEPT
+		@LuaProperty "Reference"
+	{
+		return _reference || _rvalue;
+	}
 
-		public inline void SetPointer(bool value)
-		{
-			_pointer = value;
-		}
+	public inline void SetReference(const bool value) BOOST_NOEXCEPT
+	{
+		_reference = value;
+	}
 
-		public inline bool Reference() const
-			@LuaProperty "Reference"
-		{
-			return _reference || _rvalue;
-		}
+	public inline bool RvalueReference() const BOOST_NOEXCEPT
+		@LuaProperty "RvalueReference"
+	{
+		return _rvalue;
+	}
 
-		public inline void SetReference(bool value)
-		{
-			_reference = value;
-		}
+	public inline void SetRvalueReference(const bool value) BOOST_NOEXCEPT
+	{
+		_rvalue = value;
+	}
 
-		public inline bool RvalueReference() const
-			@LuaProperty "RvalueReference"
-		{
-			return _rvalue;
-		}
+	public void SetIsParameterPack(const bool value) BOOST_NOEXCEPT
+	{
+		_isParameterPack = value;
+	}
 
-		public inline void SetRvalueReference(bool value)
-		{
-			_rvalue = value;
-		}
+	public inline bool IsParameterPack() const BOOST_NOEXCEPT
+		@LuaProperty "IsParameterPack"
+	{
+		return _isParameterPack;
+	}
 
-		public void SetIsParameterPack(bool value)
-		{
-			_isParameterPack = value;
-		}
+	public bool MayOnlyNeedForwardDeclaration()
+		@LuaProperty "MayOnlyNeedForwardDeclaration"
+	{
+		return (_light || _reference
+			    || SimpleTypeModifiers::MayOnlyNeedForwardDeclaration()
+			    || _rvalue);
+	}
 
-		public inline bool IsParameterPack() const
-			@LuaProperty "IsParameterPack"
-		{
-			return _isParameterPack;
-		}
+	public string ToString()
+		@LuaOperator "__tostring"
+	{
+		stringstream ss;
+		ss << "T"
+		   << (Light() ? " ~L" : "")
+		   << (SimpleTypeModifiers::ToString())
+		   << (RvalueReference() ? " &&" : (Reference() ? " &" : ""))
+		   << (IsParameterPack() ? "..." : "")
+			;
+		return ss.str();
+	}
 
-		public bool MayOnlyNeedForwardDeclaration()
-			@LuaProperty "MayOnlyNeedForwardDeclaration"
-		{
-			return (_constPointer || _light || _reference || _pointer
-				    || _rvalue);
-		}
+	public inline bool Volatile() const BOOST_NOEXCEPT
+		@LuaProperty "Volatile"
+	{
+		return SimpleTypeModifiers::Volatile();
+	}
+};
 
-		public string ToString()
-			@LuaOperator "__tostring"
-		{
-			stringstream ss;
-			ss << (Const() ? "const " : "")
-			   << "T"
-			   << (Light() ? " ~L" : "")
-			   << (Pointer() ? " *" : "")
-			   << (RvalueReference() ? " &&" : (Reference() ? " &" : ""))
-			   << (ConstPointer() ? " const" : "")
-			   << (IsParameterPack() ? "..." : "")
-				;
-			return ss.str();
-		}
-	};
-
-}
