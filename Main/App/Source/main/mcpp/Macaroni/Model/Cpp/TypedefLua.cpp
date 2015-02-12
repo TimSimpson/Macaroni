@@ -17,7 +17,7 @@
 #define MACARONI_MODEL_CPP_TYPEDEFLUA_CPP
 
 #include "../../LuaGlueClear.h"
-#include "Typedef.h"
+#include <Macaroni/Model/Cpp/Typedef.h>
 #include "TypedefLua.h"
 #include "../ElementLua.h"
 #include "../NodeLua.h"

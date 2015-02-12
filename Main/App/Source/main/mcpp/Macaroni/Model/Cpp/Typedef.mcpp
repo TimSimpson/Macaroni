@@ -1,0 +1,82 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+~import Macaroni::Model::Element;
+~import boost::intrusive_ptr;
+~import Macaroni::Model::Node;
+~import Macaroni::Model::Reason;
+~import Macaroni::Model::ReasonPtr;
+~import Macaroni::Model::Cpp::Scope;
+~import Macaroni::Model::Cpp::ScopeMember;
+~import Macaroni::Model::Project::Target;
+~import Macaroni::Model::Project::TargetPtr;
+~import Macaroni::Model::TypePtr;
+~import Macaroni::Model::TypedefPtr;
+
+~namespace Macaroni::Model::Cpp;
+
+
+class Typedef {};
+
+typedef intrusive_ptr<Typedef> TypedefPtr;
+
+/** Represents a Type which is stored in the Node space. */
+class Typedef : public Scope
+{
+	private Macaroni::Model::TypePtr type;
+
+	protected Typedef(Target * target, Node * node, ReasonPtr reason,
+		              Access access, TypePtr type)
+	:	Scope(target, node, reason, access), type(type)
+	{
+	}
+
+	public ~Typedef()
+	{
+	}
+
+	public static TypedefPtr Create(
+		TargetPtr target, NodePtr home, ReasonPtr reason,
+		Access access, TypePtr type)
+	{
+		return TypedefPtr(new Typedef(target.get(), home.get(), reason,
+			                          access, type));
+	}
+
+	public Macaroni::Model::TypePtr GetType() const
+	{
+		return type;
+	}
+
+	public const char * GetTypeName() const override
+	{
+		return "Typedef";
+	}
+
+	public ~global ~friend void intrusive_ptr_add_ref(Typedef * p)
+	{
+		intrusive_ptr_add_ref((ScopeMember *)p);
+	}
+
+	public ~global ~friend void intrusive_ptr_release(Typedef * p)
+	{
+		intrusive_ptr_release((ScopeMember *)p);
+	}
+
+	public bool RequiresHFile() const override
+	{
+		return true;
+	}
+};

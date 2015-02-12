@@ -35,7 +35,7 @@
 #include <Macaroni/Model/Cpp/ScopeMember.h>
 #include <Macaroni/Model/Cpp/ScopeMemberPtr.h>
 #include <sstream>
-#include "Cpp/Typedef.h"
+#include <Macaroni/Model/Cpp/Typedef.h>
 #include "Cpp/TypedefLua.h"
 #include "Cpp/VariableLua.h"
 #include <Macaroni/Model/Project/Target.h>

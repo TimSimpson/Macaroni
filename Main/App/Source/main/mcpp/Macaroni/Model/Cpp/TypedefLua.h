@@ -17,7 +17,8 @@
 #define MACARONI_MODEL_CPP_TYPEDEFLUA_H
 
 #include "../../ME.h"
-#include "TypedefPtr.h"
+#include <Macaroni/Model/Cpp/Typedef.h>
+#include <Macaroni/Model/Cpp/TypedefPtr.h>
 
 struct lua_State;
 
