@@ -143,16 +143,7 @@
 			}
 		}
 
-		if (lua_checkstack(L, 3) && TypeArgumentListLuaMetaData::IsType(L, 3))
-		{
-			TypeArgumentListPtr list =
-				TypeArgumentListLuaMetaData::GetInstance(L, 3);
-			type.reset(new Type(node, modifiers, list));
-		}
-		else
-		{
-			type.reset(new Type(node, modifiers));
-		}
+		type = Type::Create(node, modifiers);
 
 		TypeLuaMetaData::PutInstanceOnStack(L, type);
 		return 1;

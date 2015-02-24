@@ -43,7 +43,7 @@ class Typedef : public Scope
 	{
 	}
 
-	public ~Typedef()
+	public virtual ~Typedef()  //TODO: override
 	{
 	}
 

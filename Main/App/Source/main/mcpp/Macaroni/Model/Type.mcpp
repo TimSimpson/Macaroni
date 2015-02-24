@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+~import Macaroni::Model::Context;
+~import boost::intrusive_ptr;
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaFunction;
 ~import Macaroni::Lua::LuaOperator;
@@ -31,15 +33,14 @@
 
 class Type {};
 
-// TODO: This is a horrible memory leak.  This thing needs to be connected to
-// the Context somehow with an intrusive ptr.
-typedef boost::shared_ptr<Type ~l> TypePtr
+typedef intrusive_ptr<Type> TypePtr
 	@LuaClass
 	[
 		LuaGlueClass = Macaroni::Model::TypeLuaMetaData,
 		ReferenceType = Macaroni::Model::TypePtr,
 	]
 ;
+
 typedef std::vector<TypePtr> TypeList;
 typedef boost::shared_ptr<TypeList> TypeListPtr;
 
@@ -58,28 +59,37 @@ class Type
 		ReferenceType = Macaroni::Model::TypePtr,
 	]
 {
-	private NodePtr type;
-	private TypeArgumentListPtr typeArguments;
+	private Context * context;
+	private Node * type;
+	private TypeArgumentListPtr typeArguments; //LEAK
 	private TypeModifiers modifiers;
 
-	public Type(NodePtr type, TypeModifiers modifiers)
+	private Type(Node * type, TypeModifiers modifiers)
 	:	type(type),
 		typeArguments(new TypeArgumentList()),
 		modifiers(modifiers)
 	{
 	}
 
-	public Type(NodePtr type, TypeModifiers modifiers,
-		        TypeArgumentListPtr typeArguments)
-	:	type(type),
-		typeArguments(typeArguments),
-		modifiers(modifiers)
+//	private Type(Node * type, TypeModifiers modifiers,/
+//		        TypeArgumentListPtr typeArguments)
+//	:	type(type),
+//		typeArguments(typeArguments),
+//		modifiers(modifiers)
+//	{
+//	}
+
+	public ~Type() = default;
+
+	public static TypePtr Create(NodePtr type,
+		                         TypeModifiers modifiers)
 	{
+		auto context = type->GetContext();
+		Type * t = new Type(type.get(), modifiers);
+		context->types->push_back(t);
+		return TypePtr{t};
 	}
 
-	public ~Type()
-	{
-	}
 
 	public bool operator== (const Type & other) const
 	{
@@ -131,6 +141,16 @@ class Type
 	public inline TypeArgumentListPtr GetTypeArguments() const
 	{
 		return typeArguments;
+	}
+
+	public ~global ~friend void intrusive_ptr_add_ref(Type * p)
+	{
+		intrusive_ptr_add_ref(p->context);
+	}
+
+	public ~global ~friend void intrusive_ptr_release(Type * p)
+	{
+		intrusive_ptr_release(p->context);
 	}
 
 	public inline bool IsConst() const
