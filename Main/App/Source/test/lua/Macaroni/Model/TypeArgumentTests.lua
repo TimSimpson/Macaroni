@@ -24,47 +24,15 @@ local function mixinContext(self)
     self.nodeA = self.context.Root:FindOrCreate("TypeA");
     self.nodeB = self.context.Root:FindOrCreate("TypeB");
     self.nodeC = self.context.Root:FindOrCreate("TypeC");
-    self.typeA = Type.New(self.nodeA);
-    self.typeB = Type.New(self.nodeB);
-    self.typeC = Type.New(self.nodeC);
-    self.typeList = TypeList.New{self.typeA, self.typeB, self.typeC};
-end
 
-Test.register(
-{
-    name = "TypeArgument Tests",
-    tests = {
-        {
-            name = "Creating a TypeArgument in Lua with no arguments.",
-            init = function(self)
-                mixinContext(self);
-                self.typeArgument = TypeArgument.New(self.nodeA);
-            end,
-            tests = {
-                ["Node should be what we gave it."] = function(self)
-                    Test.assertEquals(self.nodeA.FullName, self.typeArgument.Node.FullName);
-                end,
-                ["Arguments are empty."] = function(self)
-                    Test.assertEquals(0, #(self.typeArgument.Arguments));
-                end,
-            }
-        },
-        {
-            name = "Creating a TypeArgument in Lua with Arguments.",
-            init = function(self)
-                mixinContext(self);
-                self.typeArgument = TypeArgument.New(self.nodeA, self.typeList);
-            end,
-            tests = {
-                ["Node should be what we gave it."] = function(self)
-                    Test.assertEquals(self.nodeA.FullName, self.typeArgument.Node.FullName);
-                end,
-                ["Arguments are the TypeList we provided."] = function(self)
-                    local expected = self.typeList;
-                    local actual = self.typeArgument.Arguments;
-                    Test.assertEquals(expected, actual);
-                end,
-            }
-        }
-    }
-}); -- End of register call
+    self.rootType = self.context:CreateType()
+    self.typeList = self.rootType:AddArgument(1)
+
+    self.typeA = self.typeList:CreateType()
+    self.typeA.Node = self.nodeA;
+    self.typeB = self.typeList:CreateType()
+    self.typeB.Node = self.nodeB;
+    self.typeC = self.typeList:CreateType()
+    self.typeC.Node = self.nodeC;
+
+end

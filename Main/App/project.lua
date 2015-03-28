@@ -192,7 +192,8 @@ generate = function()
       cmake:Run("Generate", {
           projectVersion = project,
           filePath = outputPath,
-          output = output
+          output = output,
+          invoke = true,
       })
     end
 
@@ -222,6 +223,7 @@ end
 
 
 build = function()
+  local outputPath = filePath(target);
   local callBjam = function()
       local cmd = "bjam link=static threading=multi " -- cxxflags=-std=gnu++11 "
                   .. properties.bjam_options .. " " .. targetDir.AbsolutePath
@@ -236,6 +238,15 @@ build = function()
 	                   tostring(number))
           error("Failure running Boost Build!")
       end
+  end
+
+  local callCMake = function()
+    cmake:Run("Build", {
+          projectVersion = project,
+          filePath = outputPath,
+          output = output,
+          invoke = true,
+      })
   end
 
   local createPureCpp = function()
@@ -276,6 +287,7 @@ build = function()
   if not built then
       generate()
       callBjam()
+      --callCMake()
       runTests()
       createPureCpp()
       built = true

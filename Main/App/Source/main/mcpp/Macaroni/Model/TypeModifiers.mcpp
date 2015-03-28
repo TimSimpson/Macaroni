@@ -15,6 +15,7 @@
  */
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaIndexExtraCode;
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
 ~import boost::optional;
@@ -28,9 +29,37 @@
 
 ~namespace Macaroni::Model;
 
+//TODO: Due to a shortcoming in Macaroni, this class duplicates multiple
+//      properties from SimpleTypeModifiers so it can wrap them in Lua glue.
+//      It would be better for the Lua Glue generator to create some kind of
+//      mapping but for now this is in place.
 
 class TypeModifiers : public SimpleTypeModifiers
 	@LuaClass [ ReferenceType = TypeModifiers ]
+	@LuaIndexExtraCode ={
+        const string index_0(luaL_checkstring(L, 2));
+        if (index_0 == "Const"
+        	|| index_0 == "ConstPointer"
+        	|| index_0 == "Mutable"
+        	|| index_0 == "SetPointer"
+        	|| index_0 == "Volatile")
+        {
+        	return SimpleTypeModifiersLuaMetaData::Index(L, instance, index_0);
+        }
+        if (index_0 == "Pointer")
+        {
+            auto p = instance.Pointer();
+            if (!p)
+            {
+                lua_pushnil(L);
+            }
+            else
+            {
+                SimpleTypeModifiersLuaMetaData::PutInstanceOnStack(L, p.get());
+            }
+            return 1;
+        }
+    } //;
 {
 	private bool _light;
 	private bool _isParameterPack;
@@ -94,18 +123,6 @@ class TypeModifiers : public SimpleTypeModifiers
 		return out;
     }
 
-	public inline bool Const() const BOOST_NOEXCEPT
-		@LuaProperty "Const"
-	{
-		return SimpleTypeModifiers::Const();
-	}
-
-	public inline bool ConstPointer() const BOOST_NOEXCEPT
-		@LuaProperty "ConstPointer"
-	{
-		return SimpleTypeModifiers::ConstPointer();
-	}
-
 	public inline bool Light() const BOOST_NOEXCEPT
 		@LuaProperty "Light"
 	{
@@ -117,26 +134,33 @@ class TypeModifiers : public SimpleTypeModifiers
 		this->_light = value;
 	}
 
-	public inline bool Mutable() const BOOST_NOEXCEPT
-		@LuaProperty "Mutable"
-	{
-		return SimpleTypeModifiers::Mutable();
-	}
+	/*public inline boost::optional<const SimpleTypeModifiers &> Pointer() const
+        BOOST_NOEXCEPT
+    {
+    	return SimpleTypeModifiers::Pointer();
+    }
 
-	public inline Macaroni::Model::SimpleTypeModifiersPtr Pointer()
-		const BOOST_NOEXCEPT
-		@LuaProperty "Pointer"
-	{
-		return SimpleTypeModifiers::Pointer();
-	}
+    public inline boost::optional<SimpleTypeModifiers &> Pointer()
+    	BOOST_NOEXCEPT
+    {
+        return SimpleTypeModifiers::Pointer();
+    }*/
 
-	public inline bool Reference() const BOOST_NOEXCEPT
+
+/*	public inline void SetPointer(::Macaroni::Model::SimpleTypeModifiers pointerInfo)
+        @LuaProperty "Pointer"
+    {
+    	SimpleTypeModifiers::SetPointer(pointerInfo);
+    }*/
+
+    public inline bool Reference() const BOOST_NOEXCEPT
 		@LuaProperty "Reference"
 	{
-		return _reference || _rvalue;
+		return _reference;
 	}
 
 	public inline void SetReference(const bool value) BOOST_NOEXCEPT
+		@LuaProperty "Reference"
 	{
 		_reference = value;
 	}
@@ -148,11 +172,13 @@ class TypeModifiers : public SimpleTypeModifiers
 	}
 
 	public inline void SetRvalueReference(const bool value) BOOST_NOEXCEPT
+		@LuaProperty "RvalueReference"
 	{
 		_rvalue = value;
 	}
 
 	public void SetIsParameterPack(const bool value) BOOST_NOEXCEPT
+		@LuaProperty "IsParameterPack"
 	{
 		_isParameterPack = value;
 	}
@@ -179,10 +205,28 @@ class TypeModifiers : public SimpleTypeModifiers
 		return ss.str();
 	}
 
-	public inline bool Volatile() const BOOST_NOEXCEPT
-		@LuaProperty "Volatile"
+
+	// Duplicated setters
+	//TODO: Fix Lua stuff and re-do this
+
+	public inline void SetConst(const bool value)
+		@LuaProperty "Const"
 	{
-		return SimpleTypeModifiers::Volatile();
+		return SimpleTypeModifiers::SetConst(value);
 	}
+
+	public inline void SetMutable(const bool value) BOOST_NOEXCEPT
+        @LuaProperty "Mutable"
+    {
+    	SimpleTypeModifiers::SetMutable(value);
+    }
+
+
+
+    public inline void SetVolatile(const bool value) BOOST_NOEXCEPT
+        @LuaProperty "Volatile"
+    {
+    	SimpleTypeModifiers::SetVolatile(value);
+    }
 };
 

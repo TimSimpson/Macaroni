@@ -31,6 +31,9 @@
 #include <Macaroni/Model/Project/ProjectVersion.h>
 #include <sstream>
 #include <Macaroni/LuaCompat.h>
+#include <Macaroni/Model/Type.h>
+#include <Macaroni/Model/TypePtr.h>
+#include <Macaroni/Model/TypeLuaMetaData.h>
 
 using Macaroni::Model::Project::Group;
 using Macaroni::Model::Project::GroupPtr;
@@ -83,6 +86,16 @@ namespace {
 
 struct ContextLuaFunctions
 {
+	static int createType(lua_State * L)
+	{
+		L_BEGIN
+		ContextPtr context = getInstance(L);
+		TypePtr t = context->CreateType();
+		TypeLuaMetaData::PutInstanceOnStack(L, t);
+		return 1;
+		L_END
+	}
+
 	static int findProjectVersion(lua_State * L)
 	{
 		L_BEGIN
@@ -181,7 +194,11 @@ struct ContextLuaFunctions
 
 		std::string index(luaL_checkstring(L, 2));
 
-		if (index == "FindLibrary")
+		if (index == "CreateType")
+		{
+			lua_pushcfunction(L, createType);
+		}
+		else if (index == "FindLibrary")
 		{
 			luaL_error(L, "FindLibrary is no longer supported. Please change "
 				          "your code.");

@@ -132,6 +132,7 @@ class Type
     }
 
 	public TypeArgumentListPtr AddArgument(int index)
+		@LuaFunction "AddArgument"
 	{
 		arguments.emplace_back(new TypeArgumentList(this, index));
 		return TypeArgumentListPtr{arguments.back().get()};
@@ -175,17 +176,18 @@ class Type
 	}
 
 	public TypeModifiers & GetModifiers()
-	{
-		return modifiers;
-	}
-
-	public const TypeModifiers & GetModifiers() const
 		@LuaProperty "Modifiers"
 	{
 		return modifiers;
 	}
 
+	public const TypeModifiers & GetModifiers() const
+	{
+		return modifiers;
+	}
+
 	public inline void SetModifiers(const TypeModifiers & modifiers)
+		@LuaProperty "Modifiers"
 	{
 		this->modifiers = modifiers;
 	}
@@ -220,13 +222,13 @@ class TypeList
 		const auto index_1 = lexical_cast<int>(index_0);
 		const vector<unique_ptr<TypeArgumentList>> & list
 			= instance.type_.GetArguments();
-		if (0 > index_1 || list.size() - 1 < index_1)
+		if (1 > index_1 || list.size() < index_1)
 		{
 			lua_pushnil(L);
 		}
 		else
 		{
-			TypeArgumentListPtr talp(list[index_1].get());
+			TypeArgumentListPtr talp(list[index_1 - 1].get());
 			TypeArgumentListLuaMetaData::PutInstanceOnStack(L, talp);
 		}
 		return 1;
@@ -245,5 +247,11 @@ class TypeList
 	public ~TypeList()
 	{
 		intrusive_ptr_release(&type_);
+	}
+
+	public int GetLength() const
+		@LuaOperator "__len"
+	{
+		return type_.GetArguments().size();
 	}
 }

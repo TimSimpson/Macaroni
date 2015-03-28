@@ -23,6 +23,8 @@ local PippyParser = require "Macaroni.Parser.Pippy.PippyParser";
 local Source = require "Macaroni.Model.Source";
 local Type = require "Macaroni.Model.Type";
 local TypeArgumentList = require "Macaroni.Model.TypeArgumentList";
+local TypeModifiers = require "Macaroni.Model.TypeModifiers";
+local SimpleTypeModifiers = require "Macaroni.Model.SimpleTypeModifiers";
 
 --[[
 Its easy to see how a vector class could accept a type argument.
@@ -82,7 +84,8 @@ Test.register(
             name = "Creating a Type which represents std::string.",
             init = function(self)
                 mixinContext(self);
-                self.typeString = Type.New(self.stdstring);
+                self.typeString = self.context:CreateType();
+                self.typeString.Node = self.stdstring;
             end,
             tests = {
                 ["Type points to the Node represent std::string."] = function(self)
@@ -94,14 +97,18 @@ Test.register(
             name = "Creating a Type which represents const std::string.",
             init = function(self)
                 mixinContext(self);
-                self.typeString = Type.New(self.stdstring, {Const=true});
+                self.typeString = self.context:CreateType();
+                self.typeString.Node = self.stdstring;
+                local mods = self.typeString.Modifiers
+                mods.Const = true
+                self.typeString.Modifiers = mods
             end,
             tests = {
                 ["Type points to the Node represent std::string."] = function(self)
                     Test.assertEquals(self.stdstring, self.typeString.Node);
                 end,
                 ["Type is const."] = function(self)
-                    Test.assertEquals(true, self.typeString.Const);
+                    Test.assertEquals(true, self.typeString.Modifiers.Const);
                 end,
             }
         },
@@ -109,14 +116,23 @@ Test.register(
             name = "Creating a Type which represents std::string *.",
             init = function(self)
                 mixinContext(self);
-                self.typeString = Type.New(self.stdstring, {Pointer=true});
+                self.typeString = self.context:CreateType();
+                self.typeString.Node = self.stdstring;
+                pointer = SimpleTypeModifiers.New()
+                mods = self.typeString.Modifiers
+                Test.assertEquals(true, pointer ~= nil)
+                Test.assertEquals(true, mods.Pointer == nil)
+                mods:SetPointer(pointer)
+                Test.assertEquals(true, mods.Pointer ~= nil)
+                self.typeString.Modifiers = mods
             end,
             tests = {
                 ["Type points to the Node represent std::string."] = function(self)
                     Test.assertEquals(self.stdstring, self.typeString.Node);
                 end,
                 ["Type is pointer."] = function(self)
-                    Test.assertEquals(true, self.typeString.Pointer);
+                    Test.assertEquals(true,
+                                      self.typeString.Modifiers.Pointer ~= nil);
                 end,
             }
         },
@@ -124,14 +140,18 @@ Test.register(
             name = "Creating a Type which represents std::string &.",
             init = function(self)
                 mixinContext(self);
-                self.typeString = Type.New(self.stdstring, {Reference=true});
+                self.typeString = self.context:CreateType();
+                self.typeString.Node = self.stdstring
+                local mods = self.typeString.Modifiers
+                mods.Reference = true
+                self.typeString.Modifiers = mods
             end,
             tests = {
                 ["Type points to the Node represent std::string."] = function(self)
                     Test.assertEquals(self.stdstring, self.typeString.Node);
                 end,
                 ["Type is reference."] = function(self)
-                    Test.assertEquals(true, self.typeString.Reference);
+                    Test.assertEquals(true, self.typeString.Modifiers.Reference);
                 end,
             }
         },
@@ -139,14 +159,20 @@ Test.register(
             name = "Creating a Type which represents std::string * const.",
             init = function(self)
                 mixinContext(self);
-                self.typeString = Type.New(self.stdstring, {ConstPointer=true});
+                self.typeString = self.context:CreateType();
+                self.typeString.Node = self.stdstring
+                local pointer = SimpleTypeModifiers.New()
+                pointer.Const = true
+                local mods = self.typeString.Modifiers
+                mods:SetPointer(pointer)
+                self.typeString.Modifiers = mods
             end,
             tests = {
                 ["Type points to the Node represent std::string."] = function(self)
                     Test.assertEquals(self.stdstring, self.typeString.Node);
                 end,
                 ["Type is const pointer."] = function(self)
-                    Test.assertEquals(true, self.typeString.ConstPointer);
+                    Test.assertEquals(true, self.typeString.Modifiers.ConstPointer);
                 end,
             }
         },
@@ -154,21 +180,29 @@ Test.register(
             name = "Creating a Type which represents std::string * const.",
             init = function(self)
                 mixinContext(self);
-                self.typeString = Type.New(self.stdstring,
-                    {Const=true,ConstPointer=true,Pointer=true});
+                self.typeString = self.context:CreateType();
+                self.typeString.Node = self.stdstring
+                local pointer = SimpleTypeModifiers.New()
+                pointer.Const = true
+                local mods = self.typeString.Modifiers
+                mods:SetPointer(pointer)
+                mods.Const = true
+                self.typeString.Modifiers = mods
             end,
             tests = {
                 ["Type is const."] = function(self)
-                    Test.assertEquals(true, self.typeString.Const);
+                    Test.assertEquals(true, self.typeString.Modifiers.Const);
                 end,
                 ["Type points to the Node represent std::string."] = function(self)
                     Test.assertEquals(self.stdstring, self.typeString.Node);
                 end,
                 ["Type is const pointer."] = function(self)
-                    Test.assertEquals(true, self.typeString.ConstPointer);
+                    Test.assertEquals(
+                        true, self.typeString.Modifiers.ConstPointer);
                 end,
                 ["Type is pointer."] = function(self)
-                    Test.assertEquals(true, self.typeString.Pointer);
+                    Test.assertEquals(
+                        true, self.typeString.Modifiers.Pointer ~= nil);
                 end,
             }
         },
@@ -176,43 +210,22 @@ Test.register(
             name = "Creating a Type representing Vector<std::string>.",
             init = function(self)
                 mixinContext(self);
-                self.typeArg1 = TypeArgument.New(
-                        self.vector,
-                        NodeList.New{ self.stdstring }
-                    );
-                self.typeArgs = TypeArgumentList.New{self.typeArg1};
-                self.type = Type.New(self.vector, {}, self.typeArgs);
+                self.type = self.context:CreateType()
+                self.type.Node = self.vector
+                self.typeArgs = self.type:AddArgument(0)
+                self.typeArg1 = self.typeArgs:CreateType()
+                self.typeArg1.Node = self.stdstring
+
+                -- self.typeArg1 = TypeArgument.New(
+                --         self.vector,
+                --         NodeList.New{ self.stdstring }
+                --     );
+                -- self.typeArgs = TypeArgumentList.New{self.typeArg1};
+                -- self.type = Type.New(self.vector, {}, self.typeArgs);
             end,
             tests = {
                 ["Type points to Node representing Vector."] = function(self)
                     Test.assertEquals(self.vector, self.type.Node);
-                end,
-                ["Type argument list reflect original argument."] = function(self)
-                    Test.assertEquals(self.typeArgs, self.type.TypeArguments);
-                end,
-            }
-        },
-        {
-            name = "Creating a Type representing Event<EventId>::Message<std::string, GfxData>.",
-            init = function(self)
-                mixinContext(self);
-                self.typeArg1 = TypeArgument.New(
-                        self.event,
-                        NodeList.New{ self.eventId }
-                    );
-                self.typeArg2 = TypeArgument.New(
-                        self.message,
-                        NodeList.New{ self.stdstring, self.gfxData }
-                    );
-                self.typeArgs = TypeArgumentList.New{self.typeArg1, self.typeArg2};
-                self.type = Type.New(self.message, {}, self.typeArgs);
-            end,
-            tests = {
-                ["Type points to Node representing Event::Message."] = function(self)
-                    Test.assertEquals(self.message, self.type.Node);
-                end,
-                ["Type argument list reflect original argument."] = function(self)
-                    Test.assertEquals(self.typeArgs, self.type.TypeArguments);
                 end,
             }
         },

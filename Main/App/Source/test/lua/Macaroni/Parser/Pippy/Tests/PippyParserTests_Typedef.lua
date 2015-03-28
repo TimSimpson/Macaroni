@@ -132,9 +132,10 @@ tests = {
                 Test.assertEquals(1, #(typeArgs));
 
                 local typeArg1 = typeArgs[1];
-                Test.assertEquals("std::vector", typeArg1.Node.FullName);
-                Test.assertEquals(1, #(typeArg1.Arguments));
-                Test.assertEquals("std::string", typeArg1.Arguments[1].Node.FullName);
+                Test.assertEquals(1, typeArg1.NodeDepth);
+                Test.assertEquals(1, #(typeArg1));
+                Test.assertEquals(typeArg1[1] ~= nil, true)
+                Test.assertEquals("std::string", typeArg1[1].Node.FullName);
             end,
         }
     },

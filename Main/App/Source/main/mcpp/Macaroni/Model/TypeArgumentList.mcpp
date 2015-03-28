@@ -70,13 +70,13 @@ class TypeArgumentList
         {
             const int index_1 = boost::lexical_cast<int>(index_0);
             std::vector<unique_ptr<Type>> & list = instance->GetTypes();
-            if (0 > index_1 || list.size() - 1 < index_1)
+            if (0 > index_1 || list.size() < index_1)
             {
                 lua_pushnil(L);
             }
             else
             {
-                TypePtr tp(list[index_1].get());
+                TypePtr tp(list[index_1 - 1].get());
                 TypeLuaMetaData::PutInstanceOnStack(L, tp);
             }
             return 1;
@@ -103,12 +103,6 @@ class TypeArgumentList
 
     public ~TypeArgumentList()
     {
-    }
-
-    public TypePtr AddType()
-    {
-        types.emplace_back(new Type{parent->context});
-        return TypePtr{types.back().get()};
     }
 
     public bool operator==(const TypeArgumentList & other) const
@@ -147,8 +141,15 @@ class TypeArgumentList
         return out;
     }
 
+    public TypePtr CreateType()
+        @LuaFunction "CreateType"
+    {
+        types.emplace_back(new Type{parent->context});
+        return TypePtr{types.back().get()};
+    }
+
     public int GetNodeDepth() const
-        @LuaOperator "NodeDepth"
+        @LuaProperty "NodeDepth"
     {
         return nodeDepth;
     }
@@ -161,6 +162,12 @@ class TypeArgumentList
     public const std::vector<unique_ptr<Type>> & GetTypes() const
     {
         return types;
+    }
+
+    public int GetTypesLength() const
+        @LuaOperator "__len"
+    {
+        return types.size();
     }
 
     public ~global ~friend void intrusive_ptr_add_ref(TypeArgumentList * p)

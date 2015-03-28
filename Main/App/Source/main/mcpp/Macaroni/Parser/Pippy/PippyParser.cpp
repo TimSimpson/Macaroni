@@ -1489,7 +1489,7 @@ public:
 	 * Example: a::b<c>, a::b::d, a<b,c>::b<a::b::c>::e<a *,const e::g>
 	 * Returns false if it does not find a name.
 	 */
-	bool ConsumeTypeMainNodeAndArguments(Iterator & itr, TypePtr type)
+	bool ConsumeTypeMainNodeAndArguments(Iterator & itr, TypePtr & type)
 	{
 		NodePtr mainNode;
 		NodePtr lastNode;
@@ -1517,15 +1517,18 @@ public:
 						Messages::Get("CppParser.Variable.UnknownTypeName"));
 				}
 			}
+			else
+			{
+				// If we've already seen a node (and a type arg list) then the
+				// main node has to come off of it.
+				node = lastNode->FindOrCreate(complexName);
+			}
 
 			if (!type)
 			{
 				type = context->CreateType();
 			}
 
-			// If we've already seen a node (and a type arg list) then the
-			// main node has to come off of it.
-			node = lastNode->FindOrCreate(complexName);
 
 			if (itr.Current() == '<')
 			{
@@ -1562,7 +1565,7 @@ public:
 		while(true) // Remember, its not as bad as GOTO because its WHILE. :p
 		{
 			Iterator newItr = itr;
-			TypePtr type = argList->AddType();
+			TypePtr type = argList->CreateType();
 			if (!Type_(newItr, type))
 			{
 				throw ParserException(itr.GetSource(),
@@ -1619,7 +1622,7 @@ public:
 		throw ParserException(itr.GetSource(), ss.str());
 	}
 
-	bool DeclTypeAutoHack(Iterator & itr, TypePtr type)
+	bool DeclTypeAutoHack(Iterator & itr, TypePtr & type)
 	{
 		if (!itr.ConsumeWord("decltype(auto)"))
 		{
@@ -2968,7 +2971,7 @@ public:
 	{
 		Iterator newItr = itr;
 
-		TypeModifiers & modifiers = type->GetModifiers();
+		TypeModifiers modifiers;
 
 		bool sawSomething = SimpleTypeModifiers1(newItr, modifiers);
 
@@ -3006,7 +3009,8 @@ public:
 		ConsumeWhitespace(itr);
 
 		// Call this again.
-		TypeModifiers2(itr, type->GetModifiers());
+		TypeModifiers2(itr, modifiers);
+		type->GetModifiers() = modifiers;
 
 		return true;
 	}

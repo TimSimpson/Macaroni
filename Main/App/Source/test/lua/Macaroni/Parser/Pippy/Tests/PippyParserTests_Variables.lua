@@ -76,7 +76,7 @@ tests = {
                 Test.assertEquals("Variable", this.var.TypeName);
             end,
             ["C is not const."] = function(this)
-                Test.assertEquals(false, this.var.Type.Const);
+                Test.assertEquals(false, this.var.Type.Modifiers.Const);
             end,
         }
     },
@@ -109,10 +109,10 @@ tests = {
                 Test.assertEquals("Variable", this.var.TypeName);
             end,
             ["C is not const."] = function(this)
-                Test.assertEquals(false, this.var.Type.Const);
+                Test.assertEquals(false, this.var.Type.Modifiers.Const);
             end,
             ["K is not const."] = function(this)
-                Test.assertEquals(false, this.var2.Type.Const);
+                Test.assertEquals(false, this.var2.Type.Modifiers.Const);
             end,
         }
     },
@@ -137,7 +137,7 @@ tests = {
         end,
         tests = {
             ["C is not const."] = function(this)
-                Test.assertEquals(true, this.var.Type.Const);
+                Test.assertEquals(true, this.var.Type.Modifiers.Const);
             end,
         }
     },
@@ -160,13 +160,13 @@ tests = {
         end,
         tests = {
             ["C is const."] = function(this)
-                Test.assertEquals(true, this.var.Type.Const);
+                Test.assertEquals(true, this.var.Type.Modifiers.Const);
             end,
             ["C is not a pointer."] = function(this)
-                Test.assertEquals(false, this.var.Type.Pointer);
+                Test.assertEquals(nil, this.var.Type.Modifiers.Pointer);
             end,
             ["C is not a reference."] = function(this)
-                Test.assertEquals(false, this.var.Type.Reference);
+                Test.assertEquals(false, this.var.Type.Modifiers.Reference);
             end,
         }
     },
@@ -229,10 +229,10 @@ tests = {
                 Test.assertEquals("Variable", this.var.TypeName);
             end,
             ["C is not const."] = function(this)
-                Test.assertEquals(false, this.var.Type.Const);
+                Test.assertEquals(false, this.var.Type.Modifiers.Const);
             end,
             ["K is const."] = function(this)
-                Test.assertEquals(true, this.var2.Type.Const);
+                Test.assertEquals(true, this.var2.Type.Modifiers.Const);
             end,
         }
     },
@@ -262,10 +262,10 @@ tests = {
                 Test.assertEquals("Variable", this.var.TypeName);
             end,
             ["C is const."] = function(this)
-                Test.assertEquals(true, this.var.Type.Const);
+                Test.assertEquals(true, this.var.Type.Modifiers.Const);
             end,
             ["C is a pointer."] = function(this)
-                Test.assertEquals(true, this.var.Type.Pointer);
+                Test.assertEquals(true, this.var.Type.Modifiers.Pointer ~= nil);
             end,
         }
     },
@@ -295,10 +295,10 @@ tests = {
                 Test.assertEquals("Variable", this.var.TypeName);
             end,
             ["C is const."] = function(this)
-                Test.assertEquals(true, this.var.Type.Const);
+                Test.assertEquals(true, this.var.Type.Modifiers.Const);
             end,
             ["C is a pointer."] = function(this)
-                Test.assertEquals(true, this.var.Type.Pointer);
+                Test.assertEquals(true, this.var.Type.Modifiers.Pointer ~= nil);
             end,
         }
     },
@@ -318,6 +318,7 @@ tests = {
                 char const * const c;
             ]]);
             this.var = this.root.Children[2].Element;
+            this.pointer = this.var.Type.Modifiers.Pointer
         end,
         tests = {
             ["C, the var, is added."] = function(this)
@@ -328,16 +329,16 @@ tests = {
                 Test.assertEquals("Variable", this.var.TypeName);
             end,
             ["C is const."] = function(this)
-                Test.assertEquals(true, this.var.Type.Const);
+                Test.assertEquals(true, this.var.Type.Modifiers.Const);
             end,
             ["C is a pointer."] = function(this)
-                Test.assertEquals(true, this.var.Type.Pointer);
+                Test.assertEquals(true, this.pointer ~= nil);
             end,
             ["C is a const pointer."] = function(this)
-                Test.assertEquals(true, this.var.Type.ConstPointer);
+                Test.assertEquals(true, this.pointer.Const);
             end,
             ["C is not a reference."] = function(this)
-                Test.assertEquals(false, this.var.Type.Reference);
+                Test.assertEquals(false, this.var.Type.Modifiers.Reference);
             end,
         }
     },
@@ -367,16 +368,13 @@ tests = {
                 Test.assertEquals("Variable", this.var.TypeName);
             end,
             ["C is not const."] = function(this)
-                Test.assertEquals(false, this.var.Type.Const);
+                Test.assertEquals(false, this.var.Type.Modifiers.Const);
             end,
             ["C is not a pointer."] = function(this)
-                Test.assertEquals(false, this.var.Type.Pointer);
-            end,
-            ["C is not a const pointer."] = function(this)
-                Test.assertEquals(false, this.var.Type.ConstPointer);
+                Test.assertEquals(nil, this.var.Type.Modifiers.Pointer);
             end,
             ["C is a reference."] = function(this)
-                Test.assertEquals(true, this.var.Type.Reference);
+                Test.assertEquals(true, this.var.Type.Modifiers.Reference);
             end,
         }
     },
@@ -406,16 +404,16 @@ tests = {
                 Test.assertEquals("Variable", this.var.TypeName);
             end,
             ["C is const."] = function(this)
-                Test.assertEquals(true, this.var.Type.Const);
+                Test.assertEquals(true, this.var.Type.Modifiers.Const);
             end,
             ["C is a pointer."] = function(this)
-                Test.assertEquals(true, this.var.Type.Pointer);
+                Test.assertEquals(true, nil ~= this.var.Type.Modifiers.Pointer);
             end,
             ["C is a const pointer."] = function(this)
-                Test.assertEquals(true, this.var.Type.ConstPointer);
+                Test.assertEquals(true, this.var.Type.Modifiers.Pointer.Const);
             end,
             ["C is a reference."] = function(this)
-                Test.assertEquals(true, this.var.Type.Reference);
+                Test.assertEquals(true, this.var.Type.Modifiers.Reference);
             end,
         }
     },
