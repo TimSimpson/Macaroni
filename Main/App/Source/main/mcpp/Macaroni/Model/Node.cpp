@@ -282,6 +282,18 @@ ContextPtr Node::GetContext()
 	return ContextPtr(context);
 }
 
+int Node::GetDepth() const
+{
+	if (scope == nullptr)
+	{
+		return 0;
+	}
+	else
+	{
+		return 1 + scope->GetDepth();
+	}
+}
+
 std::string Node::GetFullName() const
 {
 	std::stringstream ss;

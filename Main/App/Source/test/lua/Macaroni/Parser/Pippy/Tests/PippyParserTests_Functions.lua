@@ -32,7 +32,6 @@ local Path = require "Macaroni.IO.Path";
 local FileName = require "Macaroni.Model.FileName";
 local Source = require "Macaroni.Model.Source";
 local Type = require "Macaroni.Model.Type";
-local TypeArgument = require "Macaroni.Model.TypeArgument";
 local TypeArgumentList = require "Macaroni.Model.TypeArgumentList";
 local TypeList = require "Macaroni.Model.TypeList";
 

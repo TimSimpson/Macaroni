@@ -18,6 +18,7 @@
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
 ~import boost::optional;
+~import std::ostream;
 ~import MACARONI_THROW;
 ~import Macaroni::Model::SimpleTypeModifiers;
 ~import Macaroni::Model::SimpleTypeModifiersPtr;
@@ -54,6 +55,16 @@ class TypeModifiers : public SimpleTypeModifiers
 	{
 	}
 
+	public TypeModifiers & operator= (const TypeModifiers & other)
+	{
+		SimpleTypeModifiers::operator=(other);
+		this->_light = other._light;
+		this->_isParameterPack = other._isParameterPack;
+		this->_reference = other._reference;
+		this->_rvalue = other._rvalue;
+		return *this;
+	}
+
 	// The destructor isn't virtual because there's no special things to do
 	// to clean up this class since it's all dumb data.
 	public ~TypeModifiers() = default;
@@ -67,6 +78,21 @@ class TypeModifiers : public SimpleTypeModifiers
 			&& this->Light() == other.Light()
 			&& this->RvalueReference() == other.RvalueReference();
 	}
+
+	public bool operator!= (const TypeModifiers & other) const
+    {
+        return ! this->operator==(other);
+    }
+
+    public ~global ~friend ostream & operator<<(ostream & out,
+    	                                        const TypeModifiers & mods)
+    {
+    	out << (mods.Light() ? " ~L" : "")
+    	    << static_cast<const SimpleTypeModifiers &>(mods)
+		    << (mods.RvalueReference() ? " &&" : (mods.Reference() ? " &" : ""))
+		    << (mods.IsParameterPack() ? "..." : "");
+		return out;
+    }
 
 	public inline bool Const() const BOOST_NOEXCEPT
 		@LuaProperty "Const"
@@ -145,16 +171,11 @@ class TypeModifiers : public SimpleTypeModifiers
 			    || _rvalue);
 	}
 
-	public string ToString()
+	public string ToString() const
 		@LuaOperator "__tostring"
 	{
 		stringstream ss;
-		ss << "T"
-		   << (Light() ? " ~L" : "")
-		   << (SimpleTypeModifiers::ToString())
-		   << (RvalueReference() ? " &&" : (Reference() ? " &" : ""))
-		   << (IsParameterPack() ? "..." : "")
-			;
+		ss << *this;
 		return ss.str();
 	}
 

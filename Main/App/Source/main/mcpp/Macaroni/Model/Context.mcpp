@@ -34,6 +34,10 @@
 ~import Macaroni::Model::Project::ProjectVersionId;
 ~import Macaroni::Model::Project::ProjectVersionPtr;
 ~import std::string;
+~import Macaroni::Model::Type;
+~import Macaroni::Model::TypePtr;
+~import std::unique_ptr;
+~import std::vector;
 
 
 ~namespace Macaroni::Model;
@@ -68,6 +72,7 @@ class Context
 	//private ProjectFileMemory parsedProjectFiles;
 	private int referenceCount;
 	private Node ~l * root;
+	private std::vector<unique_ptr<Type>> types;
 
 	public ~global ~friend void intrusive_ptr_add_ref(Context * p)
 	{
@@ -84,7 +89,8 @@ class Context
 	  groups(nullptr),
 	  hasBeenDeleted(false),
 	  referenceCount(0),
-	  root(nullptr)
+	  root(nullptr),
+	  types()
 	{
 		groups = new GroupList(this);
 		root = new Macaroni::Model::Node(*this, rootName);
@@ -132,6 +138,14 @@ class Context
 		floater = new Macaroni::Model::Node(*this, name);
 		NodePtr rtn(floater);
 		return rtn;
+	}
+
+	/** This method exists so the Node can add a type. But it's better that
+	 *  the type live here. */
+	public TypePtr CreateType()
+	{
+		types.emplace_back(new Type(this));
+		return TypePtr{types.back().get()};
 	}
 
 	public ProjectVersionPtr FindProjectVersion(const ProjectVersionId & id)

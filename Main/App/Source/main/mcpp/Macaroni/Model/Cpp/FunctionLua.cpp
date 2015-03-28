@@ -28,7 +28,8 @@
 #include <Macaroni/Model/ReasonLuaMetaData.h>
 #include <Macaroni/Model/SourceLuaMetaData.h>
 #include "VariableLua.h"
-#include "../TypeLua.h"
+#include <Macaroni/Model/Type.h>
+#include <Macaroni/Model/TypeLuaMetaData.h>
 
 #include <Macaroni/Lua.h>
 #include <Macaroni/LuaCompat.h>

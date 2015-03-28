@@ -13,6 +13,7 @@
 ~import std::string;
 ~import Macaroni::Model::Project::Target;
 ~import Macaroni::Model::Project::TargetPtr;
+~import Macaroni::Model::Type;
 ~import Macaroni::Model::TypePtr;
 ~import Macaroni::Cpp::UseLightDef;
 

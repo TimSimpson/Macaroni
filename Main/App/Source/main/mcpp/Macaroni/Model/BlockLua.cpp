@@ -25,7 +25,8 @@
 #include <Macaroni/Model/SourceLuaMetaData.h>
 #include <Macaroni/Model/Project/Target.h>
 #include <Macaroni/Model/Project/TargetLuaMetaData.h>
-#include "TypeLua.h"
+#include <Macaroni/Model/Type.h>
+#include <Macaroni/Model/TypeLuaMetaData.h>
 
 #include <Macaroni/Lua.h>
 #include <Macaroni/LuaCompat.h>

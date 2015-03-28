@@ -22,6 +22,7 @@
 ~import Macaroni::Model::Cpp::ScopeMember;
 ~import Macaroni::Model::Project::Target;
 ~import Macaroni::Model::Project::TargetPtr;
+~import Macaroni::Model::Type;
 ~import Macaroni::Model::TypePtr;
 ~import Macaroni::Model::TypedefPtr;
 

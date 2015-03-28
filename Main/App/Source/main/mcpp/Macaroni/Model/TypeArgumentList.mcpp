@@ -1,0 +1,183 @@
+/**
+ * Copyright 2011 Tim Simpson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+~import boost::intrusive_ptr;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaIncludes;
+~import Macaroni::Lua::LuaIndexExtraCode;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Lua::LuaProperty;
+~import Macaroni::Model::Node;
+~import std::ostream;
+~import Macaroni::Model::Type;
+~import Macaroni::Model::TypeList;
+~import Macaroni::Model::TypeListPtr;
+~import Macaroni::Model::TypePtr;
+~import std::string;
+~import std::stringstream;
+~import std::unique_ptr;
+~import std::vector;
+
+
+~namespace Macaroni::Model;
+
+
+/** Connects a type to a NodeList of arguments for that type. */
+
+
+class TypeArgumentList {};
+
+typedef boost::intrusive_ptr<TypeArgumentList> TypeArgumentListPtr
+    @LuaClass
+    [
+        SameAsNode = TypeArgumentList
+    ]
+;
+
+// Defines a type argument list. Think of it as the equivalent to a template
+// parameter list- this is used in typedefs and stuff where you see a list of
+// types. So for example:
+// std::blah<int, double>::something
+// The type would have a node of std::blah::something, while it would have a
+// list of TypeArgumentLists. The first list would have an nodeDepth of 1
+// (because it appears after std::blah- or after the first nodeDepth of the
+// node) and would be a list of the two types representing int and double.
+class TypeArgumentList
+    @LuaClass
+    [
+        ReferenceType = TypeArgumentListPtr
+    ]
+    @LuaIncludes ={
+        #include <boost/lexical_cast.hpp>
+        #include <Macaroni/Model/TypeLuaMetaData.h>
+    }
+    @LuaIndexExtraCode = {
+        const string index_0(luaL_checkstring(L, 2));
+        try
+        {
+            const int index_1 = boost::lexical_cast<int>(index_0);
+            std::vector<unique_ptr<Type>> & list = instance->GetTypes();
+            if (0 > index_1 || list.size() - 1 < index_1)
+            {
+                lua_pushnil(L);
+            }
+            else
+            {
+                TypePtr tp(list[index_1].get());
+                TypeLuaMetaData::PutInstanceOnStack(L, tp);
+            }
+            return 1;
+        }
+        catch(const boost::bad_lexical_cast &)
+        {
+            // Ignore...
+        }
+        // Handle the rest of the fields.
+    }
+{
+    private int nodeDepth;
+    private Type * parent;
+    private std::vector<unique_ptr<Type>> types;
+
+    friend Type;
+
+    protected TypeArgumentList(Type * const parent, int nodeDepth)
+    :   nodeDepth(nodeDepth),
+        parent(parent),
+        types()
+    {
+    }
+
+    public ~TypeArgumentList()
+    {
+    }
+
+    public TypePtr AddType()
+    {
+        types.emplace_back(new Type{parent->context});
+        return TypePtr{types.back().get()};
+    }
+
+    public bool operator==(const TypeArgumentList & other) const
+    {
+        if (this->nodeDepth != other.nodeDepth
+            || this->types.size() != other.types.size())
+        {
+            return false;
+        }
+        for (unsigned int index = 0; index < this->types.size(); ++ index)
+        {
+            if (*(this->types[index]) != *(other.types[index]))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public bool operator!=(const TypeArgumentList & other) const
+    {
+        return ! this->operator==(other);
+    }
+
+    public ~global ~friend ostream & operator<<(ostream & out,
+                                                const TypeArgumentList & list)
+    {
+        for (unsigned int index = 0; index < list.types.size(); ++ index)
+        {
+            out << *(list.types[index]);
+            if (index < list.types.size() - 1)
+            {
+                out << ", ";
+            }
+        }
+        return out;
+    }
+
+    public int GetNodeDepth() const
+        @LuaOperator "NodeDepth"
+    {
+        return nodeDepth;
+    }
+
+    public std::vector<unique_ptr<Type>> & GetTypes()  // TODO: decltype(types)
+    {
+        return types;
+    }
+
+    public const std::vector<unique_ptr<Type>> & GetTypes() const
+    {
+        return types;
+    }
+
+    public ~global ~friend void intrusive_ptr_add_ref(TypeArgumentList * p)
+    {
+        intrusive_ptr_add_ref(p->parent);
+    }
+
+    public ~global ~friend void intrusive_ptr_release(TypeArgumentList * p)
+    {
+        intrusive_ptr_release(p->parent);
+    }
+
+    public string ToString() const
+        @LuaOperator "__tostring"
+    {
+        stringstream ss;
+        ss << *this;
+        return ss.str();
+    }
+};

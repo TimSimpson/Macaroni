@@ -48,7 +48,7 @@ class boost::regex { ~hfile=<boost/regex.hpp> };
 class boost::shared_ptr { ~hfile=<boost/shared_ptr.hpp> };
 class boost::to_lower { ~hfile=<boost/algorithm/string.hpp> };
 class boost::variant { ~hfile=<boost/variant.hpp> };
-
+class boost::container::vector { ~hfile=<boost/container/vector.hpp> };
 // Lua
 // #include <Lua/lualib.h>
 
@@ -137,7 +137,6 @@ class Macaroni::IO::PathList
 
 class Macaroni::Parser::Pippy::PippyParser { ~hfile=<Macaroni/Parser/Pippy/PippyParser.h> };
 class Macaroni::Environment::StringPair { ~hfile=<Macaroni/Environment/StringPair.h> };
-class Macaroni::Model::TypeLuaMetaData { ~hfile=<Macaroni/Model/TypeLua.h> };
 
 class MACARONI_THROW { ~hfile=<Macaroni/ME.h> };
 

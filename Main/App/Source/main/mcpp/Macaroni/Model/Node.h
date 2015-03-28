@@ -37,6 +37,7 @@ class Node
 {
 friend class Context;
 friend class Element;
+friend class Type;
 friend void intrusive_ptr_add_ref(Node * p);
 friend void intrusive_ptr_release(Node * p);
 
@@ -108,6 +109,9 @@ public:
 
 	/** Returns the operator string.  Throws if this Node is not an operator. */
 	std::string GetOperatorName() const;
+
+	/** Depth of the node, defined by distance from root. */
+	int GetDepth() const;
 
 	ElementPtr GetElement()
 	{

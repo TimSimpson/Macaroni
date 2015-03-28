@@ -125,7 +125,8 @@ class Destructor : public Function
 
     ~hidden static TypePtr voidType()
     {
-        TypeModifiers modifiers;
-        return TypePtr(new Type(NodePtr(), modifiers));
+        return TypePtr{};
+        //TypeModifiers modifiers;
+        //return TypePtr(new Type(NodePtr(), modifiers));
     }
 };

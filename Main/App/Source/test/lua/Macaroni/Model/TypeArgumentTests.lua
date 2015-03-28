@@ -17,7 +17,6 @@ local Context = require "Macaroni.Model.Context";
 local Node = require "Macaroni.Model.Node";
 local NodeList = require "Macaroni.Model.NodeList";
 local Type = require "Macaroni.Model.Type";
-local TypeArgument = require "Macaroni.Model.TypeArgument";
 local TypeList = require "Macaroni.Model.TypeList";
 
 local function mixinContext(self)

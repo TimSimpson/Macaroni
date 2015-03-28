@@ -128,9 +128,10 @@ class ConstructorOverload : public FunctionOverload
 
 	static ~hidden TypePtr voidTypeInfo(Node * home)
 	{
-		TypeModifiers modifiers;
-		NodePtr node(home);
-		return TypePtr(new Type(node, modifiers));
+		//TypeModifiers modifiers;
+		//NodePtr node(home);
+		//return TypePtr(new Type(node, modifiers));
+		return TypePtr{};
 	}
 
 

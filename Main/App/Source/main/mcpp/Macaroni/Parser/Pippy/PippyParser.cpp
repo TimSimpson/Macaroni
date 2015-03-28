@@ -63,7 +63,7 @@
 #include <Macaroni/Model/Cpp/TemplateParameterList.h>
 #include <boost/algorithm/string/trim.hpp>
 #include <Macaroni/Model/Type.h>
-#include <Macaroni/Model/TypeArgument.h>
+#include <Macaroni/Model/TypeArgumentListPtr.h>
 #include <Macaroni/Model/TypeModifiers.h>
 #include <Macaroni/Model/Cpp/Typedef.h>
 #include <Macaroni/Model/Cpp/TypeInfo.h>
@@ -132,15 +132,10 @@ using Macaroni::Model::Project::TargetPtr;
 using Macaroni::Model::Cpp::TemplateTypename;
 using Macaroni::Model::Cpp::TemplateParameterList;
 using Macaroni::Model::Type;
-using Macaroni::Model::TypeArgument;
-using Macaroni::Model::TypeArgumentList;
 using Macaroni::Model::TypeArgumentListPtr;
-using Macaroni::Model::TypeArgumentPtr;
 using Macaroni::Model::Cpp::Typedef;
 using Macaroni::Model::Cpp::TypedefPtr;
 using Macaroni::Model::Cpp::TypeInfo;
-using Macaroni::Model::TypeList;
-using Macaroni::Model::TypeListPtr;
 using Macaroni::Model::TypeModifiers;
 using Macaroni::Model::TypePtr;
 using Macaroni::Model::Project::UnitTarget;
@@ -887,7 +882,7 @@ public:
 			itr.ConsumeWhitespace();
 
 			TypePtr type;
-			if (!Type(itr, type))
+			if (!Type_(itr, type))
 			{
 				throw ParserException(itr.GetSource(),
 					Messages::Get("CppParser.Class.Inheritance.NoType"));
@@ -1494,17 +1489,16 @@ public:
 	 * Example: a::b<c>, a::b::d, a<b,c>::b<a::b::c>::e<a *,const e::g>
 	 * Returns false if it does not find a name.
 	 */
-	bool ConsumeTypeMainNodeAndArguments(Iterator & itr, NodePtr & mainNode,
-										 TypeArgumentListPtr & typeArgumentList)
+	bool ConsumeTypeMainNodeAndArguments(Iterator & itr, TypePtr type)
 	{
-		typeArgumentList.reset(new TypeArgumentList());
-
+		NodePtr mainNode;
 		NodePtr lastNode;
 
 		while(!mainNode)
 		{
 			ConsumeWhitespace(itr);
 			std::string complexName;
+			Iterator beforeNameItr = itr;
 			if (!ConsumeComplexName(itr, complexName))
 			{
 				return false;
@@ -1517,33 +1511,42 @@ public:
 				node = FindNode(complexName);
 				if (!node)
 				{
-					return true;
+					// At this point, we're committed, so start using the actual
+					// itr passed in.
+					throw ParserException(beforeNameItr.GetSource(),
+						Messages::Get("CppParser.Variable.UnknownTypeName"));
 				}
 			}
-			else
+
+			if (!type)
 			{
-				// If we've already seen a node (and a type arg list) then the
-				// main node has to come off of it.
-				node = lastNode->FindOrCreate(complexName);
+				type = context->CreateType();
 			}
+
+			// If we've already seen a node (and a type arg list) then the
+			// main node has to come off of it.
+			node = lastNode->FindOrCreate(complexName);
 
 			if (itr.Current() == '<')
 			{
 				itr.ConsumeChar('<');
-				TypeListPtr list = ConsumeTypeDefinitionList(itr);
-				TypeArgumentPtr arg(new TypeArgument(node, list));
-				typeArgumentList->push_back(arg);
+				TypeArgumentListPtr argumentList
+					= type->AddArgument(node->GetDepth() - 1);
+				ConsumeTypeDefinitionList(itr, argumentList);
 
 				itr.ConsumeWhitespace();
 				if (itr.ConsumeWord("::")) // More to come, looks like.
 				{
 					lastNode = node;
-					continue; // SO tempted to just use a GOTO here... too lazy to decompose method.
+					continue; // SO tempted to just use a GOTO here...
+					          // too lazy to decompose method.
 				}
 			}
 
 			mainNode = node;
 		}
+
+		type->SetNode(mainNode);
 
 		return true;
 	}
@@ -1553,26 +1556,24 @@ public:
 	/** This is called to find lists of type defs, as can be seen in ankle
 	 * brackets.  Throws if it can't find type argument.   Ends when it
 	 * sees ">". */
-	TypeListPtr ConsumeTypeDefinitionList(Iterator & itr)
+	void ConsumeTypeDefinitionList(Iterator & itr,
+		                           TypeArgumentListPtr argList)
 	{
-		TypeListPtr typeList(new TypeList());
-
 		while(true) // Remember, its not as bad as GOTO because its WHILE. :p
 		{
 			Iterator newItr = itr;
-			TypePtr type;
-			if (!Type(newItr, type))
+			TypePtr type = argList->AddType();
+			if (!Type_(newItr, type))
 			{
 				throw ParserException(itr.GetSource(),
 					Messages::Get("CppParser.Type.TypeDefinitionArgumentExpected"));
 			}
-			typeList->push_back(type);
 			itr = newItr;
 			ConsumeWhitespace(itr);
 			if (itr.Current() == '>')
 			{
 				itr.ConsumeChar('>');
-				return typeList;
+				return;
 			}
 			else if (itr.Current() == ',')
 			{
@@ -1618,17 +1619,21 @@ public:
 		throw ParserException(itr.GetSource(), ss.str());
 	}
 
-	bool DeclTypeAutoHack(Iterator & itr, NodePtr & mainNode,
-						  TypeArgumentListPtr & typeArgumentList)
+	bool DeclTypeAutoHack(Iterator & itr, TypePtr type)
 	{
 		if (!itr.ConsumeWord("decltype(auto)"))
 		{
 			return false;
 		}
-		mainNode = CppContext::GetPrimitives(context)->Find("decltype(auto)");
+		NodePtr mainNode = CppContext::GetPrimitives(context)
+		                   ->Find("decltype(auto)");
 		MACARONI_ASSERT(nullptr != mainNode.get(),
 			            "decltype(auto) node not found!");
-		typeArgumentList.reset(new TypeArgumentList());
+		if (!type)
+		{
+			type = context->CreateType();
+		}
+		type->SetNode(mainNode);
 		return true;
 	}
 
@@ -1711,7 +1716,7 @@ public:
 		if (newItr.ConsumeChar(':'))
 		{
 			ConsumeWhitespace(newItr);
-			if (!Type(newItr, sizeType))
+			if (!Type_(newItr, sizeType))
 			{
 				throw ParserException(newItr.GetSource(),
 				Messages::Get("CppParser.Enum.Size.NoType"));
@@ -2959,22 +2964,19 @@ public:
 	 * This includes even nested template instances.
 	 * Moves itr.
 	 */
-	bool Type(Iterator & itr, TypePtr & info)
+	bool Type_(Iterator & itr, TypePtr & type)
 	{
 		Iterator newItr = itr;
 
-		NodePtr mainNode;
-		TypeModifiers modifiers;
-		TypeArgumentListPtr typeArgumentList;
+		TypeModifiers & modifiers = type->GetModifiers();
 
 		bool sawSomething = SimpleTypeModifiers1(newItr, modifiers);
 
 		Iterator beforeTypeInfoItr = newItr;
 		if (!(
-				DeclTypeAutoHack(newItr, mainNode, typeArgumentList)
+				DeclTypeAutoHack(newItr, type)
 				||
-				ConsumeTypeMainNodeAndArguments(newItr, mainNode,
-					                            typeArgumentList)
+				ConsumeTypeMainNodeAndArguments(newItr, type)
 			))
 		{
 			if (sawSomething)
@@ -2991,23 +2993,21 @@ public:
 			}
 		}
 
-		// At this point, we're committed, so start using the actual itr passed
-		// in.
-		if (!mainNode) // The function could not find the node.
- 		{
-			throw ParserException(beforeTypeInfoItr.GetSource(),
-				Messages::Get("CppParser.Variable.UnknownTypeName"));
-		}
+		// // At this point, we're committed, so start using the actual itr passed
+		// // in.
+		// if (!mainNode) // The function could not find the node.
+ 	// 	{
+		// 	throw ParserException(beforeTypeInfoItr.GetSource(),
+		// 		Messages::Get("CppParser.Variable.UnknownTypeName"));
+		// }
 
 		itr = newItr;
 
 		ConsumeWhitespace(itr);
 
 		// Call this again.
-		TypeModifiers2(itr, modifiers);
+		TypeModifiers2(itr, type->GetModifiers());
 
-		// At this point we can be sure we've seen everything.
-		info.reset(new Model::Type(mainNode, modifiers, typeArgumentList));
 		return true;
 	}
 
@@ -3036,7 +3036,7 @@ public:
 		ConsumeWhitespace(newItr);
 
 		TypePtr type;
-		if (!Type(newItr, type))
+		if (!Type_(newItr, type))
 		{
 			throw ParserException(newItr.GetSource(),
 				Messages::Get("CppParser.Typedef.NoTypeDefinitionFound"));
@@ -3331,7 +3331,7 @@ public:
 			}
 		}
 
-		if (!Type(itr, type))
+		if (!Type_(itr, type))
 		{
 			return false;
 		}

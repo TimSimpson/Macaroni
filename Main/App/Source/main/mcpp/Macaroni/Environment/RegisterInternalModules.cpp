@@ -38,11 +38,8 @@
 #include <Macaroni/IO/Paths.h>
 #include <Macaroni/Parser/Pippy/PippyParserLua.h>
 #include <sstream>
-#include <Macaroni/Model/TypeLua.h>
-#include <Macaroni/Model/TypeArgumentListLua.h>
-#include <Macaroni/Model/TypeArgumentLua.h>
 #include <Macaroni/Model/Cpp/TypedefLua.h>
-#include <Macaroni/Model/TypeListLua.h>
+#include <Macaroni/Model/TypeListLuaMetaData.h>
 #include <Macaroni/Model/Cpp/VariableLua.h>
 #include <Macaroni/VersionNo.h>
 #include <LuaModulesInclude_Macaroni___Macaroni_46_App___lib.h>
@@ -73,11 +70,7 @@ static const struct luaL_Reg libs[] = {
 	{"Macaroni.IO.Path", IO::PathLuaMetaData::OpenInLua},
 	{"Macaroni.IO.PathList", IO::PathListLuaMetaData::OpenInLua},
 	{"Macaroni.Parser.Pippy.PippyParser", Parser::Pippy::PippyParserLuaMetaData::OpenInLua},
-	{"Macaroni.Model.Type", Macaroni::Model::TypeLuaMetaData::OpenInLua},
-	{"Macaroni.Model.TypeArgument", Macaroni::Model::TypeArgumentLuaMetaData::OpenInLua},
-	{"Macaroni.Model.TypeArgumentList", Macaroni::Model::TypeArgumentListLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Cpp.TypeDef", Macaroni::Model::Cpp::TypedefLuaMetaData::OpenInLua},
-	{"Macaroni.Model.TypeList", Macaroni::Model::TypeListLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Cpp.Variable", Macaroni::Model::Cpp::VariableLuaMetaData::OpenInLua},
 	{"Macaroni.Model.Cpp.VariableAssignment", Macaroni::Model::Cpp::VariableAssignmentLuaMetaData::OpenInLua},
 	#include <LuaModulesRegister_Macaroni___Macaroni_46_App___lib.h>

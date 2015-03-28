@@ -22,7 +22,8 @@
 #include "../ElementLua.h"
 #include "../NodeLua.h"
 #include "../NodeListLua.h"
-#include "../TypeLua.h"
+#include <Macaroni/Model/Type.h>
+#include <Macaroni/Model/TypeLuaMetaData.h>
 
 #include <Macaroni/Lua.h>
 

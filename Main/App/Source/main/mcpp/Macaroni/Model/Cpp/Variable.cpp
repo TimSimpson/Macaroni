@@ -65,23 +65,14 @@ VariablePtr Variable::Create(NodePtr host, AccessPtr access, bool isStatic, cons
 	{
 		std::stringstream ss;
 		ss << "Variable was already defined with conflicting type information. ";
-		if (existingVar->type->IsConst() && !type->IsConst())
+
+		const auto & newMods = type->GetModifiers();
+		const auto & oldMods = existingVar->type->GetModifiers();
+		if (oldMods != newMods)
 		{
-			ss << "Previous definition was const.";
+			ss << "Previous definition had different type modifiers.";
 		}
-		if (existingVar->type->IsConstPointer() && !type->IsConstPointer())
-		{
-			ss << "Previous definition was const pointer.";
-		}
-		if (existingVar->type->IsPointer() && !type->IsPointer())
-		{
-			ss << "Previous definition was pointer.";
-		}
-		if (existingVar->type->IsReference() && !type->IsReference())
-		{
-			ss << "Previous definition was reference.";
-		}
-		existingVar->type->DescribeDifferences(type, ss);
+		ss << "(" << oldMods << " vs " << newMods << ")";
 		throw ModelInconsistencyException(element->GetReasonCreated(),
 											  reason,
 											  ss.str());

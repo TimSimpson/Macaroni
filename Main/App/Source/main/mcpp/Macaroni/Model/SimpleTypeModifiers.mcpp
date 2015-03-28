@@ -3,6 +3,7 @@
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
 ~import boost::optional;
+~import std::ostream;
 ~import MACARONI_THROW;
 ~import std::string;
 ~import std::stringstream;
@@ -79,7 +80,7 @@ class SimpleTypeModifiers
     {
     }
 
-     public SimpleTypeModifiers & operator=(SimpleTypeModifiers& other)
+     public SimpleTypeModifiers & operator=(const SimpleTypeModifiers& other)
     {
         this->_const = other._const;
         this->_mutable = other._mutable;
@@ -118,6 +119,34 @@ class SimpleTypeModifiers
             && this->Mutable() == other.Mutable()
             && this->Volatile() == other.Volatile()
             && pInfo;
+    }
+
+    public bool operator!= (const SimpleTypeModifiers & other) const
+    {
+        return ! this->operator==(other);
+    }
+
+    public ~global ~friend ostream & operator<<(ostream & out,
+                                               const SimpleTypeModifiers & mods)
+    {
+        if (mods.Const())
+        {
+            out << "const ";
+        }
+        if (mods.Mutable())
+        {
+            out << "mutable ";
+        }
+        if (mods.Volatile())
+        {
+            out << "volatile ";
+        }
+        if (mods._pointer)
+        {
+            out << "* ";
+            out << *(mods._pointer);
+        }
+        return out;
     }
 
     public inline bool Const() const BOOST_NOEXCEPT
@@ -205,13 +234,11 @@ class SimpleTypeModifiers
         return _pointer.get() != nullptr;
     }
 
-    public string ToString()
+    public string ToString() const
         @LuaOperator "__tostring"
     {
         stringstream ss;
-        ss << (Pointer() ? " *" : "")
-           << (Const() ? " const" : "")
-            ;
+        ss << *this;
         return ss.str();
     }
 

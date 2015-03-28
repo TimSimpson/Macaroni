@@ -13,16 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+~import boost::intrusive_ptr;
+~import boost::lexical_cast;
 ~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaIncludes;
+~import Macaroni::Lua::LuaIndexExtraCode;
 ~import Macaroni::Lua::LuaFunction;
 ~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Lua::LuaProperty;
 ~import Macaroni::Model::Node;
-~import boost::shared_ptr;
-~import Macaroni::Model::TypeArgument;
+~import std::ostream;
+~import std::pair;
+~import std::string;
+~import std::stringstream;
 ~import Macaroni::Model::TypeArgumentList;
 ~import Macaroni::Model::TypeArgumentListPtr;
-~import Macaroni::Model::TypeArgumentPtr;
 ~import Macaroni::Model::TypeModifiers;
+~import std::unique_ptr;
 ~import std::vector;
 
 
@@ -30,18 +37,15 @@
 
 
 class Type {};
+class TypeList {};
 
-// TODO: This is a horrible memory leak.  This thing needs to be connected to
-// the Context somehow with an intrusive ptr.
-typedef boost::shared_ptr<Type ~l> TypePtr
+typedef boost::intrusive_ptr<Type ~l> TypePtr
 	@LuaClass
 	[
-		LuaGlueClass = Macaroni::Model::TypeLuaMetaData,
-		ReferenceType = Macaroni::Model::TypePtr,
+		SameAsNode = Type
 	]
 ;
-typedef std::vector<TypePtr> TypeList;
-typedef boost::shared_ptr<TypeList> TypeListPtr;
+
 
 
 //TODO: This HAS to start living in the Context.  It is a memory leak... can't
@@ -54,26 +58,34 @@ typedef boost::shared_ptr<TypeList> TypeListPtr;
 class Type
 	@LuaClass
 	[
-		LuaGlueClass = Macaroni::Model::TypeLuaMetaData,
-		ReferenceType = Macaroni::Model::TypePtr,
+		ReferenceType = Macaroni::Model::TypePtr
 	]
+	@LuaIncludes = {
+		// A bug is necessitating
+		#include <Macaroni/Model/TypeListLuaMetaData.h>
+	}
 {
-	private NodePtr type;
-	private TypeArgumentListPtr typeArguments;
+	private vector<unique_ptr<TypeArgumentList>> arguments;
+	private Context * context;
 	private TypeModifiers modifiers;
+	private Node * node;
 
-	public Type(NodePtr type, TypeModifiers modifiers)
-	:	type(type),
-		typeArguments(new TypeArgumentList()),
-		modifiers(modifiers)
+	friend Context;
+	friend TypeArgumentList;
+
+	protected explicit Type(Context * context)
+	:	arguments(),
+		context(context),
+		modifiers(),
+		node(nullptr)
 	{
 	}
 
-	public Type(NodePtr type, TypeModifiers modifiers,
-		        TypeArgumentListPtr typeArguments)
-	:	type(type),
-		typeArguments(typeArguments),
-		modifiers(modifiers)
+	protected explicit Type(Node * type, TypeModifiers modifiers)
+	:	arguments(),
+		context(type->context),
+		modifiers(modifiers),
+		node(type)
 	{
 	}
 
@@ -83,117 +95,155 @@ class Type
 
 	public bool operator== (const Type & other) const
 	{
-		return this->modifiers == other.modifiers
-			   && type == other.type
-			   && TypeArgument::ListIsEqual(*this->GetTypeArguments(),
-			                                *other.GetTypeArguments());
-	}
-
-	public void DescribeDifferences(const TypePtr other,
-		                            std::stringstream & stream) const
-	{
-		if (this->IsConst() && !other->IsConst())
+		if (this->node == other.node
+			&& this->modifiers == other.modifiers
+			&& this->arguments.size() == other.arguments.size())
 		{
-			stream << "Previous definition was const.";
-		}
-		if (this->IsConstPointer() && !other->IsConstPointer())
-		{
-			stream << "Previous definition was const pointer.";
-		}
-		if (this->IsPointer() && !other->IsPointer())
-		{
-			stream << "Previous definition was pointer.";
-		}
-		if (this->IsReference() && !other->IsReference())
-		{
-			stream << "Previous definition was reference.";
-		}
-		if (this->IsRvalueReference() && !other->IsRvalueReference())
-		{
-			stream << "Previous definition was rvalue reference.";
-		}
-		if (this->GetNode()->GetFullName() != other->GetNode()->GetFullName())
-		{
-			stream << "Previous definition was "
-				<< this->GetNode()->GetFullName()
-				<< " but the other is "
-				<< other->GetNode()->GetFullName()
-				<< ".";
-		}
-		stream << "(BTW, type arguments not yet implemented by this function)";
-	}
-
-	public inline NodePtr GetNode() const
-	{
-		return type;
-	}
-
-	public inline TypeArgumentListPtr GetTypeArguments() const
-	{
-		return typeArguments;
-	}
-
-	public inline bool IsConst() const
-	{
-		return modifiers.Const();
-	}
-
-	public inline bool IsConstPointer() const
-	{
-		return modifiers.ConstPointer();
-	}
-
-	/** Light means that the type is a "light dependency", which means it can
-	 * be satisfied with a forward reference. The '~light' keyword is used
-	 * for this. It useful with complex template types Macaroni isn't smart
-	 * enough to understand which end up just needing forward references. */
-	public inline bool IsLight() const
-	{
-		return modifiers.Light();
-	}
-
-	public inline bool IsPointer() const
-	{
-		return !!modifiers.Pointer();
-	}
-
-	public inline bool IsReference() const
-	{
-		return modifiers.Reference();
-	}
-
-	public inline bool IsRvalueReference() const
-	{
-		return modifiers.RvalueReference();
-	}
-
-	public const TypeModifiers & GetModifiers() const
-	{
-		return modifiers;
-	}
-
-	public static bool ListContains(const TypeList & list, const Type & target)
-	{
-		for(const TypePtr e : list)
-		{
-			Type & a = *e.get();
-			if (a.operator ==(target))
+			for (unsigned int i = 0; i < this->arguments.size(); ++ i)
 			{
-				return true;
+				if (*(this->arguments[i]) != *(other.arguments[i]))
+				{
+					return false;
+				}
 			}
+			return true;
 		}
 		return false;
 	}
 
-	public static bool ListIsEqual(TypeList list1, TypeList list2)
+	public bool operator!= (const Type & other) const
 	{
-		for(TypePtr element : list1)
+		return ! this->operator==(other);
+	}
+
+	public ~global ~friend ostream & operator<<(ostream & out,
+    	                                        const Type & type)
+    {
+    	out << type.node ? type.node->GetFullName() : "<null>";
+		if (type.arguments.size() > 0)
 		{
-			if (!ListContains(list2, *element))
+			for (const auto & arg : type.arguments)
 			{
-				return false;
+				out << *(arg);
 			}
 		}
-		return true;
+		out << type.modifiers;
+    	return out;
+    }
+
+	public TypeArgumentListPtr AddArgument(int index)
+	{
+		arguments.emplace_back(new TypeArgumentList(this, index));
+		return TypeArgumentListPtr{arguments.back().get()};
 	}
+
+	public inline const vector<unique_ptr<TypeArgumentList>> &
+		GetArguments() const
+	{
+		return arguments;
+	}
+
+	public inline const TypeList GetArgumentsLua() const
+		@LuaProperty "Arguments"
+	{
+		TypeList tl{*this};
+		return tl;
+	}
+
+	// For the stupidly named old property.
+	public inline const TypeList GetArgumentsLua2() const
+		@LuaProperty "TypeArguments"
+	{
+		TypeList tl{*this};
+		return tl;
+	}
+
+	public inline NodePtr GetNode() const
+		@LuaProperty "Node"
+	{
+		return node;
+	}
+
+	public ~global ~friend void intrusive_ptr_add_ref(const Type * p)
+	{
+		intrusive_ptr_add_ref(p->context);
+	}
+
+	public ~global ~friend void intrusive_ptr_release(const Type * p)
+	{
+		intrusive_ptr_release(p->context);
+	}
+
+	public TypeModifiers & GetModifiers()
+	{
+		return modifiers;
+	}
+
+	public const TypeModifiers & GetModifiers() const
+		@LuaProperty "Modifiers"
+	{
+		return modifiers;
+	}
+
+	public inline void SetModifiers(const TypeModifiers & modifiers)
+	{
+		this->modifiers = modifiers;
+	}
+
+	public inline void SetNode(NodePtr node)
+		@LuaProperty "Node"
+	{
+		this->node = node.get();
+	}
+
+	public string ToString() const
+		@LuaOperator "__tostring"
+	{
+		stringstream ss;
+		ss << *this;
+		return ss.str();
+	}
+
 };
+
+
+class TypeList
+
+	// This class exists primarily to wrap the list in Lua glue.
+
+	@LuaClass
+	[
+		ReferenceType = Macaroni::Model::TypeList
+	]
+	@LuaIndexExtraCode = {
+		const string index_0(luaL_checkstring(L, 2));
+		const auto index_1 = lexical_cast<int>(index_0);
+		const vector<unique_ptr<TypeArgumentList>> & list
+			= instance.type_.GetArguments();
+		if (0 > index_1 || list.size() - 1 < index_1)
+		{
+			lua_pushnil(L);
+		}
+		else
+		{
+			TypeArgumentListPtr talp(list[index_1].get());
+			TypeArgumentListLuaMetaData::PutInstanceOnStack(L, talp);
+		}
+		return 1;
+	}
+{
+	~import Macaroni::Model::Type;
+
+	public const Type & type_;
+
+	public explicit TypeList(const Type & type)
+	:	type_(type)
+	{
+		intrusive_ptr_add_ref(&type_);
+	}
+
+	public ~TypeList()
+	{
+		intrusive_ptr_release(&type_);
+	}
+}
