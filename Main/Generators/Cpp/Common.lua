@@ -13,7 +13,6 @@ else
 end
 require "Macaroni.Model.Node";
 require "Macaroni.Model.Type";
-require "Macaroni.Model.TypeArgument";
 require "Macaroni.Model.TypeArgumentList";
 require "Macaroni.Model.TypeList";
 require "Macaroni.Model.Cpp.VariableAssignment";
@@ -299,70 +298,8 @@ TypeUtil = {
         check(self ~= nil, "Member method called without instance.");
         check(type ~= nil, 'Argument 2 "type" can not be null.');
 
-        local modifiers = type.Modifiers
-        local rtnStr = "";
-        if (type == nil) then
-            error("Type argument cannot be nil.", 2);
-        end
-        local typeArguments = type.TypeArguments;
-        if (type.Node.TypeName == Macaroni.Model.TypeNames.TemplateTypename
-            or self:forceShortName(type, attemptShortName))
-        then
-            rtnStr = rtnStr .. type.Node.Name;
-        else
-            if (typeArguments == nil) then
-                rtnStr = rtnStr .. "::" ..type.Node.FullName;
-            else
-                --TODO: May need to add initial "::" to ensure correct behavior.
-                -- rtnStr = rtnStr .. "::"
-                local nodeList = self:createPathListFromNode(type.Node);
-                for i = 1, #nodeList do
-                    local nodePart = nodeList[i];
-                    local typeArg = self:searchTypeArgumentListForNode(typeArguments, nodePart);
-                    rtnStr = rtnStr .. nodePart.Name;
-                    if (typeArg ~= nil) then
-                        rtnStr = rtnStr .. "<";
-                        for i = 1, #typeArg.Arguments do
-							if i > 1 then
-								rtnStr = rtnStr .. ', ';
-                            end
-                            rtnStr = rtnStr .. self:createTypeDefinition(typeArg.Arguments[i]);
-                        end
-                        rtnStr = rtnStr .. ">";
-                    end
-                    if (i < #nodeList) then
-                        rtnStr = rtnStr .. "::";
-                    end
-                end
-            end
-        end
-
-        rtnStr = rtnStr .. ' ';
-
-        if MACARONI_VERSION~="0.3.0" then
-            rtnStr = rtnStr .. self:createSimpleTypeDefinition(modifiers);
-        else
-            if (modifiers.Const) then
-                rtnStr = rtnStr .. " const ";
-            end
-            if (modifiers.Pointer) then
-                rtnStr = rtnStr .. " * ";
-            end
-            if (modifiers.ConstPointer) then
-                rtnStr = rtnStr .. " const ";
-            end
-        end
-
-        if modifiers.RvalueReference then
-            rtnStr = rtnStr .. " && ";
-        elseif modifiers.Reference then
-            rtnStr = rtnStr .. " & ";
-        end
-        if (modifiers.IsParameterPack) then
-            rtnStr = rtnStr .. " ... ";
-        end
-
-        return rtnStr;
+        -- TODO: attemptShortName, somehow?
+        return type:CreateCodeDefinition() .. " ";
     end,
 
     -- given node A::B::C, returns array { A, A::B, A::B::C }
@@ -391,7 +328,7 @@ TypeUtil = {
     forceShortName = function(self, type, desireShortName)
         if (type.Node.Member ~= nil  and type.Node.Member.TypeName == Macaroni.Model.TypeNames.Primitive) then
             return true;
-        end
+    end
         if (desireShortName and
             (type.TypeArguments == nil or #type.TypeArguments <= 0) and
             (type.Node.Node == nil or

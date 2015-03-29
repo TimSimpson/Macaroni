@@ -141,8 +141,13 @@ public:
 	}
 
 
-	//TO-DO: Rename to "getParent" or something.
+	// Old alias for GetParent.
 	NodePtr GetNode() const;
+
+	// The parent.
+	NodePtr GetParent() const;
+
+	Node * GetParentPtr() const;
 
 	/** Returns true if the element of this node matches the given type.
 	 *  The type-safe C++ alternative to GetTypeName. */

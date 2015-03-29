@@ -116,7 +116,7 @@ class TypeModifiers : public SimpleTypeModifiers
     public ~global ~friend ostream & operator<<(ostream & out,
     	                                        const TypeModifiers & mods)
     {
-    	out << (mods.Light() ? " ~L" : "")
+    	out //<< (mods.Light() ? " ~L" : "")
     	    << static_cast<const SimpleTypeModifiers &>(mods)
 		    << (mods.RvalueReference() ? " &&" : (mods.Reference() ? " &" : ""))
 		    << (mods.IsParameterPack() ? "..." : "");

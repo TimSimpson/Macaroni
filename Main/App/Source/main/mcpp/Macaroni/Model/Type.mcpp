@@ -22,6 +22,7 @@
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
 ~import Macaroni::Model::Node;
+~import boost::optional;
 ~import std::ostream;
 ~import std::pair;
 ~import std::string;
@@ -65,8 +66,23 @@ class Type
 		#include <Macaroni/Model/TypeListLuaMetaData.h>
 	}
 {
+	~block "h-predef"
+	{
+		#include <Macaroni/Exceptions/SimpleException.h>
+	}
+	~block "h"
+	{
+		MACARONI_SIMPLE_EXCEPTION_DEFINE(UnlockedTypeException,
+			"Can't create a code definition for an unlocked type.");
+		MACARONI_SIMPLE_EXCEPTION_DEFINE(TypeArgumentOrderException,
+			"TypeArgumentList was added to type at a lower NodeDepth than "
+			"the previous TypeArgumentList.");
+	}
+
 	private vector<unique_ptr<TypeArgumentList>> arguments;
+	private optional<string> codeDefinition;
 	private Context * context;
+	private bool locked;
 	private TypeModifiers modifiers;
 	private Node * node;
 
@@ -75,7 +91,9 @@ class Type
 
 	protected explicit Type(Context * context)
 	:	arguments(),
+		codeDefinition(),
 		context(context),
+		locked(false),
 		modifiers(),
 		node(nullptr)
 	{
@@ -83,7 +101,9 @@ class Type
 
 	protected explicit Type(Node * type, TypeModifiers modifiers)
 	:	arguments(),
+		codeDefinition(),
 		context(type->context),
+		locked(false),
 		modifiers(modifiers),
 		node(type)
 	{
@@ -134,8 +154,115 @@ class Type
 	public TypeArgumentListPtr AddArgument(int index)
 		@LuaFunction "AddArgument"
 	{
+		int max = -1;
+		// Guarantee that these always go in order.
+		for(const auto & talPtr : arguments)
+		{
+			if (max >= talPtr->GetNodeDepth())
+			{
+				throw TypeArgumentOrderException();
+			}
+		}
 		arguments.emplace_back(new TypeArgumentList(this, index));
 		return TypeArgumentListPtr{arguments.back().get()};
+	}
+
+	public string CreateCodeDefinitionLua()
+		@LuaFunction "CreateCodeDefinition"
+	{
+		return CreateCodeDefinition(NodePtr{});
+	}
+
+	// TODO: Use "const" here once Macaroni is upgraded.
+	public string CreateCodeDefinition(NodePtr scope)
+	{
+		if (codeDefinition && !scope)
+		{
+			return codeDefinition.get();
+		}
+		stringstream code;
+		createCodeDefinition(scope, code);
+		string def = code.str();
+		if (!scope)
+		{
+			codeDefinition = def;
+		}
+		return def;
+	}
+
+	~hidden void createCodeDefinition(NodePtr scope, stringstream & code)
+	{
+		if (!locked)
+		{
+			throw UnlockedTypeException();
+		}
+		if (!node)
+		{
+			code << "<null>";
+		}
+
+		vector<Node *> nodes(node->GetDepth() + 1);
+		Node * itr = node;
+		for (int i = nodes.size() - 1; i >= 0; --i)
+		{
+			nodes[i] = itr;
+			itr = itr->GetParentPtr();
+		}
+
+		bool seenOneNode = false;
+
+		const auto printNode = [&seenOneNode, &nodes, &code](const int index) {
+			if (seenOneNode)
+			{
+				code << "::";
+			}
+			code << nodes[index]->GetName();
+			seenOneNode = true;
+		};
+
+		unsigned int current = 0;
+		for (const auto & typeArgListPtr : arguments)
+		{
+			const auto & typeArgList = *typeArgListPtr;
+
+			// Print out whatever chunks of the node we need to before getting
+			// to where this type arg list starts. So for std::vector<int>,
+			// that would mean the NodeDepth is 1 and we need to print out "std"
+			// and "vector."
+			for (; current <= typeArgList.GetNodeDepth(); ++ current)
+			{
+				printNode(current);
+			}
+
+			code << "<";
+			// Now print out each type.
+			bool seenType = false;
+			for (const auto & typePtr : typeArgList.GetTypes())
+			{
+				if (seenType)
+				{
+					code << ", ";
+				}
+				typePtr->createCodeDefinition(scope, code);
+				seenType = true;
+			}
+			code << " >";
+		}
+
+		// Print out the rest of the base Node.
+		// So for example, if it's a type like "std::blah<something>::blah"
+		// this part of the code will print out that second ::blah.
+		// This edge case is what makes dealing with Types so much fun!
+		for (; current < nodes.size(); ++ current)
+		{
+			if (seenOneNode)
+			{
+				code << "::";
+			}
+			code << nodes[current]->GetName();
+			seenOneNode = true;
+		}
+
 	}
 
 	public inline const vector<unique_ptr<TypeArgumentList>> &
@@ -173,6 +300,12 @@ class Type
 	public ~global ~friend void intrusive_ptr_release(const Type * p)
 	{
 		intrusive_ptr_release(p->context);
+	}
+
+	// Close this type for modification.
+	public void Lock()
+	{
+		locked = true;
 	}
 
 	public TypeModifiers & GetModifiers()

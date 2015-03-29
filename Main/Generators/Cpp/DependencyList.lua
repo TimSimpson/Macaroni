@@ -219,8 +219,8 @@ DependencyList = {
         if (type.TypeArguments ~= nil) then
             for i = 1, #type.TypeArguments do
                 local typeArg = type.TypeArguments[i];
-                for j = 1, #typeArg.Arguments do
-                    local typeArgType = typeArg.Arguments[j];
+                for j = 1, #typeArg do
+                    local typeArgType = typeArg[j];
                     -- I'm adding these checks as of 2011-11-06.
                     -- Maybe they are too overzealous...
                     check(typeArgType.Node ~= nil,

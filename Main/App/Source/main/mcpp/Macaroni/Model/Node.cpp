@@ -284,13 +284,13 @@ ContextPtr Node::GetContext()
 
 int Node::GetDepth() const
 {
-	if (scope == nullptr)
+	if (scope != nullptr && scope->IsNameVisible())
 	{
-		return 0;
+		return 1 + scope->GetDepth();
 	}
 	else
 	{
-		return 1 + scope->GetDepth();
+		return 0;
 	}
 }
 
@@ -349,10 +349,20 @@ const std::string & Node::GetName() const
 
 NodePtr Node::GetNode() const
 {
-	return NodePtr(scope);
+	return GetParent();
 }
 
 Node * Node::getNode() const
+{
+	return scope;
+}
+
+NodePtr Node::GetParent() const
+{
+	return NodePtr(scope);
+}
+
+Node * Node::GetParentPtr() const
 {
 	return scope;
 }

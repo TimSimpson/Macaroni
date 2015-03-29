@@ -1534,7 +1534,7 @@ public:
 			{
 				itr.ConsumeChar('<');
 				TypeArgumentListPtr argumentList
-					= type->AddArgument(node->GetDepth() - 1);
+					= type->AddArgument(node->GetDepth());
 				ConsumeTypeDefinitionList(itr, argumentList);
 
 				itr.ConsumeWhitespace();
@@ -1588,6 +1588,7 @@ public:
 				throw ParserException(itr.GetSource(),
 					Messages::Get("CppParser.Type.TypeDefinitionCommaOrClosingBracketExpected"));
 			}
+			type->Lock();
 		}
 	}
 
@@ -3011,6 +3012,8 @@ public:
 		// Call this again.
 		TypeModifiers2(itr, modifiers);
 		type->GetModifiers() = modifiers;
+
+		type->Lock();
 
 		return true;
 	}

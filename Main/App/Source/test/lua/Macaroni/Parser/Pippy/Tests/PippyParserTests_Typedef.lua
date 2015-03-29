@@ -137,6 +137,43 @@ tests = {
                 Test.assertEquals(typeArg1[1] ~= nil, true)
                 Test.assertEquals("std::string", typeArg1[1].Node.FullName);
             end,
+            ["The Typedef Type can be printed out."] = function(self)
+                local type = self.typedef.Type;
+                local def = type:CreateCodeDefinition();
+                Test.assertEquals("std::vector<std::string >", def)
+            end,
+        }
+    },
+    {
+        name = "Creating a complicated typedef.",
+        init = function(self)
+            self.parser = PippyParser.Create();
+            self.context = Context.New("{ROOT}");
+            self.target = self.context:Group("Tests")
+                :Project("Test"):Version("1.0"):Target("hi");
+            self.file = FileName.Create(Path.New("", "Blah1.mcpp"));
+            self.root = self.context.Root;
+            self.src = Source.Create(self.file, 1, 1);
+
+            self.parser:Read(self.target, self.src, [[
+                ~import std::thing;
+                ~import std::vector;
+                ~import std::shared_ptr;
+
+                typedef std::vector<shared_ptr<std::thing<int, bool>::otherthing>>
+                    stringArray;
+            ]]);
+            self.typedefNode = self.root.Children[3];
+            self.typedef = self.typedefNode.Element;
+        end,
+        tests = {
+            ["The Typedef Type can be printed out."] = function(self)
+                local type = self.typedef.Type;
+                local def = type:CreateCodeDefinition();
+                Test.assertEquals(
+                    "std::vector<std::shared_ptr<std::thing<int, bool >"
+                    .. "::otherthing > >", def)
+            end,
         }
     },
 } -- end of tests table ( I skipped some indentation way above here).
