@@ -17,6 +17,7 @@
 ~import boost::intrusive_ptr;
 ~import Macaroni::Model::Cpp::Access;
 ~import Macaroni::Model::Cpp::AccessPtr;
+~import Macaroni::Core::BaseVisitor;
 ~import BOOST_FOREACH;
 ~import Macaroni::Model::Cpp::ClassLuaMetaData;
 ~import Macaroni::Model::Cpp::ClassParent;
@@ -44,6 +45,7 @@
 ~import Macaroni::Model::Type;
 ~import Macaroni::Model::TypePtr;
 ~import Macaroni::Cpp::UseLightDef;
+~import Macaroni::Core::Visitor;
 ~import Macaroni::Model::Cpp::Variable;
 ~import Macaroni::Model::Cpp::VariablePtr;
 
@@ -104,6 +106,11 @@ class Class : public Scope
 
     public virtual ~Class() = default; // TODO: override
 
+    public virtual bool Accept(BaseVisitor & v)
+    {
+        return Visit(*this, v);
+    }
+
     public static ClassPtr Create(TargetPtr target, NodePtr parent,
                                   bool isStruct, AccessPtr access,
                                   NodeListPtr importedNodes, ReasonPtr reason,
@@ -150,7 +157,7 @@ class Class : public Scope
     public void AddParent(TypePtr parent, AccessPtr access, bool _virtual)
     {
         Class * const me = this;
-        parents->push_back(ClassParent(me, parent, *access, _virtual));
+        parents->push_back(ClassParent(me, parent.get(), *access, _virtual));
     }
 
     /** Classes which this Class inherits from. */

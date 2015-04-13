@@ -1,0 +1,11 @@
+/*~import Macaroni::Generators::Cpp::CodeType;
+
+~namespace Macaroni::Generators::Cpp;
+
+// Defines a dependency a bit of code has on something else.
+class CodeDependency
+{
+    Element * element;
+    CodeType type;
+};
+*/

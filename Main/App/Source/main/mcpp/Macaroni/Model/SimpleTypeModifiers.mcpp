@@ -282,7 +282,7 @@ class SimpleTypeModifiers
         _pointer = std::make_unique<SimpleTypeModifiers>(pointerInfo);
     }
 
-    public bool MayOnlyNeedForwardDeclaration()
+    public bool MayOnlyNeedForwardDeclaration() const
         @LuaProperty "MayOnlyNeedForwardDeclaration"
     {
         return _pointer.get() != nullptr;

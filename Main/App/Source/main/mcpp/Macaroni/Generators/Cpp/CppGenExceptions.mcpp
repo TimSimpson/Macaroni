@@ -1,0 +1,97 @@
+~import Macaroni::Model::Element;
+~import Macaroni::Model::ElementPtr;
+~import boost::format;
+~import Macaroni::InternalSource;
+~import Macaroni::Model::Node;
+~import Macaroni::Model::NodePtr;
+~import boost::optional;
+~import Macaroni::Exception;
+~import std::string;
+
+~namespace Macaroni::Generators::Cpp;
+
+
+class HollowNodeException : public Exception
+{
+    NodePtr node;
+
+    public HollowNodeException(NodePtr node)
+    :   node(node)
+    {
+    }
+
+    public virtual string message() const
+    {
+        return str(format("The node %s is hollow and appears to be undefined.")
+                   % node->GetFullName());
+        return what();
+    }
+
+    public const char * what() const BOOST_NOEXCEPT override
+    {
+        return "A hollow node was found while generating code.";
+    }
+
+    public virtual const optional<InternalSource> & where() const
+    {
+        return boost::none;
+    }
+};
+
+
+class CyclicNodeDetected : public Exception
+{
+    ElementPtr e;
+
+    public CyclicNodeDetected(ElementPtr e)
+    :   e(e)
+    {
+    }
+
+    public ElementPtr GetElement() const
+    {
+        return e;
+    }
+
+    public virtual string message() const
+    {
+        return what();
+    }
+
+    public const char * what() const BOOST_NOEXCEPT override
+    {
+        return "A cyclic node was detected.";
+    }
+
+    public virtual const optional<InternalSource> & where() const
+    {
+        return boost::none;
+    }
+};
+
+class CyclicNodeError : public Exception
+{
+    ElementPtr a;
+    ElementPtr b;
+
+    public CyclicNodeError(ElementPtr a, ElementPtr b)
+    :   a(a), b(b)
+    {
+    }
+
+    public virtual string message() const
+    {
+        return str(format("Error: Cyclic dependency between nodes %s and %s.")
+                   % a->GetNode()->GetFullName() % b->GetNode()->GetFullName());
+    }
+
+    public const char * what() const BOOST_NOEXCEPT override
+    {
+        return "Cyclic node error! See message for details.";
+    }
+
+    public virtual const optional<InternalSource> & where() const
+    {
+        return boost::none;
+    }
+};

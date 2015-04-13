@@ -1,0 +1,57 @@
+~import std::cout;
+
+~namespace Macaroni::Core;
+
+class BaseVisitor
+{
+    public:
+        virtual ~BaseVisitor() {}
+};
+
+template<typename T>
+class Visitor
+{
+    ~block "h-predef" { #include <iostream> }
+
+    public virtual ~Visitor() {}
+
+    public virtual void Visit(T& obj) = 0;
+
+    ~block "h-postdef"
+    {
+        template<typename T2>
+        bool Visit(T2 & thisRef, BaseVisitor & visitor)
+        {
+            Visitor<T2> * v = dynamic_cast<Visitor<T2> *>(&visitor);
+            if (v)
+            {
+                v->Visit(thisRef);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        template<typename T2, class = typename T2::parent>
+        bool Visit(T2 & thisRef, BaseVisitor & visitor)
+        {
+            Visitor<T2> * v = dynamic_cast<Visitor<T2> *>(&visitor);
+            if (v)
+            {
+                v->Visit(thisRef);
+                return true;
+            }
+            else
+            {
+                return Visit(static_cast<T2::super &>(thisRef));
+            }
+        }
+    }
+
+};
+
+
+
+

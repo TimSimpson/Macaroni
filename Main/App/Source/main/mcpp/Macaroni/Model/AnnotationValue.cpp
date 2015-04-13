@@ -26,7 +26,7 @@
 
 BEGIN_NAMESPACE2(Macaroni, Model)
 
-namespace 
+namespace
 {
 	Node & nodePtrToRef(NodePtr node)
 	{
@@ -55,7 +55,7 @@ AnnotationValue::AnnotationValue(NodePtr name, const bool value, const ReasonPtr
 {
 	AnnotationDefinition::Define(name, AnnotationDefinition::Type_Bool, reason);
 }
-	
+
 AnnotationValue::AnnotationValue(NodePtr name, const double value, const ReasonPtr & reason)
 :name(nodePtrToRef(name)), value(value)
 {
@@ -108,13 +108,13 @@ public:
 	AnnotationValue::TypeCode operator()(boost::shared_ptr<Macaroni::Model::AnnotationTable> table) const
 	{
 		return AnnotationValue::Type_Table;
-	}	
+	}
 };
 
 AnnotationValue::TypeCode AnnotationValue::getTypeCode() const
-{	
+{
 
-	return boost::apply_visitor(typeCodeVisitor1(), this->value);		
+	return boost::apply_visitor(typeCodeVisitor1(), this->value);
 }
 
 class typeCodeVisitor2 : public boost::static_visitor<std::string>
@@ -143,8 +143,8 @@ public:
 };
 
 std::string AnnotationValue::GetTypeString() const
-{	
-	return boost::apply_visitor(typeCodeVisitor2(), value);		
+{
+	return boost::apply_visitor(typeCodeVisitor2(), value);
 }
 
 bool AnnotationValue::GetValueAsBool() const
@@ -152,7 +152,7 @@ bool AnnotationValue::GetValueAsBool() const
 	if (!IsBool())
 	{
 		std::stringstream ss;
-		ss << "Attempted to access " << GetTypeString() 
+		ss << "Attempted to access " << GetTypeString()
 			<< " annotation as a bool.";
 		throw AnnotationValueTypeException(ss.str());
 	}
@@ -164,7 +164,7 @@ NodePtr AnnotationValue::GetValueAsNode() const
 	if (!IsNode())
 	{
 		std::stringstream ss;
-		ss << "Attempted to access " << GetTypeString() 
+		ss << "Attempted to access " << GetTypeString()
 			<< " annotation as a node.";
 		throw AnnotationValueTypeException(ss.str());
 	}
@@ -177,7 +177,7 @@ double AnnotationValue::GetValueAsNumber() const
 	if (!IsNumber())
 	{
 		std::stringstream ss;
-		ss << "Attempted to access " << GetTypeString() 
+		ss << "Attempted to access " << GetTypeString()
 			<< " annotation as a number.";
 		throw AnnotationValueTypeException(ss.str());
 	}
@@ -189,7 +189,7 @@ std::string AnnotationValue::GetValueAsString() const
 	if (!IsString())
 	{
 		std::stringstream ss;
-		ss << "Attempted to access " << GetTypeString() 
+		ss << "Attempted to access " << GetTypeString()
 			<< " annotation as a string.";
 		throw AnnotationValueTypeException(ss.str());
 	}
@@ -201,7 +201,7 @@ AnnotationTablePtr AnnotationValue::GetValueAsTable() const
 	if (!IsTable())
 	{
 		std::stringstream ss;
-		ss << "Attempted to access " << GetTypeString() 
+		ss << "Attempted to access " << GetTypeString()
 			<< " annotation as a table.";
 		throw AnnotationValueTypeException(ss.str());
 	}

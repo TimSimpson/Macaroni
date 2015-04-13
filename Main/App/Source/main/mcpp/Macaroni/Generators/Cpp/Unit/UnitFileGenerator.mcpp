@@ -1,0 +1,172 @@
+~import Macaroni::Core::BaseVisitor;
+~import Macaroni::Generators::Cpp::CodeGraph;
+~import Macaroni::Generators::Cpp::CodeText;
+~import Macaroni::Generators::Cpp::CodeType;
+~import Macaroni::Model::Cpp::Class;
+~import std::cout;
+~import Macaroni::Model::Element;
+~import Macaroni::Model::ElementPtr;
+~import Macaroni::Model::Cpp::Function;
+~import Macaroni::Model::Cpp::FunctionOverload;
+~import Macaroni::IO::GeneratedFileWriter;
+~import Macaroni::IO::GeneratedFileWriterPtr;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Model::Node;
+~import Macaroni::Model::NodePtr;
+~import Macaroni::IO::Path;
+~import boost::shared_ptr;
+~import std::string;
+~import Macaroni::Model::Project::Target;
+~import Macaroni::Model::Project::TargetPtr;
+~import Macaroni::Model::Type;
+~import Macaroni::Model::TypePtr;
+~import Macaroni::Core::Variable;
+~import std::vector;
+~import Macaroni::Model::Cpp::Variable;
+~import Macaroni::Core::Visitor;
+
+
+
+~namespace Macaroni::Generators::Cpp::Unit;
+
+
+class UnitFileGenerator {};
+
+typedef shared_ptr<UnitFileGenerator> UnitFileGeneratorPtr
+    @LuaClass
+    [
+        SameAsNode = UnitFileGenerator
+    ]
+;
+
+class UnitFileGenerator
+    @LuaClass
+    [
+        ReferenceType = UnitFileGeneratorPtr
+    ]
+{
+    private vector<ElementPtr> elementList;
+    private TargetPtr unit;
+
+    public UnitFileGenerator(TargetPtr unit)
+    {
+        // self.libDecl = LibraryDecl ???
+        unit->CreateElementList(elementList);
+    }
+
+    public static UnitFileGeneratorPtr Create(TargetPtr unit)
+        @LuaFunction "Create"
+    {
+        UnitFileGeneratorPtr ptr(new UnitFileGenerator(unit));
+        return ptr;
+    }
+
+~block "cpp"
+{ namespace {
+
+    struct TextVisitor
+    :   public BaseVisitor,
+        public Visitor<Class>,
+        public Visitor<Function>,
+        public Visitor<FunctionOverload>,
+        public Visitor<Variable>
+    {
+        CodeText & codeText;
+        GeneratedFileWriterPtr writer;
+        CodeGraph & graph;
+
+
+        TextVisitor(CodeGraph & graph, GeneratedFileWriterPtr gfw)
+        :   graph(graph),
+            writer(gfw)
+        {
+        }
+
+        ~TextVisitor()
+        {
+        }
+
+        virtual void Visit(Class & e)
+        {
+            writer->WriteLine("Class ", e.GetNode()->GetFullName());
+            codeText = graph.Get(&e, CodeType::Implementation);
+        }
+
+        virtual void Visit(Function & e)
+        {
+            writer->WriteLine("Function ", e.GetNode()->GetFullName());
+            codeText = graph.Get(&e, CodeType::Implementation);
+        }
+
+        virtual void Visit(FunctionOverload & e)
+        {
+            writer->WriteLine("FunctionOverload ", e.GetNode()->GetFullName());
+            codeText = graph.Get(&e, CodeType::Implementation);
+        }
+
+        virtual void Visit(Variable & e)
+        {
+            writer->WriteLine("Variable ", e.GetNode()->GetFullName());
+            codeText.SetElement(&e);
+            //codeText.codeType = CodeType::Implementation;
+
+            codeText = graph.Get(&e, CodeType::Implementation);
+        }
+    };
+
+
+} } // end cpp block
+
+    ~hidden void printCodeText(GeneratedFileWriterPtr writer,
+                               CodeText & ct, int depth=0)
+    {
+        string pad(depth, ' ');
+        if (!ct.GetElement())
+        {
+            writer->WriteLine(pad, " <NOT INITIALIZED?>");
+        }
+        else
+        {
+            writer->WriteLine(pad,
+                              ct.GetElement()->GetNode()->GetFullName(),
+                              ", ",
+                              ct.Type());
+            ct.IterateDependencies([&](CodeText & ct){
+                printCodeText(writer, ct, depth + 4);
+            });
+        }
+    }
+
+    public void Generate(CodeGraph & graph, Path & rootPath)
+        @LuaFunction "Generate"
+    {
+        auto p = rootPath.NewPathForceSlash("thing.ufg");
+        auto writer = p->CreateFile();
+        TextVisitor visitor(graph, writer);
+        for (auto e : elementList)
+        {
+            writer->WriteLine(e->GetNode()->GetFullName());
+            writer->WriteLine("*******************************");
+            visitor.codeText = {};
+            if (e->Accept(visitor))
+            {
+                writer->WriteLine("    // OK!");
+                printCodeText(writer, visitor.codeText);
+            }
+            else
+            {
+                writer->WriteLine("    ?!    ~'_'~ < I cannot handle this. )");
+            }
+            writer->WriteLine();
+        }
+
+    }
+
+    public string ToString()
+        @LuaOperator "__tostring"
+    {
+        return "UnitGenerator";
+    }
+};

@@ -1,0 +1,34 @@
+/*~import Macaroni::IO::GeneratedFileWriter;
+~import Macaroni::Model::ElementPtr;
+~import Macaroni::Generator::Cpp::ElementSection;
+
+~namespace Macaroni::Generators::Cpp;
+
+class ElementBlock
+{
+    ElementPtr element;
+    ElementSection section;
+
+    protected ElementBlock(ElementPtr element, ElementSection section)
+    :   element(element),
+        section(section)
+    {
+        MACARONI_ASSERT(element, "Element can't be null!");
+    }
+
+    virtual ~ElementBlock()
+    {
+    }
+
+    ElementPtr Element() const
+    {
+        return element;
+    }
+
+    ElementSection Section() const
+    {
+        return section;
+    }
+
+    virtual void Write(GeneratedFileWriter & writer) = 0;
+};*/

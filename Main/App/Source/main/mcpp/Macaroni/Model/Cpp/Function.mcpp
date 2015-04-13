@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+~import Macaroni::Core::BaseVisitor;
 ~import boost::shared_ptr;
 ~import Macaroni::Model::Element;
 ~import Macaroni::Model::Cpp::FunctionOverload;
@@ -25,7 +26,7 @@
 ~import Macaroni::Model::SourcePtr;
 ~import Macaroni::Model::Type;
 ~import Macaroni::Model::Cpp::VariablePtr;
-
+~import Macaroni::Core::Visitor;
 
 ~namespace Macaroni::Model::Cpp;
 
@@ -37,12 +38,20 @@ typedef boost::intrusive_ptr<Function> FunctionPtr;
 /** Represents a function in any possible Scope. */
 class Function : public Element
 {
+    typedef Element super;
+
     protected Function(Node * home, ReasonPtr reason)
     :   Element(home, reason)
     {
     }
 
     public virtual ~Function() = default; //TODO: override
+
+    public virtual bool Accept(BaseVisitor & v)
+    {
+        return Visit(*this, v);
+    }
+
 
     public static FunctionPtr Create(NodePtr host, ReasonPtr reason)
     {

@@ -1,0 +1,56 @@
+/*~import Macaroni::Core::BaseVisitor;
+~import std::cout;
+~import Macaroni::Model::Element;
+~import Macaroni::Model::Cpp::Function;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Model::Node;
+~import Macaroni::Model::NodePtr;
+~import Macaroni::Core::Visitor;
+
+~namespace Macaroni::Generators::Cpp;
+
+class CppGenerator
+    @LuaClass
+    [
+        ReferenceType = CppGenerator
+    ]
+{
+    public static void Go(NodePtr node)
+        @LuaFunction "Go"
+    {
+        cout << "Visiting " << node->GetFullName() << "...";
+        auto ptr = node->GetElement();
+        if (!ptr)
+        {
+            cout << " but it was empty.";
+            return;
+        }
+
+        cout << std::endl << "\t";
+
+        Element & element = *ptr;
+
+        class FunctionVisitor :
+            public BaseVisitor,
+            public Visitor<Element>,
+            public Visitor<Function>
+        {
+            public: virtual void Visit(Element & e) const
+            {
+                cout << " I am visiting the element!";
+            }
+
+            public: virtual void Visit(Function & e) const
+            {
+                cout << " I am visiting the function!";
+            }
+
+        } visitor;
+
+        element.Accept(visitor);
+
+        cout << std::endl;
+    }
+};
+*/

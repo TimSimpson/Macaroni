@@ -17,10 +17,13 @@
 #define MACARONI_MODEL_CPP_VARIABLE_H
 
 #include "../../ME.h"
+#include <Macaroni/Core/BaseVisitor.h>
 #include <Macaroni/Model/Element.h>
 #include "../ReasonPtr.h"
 #include <Macaroni/Model/Cpp/ScopeMember.h>
 #include "VariablePtr.h"
+#include <Macaroni/Model/Project/Target.h>
+#include <Macaroni/Model/Project/TargetPtr.h>
 #include <Macaroni/Model/Type.h>
 #include <Macaroni/Model/TypePtr.h>
 
@@ -35,9 +38,14 @@ friend void intrusive_ptr_release(Variable * p);
 
 public:
 
-	static VariablePtr Create(NodePtr home, AccessPtr access, bool isStatic, const TypePtr type, std::string initializer, Model::ReasonPtr reason);
+	static VariablePtr Create(
+		Macaroni::Model::Project::TargetPtr tHome,
+		NodePtr home, AccessPtr access, bool isStatic, const TypePtr type,
+		std::string initializer, Model::ReasonPtr reason);
 
 	~Variable() override;
+
+	virtual bool Accept(Macaroni::Core::BaseVisitor & v);
 
 	const char * GetTypeName() const override;
 
@@ -57,7 +65,9 @@ public:
 
 private:
 
-	Variable(Node * home, Model::ReasonPtr reason, Access access, bool isStatic, const TypePtr type, std::string initializer);
+	Variable(Macaroni::Model::Project::Target * tHome,
+		Node * home, Model::ReasonPtr reason, Access access, bool isStatic,
+		const TypePtr type, std::string initializer);
 
 	std::string initializer;
 

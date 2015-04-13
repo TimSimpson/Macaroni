@@ -1,0 +1,26 @@
+/*~import Macaroni::IO::GeneratedFileWriter;
+~import Macaroni::Model::ElementPtr;
+~import Macaroni::Generator::Cpp::CodeType;
+
+~namespace Macaroni::Generators::Cpp;
+
+class BlockDependency
+{
+    ElementPtr element;
+    CodeType codeType;
+
+    protected ElementBlock(ElementPtr element, CodeType codeType)
+    :   element(element),
+        CodeType(codeType)
+    {
+        MACARONI_ASSERT(element, "Element can't be null!");
+    }
+
+    virtual ~ElementBlock()
+    {
+    }
+
+    bool
+    virtual void Write(GeneratedFileWriter & writer) = 0;
+};
+*/

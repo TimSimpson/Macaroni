@@ -25,6 +25,7 @@
 #include "../NodeListLua.h"
 #include <Macaroni/Model/ReasonLuaMetaData.h>
 #include "VariableLua.h"
+#include <Macaroni/Model/Project/Target.h>
 #include <Macaroni/Model/Type.h>
 #include <Macaroni/Model/TypeLuaMetaData.h>
 
@@ -43,6 +44,8 @@ using Macaroni::Model::Node;
 using Macaroni::Model::NodeLuaMetaData;
 using Macaroni::Model::ReasonLuaMetaData;
 using Macaroni::Model::ReasonPtr;
+using Macaroni::Model::Project::Target;
+using Macaroni::Model::Project::TargetPtr;
 using Macaroni::Model::Type;
 using Macaroni::Model::TypeLuaMetaData;
 using Macaroni::Model::Cpp::Variable;
@@ -67,7 +70,8 @@ namespace
 				TypePtr type = TypeLuaMetaData::GetInstance(L, 4);
 				std::string initializer(luaL_checkstring(L, 5));
 				ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 6);
-				VariablePtr variable = Variable::Create(home, access,
+				TargetPtr tHome;
+				VariablePtr variable = Variable::Create(tHome, home, access,
 														isStatic, type,
 														initializer, reason);
 				ElementPtr rtnValue = boost::dynamic_pointer_cast<Element>(variable);

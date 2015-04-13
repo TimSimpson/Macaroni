@@ -43,7 +43,7 @@ class boost::intrusive_ptr { ~hfile=<boost/intrusive_ptr.hpp> };
 class boost::optional { ~hfile=<boost/optional.hpp> };
 //class boost::filesystem::path { ~hfile=<boost/filesystem.hpp> }
 class boost::program_options::variables_map { ~hfile=<boost/program_options.hpp> };
-
+class boost::ptr_vector { ~hfile=<boost/ptr_container/ptr_vector.hpp> };
 class boost::regex { ~hfile=<boost/regex.hpp> };
 class boost::shared_ptr { ~hfile=<boost/shared_ptr.hpp> };
 class boost::to_lower { ~hfile=<boost/algorithm/string.hpp> };
@@ -141,8 +141,10 @@ class Macaroni::Environment::StringPair { ~hfile=<Macaroni/Environment/StringPai
 class MACARONI_THROW { ~hfile=<Macaroni/ME.h> };
 
 class Macaroni::Model::Cpp::Variable { ~hfile=<Macaroni/Model/Cpp/Variable.h> };
+class Macaroni::Model::Cpp::VariablePtr { ~hfile=<Macaroni/Model/Cpp/VariablePtr.h> };
 class Macaroni::Containers::VectorOfConstString { ~hfile=<Macaroni/Containers.h> };
 class MACARONI_VE_CONST { ~hfile=<Macaroni/ME.h> };
 
+class std::array { ~hfile=<array> };
 class std::unique_ptr { ~hfile=<memory> };
-
+class std::unordered_map { ~hfile=<unordered_map> };

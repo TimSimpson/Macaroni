@@ -5,6 +5,8 @@
 ~import Macaroni::Model::ReasonPtr;
 ~import Macaroni::Model::Project::Target;
 ~import Macaroni::Model::Project::TargetPtr;
+~import Macaroni::Core::BaseVisitor;
+~import Macaroni::Core::Visitor;
 
 
 ~namespace Macaroni::Model;
@@ -49,6 +51,11 @@ class Element
 	{
 		return this == &other;
 	}
+
+	public virtual bool Accept(BaseVisitor & v)
+    {
+        return Visit(*this, v);
+    }
 
 	public ~global ~friend void intrusive_ptr_add_ref(Element * p)
 	{

@@ -1,0 +1,165 @@
+~import Macaroni::Generators::Cpp::CodeType;
+~import Macaroni::Generators::Cpp::CodeGraph;
+~import Macaroni::Model::Element;
+~import Macaroni::Model::Node;
+~import std::ostream;
+~import std::vector;
+~import Macaroni::Core::Visitor;
+
+
+~namespace Macaroni::Generators::Cpp;
+
+
+
+class CodeText
+{
+    private CodeType codeType;
+    private vector<CodeText *> dependsOn;
+    private Element * element;
+    friend CodeGraph;
+
+    public CodeText()
+    :   codeType(CodeType::ForwardDeclaration),
+        dependsOn(),
+        element(nullptr)
+    {
+    }
+
+    public CodeText(CodeType ct)
+    :   codeType(ct),
+        dependsOn(),
+        element(nullptr)
+    {
+    }
+
+    public CodeText(CodeType ct, Element * e)
+    :   codeType(ct),
+        dependsOn(),
+        element(e)
+    {
+    }
+
+    public CodeText(const CodeText & other)
+    :   codeType(other.codeType),
+        dependsOn(),
+        element(other.element)
+    {
+    }
+
+    public CodeText & operator=(const CodeText & other)
+    {
+        this->codeType = other.codeType;
+        this->element = other.element;
+		this->dependsOn = other.dependsOn;
+        return *this;
+    }
+
+    public CodeText & operator=(CodeText && other)
+    {
+        this->codeType = other.codeType;
+        this->element = other.element;
+        this->dependsOn = std::move(other.dependsOn);
+        return *this;
+    }
+
+    protected void addDependency(CodeText * newDep)
+    {
+        MACARONI_ASSERT(newDep != nullptr, "Null not allowed for newDep.");
+        for (CodeText * ct : dependsOn)
+        {
+            if (ct == newDep)
+            {
+                return;
+            }
+        }
+        dependsOn.push_back(newDep);
+    }
+
+    public vector<CodeText *> & DependsOn()
+    {
+        return dependsOn;
+    }
+
+    public const vector<CodeText *> & DependsOn() const
+    {
+        return dependsOn;
+    }
+
+    public const Element * GetElement() const
+    {
+        return element;
+    }
+
+    public bool Initialized() const
+    {
+        return element != nullptr;
+    }
+
+    template<typename Func>
+    public void IterateDependencies(Func & f)
+    {
+        for (CodeText * ct : dependsOn)
+        {
+            MACARONI_ASSERT(ct != nullptr, "Null codetext?");
+            f(*ct);
+        }
+    }
+
+    public void SetElement(Element * newValue)
+    {
+        this->element = newValue;
+    }
+
+    public const CodeType Type() const
+    {
+        return codeType;
+    }
+
+    public ~global ostream & operator<<(ostream & out, const CodeType & t)
+    {
+        switch(t)
+        {
+            case CodeType::ForwardDeclaration:
+                out << "ForwardDeclaration";
+                return out;
+            case CodeType::TypeDefinition:
+                out << "TypeDefinition";
+                return out;
+            case CodeType::Implementation:
+                out << "Implementation";
+                return out;
+            default:
+                out << "??!";
+                return out;
+        }
+    }
+
+    public ~global ~friend ostream & operator<<(ostream & out,
+                                                const CodeText & ct)
+    {
+        if (ct.element)
+        {
+            out << ct.element->GetNode()->GetFullName();
+        }
+        else
+        {
+            out << "<none>";
+        }
+        out << ", ";
+        out << ct.codeType;
+        out << ", (";
+        bool seenOne = false;
+        for (auto * dep : ct.dependsOn)
+        {
+            if (seenOne)
+            {
+                out << ", ";
+            }
+            out << *dep;
+            seenOne = true;
+        }
+        out << ")";
+        return out;
+    }
+
+};

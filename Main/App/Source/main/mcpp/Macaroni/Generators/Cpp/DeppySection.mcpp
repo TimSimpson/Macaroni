@@ -1,0 +1,12 @@
+/*~namespace Macaroni::Generators::Cpp;
+
+enum class DeppySection
+{
+    HppInclude,
+    HppForwardDeclarations,
+    TypeDefinition,    // defines classes, function signatures
+    CppInclude,
+    CppFowardDeclarations,
+    Implementation      // Function and variable definitions
+};
+*/

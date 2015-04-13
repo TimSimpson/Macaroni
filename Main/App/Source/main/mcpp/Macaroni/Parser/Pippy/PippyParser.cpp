@@ -2129,7 +2129,8 @@ public:
 			}
 
 			NodePtr node = currentScope->FindOrCreate(argName);
-			Variable::Create(node, access, isStatic, type, initializer,
+			TargetPtr tHome;
+			Variable::Create(tHome, node, access, isStatic, type, initializer,
 				Reason::Create(CppAxioms::VariableScopeCreation(), oldItr.GetSource()));
 			seenArg = true;
 			ConsumeWhitespace(itr);
@@ -3429,11 +3430,23 @@ public:
 				throw ParserException(itr.GetSource(),
 					Messages::Get("CppParser.Variable.TemplateNotAllowed"));
 			}
-			Variable::Create(node, access, isStatic, type, initializer,
-				Reason::Create(CppAxioms::VariableScopeCreation(), oldItr.GetSource()));
+
+			TargetPtr tHome;
+
+			ClassPtr classPtr = currentScope->GetElement<ClassPtr>();
+			if (!classPtr && !currentScope->GetElement<FunctionOverloadPtr>())
+			{
+				tHome = deduceTargetHome(currentScope);
+			}
+
+			VariablePtr var =
+				Variable::Create(tHome, node, access, isStatic, type, initializer,
+					Reason::Create(CppAxioms::VariableScopeCreation(),
+					oldItr.GetSource()));
+
+
 			if (!!globalHome)
 			{
-				ClassPtr classPtr = currentScope->GetElement<ClassPtr>();
 				if (!classPtr)
 				{
 					throw ParserException(itr.GetSource(),

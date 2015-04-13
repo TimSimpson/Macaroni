@@ -26,17 +26,28 @@
 #include "Variable.h"
 #include <memory>
 #include <sstream>
+#include <Macaroni/Core/Visitor.h>
 
+
+using Macaroni::Core::BaseVisitor;
 using Macaroni::Model::ModelInconsistencyException;
 using Macaroni::Model::Node;
+using Macaroni::Model::Project::Target;
+using Macaroni::Model::Project::TargetPtr;
+
 
 BEGIN_NAMESPACE(Macaroni, Model, Cpp)
 
-Variable::Variable(Node * parent, ReasonPtr reason, Access access, bool isStatic, const TypePtr type, std::string initializer)
+Variable::Variable(Target * t, Node * parent, ReasonPtr reason, Access access,
+	               bool isStatic, const TypePtr type, std::string initializer)
 :ScopeMember(parent, reason, access, isStatic),
  initializer(initializer),
  type(type)
 {
+	if (t)
+	{
+		t->AddElement(this);
+	}
 }
 
 Variable::~Variable()
@@ -45,12 +56,18 @@ Variable::~Variable()
 }
 
 
-VariablePtr Variable::Create(NodePtr host, AccessPtr access, bool isStatic, const TypePtr type, std::string initializer, ReasonPtr reason)
+bool Variable::Accept(BaseVisitor & v)
+{
+    return Visit(*this, v);
+}
+
+VariablePtr Variable::Create(TargetPtr tHome, NodePtr host, AccessPtr access,
+	bool isStatic, const TypePtr type, std::string initializer, ReasonPtr reason)
 {
 	if (!host->GetElement())
 	{
 		//return Variable::Create(host, access, type, reason);
-		return VariablePtr(new Variable(host.get(), reason, *access, isStatic, type, initializer));
+		return VariablePtr(new Variable(tHome.get(), host.get(), reason, *access, isStatic, type, initializer));
 	}
 	Element * element = host->GetElement().get();
 	Variable * existingVar = dynamic_cast<Variable *>(element);
@@ -58,7 +75,7 @@ VariablePtr Variable::Create(NodePtr host, AccessPtr access, bool isStatic, cons
 	{
 		// Will throw an error message.
 		//return Variable::Create(host, access, type, reason);
-		return VariablePtr(new Variable(host.get(), reason, *access, isStatic, type, initializer));
+		return VariablePtr(new Variable(tHome.get(), host.get(), reason, *access, isStatic, type, initializer));
 	}
 
 	if (existingVar != nullptr && !(existingVar->type->operator==(*type.get())))

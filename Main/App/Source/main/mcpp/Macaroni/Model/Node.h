@@ -102,6 +102,19 @@ public:
 
 	bool IsRoot() const;
 
+	template<typename ElementType, typename Func>
+	void IterateNodes(Func & func)
+	{
+		for (unsigned int i = 0; i < GetChildCount(); ++ i)
+		{
+			auto var = GetChild(i)->GetElementPtr<ElementType>();
+			if (var)
+			{
+				func(*var);
+			}
+		}
+	}
+
 	inline NodePtr GetChild(int index) const
 	{
 		return NodePtr(children[index]);
@@ -138,6 +151,18 @@ public:
 		{
 			return rtnValue;
 		}
+	}
+
+	Element * GetElementPtr()
+	{
+		return element;
+	}
+
+	// Returns a naked pointer to the element.
+	template<class Type> Type * GetElementPtr()
+	{
+		Type * typePtr = dynamic_cast<Type *>(element);
+		return typePtr;
 	}
 
 

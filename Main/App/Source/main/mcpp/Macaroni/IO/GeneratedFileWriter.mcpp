@@ -30,7 +30,7 @@
 ~import Macaroni::StringException;
 ~import std::stringstream;
 
-namespace Macaroni::IO 
+namespace Macaroni::IO
 {
 
 typedef shared_ptr<ostream> ostreamptr;
@@ -47,13 +47,13 @@ class GeneratedFileWriter
 
 	bool closed;
 	bool directToFile;
-	const string filePath;	
+	const string filePath;
 	bool fileWasWritten;
 	int lineNumber;
-	ostreamptr writer;	
+	ostreamptr writer;
 
 	public GeneratedFileWriter(const path filePath)
-	:	closed(false), filePath(filePath.string()), fileWasWritten(false), 
+	:	closed(false), filePath(filePath.string()), fileWasWritten(false),
 	    lineNumber(1), writer()
 	{
 		path parent = filePath.parent_path();
@@ -62,7 +62,7 @@ class GeneratedFileWriter
 			boost::filesystem::create_directories(parent);
 		}
 
-		if (boost::filesystem::exists(filePath)) 
+		if (boost::filesystem::exists(filePath))
 		{
 			if (!boost::filesystem::is_regular(filePath))
 			{
@@ -89,9 +89,9 @@ class GeneratedFileWriter
 	public bool Close()
 		@LuaFunction "Close"
 	{
-		if (!closed) 
+		if (!closed)
 		{
-			if (directToFile) 
+			if (directToFile)
 			{
 				(dynamic_cast<ofstream *>(writer.get()))->close();
 				fileWasWritten = true;
@@ -124,7 +124,7 @@ class GeneratedFileWriter
 	{
 		char buf1[256];
 		char buf2[256];
-		
+
 		ifstream existing(filePath.string().c_str());
 		current.seekg(std::ios_base::beg);
 
@@ -170,25 +170,61 @@ class GeneratedFileWriter
 		return ss.str();
 	}
 
+	public void Write(const char c)
+	{
+		if ('\n' == c)
+		{
+			lineNumber += 1;
+		}
+		(*writer) << c;
+	}
+
 	public void Write(const std::string & text)
 		@LuaFunction "Write"
 	{
-		BOOST_FOREACH(const char & ch, text)
-		{
-			(*writer) << ch;
-			if (ch == '\n')
-			{
-				lineNumber ++;
-			}
-		}
+		lineNumber += std::count(text.begin(), text.end(), '\n');
+		(*writer) << text;
+	}
+
+	template<typename T>
+	public void Write(const T & t)
+	{
+		(*writer) << t;
+	}
+
+	template<typename T, typename... Parameters>
+	public void Write(const T & t, const Parameters & ... args)
+	{
+		Write(t);
+		Write(args...);
+	}
+
+	public void WriteLine()
+	{
+		lineNumber ++;
+		(*writer) << std::endl;
 	}
 
 	public void WriteLine(const std::string & text)
 		@LuaFunction "WriteLine"
 	{
 		Write(text);
-		lineNumber ++;		
+		WriteLine();
+	}
+
+	template<typename T>
+	public void WriteLine(const T & t)
+	{
+		Write(t);
+		lineNumber ++;
 		(*writer) << std::endl;
+	}
+
+	template<typename T, typename... Parameters>
+	public void WriteLine(const T & t, const Parameters & ... args)
+	{
+		Write(t);
+		WriteLine(args...);
 	}
 };
 

@@ -1,0 +1,25 @@
+~import Macaroni::Generators::Cpp::CodeText;
+~import Macaroni::Generators::Cpp::CodeType;
+~import Macaroni::Model::Element;
+~import Macaroni::Core::Visitor;
+
+
+~namespace Macaroni::Generators::Cpp::Unit;
+
+
+
+class UnitText : public CodeText
+{
+    private const bool ownedByUs;
+
+    public UnitText(CodeType ct, Element * e, bool ownedByUs)
+    :   CodeText(ct, e),
+        ownedByUs(ownedByUs)
+    {
+    }
+
+
+
+
+
+};

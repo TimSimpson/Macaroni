@@ -1,0 +1,10 @@
+~namespace Macaroni::Generators::Cpp;
+
+// Elements always have bits of code to define them. Each chunk of code can
+// be identified by one of the values below.
+enum class ElementCodeSection
+{
+    ForwardDeclarations, // How to create a forward declaration.
+    TypeDefinition,      // defines classes, typedefs.
+    Implementation       // Function and variable definitions
+};

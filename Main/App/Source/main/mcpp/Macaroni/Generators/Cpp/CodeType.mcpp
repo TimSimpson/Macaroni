@@ -1,0 +1,9 @@
+~namespace Macaroni::Generators::Cpp;
+
+
+enum class CodeType : int
+{
+    ForwardDeclaration=0,
+    TypeDefinition=1,
+    Implementation=2
+};

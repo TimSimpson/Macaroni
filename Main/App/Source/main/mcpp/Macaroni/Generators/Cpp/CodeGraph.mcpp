@@ -1,0 +1,391 @@
+~import std::array;
+~import Macaroni::Core::BaseVisitor;
+~import Macaroni::Model::Cpp::Class;
+~import Macaroni::Model::Cpp::ClassParent;
+~import Macaroni::Model::Cpp::ClassParentPtr;
+~import Macaroni::Generators::Cpp::CodeText;
+~import Macaroni::Generators::Cpp::CodeType;
+~import Macaroni::Generators::Cpp::CyclicNodeDetected;
+~import Macaroni::Generators::Cpp::CyclicNodeError;
+~import Macaroni::Model::Element;
+~import Macaroni::Model::ElementPtr;
+~import Macaroni::Model::Cpp::Function;
+~import Macaroni::Model::Cpp::FunctionOverload;
+~import Macaroni::Generators::Cpp::HollowNodeException;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Model::Node;
+~import Macaroni::Model::NodeList;
+~import Macaroni::Model::NodeListPtr;
+~import Macaroni::Model::NodePtr;
+~import boost::shared_ptr;
+~import Macaroni::Model::Type;
+~import Macaroni::Model::Cpp::Typedef;
+~import Macaroni::Model::TypePtr;
+~import std::unordered_map;
+~import boost::ptr_vector;
+~import Macaroni::Model::Cpp::Variable;
+~import Macaroni::Model::Cpp::VariablePtr;
+~import Macaroni::Core::Visitor;
+~import std::vector;
+
+
+~namespace Macaroni::Generators::Cpp;
+
+class CodeGraph {};
+
+typedef shared_ptr<CodeGraph> CodeGraphPtr
+    @LuaClass
+    [
+        SameAsNode = CodeGraph
+    ]
+;
+
+class CodeGraph
+    @LuaClass
+    [
+        ReferenceType = CodeGraphPtr
+    ]
+{
+    ~block "h-predef" {
+        #include <array>
+        #include <unordered_map>
+    }
+
+    ~block "cpp-include" { #include <algorithm> }
+
+    ~block "h"
+    {
+        private: std::unordered_map<
+            Macaroni::Model::Element *, std::array<CodeText, 3>> map;
+    }
+
+    public CodeGraph()
+    :   map()
+    {
+    }
+
+    public static CodeGraphPtr Create()
+        @LuaFunction "Create"
+    {
+        CodeGraphPtr ptr(new CodeGraph());
+        return ptr;
+    }
+
+    public CodeText & Get(Element * e, CodeType t)
+    {
+        try
+        {
+            return get(e, t);
+        }
+        catch(const CyclicNodeDetected & cnd)
+        {
+            throw CyclicNodeError(e, cnd.GetElement());
+        }
+    }
+
+    public CodeText & get(Element * e, CodeType t)
+    {
+        MACARONI_ASSERT(e != nullptr, "Bad pointer for e.");
+        auto r = map.find(e);
+        if (r != map.end())
+        {
+            CodeText & ct = r->second[static_cast<int>(t)];
+            if (ct.Initialized())
+            {
+                return ct;
+            }
+            else
+            {
+                throw CyclicNodeDetected(e);
+            }
+        }
+        compute(e);
+
+        r = map.find(e);
+        MACARONI_ASSERT(r != map.end(), "Didn't add after compute.");
+        CodeText & ct = r->second[static_cast<int>(t)];
+        MACARONI_ASSERT(ct.Initialized(), "Didn't initialize after compute.");
+        return ct;
+    }
+
+    private void compute(Element * e)
+    {
+        MACARONI_ASSERT(e != nullptr, "Can't compute nullptr element.");
+        MACARONI_ASSERT(map.find(e) == map.end(),
+                        "Finding an already calculated value.");
+        map[e] = {
+            CodeText(CodeType::ForwardDeclaration, e),
+            CodeText(CodeType::TypeDefinition, e),
+            CodeText(CodeType::Implementation, e),
+        };
+
+        auto & r = map[e];
+        CodeText & fd = r[0];
+        CodeText & td = r[1];
+        CodeText & im = r[2];
+
+        struct DepVisitor
+        :   public BaseVisitor,
+            public Visitor<Class>,
+            public Visitor<Function>,
+            public Visitor<FunctionOverload>,
+            public Visitor<Variable>
+        {
+            CodeGraph & graph;
+            CodeText & fd;
+            CodeText & td;
+            CodeText & im;
+
+            DepVisitor(CodeGraph & g, CodeText & fd, CodeText & td,
+                       CodeText & im)
+            :   graph(g),
+                fd(fd),
+                td(td),
+                im(im)
+            {}
+
+            // Add the given node list Elements to the codeText as dependencies
+            // of the given CodeType.
+            void addDepsOfNodeList(CodeText & codeText,
+                                   NodeList & nodeList, CodeType codeType)
+            {
+                for (NodePtr n : nodeList)
+                {
+                    Element * eFriend = n->GetElementPtr();
+                    MACARONI_ASSERT(eFriend, "Hollow node...");
+                    CodeText & newDep = graph.get(eFriend, codeType);
+                    codeText.addDependency(&newDep);
+                }
+            }
+
+            virtual void Visit(Class & e)
+            {
+                // Forward declaration is very easy, as only template arguments
+                // are required.
+
+                // Type definition---------------------------------------------
+
+                // Start with the parent classes
+                for (ClassParent & p : *(e.GetParents()))
+                {
+                    Type & t = *(p.GetParent());
+                    graph.computeDeps(t, CodeType::TypeDefinition, td);
+                }
+
+                // Now include a forward def dependency on all friends.
+                MACARONI_ASSERT(e.GetFriendNodes(), "Empty friend list?");
+                addDepsOfNodeList(td, *(e.GetFriendNodes()),
+                                  CodeType::ForwardDeclaration);
+
+
+                // A class must see all TDs of the variables it used.
+                // Don't use Lambda due to VS bug.
+                struct HandleVarStruct {
+                    CodeText & fd;
+                    CodeType ct;
+                    CodeGraph & graph;
+                    HandleVarStruct(CodeText & fd, CodeType ct,CodeGraph & g)
+                    : fd(fd), ct(ct), graph(g)
+                    {}
+
+                    void operator() (Variable & v) {
+                        TypePtr type = v.GetType();
+                        MACARONI_ASSERT(!!type, "Variable not set.");
+                        Type & t = *type;
+                        graph.computeDeps(t, ct, fd);
+                    }
+                };
+                HandleVarStruct handleVar(td, CodeType::TypeDefinition, graph);
+
+                e.GetNode()->IterateNodes<Variable>(handleVar);
+
+                // Iterate every function.
+                // Woulda been cool to use lambda functions here but the
+                // VS compiler seems to crash the moment I try anything neat.
+                Node & node = *e.GetNode();
+                for (unsigned int i = 0; i < node.GetChildCount(); ++ i)
+                {
+                    auto func = node.GetChild(i)->GetElementPtr<Function>();
+                    if (func)
+                    {
+                        NodePtr fn = func->GetNode();
+                        for (unsigned int j = 0; j < fn->GetChildCount(); ++ j)
+                        {
+                            auto fo = fn->GetChild(j)
+                                ->GetElementPtr<FunctionOverload>();
+                            if (fo)
+                            {
+                                visitFunctionOverload(*fo,
+                                    CodeType::TypeDefinition, td);
+                            }
+                        }
+                    }
+                }
+
+                im.addDependency(&td);
+
+                // Now add all of the imports as deps to this class.
+                MACARONI_ASSERT(e.GetImportedNodes(), "Empty import list?");
+                addDepsOfNodeList(im, *(e.GetImportedNodes()),
+                                  CodeType::TypeDefinition);
+/*
+                struct HandleFuncStruct {
+                    CodeText & fd;
+                    CodeType ct;
+                    CodeGraph & graph;
+                    HandleVarStruct(CodeText & fd, CodeType ct,CodeGraph & g)
+                    : fd(fd), ct(ct), graph(g)
+                    {}
+
+                    void operator() (Function & f) {
+                        graph.computeDeps(t, ct, fd);
+                    }
+                };
+                e.GetNode()->IterateNodes<Function>([&](Function & f) {
+                    f.GetNode()->IterateNodes<FunctionOverload>(
+                        [&](FunctionOverload & fo) {
+                            int five = 0;
+                        }
+                    );
+                });
+
+
+                im.addDependency(&td);*/
+
+
+
+            }
+
+            virtual void Visit(Function & e)
+            {
+
+            }
+
+            void visitFunctionOverload(FunctionOverload & e,
+                                       CodeType codeType, CodeText & codeText)
+            {
+                // Don't use Lambda due to VS bug.
+                struct HandleTypeStruct {
+                    CodeText & fd;
+                    CodeType ct;
+                    CodeGraph & graph;
+                    HandleTypeStruct(CodeText & fd, CodeType ct,CodeGraph & g)
+                    : fd(fd), ct(ct), graph(g)
+                    {}
+
+                    void operator() (Type & type) {
+                        graph.computeDeps(type, ct,
+                                          fd);
+                    }
+                };
+
+                HandleTypeStruct handleType(codeText, codeType, graph);
+
+                // Add every variable used as an argument's forward def to the
+                // functions forward def.
+                e.IterateArguments([&](Variable & e) {
+                    TypePtr type = e.GetType();
+                    MACARONI_ASSERT(!!type, "Variable is malformed.");
+                    handleType(*type);
+                });
+
+                auto returnType = e.GetReturnType();
+                if (returnType)  // Constructors won't have these.
+                {
+                    // Do the same for return type.
+                    handleType(*returnType);
+                }
+            }
+
+            virtual void Visit(FunctionOverload & e)
+            {
+                visitFunctionOverload(e, CodeType::ForwardDeclaration, fd);
+
+                // A function's type definition requires nothing, except it's
+                // forward declaration.
+                td.addDependency(&fd);
+
+                // The implementation requires the type definition of all the
+                // types.
+                im.addDependency(&fd);
+
+                visitFunctionOverload(e, CodeType::TypeDefinition, im);
+
+                // Now add all of the imports as deps to this func.
+                MACARONI_ASSERT(e.GetImportedNodes(), "Empty import list?");
+                addDepsOfNodeList(im, *(e.GetImportedNodes()),
+                                  CodeType::TypeDefinition);
+
+                //TODO: May need to add the TypeDefinitions of all variables
+                //      as deps to the function... maybe.
+            }
+
+            virtual void Visit(Typedef & e)
+            {
+                TypePtr type = e.GetType();
+
+                // A variables forward declaration requires knowing about all
+                // types involved in the variable.
+                graph.computeDeps(*type, CodeType::TypeDefinition,
+                                  fd);
+
+                td.addDependency(&fd);
+                im.addDependency(&fd);
+            }
+
+            virtual void Visit(Variable & e)
+            {
+                TypePtr type = e.GetType();
+
+                // A variables forward declaration requires knowing about all
+                // types involved in the variable.
+                graph.computeDeps(*type, CodeType::TypeDefinition,
+                                  fd);
+
+                // A variable's implementation requires nothing, except it's
+                // forward declaration.
+                td.addDependency(&fd);
+                im.addDependency(&fd);
+            }
+
+        } visitor(*this, fd, td, im);
+        e->Accept(visitor);
+    }
+
+    // Given a dependency list, takes a type and adds all the CodeText
+    // elements that type would need.
+    public void computeDeps(const Type & type, CodeType level,
+                            CodeText & targetDep)
+    {
+        MACARONI_ASSERT(level != CodeType::Implementation, "Bad code type.");
+        NodePtr node = type.GetNode();
+        MACARONI_ASSERT(!!node, "Node not set.");
+        ElementPtr ePtr = node->GetElement();
+        if (!ePtr)
+        {
+            throw HollowNodeException(node);
+        }
+        Element & e = *ePtr;
+        if (level == CodeType::TypeDefinition &&
+            type.GetModifiers().MayOnlyNeedForwardDeclaration())
+        {
+            // Veer towards "light" definitions if possible.
+            level = CodeType::ForwardDeclaration;
+        }
+
+        // Recursively do all of this again to get all the info necessary.
+        CodeText & newDep = this->get(&e, level);
+        targetDep.addDependency(&newDep);
+
+        for (const auto & typeArgList : type.GetArguments())
+        {
+            for (const auto & typeArgListElement : typeArgList->GetTypes())
+            {
+                computeDeps(*typeArgListElement, level, targetDep);
+            }
+        }
+    }
+};
+

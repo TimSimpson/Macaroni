@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+~import Macaroni::Core::BaseVisitor;
 ~import Macaroni::Model::Cpp::Class;
 ~import Macaroni::Model::Cpp::ClassPtr;
 ~import boost::format;
@@ -34,6 +35,7 @@
 ~import Macaroni::Model::Type;
 ~import Macaroni::Model::Cpp::Variable;
 ~import Macaroni::Model::Cpp::VariablePtr;
+~import Macaroni::Core::Visitor;
 
 ~namespace Macaroni::Model::Cpp;
 
@@ -118,6 +120,11 @@ class FunctionOverload : public Scope
 
 	public virtual ~FunctionOverload() = default; //TODO: override
 
+	public virtual bool Accept(BaseVisitor & v)
+    {
+        return Visit(*this, v);
+    }
+
 	public static FunctionOverloadPtr Create(
 		TargetPtr target,
 		NodePtr foNode,
@@ -166,6 +173,7 @@ class FunctionOverload : public Scope
 		}
 		return argList;
 	}
+
 
 	public const std::string & GetCodeBlock() const
 	{
@@ -276,6 +284,20 @@ class FunctionOverload : public Scope
 	{
 		return isVirtual;
 	}
+
+	~block "h-predef"
+	{
+		namespace Macaroni { namespace Model { namespace Cpp {
+			class Variable;
+		}}}
+	}
+
+	template<typename Func>
+	public void IterateArguments(Func & func)
+	{
+		getNode()->IterateNodes<Variable>(func);
+	}
+
 
 	public bool RequiresCppFile() const override
 	{

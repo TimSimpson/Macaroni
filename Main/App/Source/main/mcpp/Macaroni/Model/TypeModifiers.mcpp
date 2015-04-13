@@ -189,7 +189,7 @@ class TypeModifiers : public SimpleTypeModifiers
 		return _isParameterPack;
 	}
 
-	public bool MayOnlyNeedForwardDeclaration()
+	public bool MayOnlyNeedForwardDeclaration() const
 		@LuaProperty "MayOnlyNeedForwardDeclaration"
 	{
 		return (_light || _reference

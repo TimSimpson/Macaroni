@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+~import Macaroni::Core::BaseVisitor;
 ~import Macaroni::Model::Element;
 ~import boost::intrusive_ptr;
 ~import Macaroni::Model::Node;
@@ -25,6 +26,7 @@
 ~import Macaroni::Model::Type;
 ~import Macaroni::Model::TypePtr;
 ~import Macaroni::Model::TypedefPtr;
+~import Macaroni::Core::Visitor;
 
 ~namespace Macaroni::Model::Cpp;
 
@@ -55,6 +57,11 @@ class Typedef : public Scope
 		return TypedefPtr(new Typedef(target.get(), home.get(), reason,
 			                          access, type));
 	}
+
+	public virtual bool Accept(BaseVisitor & v)
+    {
+        return Visit(*this, v);
+    }
 
 	public Macaroni::Model::TypePtr GetType() const
 	{

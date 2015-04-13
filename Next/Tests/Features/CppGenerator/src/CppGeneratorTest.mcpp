@@ -1,0 +1,46 @@
+~unit Hats ;
+
+class Hats
+{
+    int w;
+
+    public Hats(int w)
+    :   w(w)
+    {
+    }
+
+    public int width()
+    {
+        return w;
+    }
+};
+
+
+void superbats(int how_many_bats)
+{
+    return 5;  // There are five bats.
+}
+
+int ten;
+
+typedef int Int;
+
+class NeedsHats
+{
+    Hats h;
+};
+
+
+class NeedsHatsPointer
+{
+    Hats & h;
+
+    void HatedHat(Hats & h)
+    {
+    }
+};
+
+~import std::string;
+
+class SubHats : public Hats
+{};
