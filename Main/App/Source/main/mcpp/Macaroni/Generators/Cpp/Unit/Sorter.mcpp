@@ -1,0 +1,50 @@
+~import Macaroni::Core::BaseVisitor;
+~import Macaroni::Generators::Cpp::CodeText;
+~import Macaroni::Generators::Cpp::CodeType;
+~import std::cout;
+~import Macaroni::Model::Element;
+~import Macaroni::Model::ElementPtr;
+~import Macaroni::Model::Cpp::Function;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Model::Node;
+~import Macaroni::Model::NodePtr;
+~import Macaroni::Generators::Cpp::Unit::UnitText;
+~import std::vector;
+~import Macaroni::Core::Visitor;
+
+
+
+~namespace Macaroni::Generators::Cpp::Unit;
+
+
+// http://stackoverflow.com/questions/8812466/using-c-boosts-graph-library
+class Sorter
+{/*
+    ~block "cpp-include"
+    {
+        #include "boost/graph/adjacency_list.hpp"
+        #include "boost/graph/topological_sort.hpp"
+    }
+
+    private vector<UnitText> code;
+
+    public Sorter()
+    :   code()
+    {
+    }
+
+    public void Sort()
+    {
+        boost::adjacency_list<> graph(code.size());
+        for (int i = 0; i < code.size(); ++ i)
+        {
+            boost::add_vertex(i, graph);
+        }
+        for (int i = 0; i < code.size(); ++ i)
+        {
+            for (auto dep : )
+            boost::add_vertex(i, graph);
+        }
+    }*/
+};

@@ -305,11 +305,11 @@ class CodeGraph
 
                 // A function's type definition requires nothing, except it's
                 // forward declaration.
-                td.addDependency(&fd);
+                //td.addDependency(&fd);
 
                 // The implementation requires the type definition of all the
                 // types.
-                im.addDependency(&fd);
+                //im.addDependency(&fd);
 
                 visitFunctionOverload(e, CodeType::TypeDefinition, im);
 
@@ -331,8 +331,8 @@ class CodeGraph
                 graph.computeDeps(*type, CodeType::TypeDefinition,
                                   fd);
 
-                td.addDependency(&fd);
-                im.addDependency(&fd);
+                //td.addDependency(&fd);
+                //im.addDependency(&fd);
             }
 
             virtual void Visit(Variable & e)
@@ -346,8 +346,8 @@ class CodeGraph
 
                 // A variable's implementation requires nothing, except it's
                 // forward declaration.
-                td.addDependency(&fd);
-                im.addDependency(&fd);
+                //td.addDependency(&fd);
+                //im.addDependency(&fd);
             }
 
         } visitor(*this, fd, td, im);

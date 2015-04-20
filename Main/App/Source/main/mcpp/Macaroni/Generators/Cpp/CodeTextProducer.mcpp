@@ -1,0 +1,209 @@
+~import Macaroni::Core::BaseVisitor;
+~import Macaroni::Generators::Cpp::CodeText;
+~import Macaroni::Generators::Cpp::CodeType;
+~import Macaroni::Model::Cpp::Class;
+~import Macaroni::Generators::Cpp::CppFileWriter;
+~import Macaroni::Model::Element;
+~import Macaroni::Model::ElementPtr;
+~import boost::format;
+~import Macaroni::Model::Cpp::FunctionOverload;
+~import Macaroni::Model::Node;
+~import Macaroni::Model::NodePtr;
+~import Macaroni::Model::Cpp::Typedef;
+~import Macaroni::Model::Cpp::Variable;
+~import Macaroni::Model::Cpp::VariablePtr;
+~import Macaroni::Core::Visitor;
+
+
+~namespace Macaroni::Generators::Cpp;
+
+
+// A visitor that writes out CodeText elements.
+class CodeTextProducer
+{
+    CppFileWriter & writer;
+
+    public CodeTextProducer(CppFileWriter & writer)
+    :   writer(writer)
+    {
+    }
+
+    public void Write(CodeText & codeText)
+    {
+        MACARONI_ASSERT(codeText.GetElement() != nullptr,
+                        "Can't write null element!");
+        const Element & constElement = *codeText.GetElement();
+        // TODO: The visitor stuff needs to allow for const.
+        Element & element = const_cast<Element &>(constElement);
+        writer.Comment(str(boost::format("%s") % codeText));
+        switch(codeText.Type())
+        {
+            case CodeType::ForwardDeclaration:
+                writeForwardDeclaration(element);
+                return;
+            case CodeType::TypeDefinition:
+                writeTypeDefinition(element);
+                return;
+            case CodeType::Implementation:
+                writeImplementation(element);
+                return;
+            default:
+                MACARONI_ASSERT(false, "Bad type?");
+        }
+    }
+
+// Define the visitors in the anonymous namespace to cut down the risk of
+// Visual Studio problems.
+
+~block "cpp" { namespace {
+    struct ForwardDeclarationVisitor
+    :   public BaseVisitor,
+        public Visitor<Class>,
+        public Visitor<FunctionOverload>,
+        public Visitor<Variable>,
+        public Visitor<Typedef>
+    {
+        CppFileWriter & writer;
+
+        ForwardDeclarationVisitor(CppFileWriter & writer)
+        :   writer(writer)
+        {
+        }
+
+        virtual void Visit(Class & e)
+        {
+            writer.EnterNamespace(e.GetNode()->GetParent());
+            writer.WriteClassKeyword();
+            writer.WriteNodeName(e.GetNode());
+            writer.EndStatement();
+        }
+
+        virtual void Visit(FunctionOverload & e)
+        {
+
+        }
+
+        virtual void Visit(Typedef & e)
+        {
+        }
+
+        virtual void Visit(Variable & e)
+        {
+
+        }
+    };
+
+    struct TypeDefinitionVisitor
+    :   public BaseVisitor,
+        public Visitor<Class>,
+        public Visitor<FunctionOverload>,
+        public Visitor<Variable>,
+        public Visitor<Typedef>
+    {
+        CppFileWriter & writer;
+
+        TypeDefinitionVisitor(CppFileWriter & writer)
+        :   writer(writer)
+        {
+        }
+
+        virtual void Visit(Class & e)
+        {
+            writer.Comment(" A class should go here. ");
+        }
+
+        virtual void Visit(FunctionOverload & e)
+        {
+            writer.EnterNamespace(e.GetNode()->GetParent()->GetParent());
+            writer.Type(e.GetReturnType(), false);
+            writer.Space();
+            writer.WriteNodeName(e.GetNode()->GetParent());
+            writer.BeginArgumentList();
+            auto args = e.GetArguments();
+            bool seenOne = false;
+            for (auto arg : *args)
+            {
+                if (seenOne)
+                {
+                    writer.FunctionArgumentSeperator();
+                }
+                Variable * v = arg->GetElementPtr<Variable>();
+                MACARONI_ASSERT(v, "null var for argument?");
+                writer.FunctionArgument(*v, true);
+                seenOne = true;
+            }
+            writer.EndArgumentList();
+            writer.EndStatement();
+        }
+
+        virtual void Visit(Typedef & e)
+        {
+            writer.EnterNamespace(e.GetNode()->GetParent());
+            writer.Type(e.GetType(), false);
+            writer.Space();
+            writer.WriteNodeName(e.GetNode());
+            writer.EndStatement();
+        }
+
+        virtual void Visit(Variable & e)
+        {
+            writer.Type(e.GetType(), false);
+            writer.Space();
+            writer.WriteNodeName(e.GetNode());
+            writer.EndStatement();
+        }
+    };
+
+    struct ImplementationVisitor
+    :   public BaseVisitor,
+        public Visitor<Class>,
+        public Visitor<FunctionOverload>,
+        public Visitor<Variable>,
+        public Visitor<Typedef>
+    {
+        CppFileWriter & writer;
+
+        ImplementationVisitor(CppFileWriter & writer)
+        :   writer(writer)
+        {
+        }
+
+        virtual void Visit(Class & e)
+        {
+        }
+
+        virtual void Visit(FunctionOverload & e)
+        {
+        }
+
+        virtual void Visit(Typedef & e)
+        {
+        }
+
+        virtual void Visit(Variable & e)
+        {
+        }
+    };
+
+
+} }  // End anonymous namespace
+
+    public void writeForwardDeclaration(Element & e)
+    {
+        ForwardDeclarationVisitor visitor(writer);
+        e.Accept(visitor);
+    }
+
+    public void writeTypeDefinition(Element & e)
+    {
+        TypeDefinitionVisitor visitor(writer);
+        e.Accept(visitor);
+    }
+
+    public void writeImplementation(Element & e)
+    {
+        ImplementationVisitor visitor(writer);
+        e.Accept(visitor);
+    }
+
+};

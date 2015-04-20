@@ -16,33 +16,38 @@ class CodeText
     private CodeType codeType;
     private vector<CodeText *> dependsOn;
     private Element * element;
+    private int graphId;
     friend CodeGraph;
 
     public CodeText()
     :   codeType(CodeType::ForwardDeclaration),
         dependsOn(),
-        element(nullptr)
+        element(nullptr),
+        graphId(createNewGraphId())
     {
     }
 
     public CodeText(CodeType ct)
     :   codeType(ct),
         dependsOn(),
-        element(nullptr)
+        element(nullptr),
+        graphId(createNewGraphId())
     {
     }
 
     public CodeText(CodeType ct, Element * e)
     :   codeType(ct),
         dependsOn(),
-        element(e)
+        element(e),
+        graphId(createNewGraphId())
     {
     }
 
     public CodeText(const CodeText & other)
     :   codeType(other.codeType),
         dependsOn(),
-        element(other.element)
+        element(other.element),
+        graphId(other.graphId)
     {
     }
 
@@ -51,6 +56,7 @@ class CodeText
         this->codeType = other.codeType;
         this->element = other.element;
 		this->dependsOn = other.dependsOn;
+        this->graphId = other.graphId;
         return *this;
     }
 
@@ -59,7 +65,13 @@ class CodeText
         this->codeType = other.codeType;
         this->element = other.element;
         this->dependsOn = std::move(other.dependsOn);
+        this->graphId = other.graphId;
         return *this;
+    }
+
+    public bool operator==(const CodeText & other)
+    {
+        return this->graphId == other.graphId;
     }
 
     protected void addDependency(CodeText * newDep)
@@ -75,6 +87,13 @@ class CodeText
         dependsOn.push_back(newDep);
     }
 
+    ~hidden static int createNewGraphId()
+    {
+        // This code is not thread safe, which doesn't matter today.
+        static int counter = 0;
+        return ++ counter;
+    }
+
     public vector<CodeText *> & DependsOn()
     {
         return dependsOn;
@@ -88,6 +107,23 @@ class CodeText
     public const Element * GetElement() const
     {
         return element;
+    }
+
+    public int GraphId() const
+    {
+        return graphId;
+    }
+
+    public bool HasDependencyOn(CodeText & ct)
+    {
+        for(auto * element : dependsOn)
+        {
+            if (element == &ct)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public bool Initialized() const

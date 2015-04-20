@@ -1,8 +1,12 @@
 ~import Macaroni::Core::BaseVisitor;
 ~import Macaroni::Generators::Cpp::CodeGraph;
 ~import Macaroni::Generators::Cpp::CodeText;
+~import Macaroni::Generators::Cpp::CodeTextProducer;
+~import Macaroni::Generators::Cpp::CodeTextSorter;
 ~import Macaroni::Generators::Cpp::CodeType;
+~import Macaroni::Generators::Cpp::CppFileWriter;
 ~import Macaroni::Model::Cpp::Class;
+~import Macaroni::Model::Context;
 ~import std::cout;
 ~import Macaroni::Model::Element;
 ~import Macaroni::Model::ElementPtr;
@@ -51,6 +55,7 @@ class UnitFileGenerator
     private TargetPtr unit;
 
     public UnitFileGenerator(TargetPtr unit)
+    :   unit(unit)
     {
         // self.libDecl = LibraryDecl ???
         unit->CreateElementList(elementList);
@@ -73,7 +78,7 @@ class UnitFileGenerator
         public Visitor<FunctionOverload>,
         public Visitor<Variable>
     {
-        CodeText & codeText;
+        CodeText codeText;
         GeneratedFileWriterPtr writer;
         CodeGraph & graph;
 
@@ -144,7 +149,9 @@ class UnitFileGenerator
     {
         auto p = rootPath.NewPathForceSlash("thing.ufg");
         auto writer = p->CreateFile();
-        TextVisitor visitor(graph, writer);
+
+        CodeTextSorter sorter;
+        /*TextVisitor visitor(graph, writer);
         for (auto e : elementList)
         {
             writer->WriteLine(e->GetNode()->GetFullName());
@@ -152,6 +159,7 @@ class UnitFileGenerator
             visitor.codeText = {};
             if (e->Accept(visitor))
             {
+                sorter.Add(visitor.codeText);
                 writer->WriteLine("    // OK!");
                 printCodeText(writer, visitor.codeText);
             }
@@ -160,8 +168,56 @@ class UnitFileGenerator
                 writer->WriteLine("    ?!    ~'_'~ < I cannot handle this. )");
             }
             writer->WriteLine();
-        }
+        }*/
 
+        // Create header
+        for (auto e : elementList)
+        {
+            CodeText & ct = graph.Get(e.get(), CodeType::TypeDefinition);
+            sorter.Add(&ct);
+        }
+        vector<CodeText *> headerText = sorter.Sort();
+
+        CppFileWriter header(unit->GetContext()->GetRoot(), writer);
+        CodeTextProducer producer(header);
+
+        for (CodeText * ct : headerText)
+        {
+            if (ct)
+            {
+                if (ct->GetElement()->OwnedBy(unit))
+                {
+                    producer.Write(*ct);
+                }
+                else
+                {
+                    MACARONI_ASSERT(ct->GetElement(), "Element can't be null.");
+                    Element * e = const_cast<Element *>(ct->GetElement());
+                    header.IncludeFile(*e);
+                }
+                //writer->WriteLine(*ct);
+            }
+        }
+/*
+        writer->WriteLine("\n\nIMPLEMENTATION TIME!\n\n");
+
+        for (auto e : elementList)
+        {
+            CodeText & ct = graph.Get(e.get(), CodeType::Implementation);
+            sorter.Add(&ct);
+        }
+        vector<CodeText *> text2 = sorter.Sort();
+        for (CodeText * ct : text2)
+        {
+            if (ct)
+            {
+                writer->WriteLine(*ct);
+            }
+            else
+            {
+                writer->WriteLine("NULL? WTF?!!!!");
+            }
+        }*/
     }
 
     public string ToString()

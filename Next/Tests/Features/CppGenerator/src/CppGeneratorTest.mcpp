@@ -1,3 +1,5 @@
+~import std::vector;
+
 ~unit Hats ;
 
 class Hats
@@ -9,7 +11,7 @@ class Hats
     {
     }
 
-    public int width()
+    public int width(std::vector<double> & vec)
     {
         return w;
     }
@@ -19,6 +21,16 @@ class Hats
 void superbats(int how_many_bats)
 {
     return 5;  // There are five bats.
+}
+
+typedef std::vector<double> HellaType;
+
+void superbats(HellaType & h)
+{
+}
+
+void superbats(HellaType h)
+{
 }
 
 int ten;

@@ -1,0 +1,103 @@
+~import MACARONI_ASSERT;
+~import Macaroni::Generators::Cpp::CodeText;
+~import std::vector;
+~import std::cout;
+
+~namespace Macaroni::Generators::Cpp;
+
+class CodeTextSorter
+// Accepts an arbitrary number of CodeText items and produces a sorted list.
+{
+    ~block "cpp-include"
+    {
+        #include "boost/graph/adjacency_list.hpp"
+        #include "boost/graph/topological_sort.hpp"
+        #include <deque>
+        #include <iterator>
+    }
+
+    private vector<CodeText *> items;
+
+    public void Add(CodeText * ct)
+    {
+        MACARONI_ASSERT(ct != nullptr, "Can't add null!");
+        for (CodeText * item : items)
+        {
+            if (item == ct)
+            {
+                return;
+            }
+        }
+        items.push_back(ct);
+        for (CodeText * dep : ct->DependsOn())
+        {
+            Add(dep);
+        }
+    }
+
+    public vector<CodeText *> Sort()
+    {
+        //http://www.boost.org/doc/libs/1_57_0/libs/graph/doc/using_adjacency_list.html
+
+        struct CodeTextTag {
+            typedef boost::vertex_property_tag kind;
+        };
+        typedef boost::property<CodeTextTag, CodeText *> CodeTextProperty;
+        typedef boost::adjacency_list
+            <
+                boost::vecS,
+                boost::vecS,
+                boost::directedS,
+                CodeTextProperty
+            >
+            CodeTextGraph;
+
+        CodeTextGraph graph(items.size());
+        for (CodeText * ptr : items)
+        {
+            for (CodeText * depPtr : ptr->DependsOn())
+            {
+                if (depPtr)
+                {
+                    boost::add_edge(ptr->GraphId(), depPtr->GraphId(), graph);
+                }
+            }
+        }
+
+        boost::property_map<CodeTextGraph, CodeTextTag>::type ptrKey
+            = boost::get(CodeTextTag(), graph);
+
+        for (CodeText * ptr : items)
+        {
+            boost::put(ptrKey, ptr->GraphId(), ptr);
+        }
+        std::deque<int> results;
+        boost::topological_sort(graph, std::back_inserter(results));
+
+        vector<CodeText *> sortedList;
+        vector<CodeText *> sortedImplementationList;
+        for(auto itr = results.begin(); itr != results.end(); ++ itr)
+        {
+            CodeText * ptr = boost::get(ptrKey, *itr);
+            // Not sure why there are nulls. The learning curve for this is
+            // a bit steep.
+            if (ptr)
+            {
+                if (ptr->Type() == CodeType::Implementation)
+                {
+                    sortedImplementationList.push_back(ptr);
+                }
+                else
+                {
+                    sortedList.push_back(ptr);
+                }
+            }
+        }
+        for (auto itr = sortedImplementationList.begin();
+             itr != sortedImplementationList.end(); ++ itr)
+        {
+            sortedList.push_back(*itr);
+        }
+        return sortedList;
+    }
+};

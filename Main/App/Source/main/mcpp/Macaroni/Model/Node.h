@@ -42,6 +42,12 @@ friend void intrusive_ptr_add_ref(Node * p);
 friend void intrusive_ptr_release(Node * p);
 
 public:
+	struct NodeRelativePosition
+	{
+		std::vector<Node *> a;
+		std::vector<Node *> b;
+		int commonIndex;
+	};
 
 	bool operator==(const Node & other) const;
 
@@ -66,6 +72,10 @@ public:
 	//UnknownScopePtr FindOrCreateUnknownScope(const std::string & name);
 
 	NodePtr Find(const std::string & complexName);
+
+	/** Finds the node which this node and "other" descend from, or returns
+	 *  an empty NodePtr. */
+	NodeRelativePosition FindSharedRoot(NodePtr other);
 
 	//NamespacePtr Find(std::string & name);
 	NodePtr GetAdoptedHome();

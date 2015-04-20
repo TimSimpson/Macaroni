@@ -17,6 +17,7 @@
 #define MACARONI_MODEL_NODE_CPP
 
 #include "Node.h"
+#include <algorithm>
 #include <Macaroni/Model/Context.h>
 #include <Macaroni/Model/Element.h>
 #include <Macaroni/Exception.h>
@@ -271,6 +272,39 @@ Node * Node::findOrCreate(const std::string & name, const std::string & hFilePat
 //	}
 //}
 
+Node::NodeRelativePosition Node::FindSharedRoot(NodePtr other)
+{
+	Node::NodeRelativePosition info;
+
+	MACARONI_ASSERT(!!other, "Can't find shared root with null.");
+
+	const auto fill = [](std::vector<Node *> & list, Node * itr)
+	{
+		for (; itr != nullptr; itr = itr->scope)
+		{
+			list.push_back(itr);
+		}
+		std::reverse(list.begin(), list.end());
+	};
+	fill(info.a, this);
+	fill(info.b, other.get());
+
+	MACARONI_ASSERT(info.a.size() > 0 && info.b.size() > 0,
+		            "Unexpected vector size.");
+	MACARONI_ASSERT(info.a[0] == info.b[0], "Should be equal at element zero.");
+	MACARONI_ASSERT(info.a[0]->IsRoot(), "Should start at root.");
+
+	// 0 = Same   size=3, size-1 = 2
+	// 1 = Same
+	// 2 = Diff
+	info.commonIndex = 0;
+	while ((info.commonIndex < std::min(info.a.size(), info.b.size()) - 1)
+		    && (info.a[info.commonIndex + 1] == info.b[info.commonIndex + 1]))
+	{
+		++ info.commonIndex;
+	}
+	return info;
+}
 
 NodePtr Node::GetAdoptedHome()
 {

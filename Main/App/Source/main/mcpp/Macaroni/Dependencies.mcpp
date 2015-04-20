@@ -55,6 +55,7 @@ class boost::container::vector { ~hfile=<boost/container/vector.hpp> };
 class Macaroni::Containers::AssignVectorToConstElementVector { ~hfile=<Macaroni/Containers.h.> } //TODO: Make function
 
 
+class MACARONI_ASSERT { ~hfile=<Macaroni/ME.h> };
 class MACARONI_CHECK { ~hfile=<Macaroni/ME.h> };
 class Macaroni::Model::Cpp::ClassLuaMetaData { ~hfile=<Macaroni/Model/Cpp/ClassLua.h> };
 /*class Macaroni::Model::Cpp::ClassPtr {

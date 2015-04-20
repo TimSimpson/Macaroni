@@ -1,0 +1,207 @@
+~import Macaroni::Model::Cpp::Class;
+~import boost::format;
+~import Macaroni::Model::Element;
+~import Macaroni::Model::ElementPtr;
+~import Macaroni::Model::Node;
+~import Macaroni::Model::NodePtr;
+~import Macaroni::IO::GeneratedFileWriter;
+~import Macaroni::IO::GeneratedFileWriterPtr;
+~import std::string;
+~import Macaroni::Model::Type;
+~import Macaroni::Model::TypePtr;
+~import Macaroni::Model::Cpp::Variable;
+~import Macaroni::Model::Cpp::VariablePtr;
+~import std::set;
+~import Macaroni::Model::Cpp::Typedef;
+
+~namespace Macaroni::Generators::Cpp;
+
+
+class CppFileWriter
+// Decorates the normal text writer to handle writing C++ code to both header
+// and implementation files.
+{
+    NodePtr currentNamespace;
+    const int maxWidth;
+    set<string> includedFiles;
+    int tabSpaces;
+    GeneratedFileWriterPtr writer;
+
+    public CppFileWriter(NodePtr currentNamespace,
+                         GeneratedFileWriterPtr writer)
+    :   currentNamespace(currentNamespace),
+        maxWidth(80),
+        tabSpaces(0),
+        writer(writer)
+    {
+    }
+
+    public void BeginArgumentList()
+    {
+        writer->Write("(");
+    }
+
+    public void Comment(const std::string & text)
+    {
+        writeLine("// ", text);
+    }
+
+    public void EndArgumentList()
+    {
+        writer->Write(")");
+    }
+
+    public void EnterNamespace(NodePtr ns)
+    {
+        auto pos = currentNamespace->FindSharedRoot(ns);
+        for (int i = currentNamespace->GetDepth(); i > pos.commonIndex; -- i)
+        {   // {  MACARONI BUG
+            write(" } ");
+        }
+        writeLine();
+        const int nsDepth = ns->GetDepth();
+        for (int i = pos.commonIndex + 1; i <= nsDepth; ++ i)
+        {
+            write("namespace ", pos.b[i]->GetName(), " { ");
+            // MACARONI BUG }
+        }
+        writeLine();
+        currentNamespace = ns;
+    }
+
+    public void EndStatement()
+    {
+        writer->WriteLine(";");
+    }
+
+    public void ExitNamespaces()
+    {
+        for (int i = currentNamespace->GetDepth(); i > 0; -- i)
+        {   // {  MACARONI BUG
+            write(" } ");
+        }
+    }
+
+    public void FunctionArgument(Variable & v, bool withInitializer)
+    {
+        Type(v.GetType(), !withInitializer);
+        Space();
+        WriteNodeName(v.GetNode());
+        auto init = v.GetInitializer();
+        if (withInitializer && init.length() > 0)
+        {
+            writer->Write("=", init);
+        }
+    }
+
+    public void FunctionArgumentSeperator()
+    {
+        writer->Write(", ");
+    }
+
+    ~hidden void includeFile(string & file)
+    {
+        if (includedFiles.find(file) == includedFiles.end())
+        {
+            write("#include ", file);
+            writeLine();
+            includedFiles.insert(file);
+        }
+    }
+
+    public void IncludeFile(Element & element)
+    {
+        NodePtr node = element.GetNode();
+        // If the hfile is set, use it.
+        auto fileNamePtr = node->GetHFilePath();
+        if (fileNamePtr)
+        {
+            string file = fileNamePtr->GetName();
+            includeFile(file);
+            return;
+        }
+        else
+        {
+            // If the node was adopted, use that.
+            NodePtr adoptedHome = node->GetAdoptedHome();
+            if (adoptedHome)
+            {
+                MACARONI_ASSERT(adoptedHome->GetElementPtr(), "Element not set.");
+                IncludeFile(*(adoptedHome->GetElementPtr()));
+                return;
+            }
+            else
+            {
+                // See if this is nested under a class, if so, use that.
+                NodePtr parent = node->GetParent();
+                if (parent)
+                {
+                    if (parent->GetElementPtr<Class>())
+                    {
+                        IncludeFile(*(parent->GetElementPtr()));
+                        return;
+                    }
+                    NodePtr parentParent = parent->GetParent();
+                    if (parentParent && parentParent->GetElementPtr<Class>())
+                    {
+                        IncludeFile(*(parentParent->GetElementPtr()));
+                        return;
+                    }
+                }
+            }
+            // Finally if its a class or typedef, make up an hfile.
+            if (node->GetElementPtr<Class>()
+                || node->GetElementPtr<Typedef>())
+            {
+                includeFile(str(boost::format("%s.h")
+                                % node->GetPrettyFullName("/")));
+                return;
+            }
+        }
+    }
+
+    public void Space()
+    {
+        write(' ');
+    }
+
+    public void Type(TypePtr type, bool attemptShortName)
+    {
+        write(type->CreateCodeDefinition(currentNamespace));
+    }
+
+    template<typename... Parameters>
+    private void write(const Parameters & ... args)
+    {
+        writer->Write(args...);
+    }
+
+    public void WriteClassKeyword()
+    {
+        writer->Write("class ");
+    }
+
+    public void WriteFullNodeName(NodePtr node)
+    {
+        writer->Write(node->GetFullName());
+    }
+
+    public void WriteNodeName(NodePtr node)
+    {
+        writer->Write(node->GetName());
+    }
+
+    public void WriteSyntax(const std::string & text)
+    {
+        writer->Write(text);
+    }
+
+    template<typename... Parameters>
+    private void writeLine(const Parameters & ... args)
+    {
+
+        writer->WriteLine(args...);
+        writer->Write(std::string(tabSpaces, ' '));
+    }
+
+};
