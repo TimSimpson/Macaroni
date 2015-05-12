@@ -36,9 +36,58 @@ class CppFileWriter
     {
     }
 
+    public void Access(something)
+    {
+
+    }
+
     public void BeginArgumentList()
     {
         writer->Write("(");
+    }
+
+    public void ClassName(Class & e)
+    {
+        write(e.GetNode()->GetName());
+    }
+
+    public void ClassOrStructKeyword(Class & e)
+    {
+        write(e.IsStruct() ? "struct " : "class ");
+    }
+
+    public void ClassParentList(Class & e)
+    {
+        auto parents = e.GetParents();
+        bool seenOne = false;
+        for (auto ptr : parents)
+        {
+            if (seenOne)
+            {
+                write(": ");
+            }
+            else
+            {
+                writeLine(", ");
+            }
+            seenOne = true;
+            write(ptr->GetAccess()->CppKeyword());
+            write(" ");
+            this->Access(ptr->GetAccess());
+            if (ptr->IsVirtual())
+            {
+                write("virtual ");
+            }
+            Type(ptr->GetParent());
+        }
+        writeLine();
+    }
+
+    public void CloseBrace()
+    {
+        tabs -= 1;
+        writeLine();
+        writeLine("}");
     }
 
     public void Comment(const std::string & text)
@@ -160,9 +209,50 @@ class CppFileWriter
         }
     }
 
+    public void LibDecl()
+    {
+        // write('lib decl stuff here...')
+    }
+
+    public void OpenBrace()
+    {
+        writeLine();
+        tabs += 1;
+        writeLine("{");
+    }
+
     public void Space()
     {
         write(' ');
+    }
+
+    public void TemplateParameterList(Class & e)
+    {
+        templateParameterList(e.GetTemplateParameterList());
+    }
+
+    ~hidden void templateParameterList(NodePtr & tpl)
+    {
+        if (!tpl)
+        {
+            return;
+        }
+        write("template<");
+        bool seenOne = false;
+        tpl->IterateNodes([&seenOne, this] (TemplateTypename & tn) {
+            if (seenOne)
+            {
+                this-write(", ");
+            }
+            seenOne = true;
+            write("typename ");
+            if (tn.IsParameterPack())
+            {
+                write("... ");
+            }
+            write(tn.GetNodeRef().GetName());
+        });
+        writeLine(">");
     }
 
     public void Type(TypePtr type, bool attemptShortName)

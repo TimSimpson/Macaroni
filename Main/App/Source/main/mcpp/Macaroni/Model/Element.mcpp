@@ -77,6 +77,12 @@ class Element
 		return node;
 	}
 
+	// Returns a Reference to the Node. Unsafe.
+	public Node & GetNodeRef() const
+	{
+		return *node;
+	}
+
 	/** Gets the adopted home of this Element, or just the parent. */
 	public Element * GetAdoptedParent() const
 	{

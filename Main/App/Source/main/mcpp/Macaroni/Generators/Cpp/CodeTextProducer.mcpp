@@ -109,7 +109,25 @@ class CodeTextProducer
 
         virtual void Visit(Class & e)
         {
-            writer.Comment(" A class should go here. ");
+            NodePtr tpl = e.GetTemplateParameterList();
+            writer.Comment(str(format("Define class %s") % e.GetNode()->GetName()));
+            writer.TemplateParameterList(e);
+            writer.ClassOrStructKeyword(e);
+            if (!tpl)
+            {
+                writer.LibDecl();
+            }
+            writer.ClassName();
+            writer.ClassParentList();
+            writer.OpenBrace();
+
+
+            // classFriends?
+
+            // iterateMembers?
+            writer.CloseBrace();
+            writer.Comment(str(format("End of class %s") % e.GetNode()->GetName()));
+
         }
 
         virtual void Visit(FunctionOverload & e)
