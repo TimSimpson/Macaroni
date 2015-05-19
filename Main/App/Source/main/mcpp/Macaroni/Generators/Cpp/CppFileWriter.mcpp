@@ -131,6 +131,19 @@ class CppFileWriter
         }
     }
 
+    public void FriendClass(Class & c)
+    {
+        write("friend class ::");
+        write(c.GetNodeRef().FullName());
+        writeLine(";");
+    }
+
+    public void FriendFunctionOverload(FunctionOverload & fo)
+    {
+        write("friend ");
+
+    }
+
     public void FunctionArgument(Variable & v, bool withInitializer)
     {
         Type(v.GetType(), !withInitializer);

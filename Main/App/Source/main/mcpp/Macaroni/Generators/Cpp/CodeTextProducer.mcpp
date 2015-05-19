@@ -123,6 +123,30 @@ class CodeTextProducer
 
 
             // classFriends?
+            // Print friend declarations
+            for (auto nodePtr & n : e.GetFriendNodes())
+            {
+                auto c = n->GetElement<ClassPtr>();
+                if (c)
+                {
+                    writer.FriendClass(c);
+                }
+                else
+                {
+                    auto fo = n->GetElement<FunctionOverloadPtr>();
+                    if (fo)
+                    {
+
+                        writer.FriendFunctionOverload(fo);
+                    }
+                    else
+                    {
+                        writer.Comment(format("I don't know how to make this "
+                                              "thing my friend: %s")
+                                       % n->GetFullName());
+                    }
+                }
+            }
 
             // iterateMembers?
             writer.CloseBrace();
