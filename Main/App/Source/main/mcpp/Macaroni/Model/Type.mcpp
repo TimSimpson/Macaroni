@@ -263,6 +263,14 @@ class Type
 			seenOneNode = true;
 		}
 
+		// Finally, bring out the type modifiers
+		// Have to capture it in a string first to see if we need to pad it
+		// with a space.
+		string mod = lexical_cast<string>(this->GetModifiers());
+		if (mod.size() > 0)
+		{
+			code << " " << mod;
+		}
 	}
 
 	public inline const vector<unique_ptr<TypeArgumentList>> &

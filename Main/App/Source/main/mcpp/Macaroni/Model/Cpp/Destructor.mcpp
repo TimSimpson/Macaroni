@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+~import Macaroni::Core::BaseVisitor;
 ~import boost::intrusive_ptr;
 ~import Macaroni::Model::Cpp::Class;
 ~import Macaroni::Model::Cpp::DestructorPtr;
@@ -41,6 +42,7 @@
 ~import Macaroni::Model::Cpp::TypeInfo;
 ~import Macaroni::Model::Cpp::VariablePtr;
 ~import Macaroni::Model::Cpp::VariableAssignment;
+~import Macaroni::Core::Visitor;
 
 ~namespace Macaroni::Model::Cpp;
 
@@ -66,6 +68,11 @@ class Destructor : public Function
     }
 
     public virtual ~Destructor() = default; //TODO: override
+
+    public virtual bool Accept(BaseVisitor & v)
+    {
+        return Visit(*this, v);
+    }
 
     public static DestructorPtr Create(
         NodePtr home, bool isInline, AccessPtr access, bool isVirtual,

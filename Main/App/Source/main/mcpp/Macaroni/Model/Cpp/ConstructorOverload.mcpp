@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+~import Macaroni::Core::BaseVisitor;
 ~import Macaroni::Model::Cpp::Constructor;
 ~import Macaroni::Model::Cpp::ConstructorPtr;
 ~import Macaroni::Model::Element;
@@ -34,6 +35,7 @@
 ~import Macaroni::Model::Cpp::Variable;
 ~import Macaroni::Model::Cpp::VariablePtr;
 ~import Macaroni::Model::Cpp::VariableAssignment;
+~import Macaroni::Core::Visitor;
 
 
 ~namespace Macaroni::Model::Cpp;
@@ -68,6 +70,11 @@ class ConstructorOverload : public FunctionOverload
 	}
 
 	public virtual ~ConstructorOverload() = default; //TODO: override
+
+	public virtual bool Accept(BaseVisitor & v)
+    {
+        return Visit(*this, v);
+    }
 
 	public void AddAssignment(const VariableAssignment & assignment)
 	{

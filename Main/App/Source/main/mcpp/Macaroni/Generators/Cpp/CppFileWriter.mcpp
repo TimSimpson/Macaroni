@@ -1,12 +1,26 @@
+~import Macaroni::Model::Cpp::Access;
+~import Macaroni::Model::Cpp::AccessPtr;
 ~import Macaroni::Model::Cpp::Class;
-~import boost::format;
+~import Macaroni::Model::Cpp::ClassParent;
+~import Macaroni::Model::Cpp::ClassParentPtr;
+~import Macaroni::Model::Cpp::ClassParentList;
+~import Macaroni::Model::Cpp::ClassParentListPtr;
+~import Macaroni::Model::Cpp::ConstructorOverload;
+~import Macaroni::Model::Cpp::ConstructorOverloadPtr;
+~import Macaroni::Model::Context;
 ~import Macaroni::Model::Element;
 ~import Macaroni::Model::ElementPtr;
+~import boost::format;
+~import Macaroni::Model::Cpp::FunctionOverload;
+~import Macaroni::Model::Cpp::FunctionOverloadPtr;
 ~import Macaroni::Model::Node;
 ~import Macaroni::Model::NodePtr;
 ~import Macaroni::IO::GeneratedFileWriter;
 ~import Macaroni::IO::GeneratedFileWriterPtr;
+~import boost::optional;
 ~import std::string;
+~import Macaroni::Model::Cpp::TemplateTypename;
+~import Macaroni::Model::Cpp::TemplateTypenamePtr;
 ~import Macaroni::Model::Type;
 ~import Macaroni::Model::TypePtr;
 ~import Macaroni::Model::Cpp::Variable;
@@ -24,26 +38,45 @@ class CppFileWriter
     NodePtr currentNamespace;
     const int maxWidth;
     set<string> includedFiles;
-    int tabSpaces;
+    optional<string> libDecl;
+    int lineNumber;
+    NodePtr rootNs;
+    int tabs;
     GeneratedFileWriterPtr writer;
 
-    public CppFileWriter(NodePtr currentNamespace,
+    public CppFileWriter(optional<string> libDecl,
+                         NodePtr currentNamespace,
                          GeneratedFileWriterPtr writer)
     :   currentNamespace(currentNamespace),
+        libDecl(libDecl),
+        lineNumber(1),
         maxWidth(80),
-        tabSpaces(0),
+        rootNs(currentNamespace->GetContext()->GetRoot()),
+        tabs(0),
         writer(writer)
     {
     }
 
-    public void Access(something)
+    public void Access(AccessPtr access)
     {
-
+        if (access)
+        {
+            write(access->CppKeyword());
+        }
     }
 
     public void BeginArgumentList()
     {
-        writer->Write("(");
+        write("(");
+    }
+
+    public void ClassMemberAccess(AccessPtr access)
+    {
+        if (access)
+        {
+            write(access->CppKeyword());
+            write(": ");
+        }
     }
 
     public void ClassName(Class & e)
@@ -58,36 +91,46 @@ class CppFileWriter
 
     public void ClassParentList(Class & e)
     {
-        auto parents = e.GetParents();
+        ClassParentListPtr parents = e.GetParents();
         bool seenOne = false;
-        for (auto ptr : parents)
+        MACARONI_ASSERT(parents, "Parents is null.");
+        for (ClassParent & parent : *parents)
         {
-            if (seenOne)
+            if (!seenOne)
             {
-                write(": ");
+                writeLine("");
+                write(":   ");
+                seenOne = true;
             }
             else
             {
-                writeLine(", ");
+                writeLine("");
+                write(",   ");
             }
-            seenOne = true;
-            write(ptr->GetAccess()->CppKeyword());
+            this->Access(parent.GetAccess());
             write(" ");
-            this->Access(ptr->GetAccess());
-            if (ptr->IsVirtual())
+            if (parent.IsVirtual())
             {
                 write("virtual ");
             }
-            Type(ptr->GetParent());
+            Type(parent.GetParent(), true);
         }
-        writeLine();
     }
 
     public void CloseBrace()
     {
         tabs -= 1;
         writeLine();
+        // {  Appeasing Macaroni
         writeLine("}");
+    }
+
+    public void CloseBraceForClass()
+    {
+        tabs -= 1;
+        writeLine();
+        // {  Appeasing Macaroni
+        writeLine("};");
     }
 
     public void Comment(const std::string & text)
@@ -95,23 +138,64 @@ class CppFileWriter
         writeLine("// ", text);
     }
 
+    public void ConstructorInitializerList(ConstructorOverload & co)
+    {
+        bool seenOne = false;
+        for (signed int i = 0; i < co.GetAssignmentCount(); ++ i)
+        {
+            auto va = co.GetAssignment(i);
+            if (!seenOne)
+            {
+                write(": ");
+                seenOne = true;
+            }
+            else
+            {
+                writeLine(", ");
+            }
+            write(va.GetVariable()->GetName());
+            write("(");
+            write(va.GetExpression());
+            write(")");
+        }
+        if (seenOne)
+        {
+            writeLine();
+        }
+    }
+
+    public void DestructorName(Class & c)
+    {
+        write("~");
+        write(c.GetNodeRef().GetName());
+    }
+
     public void EndArgumentList()
     {
-        writer->Write(")");
+        write(")");
     }
 
     public void EnterNamespace(NodePtr ns)
     {
         auto pos = currentNamespace->FindSharedRoot(ns);
-        for (int i = currentNamespace->GetDepth(); i > pos.commonIndex; -- i)
+        //writeLine("MARIO, the common Index is ", pos.commonIndex);
+        int index;
+        for (index = pos.a.size() - 1;
+             index > pos.commonIndex;
+             -- index)
         {   // {  MACARONI BUG
-            write(" } ");
+            write("} ");
         }
         writeLine();
-        const int nsDepth = ns->GetDepth();
-        for (int i = pos.commonIndex + 1; i <= nsDepth; ++ i)
+        //writeLine("MARIO pos.a.size() ", pos.a.size());
+        //writeLine("MARIO pos.b.size() ", pos.b.size());
+
+        for (++ index;
+             index <= pos.b.size() - 1;
+             ++ index)
         {
-            write("namespace ", pos.b[i]->GetName(), " { ");
+            //write("namespace ", index, " MARIO ", pos.b[index]->GetName(), );
+            write("namespace ", pos.b[index]->GetName(), " { ");
             // MACARONI BUG }
         }
         writeLine();
@@ -120,7 +204,7 @@ class CppFileWriter
 
     public void EndStatement()
     {
-        writer->WriteLine(";");
+        writeLine(";");
     }
 
     public void ExitNamespaces()
@@ -131,17 +215,37 @@ class CppFileWriter
         }
     }
 
-    public void FriendClass(Class & c)
+    public void ExplicitKeyword()
     {
-        write("friend class ::");
-        write(c.GetNodeRef().FullName());
-        writeLine(";");
+        write("explicit ");
     }
 
-    public void FriendFunctionOverload(FunctionOverload & fo)
+    public void FriendClassName(Class & c)
+    {
+        write("class ");
+        NodePtr parent = c.GetNodeRef().GetParent();
+        if (parent != nullptr &&
+                (*parent == *currentNamespace
+                 || *parent == c.GetNodeRef())
+           )
+        {
+            write(c.GetNodeRef().GetName());
+        }
+        else
+        {
+            write("::");
+            write(c.GetNodeRef().GetFullName());
+        }
+    }
+
+    public void FriendFunctionOverloadName(FunctionOverload & fo)
+    {
+        functionOverloadDefinition(fo, true, true, false);
+    }
+
+    public void FriendKeyword()
     {
         write("friend ");
-
     }
 
     public void FunctionArgument(Variable & v, bool withInitializer)
@@ -152,19 +256,178 @@ class CppFileWriter
         auto init = v.GetInitializer();
         if (withInitializer && init.length() > 0)
         {
-            writer->Write("=", init);
+            write("=", init);
         }
+    }
+
+    public void FunctionArgumentList(FunctionOverload & fo,
+                                     bool writeDefaultArgs)
+    {
+        BeginArgumentList();
+        auto args = fo.GetArguments();
+        bool seenOne = false;
+        for (auto arg : *args)
+        {
+            if (seenOne)
+            {
+                FunctionArgumentSeperator();
+            }
+            Variable * v = arg->GetElementPtr<Variable>();
+            MACARONI_ASSERT(v, "null var for argument?");
+            FunctionArgument(*v, writeDefaultArgs);
+            seenOne = true;
+        }
+        EndArgumentList();
     }
 
     public void FunctionArgumentSeperator()
     {
-        writer->Write(", ");
+        write(", ");
+    }
+
+    public void FunctionCodeBlock(FunctionOverload & fo)
+    {
+        MACARONI_ASSERT(fo.HasCodeBlock(),
+                        "Missing function overload code block.");
+        auto cb = fo.GetCodeBlock();
+        auto srcPtr = fo.GetCodeSource();
+        MACARONI_ASSERT(srcPtr, "Source pointer is nil?");
+        auto redirect = fo.CodeBlockShouldAddRedirect();
+        OpenBrace();
+        writeLine();
+        if (redirect)
+        {
+            write("#line ");
+            write(srcPtr->GetLine());
+            write(" \"");
+            write(srcPtr->GetFileName()->GetName());
+            writeLine("\"");
+        }
+        writeLine(cb);
+
+        write("#line ");
+        write(lineNumber);
+        write(" \"");
+        write(writer->GetFilePath());
+        writeLine("\"");
+
+        CloseBrace();
+    }
+
+    public void FunctionExceptionSpecifier(FunctionOverload & fo)
+    {
+        auto es = fo.GetExceptionSpecifier();
+        if (es)
+        {
+            write(" ");
+            write(es.get().GetCodeText());
+        }
+    }
+
+    public void FunctionHeaderBody(FunctionOverload & fo)
+    {
+        functionHeaderBody(fo);
+    }
+
+    public void FunctionHeaderBody(ConstructorOverload & fo)
+    {
+        functionHeaderBody(fo);
+    }
+
+    template<typename FunctionOverloadType>
+    ~hidden void functionHeaderBody(FunctionOverloadType & fo)
+    {
+        if (fo.IsPureVirtual())
+        {
+            writeLine(" = 0;");
+        }
+        else if (fo.UsesDefault())
+        {
+            writeLine(" = default;");
+        }
+        else if (fo.IsDeleted())
+        {
+            writeLine(" = delete;");
+        }
+        else if (fo.IsInline())
+        {
+            functionHeaderBodyInlineCodeBlock(fo);
+        }
+        else
+        {
+            writeLine(";");
+        }
+    }
+
+    ~hidden void functionHeaderBodyInlineCodeBlock(ConstructorOverload & fo)
+    {
+        ConstructorInitializerList(fo);
+        FunctionCodeBlock(fo);
+    }
+
+    ~hidden void functionHeaderBodyInlineCodeBlock(FunctionOverload & fo)
+    {
+        FunctionCodeBlock(fo);
+    }
+
+    public void FunctionOverloadDefinition(FunctionOverload & fo)
+    {}
+
+    ~hidden void functionOverloadDefinition(
+        FunctionOverload & fo, bool calledInsideClassDef,
+        bool calledForFriendDef, bool writeDefaultArgs)
+    {
+        auto access = fo.GetAccess();
+        if (access->VisibleInLibrary() && this->libDecl && !calledInsideClassDef
+            && !fo.GetTemplateParameterList())
+        {
+            LibDecl();
+            writeLine();
+        }
+        if (fo.IsStatic())
+        {
+            StaticKeyword();
+        }
+        if (fo.UsesInlineKeyword())
+        {
+            InlineKeyword();
+        }
+        Type(fo.GetReturnType(), true);
+        if (!calledForFriendDef)
+        {
+            write(" ");
+            write(fo.GetNodeRef().GetName());
+        }
+        else
+        {
+            write(" (::");
+            write(fo.GetNodeRef().GetFullName());
+            write(") ");
+        }
+        FunctionArgumentList(fo, writeDefaultArgs);
+        write(")");
+        if (fo.IsConst())
+        {
+            write(" const");
+        }
+        FunctionExceptionSpecifier(fo);
+        if (fo.UsesOverrideKeyword())
+        {
+            write(" override");
+        }
+        auto trt = fo.GetTrailingReturnType();
+        if (trt)
+        {
+            write(" -> ");
+            write(trt.get());
+        }
     }
 
     ~hidden void includeFile(string & file)
     {
         if (includedFiles.find(file) == includedFiles.end())
         {
+            EnterNamespace(rootNs);
             write("#include ", file);
             writeLine();
             includedFiles.insert(file);
@@ -222,9 +485,18 @@ class CppFileWriter
         }
     }
 
+    public void InlineKeyword()
+    {
+        write("inline ");
+    }
+
     public void LibDecl()
     {
-        // write('lib decl stuff here...')
+        if (libDecl)
+        {
+            write(libDecl.get());
+            write(" ");
+        }
     }
 
     public void OpenBrace()
@@ -232,11 +504,17 @@ class CppFileWriter
         writeLine();
         tabs += 1;
         writeLine("{");
+        // Appeasing macaroni...  }
     }
 
     public void Space()
     {
         write(' ');
+    }
+
+    public void StaticKeyword()
+    {
+        write("static ");
     }
 
     public void TemplateParameterList(Class & e)
@@ -252,10 +530,28 @@ class CppFileWriter
         }
         write("template<");
         bool seenOne = false;
-        tpl->IterateNodes([&seenOne, this] (TemplateTypename & tn) {
+        for (unsigned int i = 0; i < tpl->GetChildCount(); ++ i)
+        {
+            auto var = tpl->GetChild(i)->GetElementPtr<TemplateTypename>();
+            if (var)
+            {
+                if (seenOne)
+                {
+                    this->write(", ");
+                }
+                seenOne = true;
+                write("typename ");
+                if (var->IsParameterPack())
+                {
+                    write("... ");
+                }
+                write(var->GetNodeRef().GetName());
+            }
+        }
+        /*tpl->IterateNodes([&seenOne, this] (TemplateTypename & tn) {
             if (seenOne)
             {
-                this-write(", ");
+                this->write(", ");
             }
             seenOne = true;
             write("typename ");
@@ -264,13 +560,23 @@ class CppFileWriter
                 write("... ");
             }
             write(tn.GetNodeRef().GetName());
-        });
+        });*/
         writeLine(">");
     }
 
     public void Type(TypePtr type, bool attemptShortName)
     {
         write(type->CreateCodeDefinition(currentNamespace));
+    }
+
+    public void TypedefKeyword()
+    {
+        write("typedef ");
+    }
+
+    public void VirtualKeyword()
+    {
+        write("virtual ");
     }
 
     template<typename... Parameters>
@@ -304,7 +610,8 @@ class CppFileWriter
     {
 
         writer->WriteLine(args...);
-        writer->Write(std::string(tabSpaces, ' '));
+        ++ lineNumber;
+        writer->Write(std::string(tabs * 4, ' '));
     }
 
 };

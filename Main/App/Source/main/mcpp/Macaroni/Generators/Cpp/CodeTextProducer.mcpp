@@ -1,12 +1,21 @@
 ~import Macaroni::Core::BaseVisitor;
+~import Macaroni::Model::Cpp::Class;
+~import Macaroni::Model::Cpp::ClassPtr;
 ~import Macaroni::Generators::Cpp::CodeText;
 ~import Macaroni::Generators::Cpp::CodeType;
 ~import Macaroni::Model::Cpp::Class;
 ~import Macaroni::Generators::Cpp::CppFileWriter;
+~import Macaroni::Model::Cpp::Constructor;
+~import Macaroni::Model::Cpp::ConstructorPtr;
+~import Macaroni::Model::Cpp::ConstructorOverload;
+~import Macaroni::Model::Cpp::ConstructorOverloadPtr;
+~import Macaroni::Model::Cpp::Destructor;
 ~import Macaroni::Model::Element;
 ~import Macaroni::Model::ElementPtr;
 ~import boost::format;
+~import Macaroni::Model::Cpp::Function;
 ~import Macaroni::Model::Cpp::FunctionOverload;
+~import Macaroni::Model::Cpp::FunctionOverloadPtr;
 ~import Macaroni::Model::Node;
 ~import Macaroni::Model::NodePtr;
 ~import Macaroni::Model::Cpp::Typedef;
@@ -93,17 +102,26 @@ class CodeTextProducer
         }
     };
 
+
+
     struct TypeDefinitionVisitor
     :   public BaseVisitor,
         public Visitor<Class>,
+        public Visitor<Constructor>,
+        public Visitor<ConstructorOverload>,
+        public Visitor<Destructor>,
+        public Visitor<Function>,
         public Visitor<FunctionOverload>,
         public Visitor<Variable>,
         public Visitor<Typedef>
     {
+        Class * owningClass;
         CppFileWriter & writer;
 
-        TypeDefinitionVisitor(CppFileWriter & writer)
-        :   writer(writer)
+        TypeDefinitionVisitor(CppFileWriter & writer,
+                              Class * owningClass=nullptr)
+        :   owningClass(owningClass),
+            writer(writer)
         {
         }
 
@@ -111,76 +129,185 @@ class CodeTextProducer
         {
             NodePtr tpl = e.GetTemplateParameterList();
             writer.Comment(str(format("Define class %s") % e.GetNode()->GetName()));
+
+            if (!owningClass)
+            {
+                writer.EnterNamespace(e.GetNode()->GetParent());
+            }
+
             writer.TemplateParameterList(e);
             writer.ClassOrStructKeyword(e);
             if (!tpl)
             {
                 writer.LibDecl();
             }
-            writer.ClassName();
-            writer.ClassParentList();
+            writer.ClassName(e);
+            writer.ClassParentList(e);
             writer.OpenBrace();
 
 
             // classFriends?
             // Print friend declarations
-            for (auto nodePtr & n : e.GetFriendNodes())
+            for (auto & n : *(e.GetFriendNodes()))
             {
                 auto c = n->GetElement<ClassPtr>();
                 if (c)
                 {
-                    writer.FriendClass(c);
+                    writer.FriendKeyword();
+                    writer.FriendClassName(*c);
+                    writer.EndStatement();
                 }
                 else
                 {
                     auto fo = n->GetElement<FunctionOverloadPtr>();
                     if (fo)
                     {
-
-                        writer.FriendFunctionOverload(fo);
+                        writer.FriendKeyword();
+                        writer.FriendFunctionOverloadName(*fo);
                     }
                     else
                     {
-                        writer.Comment(format("I don't know how to make this "
-                                              "thing my friend: %s")
-                                       % n->GetFullName());
+                        writer.Comment(str(format("I don't know how to make this "
+                                                  "thing my friend: %s")
+                                           % n->GetFullName()));
                     }
                 }
             }
 
+            Node & classNode = e.GetNodeRef();
+            for (unsigned int i = 0; i < classNode.GetChildCount(); ++ i)
+            {
+                NodePtr child = classNode.GetChild(i);
+                ElementPtr childElement = child->GetElement();
+                if (childElement)
+                {
+                    TypeDefinitionVisitor cgev(writer, &e);
+                    childElement->Accept(cgev);
+                }
+            }
             // iterateMembers?
-            writer.CloseBrace();
+            writer.CloseBraceForClass();
             writer.Comment(str(format("End of class %s") % e.GetNode()->GetName()));
 
         }
 
+        virtual void Visit(Constructor & c)
+        {
+            auto func = [this](ConstructorOverload & co)
+            {
+                this->Visit(co);
+            };
+
+            c.GetNodeRef().IterateNodes<ConstructorOverload, decltype(func)>(func);
+        }
+
+        virtual void Visit(ConstructorOverload & co)
+        {
+            MACARONI_ASSERT(owningClass != nullptr, "Null owner for ctor?");
+            writer.ClassMemberAccess(co.GetAccess());
+            if (co.IsVirtual())
+            {
+                writer.VirtualKeyword();
+            }
+            if (co.UsesInlineKeyword())
+            {
+                writer.InlineKeyword();
+            }
+            if (co.IsExplicit())
+            {
+                writer.ExplicitKeyword();
+            }
+            writer.ClassName(*owningClass);
+            writer.FunctionArgumentList(co, true);
+            writer.FunctionExceptionSpecifier(co);
+            writer.FunctionHeaderBody(co);
+        }
+
+        virtual void Visit(Destructor & co)
+        {
+            MACARONI_ASSERT(owningClass != nullptr, "Null owner for dtor?");
+            FunctionOverloadPtr foPtr = co.GetFunctionOverload();
+            MACARONI_ASSERT(foPtr, "Destructor's function overload is null?");
+            FunctionOverload & fo = *foPtr;
+
+            writer.ClassMemberAccess(fo.GetAccess());
+            if (fo.IsVirtual())
+            {
+                writer.VirtualKeyword();
+            }
+            if (fo.UsesInlineKeyword())
+            {
+                writer.InlineKeyword();
+            }
+            writer.DestructorName(*owningClass);
+            writer.FunctionArgumentList(fo, true);
+            writer.FunctionExceptionSpecifier(fo);
+            writer.FunctionHeaderBody(fo);
+        }
+
+        virtual void Visit(Function & f)
+        {
+            auto func = [this](FunctionOverload & fo)
+            {
+                this->Visit(fo);
+            };
+
+            f.GetNodeRef().IterateNodes<FunctionOverload, decltype(func)>(func);
+        }
+
         virtual void Visit(FunctionOverload & e)
         {
-            writer.EnterNamespace(e.GetNode()->GetParent()->GetParent());
+            if (!owningClass)
+            {
+                writer.EnterNamespace(e.GetNode()->GetParent()->GetParent());
+            }
+            else
+            {
+                writer.ClassMemberAccess(e.GetAccess());
+            }
+            if (e.IsStatic())
+            {
+                writer.StaticKeyword();
+            }
+            if (e.IsVirtual())
+            {
+                writer.VirtualKeyword();
+            }
+            if (e.UsesInlineKeyword())
+            {
+                writer.InlineKeyword();
+            }
             writer.Type(e.GetReturnType(), false);
             writer.Space();
             writer.WriteNodeName(e.GetNode()->GetParent());
-            writer.BeginArgumentList();
-            auto args = e.GetArguments();
-            bool seenOne = false;
-            for (auto arg : *args)
-            {
-                if (seenOne)
-                {
-                    writer.FunctionArgumentSeperator();
-                }
-                Variable * v = arg->GetElementPtr<Variable>();
-                MACARONI_ASSERT(v, "null var for argument?");
-                writer.FunctionArgument(*v, true);
-                seenOne = true;
-            }
-            writer.EndArgumentList();
-            writer.EndStatement();
+            //writer.BeginArgumentList();
+            //auto args = e.GetArguments();
+            //bool seenOne = false;
+            //for (auto arg : *args)
+            //{
+            //    if (seenOne)
+            //    {
+            //        writer.FunctionArgumentSeperator();
+            //    }
+            //    Variable * v = arg->GetElementPtr<Variable>();
+            //    MACARONI_ASSERT(v, "null var for argument?");
+            //    writer.FunctionArgument(*v, true);
+            //    seenOne = true;
+            //}
+            //writer.EndArgumentList();
+            writer.FunctionArgumentList(e, true);
+            writer.FunctionExceptionSpecifier(e);
+            writer.FunctionHeaderBody(e);
         }
 
         virtual void Visit(Typedef & e)
         {
+            if (owningClass)
+            {
+                writer.ClassMemberAccess(e.GetAccess());
+            }
             writer.EnterNamespace(e.GetNode()->GetParent());
+            writer.TypedefKeyword();
             writer.Type(e.GetType(), false);
             writer.Space();
             writer.WriteNodeName(e.GetNode());
@@ -189,6 +316,10 @@ class CodeTextProducer
 
         virtual void Visit(Variable & e)
         {
+            if (owningClass)
+            {
+                writer.ClassMemberAccess(e.GetAccess());
+            }
             writer.Type(e.GetType(), false);
             writer.Space();
             writer.WriteNodeName(e.GetNode());

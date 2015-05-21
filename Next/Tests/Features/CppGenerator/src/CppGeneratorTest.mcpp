@@ -1,6 +1,9 @@
+~import SuperHatNamespace::Hats;
 ~import std::vector;
 
 ~unit Hats ;
+
+namespace SuperHatNamespace {
 
 class Hats
 {
@@ -15,8 +18,19 @@ class Hats
     {
         return w;
     }
+
+    public ~Hats()
+    {
+        // I will destroy the turtles!
+    }
+
+    public inline int two() const
+    {
+        return 2;
+    }
 };
 
+}
 
 void superbats(int how_many_bats)
 {
@@ -25,7 +39,7 @@ void superbats(int how_many_bats)
 
 typedef std::vector<double> HellaType;
 
-void superbats(HellaType & h)
+void superbats(const HellaType & h)
 {
 }
 

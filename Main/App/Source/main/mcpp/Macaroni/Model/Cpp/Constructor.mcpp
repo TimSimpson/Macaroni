@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+~import Macaroni::Core::BaseVisitor;
 ~import Macaroni::Model::Element;
 ~import Macaroni::Model::Cpp::Function;
 ~import boost::intrusive_ptr;
@@ -24,6 +25,7 @@
 ~import Macaroni::Model::Cpp::Variable;
 ~import Macaroni::Model::Cpp::VariablePtr;
 ~import Macaroni::Model::Cpp::VariableAssignment;
+~import Macaroni::Core::Visitor;
 
 ~namespace Macaroni::Model::Cpp;
 
@@ -40,6 +42,11 @@ class Constructor : public Function
     }
 
     public virtual ~Constructor() = default; //TODO: override
+
+    public virtual bool Accept(BaseVisitor & v)
+    {
+        return Visit(*this, v);
+    }
 
 	public static ConstructorPtr Create(NodePtr host, Model::ReasonPtr reason)
     {

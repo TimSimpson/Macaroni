@@ -14,22 +14,21 @@ SimpleBoostProject{
 };
 
 local CodeGraph = require "Macaroni.Generators.Cpp.CodeGraph"
-
-local graph = CodeGraph.Create()
-
 local UnitFileGenerator = require "Macaroni.Generators.Cpp.Unit.UnitFileGenerator"
---project.
---local ug = UnitFileGenerator.Create()
-
-local unit = project:GetTarget("Hats")
-local ug = UnitFileGenerator.Create(unit)
---print("Unit generator = " .. ug)
 
 local newPath = function(subPath)
     local p = Path.New(getWorkingDirectory())
     return p:NewPathForceSlash(subPath)
 end
 
+
+
+local graph = CodeGraph.Create()
+local unit = project:GetTarget("Hats")
+local ug = UnitFileGenerator.Create(unit)
+--print("Unit generator = " .. ug)
+
+
 local output = newPath("target")
 
-ug:Generate(graph, output);
+ug:Generate(graph, "LIBDECL_THING", output);

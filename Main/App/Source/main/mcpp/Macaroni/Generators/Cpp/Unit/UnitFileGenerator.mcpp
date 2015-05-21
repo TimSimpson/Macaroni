@@ -144,7 +144,7 @@ class UnitFileGenerator
         }
     }
 
-    public void Generate(CodeGraph & graph, Path & rootPath)
+    public void Generate(CodeGraph & graph, string libDecl, Path & rootPath)
         @LuaFunction "Generate"
     {
         auto p = rootPath.NewPathForceSlash("thing.ufg");
@@ -178,7 +178,7 @@ class UnitFileGenerator
         }
         vector<CodeText *> headerText = sorter.Sort();
 
-        CppFileWriter header(unit->GetContext()->GetRoot(), writer);
+        CppFileWriter header(libDecl, unit->GetContext()->GetRoot(), writer);
         CodeTextProducer producer(header);
 
         for (CodeText * ct : headerText)
