@@ -58,6 +58,7 @@ class Macaroni::Containers::AssignVectorToConstElementVector { ~hfile=<Macaroni/
 
 class MACARONI_ASSERT { ~hfile=<Macaroni/ME.h> };
 class MACARONI_CHECK { ~hfile=<Macaroni/ME.h> };
+class Macaroni::Model::Block { ~hfile=<Macaroni/Model/Block.h> };
 class Macaroni::Model::Cpp::ClassLuaMetaData { ~hfile=<Macaroni/Model/Cpp/ClassLua.h> };
 /*class Macaroni::Model::Cpp::ClassPtr {
 	~hfile=<Macaroni/Model/Cpp/ClassPtr.h>

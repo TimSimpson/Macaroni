@@ -16,7 +16,18 @@ class CodeTextSorter
         #include <iterator>
     }
 
+    private CodeText * divTop;
+    private CodeText * divImpl;
+    private CodeText * divBottom;
     private vector<CodeText *> items;
+
+    public CodeTextSorter(CodeText & divTop, CodeText & divImpl,
+                          CodeText & divBottom)
+    :   divTop(&divTop),
+        divImpl(&divImpl),
+        divBottom(&divBottom)
+    {
+    }
 
     public void Add(CodeText * ct)
     {
@@ -53,8 +64,55 @@ class CodeTextSorter
             CodeTextGraph;
 
         CodeTextGraph graph(CodeText::MaxGraphId());
+
+        // Add a dependency from the implementation to the top, in the rare
+        // event there are no forward decls or typedefs.
+        boost::add_edge(divImpl->GraphId(), divTop->GraphId(), graph);
+        // Add dependency from divider bottom to implementation start in the
+        // event there are no impls.
+        boost::add_edge(divBottom->GraphId(), divImpl->GraphId(), graph);
+
         for (CodeText * ptr : items)
         {
+            switch(ptr->Type())
+            {
+                case CodeType::Implementation:
+                    // Implementation has to be after impl start.
+                    boost::add_edge(ptr->GraphId(),
+                                    divImpl->GraphId(),
+                                    graph);
+                    // ensure the bottom divider stays at the bottom.
+                    boost::add_edge(divBottom->GraphId(),
+                                    ptr->GraphId(),
+                                    graph);
+                    break;
+                case CodeType::TypeDefinition:
+                case CodeType::ForwardDeclaration:
+                    // This element depends on divider top...
+                    boost::add_edge(ptr->GraphId(),
+                                    divTop->GraphId(),
+                                    graph);
+                    // ...and the implementation start depends on this.
+                    boost::add_edge(divImpl->GraphId(),
+                                    ptr->GraphId(),
+                                    graph);
+                    break;
+                case CodeType::BlockTop:
+                    // the top divider depends on this top block.
+                    boost::add_edge(divTop->GraphId(),
+                                    ptr->GraphId(),
+                                    graph);
+                    break;
+                case CodeType::BlockBottom:
+                    // The bottom block depends on bottom divider.
+                    boost::add_edge(ptr->GraphId(),
+                                    divBottom->GraphId(),
+                                    graph);
+                    break;
+                default:
+                    break;
+            }
+
             for (CodeText * depPtr : ptr->DependsOn())
             {
                 if (depPtr)
@@ -64,23 +122,35 @@ class CodeTextSorter
             }
         }
 
+        // This connects the graphIds to the actual CodeText items, so we
+        // can retrieve them.
         boost::property_map<CodeTextGraph, CodeTextTag>::type ptrKey
             = boost::get(CodeTextTag(), graph);
+
+        // Make sure it counts these...
+        boost::put(ptrKey, divTop->GraphId(), divTop);
+        boost::put(ptrKey, divImpl->GraphId(), divImpl);
+        boost::put(ptrKey, divBottom->GraphId(), divBottom);
 
         for (CodeText * ptr : items)
         {
             boost::put(ptrKey, ptr->GraphId(), ptr);
         }
+
+        // This is what calls the sort method.
         std::deque<int> results;
         boost::topological_sort(graph, std::back_inserter(results));
 
+        /*
         vector<CodeText *> sortedList;
         vector<CodeText *> sortedImplementationList;
         for(auto itr = results.begin(); itr != results.end(); ++ itr)
         {
             CodeText * ptr = boost::get(ptrKey, *itr);
-            // Not sure why there are nulls. The learning curve for this is
-            // a bit steep.
+            // There can be nulls because the divider IDs didn't correspond
+            // to an actual element. But even before that some of these numbers
+            // still pointed to null. There's parts of this sorting library
+            // I still don't fully grasp.
             if (ptr)
             {
                 if (ptr->Type() == CodeType::Implementation)
@@ -97,6 +167,22 @@ class CodeTextSorter
              itr != sortedImplementationList.end(); ++ itr)
         {
             sortedList.push_back(*itr);
+        }
+        return sortedList;*/
+
+        vector<CodeText *> sortedList;
+        for (auto itr = results.begin();
+             itr != results.end(); ++ itr)
+        {
+            CodeText * ptr = boost::get(ptrKey, *itr);
+            // There can be nulls because the divider IDs didn't correspond
+            // to an actual element. But even before that some of these numbers
+            // still pointed to null. There's parts of this sorting library
+            // I still don't fully grasp.
+            if (ptr)
+            {
+                sortedList.push_back(ptr);
+            }
         }
         return sortedList;
     }

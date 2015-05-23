@@ -51,6 +51,16 @@ class CodeText
     {
     }
 
+    // Secret constructor used by graph to create divider instances.
+    protected CodeText(int graphId)
+    :   codeType(CodeType::Divider),
+        dependsOn(),
+        element(nullptr),
+        graphId(graphId)
+    {
+
+    }
+
     public CodeText & operator=(const CodeText & other)
     {
         this->codeType = other.codeType;
@@ -96,7 +106,7 @@ class CodeText
     ~hidden static int & currentGraphId()
     {
         // This code is not thread safe, which doesn't matter today.
-        static int counter = 0;
+        static int counter = 3;
         return counter;
     }
 
@@ -108,6 +118,21 @@ class CodeText
     public const vector<CodeText *> & DependsOn() const
     {
         return dependsOn;
+    }
+
+    public static int DividerBottomId()
+    {
+        return 2;
+    }
+
+    public static int DividerImplementationStartId()
+    {
+        return 1;
+    }
+
+    public static int DividerTopId()
+    {
+        return 0;
     }
 
     public const Element * GetElement() const
@@ -136,6 +161,21 @@ class CodeText
     public bool Initialized() const
     {
         return element != nullptr;
+    }
+
+    public bool IsDividerBottom() const
+    {
+        return graphId == DividerBottomId();
+    }
+
+    public bool IsDividerImplementationStart() const
+    {
+        return graphId == DividerImplementationStartId();
+    }
+
+    public bool IsDividerTop() const
+    {
+        return graphId == DividerTopId();
     }
 
     template<typename Func>

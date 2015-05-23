@@ -1,5 +1,6 @@
 ~import Macaroni::Model::Cpp::Access;
 ~import Macaroni::Model::Cpp::AccessPtr;
+~import Macaroni::Model::Block;
 ~import Macaroni::Model::Cpp::Class;
 ~import Macaroni::Model::Cpp::ClassParent;
 ~import Macaroni::Model::Cpp::ClassParentPtr;
@@ -21,6 +22,8 @@
 ~import Macaroni::Generators::Cpp::Library::LibraryConfigGenerator;
 ~import Macaroni::Generators::Cpp::MissingCodeBlockError;
 ~import boost::optional;
+~import Macaroni::Model::Source;
+~import Macaroni::Model::SourcePtr;
 ~import std::string;
 ~import Macaroni::Model::Cpp::TemplateTypename;
 ~import Macaroni::Model::Cpp::TemplateTypenamePtr;
@@ -45,7 +48,6 @@ class CppFileWriter
     LibraryConfigGenerator libConfig;
     const int maxWidth;
     set<string> includedFiles;
-    int lineNumber;
     NodePtr primitiveRoot;
     NodePtr rootNs;
     bool startOfLine;  // True if we *just* started a line.
@@ -58,7 +60,6 @@ class CppFileWriter
     :   afterEmptyLine(true),
         currentNamespace(currentNamespace),
         libConfig(libConfig),
-        lineNumber(1),
         maxWidth(80),
         primitiveRoot(CppContext::GetPrimitives(currentNamespace->GetContext())),
         rootNs(currentNamespace->GetContext()->GetRoot()),
@@ -79,6 +80,17 @@ class CppFileWriter
     public void BeginArgumentList()
     {
         write("(");
+    }
+
+
+    public void BlockContents(Block & b)
+    {
+        redirectBegin(b.GetReasonCreated()->GetSource());
+
+        NewLineIfNeeded();
+        writeLine(b.GetCode());
+
+        redirectEnd();
     }
 
     public void ClassDefName(Class & e)
@@ -415,20 +427,14 @@ class CppFileWriter
         NewLineIfNeeded();
         if (redirect)
         {
-            write("#line ");
-            write(srcPtr->GetLine());
-            write(" \"");
-            write(srcPtr->GetFileName()->GetName());
-            writeLine("\"");
+            redirectBegin(srcPtr);
         }
         writeLine(cb);
 
-        write("#line ");
-        write(lineNumber);
-        write(" \"");
-        write(writer->GetFilePath());
-        write("\"");
-
+        if (redirect)
+        {
+            redirectEnd();
+        }
         CloseBrace();
     }
 
@@ -579,6 +585,10 @@ class CppFileWriter
     {
         writeLine("#ifndef MACARONI_COMPILE_GUARD_", unit.GetCId(), "_HPP");
         writeLine("#define MACARONI_COMPILE_GUARD_", unit.GetCId(), "_HPP");
+    }
+
+    public void HeaderStartingIncludes(UnitTarget & unit)
+    {
         if (libConfig.HasConfigFile())
         {
             write(libConfig.ConfigFileInclude());
@@ -669,6 +679,11 @@ class CppFileWriter
         }
     }
 
+    public int LineNumber() const
+    {
+        return writer->GetLineNumber();
+    }
+
     public void NewLineIfNeeded()
     {
         if (!startOfLine)
@@ -683,6 +698,27 @@ class CppFileWriter
         tabs += 1;
         writeLine("{");
         // Appeasing macaroni...  }
+    }
+
+    ~hidden void redirectBegin(SourcePtr srcPtr)
+    {
+        MACARONI_ASSERT(srcPtr, "Source pointer is nil?");
+        NewLineIfNeeded();
+        write("#line ");
+        write(srcPtr->GetLine());
+        write(" \"");
+        write(srcPtr->GetFileName()->GetName());
+        writeLine("\"");
+    }
+
+    ~hidden void redirectEnd()
+    {
+        NewLineIfNeeded();
+        write("#line ");
+        write(LineNumber());
+        write(" \"");
+        write(writer->GetFilePath());
+        writeLine("\"");
     }
 
     public void Space()
@@ -804,7 +840,6 @@ class CppFileWriter
             afterEmptyLine = true;  // This line had to be empty.
         }
         writer->WriteLine(args...);
-        ++ lineNumber;
         writer->Write(std::string(tabs * 4, ' '));
         startOfLine = true;
     }

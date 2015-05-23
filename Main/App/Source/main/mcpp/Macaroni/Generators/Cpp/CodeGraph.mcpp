@@ -1,5 +1,6 @@
 ~import std::array;
 ~import Macaroni::Core::BaseVisitor;
+~import Macaroni::Model::Block;
 ~import Macaroni::Model::Cpp::Class;
 ~import Macaroni::Model::Cpp::ClassParent;
 ~import Macaroni::Model::Cpp::ClassParentPtr;
@@ -21,6 +22,7 @@
 ~import Macaroni::Model::NodeListPtr;
 ~import Macaroni::Model::NodePtr;
 ~import boost::shared_ptr;
+~import std::string;
 ~import Macaroni::Model::Type;
 ~import Macaroni::Model::Cpp::Typedef;
 ~import Macaroni::Model::TypePtr;
@@ -58,21 +60,46 @@ class CodeGraph
 
     ~block "h"
     {
+        private: CodeText * dividers;
         private: std::unordered_map<
-            Macaroni::Model::Element *, std::array<CodeText, 3>> map;
+            Macaroni::Model::Element *, std::array<CodeText, 5>> map;
     }
 
     public CodeGraph()
-    :   map()
+    :   dividers(nullptr),
+        map()
     {
+        dividers = new CodeText[3];
+        dividers[0] = CodeText(CodeText::DividerTopId());
+        dividers[1] = CodeText(CodeText::DividerImplementationStartId());
+        dividers[2] = CodeText(CodeText::DividerBottomId());
     }
 
-    ~hidden
+    public ~CodeGraph()
+    {
+        delete[] dividers;
+    }
+
     public static CodeGraphPtr Create()
         @LuaFunction "Create"
     {
         CodeGraphPtr ptr(new CodeGraph());
         return ptr;
+    }
+
+    public CodeText & DividerTop()
+    {
+        return dividers[0];
+    }
+
+    public CodeText & DividerImplementationStart()
+    {
+        return dividers[1];
+    }
+
+    public CodeText & DividerBottom()
+    {
+        return dividers[2];
     }
 
     public CodeText & Get(Element * e, CodeType t)
@@ -118,34 +145,43 @@ class CodeGraph
         MACARONI_ASSERT(map.find(e) == map.end(),
                         "Finding an already calculated value.");
         map[e] = {
+            CodeText(CodeType::BlockTop, e),
             CodeText(CodeType::ForwardDeclaration, e),
             CodeText(CodeType::TypeDefinition, e),
             CodeText(CodeType::Implementation, e),
+            CodeText(CodeType::BlockBottom, e),
         };
 
         auto & r = map[e];
-        CodeText & fd = r[0];
-        CodeText & td = r[1];
-        CodeText & im = r[2];
+        CodeText & bt = r[0];
+        CodeText & fd = r[1];
+        CodeText & td = r[2];
+        CodeText & im = r[3];
+        CodeText & bb = r[4];
 
         struct DepVisitor
         :   public BaseVisitor,
+            public Visitor<Block>,
             public Visitor<Class>,
             public Visitor<Function>,
             public Visitor<FunctionOverload>,
             public Visitor<Variable>
         {
             CodeGraph & graph;
+            CodeText & bt;
             CodeText & fd;
             CodeText & td;
             CodeText & im;
+            CodeText & bb;
 
-            DepVisitor(CodeGraph & g, CodeText & fd, CodeText & td,
-                       CodeText & im)
+            DepVisitor(CodeGraph & g, CodeText & bt, CodeText & fd,
+                       CodeText & td, CodeText & im, CodeText & bb)
             :   graph(g),
+                bt(bt),
                 fd(fd),
                 td(td),
-                im(im)
+                im(im),
+                bb(bb)
             {}
 
             // Add the given node list Elements to the codeText as dependencies
@@ -162,6 +198,56 @@ class CodeGraph
                     }
                     CodeText & newDep = graph.get(eFriend, codeType);
                     codeText.addDependency(&newDep);
+                }
+            }
+
+            virtual void Visit(Block & b)
+            {
+                string id = b.GetId();
+                if (id == "top")
+                {
+                    /*// Make sure the type def is dependent on the top block.
+                    // The reason is, all that will be asked for are the type
+                    // defs and implementations. This ensures that the top
+                    // blocks are pulled in as well.
+                    addDepsOfNodeList(td, *(b.GetImportedNodes()),
+                                      CodeType::BlockTop);*/
+                    // Nothing to do?
+                    return;
+                }
+                else if (id == "bottom")
+                {
+                    // Nothing to do.... ?
+                    return;
+                }
+                else if (id == "h-predef")
+                {
+                    return;
+                }
+                else if (id == "cpp-include")
+                {
+                    // AGGGHH! I have no idea how the hell to deal with this
+                    // bastard.
+                    // Make the implementation depend on this thing's
+                    // type def.
+                    ///im.addDependency(&td);
+                    return;
+                }
+                else if (!b.GetImportedNodes())
+                {
+                    throw EmptyImportListError(b.GetNode()->GetFullName());
+                }
+                // For normal blocks "h" and "cpp", plus "h-postdef",
+                // iterate all the imports and make them required by this node.
+                if (id == "h")
+                {
+                    addDepsOfNodeList(td, *(b.GetImportedNodes()),
+                                      CodeType::TypeDefinition);
+                }
+                else if (id == "cpp")
+                {
+                    addDepsOfNodeList(im, *(b.GetImportedNodes()),
+                                      CodeType::TypeDefinition);
                 }
             }
 
@@ -361,7 +447,7 @@ class CodeGraph
                 //im.addDependency(&fd);
             }
 
-        } visitor(*this, fd, td, im);
+        } visitor(*this, bt, fd, td, im, bb);
         e->Accept(visitor);
     }
 

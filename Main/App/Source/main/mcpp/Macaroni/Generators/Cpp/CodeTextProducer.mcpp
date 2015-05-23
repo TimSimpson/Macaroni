@@ -1,4 +1,5 @@
 ~import Macaroni::Core::BaseVisitor;
+~import Macaroni::Model::Block;
 ~import Macaroni::Model::Cpp::Class;
 ~import Macaroni::Model::Cpp::ClassPtr;
 ~import Macaroni::Generators::Cpp::CodeText;
@@ -60,6 +61,24 @@ class CodeTextProducer
             case CodeType::Implementation:
                 writeImplementation(element);
                 return;
+            case CodeType::BlockTop:
+                {
+                    Block * blockPtr = dynamic_cast<Block *>(&element);
+                    if (blockPtr && blockPtr->GetId() == "top")
+                    {
+                        writer.BlockContents(*blockPtr);
+                    }
+                }
+                return;
+            case CodeType::BlockBottom:
+                {
+                    Block * blockPtr = dynamic_cast<Block *>(&element);
+                    if (blockPtr && blockPtr->GetId() == "bottom")
+                    {
+                        writer.BlockContents(*blockPtr);
+                    }
+                }
+                return;
             default:
                 MACARONI_ASSERT(false, "Bad type?");
         }
@@ -72,6 +91,7 @@ class CodeTextProducer
     struct ForwardDeclarationVisitor
     :   public BaseVisitor,
         public Visitor<Class>,
+        public Visitor<Element>,
         public Visitor<FunctionOverload>,
         public Visitor<Variable>,
         public Visitor<Typedef>
@@ -89,6 +109,12 @@ class CodeTextProducer
             writer.WriteClassKeyword();
             writer.WriteNodeName(e.GetNode());
             writer.EndStatement();
+        }
+
+        virtual void Visit(Element & e)
+        {
+            writer.Comment(str(format("Can't handle element %s.")
+                               % e.GetNodeRef().GetFullName()));
         }
 
         virtual void Visit(FunctionOverload & e)
@@ -110,10 +136,12 @@ class CodeTextProducer
 
     struct TypeDefinitionVisitor
     :   public BaseVisitor,
+        public Visitor<Block>,
         public Visitor<Class>,
         public Visitor<Constructor>,
         public Visitor<ConstructorOverload>,
         public Visitor<Destructor>,
+        public Visitor<Element>,
         public Visitor<Function>,
         public Visitor<FunctionOverload>,
         public Visitor<Variable>,
@@ -127,6 +155,14 @@ class CodeTextProducer
         :   owningClass(owningClass),
             writer(writer)
         {
+        }
+
+        virtual void Visit(Block & b)
+        {
+            if (b.GetId() == "h")
+            {
+                writer.BlockContents(b);
+            }
         }
 
         virtual void Visit(Class & e)
@@ -254,6 +290,12 @@ class CodeTextProducer
             writer.FunctionHeaderBody(fo);
         }
 
+        virtual void Visit(Element & e)
+        {
+            writer.Comment(str(format("Can't handle element %s.")
+                               % e.GetNodeRef().GetFullName()));
+        }
+
         virtual void Visit(Function & f)
         {
             auto func = [this](FunctionOverload & fo)
@@ -330,10 +372,12 @@ class CodeTextProducer
 
     struct ImplementationVisitor
     :   public BaseVisitor,
+        public Visitor<Block>,
         public Visitor<Class>,
         public Visitor<Constructor>,
         public Visitor<ConstructorOverload>,
         public Visitor<Destructor>,
+        public Visitor<Element>,
         public Visitor<Function>,
         public Visitor<FunctionOverload>,
         public Visitor<Variable>,
@@ -347,6 +391,16 @@ class CodeTextProducer
         :   owningClass(owningClass),
             writer(writer)
         {
+        }
+
+        virtual void Visit(Block & b)
+        {
+            writer.Comment("THIS IS A BLOCK!");
+            writer.Comment(b.GetId());
+            if (b.GetId() == "cpp")
+            {
+                writer.BlockContents(b);
+            }
         }
 
         virtual void Visit(Class & e)
@@ -413,6 +467,12 @@ class CodeTextProducer
             writer.FunctionArgumentList(fo, true);
             writer.FunctionExceptionSpecifier(fo);
             writer.FunctionCodeBlock(fo);
+        }
+
+        virtual void Visit(Element & e)
+        {
+            writer.Comment(str(format("Can't handle element %s.")
+                               % e.GetNodeRef().GetFullName()));
         }
 
         virtual void Visit(Function & f)

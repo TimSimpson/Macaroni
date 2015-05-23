@@ -17,6 +17,7 @@
 #define MACARONI_MODEL_BLOCK_H
 
 #include "../ME.h"
+ #include <Macaroni/Core/BaseVisitor.h>
 #include "BlockPtr.h"
 #include <Macaroni/Model/Element.h>
 #include <boost/optional.hpp>
@@ -40,6 +41,8 @@ public:
 						   const ReasonPtr reasonCreate,
 					boost::optional<NodeListPtr> importedNodes=boost::none);
 
+	virtual bool Accept(Macaroni::Core::BaseVisitor & v);
+
 	inline const std::string & GetCode() const
 	{
 		return code;
@@ -53,6 +56,8 @@ public:
 	NodeListPtr GetImportedNodes() const;
 
 	Macaroni::Model::Project::TargetPtr GetOwner() const;
+
+	bool OwnedBy(Macaroni::Model::Project::TargetPtr targetArg) const override;
 
 	bool RequiresCppFile() const override;
 

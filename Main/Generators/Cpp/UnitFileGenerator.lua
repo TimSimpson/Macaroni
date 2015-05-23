@@ -173,7 +173,7 @@ LibraryTargetGenerator = {
         };
 
         -- NEW!
-        local ug = UnitFileGenerator.Create(self.library, unit);
+        local ug = UnitFileGenerator.CreateDebug(self.library, unit);
         ug:Generate(self.graph, rootPath);
         -- EXCITING!
 

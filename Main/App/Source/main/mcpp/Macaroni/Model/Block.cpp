@@ -17,6 +17,7 @@
 #define MACARONI_MODEL_BLOCK_CPP
 
 #include "Block.h"
+
 #include <Macaroni/Model/ElementPtr.h>
 #include <boost/foreach.hpp>
 #include "ModelInconsistencyException.h"
@@ -24,7 +25,9 @@
 #include <boost/optional.hpp>
 #include <sstream>
 #include <Macaroni/Model/Project/Target.h>
+#include <Macaroni/Core/Visitor.h>
 
+using Macaroni::Core::BaseVisitor;
 using boost::optional;
 using Macaroni::Model::Project::Target;
 using Macaroni::Model::Project::TargetPtr;
@@ -69,6 +72,11 @@ Block::Block(Target * target, Node * host, const std::string & id,
 
 Block::~Block()
 {
+}
+
+bool Block::Accept(BaseVisitor & v)
+{
+    return Visit(*this, v);
 }
 
 BlockPtr Block::Create(TargetPtr target, NodePtr host, const std::string & id,
@@ -120,6 +128,24 @@ TargetPtr Block::GetOwner() const
 const char * Block::GetTypeName() const
 {
 	return "Block";
+}
+
+bool Block::OwnedBy(TargetPtr targetArg) const
+{
+	if (!this->target)
+	{
+		// Defer to base class behavior.
+		return Element::OwnedBy(targetArg);
+	}
+	if (!targetArg)
+	{
+		return false;
+	}
+	if (*targetArg == *(this->target))
+	{
+		return true;
+	}
+	return this->target->OwnedBy(targetArg.get());
 }
 
 bool Block::RequiresCppFile() const

@@ -3,7 +3,10 @@
 
 enum class CodeType : int
 {
-    ForwardDeclaration=0,
-    TypeDefinition=1,
-    Implementation=2
+    BlockTop=0,
+    ForwardDeclaration=1,
+    TypeDefinition=2,
+    Implementation=3,
+    BlockBottom=4,
+    Divider=100
 };

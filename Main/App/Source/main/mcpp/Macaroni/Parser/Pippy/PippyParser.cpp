@@ -731,6 +731,9 @@ public:
 
 		TargetPtr tHome;
 		boost::optional<NodeListPtr> imports = boost::none;
+		//TODO:
+		// Change to:
+		//if (!currentScope->HasElementOfType<Macaroni::Model::Cpp::Class>())
 		if (!blockHome->GetNode() ||
 			!blockHome->GetNode()->HasElementOfType<Macaroni::Model::Cpp::Class>())
 		{
