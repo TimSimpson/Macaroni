@@ -1,0 +1,105 @@
+~import boost::format;
+~import Macaroni::Model::Project::LibraryTarget;
+~import Macaroni::Model::Project::LibraryTargetPtr;
+~import boost::optional;
+~import std::string;
+
+
+~namespace Macaroni::Generators::Cpp::Library;
+
+class LibraryConfigGenerator
+{
+    private const string cId;
+    private const string configFile;
+    private const string configFileInclude;
+    private const optional<string> decl;
+    private const bool hasConfigFile;
+    private const string libCreate;
+
+    public LibraryConfigGenerator(LibraryTargetPtr library)
+    :   cId(library->GetCId()),
+        hasConfigFile(BoostConfigIsAvailable(library)),
+        configFile(initConfigFile(library)),
+        configFileInclude(initConfigFileInclude(
+            library, configFile)),
+        decl(initDecl(hasConfigFile, library)),
+        libCreate(initLibCreate(cId))
+    {
+    }
+
+    public static bool BoostConfigIsAvailable(LibraryTargetPtr lib)
+    {
+        // The thinking here is that if anything from boost is defined then the
+        // headers should be on the path and we can safely assume boost/config
+        // is there.
+        if (!lib)
+        {
+            return false;
+        }
+        return lib->HasDependencyOnProjectName("Boost-headers");
+    }
+
+    public string ConfigFileInclude() const
+    {
+        return configFileInclude;
+    }
+
+    ~hidden static string initConfigFile(LibraryTargetPtr lib)
+    {
+        return str(boost::format("Config_%s.h")
+                   % lib->GetShortName().get_value_or(lib->GetCId())
+        );
+    }
+
+    ~hidden static string initConfigFileInclude(
+        LibraryTargetPtr & library,
+        const string & libraryConfigFile)
+    {
+        if (BoostConfigIsAvailable(library))
+        {
+            return str(format(
+                "#include <%s>\n"
+                "#ifdef BOOST_HAS_PRAGMA_ONCE\n"
+                "    #pragma once\n"
+                "#endif") % libraryConfigFile);
+        }
+        return "";
+    }
+
+    ~hidden static optional<string> initDecl(
+        bool hasConfigFile, LibraryTargetPtr library)
+    {
+        if (hasConfigFile)
+        {
+            return str(boost::format(
+                    "MACARONI_LIB_DECL_%s") % library->GetCId()
+                );
+        }
+        else
+        {
+            return boost::none;
+        }
+    }
+
+    ~hidden static string initLibCreate(const string & cId)
+    {
+        return str(boost::format("MACARONI_LIB_CREATE_%s") % cId);
+    }
+
+    public optional<string> Decl() const
+    {
+        return decl;
+    }
+
+    public bool HasConfigFile() const
+    {
+        return hasConfigFile;
+    }
+
+    public string LibCreate() const
+    {
+        return libCreate;
+    }
+
+
+};

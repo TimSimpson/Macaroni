@@ -1,3 +1,4 @@
+~import Macaroni::Generators::Cpp::CodeText;
 ~import Macaroni::Model::Element;
 ~import Macaroni::Model::ElementPtr;
 ~import boost::format;
@@ -13,23 +14,39 @@
 
 class HollowNodeException : public Exception
 {
+    optional<CodeText> codeText;
     NodePtr node;
+    string msg;
 
-    public HollowNodeException(NodePtr node)
-    :   node(node)
+    public HollowNodeException(NodePtr node,
+                               optional<CodeText> codeText=boost::none)
+    :   codeText(codeText),
+        node(node),
+        msg()
     {
+        msg = message();
     }
 
     public virtual string message() const
     {
-        return str(format("The node %s is hollow and appears to be undefined.")
+        if (!codeText)
+        {
+            return str(format("The node %s is hollow and appears to be undefined.")
                    % node->GetFullName());
-        return what();
+        }
+        else
+        {
+            return str(format("Node %s is a dependency of the code text %s, "
+                              "but is hollow.")
+                       % node->GetFullName()
+                       % codeText.get());
+        }
     }
 
     public const char * what() const BOOST_NOEXCEPT override
     {
-        return "A hollow node was found while generating code.";
+        //return "A hollow node was found while generating code.";
+        return msg.c_str();
     }
 
     public virtual const optional<InternalSource> & where() const
@@ -37,7 +54,6 @@ class HollowNodeException : public Exception
         return boost::none;
     }
 };
-
 
 class CyclicNodeDetected : public Exception
 {
@@ -69,6 +85,7 @@ class CyclicNodeDetected : public Exception
     }
 };
 
+
 class CyclicNodeError : public Exception
 {
     ElementPtr a;
@@ -88,6 +105,56 @@ class CyclicNodeError : public Exception
     public const char * what() const BOOST_NOEXCEPT override
     {
         return "Cyclic node error! See message for details.";
+    }
+
+    public virtual const optional<InternalSource> & where() const
+    {
+        return boost::none;
+    }
+};
+
+class EmptyImportListError : public Exception
+{
+    string msg;
+
+    public EmptyImportListError(const string & msg)
+    :   msg(str(boost::format("The import list for Node %s was empty.") % msg))
+    {
+    }
+
+    public virtual string message() const
+    {
+        return msg;
+    }
+
+    public const char * what() const BOOST_NOEXCEPT override
+    {
+        return msg.c_str();
+    }
+
+    public virtual const optional<InternalSource> & where() const
+    {
+        return boost::none;
+    }
+};
+
+class MissingCodeBlockError  : public Exception
+{
+    string msg;
+
+    public MissingCodeBlockError(const string & thing)
+    :   msg(str(boost::format("No code block found for %s.") % thing))
+    {
+    }
+
+    public virtual string message() const
+    {
+        return msg;
+    }
+
+    public const char * what() const BOOST_NOEXCEPT override
+    {
+        return msg.c_str();
     }
 
     public virtual const optional<InternalSource> & where() const

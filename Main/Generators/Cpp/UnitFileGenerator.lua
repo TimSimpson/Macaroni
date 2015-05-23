@@ -8,11 +8,14 @@ require "Cpp/TypedefFileGenerator";
 require "Cpp/UnitBlockGenerator";
 
 local Access = require "Macaroni.Model.Cpp.Access";
+local CodeGraph = require "Macaroni.Generators.Cpp.CodeGraph"
 local Context = require "Macaroni.Model.Context";
 local EnumFileGenerator = EnumFileGenerator.EnumFileGenerator
 local EnumCppFileGenerator = EnumFileGenerator.EnumCppFileGenerator
 local FunctionFileGenerator = FunctionGenerator.FunctionFileGenerator
+local LibraryTarget = require "Macaroni.Model.Project.LibraryTarget"
 local Node = require "Macaroni.Model.Node";
+local UnitFileGenerator = require "Macaroni.Generators.Cpp.Unit.UnitFileGenerator"
 local TypeNames = Macaroni.Model.TypeNames;
 
 -- The older method of generating is to iterate by Node, and for each type
@@ -140,6 +143,8 @@ LibraryTargetGenerator = {
         --     error("Argument #2, 'path', cannot be nil.")
         -- end
         -- self.rootPath = path;
+        self.graph = CodeGraph.Create();
+        self.libDecl = LibraryDecl(self.library)
         LibraryTargetGenerator.__index = function(t, k)
             local v = LibraryTargetGenerator[k];
             return v;
@@ -166,11 +171,17 @@ LibraryTargetGenerator = {
             rootPath = rootPath,
             fileType = "H",
         };
-        local h   = UnitFileGenerator.new(args);
-        h:WriteFile();
-        args.fileType = "Cpp"
-        local cpp = UnitFileGenerator.new(args);
-        cpp:WriteFile();
+
+        -- NEW!
+        local ug = UnitFileGenerator.Create(self.library, unit);
+        ug:Generate(self.graph, rootPath);
+        -- EXCITING!
+
+        -- local h   = UnitFileGeneratorOldLua.new(args);
+        -- h:WriteFile();
+        -- args.fileType = "Cpp"
+        -- local cpp = UnitFileGeneratorOldLua.new(args);
+        -- cpp:WriteFile();
     end,
 }
 
@@ -188,7 +199,7 @@ LibraryTargetGenerator = {
 --          cpp blocks
 --          definitions
 
-UnitFileGenerator = {
+UnitFileGeneratorOldLua = {
 
     new = function(self)
         if (self.library == nil) then
@@ -204,9 +215,9 @@ UnitFileGenerator = {
             error("No file type argument given.");
         end
         self.libDecl = LibraryDecl(self.library)
-        setmetatable(self, UnitFileGenerator);
-        UnitFileGenerator.__index = function(t, k)
-            local v = UnitFileGenerator[k];
+        setmetatable(self, UnitFileGeneratorOldLua);
+        UnitFileGeneratorOldLua.__index = function(t, k)
+            local v = UnitFileGeneratorOldLua[k];
             return v;
         end;
         self.elements = CreateElementList(self.unit)

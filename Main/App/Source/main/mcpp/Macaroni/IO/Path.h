@@ -89,7 +89,7 @@ public:
 	void CreateDirectory() const;
 
 	/** Opens a file in the current directory for writing. */
-	GeneratedFileWriterPtr CreateFile() const;
+	GeneratedFileWriterPtr CreateFile(bool trackFormatInfo=false) const;
 
 	/** Creates a new instance with the current path as the absolute path. */
 	PathPtr CreateWithCurrentAsRoot() const;

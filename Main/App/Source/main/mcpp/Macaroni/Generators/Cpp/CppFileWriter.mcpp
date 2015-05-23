@@ -8,6 +8,7 @@
 ~import Macaroni::Model::Cpp::ConstructorOverload;
 ~import Macaroni::Model::Cpp::ConstructorOverloadPtr;
 ~import Macaroni::Model::Context;
+~import Macaroni::Model::Cpp::CppContext;
 ~import Macaroni::Model::Element;
 ~import Macaroni::Model::ElementPtr;
 ~import boost::format;
@@ -17,12 +18,16 @@
 ~import Macaroni::Model::NodePtr;
 ~import Macaroni::IO::GeneratedFileWriter;
 ~import Macaroni::IO::GeneratedFileWriterPtr;
+~import Macaroni::Generators::Cpp::Library::LibraryConfigGenerator;
+~import Macaroni::Generators::Cpp::MissingCodeBlockError;
 ~import boost::optional;
 ~import std::string;
 ~import Macaroni::Model::Cpp::TemplateTypename;
 ~import Macaroni::Model::Cpp::TemplateTypenamePtr;
+~import boost::tokenizer;
 ~import Macaroni::Model::Type;
 ~import Macaroni::Model::TypePtr;
+~import Macaroni::Model::Project::UnitTarget;
 ~import Macaroni::Model::Cpp::Variable;
 ~import Macaroni::Model::Cpp::VariablePtr;
 ~import std::set;
@@ -35,23 +40,29 @@ class CppFileWriter
 // Decorates the normal text writer to handle writing C++ code to both header
 // and implementation files.
 {
+    bool afterEmptyLine;  // True if the next text is after an empty line.
     NodePtr currentNamespace;
+    LibraryConfigGenerator libConfig;
     const int maxWidth;
     set<string> includedFiles;
-    optional<string> libDecl;
     int lineNumber;
+    NodePtr primitiveRoot;
     NodePtr rootNs;
+    bool startOfLine;  // True if we *just* started a line.
     int tabs;
     GeneratedFileWriterPtr writer;
 
-    public CppFileWriter(optional<string> libDecl,
+    public CppFileWriter(LibraryConfigGenerator libConfig,
                          NodePtr currentNamespace,
                          GeneratedFileWriterPtr writer)
-    :   currentNamespace(currentNamespace),
-        libDecl(libDecl),
+    :   afterEmptyLine(true),
+        currentNamespace(currentNamespace),
+        libConfig(libConfig),
         lineNumber(1),
         maxWidth(80),
+        primitiveRoot(CppContext::GetPrimitives(currentNamespace->GetContext())),
         rootNs(currentNamespace->GetContext()->GetRoot()),
+        startOfLine(true),
         tabs(0),
         writer(writer)
     {
@@ -68,6 +79,11 @@ class CppFileWriter
     public void BeginArgumentList()
     {
         write("(");
+    }
+
+    public void ClassDefName(Class & e)
+    {
+        writeLine(e.GetNode()->GetName());
     }
 
     public void ClassMemberAccess(AccessPtr access)
@@ -98,13 +114,13 @@ class CppFileWriter
         {
             if (!seenOne)
             {
-                writeLine("");
+                NewLineIfNeeded();
                 write(":   ");
                 seenOne = true;
             }
             else
             {
-                writeLine("");
+                NewLineIfNeeded();
                 write(",   ");
             }
             this->Access(parent.GetAccess());
@@ -120,22 +136,71 @@ class CppFileWriter
     public void CloseBrace()
     {
         tabs -= 1;
-        writeLine();
+        NewLineIfNeeded();
         // {  Appeasing Macaroni
-        writeLine("}");
+        write("}");
     }
 
     public void CloseBraceForClass()
     {
         tabs -= 1;
-        writeLine();
+        NewLineIfNeeded();
         // {  Appeasing Macaroni
-        writeLine("};");
+        write("};");
+    }
+
+    ~hidden int columnCount()
+    {
+        return writer->GetColumnNumber();
     }
 
     public void Comment(const std::string & text)
     {
         writeLine("// ", text);
+    }
+
+    public void CommentHeader(const string & name)
+    {
+        NewLineIfNeeded();
+        dashLine();
+        writeLine("// ", name);
+        dashLine();
+    }
+
+    public void CommentHeader(const string & name,
+                              const string & desc)
+    {
+        CommentHeader(name);
+
+        boost::char_separator<char> newLineSeparator("\n");
+        boost::char_separator<char> spaceSeparator(" \t");
+        boost::tokenizer<boost::char_separator<char>> lines(
+            desc, newLineSeparator);
+        for (auto lineItr = lines.begin(); lineItr != lines.end();
+             ++ lineItr)
+        {
+            NewLineIfNeeded();
+            write("//     ");
+            boost::tokenizer<boost::char_separator<char>> tokens(
+                desc, spaceSeparator);
+            for (auto itr = tokens.begin(); itr != tokens.end(); ++ itr)
+            {
+                if ((columnCount() + (*itr).size()) < maxWidth)
+                {
+                    if (!hasSpace())
+                    {
+                        write(' ');
+                    }
+                    write(*itr);
+                }
+                else
+                {
+                    writeLine();
+                    write("//     ", *itr);
+                }
+            }
+        }
+        dashLine();
     }
 
     public void ConstructorInitializerList(ConstructorOverload & co)
@@ -160,8 +225,45 @@ class CppFileWriter
         }
         if (seenOne)
         {
-            writeLine();
+            NewLineIfNeeded();
         }
+    }
+
+    public void ConstructorImplementationName(Class & c)
+    {
+        ClassName(c);
+        write("::");
+        ClassName(c);
+    }
+
+    public void CppBottom()
+    {
+        NewLineIfNeeded();
+    }
+
+    public void CppTop(UnitTarget & unit)
+    {
+        writeLine("#define ", libConfig.LibCreate());
+        // TODO: Include precompiled headers file here.
+        write("#include \"", unit.GetHFile()->GetFileName(), "\"");
+    }
+
+    ~hidden void dashLine()
+    {
+        NewLineIfNeeded();
+        write("// ");
+        while(columnCount() < (maxWidth - 1))
+        {
+            write("-");
+        }
+        writeLine();
+    }
+
+    public void DestructorImplementationName(Class & c)
+    {
+        ClassName(c);
+        write("::~");
+        ClassName(c);
     }
 
     public void DestructorName(Class & c)
@@ -178,39 +280,53 @@ class CppFileWriter
     public void EnterNamespace(NodePtr ns)
     {
         auto pos = currentNamespace->FindSharedRoot(ns);
-        //writeLine("MARIO, the common Index is ", pos.commonIndex);
         int index;
+        bool newLined = false;
         for (index = pos.a.size() - 1;
              index > pos.commonIndex;
              -- index)
         {   // {  MACARONI BUG
+            if (!newLined)
+            {
+                NewLineIfNeeded();
+                newLined = true;
+            }
             write("} ");
         }
-        writeLine();
-        //writeLine("MARIO pos.a.size() ", pos.a.size());
-        //writeLine("MARIO pos.b.size() ", pos.b.size());
+        NewLineIfNeeded();
 
         for (++ index;
              index <= pos.b.size() - 1;
              ++ index)
         {
-            //write("namespace ", index, " MARIO ", pos.b[index]->GetName(), );
             write("namespace ", pos.b[index]->GetName(), " { ");
+
             // MACARONI BUG }
         }
-        writeLine();
+        NewLineIfNeeded();
         currentNamespace = ns;
     }
 
     public void EndStatement()
     {
-        writeLine(";");
+        write(";");
+    }
+
+    public void EnterRootNamespace()
+    {
+        EnterNamespace(rootNs);
     }
 
     public void ExitNamespaces()
     {
+        bool newLined = false;
         for (int i = currentNamespace->GetDepth(); i > 0; -- i)
         {   // {  MACARONI BUG
+            if (!newLined)
+            {
+                NewLineIfNeeded();
+                newLined = true;
+            }
             write(" } ");
         }
     }
@@ -270,7 +386,7 @@ class CppFileWriter
         {
             if (seenOne)
             {
-                FunctionArgumentSeperator();
+                FunctionArgumentSeparator();
             }
             Variable * v = arg->GetElementPtr<Variable>();
             MACARONI_ASSERT(v, "null var for argument?");
@@ -280,21 +396,23 @@ class CppFileWriter
         EndArgumentList();
     }
 
-    public void FunctionArgumentSeperator()
+    public void FunctionArgumentSeparator()
     {
         write(", ");
     }
 
     public void FunctionCodeBlock(FunctionOverload & fo)
     {
-        MACARONI_ASSERT(fo.HasCodeBlock(),
-                        "Missing function overload code block.");
+        if (!fo.HasCodeBlock())
+        {
+            throw MissingCodeBlockError(fo.GetNode()->GetFullName());
+        }
         auto cb = fo.GetCodeBlock();
         auto srcPtr = fo.GetCodeSource();
         MACARONI_ASSERT(srcPtr, "Source pointer is nil?");
         auto redirect = fo.CodeBlockShouldAddRedirect();
         OpenBrace();
-        writeLine();
+        NewLineIfNeeded();
         if (redirect)
         {
             write("#line ");
@@ -309,7 +427,7 @@ class CppFileWriter
         write(lineNumber);
         write(" \"");
         write(writer->GetFilePath());
-        writeLine("\"");
+        write("\"");
 
         CloseBrace();
     }
@@ -355,19 +473,41 @@ class CppFileWriter
         }
         else
         {
-            writeLine(";");
+            write(";");
         }
     }
 
     ~hidden void functionHeaderBodyInlineCodeBlock(ConstructorOverload & fo)
     {
+        if (!fo.HasCodeBlock())
+        {
+            write(";");  // In C++ the way of doing things before " = delete"
+                         // was to declare functions that were never defined.
+        }
         ConstructorInitializerList(fo);
         FunctionCodeBlock(fo);
     }
 
     ~hidden void functionHeaderBodyInlineCodeBlock(FunctionOverload & fo)
     {
+        if (!fo.HasCodeBlock())
+        {
+            write(";");  // In C++ the way of doing things before " = delete"
+                         // was to declare functions that were never defined.
+        }
         FunctionCodeBlock(fo);
+    }
+
+    public void FunctionName(FunctionOverload & fo)
+    {
+        auto fNode = fo.GetNode()->GetParent();
+        auto classPtr = fNode->GetParent()->GetElementPtr<Class>();
+        if (classPtr)
+        {
+            ClassName(*classPtr);
+            write("::");
+        }
+        WriteNodeName(fNode);
     }
 
     public void FunctionOverloadDefinition(FunctionOverload & fo)
@@ -378,11 +518,12 @@ class CppFileWriter
         bool calledForFriendDef, bool writeDefaultArgs)
     {
         auto access = fo.GetAccess();
-        if (access->VisibleInLibrary() && this->libDecl && !calledInsideClassDef
+        if (access->VisibleInLibrary()
+            && this->libConfig.Decl() && !calledInsideClassDef
             && !fo.GetTemplateParameterList())
         {
             LibDecl();
-            writeLine();
+            NewLineIfNeeded();
         }
         if (fo.IsStatic())
         {
@@ -423,13 +564,34 @@ class CppFileWriter
         }
     }
 
+    ~hidden inline bool hasSpace() const
+    {
+        return writer->HasSpace();
+    }
+
+    public void HeaderBottom()
+    {
+        InsertEmptyLine();
+        writeLine("#endif");
+    }
+
+    public void HeaderTop(UnitTarget & unit)
+    {
+        writeLine("#ifndef MACARONI_COMPILE_GUARD_", unit.GetCId(), "_HPP");
+        writeLine("#define MACARONI_COMPILE_GUARD_", unit.GetCId(), "_HPP");
+        if (libConfig.HasConfigFile())
+        {
+            write(libConfig.ConfigFileInclude());
+        }
+    }
+
     ~hidden void includeFile(string & file)
     {
         if (includedFiles.find(file) == includedFiles.end())
         {
-            EnterNamespace(rootNs);
+            EnterRootNamespace();
+            NewLineIfNeeded();
             write("#include ", file);
-            writeLine();
             includedFiles.insert(file);
         }
     }
@@ -490,18 +652,34 @@ class CppFileWriter
         write("inline ");
     }
 
+    public void InsertEmptyLine()
+    {
+        if (!afterEmptyLine)
+        {
+            writeLine();
+        }
+    }
+
     public void LibDecl()
     {
-        if (libDecl)
+        if (libConfig.Decl())
         {
-            write(libDecl.get());
-            write(" ");
+            NewLineIfNeeded();
+            writeLine(libConfig.Decl().get());
+        }
+    }
+
+    public void NewLineIfNeeded()
+    {
+        if (!startOfLine)
+        {
+            writeLine();
         }
     }
 
     public void OpenBrace()
     {
-        writeLine();
+        NewLineIfNeeded();
         tabs += 1;
         writeLine("{");
         // Appeasing macaroni...  }
@@ -574,44 +752,61 @@ class CppFileWriter
         write("typedef ");
     }
 
+    public void UsingStatement(Node & n)
+    {
+        if (n.GetParent() == primitiveRoot)
+        {
+            return;
+        }
+        NewLineIfNeeded();
+        write("using ", n.GetFullName(), ";");
+    }
+
     public void VirtualKeyword()
     {
         write("virtual ");
     }
 
+    // Used internally to write stuff.
     template<typename... Parameters>
     private void write(const Parameters & ... args)
     {
         writer->Write(args...);
+        startOfLine = writer->GetColumnNumber() == 0;
+        afterEmptyLine = false;
     }
 
     public void WriteClassKeyword()
     {
-        writer->Write("class ");
+        write("class ");
     }
 
     public void WriteFullNodeName(NodePtr node)
     {
-        writer->Write(node->GetFullName());
+        write(node->GetFullName());
     }
 
     public void WriteNodeName(NodePtr node)
     {
-        writer->Write(node->GetName());
+        write(node->GetName());
     }
 
     public void WriteSyntax(const std::string & text)
     {
-        writer->Write(text);
+        write(text);
     }
 
     template<typename... Parameters>
     private void writeLine(const Parameters & ... args)
     {
-
+        if (startOfLine)
+        {
+            afterEmptyLine = true;  // This line had to be empty.
+        }
         writer->WriteLine(args...);
         ++ lineNumber;
         writer->Write(std::string(tabs * 4, ' '));
+        startOfLine = true;
     }
 
 };

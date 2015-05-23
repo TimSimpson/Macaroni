@@ -28,6 +28,8 @@
 
 
 // A visitor that writes out CodeText elements.
+// This is what effectively produces how elements look and are arranged, though
+// the text itself is coded into the CppFileWriter class.
 class CodeTextProducer
 {
     CppFileWriter & writer;
@@ -44,7 +46,9 @@ class CodeTextProducer
         const Element & constElement = *codeText.GetElement();
         // TODO: The visitor stuff needs to allow for const.
         Element & element = const_cast<Element &>(constElement);
-        writer.Comment(str(boost::format("%s") % codeText));
+
+        writer.InsertEmptyLine();
+        writer.Comment(str(boost::format("MARIO : < WORK IN PROGRESS: %s") % codeText));
         switch(codeText.Type())
         {
             case CodeType::ForwardDeclaration:
@@ -128,13 +132,16 @@ class CodeTextProducer
         virtual void Visit(Class & e)
         {
             NodePtr tpl = e.GetTemplateParameterList();
-            writer.Comment(str(format("Define class %s") % e.GetNode()->GetName()));
-
             if (!owningClass)
             {
                 writer.EnterNamespace(e.GetNode()->GetParent());
             }
 
+            writer.InsertEmptyLine();
+            writer.CommentHeader(
+                str(format("class %s") % e.GetNode()->GetName()),
+                "Some description could in theory go here."
+            );
             writer.TemplateParameterList(e);
             writer.ClassOrStructKeyword(e);
             if (!tpl)
@@ -174,6 +181,7 @@ class CodeTextProducer
                 }
             }
 
+            // Iterate members.
             Node & classNode = e.GetNodeRef();
             for (unsigned int i = 0; i < classNode.GetChildCount(); ++ i)
             {
@@ -185,10 +193,9 @@ class CodeTextProducer
                     childElement->Accept(cgev);
                 }
             }
-            // iterateMembers?
-            writer.CloseBraceForClass();
-            writer.Comment(str(format("End of class %s") % e.GetNode()->GetName()));
 
+            writer.CloseBraceForClass();
+            writer.InsertEmptyLine();
         }
 
         virtual void Visit(Constructor & c)
@@ -204,6 +211,7 @@ class CodeTextProducer
         virtual void Visit(ConstructorOverload & co)
         {
             MACARONI_ASSERT(owningClass != nullptr, "Null owner for ctor?");
+            writer.InsertEmptyLine();
             writer.ClassMemberAccess(co.GetAccess());
             if (co.IsVirtual())
             {
@@ -230,6 +238,7 @@ class CodeTextProducer
             MACARONI_ASSERT(foPtr, "Destructor's function overload is null?");
             FunctionOverload & fo = *foPtr;
 
+            writer.InsertEmptyLine();
             writer.ClassMemberAccess(fo.GetAccess());
             if (fo.IsVirtual())
             {
@@ -260,9 +269,11 @@ class CodeTextProducer
             if (!owningClass)
             {
                 writer.EnterNamespace(e.GetNode()->GetParent()->GetParent());
+                writer.InsertEmptyLine();
             }
             else
             {
+                writer.NewLineIfNeeded();
                 writer.ClassMemberAccess(e.GetAccess());
             }
             if (e.IsStatic())
@@ -280,21 +291,6 @@ class CodeTextProducer
             writer.Type(e.GetReturnType(), false);
             writer.Space();
             writer.WriteNodeName(e.GetNode()->GetParent());
-            //writer.BeginArgumentList();
-            //auto args = e.GetArguments();
-            //bool seenOne = false;
-            //for (auto arg : *args)
-            //{
-            //    if (seenOne)
-            //    {
-            //        writer.FunctionArgumentSeperator();
-            //    }
-            //    Variable * v = arg->GetElementPtr<Variable>();
-            //    MACARONI_ASSERT(v, "null var for argument?");
-            //    writer.FunctionArgument(*v, true);
-            //    seenOne = true;
-            //}
-            //writer.EndArgumentList();
             writer.FunctionArgumentList(e, true);
             writer.FunctionExceptionSpecifier(e);
             writer.FunctionHeaderBody(e);
@@ -306,7 +302,12 @@ class CodeTextProducer
             {
                 writer.ClassMemberAccess(e.GetAccess());
             }
-            writer.EnterNamespace(e.GetNode()->GetParent());
+            else
+            {
+                writer.EnterNamespace(e.GetNode()->GetParent());
+                writer.InsertEmptyLine();
+            }
+
             writer.TypedefKeyword();
             writer.Type(e.GetType(), false);
             writer.Space();
@@ -330,23 +331,122 @@ class CodeTextProducer
     struct ImplementationVisitor
     :   public BaseVisitor,
         public Visitor<Class>,
+        public Visitor<Constructor>,
+        public Visitor<ConstructorOverload>,
+        public Visitor<Destructor>,
+        public Visitor<Function>,
         public Visitor<FunctionOverload>,
         public Visitor<Variable>,
         public Visitor<Typedef>
     {
+        Class * owningClass;
         CppFileWriter & writer;
 
-        ImplementationVisitor(CppFileWriter & writer)
-        :   writer(writer)
+        ImplementationVisitor(CppFileWriter & writer,
+                              Class * owningClass=nullptr)
+        :   owningClass(owningClass),
+            writer(writer)
         {
         }
 
         virtual void Visit(Class & e)
         {
+            if (!owningClass)
+            {
+                writer.EnterNamespace(e.GetNode()->GetParent());
+            }
+
+            // Iterate members.
+            Node & classNode = e.GetNodeRef();
+            for (unsigned int i = 0; i < classNode.GetChildCount(); ++ i)
+            {
+                NodePtr child = classNode.GetChild(i);
+                ElementPtr childElement = child->GetElement();
+                if (childElement)
+                {
+                    ImplementationVisitor cgev(writer, &e);
+                    childElement->Accept(cgev);
+                }
+            }
+        }
+
+        virtual void Visit(Constructor & c)
+        {
+            auto func = [this](ConstructorOverload & co)
+            {
+                this->Visit(co);
+            };
+
+            c.GetNodeRef().IterateNodes<ConstructorOverload, decltype(func)>(func);
+        }
+
+        virtual void Visit(ConstructorOverload & co)
+        {
+            if (co.UsesInlineKeyword() || !co.HasCodeBlock())
+            {
+                return;
+            }
+            MACARONI_ASSERT(owningClass != nullptr, "Null owner for ctor?");
+            writer.InsertEmptyLine();
+            writer.LibDecl();
+            writer.ConstructorImplementationName(*owningClass);
+            writer.FunctionArgumentList(co, true);
+            writer.FunctionExceptionSpecifier(co);
+            writer.ConstructorInitializerList(co);
+            writer.FunctionCodeBlock(co);
+        }
+
+        virtual void Visit(Destructor & co)
+        {
+            MACARONI_ASSERT(owningClass != nullptr, "Null owner for dtor?");
+            FunctionOverloadPtr foPtr = co.GetFunctionOverload();
+            MACARONI_ASSERT(foPtr, "Destructor's function overload is null?");
+            FunctionOverload & fo = *foPtr;
+            if (fo.UsesInlineKeyword() || !fo.HasCodeBlock())
+            {
+                return;
+            }
+
+            writer.InsertEmptyLine();
+            writer.LibDecl();
+            writer.DestructorImplementationName(*owningClass);
+            writer.FunctionArgumentList(fo, true);
+            writer.FunctionExceptionSpecifier(fo);
+            writer.FunctionCodeBlock(fo);
+        }
+
+        virtual void Visit(Function & f)
+        {
+            auto func = [this](FunctionOverload & fo)
+            {
+                this->Visit(fo);
+            };
+
+            f.GetNodeRef().IterateNodes<FunctionOverload, decltype(func)>(func);
         }
 
         virtual void Visit(FunctionOverload & e)
         {
+            if (e.UsesInlineKeyword() || !e.HasCodeBlock())
+            {
+                return;
+            }
+            if (!owningClass)
+            {
+                writer.EnterNamespace(e.GetNode()->GetParent()->GetParent());
+                writer.InsertEmptyLine();
+            }
+            else
+            {
+                writer.InsertEmptyLine();
+            }
+            writer.LibDecl();
+            writer.Type(e.GetReturnType(), false);
+            writer.Space();
+            writer.FunctionName(e);
+            writer.FunctionArgumentList(e, true);
+            writer.FunctionExceptionSpecifier(e);
+            writer.FunctionCodeBlock(e);
         }
 
         virtual void Visit(Typedef & e)

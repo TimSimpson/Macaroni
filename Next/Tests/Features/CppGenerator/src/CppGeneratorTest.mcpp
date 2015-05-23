@@ -1,11 +1,12 @@
 ~import SuperHatNamespace::Hats;
 ~import std::vector;
 
-~unit Hats ;
+~unit "MyFunProject/Hats" ;
 
 namespace SuperHatNamespace {
 
 class Hats
+// Handles the topping of heads.
 {
     int w;
 

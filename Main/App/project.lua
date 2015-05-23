@@ -160,6 +160,12 @@ generate = function()
         luaGlue:Run("Generate", {
             target=lib,
             outputPath=outputPath,
+            luaCatchCode = [[} catch(const Macaroni::Exception & ex) { \
+                return luaL_error(L, ex.message().c_str()); \
+              } catch(const std::exception & ex){ \
+                return luaL_error(L, ex.what()); \
+              }
+            ]]
             });
     end
 

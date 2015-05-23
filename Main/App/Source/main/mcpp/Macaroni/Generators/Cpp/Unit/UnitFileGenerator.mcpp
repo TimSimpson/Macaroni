@@ -14,18 +14,24 @@
 ~import Macaroni::Model::Cpp::FunctionOverload;
 ~import Macaroni::IO::GeneratedFileWriter;
 ~import Macaroni::IO::GeneratedFileWriterPtr;
+~import Macaroni::Generators::Cpp::Library::LibraryConfigGenerator;
+~import Macaroni::Model::Project::LibraryTarget;
+~import Macaroni::Model::Project::LibraryTargetPtr;
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaFunction;
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Model::Node;
 ~import Macaroni::Model::NodePtr;
 ~import Macaroni::IO::Path;
+~import Macaroni::IO::PathPtr;
+~import Macaroni::Exception::SimpleException;
 ~import boost::shared_ptr;
 ~import std::string;
 ~import Macaroni::Model::Project::Target;
 ~import Macaroni::Model::Project::TargetPtr;
 ~import Macaroni::Model::Type;
 ~import Macaroni::Model::TypePtr;
+~import Macaroni::Model::Project::UnitTarget;
 ~import Macaroni::Core::Variable;
 ~import std::vector;
 ~import Macaroni::Model::Cpp::Variable;
@@ -52,20 +58,49 @@ class UnitFileGenerator
     ]
 {
     private vector<ElementPtr> elementList;
-    private TargetPtr unit;
+    private LibraryConfigGenerator libConfig;
+    private LibraryTargetPtr library;
+    private TargetPtr target;  // So we can keep an ref count on this.
+    private UnitTarget & unit;
 
-    public UnitFileGenerator(TargetPtr unit)
-    :   unit(unit)
+    public UnitFileGenerator(LibraryTargetPtr library, TargetPtr unit)
+    :   libConfig(library),
+        library(library),
+        target(unit),
+        unit(getUnitReference(unit))
     {
-        // self.libDecl = LibraryDecl ???
         unit->CreateElementList(elementList);
     }
 
-    public static UnitFileGeneratorPtr Create(TargetPtr unit)
+    ~block "cpp"
+    {
+        MACARONI_SIMPLE_EXCEPTION_DEFINE(UnsetLibraryPtrException,
+            "UnitFileGenerator create received a null library.");
+        MACARONI_SIMPLE_EXCEPTION_DEFINE(UnsetTargetPtrException,
+            "UnitFileGenerator constructor received a null pointer.");
+    }
+
+    public static UnitFileGeneratorPtr Create(
+        TargetPtr lib, TargetPtr unit)
         @LuaFunction "Create"
     {
-        UnitFileGeneratorPtr ptr(new UnitFileGenerator(unit));
+        LibraryTarget * lPtr = dynamic_cast<LibraryTarget *>(lib.get());
+        if (!lPtr)
+        {
+            // Accursed Lua glue...
+            throw UnsetLibraryPtrException();
+        }
+        UnitFileGeneratorPtr ptr(new UnitFileGenerator(lPtr, unit));
         return ptr;
+    }
+
+    ~hidden static UnitTarget & getUnitReference(TargetPtr t)
+    {
+        if (!t)
+        {
+            throw UnsetTargetPtrException();
+        }
+        return dynamic_cast<UnitTarget &>(*t);
     }
 
 ~block "cpp"
@@ -144,85 +179,178 @@ class UnitFileGenerator
         }
     }
 
-    public void Generate(CodeGraph & graph, string libDecl, Path & rootPath)
+    public void Generate(CodeGraph & graph, PathPtr rootPath)
         @LuaFunction "Generate"
     {
-        auto p = rootPath.NewPathForceSlash("thing.ufg");
-        auto writer = p->CreateFile();
+        unit.SetCppFileRootDirectory(rootPath);
+        unit.SetHFileRootDirectory(rootPath);
 
         CodeTextSorter sorter;
-        /*TextVisitor visitor(graph, writer);
-        for (auto e : elementList)
-        {
-            writer->WriteLine(e->GetNode()->GetFullName());
-            writer->WriteLine("*******************************");
-            visitor.codeText = {};
-            if (e->Accept(visitor))
-            {
-                sorter.Add(visitor.codeText);
-                writer->WriteLine("    // OK!");
-                printCodeText(writer, visitor.codeText);
-            }
-            else
-            {
-                writer->WriteLine("    ?!    ~'_'~ < I cannot handle this. )");
-            }
-            writer->WriteLine();
-        }*/
 
-        // Create header
+        // Go through graph and make sure all the type definitions are
+        // available. This will pull in the forward declarations and anything
+        // else necessary as well.
         for (auto e : elementList)
         {
             CodeText & ct = graph.Get(e.get(), CodeType::TypeDefinition);
             sorter.Add(&ct);
         }
         vector<CodeText *> headerText = sorter.Sort();
-
-        CppFileWriter header(libDecl, unit->GetContext()->GetRoot(), writer);
-        CodeTextProducer producer(header);
-
-        for (CodeText * ct : headerText)
-        {
-            if (ct)
-            {
-                if (ct->GetElement()->OwnedBy(unit))
-                {
-                    producer.Write(*ct);
-                }
-                else
-                {
-                    MACARONI_ASSERT(ct->GetElement(), "Element can't be null.");
-                    Element * e = const_cast<Element *>(ct->GetElement());
-                    header.IncludeFile(*e);
-                }
-                //writer->WriteLine(*ct);
-            }
-        }
-/*
-        writer->WriteLine("\n\nIMPLEMENTATION TIME!\n\n");
+        generateHeader(headerText);
 
         for (auto e : elementList)
         {
             CodeText & ct = graph.Get(e.get(), CodeType::Implementation);
             sorter.Add(&ct);
         }
-        vector<CodeText *> text2 = sorter.Sort();
-        for (CodeText * ct : text2)
+        vector<CodeText *> cppText = sorter.Sort();
+
+        // Get rid of dupes. Just leave in nulls to save time.
+		for (int i = 0; i < headerText.size(); ++i)
+        {
+			if (nullptr == headerText[i]) {
+				continue;
+			}
+            for (int j = i; j < cppText.size(); ++ j)
+            {
+                if (cppText[j] && *headerText[i] == *cppText[j])
+                {
+                    cppText[j] = nullptr;
+                    break;
+                }
+            }
+        }
+        generateCpp(headerText, cppText);
+
+    }
+
+    ~hidden void generateCpp(vector<CodeText *> headerText,
+                             vector<CodeText *> cppText)
+    {
+        auto cppWriter = unit.GetCppFile()->CreateFile(true);
+        CppFileWriter cpp(libConfig, unit.GetContext()->GetRoot(),
+                          cppWriter);
+
+        CodeTextSorter sorter;
+
+        cpp.CppTop(this->unit);
+
+        cpp.CommentHeader("Internal Header");
+        cpp.InsertEmptyLine();
+        generateHeaderWith(headerText, cpp);
+
+        cpp.InsertEmptyLine();
+        cpp.CommentHeader("Additional Dependencies");
+
+        CodeTextProducer producer(cpp);
+
+        // Get the stragglers that aren't in the header but are still used.
+        int index = 0;
+        for (; index < cppText.size(); ++ index)
+        {
+            CodeText * ct = cppText[index];
+            if (ct)
+            {
+                if (ct->Type() != CodeType::Implementation)
+                {
+                    ++ index;
+                    break;
+                }
+                generateText(producer, cpp, *ct);
+            }
+        }
+
+        int firstImplementationIndex = index;
+
+        // Now bring in the using statements.
+        cpp.InsertEmptyLine();
+        cpp.CommentHeader("Using Statements");
+        auto printUsing = [this, &cpp](CodeText * ct) {
+            if (ct && ct->Type() == CodeType::TypeDefinition)
+            {
+                auto ePtr = ct->GetElement();
+                if (ePtr)
+                {
+                    MACARONI_ASSERT(ePtr->GetNode(), "Node is null, wut?");
+                    cpp.UsingStatement(*(ePtr->GetNode()));
+                }
+            }
+        };
+        for (CodeText * ct : headerText)
+        {
+            printUsing(ct);
+        }
+        for (CodeText * ct : cppText)
+        {
+            printUsing(ct);
+        }
+
+        // Finally, return to print the implementation details.
+        cpp.InsertEmptyLine();
+        cpp.CommentHeader("Implementation");
+        for (index = firstImplementationIndex; index < cppText.size(); ++ index)
+        {
+            CodeText * ct = cppText[index];
+            if (ct && ct->Type() == CodeType::Implementation)
+            {
+                generateText(producer, cpp, *ct);
+            }
+        }
+
+        cpp.EnterRootNamespace();
+        cpp.CppBottom();
+    }
+
+    ~hidden void generateHeader(vector<CodeText *> headerText)
+    {
+        auto headerWriter = unit.GetHFile()->CreateFile(true);
+        CppFileWriter header(libConfig, unit.GetContext()->GetRoot(),
+                             headerWriter);
+        generateHeaderWith(headerText, header);
+    }
+
+    ~hidden void generateHeaderWith(vector<CodeText *> headerText,
+                                    CppFileWriter header)
+    {
+        header.HeaderTop(this->unit);
+
+        CodeTextProducer producer(header);
+
+        for (CodeText * ct : headerText)
         {
             if (ct)
             {
-                writer->WriteLine(*ct);
+                generateText(producer, header, *ct);
             }
-            else
-            {
-                writer->WriteLine("NULL? WTF?!!!!");
-            }
-        }*/
+        }
+        header.EnterRootNamespace();
+        header.HeaderBottom();
+    }
+
+    ~hidden void generateText(CodeTextProducer & producer,
+                              CppFileWriter & writer,
+                              CodeText & ct)
+    {
+        if (ct.GetElement()->OwnedBy(target))
+        {
+            producer.Write(ct);
+        }
+        else
+        {
+            MACARONI_ASSERT(ct.GetElement(), "Element can't be null.");
+            Element * e = const_cast<Element *>(ct.GetElement());
+            writer.IncludeFile(*e);
+        }
     }
 
     public string ToString()
         @LuaOperator "__tostring"
     {
         return "UnitGenerator";
+    }
+
+    ~hidden void writeHeader()
+    {
+
     }
 };

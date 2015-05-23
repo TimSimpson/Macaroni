@@ -24,6 +24,7 @@ class std::ostream { ~hfile=<iostream> };
 class std::set { ~hfile=<set> };
 class std::stringstream { ~hfile=<sstream> };
 class std::string { ~hfile=<string> };
+class boost::tokenizer { ~hfile=<boost/tokenizer.hpp> };
 class std::vector { ~hfile=<vector> };
 
 class std::chrono::duration_cast { ~hfile=<chrono> };

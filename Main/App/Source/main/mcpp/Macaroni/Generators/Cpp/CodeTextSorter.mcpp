@@ -52,7 +52,7 @@ class CodeTextSorter
             >
             CodeTextGraph;
 
-        CodeTextGraph graph(items.size());
+        CodeTextGraph graph(CodeText::MaxGraphId());
         for (CodeText * ptr : items)
         {
             for (CodeText * depPtr : ptr->DependsOn())

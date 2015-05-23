@@ -44,17 +44,30 @@ class GeneratedFileWriter
 	//TODO: Move to outside of class def. due to bug in Macaroni.
 	//Fix bug and move back!
 	//typedef shared_ptr<ostream> ostreamptr;
+	~block "h-predef"
+	{
+		#include <sstream>
+	}
 
 	bool closed;
+	int columnNumber;
 	bool directToFile;
 	const string filePath;
 	bool fileWasWritten;
+	bool hasSpace;
 	int lineNumber;
+	bool trackFormatInfo;
 	ostreamptr writer;
 
-	public GeneratedFileWriter(const path filePath)
-	:	closed(false), filePath(filePath.string()), fileWasWritten(false),
-	    lineNumber(1), writer()
+	public GeneratedFileWriter(const path filePath, bool trackFormatInfo=false)
+	:	closed(false),
+		columnNumber(0),
+		filePath(filePath.string()),
+		fileWasWritten(false),
+		hasSpace(true),
+	    lineNumber(1),
+	    trackFormatInfo(trackFormatInfo),
+	    writer()
 	{
 		path parent = filePath.parent_path();
 		if (!boost::filesystem::exists(parent))
@@ -108,10 +121,24 @@ class GeneratedFileWriter
 		return fileWasWritten;
 	}
 
+	// Returns the current column count. This is only available when
+	// trackFormatInfo is specified in the constructor.
+	public inline int GetColumnNumber() const
+	{
+		return columnNumber;
+	}
+
 	public inline const string & GetFilePath() const
 		@LuaProperty "FilePath"
 	{
 		return filePath;
+	}
+
+	// Returns true if this ends with a space. Only available if trackFormatInfo
+	// is specified in the constructor.
+	public inline bool HasSpace() const
+	{
+		return hasSpace;
 	}
 
 	public inline int GetLineNumber() const
@@ -175,21 +202,63 @@ class GeneratedFileWriter
 		if ('\n' == c)
 		{
 			lineNumber += 1;
+			columnNumber = 0;
+			hasSpace = true;
+		}
+		else
+		{
+			columnNumber += 1;
+			hasSpace = isspace(c);
 		}
 		(*writer) << c;
+	}
+
+	public void Write(const char * oldString)
+	{
+		if (trackFormatInfo)
+		{
+			const char * lastNewLine = oldString;
+			const char * itr;
+			for (itr = oldString; '\0' != *itr; ++ itr)
+			{
+				if ('\n' == *itr)
+				{
+					lineNumber += 1;
+					columnNumber = 0;
+					lastNewLine = itr;
+				}
+			}
+			// Check to see if this ends on a space-
+			if (oldString != itr && isspace(*(itr - 1)))
+			{
+				hasSpace = true;
+			}
+			else
+			{
+				hasSpace = false;
+			}
+			columnNumber += (itr - lastNewLine);
+		}
+		(*writer) << oldString;
 	}
 
 	public void Write(const std::string & text)
 		@LuaFunction "Write"
 	{
-		lineNumber += std::count(text.begin(), text.end(), '\n');
-		(*writer) << text;
+		Write(text.c_str());
+		//lineNumber += std::count(text.begin(), text.end(), '\n');
+		//(*writer) << text;
 	}
 
 	template<typename T>
 	public void Write(const T & t)
 	{
-		(*writer) << t;
+		// This is slow, but there won't be too many times were it gets used...
+		// I think.
+		std::stringstream s;
+		s << t;
+		Write(s.str().c_str());
+		//(*writer) << t;
 	}
 
 	template<typename T, typename... Parameters>
@@ -203,6 +272,8 @@ class GeneratedFileWriter
 	{
 		lineNumber ++;
 		(*writer) << std::endl;
+		lineNumber += 1;
+		columnNumber = 0;
 	}
 
 	public void WriteLine(const std::string & text)
@@ -218,6 +289,8 @@ class GeneratedFileWriter
 		Write(t);
 		lineNumber ++;
 		(*writer) << std::endl;
+		lineNumber += 1;
+		columnNumber = 0;
 	}
 
 	template<typename T, typename... Parameters>

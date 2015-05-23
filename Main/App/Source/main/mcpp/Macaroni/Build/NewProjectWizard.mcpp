@@ -3,6 +3,7 @@
 ~import Macaroni::AppPaths;
 ~import Macaroni::Model::Context;
 ~import Macaroni::Model::ContextPtr;
+~import Macaroni::Exception;
 ~import Macaroni::Environment::Environment;
 ~import boost::format;
 ~import Macaroni::Environment::MacaroniEnvironment;
@@ -64,6 +65,11 @@ class NewProjectWizard
         {
             runProjectCreator(projName, dir);
             return true;
+        } catch(const Exception & ex) {
+            output->ErrorLine("An error happened while executing the "
+                "NewProject template.");
+            output->ErrorLine(ex.message());
+            return false;
         } catch(const std::exception & ex) {
             output->ErrorLine("An error happened while executing the "
                 "NewProject template.");

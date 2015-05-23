@@ -9,6 +9,7 @@
 ~import Macaroni::Generators::Cpp::CyclicNodeError;
 ~import Macaroni::Model::Element;
 ~import Macaroni::Model::ElementPtr;
+~import Macaroni::Generators::Cpp::EmptyImportListError;
 ~import Macaroni::Model::Cpp::Function;
 ~import Macaroni::Model::Cpp::FunctionOverload;
 ~import Macaroni::Generators::Cpp::HollowNodeException;
@@ -66,6 +67,7 @@ class CodeGraph
     {
     }
 
+    ~hidden
     public static CodeGraphPtr Create()
         @LuaFunction "Create"
     {
@@ -154,7 +156,10 @@ class CodeGraph
                 for (NodePtr n : nodeList)
                 {
                     Element * eFriend = n->GetElementPtr();
-                    MACARONI_ASSERT(eFriend, "Hollow node...");
+                    if (!eFriend)
+                    {
+                        throw HollowNodeException(n, codeText);
+                    }
                     CodeText & newDep = graph.get(eFriend, codeType);
                     codeText.addDependency(&newDep);
                 }
@@ -227,7 +232,10 @@ class CodeGraph
                 im.addDependency(&td);
 
                 // Now add all of the imports as deps to this class.
-                MACARONI_ASSERT(e.GetImportedNodes(), "Empty import list?");
+                if (!e.GetImportedNodes())
+                {
+                    throw EmptyImportListError(e.GetNode()->GetFullName());
+                }
                 addDepsOfNodeList(im, *(e.GetImportedNodes()),
                                   CodeType::TypeDefinition);
 /*
@@ -314,9 +322,12 @@ class CodeGraph
                 visitFunctionOverload(e, CodeType::TypeDefinition, im);
 
                 // Now add all of the imports as deps to this func.
-                MACARONI_ASSERT(e.GetImportedNodes(), "Empty import list?");
-                addDepsOfNodeList(im, *(e.GetImportedNodes()),
+                if (e.GetImportedNodes())
+                {
+                    //throw EmptyImportListError(e.GetNode()->GetFullName());
+                    addDepsOfNodeList(im, *(e.GetImportedNodes()),
                                   CodeType::TypeDefinition);
+                }
 
                 //TODO: May need to add the TypeDefinitions of all variables
                 //      as deps to the function... maybe.

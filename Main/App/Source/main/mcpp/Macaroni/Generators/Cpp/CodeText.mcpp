@@ -90,8 +90,14 @@ class CodeText
     ~hidden static int createNewGraphId()
     {
         // This code is not thread safe, which doesn't matter today.
+        return ++ currentGraphId();
+    }
+
+    ~hidden static int & currentGraphId()
+    {
+        // This code is not thread safe, which doesn't matter today.
         static int counter = 0;
-        return ++ counter;
+        return counter;
     }
 
     public vector<CodeText *> & DependsOn()
@@ -116,6 +122,7 @@ class CodeText
 
     public bool HasDependencyOn(CodeText & ct)
     {
+
         for(auto * element : dependsOn)
         {
             if (element == &ct)
@@ -139,6 +146,11 @@ class CodeText
             MACARONI_ASSERT(ct != nullptr, "Null codetext?");
             f(*ct);
         }
+    }
+
+    public static int MaxGraphId()
+    {
+        return currentGraphId();
     }
 
     public void SetElement(Element * newValue)

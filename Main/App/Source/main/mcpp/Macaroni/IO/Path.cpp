@@ -209,12 +209,14 @@ void Path::CreateDirectory() const
 	//boost::filesystem::create_directory(path);
 }
 
-GeneratedFileWriterPtr Path::CreateFile() const
+GeneratedFileWriterPtr Path::CreateFile(bool trackFormatInfo) const
 {
 	try
 	{
 		boost::filesystem::path absolute = boost::filesystem::system_complete(path);
-		return GeneratedFileWriterPtr(new GeneratedFileWriter(absolute));
+		return GeneratedFileWriterPtr(
+			new GeneratedFileWriter(absolute, trackFormatInfo)
+		);
 	}
 	catch(...)
 	{

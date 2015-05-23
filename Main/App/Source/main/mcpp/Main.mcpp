@@ -81,7 +81,18 @@ int run(CmdLine & cmd)
 		// I'd put this in the try / catch below, except it's
 		// way too obnoxious to get an exception only to
 		// realize it's this. Step through it if you must.
-		std::cerr << me.what() << std::endl
+		std::cerr << me.message() << std::endl
+				  << "Error loading messages. Be sure the "
+				  "--messagesPath argument points to a valid "
+				  "message file." << std::endl;
+		return 1;
+	}
+	catch(const std::exception & ex)
+	{
+		// I'd put this in the try / catch below, except it's
+		// way too obnoxious to get an exception only to
+		// realize it's this. Step through it if you must.
+		std::cerr << ex.what() << std::endl
 				  << "Error loading messages. Be sure the "
 				  "--messagesPath argument points to a valid "
 				  "message file." << std::endl;

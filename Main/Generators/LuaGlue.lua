@@ -1564,6 +1564,7 @@ function GetMethod(name)
 				Plugin.Check(args.target ~= nil, 'Missing argument "target".');
 				extraArgs = {
 					luaImportCode = args.luaImportCode or "",
+					luaCatchCode = args.luaCatchCode or "",
 				}
 				Generate(args.target, args.outputPath, extraArgs);
 			end
