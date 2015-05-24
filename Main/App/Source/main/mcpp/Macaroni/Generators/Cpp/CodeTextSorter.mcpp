@@ -76,8 +76,10 @@ class CodeTextSorter
         {
             switch(ptr->Type())
             {
+                case CodeType::UsingStatement:
                 case CodeType::Implementation:
-                    // Implementation has to be after impl start.
+                    // UsingStatement and Implementation has to be after impl
+                    // start.
                     boost::add_edge(ptr->GraphId(),
                                     divImpl->GraphId(),
                                     graph);

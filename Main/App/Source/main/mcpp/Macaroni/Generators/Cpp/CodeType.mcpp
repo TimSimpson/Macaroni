@@ -6,7 +6,8 @@ enum class CodeType : int
     BlockTop=0,
     ForwardDeclaration=1,
     TypeDefinition=2,
-    Implementation=3,
-    BlockBottom=4,
+    UsingStatement=3,
+    Implementation=4,
+    BlockBottom=5,
     Divider=100
 };

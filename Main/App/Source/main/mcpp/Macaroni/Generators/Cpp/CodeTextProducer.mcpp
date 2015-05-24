@@ -17,6 +17,7 @@
 ~import Macaroni::Model::Cpp::Function;
 ~import Macaroni::Model::Cpp::FunctionOverload;
 ~import Macaroni::Model::Cpp::FunctionOverloadPtr;
+~import Macaroni::Model::Cpp::Namespace;
 ~import Macaroni::Model::Node;
 ~import Macaroni::Model::NodePtr;
 ~import Macaroni::Model::Cpp::Typedef;
@@ -60,6 +61,9 @@ class CodeTextProducer
                 return;
             case CodeType::Implementation:
                 writeImplementation(element);
+                return;
+            case CodeType::UsingStatement:
+                writeUsingStatement(element);
                 return;
             case CodeType::BlockTop:
                 {
@@ -131,8 +135,6 @@ class CodeTextProducer
 
         }
     };
-
-
 
     struct TypeDefinitionVisitor
     :   public BaseVisitor,
@@ -370,6 +372,52 @@ class CodeTextProducer
         }
     };
 
+    struct UsingStatementVisitor
+    :   public BaseVisitor,
+        public Visitor<Class>,
+        public Visitor<FunctionOverload>,
+        public Visitor<Namespace>,
+        public Visitor<Variable>,
+        public Visitor<Typedef>
+    {
+        CppFileWriter & writer;
+
+        UsingStatementVisitor(CppFileWriter & writer)
+        :   writer(writer)
+        {
+        }
+
+        virtual void Visit(Class & e)
+        {
+            writer.EnterNamespace(e.GetNode()->GetParent());
+            writer.UsingStatement(e);
+        }
+
+        virtual void Visit(FunctionOverload & e)
+        {
+            writer.EnterNamespace(e.GetNode()->GetParent());
+            writer.UsingStatement(e);
+        }
+
+        virtual void Visit(Namespace & e)
+        {
+            writer.EnterNamespace(e.GetNode()->GetParent());
+            writer.UsingStatement(e);
+        }
+
+        virtual void Visit(Typedef & e)
+        {
+            writer.EnterNamespace(e.GetNode()->GetParent());
+            writer.UsingStatement(e);
+        }
+
+        virtual void Visit(Variable & e)
+        {
+            writer.EnterNamespace(e.GetNode()->GetParent());
+            writer.UsingStatement(e);
+        }
+    };
+
     struct ImplementationVisitor
     :   public BaseVisitor,
         public Visitor<Block>,
@@ -521,21 +569,27 @@ class CodeTextProducer
 
 } }  // End anonymous namespace
 
-    public void writeForwardDeclaration(Element & e)
+    ~hidden void writeForwardDeclaration(Element & e)
     {
         ForwardDeclarationVisitor visitor(writer);
         e.Accept(visitor);
     }
 
-    public void writeTypeDefinition(Element & e)
+    ~hidden void writeTypeDefinition(Element & e)
     {
         TypeDefinitionVisitor visitor(writer);
         e.Accept(visitor);
     }
 
-    public void writeImplementation(Element & e)
+    ~hidden void writeImplementation(Element & e)
     {
         ImplementationVisitor visitor(writer);
+        e.Accept(visitor);
+    }
+
+    ~hidden void writeUsingStatement(Element & e)
+    {
+        UsingStatementVisitor visitor(writer);
         e.Accept(visitor);
     }
 

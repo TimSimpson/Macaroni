@@ -214,6 +214,18 @@ class FunctionOverload : public Scope
 		return exceptionSpecifier;
 	}
 
+	public NodePtr GetFunctionNode() const
+	{
+		return GetNode()->GetNode();
+	}
+
+	public Node & GetFunctionNodeRef() const
+	{
+		MACARONI_ASSERT(GetNodeRef().GetParentPtr(),
+			            "Null function for function overload?");
+		return *(GetNodeRef().GetParentPtr());
+	}
+
 	public inline const TypePtr GetReturnType() const
 	{
 		return returnType;

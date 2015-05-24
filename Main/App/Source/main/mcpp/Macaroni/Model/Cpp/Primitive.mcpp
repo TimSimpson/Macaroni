@@ -53,4 +53,10 @@ class Primitive : public ScopeMember
     {
         intrusive_ptr_release((ScopeMember *)p);
     }
+
+    public virtual bool RequiresHFile() const
+    {
+        return false;
+    }
+
 };

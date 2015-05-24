@@ -62,7 +62,7 @@ class CodeGraph
     {
         private: CodeText * dividers;
         private: std::unordered_map<
-            Macaroni::Model::Element *, std::array<CodeText, 5>> map;
+            Macaroni::Model::Element *, std::array<CodeText, 6>> map;
     }
 
     public CodeGraph()
@@ -148,6 +148,7 @@ class CodeGraph
             CodeText(CodeType::BlockTop, e),
             CodeText(CodeType::ForwardDeclaration, e),
             CodeText(CodeType::TypeDefinition, e),
+            CodeText(CodeType::UsingStatement, e),
             CodeText(CodeType::Implementation, e),
             CodeText(CodeType::BlockBottom, e),
         };
@@ -156,8 +157,9 @@ class CodeGraph
         CodeText & bt = r[0];
         CodeText & fd = r[1];
         CodeText & td = r[2];
-        CodeText & im = r[3];
-        CodeText & bb = r[4];
+        CodeText & us = r[3];
+        CodeText & im = r[4];
+        CodeText & bb = r[5];
 
         struct DepVisitor
         :   public BaseVisitor,
@@ -171,15 +173,18 @@ class CodeGraph
             CodeText & bt;
             CodeText & fd;
             CodeText & td;
+            CodeText & us;
             CodeText & im;
             CodeText & bb;
 
             DepVisitor(CodeGraph & g, CodeText & bt, CodeText & fd,
-                       CodeText & td, CodeText & im, CodeText & bb)
+                       CodeText & td, CodeText & us, CodeText & im,
+                       CodeText & bb)
             :   graph(g),
                 bt(bt),
                 fd(fd),
                 td(td),
+                us(us),
                 im(im),
                 bb(bb)
             {}
@@ -324,6 +329,10 @@ class CodeGraph
                 }
                 addDepsOfNodeList(im, *(e.GetImportedNodes()),
                                   CodeType::TypeDefinition);
+                // Add dependencies on the using statements for each
+                // implementation.
+                addDepsOfNodeList(im, *(e.GetImportedNodes()),
+                                  CodeType::UsingStatement);
 /*
                 struct HandleFuncStruct {
                     CodeText & fd;
@@ -413,6 +422,8 @@ class CodeGraph
                     //throw EmptyImportListError(e.GetNode()->GetFullName());
                     addDepsOfNodeList(im, *(e.GetImportedNodes()),
                                   CodeType::TypeDefinition);
+                    addDepsOfNodeList(im, *(e.GetImportedNodes()),
+                                  CodeType::UsingStatement);
                 }
 
                 //TODO: May need to add the TypeDefinitions of all variables
@@ -447,7 +458,7 @@ class CodeGraph
                 //im.addDependency(&fd);
             }
 
-        } visitor(*this, bt, fd, td, im, bb);
+        } visitor(*this, bt, fd, td, us, im, bb);
         e->Accept(visitor);
     }
 

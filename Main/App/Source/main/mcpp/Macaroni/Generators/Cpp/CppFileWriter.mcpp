@@ -21,7 +21,9 @@
 ~import Macaroni::IO::GeneratedFileWriterPtr;
 ~import Macaroni::Generators::Cpp::Library::LibraryConfigGenerator;
 ~import Macaroni::Generators::Cpp::MissingCodeBlockError;
+~import Macaroni::Model::Cpp::Namespace;
 ~import boost::optional;
+~import Macaroni::Model::Cpp::Primitive;
 ~import Macaroni::Model::Source;
 ~import Macaroni::Model::SourcePtr;
 ~import std::string;
@@ -601,17 +603,28 @@ class CppFileWriter
         {
             EnterRootNamespace();
             NewLineIfNeeded();
-            write("#include ", file);
+            if (file.size() > 0 && file[0] == '<')
+            {
+                write("#include ", file);
+            }
+            else
+            {
+                write("#include <", file, ">");
+            }
             includedFiles.insert(file);
         }
     }
 
     public void IncludeFile(Element & element)
     {
+        if (!element.RequiresHFile())
+        {
+            return;
+        }
         NodePtr node = element.GetNode();
         // If the hfile is set, use it.
         auto fileNamePtr = node->GetHFilePath();
-        if (fileNamePtr)
+        if (fileNamePtr && element.RequiresHFile())
         {
             string file = fileNamePtr->GetName();
             includeFile(file);
@@ -788,14 +801,36 @@ class CppFileWriter
         write("typedef ");
     }
 
-    public void UsingStatement(Node & n)
+    public void UsingStatement(Class & c)
     {
-        if (n.GetParent() == primitiveRoot)
-        {
-            return;
-        }
-        NewLineIfNeeded();
+        usingStatement(c.GetNodeRef());
+    }
+
+    public void UsingStatement(FunctionOverload & fo)
+    {
+        usingStatement(fo.GetFunctionNodeRef());
+    }
+
+    public void UsingStatement(Namespace & ns)
+    {
+        EnterRootNamespace();
+        write("using namespace ", ns.GetNodeRef().GetFullName(), ";");
+    }
+
+    ~hidden void usingStatement(Node & n)
+    {
+        EnterRootNamespace();
         write("using ", n.GetFullName(), ";");
+    }
+
+    public void UsingStatement(Typedef & td)
+    {
+        usingStatement(td.GetNodeRef());
+    }
+
+    public void UsingStatement(Variable & v)
+    {
+        usingStatement(v.GetNodeRef());
     }
 
     public void VirtualKeyword()

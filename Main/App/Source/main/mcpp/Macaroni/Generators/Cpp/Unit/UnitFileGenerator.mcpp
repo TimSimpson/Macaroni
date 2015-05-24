@@ -222,8 +222,8 @@ class UnitFileGenerator
 
         for (auto e : elementList)
         {
-            CodeText & ct = graph.Get(e.get(), CodeType::Implementation);
-            sorter.Add(&ct);
+            sorter.Add(&graph.Get(e.get(), CodeType::UsingStatement));
+            sorter.Add(&graph.Get(e.get(), CodeType::Implementation));
         }
         vector<CodeText *> cppText = sorter.Sort();
 
@@ -287,8 +287,9 @@ class UnitFileGenerator
         int firstImplementationIndex = index;
 
         // Now bring in the using statements.
-        cpp.InsertEmptyLine();
-        cpp.CommentHeader("Using Statements");
+        //cpp.InsertEmptyLine();
+        //cpp.CommentHeader("Using Statements");
+        /*
         auto printUsing = [this, &cpp](CodeText * ct) {
             if (ct && ct->Type() == CodeType::TypeDefinition)
             {
@@ -303,7 +304,7 @@ class UnitFileGenerator
         for (CodeText * ct : cppText)
         {
             printUsing(ct);
-        }
+        }*/
 
         // Finally, return to print the implementation details.
         cpp.InsertEmptyLine();
@@ -407,20 +408,21 @@ class UnitFileGenerator
                                    % ct % ct.GetElement()->GetTypeName()));
             }
         }
-        if (ct.GetElement()->OwnedBy(target))
+        if (ct.GetElement() && ct.GetElement()->OwnedBy(target))
         {
             producer.Write(ct);
         }
+        /*
         else
         {
             if (debugText)
             {
-                writer.Comment("DEBUG- Not owned by our target.");
+                writer.Comment(str(format("DEBUG- Not owned by our target: %s")
+                               % ct.GetElement()->GetNodeRef().GetFullName()));
             }
-            MACARONI_ASSERT(ct.GetElement(), "Element can't be null.");
             Element * e = const_cast<Element *>(ct.GetElement());
             writer.IncludeFile(*e);
-        }
+        }*/
     }
 
     public string ToString()
