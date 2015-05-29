@@ -189,6 +189,17 @@ class CodeGraph
                 bb(bb)
             {}
 
+            // Add a dependency of the Elements's codeType to the given code
+            // text.
+            // So for example a Class's Type Definition might be the first
+            // argument and a top block it requires could be the Element.
+            void addDepOfNode(CodeText & codeText, Element & element,
+                              CodeType codeType)
+            {
+                CodeText & newDep = graph.get(&element, codeType);
+                codeText.addDependency(&newDep);
+            }
+
             // Add the given node list Elements to the codeText as dependencies
             // of the given CodeType.
             void addDepsOfNodeList(CodeText & codeText,
@@ -201,8 +212,7 @@ class CodeGraph
                     {
                         throw HollowNodeException(n, codeText);
                     }
-                    CodeText & newDep = graph.get(eFriend, codeType);
-                    codeText.addDependency(&newDep);
+                    addDepOfNode(codeText, *eFriend, codeType);
                 }
             }
 
@@ -315,6 +325,37 @@ class CodeGraph
                             {
                                 visitFunctionOverload(*fo,
                                     CodeType::TypeDefinition, td);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        auto block = node.GetChild(i)->GetElementPtr<Block>();
+                        if (block)
+                        {
+
+                            if (block->GetId() == "top")
+                            {
+                                addDepOfNode(td, *block, CodeType::BlockTop);
+                            }
+                            /*
+                            // This is dirty- I know the sorter will ultimately
+                            // move this to the bottom, so I make the class
+                            // depend on it.
+                            else if (block->GetId() == "bottom")
+                            {
+                                addDepOfNode(td, *block, CodeType::BlockBottom);
+                            }*/
+                            // The type def has to depend on this so it will
+                            // appear higher up.
+                            else if (block->GetId() == "h-predef")
+                            {
+                                addDepOfNode(td, *block, CodeType::TypeDefinition);
+                            }
+                            // Make the implementation depend on this.
+                            else if (block->GetId() == "cpp-include")
+                            {
+                                addDepOfNode(im, *block, CodeType::TypeDefinition);
                             }
                         }
                     }

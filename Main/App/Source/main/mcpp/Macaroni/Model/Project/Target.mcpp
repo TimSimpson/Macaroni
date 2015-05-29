@@ -248,6 +248,12 @@ class Target
 		}
 	}
 
+	public TargetPtr CreateTargetPtr()
+	{
+		TargetPtr tp(this);
+		return tp;
+	}
+
 	//TODO: If dealing with lists of artifacts gets too complex maybe put that
 	//in its own class.
 	public virtual  ArtifactListPtr FindArtifacts(

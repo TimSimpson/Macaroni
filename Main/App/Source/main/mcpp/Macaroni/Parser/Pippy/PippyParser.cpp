@@ -727,7 +727,18 @@ public:
 			throw ParserException(itr.GetSource(),
 				Messages::Get("CppParser.CodeBlock.Expected"));
 		}
-		NodePtr blockHome = createNextBlockNode(currentScope, itr);
+		NodePtr blockHome;
+		if ((id == "top" || id == "bottom") &&
+			currentScope->HasElementOfType<Macaroni::Model::Cpp::Class>())
+		{
+			// Make this adopted.
+			blockHome = createNextBlockNode(currentScope->GetParent(), itr);
+			blockHome->SetAdoptedHome(currentScope);
+		}
+		else
+		{
+			blockHome = createNextBlockNode(currentScope, itr);
+		}
 
 		TargetPtr tHome;
 		boost::optional<NodeListPtr> imports = boost::none;

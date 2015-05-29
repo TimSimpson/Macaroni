@@ -207,14 +207,26 @@ class CodeText
     {
         switch(t)
         {
+            case CodeType::BlockTop:
+                out << "BlockTop";
+                return out;
             case CodeType::ForwardDeclaration:
                 out << "ForwardDeclaration";
                 return out;
             case CodeType::TypeDefinition:
                 out << "TypeDefinition";
                 return out;
+            case CodeType::UsingStatement:
+                out << "UsingStatement";
+                return out;
             case CodeType::Implementation:
                 out << "Implementation";
+                return out;
+            case CodeType::BlockBottom:
+                out << "BlockBottom";
+                return out;
+            case CodeType::Divider:
+                out << "Divider";
                 return out;
             default:
                 out << "??!";
@@ -225,6 +237,8 @@ class CodeText
     public ~global ~friend ostream & operator<<(ostream & out,
                                                 const CodeText & ct)
     {
+        out << ct.codeType;
+        out << ", ";
         if (ct.element)
         {
             out << ct.element->GetNode()->GetFullName();
@@ -233,8 +247,6 @@ class CodeText
         {
             out << "<none>";
         }
-        out << ", ";
-        out << ct.codeType;
         out << ", (";
         bool seenOne = false;
         for (auto * dep : ct.dependsOn)

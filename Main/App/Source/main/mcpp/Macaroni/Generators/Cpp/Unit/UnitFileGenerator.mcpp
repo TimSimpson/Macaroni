@@ -253,7 +253,7 @@ class UnitFileGenerator
         CppFileWriter cpp(libConfig, unit.GetContext()->GetRoot(),
                           cppWriter);
 
-        CodeTextProducer producer(cpp);
+        CodeTextProducer producer(debugText, cpp);
 
         generateTextList(producer, cpp, cppText,
                          boost::none,
@@ -337,7 +337,7 @@ class UnitFileGenerator
     {
         header.HeaderTop(this->unit);
 
-        CodeTextProducer producer(header);
+        CodeTextProducer producer(debugText, header);
         if (includeTopAndBottomBlocks)
         {
             generateTextList(producer, header, headerText,
@@ -345,8 +345,10 @@ class UnitFileGenerator
                              CodeText::DividerTopId());
         }
 
+        header.InsertEmptyLine();
         header.HeaderStartingIncludes(this->unit);
 
+        header.InsertEmptyLine();
         generateTextList(producer, header, headerText,
                          CodeText::DividerTopId(),
                          CodeText::DividerImplementationStartId());
@@ -408,9 +410,9 @@ class UnitFileGenerator
                                    % ct % ct.GetElement()->GetTypeName()));
             }
         }
-        if (ct.GetElement() && ct.GetElement()->OwnedBy(target))
+        if (ct.GetElement())
         {
-            producer.Write(ct);
+            producer.Write(ct, target, library);
         }
         /*
         else

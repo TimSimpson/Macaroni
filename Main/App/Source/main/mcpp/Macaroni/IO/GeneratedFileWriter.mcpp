@@ -270,7 +270,6 @@ class GeneratedFileWriter
 
 	public void WriteLine()
 	{
-		lineNumber ++;
 		(*writer) << std::endl;
 		lineNumber += 1;
 		columnNumber = 0;
@@ -287,7 +286,6 @@ class GeneratedFileWriter
 	public void WriteLine(const T & t)
 	{
 		Write(t);
-		lineNumber ++;
 		(*writer) << std::endl;
 		lineNumber += 1;
 		columnNumber = 0;

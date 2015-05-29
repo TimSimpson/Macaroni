@@ -728,7 +728,7 @@ class CppFileWriter
     {
         NewLineIfNeeded();
         write("#line ");
-        write(LineNumber());
+        write(LineNumber() + 1);
         write(" \"");
         write(writer->GetFilePath());
         writeLine("\"");

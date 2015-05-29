@@ -17,12 +17,16 @@
 ~import Macaroni::Model::Cpp::Function;
 ~import Macaroni::Model::Cpp::FunctionOverload;
 ~import Macaroni::Model::Cpp::FunctionOverloadPtr;
+~import Macaroni::Model::Project::LibraryTarget;
+~import Macaroni::Model::Project::LibraryTargetPtr;
 ~import Macaroni::Model::Cpp::Namespace;
 ~import Macaroni::Model::Node;
 ~import Macaroni::Model::NodePtr;
+~import Macaroni::Model::Project::TargetPtr;
 ~import Macaroni::Model::Cpp::Typedef;
 ~import Macaroni::Model::Cpp::Variable;
 ~import Macaroni::Model::Cpp::VariablePtr;
+~import std::vector;
 ~import Macaroni::Core::Visitor;
 
 
@@ -34,14 +38,16 @@
 // the text itself is coded into the CppFileWriter class.
 class CodeTextProducer
 {
+    bool debugText;
     CppFileWriter & writer;
 
-    public CodeTextProducer(CppFileWriter & writer)
-    :   writer(writer)
+    public CodeTextProducer(bool debugText, CppFileWriter & writer)
+    :   debugText(debugText),
+        writer(writer)
     {
     }
 
-    public void Write(CodeText & codeText)
+    public void Write(CodeText & codeText, TargetPtr target, LibraryTargetPtr lib)
     {
         MACARONI_ASSERT(codeText.GetElement() != nullptr,
                         "Can't write null element!");
@@ -50,23 +56,48 @@ class CodeTextProducer
         Element & element = const_cast<Element &>(constElement);
 
         writer.InsertEmptyLine();
-        writer.Comment(str(boost::format("MARIO : < WORK IN PROGRESS: %s") % codeText));
+        if (debugText)
+        {
+            writer.Comment(str(boost::format("DEBUG : < WRITING CODETEXT %s")
+                           % codeText));
+        }
         switch(codeText.Type())
         {
             case CodeType::ForwardDeclaration:
-                writeForwardDeclaration(element);
+                // Don't bother with this if it's an external library.
+                if (element.OwnedBy(lib->CreateTargetPtr()))
+                {
+                    writeForwardDeclaration(element);
+                }
+                else
+                {
+                    writeIncludeStatement(element);
+                }
                 return;
             case CodeType::TypeDefinition:
-                writeTypeDefinition(element);
+                if (element.OwnedBy(target))
+                {
+                    // Only write this if you're in the actual unit.
+                    writeTypeDefinition(element);
+                }
+                else
+                {
+                    writeIncludeStatement(element);
+                }
                 return;
             case CodeType::Implementation:
-                writeImplementation(element);
+                if (element.OwnedBy(target))
+                {
+                    // Only write this if you're in the actual unit.
+                    writeImplementation(element);
+                }
                 return;
             case CodeType::UsingStatement:
                 writeUsingStatement(element);
                 return;
             case CodeType::BlockTop:
                 {
+                    if (!element.OwnedBy(target)) { return; }
                     Block * blockPtr = dynamic_cast<Block *>(&element);
                     if (blockPtr && blockPtr->GetId() == "top")
                     {
@@ -76,6 +107,7 @@ class CodeTextProducer
                 return;
             case CodeType::BlockBottom:
                 {
+                    if (!element.OwnedBy(target)) { return; }
                     Block * blockPtr = dynamic_cast<Block *>(&element);
                     if (blockPtr && blockPtr->GetId() == "bottom")
                     {
@@ -92,6 +124,43 @@ class CodeTextProducer
 // Visual Studio problems.
 
 ~block "cpp" { namespace {
+
+    struct IncludeStatementVisitor
+    :   public BaseVisitor,
+        public Visitor<Class>,
+        public Visitor<FunctionOverload>,
+        public Visitor<Variable>,
+        public Visitor<Typedef>
+    {
+        CppFileWriter & writer;
+
+        IncludeStatementVisitor(CppFileWriter & writer)
+        :   writer(writer)
+        {
+        }
+
+        virtual void Visit(Class & e)
+        {
+            writer.IncludeFile(e);
+        }
+
+
+        virtual void Visit(FunctionOverload & e)
+        {
+            writer.IncludeFile(e);
+        }
+
+        virtual void Visit(Typedef & e)
+        {
+            writer.IncludeFile(e);
+        }
+
+        virtual void Visit(Variable & e)
+        {
+            writer.IncludeFile(e);
+        }
+    };
+
     struct ForwardDeclarationVisitor
     :   public BaseVisitor,
         public Visitor<Class>,
@@ -128,6 +197,10 @@ class CodeTextProducer
 
         virtual void Visit(Typedef & e)
         {
+            writer.EnterNamespace(e.GetNode()->GetParent());
+            writer.WriteClassKeyword();
+            writer.WriteNodeName(e.GetNode());
+            writer.EndStatement();
         }
 
         virtual void Visit(Variable & e)
@@ -149,12 +222,14 @@ class CodeTextProducer
         public Visitor<Variable>,
         public Visitor<Typedef>
     {
+        Block * hPostDef;
         Class * owningClass;
         CppFileWriter & writer;
 
         TypeDefinitionVisitor(CppFileWriter & writer,
                               Class * owningClass=nullptr)
-        :   owningClass(owningClass),
+        :   hPostDef(nullptr),
+            owningClass(owningClass),
             writer(writer)
         {
         }
@@ -165,6 +240,20 @@ class CodeTextProducer
             {
                 writer.BlockContents(b);
             }
+            else if (!owningClass &&
+                     (b.GetId() == "h-predef" || b.GetId() == "cpp-include"))
+            {
+                // The blocks probably have include statements, so do this
+                // first:
+                writer.EnterRootNamespace();
+                // Print these out, but only if we aren't iterating a class.
+                writer.BlockContents(b);
+            }
+            else if (owningClass && b.GetId() == "h-postdef")
+            {
+                hPostDef = &b;
+            }
+
         }
 
         virtual void Visit(Class & e)
@@ -221,6 +310,7 @@ class CodeTextProducer
 
             // Iterate members.
             Node & classNode = e.GetNodeRef();
+            vector<Block *> hPostDefBlocks;
             for (unsigned int i = 0; i < classNode.GetChildCount(); ++ i)
             {
                 NodePtr child = classNode.GetChild(i);
@@ -229,7 +319,17 @@ class CodeTextProducer
                 {
                     TypeDefinitionVisitor cgev(writer, &e);
                     childElement->Accept(cgev);
+                    // So wrong... ;_;
+                    if (cgev.hPostDef)
+                    {
+                        hPostDefBlocks.push_back(cgev.hPostDef);
+                    }
                 }
+            }
+            // Write all the post def blocks
+            for (Block * b : hPostDefBlocks)
+            {
+                writer.BlockContents(*b);
             }
 
             writer.CloseBraceForClass();
@@ -572,6 +672,12 @@ class CodeTextProducer
     ~hidden void writeForwardDeclaration(Element & e)
     {
         ForwardDeclarationVisitor visitor(writer);
+        e.Accept(visitor);
+    }
+
+    ~hidden void writeIncludeStatement(Element & e)
+    {
+        IncludeStatementVisitor visitor(writer);
         e.Accept(visitor);
     }
 
