@@ -47,7 +47,7 @@ class LibraryConfigGenerator
     ~hidden static string initConfigFile(LibraryTargetPtr lib)
     {
         return str(boost::format("Config_%s.h")
-                   % lib->GetShortName().get_value_or(lib->GetCId())
+                   % lib->GetShortName().get_value_or(lib->GetVersionFreeCId())
         );
     }
 
