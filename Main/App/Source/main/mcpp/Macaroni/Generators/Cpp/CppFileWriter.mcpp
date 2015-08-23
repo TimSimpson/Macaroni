@@ -69,6 +69,7 @@ class CppFileWriter
         tabs(0),
         writer(writer)
     {
+
     }
 
     public void Access(AccessPtr access)
@@ -259,7 +260,8 @@ class CppFileWriter
     {
         writeLine("#define ", libConfig.LibCreate());
         // TODO: Include precompiled headers file here.
-        write("#include \"", unit.GetHFile()->GetFileName(), "\"");
+        // Don't include normal header as the internal header will be used.
+        // write("#include \"", unit.GetHFile()->GetFileName(), "\"");
     }
 
     ~hidden void dashLine()
