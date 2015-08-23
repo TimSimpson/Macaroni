@@ -805,34 +805,56 @@ class CppFileWriter
 
     public void UsingStatement(Class & c)
     {
-        usingStatement(c.GetNodeRef());
+        if (!c.GetNodeRef().InRootNamespace())
+        {
+            EnterRootNamespace();
+            usingStatement(c.GetNodeRef());
+        }
     }
 
     public void UsingStatement(FunctionOverload & fo)
     {
-        usingStatement(fo.GetFunctionNodeRef());
+        if (!fo.GetFunctionNodeRef().InRootNamespace())
+        {
+            EnterRootNamespace();
+            usingStatement(fo.GetFunctionNodeRef());
+        }
     }
 
     public void UsingStatement(Namespace & ns)
     {
-        EnterRootNamespace();
-        write("using namespace ", ns.GetNodeRef().GetFullName(), ";");
+        if (!ns.GetNodeRef().InRootNamespace())
+        {
+            EnterRootNamespace();
+            write("using namespace ", ns.GetNodeRef().GetFullName(), ";");
+        }
     }
 
     ~hidden void usingStatement(Node & n)
     {
-        EnterRootNamespace();
-        write("using ", n.GetFullName(), ";");
+        if (!n.InRootNamespace())
+        {
+            EnterRootNamespace();
+            write("using ", n.GetFullName(), ";");
+        }
     }
 
     public void UsingStatement(Typedef & td)
     {
-        usingStatement(td.GetNodeRef());
+        if (!td.GetNodeRef().InRootNamespace())
+        {
+            EnterRootNamespace();
+            usingStatement(td.GetNodeRef());
+        }
     }
 
     public void UsingStatement(Variable & v)
     {
-        usingStatement(v.GetNodeRef());
+        if (!v.GetNodeRef().InRootNamespace())
+        {
+            EnterRootNamespace();
+            usingStatement(v.GetNodeRef());
+        }
     }
 
     public void VirtualKeyword()

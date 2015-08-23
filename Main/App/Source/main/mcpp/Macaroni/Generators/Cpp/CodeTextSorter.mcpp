@@ -7,6 +7,9 @@
 
 class CodeTextSorter
 // Accepts an arbitrary number of CodeText items and produces a sorted list.
+// You start by adding a series of CodeText items with "Add", then call "Sort()"
+// to get a sorted vector of CodeText pointers. Note that this never owns the
+// pointers to any CodeText items.
 {
     ~block "cpp-include"
     {
@@ -16,9 +19,16 @@ class CodeTextSorter
         #include <iterator>
     }
 
+    // divTop, divImpl, divBottom are fake CodeText items that exist to
+    // help sort things. They divide the top- where certain special code blocks
+    // that for example might enable or disable compilation live, the bottom,
+    // which is at the very bottom of the code file and is similar, and the
+    // "implementation", which for Cpp files is where the "internal" header
+    // ends and the implementation starts.
     private CodeText * divTop;
     private CodeText * divImpl;
     private CodeText * divBottom;
+    // This is the list of all code items which is used to sort everything.
     private vector<CodeText *> items;
 
     public CodeTextSorter(CodeText & divTop, CodeText & divImpl,
@@ -32,15 +42,15 @@ class CodeTextSorter
     public void Add(CodeText * ct)
     {
         MACARONI_ASSERT(ct != nullptr, "Can't add null!");
-        for (CodeText * item : items)
+        for (CodeText * item : items)  // Don't add stuff we already have.
         {
             if (item == ct)
             {
                 return;
             }
         }
-        items.push_back(ct);
-        for (CodeText * dep : ct->DependsOn())
+        items.push_back(ct);  // Add this...
+        for (CodeText * dep : ct->DependsOn())  // ... and every dependency.
         {
             Add(dep);
         }
@@ -50,6 +60,10 @@ class CodeTextSorter
     {
         //http://www.boost.org/doc/libs/1_57_0/libs/graph/doc/using_adjacency_list.html
 
+        // These lines construct the special graph type we use to sort
+        // everything. We tell it this is a directed graph, and while we
+        // use graphIds to sort, we store the CodeText pointer as a
+        // property for each graph node.
         struct CodeTextTag {
             typedef boost::vertex_property_tag kind;
         };
@@ -65,6 +79,9 @@ class CodeTextSorter
 
         CodeTextGraph graph(CodeText::MaxGraphId());
 
+        // Now with the graph constructed, add_edge is used to establish
+        // dependencies on node to another.
+
         // Add a dependency from the implementation to the top, in the rare
         // event there are no forward decls or typedefs.
         boost::add_edge(divImpl->GraphId(), divTop->GraphId(), graph);
@@ -74,6 +91,10 @@ class CodeTextSorter
 
         for (CodeText * ptr : items)
         {
+            // This first switch establishes sort of global, simple
+            // dependencies, such as the idea that any implementation text must
+            // exist underneath the implementation divider (and therefore)
+            // stay out of the header.
             switch(ptr->Type())
             {
                 case CodeType::UsingStatement:
@@ -115,6 +136,11 @@ class CodeTextSorter
                     break;
             }
 
+            // Here is where the various code text elements begin to depend
+            // on each other. For example, if you have a class that uses
+            // another class as its parent, the first class establishes a
+            // dependency to that other class elsewhere before this method is
+            // called.
             for (CodeText * depPtr : ptr->DependsOn())
             {
                 if (depPtr)

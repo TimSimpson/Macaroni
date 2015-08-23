@@ -197,10 +197,12 @@ class CodeTextProducer
 
         virtual void Visit(Typedef & e)
         {
-            writer.EnterNamespace(e.GetNode()->GetParent());
+            /*writer.EnterNamespace(e.GetNode()->GetParent());
             writer.WriteClassKeyword();
             writer.WriteNodeName(e.GetNode());
-            writer.EndStatement();
+            writer.EndStatement();*/
+            writer.Comment(str(boost::format("No such thing as forward "
+                "declaration for typedef %s.") % e.GetNode()->GetFullName()));
         }
 
         virtual void Visit(Variable & e)
@@ -414,12 +416,14 @@ class CodeTextProducer
             {
                 writer.EnterNamespace(e.GetNode()->GetParent()->GetParent());
                 writer.InsertEmptyLine();
+                writer.LibDecl();
             }
             else
             {
                 writer.NewLineIfNeeded();
                 writer.ClassMemberAccess(e.GetAccess());
             }
+
             if (e.IsStatic())
             {
                 writer.StaticKeyword();
@@ -489,31 +493,26 @@ class CodeTextProducer
 
         virtual void Visit(Class & e)
         {
-            writer.EnterNamespace(e.GetNode()->GetParent());
             writer.UsingStatement(e);
         }
 
         virtual void Visit(FunctionOverload & e)
         {
-            writer.EnterNamespace(e.GetNode()->GetParent());
             writer.UsingStatement(e);
         }
 
         virtual void Visit(Namespace & e)
         {
-            writer.EnterNamespace(e.GetNode()->GetParent());
             writer.UsingStatement(e);
         }
 
         virtual void Visit(Typedef & e)
         {
-            writer.EnterNamespace(e.GetNode()->GetParent());
             writer.UsingStatement(e);
         }
 
         virtual void Visit(Variable & e)
         {
-            writer.EnterNamespace(e.GetNode()->GetParent());
             writer.UsingStatement(e);
         }
     };

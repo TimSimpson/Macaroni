@@ -104,6 +104,8 @@ public:
 
 	const std::string & GetName() const;
 
+	bool InRootNamespace() const;
+
 	/** If false, this node does not appear as the part of it's children's names. */
 	bool IsNameVisible() const;
 

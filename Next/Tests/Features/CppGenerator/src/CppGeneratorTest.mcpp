@@ -33,7 +33,7 @@ class Hats
 
 } // end of SuperHatNamespace
 
-void superbats(int how_many_bats)
+int superbats(int how_many_bats)
 {
     return 5;  // There are five bats.
 }

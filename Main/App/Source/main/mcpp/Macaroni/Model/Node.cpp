@@ -432,6 +432,11 @@ void intrusive_ptr_release(Node * p)
 	intrusive_ptr_release(p->context);
 }
 
+bool Node::InRootNamespace() const
+{
+	return this->scope == nullptr || this->scope->IsRoot();
+}
+
 bool Node::IsComplexName(const std::string & name)
 {
 	return (name.find("::", 0) != std::string::npos);

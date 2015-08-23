@@ -13,10 +13,10 @@
 
 class CodeText
 {
-    private CodeType codeType;
-    private vector<CodeText *> dependsOn;
-    private Element * element;
-    private int graphId;
+    private CodeType codeType;              // Fwd decl, definition, impl, etc.
+    private vector<CodeText *> dependsOn;   // Everything this depends on.
+    private Element * element;              // The C++ element it represents.
+    private int graphId;                    // Used by Boost's graph stuff.
     friend CodeGraph;
 
     public CodeText()
