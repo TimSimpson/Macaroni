@@ -535,8 +535,7 @@ class MDocParser
 
 	public static bool Parse(lua_State * L, PathPtr input, PathPtr output)
 	{
-		boost::filesystem::path outputP(output->GetAbsolutePath());
-		GeneratedFileWriterPtr writer(new GeneratedFileWriter(outputP));
+		GeneratedFileWriterPtr writer(new GeneratedFileWriter(*output));
 		return Parse(L, input, writer);
 	}
 

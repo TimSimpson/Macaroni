@@ -22,6 +22,7 @@
 #include <Macaroni/Platform/FileTime.h>
 #include <boost/format.hpp>
 #include <Macaroni/Exception.h>
+#include <Macaroni/IO/GeneratedFileWriter.h>
 #include <iostream>
 #include <Macaroni/Environment/Values/Macaroni_IO_Path.h>
 #include <Macaroni/IO/RegexFileSet.h>
@@ -213,9 +214,9 @@ GeneratedFileWriterPtr Path::CreateFile(bool trackFormatInfo) const
 {
 	try
 	{
-		boost::filesystem::path absolute = boost::filesystem::system_complete(path);
+		//boost::filesystem::path absolute = boost::filesystem::system_complete(path);
 		return GeneratedFileWriterPtr(
-			new GeneratedFileWriter(absolute, trackFormatInfo)
+			new GeneratedFileWriter(*this, trackFormatInfo)
 		);
 	}
 	catch(...)

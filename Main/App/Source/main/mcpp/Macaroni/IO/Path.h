@@ -21,11 +21,11 @@
 #include <boost/optional.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/shared_ptr.hpp>
-#include <Macaroni/IO/GeneratedFileWriter.h>
 #include <Macaroni/IO/GeneratedFileWriterPtr.h>
 #include <vector>
 
 BEGIN_NAMESPACE2(Macaroni, IO)
+
 
 class Path;
 typedef boost::shared_ptr<Path> PathPtr;

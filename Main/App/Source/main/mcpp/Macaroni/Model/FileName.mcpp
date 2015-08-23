@@ -32,7 +32,16 @@ typedef boost::intrusive_ptr<FileName> FileNamePtr
 ;
 
 
-/** Represents any file name which could be the Source of Model information. */
+/** Represents any file name which could be the Source of Model information.
+ *
+ *  One important destinction between this and the fifteen other file / path
+ *  classes in this project is that it can represent a file that is relative
+ *  to a C++ project. For example, if you're writing a class named
+ *  ::ACME::Animals this would represent some long path like
+ *  C:\MyProject\target\ACME\Animals.h but also could be represented as
+ *  ACME/Animals.h using the GetName() method. Path has the ability to do this
+ *  but it is not strictly enforced.
+*/
 class FileName
 	@LuaClass [ ReferenceType = FileNamePtr ]
 {

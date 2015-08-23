@@ -25,6 +25,7 @@
 ~import std::ifstream;
 ~import std::ostream;
 ~import boost::filesystem::path;
+~import Macaroni::IO::Path;
 ~import boost::shared_ptr;
 ~import std::string;
 ~import Macaroni::StringException;
@@ -52,35 +53,37 @@ class GeneratedFileWriter
 	bool closed;
 	int columnNumber;
 	bool directToFile;
-	const string filePath;
+	const Path filePath;
 	bool fileWasWritten;
 	bool hasSpace;
 	int lineNumber;
 	bool trackFormatInfo;
 	ostreamptr writer;
 
-	public GeneratedFileWriter(const path filePath, bool trackFormatInfo=false)
+	public GeneratedFileWriter(const Path & filePath, bool trackFormatInfo=false)
 	:	closed(false),
 		columnNumber(0),
-		filePath(filePath.string()),
+		filePath(filePath),
 		fileWasWritten(false),
 		hasSpace(true),
 	    lineNumber(1),
 	    trackFormatInfo(trackFormatInfo),
 	    writer()
 	{
-		path parent = filePath.parent_path();
+		path boostPath(filePath.GetAbsolutePath());
+		path parent = boostPath.parent_path();
 		if (!boost::filesystem::exists(parent))
 		{
 			boost::filesystem::create_directories(parent);
 		}
 
-		if (boost::filesystem::exists(filePath))
+		if (boost::filesystem::exists(boostPath))
 		{
-			if (!boost::filesystem::is_regular(filePath))
+			if (!boost::filesystem::is_regular(boostPath))
 			{
 				stringstream msg;
-                msg << "Cannot create GeneratedFileWriter for " << filePath.string()
+                msg << "Cannot create GeneratedFileWriter for "
+                    << boostPath.string()
 					<< ": the file exists and it is non-regular.";
 				throw Macaroni::StringException(msg.str().c_str());
 			}
@@ -89,7 +92,8 @@ class GeneratedFileWriter
 		}
 		else
 		{
-			writer = ostreamptr(new ofstream(filePath.string().c_str(), ofstream::trunc));
+			writer = ostreamptr(new ofstream(boostPath.string().c_str(),
+				                             ofstream::trunc));
 			directToFile = true;
 		}
 	}
@@ -114,7 +118,8 @@ class GeneratedFileWriter
 				stringstream & ss = dynamic_cast<stringstream &>(
 					*(dynamic_cast<stringstream *>(writer.get()))
 					);
-				fileWasWritten = overwriteFileWithBufferIfDifferent(filePath, ss);
+				path boostPath(this->filePath.GetAbsolutePath());
+				fileWasWritten = overwriteFileWithBufferIfDifferent(boostPath, ss);
 			}
 			closed = true;
 		}
@@ -128,10 +133,17 @@ class GeneratedFileWriter
 		return columnNumber;
 	}
 
-	public inline const string & GetFilePath() const
+	public inline const string GetFilePath() const
 		@LuaProperty "FilePath"
 	{
-		return filePath;
+		std::string result = filePath.GetRelativePathNormalized();
+		return result;
+	}
+
+	public inline const string & GetAbsoluteFilePath() const
+		@LuaProperty "FilePath"
+	{
+		return filePath.GetAbsolutePath();
 	}
 
 	// Returns true if this ends with a space. Only available if trackFormatInfo
@@ -147,12 +159,13 @@ class GeneratedFileWriter
 		return lineNumber;
 	}
 
-	public static bool isFileDifferentThanBuffer(const path & filePath, stringstream & current)
+	public static bool isFileDifferentThanBuffer(const path & boostFilePath,
+	                                             stringstream & current)
 	{
 		char buf1[256];
 		char buf2[256];
 
-		ifstream existing(filePath.string().c_str());
+		ifstream existing(boostFilePath.string().c_str());
 		current.seekg(std::ios_base::beg);
 
 		bool eof = false;
@@ -176,14 +189,15 @@ class GeneratedFileWriter
 		return false;
 	}
 
-	public static bool overwriteFileWithBufferIfDifferent(const path & filePath, stringstream & current)
+	public static bool overwriteFileWithBufferIfDifferent(
+		const path & boostFilePath, stringstream & current)
 	{
-		if (!isFileDifferentThanBuffer(filePath, current))
+		if (!isFileDifferentThanBuffer(boostFilePath, current))
 		{
 			return false;
 		}
 		current.seekg(std::ios_base::beg);
-		ofstream output(filePath.string().c_str(), ofstream::trunc);
+		ofstream output(boostFilePath.string().c_str(), ofstream::trunc);
 		output << current.str() ;
 		output.close();
 		return true;
