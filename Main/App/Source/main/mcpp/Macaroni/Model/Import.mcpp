@@ -1,0 +1,53 @@
+~import MACARONI_ASSERT;
+
+
+~namespace Macaroni::Model;
+
+
+
+enum class ImportType : int
+{
+    Normal=0,
+    H=1
+};
+
+
+class Import
+{
+    private Macaroni::Model::Node * node;
+    private ImportType type;
+
+    public Import(Macaroni::Model::Node & node, ImportType type)
+    :   node(&node),
+        type(type)
+    {
+        MACARONI_ASSERT(this->node != nullptr,
+                        "Null Nodes not allowed for import.");
+    }
+
+    public Import & operator=(const Import & other)
+    {
+        this->node = other.node;
+        MACARONI_ASSERT(this->node != nullptr,
+                        "Null Nodes not allowed for import.");
+        this->type = other.type;
+        return *this;
+    }
+
+    public Macaroni::Model::Node & GetNode() const
+    {
+        MACARONI_ASSERT(this->node != nullptr,
+                        "Null Nodes not allowed for import.");
+        return *node;
+    }
+
+    public ImportType GetType() const
+    {
+        return type;
+    }
+};
+
+
+~import std::vector;
+
+typedef std::vector<Import> ImportList;

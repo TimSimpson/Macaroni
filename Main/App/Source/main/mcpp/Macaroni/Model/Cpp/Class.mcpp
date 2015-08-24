@@ -28,6 +28,8 @@
 ~import Macaroni::Model::Cpp::Function;
 ~import Macaroni::Model::Cpp::FunctionOverload;
 ~import Macaroni::Model::Cpp::FunctionPtr;
+~import Macaroni::Model::Import;
+~import Macaroni::Model::ImportList;
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Model::NodeList;
 ~import Macaroni::Model::NodeListPtr;
@@ -79,7 +81,7 @@ class Class : public Scope
 
     private NodeListPtr globals;
 
-    private NodeListPtr imports;
+    private ImportList imports;
 
     private const bool isStruct;
 
@@ -90,7 +92,7 @@ class Class : public Scope
 
     protected Class(Target * target, Node * parent,
                     bool isStruct, Access access,
-                    NodeListPtr importedNodes, ReasonPtr reason,
+                    ImportList importedNodes, ReasonPtr reason,
                     Node * templateParameterList)
     :   Scope(target, parent, reason),
         access(access),
@@ -113,7 +115,7 @@ class Class : public Scope
 
     public static ClassPtr Create(TargetPtr target, NodePtr parent,
                                   bool isStruct, AccessPtr access,
-                                  NodeListPtr importedNodes, ReasonPtr reason,
+                                  ImportList importedNodes, ReasonPtr reason,
                                   NodePtr templateParameterList=NodePtr{})
     {
         ElementPtr existingMember = parent->GetElement();
@@ -186,7 +188,7 @@ class Class : public Scope
 
     /** Nodes imported by this class.  Always needed by the implementation file
      *  of this class. */
-    public NodeListPtr GetImportedNodes() const
+    public const ImportList & GetImportedNodes() const
     {
         return imports;
     }

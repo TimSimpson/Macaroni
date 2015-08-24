@@ -74,11 +74,11 @@ tests = {
                 local typename = class.TypeName;
                 Test.assertEquals("Class", tostring(typename));
             end,
-            ["The Class can use Class methods such as ImportedNodes."] = function(this)
-                local class = this.newClass;
-                local importedNodes = class.ImportedNodes;
-                Test.assertEquals(0, #importedNodes);
-            end,
+            -- ["The Class can use Class methods such as ImportedNodes."] = function(this)
+            --     local class = this.newClass;
+            --     local importedNodes = class.ImportedNodes;
+            --     Test.assertEquals(0, #importedNodes);
+            -- end,
             --["The default of a node is private."] = function(this)
             --    local foundNode = this.root:Find("Dog");
             --    local expected = Access.Private;

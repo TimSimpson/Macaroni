@@ -14,6 +14,9 @@
 ~import Macaroni::Model::Cpp::Function;
 ~import Macaroni::Model::Cpp::FunctionOverload;
 ~import Macaroni::Generators::Cpp::HollowNodeException;
+~import Macaroni::Model::Import;
+~import Macaroni::Model::ImportList;
+~import Macaroni::Model::ImportType;
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaFunction;
 ~import Macaroni::Lua::LuaOperator;
@@ -57,6 +60,11 @@ class CodeGraph
     }
 
     ~block "cpp-include" { #include <algorithm> }
+
+    ~block "cpp"
+    {
+        using Macaroni::Model::ImportType;
+    }
 
     ~block "h"
     {
@@ -216,6 +224,26 @@ class CodeGraph
                 }
             }
 
+            void addDepsOfImportList(CodeText & codeText,
+                                     const ImportList & importList,
+                                     const ImportType importType,
+                                     CodeType codeType)
+            {
+                for (const Import & i : importList)
+                {
+                    if (i.GetType() == importType)
+                    {
+                        Element * eFriend = i.GetNode().GetElementPtr();
+                        if (!eFriend)
+                        {
+                            NodePtr ptr(&i.GetNode());
+                            throw HollowNodeException(ptr, codeText);
+                        }
+                        addDepOfNode(codeText, *eFriend, codeType);
+                    }
+                }
+            }
+
             virtual void Visit(Block & b)
             {
                 string id = b.GetId();
@@ -248,21 +276,25 @@ class CodeGraph
                     ///im.addDependency(&td);
                     return;
                 }
-                else if (!b.GetImportedNodes())
-                {
-                    throw EmptyImportListError(b.GetNode()->GetFullName());
-                }
+                //else if (!b.GetImportedNodes())
+                //{
+                //    throw EmptyImportListError(b.GetNode()->GetFullName());
+                //}
                 // For normal blocks "h" and "cpp", plus "h-postdef",
                 // iterate all the imports and make them required by this node.
                 if (id == "h")
                 {
-                    addDepsOfNodeList(td, *(b.GetImportedNodes()),
-                                      CodeType::TypeDefinition);
+                    addDepsOfImportList(td,
+                                        b.GetImportedNodes(),
+                                        ImportType::Normal,
+                                        CodeType::TypeDefinition);
                 }
                 else if (id == "cpp")
                 {
-                    addDepsOfNodeList(im, *(b.GetImportedNodes()),
-                                      CodeType::TypeDefinition);
+                    addDepsOfImportList(im,
+                                        b.GetImportedNodes(),
+                                        ImportType::Normal,
+                                        CodeType::TypeDefinition);
                 }
             }
 
@@ -364,16 +396,18 @@ class CodeGraph
                 im.addDependency(&td);
 
                 // Now add all of the imports as deps to this class.
-                if (!e.GetImportedNodes())
-                {
-                    throw EmptyImportListError(e.GetNode()->GetFullName());
-                }
-                addDepsOfNodeList(im, *(e.GetImportedNodes()),
-                                  CodeType::TypeDefinition);
+                //if (!e.GetImportedNodes())
+                //{
+                //    throw EmptyImportListError(e.GetNode()->GetFullName());
+                //}
+                addDepsOfImportList(im,
+                                    e.GetImportedNodes(), ImportType::Normal,
+                                    CodeType::TypeDefinition);
                 // Add dependencies on the using statements for each
                 // implementation.
-                addDepsOfNodeList(im, *(e.GetImportedNodes()),
-                                  CodeType::UsingStatement);
+                addDepsOfImportList(im,
+                                    e.GetImportedNodes(), ImportType::Normal,
+                                    CodeType::UsingStatement);
 /*
                 struct HandleFuncStruct {
                     CodeText & fd;
@@ -461,10 +495,14 @@ class CodeGraph
                 if (e.GetImportedNodes())
                 {
                     //throw EmptyImportListError(e.GetNode()->GetFullName());
-                    addDepsOfNodeList(im, *(e.GetImportedNodes()),
-                                  CodeType::TypeDefinition);
-                    addDepsOfNodeList(im, *(e.GetImportedNodes()),
-                                  CodeType::UsingStatement);
+                    addDepsOfImportList(im,
+                                        e.GetImportedNodes().get(),
+                                        ImportType::Normal,
+                                        CodeType::TypeDefinition);
+                    addDepsOfImportList(im,
+                                        e.GetImportedNodes().get(),
+                                        ImportType::Normal,
+                                        CodeType::UsingStatement);
                 }
 
                 //TODO: May need to add the TypeDefinitions of all variables

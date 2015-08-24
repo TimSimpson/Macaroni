@@ -43,6 +43,8 @@
 #include <boost/foreach.hpp>
 #include <Macaroni/Model/Cpp/Function.h>
 #include <Macaroni/Model/Cpp/FunctionOverload.h>
+#include <Macaroni/Model/Import.h>
+#include <Macaroni/Model/ImportList.h>
 #include <memory>
 #include <Macaroni/Environment/Messages.h>
 #include <Macaroni/Model/ModelInconsistencyException.h>
@@ -109,6 +111,9 @@ using Macaroni::Model::Cpp::Function;
 using Macaroni::Model::Cpp::FunctionOverload;
 using Macaroni::Model::Cpp::FunctionOverloadPtr;
 using Macaroni::Model::Cpp::FunctionPtr;
+using Macaroni::Model::Import;
+using Macaroni::Model::ImportList;
+using Macaroni::Model::ImportType;
 using Macaroni::Model::Project::LibraryTarget;
 using Macaroni::Model::Project::LibraryTargetPtr;
 using Macaroni::Environment::Messages;
@@ -406,7 +411,7 @@ private:
 	TargetPtr currentTarget;
 	TargetPtr defaultTarget;
 	std::string hFilesForNewNodes;
-	NodeListPtr importedNodes;
+	ImportList importedNodes;
 	AccessPtr lastAccess;
 public:
 
@@ -418,7 +423,7 @@ public:
 		 currentScope(context->GetRoot()),
 		 currentTarget(target),
 		 defaultTarget(target),
-		 importedNodes(new NodeList()),
+		 importedNodes(),
 		 lastAccess(Access::NotSpecified())
 	{
 		MACARONI_ASSERT(!!CppContext::GetPrimitives(context),
@@ -426,7 +431,8 @@ public:
 		NodePtr primitiveRoot = CppContext::GetPrimitives(context);
 		for(unsigned int i = 0; i < primitiveRoot->GetChildCount(); i ++)
 		{
-			importedNodes->push_back(primitiveRoot->GetChild(i));
+			Node & n = *(primitiveRoot->GetChild(i));
+			importedNodes.emplace_back(n, ImportType::Normal);
 		}
 	}
 
@@ -502,7 +508,8 @@ public:
 
 	void AddImport(NodePtr node)
 	{
-		importedNodes->push_back(node);
+		MACARONI_ASSERT(node.get() != nullptr, "null node for import");
+		importedNodes.emplace_back(*node, ImportType::Normal);
 	}
 
 	bool Annotation(Iterator & itr)
@@ -741,7 +748,7 @@ public:
 		}
 
 		TargetPtr tHome;
-		boost::optional<NodeListPtr> imports = boost::none;
+		boost::optional<ImportList> imports = boost::none;
 		//TODO:
 		// Change to:
 		//if (!currentScope->HasElementOfType<Macaroni::Model::Cpp::Class>())
@@ -1880,16 +1887,17 @@ public:
 	{
 		std::string firstPart, lastPart;
 		Node::SplitFirstNameOffComplexName(complexName, firstPart, lastPart);
-		for (unsigned int i = 0 ; i < importedNodes->size(); i ++)
+		for (unsigned int i = 0 ; i < importedNodes.size(); i ++)
 		{
-			NodePtr & imp = (*importedNodes)[i];
-			if (firstPart == imp->GetName())
+			auto & imp = importedNodes[i];
+			//NodePtr & imp = (*importedNodes)[i];
+			if (firstPart == imp.GetNode().GetName())
 			{
 				if (lastPart.size() < 1)
 				{
-					return imp;
+					return &(imp.GetNode());
 				}
-				return imp->Find(lastPart);
+				return imp.GetNode().Find(lastPart);
 			}
 		}
 		return NodePtr();
@@ -3521,7 +3529,7 @@ public:
 			// If we are in a class, don't give this function a target.
 			// Otherwise give it one.
 			TargetPtr tHome;
-			boost::optional<NodeListPtr> imports = boost::none;
+			boost::optional<ImportList> imports = boost::none;
 			if (classDepth < 1)
 			{
 				imports = importedNodes;

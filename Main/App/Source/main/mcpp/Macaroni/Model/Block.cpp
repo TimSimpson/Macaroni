@@ -48,7 +48,7 @@ void intrusive_ptr_release(Block * p)
 
 Block::Block(Target * target, Node * host, const std::string & id,
 			 const std::string & code, const ReasonPtr reasonCreated,
-			 optional<NodeListPtr> importedNodes)
+			 optional<ImportList> importedNodes)
 :	Element(host, reasonCreated),
 	code(code),
 	id(id),
@@ -63,10 +63,7 @@ Block::Block(Target * target, Node * host, const std::string & id,
 	}
 	if (importedNodes)
 	{
-		BOOST_FOREACH(NodePtr & node, *(importedNodes.get()))
-		{
-			imports.push_back(node.get());
-		}
+		imports = importedNodes.get();
 	}
 }
 
@@ -81,7 +78,7 @@ bool Block::Accept(BaseVisitor & v)
 
 BlockPtr Block::Create(TargetPtr target, NodePtr host, const std::string & id,
 					   const std::string & block, const ReasonPtr reasonCreated,
-					   optional<NodeListPtr> importedNodes)
+					   optional<ImportList> importedNodes)
 {
 	ElementPtr existingMember = host->GetElement();
 	if (!!existingMember)
@@ -107,15 +104,11 @@ BlockPtr Block::Create(TargetPtr target, NodePtr host, const std::string & id,
 	return BlockPtr(new Block(target.get(), host.get(), id, block, reasonCreated, importedNodes));
 }
 
-NodeListPtr Block::GetImportedNodes() const
+const ImportList & Block::GetImportedNodes() const
 {
-	NodeListPtr rtnList(new NodeList());
-	BOOST_FOREACH(Node * node, imports)
-	{
-		rtnList->push_back(NodePtr(node));
-	}
-	return rtnList;
+	return imports;
 }
+
 TargetPtr Block::GetOwner() const
 {
 	if (!target)

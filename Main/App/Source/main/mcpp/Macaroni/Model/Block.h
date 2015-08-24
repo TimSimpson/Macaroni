@@ -20,6 +20,8 @@
  #include <Macaroni/Core/BaseVisitor.h>
 #include "BlockPtr.h"
 #include <Macaroni/Model/Element.h>
+#include <Macaroni/Model/Import.h>
+#include <Macaroni/Model/ImportList.h>
 #include <boost/optional.hpp>
 #include <string>
 #include <Macaroni/Model/Project/TargetPtr.h>
@@ -39,7 +41,7 @@ public:
 		                   NodePtr host, const std::string & id,
 						   const std::string & block,
 						   const ReasonPtr reasonCreate,
-					boost::optional<NodeListPtr> importedNodes=boost::none);
+						   boost::optional<ImportList> importedNodes=boost::none);
 
 	virtual bool Accept(Macaroni::Core::BaseVisitor & v);
 
@@ -53,7 +55,7 @@ public:
 		return id;
 	}
 
-	NodeListPtr GetImportedNodes() const;
+	const ImportList & GetImportedNodes() const;
 
 	Macaroni::Model::Project::TargetPtr GetOwner() const;
 
@@ -67,7 +69,7 @@ private:
 	Block(Macaroni::Model::Project::Target * target, Node * host,
 		  const std::string & id, const std::string & code,
 		  const ReasonPtr reasonCreated,
-		  boost::optional<NodeListPtr> importedNodes);
+		  boost::optional<ImportList> importedNodes);
 
 	~Block();
 
@@ -77,7 +79,7 @@ private:
 
 	std::string id;
 
-	NakedNodeList imports;
+	ImportList imports;
 
 	Macaroni::Model::Project::Target * target;
 

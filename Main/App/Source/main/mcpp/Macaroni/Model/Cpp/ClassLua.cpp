@@ -105,8 +105,15 @@ END_NAMESPACE
 		}
 		ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 5);
 
+		::Macaroni::Model::ImportList importList;
+		for(auto ptr : *imports)
+		{
+			importList.emplace_back(
+				*ptr, ::Macaroni::Model::ImportType::Normal);
+		}
+
 		ClassPtr newInstance = Class::Create(target, node, false, access,
-			                                 imports, reason);
+			                                 importList, reason);
 
 		ElementPtr memberPtr = boost::dynamic_pointer_cast<Element>(newInstance);
 		ElementLuaMetaData::PutInstanceOnStack(L, memberPtr);
@@ -136,8 +143,9 @@ END_NAMESPACE
 		}
 		else if (index == "ImportedNodes")
 		{
-			NodeListPtr list = ptr->GetImportedNodes();
-			NodeListLuaMetaData::PutInstanceOnStack(L, list);
+			luaL_error(L, "Not available, sorry.");
+			//NodeListPtr list = ptr->GetImportedNodes();
+			//NodeListLuaMetaData::PutInstanceOnStack(L, list);
 		}
 		else if (index == "Parents")
 		{

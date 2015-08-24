@@ -211,8 +211,9 @@ int FunctionOverloadLuaMetaData::Index(lua_State * L,
 	}
 	else if (index == "ImportedNodes")
 	{
-		NodeListPtr list = ptr->GetImportedNodes();
-		NodeListLuaMetaData::PutInstanceOnStack(L, list);
+		luaL_error(L, "Not available, sorry.");
+		//NodeListPtr list = ptr->GetImportedNodes();
+		//NodeListLuaMetaData::PutInstanceOnStack(L, list);
 		return 1;
 	}
 	else if (index == "Inline")

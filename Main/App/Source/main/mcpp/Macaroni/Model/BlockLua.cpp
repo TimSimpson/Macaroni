@@ -90,8 +90,9 @@ int BlockLuaMetaData::Index(lua_State * L, const BlockPtr & ptr,
 	}
 	else if (index == "ImportedNodes")
 	{
-		NodeListPtr list = ptr->GetImportedNodes();
-		NodeListLuaMetaData::PutInstanceOnStack(L, list);
+		luaL_error(L, "Not implemented currently.");
+		// NodeListPtr list = ptr->GetImportedNodes();
+		// NodeListLuaMetaData::PutInstanceOnStack(L, list);
 		return 1;
 	}
 	return 0;

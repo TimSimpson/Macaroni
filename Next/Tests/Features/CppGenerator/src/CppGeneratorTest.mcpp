@@ -8,6 +8,22 @@ namespace SuperHatNamespace {
 class Hats
 // Handles the topping of heads.
 {
+    ~block "top"
+    {
+        // TOP BLOCK!
+    }
+    ~block "h"
+    {
+        // Random H code in Hats.h?
+    }
+    ~block "cpp"
+    {
+        // Random C++ code in Hats.cpp?
+    }
+    ~block "bottom"
+    {
+        // BOTTOM BLOCK!
+    }
     int w;
 
     public Hats(int w)

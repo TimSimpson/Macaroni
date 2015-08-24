@@ -20,6 +20,8 @@
 ~import Macaroni::Model::Element;
 ~import Macaroni::Model::Cpp::ExceptionSpecifier;
 ~import Macaroni::Model::Cpp::Function;
+~import Macaroni::Model::Import;
+~import Macaroni::Model::ImportList;
 ~import Macaroni::Model::ModelInconsistencyException;
 ~import Macaroni::Model::NakedNodeList;
 ~import Macaroni::Model::Node;
@@ -56,7 +58,7 @@ class FunctionOverload : public Scope
 
 	private const boost::optional<ExceptionSpecifier> exceptionSpecifier;
 
-	private optional<NakedNodeList> imports;
+	private optional<ImportList> imports;
 
 	private const bool isInline;
 
@@ -87,14 +89,14 @@ class FunctionOverload : public Scope
 		const optional<ExceptionSpecifier> exceptionSpecifier,
 		Node * templateParameterList,
 		optional<string> trailingReturnType=boost::none,
-		optional<NodeListPtr> importedNodes=boost::none
+		optional<ImportList> importedNodes=boost::none
 	)
 	:	Scope(target, home, reason, access, isStatic),
 		codeBlock(),
 		codeBlockAddRedirect(false),
 		constMember(konstMember),
 		codeSource(),
-		imports(),
+		imports(importedNodes),
 		isInline(isInline),
 		isPureVirtual(false),
 		isTemplateClassMethod(isInTemplateClass(*home)),
@@ -107,15 +109,6 @@ class FunctionOverload : public Scope
 		usesDefaultKeyword(false),
 		usesDeleteKeyword(false)
 	{
-		if (importedNodes)
-		{
-			imports = NakedNodeList{};
-			NodeListPtr & list  = importedNodes.get();
-			for(NodePtr & n : *list)
-			{
-				(imports.get()).push_back(n.get());
-			}
-		}
 	}
 
 	public virtual ~FunctionOverload() = default; //TODO: override
@@ -139,7 +132,7 @@ class FunctionOverload : public Scope
 		Model::ReasonPtr reason,
 		NodePtr templateParameterList=NodePtr{},
 		optional<string> trailingReturnType = boost::none,
-		optional<NodeListPtr> imports=boost::none
+		optional<ImportList> imports=boost::none
 	)
 	{
 		FunctionOverload * fo = new FunctionOverload(target.get(),
@@ -180,22 +173,9 @@ class FunctionOverload : public Scope
 		return codeBlock;
 	}
 
-	public NodeListPtr GetImportedNodes() const
+	public const optional<ImportList> & GetImportedNodes() const
 	{
-		if (imports)
-		{
-			NodeListPtr rtnList(new NodeList());
-			const NakedNodeList & list = imports.get();
-			for (::Macaroni::Model::Node * n : list)
-			{
-				rtnList->push_back(NodePtr(n));
-			}
-			return rtnList;
-		}
-		else
-		{
-			return NodeListPtr{};
-		}
+		return imports;
 	}
 
 	public inline bool CodeBlockShouldAddRedirect() const
