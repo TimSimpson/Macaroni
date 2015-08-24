@@ -312,6 +312,11 @@ class CodeGraph
                     graph.computeDeps(t, CodeType::TypeDefinition, td);
                 }
 
+                // Include a dependency from type def to all h imports.
+                addDepsOfImportList(td,
+                                    e.GetImportedNodes(), ImportType::H,
+                                    CodeType::TypeDefinition);
+
                 // Now include a forward def dependency on all friends.
                 MACARONI_ASSERT(e.GetFriendNodes(), "Empty friend list?");
                 addDepsOfNodeList(td, *(e.GetFriendNodes()),
@@ -494,7 +499,16 @@ class CodeGraph
                 // Now add all of the imports as deps to this func.
                 if (e.GetImportedNodes())
                 {
-                    //throw EmptyImportListError(e.GetNode()->GetFullName());
+                    // Make the typedef- which is just the function def in
+                    // the header - depend on its H imports. Otherwise template
+                    // functions may not work.
+                    addDepsOfImportList(td,
+                                        e.GetImportedNodes().get(),
+                                        ImportType::H,
+                                        CodeType::TypeDefinition);
+
+                    // Now make the implementation depend on the type
+                    // definition and using statements.
                     addDepsOfImportList(im,
                                         e.GetImportedNodes().get(),
                                         ImportType::Normal,

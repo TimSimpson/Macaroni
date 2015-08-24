@@ -506,10 +506,10 @@ public:
 		return access;
 	}
 
-	void AddImport(NodePtr node)
+	void AddImport(const ImportType type, NodePtr node)
 	{
 		MACARONI_ASSERT(node.get() != nullptr, "null node for import");
-		importedNodes.emplace_back(*node, ImportType::Normal);
+		importedNodes.emplace_back(*node, type);
 	}
 
 	bool Annotation(Iterator & itr)
@@ -2017,7 +2017,7 @@ public:
 		NodePtr seed = c->GetRoot()->FindOrCreate(std::string("Fruit::Orange::Seed"));
 		NodePtr orange = seed->GetNode();
 		NodePtr fruit = orange->GetNode();
-		funcs.AddImport(orange);
+		funcs.AddImport(ImportType::Normal, orange);
 		NodePtr foundSeed = funcs.FindNode(std::string("Orange::Seed"));
 		Assert(foundSeed->GetFullName() == seed->GetFullName());
 
@@ -2043,7 +2043,7 @@ public:
 
 		NodePtr orange = c->GetRoot()->FindOrCreate(std::string("Fruit::Orange"));
 		NodePtr fruit = orange->GetNode();
-		funcs.AddImport(fruit);
+		funcs.AddImport(ImportType::Normal, fruit);
 		NodePtr foundOrange = funcs.FindNodeFromImports(std::string("Fruit::Orange"));
 		Assert(foundOrange->GetFullName() == orange->GetFullName());
 	}
@@ -2302,6 +2302,8 @@ public:
 			return false;
 		}
 
+		const bool hImport = itr.ConsumeWord("-h");
+
 		// Now we're committed!
 		ConsumeWhitespace(itr);
 
@@ -2320,7 +2322,7 @@ public:
 		}
 
 		NodePtr importNode = context->GetRoot()->FindOrCreate(name);
-		AddImport(importNode);
+		AddImport(hImport ? ImportType::H : ImportType::Normal, importNode);
 		return true;
 	}
 

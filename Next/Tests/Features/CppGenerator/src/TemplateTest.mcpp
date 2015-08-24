@@ -1,0 +1,27 @@
+class Pie
+{
+    public ~global void talk_to_animals(Pie & p)
+    {
+        Pie b = p;
+    }
+
+    public int five() { return 5; }
+
+
+};
+
+
+
+~import-h Pie;
+
+class InlineCodeWithHImport
+{
+
+    ~import-h InlineCodeWithHImport;
+
+    public inline void TalkToAnimals()
+    {
+        Pie p;
+        talk_to_animals(p);
+    }
+};
