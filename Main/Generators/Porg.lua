@@ -33,6 +33,11 @@ Generator =
         if (element.Node.HFilePath ~= nil) then
             return false;
         end
+        -- If this element was adopted then it doesn't handle its own
+        -- unit no matter what.
+        if element.Node.AdoptedHome ~= nil then
+            return false;
+        end
         -- Inner classes or typedefs owned by classes should be defined in
         -- the class generators. Logically they are distinct, but physically
         -- speaking its all one giant unit.
