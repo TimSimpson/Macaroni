@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+~import std::cerr;
 ~import Macaroni::Model::ContextPtr;
 ~import BOOST_FOREACH;
 ~import Macaroni::Model::Project::GroupList;
@@ -238,10 +238,17 @@ class Context
 	private void onReleaseReference()
 	{
 		referenceCount --;
-		if (referenceCount == 0)
+		// So... Macaroni doesn't so much have memory management as it has
+		// memory. There is a bug where the referenceCount would routinely
+		// go past 0 into negative numbers.
+		// The meager check below wouldn't look for the referenceCount to slip
+		// past zero (ugh) so this error never got caught until possibly years
+		// after it had become almost untraceable.
+		// For now, just don't delete the Context. Pretend its the Java heap.
+		/*if (referenceCount == 0)
 		{
 			delete this;
-		}
+		}*/
 	}
 
 };
