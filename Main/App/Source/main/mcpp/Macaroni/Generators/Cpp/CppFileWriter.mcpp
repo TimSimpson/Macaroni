@@ -19,6 +19,7 @@
 ~import Macaroni::Model::NodePtr;
 ~import Macaroni::IO::GeneratedFileWriter;
 ~import Macaroni::IO::GeneratedFileWriterPtr;
+~import boost::lexical_cast;
 ~import Macaroni::Generators::Cpp::Library::LibraryConfigGenerator;
 ~import Macaroni::Generators::Cpp::MissingCodeBlockError;
 ~import Macaroni::Model::Cpp::Namespace;
@@ -37,6 +38,7 @@
 ~import Macaroni::Model::Cpp::VariablePtr;
 ~import std::set;
 ~import Macaroni::Model::Cpp::Typedef;
+~import std::vector;
 
 ~namespace Macaroni::Generators::Cpp;
 
@@ -46,6 +48,8 @@ class CppFileWriter
 // and implementation files.
 {
     bool afterEmptyLine;  // True if the next text is after an empty line.
+    vector<Node *> currentUsingNodes;  // If we're inside a class. Is null
+                                    // otherwise.
     NodePtr currentNamespace;
     LibraryConfigGenerator libConfig;
     const int maxWidth;
@@ -60,6 +64,7 @@ class CppFileWriter
                          NodePtr currentNamespace,
                          GeneratedFileWriterPtr writer)
     :   afterEmptyLine(true),
+        currentUsingNodes(),
         currentNamespace(currentNamespace),
         libConfig(libConfig),
         maxWidth(80),
@@ -78,6 +83,12 @@ class CppFileWriter
         {
             write(access->CppKeyword());
         }
+    }
+
+    // If you're entering a class or template use this.
+    public void AddNodeAsInUse(Node & node)
+    {
+        this->currentUsingNodes.push_back(&node);
     }
 
     public void BeginArgumentList()
@@ -736,6 +747,22 @@ class CppFileWriter
         writeLine("\"");
     }
 
+    // If you're leaving a class or template use this to get rid of the nodes
+    // that were put into the using scope.
+    public void RemoveNodeAsInUse(Node & node)
+    {
+        for (int i = 0; i < this->currentUsingNodes.size(); ++ i)
+        {
+            if (this->currentUsingNodes[i] == &node)
+            {
+                this->currentUsingNodes.erase(
+                    this->currentUsingNodes.begin() + i);
+                return;
+            }
+        }
+        return;
+    }
+
     public void Space()
     {
         write(' ');
@@ -747,6 +774,11 @@ class CppFileWriter
     }
 
     public void TemplateParameterList(Class & e)
+    {
+        templateParameterList(e.GetTemplateParameterList());
+    }
+
+    public void TemplateParameterList(FunctionOverload & e)
     {
         templateParameterList(e.GetTemplateParameterList());
     }
@@ -795,8 +827,152 @@ class CppFileWriter
 
     public void Type(TypePtr type, bool attemptShortName)
     {
-        write(type->CreateCodeDefinition(currentNamespace));
+        if (type)
+        {
+            typeDefinition(*type);
+        }
+        else
+        {
+            // TODO: Don't allow this at this stage.
+            this->write("?null type?");
+        }
+        //write(type->CreateCodeDefinition(currentNamespace));
     }
+
+    ~hidden void typeDefinition(Macaroni::Model::Type & type)
+    {
+        auto nodePtr = type.GetNode();
+        if (!nodePtr)
+        {
+            //TODO: Should this even be allowed?
+            write("~NULL TYPE NODE?~");
+            return;
+        }
+
+        Node & node = *nodePtr;
+
+        vector<Node *> nodes(node.GetDepth() + 1);
+        Node * itr = &node;
+        for (int i = nodes.size() - 1; i >= 0; --i)
+        {
+            nodes[i] = itr;
+            itr = itr->GetParentPtr();
+        }
+
+        bool seenOneNode = false;
+
+        const auto printNode = [this, &seenOneNode, &nodes](const int index) {
+            if (seenOneNode)
+            {
+                this->write("::");
+            }
+            this->write(nodes[index]->GetName());
+            seenOneNode = true;
+        };
+
+        unsigned int current = 0;
+
+        // If the scope is set, see if this type name would be in that scope
+        // and if so don't print out the parent nodes.
+        // So if we're inside of a class and using a nested class, don't
+        // bother fully specifying the nested class.
+        for (int i = currentUsingNodes.size() - 1; i >= 0; -- i)
+        {
+            if (node.IsChildOf(*currentUsingNodes[i]))
+            {
+                int newDepth = currentUsingNodes[i]->GetDepth() + 1;
+                // When matching template arguments of a class its probably we
+                // may see the class first and use that and not the template
+                // list Macaroni creates, so make sure the deepest common
+                // in use thing wins.
+                if (current < newDepth)
+                {
+                    current = newDepth;
+                }
+            }
+        }
+        // If we're in the same namespace don't bother either.
+        if (0 == current && currentNamespace
+            && node.IsChildOf(*currentNamespace))
+        {
+            current = currentNamespace->GetDepth() + 1;
+        }
+
+        for (const auto & typeArgListPtr : type.GetArguments())
+        {
+            const auto & typeArgList = *typeArgListPtr;
+
+            // Print out whatever chunks of the node we need to before getting
+            // to where this type arg list starts. So for std::vector<int>,
+            // that would mean the NodeDepth is 1 and we need to print out "std"
+            // and "vector."
+
+            // However, if we're inside class "vector" and defining a function
+            // that returns "vector", we have to print it out, which is
+            // why the if statement below exists.
+            if (!seenOneNode && current > typeArgList.GetNodeDepth())
+            {
+                current -= 1;
+            }
+
+            for (; current <= typeArgList.GetNodeDepth(); ++ current)
+            {
+                printNode(current);
+            }
+
+            this->write("<");
+            // Now print out each type.
+            bool seenType = false;
+            for (const auto & typePtr : typeArgList.GetTypes())
+            {
+                if (seenType)
+                {
+                    this->write(", ");
+                }
+                if (!typePtr)
+                {
+                    //TODO: This should probably not be allowed...
+                    write("?Null Type?");
+                    return;
+                }
+                typeDefinition(*typePtr);
+                seenType = true;
+            }
+            this->write(" >");
+        }
+
+        // Again, handles the edge case where nothing has been printed yet
+        // and its a method using the class's own name.
+        if (!seenOneNode && current >= nodes.size())
+        {
+            current -= 1;
+        }
+
+        // Print out the rest of the base Node.
+        // So for example, if it's a type like "std::blah<something>::blah"
+        // this part of the code will print out that second ::blah.
+        // This edge case is what makes dealing with Types so much fun!
+        for (; current < nodes.size(); ++ current)
+        {
+            if (seenOneNode)
+            {
+                this->write("::");
+            }
+            this->write(nodes[current]->GetName());
+            seenOneNode = true;
+        }
+
+        // Finally, bring out the type modifiers
+        // Have to capture it in a string first to see if we need to pad it
+        // with a space.
+        string mod = lexical_cast<string>(type.GetModifiers());
+        if (mod.size() > 0)
+        {
+            this->write(" ");
+            this->write(mod);
+        }
+    }
+
 
     public void TypedefKeyword()
     {

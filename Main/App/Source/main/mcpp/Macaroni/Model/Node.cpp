@@ -437,6 +437,18 @@ bool Node::InRootNamespace() const
 	return this->scope == nullptr || this->scope->IsRoot();
 }
 
+bool Node::IsChildOf(const Node & other) const
+{
+	for (const Node * itr = this; nullptr != itr; itr = itr->scope)
+	{
+		if (itr == &other)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 bool Node::IsComplexName(const std::string & name)
 {
 	return (name.find("::", 0) != std::string::npos);

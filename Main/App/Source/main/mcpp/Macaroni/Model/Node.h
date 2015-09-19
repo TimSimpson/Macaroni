@@ -106,6 +106,11 @@ public:
 
 	bool InRootNamespace() const;
 
+	/** Returns true if this node exists inside of the given node.
+	 *  Example: if this node is "std::vector" and other is "std" this is
+	 *  true. */
+	bool IsChildOf(const Node & other) const;
+
 	/** If false, this node does not appear as the part of it's children's names. */
 	bool IsNameVisible() const;
 

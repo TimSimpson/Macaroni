@@ -211,6 +211,31 @@ class CodeTextProducer
         }
     };
 
+
+    template<typename ElementType>
+    void endTemplateItem(CppFileWriter & writer, ElementType & e)
+    {
+        NodePtr templateList = e.GetTemplateParameterList();
+        if (!templateList)
+        {
+            return;
+        }
+        writer.RemoveNodeAsInUse(*templateList);
+    }
+
+    template<typename ElementType>
+    void startTemplateItem(CppFileWriter & writer, ElementType & e)
+    {
+        NodePtr templateList = e.GetTemplateParameterList();
+        if (!templateList)
+        {
+            return;
+        }
+        writer.TemplateParameterList(e);
+        writer.AddNodeAsInUse(*templateList);
+    }
+
+
     struct TypeDefinitionVisitor
     :   public BaseVisitor,
         public Visitor<Block>,
@@ -255,7 +280,6 @@ class CodeTextProducer
             {
                 hPostDef = &b;
             }
-
         }
 
         virtual void Visit(Class & e)
@@ -271,13 +295,16 @@ class CodeTextProducer
                 str(format("class %s") % e.GetNode()->GetName()),
                 "Some description could in theory go here."
             );
-            writer.TemplateParameterList(e);
+
+            startTemplateItem(writer, e);
+
             writer.ClassOrStructKeyword(e);
             if (!tpl)
             {
                 writer.LibDecl();
             }
             writer.ClassName(e);
+            writer.AddNodeAsInUse(e.GetNodeRef());
             writer.ClassParentList(e);
             writer.OpenBrace();
 
@@ -335,6 +362,8 @@ class CodeTextProducer
             }
 
             writer.CloseBraceForClass();
+            writer.RemoveNodeAsInUse(e.GetNodeRef());
+            endTemplateItem(writer, e);
             writer.InsertEmptyLine();
         }
 
@@ -353,6 +382,8 @@ class CodeTextProducer
             MACARONI_ASSERT(owningClass != nullptr, "Null owner for ctor?");
             writer.InsertEmptyLine();
             writer.ClassMemberAccess(co.GetAccess());
+            NodePtr templateList = co.GetTemplateParameterList();
+            startTemplateItem(writer, co);
             if (co.IsVirtual())
             {
                 writer.VirtualKeyword();
@@ -369,6 +400,7 @@ class CodeTextProducer
             writer.FunctionArgumentList(co, true);
             writer.FunctionExceptionSpecifier(co);
             writer.FunctionHeaderBody(co);
+            endTemplateItem(writer, co);
         }
 
         virtual void Visit(Destructor & co)
@@ -416,13 +448,18 @@ class CodeTextProducer
             {
                 writer.EnterNamespace(e.GetNode()->GetParent()->GetParent());
                 writer.InsertEmptyLine();
-                writer.LibDecl();
+                if (!e.GetTemplateParameterList())
+                {
+                    writer.LibDecl();
+                }
             }
             else
             {
                 writer.NewLineIfNeeded();
                 writer.ClassMemberAccess(e.GetAccess());
             }
+
+            startTemplateItem(writer, e);
 
             if (e.IsStatic())
             {
@@ -442,6 +479,8 @@ class CodeTextProducer
             writer.FunctionArgumentList(e, true);
             writer.FunctionExceptionSpecifier(e);
             writer.FunctionHeaderBody(e);
+
+            endTemplateItem(writer, e);
         }
 
         virtual void Visit(Typedef & e)
@@ -590,6 +629,7 @@ class CodeTextProducer
             MACARONI_ASSERT(owningClass != nullptr, "Null owner for ctor?");
             writer.InsertEmptyLine();
             writer.LibDecl();
+            startTemplateItem(writer, co);
             writer.ConstructorImplementationName(*owningClass);
             writer.FunctionArgumentList(co, true);
             writer.FunctionExceptionSpecifier(co);
@@ -634,7 +674,8 @@ class CodeTextProducer
 
         virtual void Visit(FunctionOverload & e)
         {
-            if (e.UsesInlineKeyword() || !e.HasCodeBlock())
+            if (e.UsesInlineKeyword() || !e.HasCodeBlock()
+                || e.GetTemplateParameterList() || e.IsPureVirtual())
             {
                 return;
             }
@@ -648,6 +689,7 @@ class CodeTextProducer
                 writer.InsertEmptyLine();
             }
             writer.LibDecl();
+            startTemplateItem(writer, e);
             writer.Type(e.GetReturnType(), false);
             writer.Space();
             writer.FunctionName(e);

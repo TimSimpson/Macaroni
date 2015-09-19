@@ -221,6 +221,16 @@ class Type
 		};
 
 		unsigned int current = 0;
+
+		// If the scope is set, see if this type name would be in that scope
+		// and if so don't print out the parent nodes.
+		// So if we're inside of a class and using a nested class, don't
+		// bother fully specifying the nested class.
+		if (scope && node->IsChildOf(*scope))
+		{
+			current = scope->GetDepth() + 1;
+		}
+
 		for (const auto & typeArgListPtr : arguments)
 		{
 			const auto & typeArgList = *typeArgListPtr;

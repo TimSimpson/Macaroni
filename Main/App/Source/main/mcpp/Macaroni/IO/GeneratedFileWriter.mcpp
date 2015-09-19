@@ -140,7 +140,7 @@ class GeneratedFileWriter
 		return result;
 	}
 
-	public inline const string & GetAbsoluteFilePath() const
+	public inline const string GetAbsoluteFilePath() const
 		@LuaProperty "FilePath"
 	{
 		return filePath.GetAbsolutePath();
