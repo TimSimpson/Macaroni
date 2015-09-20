@@ -175,6 +175,7 @@ class CodeGraph
             public Visitor<Class>,
             public Visitor<Function>,
             public Visitor<FunctionOverload>,
+            public Visitor<Typedef>,
             public Visitor<Variable>
         {
             CodeGraph & graph;
@@ -529,9 +530,15 @@ class CodeGraph
 
                 // A variables forward declaration requires knowing about all
                 // types involved in the variable.
-                graph.computeDeps(*type, CodeType::TypeDefinition,
-                                  fd);
 
+                // No such thing as a type def...
+                graph.computeDeps(*type, CodeType::TypeDefinition,
+                                  td);
+
+                //graph.computeDeps(*type, CodeType::TypeDefinition,
+                //                  td);
+                // The type definition is the forward definition...
+                // if that's really a thing.
                 //td.addDependency(&fd);
                 //im.addDependency(&fd);
             }
@@ -543,7 +550,7 @@ class CodeGraph
                 // A variables forward declaration requires knowing about all
                 // types involved in the variable.
                 graph.computeDeps(*type, CodeType::TypeDefinition,
-                                  fd);
+                                  td);
 
                 // A variable's implementation requires nothing, except it's
                 // forward declaration.

@@ -237,9 +237,24 @@ class CodeText
     public ~global ~friend ostream & operator<<(ostream & out,
                                                 const CodeText & ct)
     {
+        PrintToStream(out, ct);
+        return out;
+    }
+
+    // This extra function helps us avoid cycles by keeping track of where
+    // we started iterating from.
+    public ~global ~friend void PrintToStream(ostream & out,
+                                              const CodeText & ct,
+                                              const CodeText * start=nullptr)
+    {
+        if (start == &ct)
+        {
+            out << "<CYCLE!>";
+            return;
+        }
         out << ct.codeType;
         out << ", ";
-        if (ct.element)
+        if (ct.element && ct.element->GetNode())
         {
             out << ct.element->GetNode()->GetFullName();
         }
@@ -255,11 +270,20 @@ class CodeText
             {
                 out << ", ";
             }
-            out << *dep;
-            seenOne = true;
+            if (dep)
+            {
+                if (start)
+                {
+                    PrintToStream(start, out, *dep);
+                }
+                else
+                {
+                    PrintToStream(&ct, out, *dep);
+                }
+                seenOne = true;
+            }
         }
         out << ")";
-        return out;
     }
 
 };

@@ -11,6 +11,7 @@
 ~import std::cout;
 ~import Macaroni::Model::Element;
 ~import Macaroni::Model::ElementPtr;
+~import Macaroni::Exception;
 ~import Macaroni::Model::Cpp::Function;
 ~import Macaroni::Model::Cpp::FunctionOverload;
 ~import Macaroni::IO::GeneratedFileWriter;
@@ -20,6 +21,7 @@
 ~import Macaroni::Model::Project::LibraryTargetPtr;
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaGlueCode;
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Model::Node;
 ~import Macaroni::Model::NodePtr;
@@ -32,6 +34,7 @@
 ~import Macaroni::Model::Project::Target;
 ~import Macaroni::Model::Project::TargetPtr;
 ~import Macaroni::Model::Type;
+~import Macaroni::Model::Cpp::Typedef;
 ~import Macaroni::Model::TypePtr;
 ~import Macaroni::Model::Project::UnitTarget;
 ~import Macaroni::Core::Variable;
@@ -75,6 +78,12 @@ class UnitFileGenerator
         unit(getUnitReference(unit))
     {
         unit->CreateElementList(elementList);
+    }
+
+    ~block "cpp-include"
+    {
+        #include <lua.h>
+        #include <lauxlib.h>
     }
 
     ~block "cpp"
@@ -122,62 +131,6 @@ class UnitFileGenerator
         return dynamic_cast<UnitTarget &>(*t);
     }
 
-~block "cpp"
-{ namespace {
-
-    struct TextVisitor
-    :   public BaseVisitor,
-        public Visitor<Class>,
-        public Visitor<Function>,
-        public Visitor<FunctionOverload>,
-        public Visitor<Variable>
-    {
-        CodeText codeText;
-        GeneratedFileWriterPtr writer;
-        CodeGraph & graph;
-
-
-        TextVisitor(CodeGraph & graph, GeneratedFileWriterPtr gfw)
-        :   graph(graph),
-            writer(gfw)
-        {
-        }
-
-        ~TextVisitor()
-        {
-        }
-
-        virtual void Visit(Class & e)
-        {
-            writer->WriteLine("Class ", e.GetNode()->GetFullName());
-            codeText = graph.Get(&e, CodeType::Implementation);
-        }
-
-        virtual void Visit(Function & e)
-        {
-            writer->WriteLine("Function ", e.GetNode()->GetFullName());
-            codeText = graph.Get(&e, CodeType::Implementation);
-        }
-
-        virtual void Visit(FunctionOverload & e)
-        {
-            writer->WriteLine("FunctionOverload ", e.GetNode()->GetFullName());
-            codeText = graph.Get(&e, CodeType::Implementation);
-        }
-
-        virtual void Visit(Variable & e)
-        {
-            writer->WriteLine("Variable ", e.GetNode()->GetFullName());
-            codeText.SetElement(&e);
-            //codeText.codeType = CodeType::Implementation;
-
-            codeText = graph.Get(&e, CodeType::Implementation);
-        }
-    };
-
-
-} } // end cpp block
-
     ~hidden void printCodeText(GeneratedFileWriterPtr writer,
                                CodeText & ct, int depth=0)
     {
@@ -199,7 +152,6 @@ class UnitFileGenerator
     }
 
     public void Generate(CodeGraph & graph, PathPtr rootPath)
-        @LuaFunction "Generate"
     {
         unit.SetCppFileRootDirectory(rootPath);
         unit.SetHFileRootDirectory(rootPath);
@@ -227,7 +179,6 @@ class UnitFileGenerator
         }
         vector<CodeText *> cppText = sorter.Sort();
 
-
         /*// Get rid of dupes. Just leave in nulls to save time.
 		for (int i = 0; i < headerText.size(); ++i)
         {
@@ -247,8 +198,52 @@ class UnitFileGenerator
 
     }
 
+    // Have to do this to get around a stupid bug in the Lua Glue generator.
+    public void GenerateLua()
+        @LuaFunction "Generate"
+        @LuaGlueCode ={
+            UnitFileGeneratorPtr & instance =
+                UnitFileGeneratorLuaMetaData::GetInstance(L, 1);
+            Macaroni::Generators::Cpp::CodeGraphPtr & arg1_AsRef = Macaroni::Generators::Cpp::CodeGraphLuaMetaData::GetInstance(L, 2);
+            Macaroni::Generators::Cpp::CodeGraph & arg1 = *(arg1_AsRef);
+            Macaroni::IO::PathPtr & arg2 = Macaroni::IO::PathLuaMetaData::GetInstance(L, 3);
+            try
+            {
+                instance->Generate(arg1, arg2);
+                return 0;
+            }
+            catch(const Macaroni::Exception & ex)
+            {
+                // Actually show Lua the real error. >:-(
+                luaL_error(L, ex.message().c_str());
+            }
+            catch(const std::exception & ex)
+            {
+                luaL_error(L, ex.what());
+            }
+        }
+    {
+    }
+
     ~hidden void generateCpp(vector<CodeText *> cppText)
     {
+        if (debugText)
+        {
+            auto debugWriter = unit.GetCppFile()
+                ->DifferentSuffix(".debug")->CreateFile(true);
+            debugWriter->WriteLine("The following are all CodeText instances "
+                                   "for this translation unit:");
+            for (CodeText * ct : cppText)
+            {
+                debugWriter->WriteLine(str(format("%s") % *ct));
+                for (CodeText * dep : ct->DependsOn())
+                {
+                    debugWriter->WriteLine(str(format("\t+-- %s") % *dep));
+                }
+            }
+        }
+
+
         auto cppWriter = unit.GetCppFile()->CreateFile(true);
         CppFileWriter cpp(libConfig, unit.GetContext()->GetRoot(),
                           cppWriter);

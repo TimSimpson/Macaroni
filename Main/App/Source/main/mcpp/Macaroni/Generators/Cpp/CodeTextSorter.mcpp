@@ -1,7 +1,10 @@
 ~import MACARONI_ASSERT;
 ~import Macaroni::Generators::Cpp::CodeText;
-~import std::vector;
 ~import std::cout;
+~import Macaroni::Exceptions::SimpleStringException;
+~import boost::format;
+~import std::string;
+~import std::vector;
 
 ~namespace Macaroni::Generators::Cpp;
 
@@ -167,7 +170,14 @@ class CodeTextSorter
 
         // This is what calls the sort method.
         std::deque<int> results;
-        boost::topological_sort(graph, std::back_inserter(results));
+        try
+        {
+            boost::topological_sort(graph, std::back_inserter(results));
+        }
+        catch(const boost::not_a_dag & ex)
+        {
+            throwSortError();
+        }
 
         /*
         vector<CodeText *> sortedList;
@@ -213,5 +223,102 @@ class CodeTextSorter
             }
         }
         return sortedList;
+    }
+
+    ~block "cpp"
+    {
+        MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(
+            CycleError,  "Two bits of text which need to be generated both "
+                         "depend on each other: %s.");
+    }
+    // This is not a very efficient function to say the least, but it only
+    // runs right before an exception is thrown which will halt all progress
+    // anyway.
+    // I should probably usethe Boost Graph library to find the cycle
+    // quicker but it was taking awhile to read through those docs...
+    ~hidden void throwSortError()
+    {
+        const unsigned int size = ((unsigned int)CodeText::MaxGraphId());
+        std::vector<bool> table(size * size);
+        for (unsigned int i = 0; i < size * size; ++ i) {
+            table[i] = false;
+        }
+
+        const auto addEdge = [=, &table] (CodeText * from, CodeText * to) {
+            const auto fId = from->GraphId();
+            const auto tId = to->GraphId();
+            if (table[(fId * size) + tId] || table[(tId * size) + fId])
+            {
+                string msg;
+                if (from && to)
+                {
+                    msg =str(format("%s <--> %s") % *from % *to);
+                }
+                else if (from)
+                {
+                    msg = str(format("%s <--> nullptr") % *from);
+                }
+                else if (to)
+                {
+                    msg = str(format("nullptr <--> %s") % *to);
+                }
+                else
+                {
+                    msg = "nullptr <--> nullptr";
+                }
+                throw CycleError(msg.c_str());
+            }
+            table[(fId * size) + tId] = true;
+            table[(tId * size) + fId] = true;
+        };
+
+        addEdge(divImpl, divTop);
+        addEdge(divBottom, divImpl);
+
+        for (CodeText * ptr : items)
+        {
+            // This first switch establishes sort of global, simple
+            // dependencies, such as the idea that any implementation text must
+            // exist underneath the implementation divider (and therefore)
+            // stay out of the header.
+            switch(ptr->Type())
+            {
+                case CodeType::UsingStatement:
+                case CodeType::Implementation:
+                    // UsingStatement and Implementation has to be after impl
+                    // start.
+                    addEdge(ptr, divImpl);
+                    // ensure the bottom divider stays at the bottom.
+                    addEdge(divBottom, ptr);
+                    break;
+                case CodeType::TypeDefinition:
+                case CodeType::ForwardDeclaration:
+                    // This element depends on divider top...
+                    addEdge(ptr, divTop);
+                    // ...and the implementation start depends on this.
+                    addEdge(divImpl, ptr);
+                    break;
+                case CodeType::BlockTop:
+                    // the top divider depends on this top block.
+                    addEdge(divTop, ptr);
+                    break;
+                case CodeType::BlockBottom:
+                    // The bottom block depends on bottom divider.
+                    addEdge(ptr, divBottom);
+                    break;
+                default:
+                    break;
+            }
+
+            for (CodeText * depPtr : ptr->DependsOn())
+            {
+                if (depPtr)
+                {
+                    addEdge(ptr, depPtr);
+                }
+            }
+        }
+
+
     }
 };

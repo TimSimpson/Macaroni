@@ -178,6 +178,8 @@ class SimpleStringException : public SimpleException
 		class typeName : public Macaroni::Exceptions::SimpleStringException { \
 			public: typeName(const char * value, Macaroni::InternalSource where) \
 				: Macaroni::Exceptions::SimpleStringException(value, where) {} \
+			public: typeName(const char * value) \
+				: Macaroni::Exceptions::SimpleStringException(value) {} \
 			public: virtual const char * what() const BOOST_NOEXCEPT \
 			{ return message ; } \
 		};
