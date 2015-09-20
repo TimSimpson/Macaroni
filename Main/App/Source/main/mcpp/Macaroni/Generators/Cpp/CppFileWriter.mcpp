@@ -558,16 +558,31 @@ class CppFileWriter
         if (!calledForFriendDef)
         {
             write(" ");
-            write(fo.GetNodeRef().GetName());
+            Node * func = fo.GetNodeRef().GetParentPtr();
+            if (func)
+            {
+                write(func->GetName());
+            }
+            else
+            {
+                write(fo.GetNodeRef().GetName());
+            }
         }
         else
         {
             write(" (::");
-            write(fo.GetNodeRef().GetFullName());
+            Node * func = fo.GetNodeRef().GetParentPtr();
+            if (func)
+            {
+                write(func->GetFullName());
+            }
+            else
+            {
+                write(fo.GetNodeRef().GetFullName());
+            }
             write(") ");
         }
         FunctionArgumentList(fo, writeDefaultArgs);
-        write(")");
         if (fo.IsConst())
         {
             write(" const");

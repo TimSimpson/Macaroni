@@ -237,15 +237,15 @@ class CodeText
     public ~global ~friend ostream & operator<<(ostream & out,
                                                 const CodeText & ct)
     {
-        PrintToStream(out, ct);
+        PrintToStream(nullptr, out, ct);
         return out;
     }
 
     // This extra function helps us avoid cycles by keeping track of where
     // we started iterating from.
-    public ~global ~friend void PrintToStream(ostream & out,
-                                              const CodeText & ct,
-                                              const CodeText * start=nullptr)
+    public ~global ~friend void PrintToStream(const CodeText * start,
+                                              ostream & out,
+                                              const CodeText & ct)
     {
         if (start == &ct)
         {

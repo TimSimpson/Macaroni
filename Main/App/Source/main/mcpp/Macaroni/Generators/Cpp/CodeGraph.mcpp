@@ -57,6 +57,7 @@ class CodeGraph
     ~block "h-predef" {
         #include <array>
         #include <unordered_map>
+        #include <Macaroni/ME.h>
     }
 
     ~block "cpp-include" { #include <algorithm> }
@@ -146,6 +147,24 @@ class CodeGraph
         MACARONI_ASSERT(ct.Initialized(), "Didn't initialize after compute.");
         return ct;
     }
+
+    // Don't use Lambda due to VS bug.
+    template<typename ElementType>
+    struct HandleVarStruct {
+        CodeText & fd;
+        CodeType ct;
+        CodeGraph & graph;
+        HandleVarStruct(CodeText & fd, CodeType ct,CodeGraph & g)
+        : fd(fd), ct(ct), graph(g)
+        {}
+
+        void operator() (ElementType & e) {
+            TypePtr type = e.GetType();
+            MACARONI_ASSERT(!!type, "Variable not set.");
+            Type & t = *type;
+            graph.computeDeps(t, ct, fd);
+        }
+    };
 
     private void compute(Element * e)
     {
@@ -299,6 +318,8 @@ class CodeGraph
                 }
             }
 
+
+
             virtual void Visit(Class & e)
             {
                 // Forward declaration is very easy, as only template arguments
@@ -325,25 +346,16 @@ class CodeGraph
 
 
                 // A class must see all TDs of the variables it used.
-                // Don't use Lambda due to VS bug.
-                struct HandleVarStruct {
-                    CodeText & fd;
-                    CodeType ct;
-                    CodeGraph & graph;
-                    HandleVarStruct(CodeText & fd, CodeType ct,CodeGraph & g)
-                    : fd(fd), ct(ct), graph(g)
-                    {}
 
-                    void operator() (Variable & v) {
-                        TypePtr type = v.GetType();
-                        MACARONI_ASSERT(!!type, "Variable not set.");
-                        Type & t = *type;
-                        graph.computeDeps(t, ct, fd);
-                    }
-                };
-                HandleVarStruct handleVar(td, CodeType::TypeDefinition, graph);
+                HandleVarStruct<Variable> handleVar(td, CodeType::TypeDefinition, graph);
 
                 e.GetNode()->IterateNodes<Variable>(handleVar);
+
+                // Now do the same thing for typedefs.
+                HandleVarStruct<Typedef> handleTypedef(td,
+                    CodeType::TypeDefinition, graph);
+
+                e.GetNode()->IterateNodes<Typedef>(handleTypedef);
 
                 // Iterate every function.
                 // Woulda been cool to use lambda functions here but the

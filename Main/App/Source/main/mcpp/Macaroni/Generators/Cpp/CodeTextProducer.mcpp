@@ -161,57 +161,6 @@ class CodeTextProducer
         }
     };
 
-    struct ForwardDeclarationVisitor
-    :   public BaseVisitor,
-        public Visitor<Class>,
-        public Visitor<Element>,
-        public Visitor<FunctionOverload>,
-        public Visitor<Variable>,
-        public Visitor<Typedef>
-    {
-        CppFileWriter & writer;
-
-        ForwardDeclarationVisitor(CppFileWriter & writer)
-        :   writer(writer)
-        {
-        }
-
-        virtual void Visit(Class & e)
-        {
-            writer.EnterNamespace(e.GetNode()->GetParent());
-            writer.WriteClassKeyword();
-            writer.WriteNodeName(e.GetNode());
-            writer.EndStatement();
-        }
-
-        virtual void Visit(Element & e)
-        {
-            writer.Comment(str(format("Can't handle element %s.")
-                               % e.GetNodeRef().GetFullName()));
-        }
-
-        virtual void Visit(FunctionOverload & e)
-        {
-
-        }
-
-        virtual void Visit(Typedef & e)
-        {
-            /*writer.EnterNamespace(e.GetNode()->GetParent());
-            writer.WriteClassKeyword();
-            writer.WriteNodeName(e.GetNode());
-            writer.EndStatement();*/
-            writer.Comment(str(boost::format("No such thing as forward "
-                "declaration for typedef %s.") % e.GetNode()->GetFullName()));
-        }
-
-        virtual void Visit(Variable & e)
-        {
-
-        }
-    };
-
-
     template<typename ElementType>
     void endTemplateItem(CppFileWriter & writer, ElementType & e)
     {
@@ -234,6 +183,112 @@ class CodeTextProducer
         writer.TemplateParameterList(e);
         writer.AddNodeAsInUse(*templateList);
     }
+
+    void WriteFunctionOverload(CppFileWriter & writer,
+        bool owningClass, FunctionOverload & e)
+    {
+        if (!owningClass)
+        {
+            writer.EnterNamespace(e.GetNode()->GetParent()->GetParent());
+            writer.InsertEmptyLine();
+            if (!e.GetTemplateParameterList())
+            {
+                writer.LibDecl();
+            }
+        }
+        else
+        {
+            writer.NewLineIfNeeded();
+            writer.ClassMemberAccess(e.GetAccess());
+        }
+
+        startTemplateItem(writer, e);
+
+        if (e.IsStatic())
+        {
+            writer.StaticKeyword();
+        }
+        if (e.IsVirtual())
+        {
+            writer.VirtualKeyword();
+        }
+        if (e.UsesInlineKeyword())
+        {
+            writer.InlineKeyword();
+        }
+        writer.Type(e.GetReturnType(), false);
+        writer.Space();
+        writer.WriteNodeName(e.GetNode()->GetParent());
+        writer.FunctionArgumentList(e, true);
+        writer.FunctionExceptionSpecifier(e);
+        writer.FunctionHeaderBody(e);
+
+        endTemplateItem(writer, e);
+    }
+
+
+    void WriteFunction(CppFileWriter & writer,
+        bool owningClass, Function & f)
+    {
+        auto func = [&writer, &owningClass](FunctionOverload & fo)
+        {
+            WriteFunctionOverload(writer, owningClass, fo);
+        };
+
+        f.GetNodeRef().IterateNodes<FunctionOverload, decltype(func)>(func);
+    }
+
+    struct ForwardDeclarationVisitor
+    :   public BaseVisitor,
+        public Visitor<Class>,
+        public Visitor<Element>,
+        public Visitor<FunctionOverload>,
+        public Visitor<Variable>,
+        public Visitor<Typedef>
+    {
+        CppFileWriter & writer;
+
+        ForwardDeclarationVisitor(CppFileWriter & writer)
+        :   writer(writer)
+        {
+        }
+
+        virtual void Visit(Class & e)
+        {
+            writer.EnterNamespace(e.GetNode()->GetParent());
+            startTemplateItem(writer, e);
+            writer.WriteClassKeyword();
+            writer.WriteNodeName(e.GetNode());
+            writer.EndStatement();
+            endTemplateItem(writer, e);
+        }
+
+        virtual void Visit(Element & e)
+        {
+            writer.Comment(str(format("Can't handle element %s.")
+                               % e.GetNodeRef().GetFullName()));
+        }
+
+        virtual void Visit(FunctionOverload & e)
+        {
+            WriteFunctionOverload(writer, false, e);
+        }
+
+        virtual void Visit(Typedef & e)
+        {
+            /*writer.EnterNamespace(e.GetNode()->GetParent());
+            writer.WriteClassKeyword();
+            writer.WriteNodeName(e.GetNode());
+            writer.EndStatement();*/
+            writer.Comment(str(boost::format("No such thing as forward "
+                "declaration for typedef %s.") % e.GetNode()->GetFullName()));
+        }
+
+        virtual void Visit(Variable & e)
+        {
+
+        }
+    };
 
 
     struct TypeDefinitionVisitor
@@ -313,6 +368,7 @@ class CodeTextProducer
             // Print friend declarations
             for (auto & n : *(e.GetFriendNodes()))
             {
+                writer.NewLineIfNeeded();
                 auto c = n->GetElement<ClassPtr>();
                 if (c)
                 {
@@ -327,6 +383,7 @@ class CodeTextProducer
                     {
                         writer.FriendKeyword();
                         writer.FriendFunctionOverloadName(*fo);
+                        writer.EndStatement();
                     }
                     else
                     {
@@ -434,17 +491,20 @@ class CodeTextProducer
 
         virtual void Visit(Function & f)
         {
-            auto func = [this](FunctionOverload & fo)
+            WriteFunction(writer, owningClass, f);
+/*          auto func = [this](FunctionOverload & fo)
             {
                 this->Visit(fo);
             };
 
             f.GetNodeRef().IterateNodes<FunctionOverload, decltype(func)>(func);
+            */
         }
 
         virtual void Visit(FunctionOverload & e)
         {
-            if (!owningClass)
+            WriteFunctionOverload(writer, owningClass, e);
+            /*if (!owningClass)
             {
                 writer.EnterNamespace(e.GetNode()->GetParent()->GetParent());
                 writer.InsertEmptyLine();
@@ -480,7 +540,7 @@ class CodeTextProducer
             writer.FunctionExceptionSpecifier(e);
             writer.FunctionHeaderBody(e);
 
-            endTemplateItem(writer, e);
+            endTemplateItem(writer, e);*/
         }
 
         virtual void Visit(Typedef & e)
@@ -504,6 +564,7 @@ class CodeTextProducer
 
         virtual void Visit(Variable & e)
         {
+            writer.NewLineIfNeeded();
             if (owningClass)
             {
                 writer.ClassMemberAccess(e.GetAccess());
@@ -591,6 +652,11 @@ class CodeTextProducer
 
         virtual void Visit(Class & e)
         {
+            if (e.GetTemplateParameterList())
+            {
+                return;
+            }
+
             if (!owningClass)
             {
                 writer.EnterNamespace(e.GetNode()->GetParent());
