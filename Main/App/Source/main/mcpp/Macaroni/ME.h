@@ -49,12 +49,8 @@
 #define MACARONI_DIRECTORY_SEPERATOR "/"
 #endif
 
-#ifdef BOOST_MSVC // MACARONI_VE_CONST_IS_ALLOWED
-#define MACARONI_VE_CONST const
-#define MACARONI_VE_CONST_IS_ALLOWED
-#else
-#define MACARONI_VE_CONST /**/
-#endif
+// Visual C++ used to allow vectors of const, but not anymore.
+#define MACARONI_VE_CONST
 
 #define BEGIN_NAMESPACE(a, b, c) namespace a{ namespace b{ namespace c{
 #define END_NAMESPACE } } }
