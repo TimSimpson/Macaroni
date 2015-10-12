@@ -49,7 +49,7 @@ class HollowNodeException : public Exception
         return msg.c_str();
     }
 
-    public virtual const optional<InternalSource> & where() const
+    public virtual const optional<InternalSource> & where() const BOOST_NOEXCEPT
     {
         return boost::none;
     }
@@ -79,7 +79,7 @@ class CyclicNodeDetected : public Exception
         return "A cyclic node was detected.";
     }
 
-    public virtual const optional<InternalSource> & where() const
+    public virtual const optional<InternalSource> & where() const BOOST_NOEXCEPT
     {
         return boost::none;
     }
@@ -107,7 +107,7 @@ class CyclicNodeError : public Exception
         return "Cyclic node error! See message for details.";
     }
 
-    public virtual const optional<InternalSource> & where() const
+    public virtual const optional<InternalSource> & where() const BOOST_NOEXCEPT
     {
         return boost::none;
     }
@@ -132,7 +132,7 @@ class EmptyImportListError : public Exception
         return msg.c_str();
     }
 
-    public virtual const optional<InternalSource> & where() const
+    public virtual const optional<InternalSource> & where() const BOOST_NOEXCEPT
     {
         return boost::none;
     }
@@ -157,7 +157,7 @@ class MissingCodeBlockError  : public Exception
         return msg.c_str();
     }
 
-    public virtual const optional<InternalSource> & where() const
+    public virtual const optional<InternalSource> & where() const BOOST_NOEXCEPT
     {
         return boost::none;
     }
