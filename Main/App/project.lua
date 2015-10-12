@@ -76,10 +76,11 @@ local versionInfo = plugins:Get("Source/main/lua/VersionInfoGenerator")
 -- Dependencies
 ---------------------------------------------------------------------------
 local core_dependencies={
-    load("Macaroni", "Boost-headers", "1.58"):Target("lib"),
-    load("Macaroni", "Boost-filesystem", "1.58"):Target("lib"),
-    load("Macaroni", "Boost-program_options", "1.58"):Target("lib"),
-    load("Macaroni", "Boost-regex", "1.58"):Target("lib"),
+    load("Macaroni", "Boost-headers", "1.59"):Target("lib"),
+    load("Macaroni", "Boost-filesystem", "1.59"):Target("lib"),
+    load("Macaroni", "Boost-program_options", "1.59"):Target("lib"),
+    load("Macaroni", "Boost-regex", "1.59"):Target("lib"),
+    load("Macaroni", "Boost-system", "1.59"):Target("lib"),
     load("Macaroni", "CppStd", "2003"):Target("lib"),
     load("Macaroni", "Lua", "5.2.3"):Target("lib"),
     load("Macaroni", "MoonScriptDeps", "DEV"):Target("lib"),
