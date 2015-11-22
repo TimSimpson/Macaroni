@@ -508,7 +508,12 @@ public:
 
 	void AddImport(const ImportType type, NodePtr node)
 	{
-		MACARONI_ASSERT(node.get() != nullptr, "null node for import");
+		AddImport(type, node.get());
+	}
+
+	void AddImport(const ImportType type, Node * node)
+	{
+		MACARONI_ASSERT(node != nullptr, "null node for import");
 		importedNodes.emplace_back(*node, type);
 	}
 
@@ -762,6 +767,15 @@ public:
 		Block::Create(tHome, blockHome, id, code,
 			Reason::Create(CppAxioms::BlockCreation(), codeStart),
 			imports);
+
+		// For the newer generators, we need to force an import on everything
+		// that comes afterwards for the blocks to generate in the proper
+		// order.
+		if (id == "h" || id == "h-predef") {
+			AddImport(ImportType::H, blockHome);
+		} else if (id == "cpp" || id == "cpp-include") {
+			AddImport(ImportType::Normal, blockHome);
+		}
 		return true;
 	}
 
