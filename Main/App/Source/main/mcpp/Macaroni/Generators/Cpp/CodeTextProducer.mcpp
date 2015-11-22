@@ -17,6 +17,7 @@
 ~import Macaroni::Model::Cpp::Function;
 ~import Macaroni::Model::Cpp::FunctionOverload;
 ~import Macaroni::Model::Cpp::FunctionOverloadPtr;
+~import Macaroni::Generators::Cpp::GeneratorSettings;
 ~import Macaroni::Model::Project::LibraryTarget;
 ~import Macaroni::Model::Project::LibraryTargetPtr;
 ~import Macaroni::Model::Cpp::Namespace;
@@ -38,11 +39,12 @@
 // the text itself is coded into the CppFileWriter class.
 class CodeTextProducer
 {
-    bool debugText;
+    private const GeneratorSettings generatorSettings;
     CppFileWriter & writer;
 
-    public CodeTextProducer(bool debugText, CppFileWriter & writer)
-    :   debugText(debugText),
+    public CodeTextProducer(const GeneratorSettings & generatorSettings,
+                            CppFileWriter & writer)
+    :   generatorSettings(generatorSettings),
         writer(writer)
     {
     }
@@ -56,7 +58,7 @@ class CodeTextProducer
         Element & element = const_cast<Element &>(constElement);
 
         writer.InsertEmptyLine();
-        if (debugText)
+        if (generatorSettings.InsertDebugTracers)
         {
             writer.Comment(str(boost::format("DEBUG : < WRITING CODETEXT %s")
                            % codeText));

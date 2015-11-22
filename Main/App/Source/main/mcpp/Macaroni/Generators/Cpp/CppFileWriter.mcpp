@@ -15,6 +15,7 @@
 ~import boost::format;
 ~import Macaroni::Model::Cpp::FunctionOverload;
 ~import Macaroni::Model::Cpp::FunctionOverloadPtr;
+~import Macaroni::Generators::Cpp::GeneratorSettings;
 ~import Macaroni::Model::Node;
 ~import Macaroni::Model::NodePtr;
 ~import Macaroni::IO::GeneratedFileWriter;
@@ -25,6 +26,7 @@
 ~import Macaroni::Model::Cpp::Namespace;
 ~import boost::optional;
 ~import Macaroni::Model::Cpp::Primitive;
+~import Macaroni::Generators::Cpp::GeneratorSettings;
 ~import Macaroni::Model::Source;
 ~import Macaroni::Model::SourcePtr;
 ~import std::string;
@@ -56,13 +58,15 @@ class CppFileWriter
     set<string> includedFiles;
     NodePtr primitiveRoot;
     NodePtr rootNs;
+    const GeneratorSettings settings;
     bool startOfLine;  // True if we *just* started a line.
     int tabs;
     GeneratedFileWriterPtr writer;
 
     public CppFileWriter(LibraryConfigGenerator libConfig,
                          NodePtr currentNamespace,
-                         GeneratedFileWriterPtr writer)
+                         GeneratedFileWriterPtr writer,
+                         const GeneratorSettings & settings)
     :   afterEmptyLine(true),
         currentUsingNodes(),
         currentNamespace(currentNamespace),
@@ -70,6 +74,7 @@ class CppFileWriter
         maxWidth(80),
         primitiveRoot(CppContext::GetPrimitives(currentNamespace->GetContext())),
         rootNs(currentNamespace->GetContext()->GetRoot()),
+        settings(settings),
         startOfLine(true),
         tabs(0),
         writer(writer)
@@ -743,23 +748,29 @@ class CppFileWriter
 
     ~hidden void redirectBegin(SourcePtr srcPtr)
     {
-        MACARONI_ASSERT(srcPtr, "Source pointer is nil?");
-        NewLineIfNeeded();
-        write("#line ");
-        write(srcPtr->GetLine());
-        write(" \"");
-        write(srcPtr->GetFileName()->GetName());
-        writeLine("\"");
+        if (settings.RedirectToMcppSource)
+        {
+            MACARONI_ASSERT(srcPtr, "Source pointer is nil?");
+            NewLineIfNeeded();
+            write("#line ");
+            write(srcPtr->GetLine());
+            write(" \"");
+            write(srcPtr->GetFileName()->GetName());
+            writeLine("\"");
+        }
     }
 
     ~hidden void redirectEnd()
     {
-        NewLineIfNeeded();
-        write("#line ");
-        write(LineNumber() + 1);
-        write(" \"");
-        write(writer->GetFilePath());
-        writeLine("\"");
+        if (settings.RedirectToMcppSource)
+        {
+            NewLineIfNeeded();
+            write("#line ");
+            write(LineNumber() + 1);
+            write(" \"");
+            write(writer->GetFilePath());
+            writeLine("\"");
+        }
     }
 
     // If you're leaving a class or template use this to get rid of the nodes

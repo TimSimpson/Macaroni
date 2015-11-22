@@ -1,0 +1,15 @@
+~namespace Macaroni::Generators::Cpp;
+
+//TODO: Get these to manifest as command line options somehow. It would be very
+//      useful to be able to get Macaroni to not add the #line directives if
+//      there is a need to troubleshoot even if Macaroni is working perfectly.
+class GeneratorSettings
+{
+    public bool RedirectToMcppSource;
+    public bool InsertDebugTracers;
+
+    public GeneratorSettings()
+    :   RedirectToMcppSource(true),
+        InsertDebugTracers(false)
+    {}
+};

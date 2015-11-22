@@ -16,6 +16,7 @@
 ~import Macaroni::Model::Cpp::FunctionOverload;
 ~import Macaroni::IO::GeneratedFileWriter;
 ~import Macaroni::IO::GeneratedFileWriterPtr;
+~import Macaroni::Generators::Cpp::GeneratorSettings;
 ~import Macaroni::Generators::Cpp::Library::LibraryConfigGenerator;
 ~import Macaroni::Model::Project::LibraryTarget;
 ~import Macaroni::Model::Project::LibraryTargetPtr;
@@ -62,8 +63,8 @@ class UnitFileGenerator
         ReferenceType = UnitFileGeneratorPtr
     ]
 {
-    private bool debugText;
     private vector<ElementPtr> elementList;
+    private GeneratorSettings generatorSettings;
     private LibraryConfigGenerator libConfig;
     private LibraryTargetPtr library;
     private TargetPtr target;  // So we can keep an ref count on this.
@@ -71,12 +72,17 @@ class UnitFileGenerator
 
     public UnitFileGenerator(LibraryTargetPtr library, TargetPtr unit,
                              bool debugText)
-    :   debugText(debugText),
+    :   generatorSettings(),
         libConfig(library),
         library(library),
         target(unit),
         unit(getUnitReference(unit))
     {
+        if (debugText)
+        {
+            generatorSettings.RedirectToMcppSource = false;
+            generatorSettings.InsertDebugTracers = true;
+        }
         unit->CreateElementList(elementList);
     }
 
@@ -227,7 +233,7 @@ class UnitFileGenerator
 
     ~hidden void generateCpp(vector<CodeText *> cppText)
     {
-        if (debugText)
+        if (generatorSettings.InsertDebugTracers)
         {
             auto debugWriter = unit.GetCppFile()
                 ->DifferentSuffix(".debug")->CreateFile(true);
@@ -246,9 +252,9 @@ class UnitFileGenerator
 
         auto cppWriter = unit.GetCppFile()->CreateFile(true);
         CppFileWriter cpp(libConfig, unit.GetContext()->GetRoot(),
-                          cppWriter);
+                          cppWriter, generatorSettings);
 
-        CodeTextProducer producer(debugText, cpp);
+        CodeTextProducer producer(generatorSettings, cpp);
 
         generateTextList(producer, cpp, cppText,
                          boost::none,
@@ -322,7 +328,7 @@ class UnitFileGenerator
     {
         auto headerWriter = unit.GetHFile()->CreateFile(true);
         CppFileWriter header(libConfig, unit.GetContext()->GetRoot(),
-                             headerWriter);
+                             headerWriter, generatorSettings);
         generateHeaderWith(headerText, header, true);
     }
 
@@ -332,7 +338,7 @@ class UnitFileGenerator
     {
         header.HeaderTop(this->unit);
 
-        CodeTextProducer producer(debugText, header);
+        CodeTextProducer producer(generatorSettings, header);
         if (includeTopAndBottomBlocks)
         {
             generateTextList(producer, header, headerText,
@@ -397,7 +403,7 @@ class UnitFileGenerator
                               CppFileWriter & writer,
                               CodeText & ct)
     {
-        if (debugText)
+        if (generatorSettings.InsertDebugTracers)
         {
             if ( ct.GetElement())
             {
