@@ -699,7 +699,7 @@ class CodeTextProducer
             writer.LibDecl();
             startTemplateItem(writer, co);
             writer.ConstructorImplementationName(*owningClass);
-            writer.FunctionArgumentList(co, true);
+            writer.FunctionArgumentList(co, false);
             writer.FunctionExceptionSpecifier(co);
             writer.ConstructorInitializerList(co);
             writer.FunctionCodeBlock(co);
@@ -719,7 +719,7 @@ class CodeTextProducer
             writer.InsertEmptyLine();
             writer.LibDecl();
             writer.DestructorImplementationName(*owningClass);
-            writer.FunctionArgumentList(fo, true);
+            writer.FunctionArgumentList(fo, false);
             writer.FunctionExceptionSpecifier(fo);
             writer.FunctionCodeBlock(fo);
         }
@@ -761,7 +761,7 @@ class CodeTextProducer
             writer.Type(e.GetReturnType(), false);
             writer.Space();
             writer.FunctionName(e);
-            writer.FunctionArgumentList(e, true);
+            writer.FunctionArgumentList(e, false);
             writer.FunctionExceptionSpecifier(e);
             writer.FunctionCodeBlock(e);
         }
