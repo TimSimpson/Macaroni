@@ -315,6 +315,10 @@ class CodeGraph
                                         b.GetImportedNodes(),
                                         ImportType::Normal,
                                         CodeType::TypeDefinition);
+                    addDepsOfImportList(im,
+                                        b.GetImportedNodes(),
+                                        ImportType::Normal,
+                                        CodeType::UsingStatement);
                 }
             }
 
