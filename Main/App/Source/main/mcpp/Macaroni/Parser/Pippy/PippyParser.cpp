@@ -39,6 +39,7 @@
 #include <Macaroni/Model/Cpp/ExceptionSpecifier.h>
 #include <Macaroni/Model/Project/ExeTarget.h>
 #include <Macaroni/Model/Project/ExeTargetPtr.h>
+#include <Macaroni/Model/Cpp/Extern.h>
 #include <Macaroni/Model/FileName.h>
 #include <boost/foreach.hpp>
 #include <Macaroni/Model/Cpp/Function.h>
@@ -105,6 +106,7 @@ using Macaroni::Model::Cpp::EnumPtr;
 using Macaroni::Model::Cpp::ExceptionSpecifier;
 using Macaroni::Model::Project::ExeTarget;
 using Macaroni::Model::Project::ExeTargetPtr;
+using Macaroni::Model::Cpp::Extern;
 using Macaroni::Model::FileName;
 using Macaroni::Model::FileNamePtr;
 using Macaroni::Model::Cpp::Function;
@@ -1833,6 +1835,87 @@ public:
 		return true;
 	}
 
+	// Helper for extern, sets a field value (i.e. like "using={blah}").
+	void externField(Iterator & itr,
+		             boost::optional<std::string> & fieldValue,
+		             bool isFilePath=false)
+	{
+		if (fieldValue) {
+			throw ParserException(itr.GetSource(),
+				Messages::Get("CppParser.Extern.PropertyAlreadySet"));
+		}
+		ConsumeWhitespace(itr);
+		if (!itr.ConsumeChar('=')) {
+			throw ParserException(itr.GetSource(),
+				Messages::Get("CppParser.Extern.ExpectedEquals"));
+		}
+		if (isFilePath) {
+			//TODO: Would it ever make sense to allow the include to be
+			//      arbitrary text? Just in case do that part here.
+			std::string filePath;
+			if (!ConsumeFilePath(itr, filePath))
+			{
+				throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.Extern.MissingFilePath"));
+			}
+			fieldValue = filePath;
+		} else {
+			std::string codeBlock;
+			SourcePtr src; // Ignored
+			if (!CodeBlock(itr, codeBlock, src)) {
+				throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.Extern.MissingCodeBlock"));
+			}
+			fieldValue = codeBlock;
+		}
+	}
+
+	/* Looks for "~extern " and creates an "extern" element. Modifies itr
+	 * if match is found. */
+	bool Extern(Iterator & itr)
+	{
+		ConsumeWhitespace(itr);
+		Iterator startItr = itr;
+		if (!itr.ConsumeWord("~extern"))
+		{
+			return false;
+		}
+
+		ConsumeWhitespace(itr);
+		std::string name;
+		if (!ConsumeComplexName(itr, name))
+		{
+			throw ParserException(itr.GetSource(),
+				Messages::Get("CppParser.Extern.NoID1"));
+		}
+
+  		boost::optional<std::string> usingS;
+    	boost::optional<std::string> forward;
+    	boost::optional<std::string> include;
+
+		while(true)
+		{
+			ConsumeWhitespace(itr);
+			if (itr.ConsumeWord("using")) {
+				externField(itr, usingS);
+			} else if (itr.ConsumeWord("forward")) {
+				externField(itr, forward);
+			} else if (itr.ConsumeWord("include")) {
+				externField(itr, include, true);
+			} else if (itr.ConsumeChar(';')) {
+				break;
+			}
+		}
+
+		NodePtr home = currentScope->FindOrCreate(name);
+		Extern::Create(
+			home,
+			Reason::Create(CppAxioms::ExternCreation(), startItr.GetSource()),
+			usingS, forward, include
+		);
+		return true;
+	}
+
 	/** Given a Node, crawls up the Node tree to find the first
 	 * parent (or the given node itself) which is a Class. */
 	NodePtr FindClassAncestorOfNode(NodePtr node)
@@ -2696,6 +2779,7 @@ public:
 				|| ConstructorOrDestructor(itr)
 				|| FriendDeclaration(itr)
 				|| Namespace(itr)
+				|| Extern(itr)
 				|| Class(itr)
 				|| Enum(itr)
 				|| Typedef(itr)

@@ -13,6 +13,8 @@
 ~import Macaroni::Model::Cpp::Destructor;
 ~import Macaroni::Model::Element;
 ~import Macaroni::Model::ElementPtr;
+~import Macaroni::Model::Cpp::Extern;
+~import Macaroni::Model::Cpp::ExternPtr;
 ~import boost::format;
 ~import Macaroni::Model::Cpp::Function;
 ~import Macaroni::Model::Cpp::FunctionOverload;
@@ -130,6 +132,7 @@ class CodeTextProducer
     struct IncludeStatementVisitor
     :   public BaseVisitor,
         public Visitor<Class>,
+        public Visitor<Extern>,
         public Visitor<FunctionOverload>,
         public Visitor<Variable>,
         public Visitor<Typedef>
@@ -146,6 +149,13 @@ class CodeTextProducer
             writer.IncludeFile(e);
         }
 
+        virtual void Visit(Extern & e)
+        {
+            if (e.IncludeFile)
+            {
+                writer.IncludeFile(e);
+            }
+        }
 
         virtual void Visit(FunctionOverload & e)
         {
@@ -244,6 +254,7 @@ class CodeTextProducer
     :   public BaseVisitor,
         public Visitor<Class>,
         public Visitor<Element>,
+        public Visitor<Extern>,
         public Visitor<FunctionOverload>,
         public Visitor<Variable>,
         public Visitor<Typedef>
@@ -269,6 +280,14 @@ class CodeTextProducer
         {
             writer.Comment(str(format("Can't handle element %s.")
                                % e.GetNodeRef().GetFullName()));
+        }
+
+        virtual void Visit(Extern & e)
+        {
+            if (e.ForwardDeclaration)
+            {
+                writer.WriteExternText(e.ForwardDeclaration.get());
+            }
         }
 
         virtual void Visit(FunctionOverload & e)
@@ -581,6 +600,7 @@ class CodeTextProducer
     struct UsingStatementVisitor
     :   public BaseVisitor,
         public Visitor<Class>,
+        public Visitor<Extern>,
         public Visitor<FunctionOverload>,
         public Visitor<Namespace>,
         public Visitor<Variable>,
@@ -596,6 +616,14 @@ class CodeTextProducer
         virtual void Visit(Class & e)
         {
             writer.UsingStatement(e);
+        }
+
+        virtual void Visit(Extern & e)
+        {
+            if (e.UsingStatement)
+            {
+                writer.WriteExternText(e.UsingStatement.get());
+            }
         }
 
         virtual void Visit(FunctionOverload & e)

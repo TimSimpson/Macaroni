@@ -12,6 +12,7 @@
 ~import Macaroni::Model::Cpp::CppContext;
 ~import Macaroni::Model::Element;
 ~import Macaroni::Model::ElementPtr;
+~import Macaroni::Model::Cpp::Extern;
 ~import boost::format;
 ~import Macaroni::Model::Cpp::FunctionOverload;
 ~import Macaroni::Model::Cpp::FunctionOverloadPtr;
@@ -30,12 +31,15 @@
 ~import Macaroni::Model::Source;
 ~import Macaroni::Model::SourcePtr;
 ~import std::string;
+~import Macaroni::Model::Project::Target;
+~import Macaroni::Model::Project::TargetPtr;
 ~import Macaroni::Model::Cpp::TemplateTypename;
 ~import Macaroni::Model::Cpp::TemplateTypenamePtr;
 ~import boost::tokenizer;
 ~import Macaroni::Model::Type;
 ~import Macaroni::Model::TypePtr;
 ~import Macaroni::Model::Project::UnitTarget;
+~import Macaroni::Generators::Cpp::UnitTargetNotSetError;
 ~import Macaroni::Model::Cpp::Variable;
 ~import Macaroni::Model::Cpp::VariablePtr;
 ~import std::set;
@@ -630,7 +634,7 @@ class CppFileWriter
         }
     }
 
-    ~hidden void includeFile(string & file)
+    ~hidden void includeFile(const string & file)
     {
         if (includedFiles.find(file) == includedFiles.end())
         {
@@ -647,6 +651,15 @@ class CppFileWriter
             includedFiles.insert(file);
         }
     }
+
+    public void IncludeFile(Extern & e)
+    {
+        if (e.IncludeFile)
+        {
+            includeFile(e.IncludeFile.get());
+        }
+    }
+
 
     public void IncludeFile(Element & element)
     {
@@ -696,8 +709,16 @@ class CppFileWriter
             if (node->GetElementPtr<Class>()
                 || node->GetElementPtr<Typedef>())
             {
-                includeFile(str(boost::format("%s.h")
-                                % node->GetPrettyFullName("/")));
+                TargetPtr p = node->GetElementPtr()->GetOwner();
+                Target * t = p.get();
+                UnitTarget * ut = dynamic_cast<UnitTarget *>(t);
+                if (nullptr == ut)
+                {
+                    throw UnitTargetNotSetError(node->GetFullName());
+                }
+                includeFile(ut->GetHFile()->GetRelativePathNormalized());
+                //includeFile(str(boost::format("%s.h")
+                //                % node->GetPrettyFullName("/")));
                 return;
             }
         }
@@ -1076,6 +1097,13 @@ class CppFileWriter
     public void WriteClassKeyword()
     {
         write("class ");
+    }
+
+    public void WriteExternText(const std::string & text)
+    {
+        EnterRootNamespace();
+        NewLineIfNeeded();
+        write(text);
     }
 
     public void WriteFullNodeName(NodePtr node)

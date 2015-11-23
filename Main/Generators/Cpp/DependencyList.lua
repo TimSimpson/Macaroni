@@ -249,13 +249,9 @@ DependencyList = {
         end
         -- This was called so the Node really HAS to be a type, or there's an error...
         local member = node.Member;
-        if (member.TypeName == TypeNames.Class) then
-            if (traveller.heavy) then
-                self:addHeavyDependencyNode(node);
-            else
-                self:addLightDependencyNode(node);
-            end
-        elseif (member.TypeName == TypeNames.Enum) then
+        if (member.TypeName == TypeNames.Class
+            or member.TypeName == TypeNames.Enum
+            or member.TypeName == TypeNames.Extern) then
             if (traveller.heavy) then
                 self:addHeavyDependencyNode(node);
             else

@@ -162,3 +162,28 @@ class MissingCodeBlockError  : public Exception
         return boost::none;
     }
 };
+
+class UnitTargetNotSetError  : public Exception
+{
+    string msg;
+
+    public UnitTargetNotSetError(const string & thing)
+    :   msg(str(boost::format("No unit target set for %s.") % thing))
+    {
+    }
+
+    public virtual string message() const
+    {
+        return msg;
+    }
+
+    public const char * what() const BOOST_NOEXCEPT override
+    {
+        return msg.c_str();
+    }
+
+    public virtual const optional<InternalSource> & where() const BOOST_NOEXCEPT
+    {
+        return boost::none;
+    }
+};

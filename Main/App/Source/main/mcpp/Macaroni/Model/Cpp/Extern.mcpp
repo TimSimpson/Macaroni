@@ -1,0 +1,82 @@
+~import Macaroni::Core::BaseVisitor;
+~import Macaroni::Model::Element;
+~import Macaroni::Model::ElementPtr;
+~import boost::intrusive_ptr;
+~import Macaroni::Model::Node;
+~import boost::optional;
+~import Macaroni::Model::ReasonPtr;
+~import std::string;
+~import Macaroni::Model::Project::Target;
+~import Macaroni::Model::Project::TargetPtr;
+~import Macaroni::Core::Visitor;
+
+
+~namespace Macaroni::Model::Cpp;
+
+
+// Defines an element external to Macaroni. Allows for the integration of
+// external C++ code.
+class Extern {};
+
+typedef boost::intrusive_ptr<Extern> ExternPtr;
+
+class Extern : public Element
+{
+    public const optional<string> UsingStatement;
+    public const optional<string> ForwardDeclaration;
+    public const optional<string> IncludeFile;
+
+    private Extern(Node * node, ReasonPtr reason,
+                   const optional<string> & usingStatement,
+                   const optional<string> & forwardDeclaration,
+                   const optional<string> & includeFile)
+    :   Element(node, reason),
+        UsingStatement(usingStatement),
+        ForwardDeclaration(forwardDeclaration),
+        IncludeFile(includeFile)
+    {
+    }
+
+    public virtual bool Accept(BaseVisitor & v)
+    {
+        return Visit(*this, v);
+    }
+
+    public static ExternPtr Create(
+        NodePtr parent,
+        ReasonPtr reason,
+        const optional<string> & usingStatement,
+        const optional<string> & forwardDeclaration,
+        const optional<string> & includeFile
+    )
+    {
+        ExternPtr ptr(
+            new Extern(parent.get(), reason,
+                       usingStatement, forwardDeclaration, includeFile)
+        );
+        return ptr;
+    }
+
+    public ~global ~friend void intrusive_ptr_add_ref(Extern * p)
+    {
+        intrusive_ptr_add_ref(static_cast<Element *>(p));
+    }
+
+    public ~global ~friend void intrusive_ptr_release(Extern * p)
+    {
+        intrusive_ptr_release(static_cast<Element *>(p));
+    }
+
+    public virtual bool OwnedBy(TargetPtr target) const
+    {
+        // No target owns these as something outside of Macaroni is
+        // responsible for them existing.
+        return false;
+    }
+
+    public virtual const char * GetTypeName() const
+    {
+        return "Extern";
+    }
+
+};
