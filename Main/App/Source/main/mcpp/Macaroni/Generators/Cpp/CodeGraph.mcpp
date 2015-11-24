@@ -339,11 +339,13 @@ class CodeGraph
                 }
 
                 // Make sure nested classes pull in enclosing class def.
-                if (Class * ec = e.GetEnclosingClass())
+                // Update: wait, this is probably wrong.
+                // We just need to have the enclosing class iterate it instead.
+                /*if (Class * ec = e.GetEnclosingClass())
                 {
                     addDepOfNode(td, *ec, CodeType::TypeDefinition);
                     addDepOfNode(us, *ec, CodeType::UsingStatement);
-                }
+                }*/
 
                 // Include a dependency from type def to all h imports.
                 addDepsOfImportList(td,
@@ -354,6 +356,8 @@ class CodeGraph
                 MACARONI_ASSERT(e.GetFriendNodes(), "Empty friend list?");
                 addDepsOfNodeList(td, *(e.GetFriendNodes()),
                                   CodeType::ForwardDeclaration);
+                addDepsOfNodeList(im, *(e.GetFriendNodes()),
+                                  CodeType::Implementation);
 
 
                 // A class must see all TDs of the variables it used.
@@ -374,8 +378,8 @@ class CodeGraph
                 Node & node = *e.GetNode();
                 for (unsigned int i = 0; i < node.GetChildCount(); ++ i)
                 {
-                    auto func = node.GetChild(i)->GetElementPtr<Function>();
-                    if (func)
+                    if (auto func
+                            = node.GetChild(i)->GetElementPtr<Function>())
                     {
                         NodePtr fn = func->GetNode();
                         for (unsigned int j = 0; j < fn->GetChildCount(); ++ j)
@@ -389,36 +393,40 @@ class CodeGraph
                             }
                         }
                     }
-                    else
+                    else if (auto block
+                                = node.GetChild(i)->GetElementPtr<Block>())
                     {
-                        auto block = node.GetChild(i)->GetElementPtr<Block>();
-                        if (block)
-                        {
 
-                            if (block->GetId() == "top")
-                            {
-                                addDepOfNode(td, *block, CodeType::BlockTop);
-                            }
-                            /*
-                            // This is dirty- I know the sorter will ultimately
-                            // move this to the bottom, so I make the class
-                            // depend on it.
-                            else if (block->GetId() == "bottom")
-                            {
-                                addDepOfNode(td, *block, CodeType::BlockBottom);
-                            }*/
-                            // The type def has to depend on this so it will
-                            // appear higher up.
-                            else if (block->GetId() == "h-predef")
-                            {
-                                addDepOfNode(td, *block, CodeType::TypeDefinition);
-                            }
-                            // Make the implementation depend on this.
-                            else if (block->GetId() == "cpp-include")
-                            {
-                                addDepOfNode(im, *block, CodeType::TypeDefinition);
-                            }
+                        if (block->GetId() == "top")
+                        {
+                            addDepOfNode(td, *block, CodeType::BlockTop);
                         }
+                        /*
+                        // This is dirty- I know the sorter will ultimately
+                        // move this to the bottom, so I make the class
+                        // depend on it.
+                        else if (block->GetId() == "bottom")
+                        {
+                            addDepOfNode(td, *block, CodeType::BlockBottom);
+                        }*/
+                        // The type def has to depend on this so it will
+                        // appear higher up.
+                        else if (block->GetId() == "h-predef")
+                        {
+                            addDepOfNode(td, *block, CodeType::TypeDefinition);
+                        }
+                        // Make the implementation depend on this.
+                        else if (block->GetId() == "cpp-include")
+                        {
+                            addDepOfNode(im, *block, CodeType::TypeDefinition);
+                        }
+                    }
+                    else if (auto cls
+                                = node.GetChild(i)->GetElementPtr<Class>())
+                    {
+                        // This class has to depend on all of the things its
+                        // enclosing class depends on- except for itself.
+                        Visit(*cls);
                     }
                 }
 
@@ -439,17 +447,18 @@ class CodeGraph
                                     CodeType::UsingStatement);
 
                 // Make sure the globals are defined.
-                auto globals = e.GetGlobalNodes();
+                /*auto globals = e.GetGlobalNodes();
                 if (globals)
                 {
                     for (NodePtr & n : *globals)
                     {
                         if (auto * ge = n->GetElementPtr())
                         {
+                            addDepOfNode(td, *ge, CodeType::TypeDefinition);
                             addDepOfNode(im, *ge, CodeType::Implementation);
                         }
                     }
-                }
+                }*/
 
 /*
                 struct HandleFuncStruct {
