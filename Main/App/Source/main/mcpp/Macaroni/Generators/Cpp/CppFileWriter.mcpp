@@ -714,11 +714,17 @@ class CppFileWriter
                 UnitTarget * ut = dynamic_cast<UnitTarget *>(t);
                 if (nullptr == ut)
                 {
-                    throw UnitTargetNotSetError(node->GetFullName());
+                    // throw UnitTargetNotSetError(node->GetFullName());
+                    // Scratch that- just make something up!
+                    // This is still necessary when using libraries that
+                    // aren't being generated.
+                    includeFile(str(boost::format("%s.h")
+                                % node->GetPrettyFullName("/")));
                 }
-                includeFile(ut->GetHFile()->GetRelativePathNormalized());
-                //includeFile(str(boost::format("%s.h")
-                //                % node->GetPrettyFullName("/")));
+                else
+                {
+                    includeFile(ut->GetHFile()->GetRelativePathNormalized());
+                }
                 return;
             }
         }
