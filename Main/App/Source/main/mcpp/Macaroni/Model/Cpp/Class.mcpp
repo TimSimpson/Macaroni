@@ -75,6 +75,8 @@ class Class : public Scope
 {
     private Access access;
 
+    private Class * const enclosingClass;
+
     // Awesome, all of these are memory leaks.  No wonder I used to get things
     // done quicker!
     private NodeListPtr friends;
@@ -93,9 +95,11 @@ class Class : public Scope
     protected Class(Target * target, Node * parent,
                     bool isStruct, Access access,
                     ImportList importedNodes, ReasonPtr reason,
-                    Node * templateParameterList)
+                    Node * templateParameterList,
+                    Class * enclosingClass)
     :   Scope(target, parent, reason),
         access(access),
+        enclosingClass(enclosingClass),
         friends(new NodeList()),
         globals(new NodeList()),
         imports(importedNodes),
@@ -116,7 +120,8 @@ class Class : public Scope
     public static ClassPtr Create(TargetPtr target, NodePtr parent,
                                   bool isStruct, AccessPtr access,
                                   ImportList importedNodes, ReasonPtr reason,
-                                  NodePtr templateParameterList=NodePtr{})
+                                  NodePtr templateParameterList=NodePtr{},
+                                  Class * enclosingClass=nullptr)
     {
         ElementPtr existingMember = parent->GetElement();
         if (!!existingMember)
@@ -135,7 +140,8 @@ class Class : public Scope
         }
         ClassPtr other = boost::dynamic_pointer_cast<Class>(existingMember);
         ClassPtr ptr(new Class(target.get(), parent.get(), isStruct, *access,
-            importedNodes, reason, templateParameterList.get()));
+            importedNodes, reason, templateParameterList.get(),
+            enclosingClass));
         return ptr;
     }
 
@@ -160,6 +166,11 @@ class Class : public Scope
     {
         Class * const me = this;
         parents->push_back(ClassParent(me, parent.get(), *access, _virtual));
+    }
+
+    public Class * GetEnclosingClass() const
+    {
+        return enclosingClass;
     }
 
     /** Classes which this Class inherits from. */
@@ -228,6 +239,11 @@ class Class : public Scope
         }
         ClassPtr classPtr = boost::dynamic_pointer_cast<Class>(other);
         return (!!classPtr);
+    }
+
+    public bool IsNested() const
+    {
+        return enclosingClass != nullptr;
     }
 
     public bool IsStruct() const

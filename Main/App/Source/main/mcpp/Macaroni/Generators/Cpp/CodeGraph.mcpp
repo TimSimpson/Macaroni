@@ -338,6 +338,13 @@ class CodeGraph
                     graph.computeDeps(t, CodeType::TypeDefinition, td);
                 }
 
+                // Make sure nested classes pull in enclosing class def.
+                if (Class * ec = e.GetEnclosingClass())
+                {
+                    addDepOfNode(td, *ec, CodeType::TypeDefinition);
+                    addDepOfNode(us, *ec, CodeType::UsingStatement);
+                }
+
                 // Include a dependency from type def to all h imports.
                 addDepsOfImportList(td,
                                     e.GetImportedNodes(), ImportType::H,
@@ -430,6 +437,20 @@ class CodeGraph
                 addDepsOfImportList(im,
                                     e.GetImportedNodes(), ImportType::Normal,
                                     CodeType::UsingStatement);
+
+                // Make sure the globals are defined.
+                auto globals = e.GetGlobalNodes();
+                if (globals)
+                {
+                    for (NodePtr & n : *globals)
+                    {
+                        if (auto * ge = n->GetElementPtr())
+                        {
+                            addDepOfNode(im, *ge, CodeType::Implementation);
+                        }
+                    }
+                }
+
 /*
                 struct HandleFuncStruct {
                     CodeText & fd;

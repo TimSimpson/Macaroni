@@ -837,6 +837,8 @@ public:
 		}
 
 		NodePtr oldScope = currentScope;
+		::Macaroni::Model::Cpp::Class * enclosingClass
+			= oldScope->GetElementPtr<::Macaroni::Model::Cpp::Class>();
 		currentScope = currentScope->FindOrCreate(name, hFilesForNewNodes);
 		lastAccess = currentAccess;
 		currentAccess = defaultAccess;
@@ -846,7 +848,7 @@ public:
 		newClass = Class::Create(
 			tHome, currentScope, isStruct, access, importedNodes,
 			Reason::Create(CppAxioms::ClassCreation(), newItr.GetSource()),
-			templateHome);
+			templateHome, enclosingClass);
 
 		if (templateHome)
 		{

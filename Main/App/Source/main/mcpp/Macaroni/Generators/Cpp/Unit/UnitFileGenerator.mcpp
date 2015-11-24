@@ -336,6 +336,16 @@ class UnitFileGenerator
                                     CppFileWriter header,
                                     bool includeTopAndBottomBlocks)
     {
+        if (generatorSettings.InsertDebugTracers)
+        {
+            header.Comment("Unit File Generator is looking at these Elements:");
+            for (auto e : elementList)
+            {
+                header.Comment(str(format("\t%s")
+                               % e->GetNodeRef().GetFullName()));
+            }
+            header.Comment("");
+        }
         header.HeaderTop(this->unit);
 
         CodeTextProducer producer(generatorSettings, header);

@@ -360,6 +360,11 @@ class CodeTextProducer
 
         virtual void Visit(Class & e)
         {
+            if (e.IsNested() && !owningClass)
+            {
+                // Only the parent class should print all this stuff out...
+                return;
+            }
             NodePtr tpl = e.GetTemplateParameterList();
             if (!owningClass)
             {
@@ -615,7 +620,10 @@ class CodeTextProducer
 
         virtual void Visit(Class & e)
         {
-            writer.UsingStatement(e);
+            if (!e.IsNested())
+            {
+                writer.UsingStatement(e);
+            }
         }
 
         virtual void Visit(Extern & e)
@@ -682,6 +690,11 @@ class CodeTextProducer
 
         virtual void Visit(Class & e)
         {
+            if (e.IsNested() && !owningClass)
+            {
+                // Only the parent class should print all this stuff out...
+                return;
+            }
             if (e.GetTemplateParameterList())
             {
                 return;
