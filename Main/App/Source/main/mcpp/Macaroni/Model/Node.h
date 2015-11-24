@@ -51,6 +51,8 @@ public:
 
 	bool operator==(const Node & other) const;
 
+	bool operator!=(const Node & other) const;
+
 	/** Creates a node with the given prefix and some number
 	 * attached to it. */
 	NodePtr CreateNextInSequence(const std::string & prefix);

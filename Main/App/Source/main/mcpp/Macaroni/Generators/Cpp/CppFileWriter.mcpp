@@ -939,7 +939,7 @@ class CppFileWriter
             }
         }
         // If we're in the same namespace don't bother either.
-        if (0 == current && currentNamespace
+        if (0 == current && currentNamespace && *currentNamespace != *rootNs
             && node.IsChildOf(*currentNamespace))
         {
             current = currentNamespace->GetDepth() + 1;

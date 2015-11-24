@@ -96,6 +96,11 @@ bool Node::operator==(const Node & other) const
 	return (this == &other); // || this->GetFullName() == other.GetFullName();
 }
 
+bool Node::operator!=(const Node & other) const
+{
+	return !operator==(other);
+}
+
 void Node::adoptFloatingNode(Node * node)
 {
 	if (nullptr == node
