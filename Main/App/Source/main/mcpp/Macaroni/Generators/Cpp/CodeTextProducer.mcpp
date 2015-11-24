@@ -595,6 +595,11 @@ class CodeTextProducer
             {
                 writer.ClassMemberAccess(e.GetAccess());
             }
+
+            if (e.IsStatic())
+            {
+                writer.StaticKeyword();
+            }
             writer.Type(e.GetType(), false);
             writer.Space();
             writer.WriteNodeName(e.GetNode());
