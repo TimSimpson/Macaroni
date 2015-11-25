@@ -543,6 +543,15 @@ class CppFileWriter
     public void FunctionOverloadDefinition(FunctionOverload & fo)
     {}
 
+    public void FunctionMemberQualifiers(FunctionOverload & fo)
+    {
+        if (fo.IsConst())
+        {
+            write(" const");
+        }
+        //TODO: Volatile
+    }
+
     ~hidden void functionOverloadDefinition(
         FunctionOverload & fo, bool calledInsideClassDef,
         bool calledForFriendDef, bool writeDefaultArgs)
@@ -592,15 +601,14 @@ class CppFileWriter
             write(") ");
         }
         FunctionArgumentList(fo, writeDefaultArgs);
-        if (fo.IsConst())
-        {
-            write(" const");
-        }
+        FunctionMemberQualifiers(fo);
         FunctionExceptionSpecifier(fo);
-        if (fo.UsesOverrideKeyword())
-        {
-            write(" override");
-        }
+        FunctionTrailingReturnType(fo);
+        FunctionVirtSpecifier(fo);
+    }
+
+    public void FunctionTrailingReturnType(FunctionOverload & fo)
+    {
         auto trt = fo.GetTrailingReturnType();
         if (trt)
         {
@@ -608,6 +616,15 @@ class CppFileWriter
             write(trt.get());
         }
     }
+
+    public void FunctionVirtSpecifier(FunctionOverload & fo)
+    {
+        if (fo.UsesOverrideKeyword())
+        {
+            write(" override");
+        }
+    }
+
 
     ~hidden inline bool hasSpace() const
     {
@@ -1084,6 +1101,27 @@ class CppFileWriter
             EnterRootNamespace();
             usingStatement(v.GetNodeRef());
         }
+    }
+
+    public void VariableInitializer(Variable & v)
+    {
+        auto init = v.GetInitializer();
+        if (init.length() > 0)
+        {
+            write("=", init);
+        }
+    }
+
+    public void VariableQualifiedName(Variable & v)
+    {
+        auto vNode = v.GetNode();
+        auto classPtr = vNode->GetParent()->GetElementPtr<Class>();
+        if (classPtr)
+        {
+            ClassName(*classPtr);
+            write("::");
+        }
+        WriteNodeName(vNode);
     }
 
     public void VirtualKeyword()

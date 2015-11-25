@@ -232,7 +232,12 @@ class CodeTextProducer
         writer.Space();
         writer.WriteNodeName(e.GetNode()->GetParent());
         writer.FunctionArgumentList(e, true);
+        writer.FunctionMemberQualifiers(e);
         writer.FunctionExceptionSpecifier(e);
+        //writer.FunctionAttributes(e);
+        writer.FunctionTrailingReturnType(e);
+        //writer.FunctionRequires(e);
+        writer.FunctionVirtSpecifier(e);
         writer.FunctionHeaderBody(e);
 
         endTemplateItem(writer, e);
@@ -808,6 +813,7 @@ class CodeTextProducer
             writer.Space();
             writer.FunctionName(e);
             writer.FunctionArgumentList(e, false);
+            writer.FunctionMemberQualifiers(e);
             writer.FunctionExceptionSpecifier(e);
             writer.FunctionCodeBlock(e);
         }
@@ -818,6 +824,16 @@ class CodeTextProducer
 
         virtual void Visit(Variable & e)
         {
+            if (owningClass && !e.IsStatic())
+            {
+                return;
+            }
+            writer.NewLineIfNeeded();
+            writer.Type(e.GetType(), false);
+            writer.Space();
+            writer.VariableQualifiedName(e);
+            writer.VariableInitializer(e);
+            writer.EndStatement();
         }
     };
 
