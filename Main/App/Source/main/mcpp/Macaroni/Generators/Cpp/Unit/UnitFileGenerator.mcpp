@@ -231,22 +231,29 @@ class UnitFileGenerator
     {
     }
 
+
+    ~hidden static void writeDebugFile(GeneratedFileWriterPtr writer,
+                                       vector<CodeText *> textList)
+    {
+        writer->WriteLine("The following are all CodeText instances "
+                                   "for this translation unit:");
+        for (CodeText * ct : textList)
+        {
+            writer->WriteLine(str(format("%s") % *ct));
+            for (CodeText * dep : ct->DependsOn())
+            {
+                writer->WriteLine(str(format("\t+-- %s") % *dep));
+            }
+        }
+    }
+
     ~hidden void generateCpp(vector<CodeText *> cppText)
     {
         if (generatorSettings.InsertDebugTracers)
         {
             auto debugWriter = unit.GetCppFile()
                 ->DifferentSuffix(".debug")->CreateFile(true);
-            debugWriter->WriteLine("The following are all CodeText instances "
-                                   "for this translation unit:");
-            for (CodeText * ct : cppText)
-            {
-                debugWriter->WriteLine(str(format("%s") % *ct));
-                for (CodeText * dep : ct->DependsOn())
-                {
-                    debugWriter->WriteLine(str(format("\t+-- %s") % *dep));
-                }
-            }
+            writeDebugFile(debugWriter, cppText);
         }
 
 
@@ -326,6 +333,13 @@ class UnitFileGenerator
 
     ~hidden void generateHeader(vector<CodeText *> headerText)
     {
+        if (generatorSettings.InsertDebugTracers)
+        {
+            auto debugWriter = unit.GetCppFile()
+                ->DifferentSuffix(".debug-hpp")->CreateFile(true);
+            writeDebugFile(debugWriter, headerText);
+        }
+
         auto headerWriter = unit.GetHFile()->CreateFile(true);
         CppFileWriter header(libConfig, unit.GetContext()->GetRoot(),
                              headerWriter, generatorSettings);
