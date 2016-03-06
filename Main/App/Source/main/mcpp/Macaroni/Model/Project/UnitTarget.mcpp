@@ -113,6 +113,11 @@ class UnitTarget : public Target
 		cppFile = cppFile->CreateWithDifferentRootPath(path);
 	}
 
+	public void SetCppFileRootDirectory(Path & path)
+	{
+		cppFile = cppFile->CreateWithDifferentRootPath(path);
+	}
+
 	/** The H file. */
 	public PathPtr GetHFile() const
 	{
@@ -144,8 +149,13 @@ class UnitTarget : public Target
 		SetHFile(ptr);
 	}
 
-	public void SetHFileRootDirectory(PathPtr path)
+	public void SetHFileRootDirectory(Path &path)
 	{
 		hFile = hFile->CreateWithDifferentRootPath(path);
+	}
+
+	public void SetHFileRootDirectory(PathPtr path)
+	{
+		SetHFileRootDirectory(*path);
 	}
 };

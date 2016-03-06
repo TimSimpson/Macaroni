@@ -236,8 +236,13 @@ PathPtr Path::CreateWithCurrentAsRoot() const
 
 PathPtr Path::CreateWithDifferentRootPath(const PathPtr & otherPath)
 {
-	boost::filesystem::path p = otherPath->rootPath / GetRelativePath();
-	PathPtr path(new Path(otherPath->rootPath, p));
+	return CreateWithDifferentRootPath(*otherPath);
+}
+
+PathPtr Path::CreateWithDifferentRootPath(const Path & otherPath)
+{
+	boost::filesystem::path p = otherPath.rootPath / GetRelativePath();
+	PathPtr path(new Path(otherPath.rootPath, p));
 	return path;
 }
 

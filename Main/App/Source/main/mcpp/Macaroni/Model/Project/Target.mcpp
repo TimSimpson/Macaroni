@@ -322,12 +322,19 @@ class Target
 	/* This includes anything which gets included or must be run before this
 	 * target. For example, in a Library, needed DLLs as well as every single
 	 * TranslationUnit is a dependency. */
-	public virtual const TargetListPtr GetDependencies()
+	public const TargetListPtr GetDependencies()
 		@LuaProperty "Dependencies"
 	{
 		TargetListPtr ptr(new InnerTargetList(this, &dependencies));
 		return ptr;
 	}
+
+	// Just get the vector, since that's all we want.
+	public const vector<Target *> & GetDependenciesVec() const
+	{
+		return dependencies;
+	}
+
 
 	public ProjectVersionPtr GetProjectVersion() const
 		@LuaProperty "ProjectVersion"
@@ -345,6 +352,27 @@ class Target
 		@LuaProperty "Parent"
 	{
 		return TargetPtr(parent);
+	}
+
+	template<typename PtrType>
+	public PtrType GetParent() const
+	{
+		typedef typename PtrType::element_type UnderlyingType;
+
+		TargetPtr p = GetParent();
+		if (!p)
+		{
+			return PtrType();
+		}
+		PtrType rtnValue = boost::dynamic_pointer_cast<UnderlyingType>(p);
+		if (!rtnValue)
+		{
+			return PtrType();
+		}
+		else
+		{
+			return rtnValue;
+		}
 	}
 
 	/** Requirements are targets that this target does not need on its own but

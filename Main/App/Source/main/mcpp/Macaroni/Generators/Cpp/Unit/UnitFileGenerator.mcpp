@@ -1,3 +1,4 @@
+
 ~import Macaroni::Core::BaseVisitor;
 ~import boost::format;
 ~import Macaroni::Generators::Cpp::CodeGraph;
@@ -65,25 +66,20 @@ class UnitFileGenerator
 {
     private vector<ElementPtr> elementList;
     private GeneratorSettings generatorSettings;
-    private LibraryConfigGenerator libConfig;
-    private LibraryTargetPtr library;
-    private TargetPtr target;  // So we can keep an ref count on this.
+    private optional<LibraryConfigGenerator> libConfig;
+    private LibraryTarget * library;
+    //private TargetPtr target;  // So we can keep an ref count on this.
     private UnitTarget & unit;
 
-    public UnitFileGenerator(LibraryTargetPtr library, TargetPtr unit,
-                             bool debugText)
-    :   generatorSettings(),
-        libConfig(library),
+    public UnitFileGenerator(GeneratorSettings settings,
+                             LibraryTarget * library, UnitTarget & unit)
+    :   generatorSettings(settings),
+        libConfig(createLibConfig(library)),
         library(library),
-        target(unit),
-        unit(getUnitReference(unit))
+        //target(unit),
+        unit(unit)
     {
-        if (debugText)
-        {
-            generatorSettings.RedirectToMcppSource = false;
-            generatorSettings.InsertDebugTracers = true;
-        }
-        unit->CreateElementList(elementList);
+        unit.CreateElementList(elementList);
     }
 
     ~block "cpp-include"
@@ -100,6 +96,62 @@ class UnitFileGenerator
             "UnitFileGenerator constructor received a null pointer.");
     }
 
+    // Lua Stuff --------------------------------------------------------------
+
+    public static void Lua_Generate(bool debugText, LibraryTargetPtr lib,
+        TargetPtr targetPtr, CodeGraphPtr graph, PathPtr rootPath)
+        @LuaFunction "Generate"
+    {
+        LibraryTarget * lPtr = dynamic_cast<LibraryTarget *>(lib.get());
+        if (!lPtr)
+        {
+            // Accursed Lua glue...
+            throw UnsetLibraryPtrException();
+        }
+        UnitTarget * unitPtr = dynamic_cast<UnitTarget *>(targetPtr.get());
+        if (!unitPtr)
+        {
+            throw UnsetTargetPtrException();
+        }
+        GeneratorSettings generatorSettings;
+        if (debugText)
+        {
+            generatorSettings.RedirectToMcppSource = false;
+            generatorSettings.InsertDebugTracers = true;
+        }
+        UnitFileGenerator ufg(generatorSettings, lPtr, *unitPtr);
+        ufg.Generate(*graph, *rootPath);
+    }
+
+    /*
+    // Have to do this to get around a stupid bug in the Lua Glue generator.
+    public void GenerateLua()
+        @LuaFunction "GenerateOld"
+        @LuaGlueCode ={
+            UnitFileGeneratorPtr & instance =
+                UnitFileGeneratorLuaMetaData::GetInstance(L, 1);
+            Macaroni::Generators::Cpp::CodeGraphPtr & arg1_AsRef = Macaroni::Generators::Cpp::CodeGraphLuaMetaData::GetInstance(L, 2);
+            Macaroni::Generators::Cpp::CodeGraph & arg1 = *(arg1_AsRef);
+            Macaroni::IO::PathPtr & arg2 = Macaroni::IO::PathLuaMetaData::GetInstance(L, 3);
+            try
+            {
+                instance->Generate(arg1, arg2);
+                return 0;
+            }
+            catch(const Macaroni::Exception & ex)
+            {
+                // Actually show Lua the real error. >:-(
+                luaL_error(L, ex.message().c_str());
+            }
+            catch(const std::exception & ex)
+            {
+                luaL_error(L, ex.what());
+            }
+        }
+    {
+    }
+
+
     public static UnitFileGeneratorPtr Create(
         TargetPtr lib, TargetPtr unit)
         @LuaFunction "Create"
@@ -112,30 +164,39 @@ class UnitFileGenerator
         @LuaFunction "CreateDebug"
     {
         return create(lib, unit, true);
-    }
-
+    }*/
+/*
     ~hidden static UnitFileGeneratorPtr create(
-        TargetPtr lib, TargetPtr unit, bool debugText=false)
+        Target * lib, Target & unit, bool debugText=false)
     {
-        LibraryTarget * lPtr = dynamic_cast<LibraryTarget *>(lib.get());
+        LibraryTarget * lPtr = dynamic_cast<LibraryTarget *>(lib);
         if (!lPtr)
         {
             // Accursed Lua glue...
             throw UnsetLibraryPtrException();
         }
-        UnitFileGeneratorPtr ptr(new UnitFileGenerator(lPtr, unit, debugText));
+        GeneratorSettings generatorSettings;
+        if (debugText)
+        {
+            generatorSettings.RedirectToMcppSource = false;
+            generatorSettings.InsertDebugTracers = true;
+        }
+        UnitFileGeneratorPtr ptr(new UnitFileGenerator(generatorSettings,
+            lPtr, unit));
         return ptr;
     }
-
-
-    ~hidden static UnitTarget & getUnitReference(TargetPtr t)
+*/
+    ~hidden optional<LibraryConfigGenerator> createLibConfig(
+        LibraryTarget * library)
     {
-        if (!t)
+        if (!library)
         {
-            throw UnsetTargetPtrException();
+            return boost::none;
         }
-        return dynamic_cast<UnitTarget &>(*t);
+        LibraryConfigGenerator gen(*library);
+        return gen;
     }
+
 
     ~hidden void printCodeText(GeneratedFileWriterPtr writer,
                                CodeText & ct, int depth=0)
@@ -157,7 +218,7 @@ class UnitFileGenerator
         }
     }
 
-    public void Generate(CodeGraph & graph, PathPtr rootPath)
+    public void Generate(CodeGraph & graph, Path &rootPath)
     {
         unit.SetCppFileRootDirectory(rootPath);
         unit.SetHFileRootDirectory(rootPath);
@@ -204,32 +265,6 @@ class UnitFileGenerator
 
     }
 
-    // Have to do this to get around a stupid bug in the Lua Glue generator.
-    public void GenerateLua()
-        @LuaFunction "Generate"
-        @LuaGlueCode ={
-            UnitFileGeneratorPtr & instance =
-                UnitFileGeneratorLuaMetaData::GetInstance(L, 1);
-            Macaroni::Generators::Cpp::CodeGraphPtr & arg1_AsRef = Macaroni::Generators::Cpp::CodeGraphLuaMetaData::GetInstance(L, 2);
-            Macaroni::Generators::Cpp::CodeGraph & arg1 = *(arg1_AsRef);
-            Macaroni::IO::PathPtr & arg2 = Macaroni::IO::PathLuaMetaData::GetInstance(L, 3);
-            try
-            {
-                instance->Generate(arg1, arg2);
-                return 0;
-            }
-            catch(const Macaroni::Exception & ex)
-            {
-                // Actually show Lua the real error. >:-(
-                luaL_error(L, ex.message().c_str());
-            }
-            catch(const std::exception & ex)
-            {
-                luaL_error(L, ex.what());
-            }
-        }
-    {
-    }
 
 
     ~hidden static void writeDebugFile(GeneratedFileWriterPtr writer,
@@ -437,6 +472,7 @@ class UnitFileGenerator
         }
         if (ct.GetElement())
         {
+            TargetPtr target(&unit);
             producer.Write(ct, target, library);
         }
         /*

@@ -283,6 +283,12 @@ class Macaroni::Model::Project::ProjectVersion
 		return ptr;
 	}
 
+	// From C++, just grab the vector.
+	public const vector<Target *> & GetTargetsVec() const
+	{
+		return targets;
+	}
+
 	public inline const string & GetVersion() const
 		@LuaProperty "Version"
 	{

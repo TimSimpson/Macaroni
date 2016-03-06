@@ -57,7 +57,7 @@ class CppFileWriter
     vector<Node *> currentUsingNodes;  // If we're inside a class. Is null
                                     // otherwise.
     NodePtr currentNamespace;
-    LibraryConfigGenerator libConfig;
+    optional<LibraryConfigGenerator> libConfig;
     const int maxWidth;
     set<string> includedFiles;
     NodePtr primitiveRoot;
@@ -67,7 +67,7 @@ class CppFileWriter
     int tabs;
     GeneratedFileWriterPtr writer;
 
-    public CppFileWriter(LibraryConfigGenerator libConfig,
+    public CppFileWriter(optional<LibraryConfigGenerator> libConfig,
                          NodePtr currentNamespace,
                          GeneratedFileWriterPtr writer,
                          const GeneratorSettings & settings)
@@ -278,7 +278,11 @@ class CppFileWriter
 
     public void CppTop(UnitTarget & unit)
     {
-        writeLine("#define ", libConfig.LibCreate());
+        if (!libConfig)
+        {
+            return;
+        }
+        writeLine("#define ", libConfig.get().LibCreate());
         // TODO: Include precompiled headers file here.
         // Don't include normal header as the internal header will be used.
         // write("#include \"", unit.GetHFile()->GetFileName(), "\"");
@@ -558,7 +562,8 @@ class CppFileWriter
     {
         auto access = fo.GetAccess();
         if (access->VisibleInLibrary()
-            && this->libConfig.Decl() && !calledInsideClassDef
+            && this->libConfig && this->libConfig.get().Decl()
+            && !calledInsideClassDef
             && !fo.GetTemplateParameterList())
         {
             LibDecl();
@@ -645,9 +650,9 @@ class CppFileWriter
 
     public void HeaderStartingIncludes(UnitTarget & unit)
     {
-        if (libConfig.HasConfigFile())
+        if (libConfig && libConfig.get().HasConfigFile())
         {
-            write(libConfig.ConfigFileInclude());
+            write(libConfig.get().ConfigFileInclude());
         }
     }
 
@@ -762,10 +767,10 @@ class CppFileWriter
 
     public void LibDecl()
     {
-        if (libConfig.Decl())
+        if (libConfig && libConfig.get().Decl())
         {
             NewLineIfNeeded();
-            writeLine(libConfig.Decl().get());
+            writeLine(libConfig.get().Decl().get());
         }
     }
 

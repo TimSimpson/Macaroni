@@ -97,6 +97,8 @@ public:
 	/** Creates a new instance with the given path as the root path. */
 	PathPtr CreateWithDifferentRootPath(const PathPtr & path);
 
+	PathPtr CreateWithDifferentRootPath(const Path & otherPath);
+
 	PathPtr DifferentSuffix(const std::string & suffix);
 
 	bool Exists() const;

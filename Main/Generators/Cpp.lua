@@ -21,6 +21,7 @@ require "Cpp/NodeInfo";
 require "Cpp/UnitFileGenerator";
 require "Log";
 require "Plugin"
+local ProjectGenerator = require "Macaroni.Generators.Cpp.Project.ProjectGenerator"
 
 local Path = require "Macaroni.IO.Path";
 
@@ -69,6 +70,13 @@ function Validate(self)
     Plugin.Check(self.path ~= nil, "Missing argument 'path'.")
     Plugin.Check(self.path.AbsolutePath ~= nil, [["path" argument looks ]] ..
                                         [[wrong. Is this a path or a string?]])
+end
+
+function Generate3(self)
+    local debug = true;
+    ProjectGenerator.Generate(self.projectVersion,
+                              self.path:CreateWithCurrentAsRoot(),
+                              debug)
 end
 
 function Generate2(self)
@@ -169,7 +177,7 @@ function GetMethod(name)
                 -- print("PATH=" .. tostring(args.path));
                 -- print("PATH.NewPath=" .. tostring(args.path.NewPath));
 
-                Generate2(args)
+                Generate3(args)
             end
         }
     end

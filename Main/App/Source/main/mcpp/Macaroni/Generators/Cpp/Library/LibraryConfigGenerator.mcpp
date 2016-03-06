@@ -1,7 +1,9 @@
 ~import boost::format;
+~import Macaroni::IO::GeneratedFileWriter;
 ~import Macaroni::Model::Project::LibraryTarget;
 ~import Macaroni::Model::Project::LibraryTargetPtr;
 ~import boost::optional;
+~import Macaroni::IO::Path;
 ~import std::string;
 
 
@@ -10,19 +12,20 @@
 class LibraryConfigGenerator
 {
     private const string cId;
+    private const bool hasConfigFile;
     private const string configFile;
     private const string configFileInclude;
     private const optional<string> decl;
-    private const bool hasConfigFile;
+    private const string dynLink;
     private const string libCreate;
 
-    public LibraryConfigGenerator(LibraryTargetPtr library)
-    :   cId(library->GetCId()),
+    public LibraryConfigGenerator(LibraryTarget & library)
+    :   cId(library.GetCId()),
         hasConfigFile(BoostConfigIsAvailable(library)),
         configFile(initConfigFile(library)),
-        configFileInclude(initConfigFileInclude(
-            library, configFile)),
+        configFileInclude(initConfigFileInclude(library, configFile)),
         decl(initDecl(hasConfigFile, library)),
+        dynLink(initLibDynLink(cId)),
         libCreate(initLibCreate(cId))
     {
     }
@@ -36,23 +39,32 @@ class LibraryConfigGenerator
         {
             return false;
         }
-        return lib->HasDependencyOnProjectName("Boost-headers");
+        return BoostConfigIsAvailable(*lib);
     }
+
+    public static bool BoostConfigIsAvailable(LibraryTarget & lib)
+    {
+        // The thinking here is that if anything from boost is defined then the
+        // headers should be on the path and we can safely assume boost/config
+        // is there.
+        return lib.HasDependencyOnProjectName("Boost-headers");
+    }
+
 
     public string ConfigFileInclude() const
     {
         return configFileInclude;
     }
 
-    ~hidden static string initConfigFile(LibraryTargetPtr lib)
+    ~hidden static string initConfigFile(LibraryTarget & lib)
     {
         return str(boost::format("Config_%s.h")
-                   % lib->GetShortName().get_value_or(lib->GetVersionFreeCId())
+                   % lib.GetShortName().get_value_or(lib.GetVersionFreeCId())
         );
     }
 
     ~hidden static string initConfigFileInclude(
-        LibraryTargetPtr & library,
+        LibraryTarget & library,
         const string & libraryConfigFile)
     {
         if (BoostConfigIsAvailable(library))
@@ -67,12 +79,12 @@ class LibraryConfigGenerator
     }
 
     ~hidden static optional<string> initDecl(
-        bool hasConfigFile, LibraryTargetPtr library)
+        bool hasConfigFile, LibraryTarget & library)
     {
         if (hasConfigFile)
         {
             return str(boost::format(
-                    "MACARONI_LIB_DECL_%s") % library->GetCId()
+                    "MACARONI_LIB_DECL_%s") % library.GetCId()
                 );
         }
         else
@@ -84,6 +96,11 @@ class LibraryConfigGenerator
     ~hidden static string initLibCreate(const string & cId)
     {
         return str(boost::format("MACARONI_LIB_CREATE_%s") % cId);
+    }
+
+    ~hidden static string initLibDynLink(const string & cId)
+    {
+        return str(boost::format("MACARONI_LIB_DYN_LINK_%s") % cId);
     }
 
     public optional<string> Decl() const
@@ -101,5 +118,57 @@ class LibraryConfigGenerator
         return libCreate;
     }
 
+    // Actually creates the special header file that configures the library.
+    public void WriteFile(Path & path)
+    {
+        auto file = path.NewPathForceSlash(configFile);
+        auto writer = file->CreateFile();
 
+        if (!decl) {
+            writer->WriteLine("// Not using Boost Config, so nothing to do here.");
+            return;
+        }
+
+        string declVal = decl.get();
+        writer->WriteLine("#ifndef MACARONI_COMPILE_GUARD_Config_", cId, "_H");
+        writer->WriteLine("#define MACARONI_COMPILE_GUARD_Config_", cId, "_H");
+        writer->WriteLine("");
+        writer->WriteLine("#ifdef BOOST_BUILD_PCH_ENABLED");
+        writer->WriteLine("   //TODO!");
+        writer->WriteLine("#endif");
+        writer->WriteLine("");
+        writer->WriteLine("#include <boost/config.hpp>");
+        writer->WriteLine("");
+        writer->WriteLine("// Creates macros needed to create portable library code.");
+        writer->WriteLine("//");
+        writer->WriteLine("// Macros:");
+        writer->WriteLine("//");
+        writer->WriteLine("// ", dynLink);
+        writer->WriteLine("//     If defined, this code will be built or used as a library.");
+        writer->WriteLine("//     If not defined, then the code will be compiled into the resulting binary.");
+        writer->WriteLine("//");
+        writer->WriteLine("// ", libCreate);
+        writer->WriteLine("//     If defined, we are building this library.  If not, we are using it.");
+        writer->WriteLine("//");
+        writer->WriteLine("// ", declVal);
+        writer->WriteLine("//     This is defined by this header file by looking at the above values.");
+        writer->WriteLine("//     This may or may not become a compiler annotation affixed to all symbol");
+        writer->WriteLine("//     definitions.  This is necessary for certain compilers (specifically MSVC++).");
+        writer->WriteLine("//");
+        writer->WriteLine("");
+        writer->WriteLine("#if defined(BOOST_ALL_DYN_LINK) || defined(",
+                          dynLink, ")");
+        writer->WriteLine("# if defined(", libCreate, ")");
+        writer->WriteLine("#  define ", declVal, " BOOST_SYMBOL_EXPORT");
+        writer->WriteLine("# else");
+        writer->WriteLine("#  define ", declVal, " BOOST_SYMBOL_IMPORT");
+        writer->WriteLine("# endif");
+        writer->WriteLine("#else");
+        writer->WriteLine("# define ", declVal);
+        writer->WriteLine("#endif");
+        writer->WriteLine("");
+        writer->WriteLine("#endif // end of MACARONI_COMPILE_GUARD_Config_",
+                          cId, "_H");
+        writer->Close();
+    }
 };

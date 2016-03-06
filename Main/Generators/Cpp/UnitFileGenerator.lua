@@ -173,9 +173,10 @@ LibraryTargetGenerator = {
         };
 
         -- NEW!
+        UnitFileGenerator.Generate(true, self.library, unit, self.graph, rootPath);
         --local ug = UnitFileGenerator.CreateDebug(self.library, unit);
-        local ug = UnitFileGenerator.Create(self.library, unit);
-        ug:Generate(self.graph, rootPath);
+        --local ug = UnitFileGenerator.Create(self.library, unit);
+        --ug:Generate(self.graph, rootPath);
         -- EXCITING!
 
         -- local h   = UnitFileGeneratorOldLua.new(args);

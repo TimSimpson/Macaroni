@@ -1,4 +1,5 @@
 ~import MACARONI_ASSERT;
+~import MACARONI_ASSERT;
 ~import Macaroni::Generators::Cpp::CodeText;
 ~import std::cout;
 ~import Macaroni::Exceptions::SimpleStringException;
