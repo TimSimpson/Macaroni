@@ -1,6 +1,7 @@
 # Messages file for Macaroni.
 
 # C++ Axioms
+
 CppAxioms.AnnotationValueCreation=Character '@' signifies an Annotation value to be attached to the current Node.
 CppAxioms.BlockCreation=Keyword "~block" creates a block of code in the current node.
 CppAxioms.ClassCreation=Keyword "class" begins or continues classes.
@@ -9,11 +10,6 @@ CppAxioms.DestructorCreation.TemplateNotAllowed=A template parameter list can't 
 CppAxioms.DestructorCreation=Tilda (~) followed by name of class begins destructor definition.
 CppAxioms.EnumCreation=Keyword "enum" begins or continues enumerations.
 CppAxioms.ExternCreation=Keyword "~extern" creates an external node.
-CppParser.Extern.NoID1=Identifier expected following ~extern keyword.
-CppParser.Extern.PropertyAlreadySet=This property of the ~extern element has already been set.
-CppParser.Extern.ExpectedEquals=Code block expected here (code between two braces).
-CppParser.Extern.MissingCodeBlock=Code block expected here (code between two braces).
-CppParser.Extern.MissingFilePath=Expected a file path here.
 CppAxioms.FunctionCreation=Function definition encountered.
 CppAxioms.NamespaceCreation=Keyword "namespace" begins or continues namespaces.
 CppAxioms.NamespaceRoot=The root of the Node system is a Namespace.
@@ -38,6 +34,12 @@ CppParser.Annotation.TableEntryEqualsExpected=Expected to see '=' following the 
 CppParser.Annotation.TableEntryValueExpected=Expected to see a value for the Annotation table entry following the name and '='.
 CppParser.Annotation.ValueNoNodeByTheGivenNameFound=It seems as a Node value for an Annotation was specified here, but no Node by that name could be found (are you missing an ~import?).
 CppParser.Annotation.ValueExpectedFollowingNodeName=No attribute value was found following the attribute name.
+CppParser.BlockHPostdefNotAllowed=h-postdef blocks are no longer allowed. Create an explicit unit (use the ~unit keyword) and then make a normal "h" block where appropriate.
+CppParser.BlockHPredefNotAllowed=h-predef blocks are no longer allowed. Use the ~import-h keyword to force an include statement to appear in the generated source's header file.
+CppParser.BlockIdUnknown=Unknown id string for a block type. Valid block types are "h", "cpp", "cpp-include", "top" , and "bottom".
+CppParser.BlockMustHaveUnit="cpp" and "h" blocks must have an explicit unit unless defined inside of a class (use the ~unit keyword to make a unit).
+CppParser.BlockTopBottomMustBeOnUnit="top" and "bottom" can no longer be used inside a class or type.
+CppParser.BlockTopBottomMustHaveUnit="top" and "bottom" must be part of an explicit unit (use the ~unit keyword to create a unit).
 CppParser.Enum.NoID1=Identifier expected following enum keyword.
 CppParser.Enum.Size.NoType=Expected to see a type specified for the enum size here.
 CppParser.Enum.NoComma=Expected to see a comma seperating enum values.
@@ -56,6 +58,12 @@ CppParser.Expression.CouldNotMatch=Macaroni searched this spot for a generic C++
 CppParser.Directive.Unknown=Unknown keyword following Macaroni marker "~".
 CppParser.Directive.HFileBadArgument=Bad text following "hfile".
 CppParser.Directive.HFileFilePathExpected=A file path was expected here.
+CppParser.Extern.NoID1=Identifier expected following ~extern keyword.
+CppParser.Extern.PropertyAlreadySet=This property of the ~extern element has already been set.
+CppParser.Extern.ExpectedEquals=Code block expected here (code between two braces).
+CppParser.Extern.MissingCodeBlock=Code block expected here (code between two braces).
+CppParser.Extern.MissingFilePath=Expected a file path here.
+CppParser.Extern.SyntaxError=Syntax error.
 CppParser.FileNameExpected=Expected a file name surrounded with quotes or ankle brackets.
 CppParser.Friend.FriendKeywordOnlyForClasses=Keyword "friend" cannot be used outside of a class.
 CppParser.Friend.CouldNotFindNode=Could not find information on type in friend declaration.  Sorry, but friend info must be specified early using either an import or forward reference.

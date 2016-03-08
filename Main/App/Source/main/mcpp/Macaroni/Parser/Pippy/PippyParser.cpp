@@ -732,6 +732,50 @@ public:
 			throw ParserException(itr.GetSource(),
 				Messages::Get("CppParser.StringLiteralStartExpected"));
 		}
+
+		// New Macaroni IV error checking.
+		if (id == "top" || id == "bottom")
+		{
+			if (currentScope->HasElementOfType<Macaroni::Model::Cpp::Class>())
+			{
+				throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.BlockTopBottomMustBeOnUnit"));
+			}
+			if (dynamic_cast<LibraryTarget *>(currentTarget.get()) != nullptr)
+			{
+				throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.BlockTopBottomMustHaveUnit"));
+			}
+		}
+		else if (id == "h" || id == "cpp")
+		{
+			// Force a unit for these.
+			if (dynamic_cast<LibraryTarget *>(currentTarget.get()) != nullptr
+				&&
+				!(currentScope->HasElementOfType<Macaroni::Model::Cpp::Class>())
+				)
+			{
+				throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.BlockMustHaveUnit"));
+			}
+		}
+		else if (id == "h-predef")
+		{
+			throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.BlockHPredefNotAllowed"));
+		}
+		else if (id == "h-postdef")
+		{
+			throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.BlockHPostdefNotAllowed"));
+		}
+		else if (id != "cpp-include")
+		{
+			throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.BlockIdUnknown"));
+		}
+
+
 		itr.ConsumeWhitespace();
 		std::string code;
 		SourcePtr codeStart;
@@ -742,17 +786,7 @@ public:
 				Messages::Get("CppParser.CodeBlock.Expected"));
 		}
 		NodePtr blockHome;
-		if ((id == "top" || id == "bottom") &&
-			currentScope->HasElementOfType<Macaroni::Model::Cpp::Class>())
-		{
-			// Make this adopted.
-			blockHome = createNextBlockNode(currentScope->GetParent(), itr);
-			blockHome->SetAdoptedHome(currentScope);
-		}
-		else
-		{
-			blockHome = createNextBlockNode(currentScope, itr);
-		}
+		blockHome = createNextBlockNode(currentScope, itr);
 
 		TargetPtr tHome;
 		boost::optional<ImportList> imports = boost::none;
@@ -1646,8 +1680,12 @@ public:
 		}
 		for(int index = 0; index < maxBlocks; index ++)
 		{
+
 			std::stringstream ss;
-			ss << "~#block" << index;
+			ss << "~#block-";
+			ss << currentTarget->GetName();
+			ss << "-";
+			ss << index;
 			std::string name = ss.str();
 			NodePtr next = node->Find(name);
 			if (!next)
@@ -1906,6 +1944,9 @@ public:
 				externField(itr, include, true);
 			} else if (itr.ConsumeChar(';')) {
 				break;
+			} else {
+				throw ParserException(itr.GetSource(),
+					Messages::Get("CppParser.Extern.SyntaxError"));
 			}
 		}
 
