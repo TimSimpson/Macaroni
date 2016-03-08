@@ -1,0 +1,216 @@
+<~#include <header.mdoc>~>
+
+Changes in Macaroni IV
+***********************
+
+Macaroni Zero Dot IV rewrote the generator logic that had been in Lua in C++.
+As part of this effort an attempt was made to treat the issue of creating
+correct C++ code from the Macaroni Model as a real life problem instead of a
+side show that could be hacked together with a "script" (of course the existing
+Lua code could have also been rewritten, but given the complexity of the logic
+C++ seemed a better fit for the author).
+
+This creates a few breaking changes, but all of them make sense.
+
+
+Translation Units are King
+==========================
+
+Macaroni was written when I was knea deep in Java culture. As a result, much
+of it over-emphasizes objects to the extent that for years the generated .cpp
+and .h file pair didn't even have a name, but was just an arbitrary thing that
+got created for each class Macaroni encountered.
+
+Now Macaroni creates a UnitTarget, which is a Target (the fundamental class of
+Macaroni's Project Space) which represents a translation unit.
+
+The keyword "~unit" keyword in Macaroni creates a translation unit which all
+elements parsed later are stored under in the generated source. In this way it
+becomes possible to create 'modules' just like you would with typical C++. For
+simplicity let's just call these units.
+
+During the first step of code generation Macaroni searches Node Space to find
+all Elements which are owned by the Project Version being generated. If an
+Element is not already owned by a unit, and is a Class or Typedef, a new
+unit is generated for it.
+
+In the second step every unit under the Project Version being generated
+has it's associated .cpp and .h file generated. This happened in recent versions
+of Macaroni as well, however in Macaroni IV the code to do this actually makes
+a great deal more sense. In particular, there is an internal class called
+CodeText, which maps to an element, a type of code (such as the code's forward
+definition, or implementation, etc), and a list of other Code Text instances
+as dependencies, which are the other bits of code which must be "seen" for
+the given CodeText to be correctly interpretted by the C++ compiler. This is
+what makes up a lazily generated graph which can produce the correct code for
+any element regardless of which unit it appears in.
+
+Because of this, Macaroni code that needed ~block's or other tricks in the past
+that where tied to classes may need to be converted to using units.
+
+
+
+The Role of Blocks is Reduced
+=============================
+
+Blocks are Macaroni's get out of jail free card, which allow arbitrary code to
+be injected into the generated source. However previously Macaroni's model of
+the world was centered around classes and their implicit units. Since Macaroni
+now has a focus on explicit units it changes some of the features of the blocks.
+
+In particular, "top" and "bottom" blocks no longer may be added to a class or
+other elements. Instead, the class should be given an explicit unit and the
+~block code should be moved there.
+
+For example, here is some theoretical old code which defines a class only when
+compiling under windows:
+
+.. code-block:: c++
+
+    namespace Acme {
+        class WindowsPixel {
+            ~block "top" {
+                #include <CompilerConstants.h>
+                #ifdef COMPILE_TARGET_WINDOWS
+            }
+            ~block "bottom" {
+                #endif
+            }
+            ...
+        }
+    }
+
+Here is the same code updated for Macaroni IV:
+
+.. code-block:: c++
+
+    ~unit "Acme/WindowsPixel";
+
+    ~block "top" {
+        #include <CompilerConstants.h>
+        #ifdef COMPILE_TARGET_WINDOWS
+    }
+    ~block "bottom" {
+        #endif
+    }
+
+    namespace Acme {
+        class WindowsPixel {
+            ...
+        }
+    }
+
+Hopefully it's clear how much more sense the second bit of code makes; the
+top and bottom blocks were always intended to appear at the top and bottom of
+a translation unit, and the new syntax makes this explicit.
+
+
+Explicitly Forcing the Inclusion of a Header File
+=================================================
+
+Yet another sin in Macaroni pre-version IV was that it was impossible to
+gaurantee that an #include statement be used in a generated header file. That's
+because Macaroni has no knowledge of how to parse C++ function bodies. So if
+you needed a class defined to be used by an inline function or template it
+was impossible, leading to hacks like this:
+
+Old hack, no longer possible in Macaroni IV:
+
+
+.. code-block:: c++
+
+    ~import Acme::Calculator;
+
+    namespace Acme {
+
+        class Sum {
+            ~block "h-predef" {
+                #include <Acme/Calculator.h>
+            }
+
+            public static inline int Sum(Calculator * c, int a, int b) {
+                return c->add(a, b);
+            }
+        }
+    }
+
+As you can see, the only way around it was to use the ~block keyword with
+"h-predef" (meaning "put before class definition") and insert the literal
+include statement. This meant needing to write the ~import and the #include-
+basically writing more code in Macaroni than in normal C++! That's because
+Macaroni couldn't "see" inside of the Sum function before and thus had no
+idea that the Calculator type needed to be defined before the inline function
+was written. Instead it might try to use only the forward definition of
+Calculator, which in this case wouldn't do us any favors.
+
+The new way around this sad and embarassing problem is to use the new
+"~import-h" keyword:
+
+
+.. code-block:: c++
+
+    ~import-h Acme::Calculator;
+
+    namespace Acme {
+
+        class Sum {
+            public static inline int Sum(Calculator * c, int a, int b) {
+                return c->add(a, b);
+            }
+        }
+    }
+
+
+The H here stands for "heavy". A way to think of it is your telling Macaroni
+that the classes you're defining will have a "heavy" dependency on the
+Calculator type and need its full implementation in order for even the
+definition of the Sum class to work correctly.
+
+
+New ~extern Types
+=================
+
+Previously types not defined in Macaroni could be brought in by defining their
+class and using the "~hfile" keyword. This ancient Macaroni keyword caused the
+class element to be marked as being defined elsewhere.
+
+Old way (avoid):
+
+.. code-block:: c++
+
+    class std::string { ~hfile=<string> };
+
+However, this causes a problem in that Macaroni still believes the type is a
+class. The newer, much smarter code generator will therefore try to make things
+like forward definitions. If the type is, for example, "std::string" this will
+lead to code like "namespace std { class string; }" which won't work as
+std::string is actually a template.
+
+Macaroni IV is gutsy enough to actually try to create the forward definition
+for templates correctly (it has all the data it needs, so why not?) but in most
+cases external classes or types are merely being brought in and no attempt
+should be made to do anything tricky to avoid pulling in their full header (if
+its that important precompiled headers can be used).
+
+Instead, the new "~extern" keyword can be used to create an Element that
+Macaroni knows is "external" and thus won't try to do anything clever with other
+than #include its header:
+
+.. code-block:: c++
+
+    ~extern std::string include=<string> ;
+
+
+No More "h-postdef" Blocks
+==========================
+
+The final type of block that was destroyed in Macaroni IV was the "h-postdef"
+block. This allows for a chunk of code to be inserted right after a class's
+definition in it's header file. For cases where this is still needed,
+explicitly create a unit using "~unit" and then create a ~block "h" right after
+a class definition. In the new model, the block will be owned by the unit,
+not the class, which makes a number of things easier / possible to generate
+in Macaroni as this view of things is far more correct.
+
+
+<~#include <footer.mdoc> ~>
