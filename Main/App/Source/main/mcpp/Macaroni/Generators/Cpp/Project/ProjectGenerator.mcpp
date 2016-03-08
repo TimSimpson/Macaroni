@@ -96,6 +96,10 @@ class ProjectGenerator
             settings.RedirectToMcppSource = false;
             settings.InsertDebugTracers = true;
         }
+        else
+        {
+            settings.InsertDebugTracers = false;
+        }
         ProjectGenerator pg(settings, version, rootPath);
         pg.IterateTargets();
     }
@@ -224,7 +228,9 @@ class ProjectGenerator
             }
             return;
         }
-        debugFile->Write("\tWriting ", ut.GetName());
+        if (debugFile) {
+            debugFile->Write("\tWriting ", ut.GetName());
+        }
 
         LibraryTargetPtr lib = ut.GetParent<LibraryTargetPtr>();
         UnitFileGenerator ufg(generatorSettings, lib.get(), ut);

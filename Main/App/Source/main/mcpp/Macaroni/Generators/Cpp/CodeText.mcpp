@@ -87,6 +87,12 @@ class CodeText
     protected void addDependency(CodeText * newDep)
     {
         MACARONI_ASSERT(newDep != nullptr, "Null not allowed for newDep.");
+        if (newDep->element == this->element)
+        {
+            // Avoid situations where a class that has a function which returns
+            // a variable of its own type causes problems.
+            return;
+        }
         for (CodeText * ct : dependsOn)
         {
             if (ct == newDep)
