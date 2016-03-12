@@ -2,10 +2,12 @@
 ~import Macaroni::Model::Element;
 ~import Macaroni::Model::ElementPtr;
 ~import boost::intrusive_ptr;
+~import Macaroni::Model::ModelInconsistencyException;
 ~import Macaroni::Model::Node;
 ~import boost::optional;
 ~import Macaroni::Model::ReasonPtr;
 ~import std::string;
+~import std::stringstream;
 ~import Macaroni::Model::Project::Target;
 ~import Macaroni::Model::Project::TargetPtr;
 ~import Macaroni::Core::Visitor;
@@ -50,11 +52,68 @@ class Extern : public Element
         const optional<string> & includeFile
     )
     {
+        ElementPtr existingElement = parent->GetElement();
+        if (existingElement)
+        {
+            ExternPtr existingExtern = boost::dynamic_pointer_cast<Extern>(
+                existingElement);
+            if (!existingExtern)
+            {
+                std::stringstream ss;
+                ss << "Element at node " << parent->GetFullName()
+                    << " is a " << parent->GetElement()->GetTypeName()
+                    << " and cannot be morphed into an extern.";
+                throw ModelInconsistencyException(
+                    existingElement->GetReasonCreated(),
+                    reason, ss.str());
+            }
+
+            optional<string> diff = listDifferences(
+                *existingExtern, usingStatement,
+                forwardDeclaration, includeFile);
+
+            if (diff)
+            {
+                throw ModelInconsistencyException(
+                    existingElement->GetReasonCreated(),
+                    reason, diff.get());
+            }
+
+            return existingExtern;
+        }
+
         ExternPtr ptr(
             new Extern(parent.get(), reason,
                        usingStatement, forwardDeclaration, includeFile)
         );
         return ptr;
+    }
+
+    ~hidden static bool describeDiff(stringstream & msg,
+                                     const string & field,
+                                     const optional<string> & a,
+                                     const optional<string> & b)
+    {
+        if (a && !b)
+        {
+            msg << field << " is defined but none was defined before.";
+            return true;
+        }
+        else if (!a && b)
+        {
+            msg << field << " is not defined, but one was defined before.";
+            return true;
+        }
+        else if (!a && !b)
+        {
+            return false;
+        }
+        if (a.get() != b.get())
+        {
+            msg << field << " was previously set with a different value.";
+            return true;
+        }
+        return false;
     }
 
     public ~global ~friend void intrusive_ptr_add_ref(Extern * p)
@@ -77,6 +136,29 @@ class Extern : public Element
     public virtual const char * GetTypeName() const
     {
         return "Extern";
+    }
+
+    ~hidden static optional<string> listDifferences(
+        const Extern & ex,
+        const optional<string> & usingStatement,
+        const optional<string> & forwardDeclaration,
+        const optional<string> & includeFile
+    )
+    {
+        stringstream msg;
+        if (!describeDiff(msg, "\"forward declaration\"",
+                         forwardDeclaration, ex.ForwardDeclaration)
+            && !describeDiff(msg, "\"using statement\"",
+                         usingStatement, ex.UsingStatement)
+            && !describeDiff(msg, "\"include file\"",
+                         includeFile, ex.IncludeFile))
+        {
+            return boost::none;
+        }
+        else
+        {
+            return msg.str();
+        }
     }
 
 };
