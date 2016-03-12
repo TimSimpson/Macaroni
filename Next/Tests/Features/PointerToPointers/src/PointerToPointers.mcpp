@@ -1,9 +1,8 @@
+~extern type_traits include=<type_traits> ;
+~import-h type_traits;
+
 class PointerToPointers
 {
-    ~block "h-predef"
-    {
-        #include <type_traits>
-    }
 
     int five()
     {

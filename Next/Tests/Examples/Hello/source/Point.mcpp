@@ -2,6 +2,7 @@
 
 ~import Hello::Geometry::Point;
 
+~unit "Hello/Geometry/Point";
 ~namespace Hello::Geometry;
 
 class Point

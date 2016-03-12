@@ -1,5 +1,4 @@
 ~import BorderTown::AnimalFriends::Egg;
-~import BorderTown::AnimalFriends::DoggyList;
 ~import std::string;
 ~import std::vector;
 

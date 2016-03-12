@@ -8,11 +8,11 @@
  * 4. Move Constructor.
  * 5. Move assignment Operator.
  */
+~extern memory_header include=<memory>;
+~import-h memory_header;
 
 class Handle
 {
-    ~block "h-predef" { #include <memory> }
-
     private char * memory;
     private static const int size = 300;
 

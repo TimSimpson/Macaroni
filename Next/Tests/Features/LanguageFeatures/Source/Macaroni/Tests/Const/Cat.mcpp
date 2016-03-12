@@ -1,4 +1,3 @@
-~import Macaroni::Tests::ConstsTests::Cat;
 
 namespace Macaroni::Tests::Const
 {
@@ -6,8 +5,8 @@ namespace Macaroni::Tests::Const
 	{
 		private int feet;
 
-		public Cat() 
-			: feet(4) 
+		public Cat()
+			: feet(4)
 		{
 		}
 
@@ -16,5 +15,5 @@ namespace Macaroni::Tests::Const
 			return feet;
 		}
 	};
-	
+
 }

@@ -29,9 +29,10 @@ class MyClassB
 };
 //MDOC-END:ex1
 
+/*
 class MyClassC
 {
-    ~block "h-predef" { #include <MyClassA.h> }
+    ~import-h MyClassA;
 
     private MyClassA ~l a;
 
@@ -43,7 +44,7 @@ class MyClassC
     {
         a.count = count;
     }
-};
+};*/
 
 //MDOC-BEGIN:sp1
 typedef boost::shared_ptr<MyClassA> MyClassPtrH

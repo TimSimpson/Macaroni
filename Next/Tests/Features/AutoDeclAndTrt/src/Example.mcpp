@@ -1,5 +1,15 @@
 ~unit PointlessAuto;
 
+~block "top"
+{
+    #include <boost/config.hpp>
+    #ifndef BOOST_NO_CXX14_DECLTYPE_AUTO
+}
+~block "bottom"
+{
+    #endif
+}
+
 //MDOC-BEGIN Auto
 template<typename T>
 auto say_hi(T arg)
@@ -16,6 +26,11 @@ decltype(auto) say_hi(T arg)
 }
 //MDOC-END DeclTypeAuto
 
+~block "h"
+{
+    #ifdef DO_NOT_COMPILE
+}
+
 //MDOC-BEGIN Junk
 template<typename T>
 decltype(auto) say_hi(T arg) -> As you can see,
@@ -26,5 +41,10 @@ decltype(auto) say_hi(T arg) -> As you can see,
     Of course, neither is this.
 }
 //MDOC-END Junk
+
+~block "h"
+{
+    #endif
+}
 
 

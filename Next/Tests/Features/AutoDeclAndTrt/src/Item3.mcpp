@@ -1,5 +1,14 @@
 ~unit Item3;
 
+~block "top" {
+    #include <boost/config.hpp>
+    #ifndef BOOST_NO_CXX14_DECLTYPE_AUTO
+}
+
+~block "bottom" {
+    #endif
+}
+
 //MDOC-BEGIN Item3
 // This comes from an example in Item 3 in the book "Effective Modern C++" by
 // Scott Meyers. Used without permission. I'm no lawyer but I'm guessing this

@@ -3,14 +3,10 @@
 ;
 
 ~import std::cout;
+~import-h og::Dog;
 
 class GoDog
 {
-    ~block "h-predef"
-    {
-        #include <og/Dog.h>
-    }
-
      public ~global int main(const char * args, int argc)
      {
         using namespace og;

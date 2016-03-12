@@ -1,38 +1,47 @@
-//~import Some::Weird::Place; // Import this node to be used below.
+~unit "Util/Func";
+
+
+// ~global is really dumb and was the product of me looking at everything
+// wrong seven years ago. With ~unit existing now all global does is complicate
+// things. Macaroni's ~global feature is going away very soon.
+
 ~import std::string;
 
-namespace Some::Weird::Place { }
+
+int Add(int a, int b)
+{
+	return a + b;
+}
+
+~block "cpp"
+{
+	namespace Some { namespace Weird {
+		namespace Place {
+			int HiddenGlobal()
+			{
+				return 30;
+			}
+		}
+
+		int ReasonlessPrivateGlobal()
+		{
+			using Place::HiddenGlobal;
+
+			return HiddenGlobal() + 26;
+		}
+	} }
+}
+
+namespace Some::Weird::Place {
+	int Dumb() {
+		return ::Some::Weird::ReasonlessPrivateGlobal() + 200;
+	}
+}
 
 ~namespace Util;
 
 class Func
 {
-	// This function will be put in the root of the global namespace.
-	public ~global(::) int Add(int a, int b)
-	{
-		return a + b;
-	}
-	
-	// Its also possible to abuse this:
-	public ~global(Some::Weird::Place) int Dumb()
-	{
-		return ::Some::Weird::ReasonlessPrivateGlobal() + 200;
-	}
-	
-	// Puts this in the namespace Some::Weird... but only defines it in the
-	// .cpp file. So ironically it will never be seen.
-	private ~global(Some::Weird) int ReasonlessPrivateGlobal()
-	{		
-		return HiddenGlobal() + 26;
-	}
-
-	// If the global is "~hidden" it gets tucked into the anonymous namespace
-    // of the .cpp file regardless of the global  setting.
-	~hidden ~global int HiddenGlobal()
-	{		
-		return 30;
-	}
-	
 	public static int AddStuff(int c)
 	{
 		return ::Add(Some::Weird::Place::Dumb(), c);

@@ -1,28 +1,27 @@
+~unit "BlocksExample" ;
+
+// This block gets put at the top of both files after the include guard.
+// This is an ideal spot for compile guards if a class should only work
+// with some specific configuration.
+~block "top"
+{
+/* DISTRIBUTED BY ACME INC. PLEASE READ LICENSE.TXT FOR TERMS OF USE. */
+}
+
+// This gets put at the bottom of both files.
+~block "bottom"
+{
+/* THANK YOU FOR PLAYING! */
+}
+
+// The "-h" gaurantees that the header for std::vector will be included from
+// the header file of every class defined after this.
+~import-h std::vector;
+
 
 class BlocksExample
 {
-    // This block gets put at the top of both files after the include guard.
-    // This is an ideal spot for compile guards if a class should only work
-    // with some specific configuration.
-    ~block "top"
-    {
-/* DISTRIBUTED BY ACME INC. PLEASE READ LICENSE.TXT FOR TERMS OF USE. */
-    }
-
-    // This gets put at the bottom of both files.
-    ~block "bottom"
-    {
-/* THANK YOU FOR PLAYING! */
-    }
-
     private int field1;
-
-    // This block gets put after the include statements in both the
-    // header and internal header.
-    ~block "h-predef"
-    {
-        #include <vector>
-    }
 
     // This gets put inside the class defintion, in the order it was defined.
     // So this should appear after field1, but before field3.
@@ -33,11 +32,6 @@ class BlocksExample
 
     private int field3;
 
-    // This will get put after the class definition.
-    ~block "h-postdef"
-    {
-        void global_function(BlocksExample & ex);
-    }
 
     public void Method1()
     {
@@ -61,3 +55,9 @@ class BlocksExample
         #include <exception>
     }
 };
+
+// This will get put after the class definition.
+~block "h"
+{
+    void global_function(BlocksExample & ex);
+}

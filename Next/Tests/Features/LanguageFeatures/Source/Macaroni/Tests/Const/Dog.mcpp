@@ -1,5 +1,4 @@
 ~import Macaroni::Tests::Const::Cat;
-~import Macaroni::Tests::ConstsTests::Dog;
 ~import std::string;
 
 namespace Macaroni::Tests::Const
@@ -10,7 +9,7 @@ namespace Macaroni::Tests::Const
 
 		public Dog(const Cat & cat)
 			:cat(cat)
-		{					
+		{
 		}
 
 		public int GetCatFeet() const

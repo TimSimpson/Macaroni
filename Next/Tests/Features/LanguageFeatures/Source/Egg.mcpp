@@ -1,7 +1,9 @@
+~unit "BorderTown/AnimalFriends/Egg";
+
 ~import BorderTown::AnimalFriends::Chicken;
-~import BorderTown::AnimalFriends::DoggyList;
 ~import std::string;
 ~import std::vector;
+
 
 namespace BorderTown::AnimalFriends
 {
@@ -9,34 +11,39 @@ namespace BorderTown::AnimalFriends
 	// new challenge?!
 	class Egg
 	{
-		Chicken * chicken;			
-		// A static member is just what you'd expect, a static member of a 
+		Chicken * chicken;
+		// A static member is just what you'd expect, a static member of a
 		// class.
 		public static int GetNumberFive()
 		{
 			return 5;
 		}
-		// A global member is actually a neighbor node which is "adopted" by
-		// the class and stored in the class's header.
-		// In other words, this is just a normal global function that client
-		// code of Egg might expect to use.
-		public ~global const char * GetNumberFive()
-		{
-			return GetNumberFiveAsString();			
-		}
+	};
+
+	// A global member is actually a neighbor node which is "adopted" by
+	// the class and stored in the class's header.
+	// In other words, this is just a normal global function that client
+	// code of Egg might expect to use.
+	const char * GetNumberFive()
+	{
+		return GetNumberFiveAsString();
+	}
+
+	~block "cpp" {
 		// Private globals are not placed in header files of their adopted
 		// parent class.  Instead, their defined on in the class's CPP file
 		// at the top in an anonymous namespace.
 		// Putting static on a private global causes it to be static in the
 		// resulting CPP class, but this serves no real purpose.
-		private ~global static const char * GetNumberFiveAsString()
-		{			
+		static const char * GetNumberFiveAsString()
+		{
 			return GetNumberFiveAsConstChar();
 		}
-		private ~global const char * GetNumberFiveAsConstChar()
-		{			
+
+		const char * GetNumberFiveAsConstChar()
+		{
 			return "FIVE";
 		}
 	}
-	
+
 }

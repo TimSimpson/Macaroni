@@ -7,14 +7,14 @@ namespace Macaroni::Tests::Typedefs
 
 	class Doggy{}
 
-	typedef vector<Doggy> DoggyList;
+	typedef vector<Doggy ~l> DoggyList;
 
 	typedef DoggyList DoggyListType;
 
 	class Doggy
 	{
 		int age;
-	
+
 		public Doggy(string name, int age)
 		:	age(age),
 			name(name)
@@ -25,7 +25,7 @@ namespace Macaroni::Tests::Typedefs
 		{
 			return age * 7;
 		}
-	
+
 		public string GetName()
 		{
 			return name;
@@ -36,7 +36,7 @@ namespace Macaroni::Tests::Typedefs
 			DoggyList newList;
 			return newList;
 		}
-	
+
 		string name;
 	}
 

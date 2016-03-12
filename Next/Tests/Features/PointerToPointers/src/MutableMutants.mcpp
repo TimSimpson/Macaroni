@@ -1,12 +1,11 @@
 //MDOC-BEGIN mutant
 ~import std::string;
 
+~extern type_traits include=<type_traits> ;
+~import-h type_traits;
+
 class Mutant
 {
-    ~block "h-predef"
-    {
-        #include <type_traits>
-    }
 
     mutable string name;
     volatile int mutantPowers;
