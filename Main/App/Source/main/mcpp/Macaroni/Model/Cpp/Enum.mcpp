@@ -1,3 +1,4 @@
+~import Macaroni::Core::BaseVisitor;
 ~import boost::intrusive_ptr;
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaFunction;
@@ -16,6 +17,7 @@
 ~import Macaroni::Model::Type;
 ~import Macaroni::Model::TypePtr;
 ~import Macaroni::Cpp::UseLightDef;
+~import Macaroni::Core::Visitor;
 
 ~namespace Macaroni::Model::Cpp;
 
@@ -55,10 +57,20 @@ class Enum : public Scope
         return ptr;
     }
 
+    public virtual bool Accept(BaseVisitor & v)
+    {
+        return Visit(*this, v);
+    }
+
     public void AddValue(const string & key,
                          const optional<string> & value=boost::none)
     {
         values[key] = value;
+    }
+
+    public bool CapableOfForwardDefinition() const
+    {
+        return isClass || sizeType;
     }
 
     public TypePtr GetSizeType()

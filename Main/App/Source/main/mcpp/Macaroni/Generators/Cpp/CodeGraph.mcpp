@@ -11,6 +11,7 @@
 ~import Macaroni::Model::Element;
 ~import Macaroni::Model::ElementPtr;
 ~import Macaroni::Generators::Cpp::EmptyImportListError;
+~import Macaroni::Model::Cpp::Enum;
 ~import Macaroni::Model::Cpp::Function;
 ~import Macaroni::Model::Cpp::FunctionOverload;
 ~import Macaroni::Generators::Cpp::HollowNodeException;
@@ -192,6 +193,7 @@ class CodeGraph
         :   public BaseVisitor,
             public Visitor<Block>,
             public Visitor<Class>,
+            public Visitor<Enum>,
             public Visitor<Function>,
             public Visitor<FunctionOverload>,
             public Visitor<Typedef>,
@@ -486,6 +488,41 @@ class CodeGraph
 
 
 
+            }
+
+            virtual void Visit(Enum & e)
+            {
+                TypePtr tp = e.GetSizeType();
+
+                // Enum's forward declaration *REQUIRES* the TypeDefinition
+                // (and also technically doesn't exist, but for Macaroni's
+                // purpose it does and is visible) if there is no size type.
+                // So anything expecting to depend only on the forward def
+                // must depend on the type def instead, and the forward def
+                // will be actually not be rendered.
+                if (!e.CapableOfForwardDefinition())
+                {
+                    fd.addDependency(&td);
+                    return;
+                }
+
+                if (!tp)
+                {
+                    // new style enums can have forward defs even without
+                    // having their size types known.
+                    return;
+                }
+
+                Type & sizeType = *tp;
+
+                // The forward def will depend on the forward def of the
+                // size type.
+                graph.computeDeps(sizeType, CodeType::ForwardDeclaration, td);
+
+
+                // The type definition of course depends on the type def of
+                // the size type.
+                graph.computeDeps(sizeType, CodeType::TypeDefinition, td);
             }
 
             virtual void Visit(Function & e)

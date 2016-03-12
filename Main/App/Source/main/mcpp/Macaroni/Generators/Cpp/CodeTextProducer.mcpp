@@ -13,6 +13,7 @@
 ~import Macaroni::Model::Cpp::Destructor;
 ~import Macaroni::Model::Element;
 ~import Macaroni::Model::ElementPtr;
+~import Macaroni::Model::Cpp::Enum;
 ~import Macaroni::Model::Cpp::Extern;
 ~import Macaroni::Model::Cpp::ExternPtr;
 ~import boost::format;
@@ -132,6 +133,7 @@ class CodeTextProducer
     struct IncludeStatementVisitor
     :   public BaseVisitor,
         public Visitor<Class>,
+        public Visitor<Enum>,
         public Visitor<Extern>,
         public Visitor<FunctionOverload>,
         public Visitor<Variable>,
@@ -142,6 +144,11 @@ class CodeTextProducer
         IncludeStatementVisitor(CppFileWriter & writer)
         :   writer(writer)
         {
+        }
+
+        virtual void Visit(Enum & e)
+        {
+            writer.IncludeFile(e);
         }
 
         virtual void Visit(Class & e)
@@ -259,6 +266,7 @@ class CodeTextProducer
     :   public BaseVisitor,
         public Visitor<Class>,
         public Visitor<Element>,
+        public Visitor<Enum>,
         public Visitor<Extern>,
         public Visitor<FunctionOverload>,
         public Visitor<Variable>,
@@ -285,6 +293,29 @@ class CodeTextProducer
         {
             writer.Comment(str(format("Can't handle element %s.")
                                % e.GetNodeRef().GetFullName()));
+        }
+
+        virtual void Visit(Enum & e)
+        {
+            // If the enum is not capable of a forward definition, it will
+            // not be rendered. This relies on logic in the sorter which makes
+            // any item that depends on such an enum depend on its type
+            // definition instead.
+            if (e.CapableOfForwardDefinition())
+            {
+                writer.EnterNamespace(e.GetNode()->GetParent());
+                writer.WriteEnumKeyword();
+                if (e.IsClassEnum())
+                {
+                    writer.WriteClassKeyword();
+                }
+                writer.WriteNodeName(e.GetNode());
+                if (e.GetSizeType())
+                {
+                    writer.EnumSizeType(*e.GetSizeType());
+                }
+                writer.EndStatement();
+            }
         }
 
         virtual void Visit(Extern & e)
@@ -325,6 +356,7 @@ class CodeTextProducer
         public Visitor<ConstructorOverload>,
         public Visitor<Destructor>,
         public Visitor<Element>,
+        public Visitor<Enum>,
         public Visitor<Function>,
         public Visitor<FunctionOverload>,
         public Visitor<Variable>,
@@ -520,6 +552,35 @@ class CodeTextProducer
                                % e.GetNodeRef().GetFullName()));
         }
 
+        virtual void Visit(Enum & e)
+        {
+            if (!e.GetNode()->GetParent()->GetElementPtr<Class>())
+            {
+                writer.EnterNamespace(e.GetNode()->GetParent());
+            }
+            writer.WriteEnumKeyword();
+            if (e.IsClassEnum())
+            {
+                writer.WriteClassKeyword();
+            }
+            writer.WriteNodeName(e.GetNode());
+            if (e.GetSizeType())
+            {
+                writer.EnumSizeType(*e.GetSizeType());
+            }
+            writer.OpenBrace();
+            bool seenOne = false;
+            for(auto const & item : e.GetValues()) {
+                if (seenOne)
+                {
+                    writer.EnumSeperator();
+                }
+                writer.EnumValue(item.first, item.second);
+                seenOne = true;
+            }
+            writer.CloseBraceForClass();
+        }
+
         virtual void Visit(Function & f)
         {
             WriteFunction(writer, owningClass, f);
@@ -615,6 +676,7 @@ class CodeTextProducer
     struct UsingStatementVisitor
     :   public BaseVisitor,
         public Visitor<Class>,
+        public Visitor<Enum>,
         public Visitor<Extern>,
         public Visitor<FunctionOverload>,
         public Visitor<Namespace>,
@@ -635,6 +697,15 @@ class CodeTextProducer
                 writer.UsingStatement(e);
             }
         }
+
+        virtual void Visit(Enum & e)
+        {
+            if (e.IsClassEnum())
+            {
+                writer.UsingStatement(e);
+            }
+        }
+
 
         virtual void Visit(Extern & e)
         {
@@ -673,6 +744,7 @@ class CodeTextProducer
         public Visitor<ConstructorOverload>,
         public Visitor<Destructor>,
         public Visitor<Element>,
+        public Visitor<Enum>,
         public Visitor<Function>,
         public Visitor<FunctionOverload>,
         public Visitor<Variable>,
@@ -779,6 +851,11 @@ class CodeTextProducer
         {
             writer.Comment(str(format("Can't handle element %s.")
                                % e.GetNodeRef().GetFullName()));
+        }
+
+        virtual void Visit(Enum & e)
+        {
+            // Nothing to do.
         }
 
         virtual void Visit(Function & f)

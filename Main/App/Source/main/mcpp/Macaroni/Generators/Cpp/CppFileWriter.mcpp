@@ -12,6 +12,7 @@
 ~import Macaroni::Model::Cpp::CppContext;
 ~import Macaroni::Model::Element;
 ~import Macaroni::Model::ElementPtr;
+~import Macaroni::Model::Cpp::Enum;
 ~import Macaroni::Model::Cpp::Extern;
 ~import boost::format;
 ~import Macaroni::Model::Cpp::FunctionOverload;
@@ -350,6 +351,28 @@ class CppFileWriter
     public void EndStatement()
     {
         write(";");
+    }
+
+    public void EnumSeperator()
+    {
+        write(",");
+    }
+
+    public void EnumSizeType(Type & t)
+    {
+        write(": ");
+        typeDefinition(t);
+    }
+
+    public void EnumValue(const string & name, const optional<string> & value)
+    {
+        NewLineIfNeeded();
+        write(name);
+        if (value)
+        {
+            write(" = ");
+            write(value.get());
+        }
     }
 
     public void EnterRootNamespace()
@@ -1063,6 +1086,15 @@ class CppFileWriter
         }
     }
 
+    public void UsingStatement(Enum & e)
+    {
+        if (!e.GetNodeRef().InRootNamespace())
+        {
+            EnterRootNamespace();
+            usingStatement(e.GetNodeRef());
+        }
+    }
+
     public void UsingStatement(FunctionOverload & fo)
     {
         if (!fo.GetFunctionNodeRef().InRootNamespace())
@@ -1146,6 +1178,11 @@ class CppFileWriter
     public void WriteClassKeyword()
     {
         write("class ");
+    }
+
+    public void WriteEnumKeyword()
+    {
+        write("enum ");
     }
 
     public void WriteExternText(const std::string & text)
