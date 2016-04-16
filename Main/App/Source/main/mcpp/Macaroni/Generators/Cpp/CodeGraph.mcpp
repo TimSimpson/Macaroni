@@ -570,6 +570,8 @@ class CodeGraph
             {
                 visitFunctionOverload(e, CodeType::ForwardDeclaration, fd);
 
+                visitFunctionOverload(e, CodeType::ForwardDeclaration, td);
+
                 // A function's type definition requires nothing, except it's
                 // forward declaration.
                 //td.addDependency(&fd);
