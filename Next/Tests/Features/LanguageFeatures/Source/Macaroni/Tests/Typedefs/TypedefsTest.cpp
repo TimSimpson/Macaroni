@@ -18,9 +18,10 @@ BOOST_AUTO_TEST_SUITE(TypedefsSuite)
 BOOST_AUTO_TEST_CASE(typedefs)
 {
 	DoggyList dogs;
-	dogs.push_back(Doggy("Hallie", 15));
+	dogs.push_back(new Doggy("Hallie", 15));
 	BOOST_CHECK_EQUAL(dogs.size(), 1);
-	BOOST_CHECK_EQUAL(dogs[0].GetDogYears(), 15 * 7);
+	BOOST_CHECK_EQUAL(dogs[0]->GetDogYears(), 15 * 7);
+    delete dogs[0];
 }
 
 

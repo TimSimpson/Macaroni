@@ -1,13 +1,18 @@
+~unit "Macaroni/Tests/Initializers/Singleton";
+
 ~import Macaroni::Tests::Initializers::Singleton;
 ~import std::string;
+
+
+~block "cpp" {
+	static const char * DEFAULT_GLOBAL_TEXT = "default global text";
+}
 
 namespace Macaroni::Tests::Initializers
 {
 	class Singleton
 	{
 		private static const char * DEFAULT_TEXT = "default text";
-		private ~global static const char * DEFAULT_GLOBAL_TEXT = 
-			"default global text";
 		private static Singleton * instance = 0;
 		private const char * text;
 

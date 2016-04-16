@@ -1,4 +1,5 @@
 //#include <Config_AccessTypesLib.h>
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE MyTest
 #include <boost/test/unit_test.hpp>
 #include <Something.h>

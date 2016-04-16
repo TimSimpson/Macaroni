@@ -20,16 +20,12 @@ namespace BorderTown::AnimalFriends
 		}
 	};
 
-	// A global member is actually a neighbor node which is "adopted" by
-	// the class and stored in the class's header.
-	// In other words, this is just a normal global function that client
-	// code of Egg might expect to use.
-	const char * GetNumberFive()
-	{
-		return GetNumberFiveAsString();
-	}
-
 	~block "cpp" {
+		const char * GetNumberFiveAsConstChar()
+		{
+			return "FIVE";
+		}
+
 		// Private globals are not placed in header files of their adopted
 		// parent class.  Instead, their defined on in the class's CPP file
 		// at the top in an anonymous namespace.
@@ -39,11 +35,15 @@ namespace BorderTown::AnimalFriends
 		{
 			return GetNumberFiveAsConstChar();
 		}
+	}
 
-		const char * GetNumberFiveAsConstChar()
-		{
-			return "FIVE";
-		}
+	// A global member is actually a neighbor node which is "adopted" by
+	// the class and stored in the class's header.
+	// In other words, this is just a normal global function that client
+	// code of Egg might expect to use.
+	const char * GetNumberFive()
+	{
+		return GetNumberFiveAsString();
 	}
 
 }

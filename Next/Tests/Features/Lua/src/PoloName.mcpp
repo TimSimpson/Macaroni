@@ -12,7 +12,7 @@ namespace Macaroni::Tests::Lua
 {
 	class PoloName {};
 
-	typedef intrusive_ptr<PoloName> PoloNamePtr
+	typedef intrusive_ptr<PoloName ~l> PoloNamePtr
 		@LuaClass [ SameAsNode = PoloName ]
 	;
 

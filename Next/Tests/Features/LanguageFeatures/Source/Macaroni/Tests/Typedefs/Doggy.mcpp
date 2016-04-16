@@ -7,7 +7,7 @@ namespace Macaroni::Tests::Typedefs
 
 	class Doggy{}
 
-	typedef vector<Doggy ~l> DoggyList;
+	typedef vector<Doggy *> DoggyList;
 
 	typedef DoggyList DoggyListType;
 

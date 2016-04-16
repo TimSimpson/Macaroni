@@ -42,7 +42,7 @@ namespace Macaroni::Tests::Lua
 //MDOC-END PoloSimple
 
 //MDOC-BEGIN PoloPtrDef
-	typedef intrusive_ptr<Polo> PoloPtr
+	typedef intrusive_ptr<Polo ~l> PoloPtr
 		@LuaClass [ SameAsNode = Polo ]
 	;
 //MDOC-END PoloPtrDef
@@ -67,7 +67,7 @@ namespace Macaroni::Tests::Lua
 		}
 
 //MDOC-BEGIN PoloCreate
-		public static PoloPtr Create(const string name)
+        public static PoloPtr Create(const string name)
 		@LuaFunction "Create"
 		{
 			PoloPtr rtn(new Polo());
