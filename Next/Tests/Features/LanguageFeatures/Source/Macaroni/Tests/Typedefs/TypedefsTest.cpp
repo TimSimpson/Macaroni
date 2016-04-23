@@ -1,3 +1,4 @@
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE Macaroni_Tests_Typedefs
 #include <boost/test/unit_test.hpp>
 #include <Macaroni/Tests/Typedefs/Doggy.h>

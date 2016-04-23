@@ -16,9 +16,9 @@ class Fsm
 		#define ODD 1
 		#define GETSTATE(Fsm) Fsm.GetState()
 		public : inline int GetState() const
-		{ 
-			return state; 
-		};       	
+		{
+			return state;
+		};
 	}
 
 	~block "cpp"
@@ -27,7 +27,7 @@ class Fsm
 		#define STATE(name) } else if (state == name) {
 		#define END }
 		#define SETSTATE(value) state = value;
-	}	
+	}
 
 	public void Execute()
 	{

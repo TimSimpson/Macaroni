@@ -1,3 +1,4 @@
+#define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE Macaroni_Tests_Consts
 #include <boost/test/unit_test.hpp>
 #include <Macaroni/Tests/Const/Cat.h>
