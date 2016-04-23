@@ -1290,14 +1290,14 @@ namespace
 			local arg1 = fo1.Node:FindOrCreate("L");
 			local arg1Type = CurrentLibrary.Context:CreateType();
 			arg1Type.Node = self.lua_StateNode;
-			arg1Type.Modifiers:SetPointer(SimpleTypeModifiers.New());
+			arg1Type:SetModifiersCrp(false, false, true);
 
 			Variable.Create(arg1, Access.Public, false, arg1Type, "", self.reason);
 			if isInstance then
 				local arg2 = fo1.Node:FindOrCreate("instance");
 				local arg2Type = CurrentLibrary.Context:CreateType();
 				arg2Type.Node = self.referenceType;
-				arg2Type.Modifiers.Reference = true;
+				arg2Type:SetModifiersCrp(false, true, false);
 				Variable.Create(arg2, Access.Public, false, arg2Type, "", self.reason);
 				if self.referenceType == self.originalNode then
 					dotGet = '.';
@@ -1306,8 +1306,7 @@ namespace
 			local arg3 = fo1.Node:FindOrCreate("index");
 			local arg3Type = CurrentLibrary.Context:CreateType();
 			arg3Type.Node = self.parent.Creators.stringNode;
-			arg3Type.Modifiers.Const = true;
-			arg3Type.Modifiers.Reference = true
+			arg3Type:SetModifiersCrp(true, true, false);
 			Variable.Create(arg3, Access.Public, false, arg3Type, "", self.reason);
 
 			local methodBody = self:createIndexMethodBody(isInstance, dotGet);
@@ -1330,7 +1329,7 @@ namespace
 			log:Write("Going to create IsType.");
 			local rtnType = CurrentLibrary.Context:CreateType();
 			rtnType.Node = self.parent.Creators.boolNode;
-			rtnType.Modifiers:SetPointer(SimpleTypeModifiers.New());
+			rtnType:SetModifiersCrp(false, false, true);
 			log:Write("Going to create IsType.");
 			local func = Function.Create(node, self.reason);
 			fo = FunctionOverload_Create(func, false, Access.Public, true,
@@ -1340,7 +1339,7 @@ namespace
 			local arg1 = fo.Node:FindOrCreate("L");
 			local arg1Type = CurrentLibrary.Context:CreateType();
 			arg1Type.Node = self.lua_StateNode;
-			arg1Type.Modifiers:SetPointer(SimpleTypeModifiers.New());
+			arg1Type:SetModifiersCrp(false, false, true);
 			Variable.Create(arg1, Access.Public, false, arg1Type, "", self.reason);
 			local arg2 = fo.Node:FindOrCreate("index");
 			local arg2Type = CurrentLibrary.Context:CreateType();
@@ -1386,7 +1385,7 @@ namespace
 			local arg1 = fo1.Node:FindOrCreate("L");
 			local arg1Type = CurrentLibrary.Context:CreateType();
 			arg1Type.Node = self.lua_StateNode;
-			arg1Type.Modifiers:SetPointer(SimpleTypeModifiers.New());
+			arg1Type:SetModifiersCrp(false, false, true);
 			Variable.Create(arg1, Access.Public, false, arg1Type, "", self.reason);
 
 			fo1:SetCodeBlock(
@@ -1420,7 +1419,7 @@ namespace
 			log:Write("Going to create GetInstance.");
 			local rtnType = CurrentLibrary.Context:CreateType();
 			rtnType.Node = self.referenceType;
-			rtnType.Modifiers.Reference = true;
+			rtnType:SetModifiersCrp(false, true, false);
 			log:Write("Going to create IsType.");
 			local func = Function.Create(node, self.reason);
 			local fo1 = FunctionOverload_Create(func, false, Access.Public,
@@ -1430,7 +1429,7 @@ namespace
 			local arg1 = fo1.Node:FindOrCreate("L");
 			local arg1Type = CurrentLibrary.Context:CreateType();
 			arg1Type.Node = self.lua_StateNode;
-			arg1Type.Modifiers:SetPointer(SimpleTypeModifiers.New());
+			arg1Type:SetModifiersCrp(false, false, true);
 			log:Write("GETINSTANCE 2");
 			Variable.Create(arg1, Access.Public, false, arg1Type, "", self.reason);
 			local arg2 = fo1.Node:FindOrCreate("index");
@@ -1464,23 +1463,22 @@ namespace
 			local arg1 = fo1.Node:FindOrCreate("L");
 			local arg1Type = CurrentLibrary.Context:CreateType();
 			arg1Type.Node = self.lua_StateNode;
-			arg1Type.Modifiers:SetPointer(SimpleTypeModifiers.New());
+			arg1Type:SetModifiersCrp(false, false, true);
 			Variable.Create(arg1, Access.Public, false, arg1Type, "", self.reason);
 			local arg2 = fo1.Node:FindOrCreate("instance");
 			local arg2Type = CurrentLibrary.Context:CreateType();
 			arg2Type.Node = self.referenceType;
-			arg2Type.Modifiers.Reference = true;
+			arg2Type:SetModifiersCrp(false, true, false);
 			Variable.Create(arg2, Access.Public, false, arg2Type, "", self.reason);
 			local arg3 = fo1.Node:FindOrCreate("index");
 			local arg3Type = CurrentLibrary.Context:CreateType();
 			arg3Type.Node = self.parent.Creators.stringNode;
-			arg3Type.Modifiers.Const = true;
-			arg3Type.Modifiers.Reference = true;
+			arg3Type:SetModifiersCrp(true, true, false);
 			Variable.Create(arg3, Access.Public, false, arg3Type, "", self.reason);
 			local arg4 = fo1.Node:FindOrCreate("nextStackIndex");
 			local arg4Type = CurrentLibrary.Context:CreateType();
 			arg4Type.Node = self.parent.Creators.intNode;
-			arg4Type.Modifiers.Const = true;
+			arg4Type:SetModifiersCrp(true, false, false);
 			Variable.Create(arg4, Access.Public, false, arg4Type, "", self.reason);
 
 			local dotGet = '->';
@@ -1506,14 +1504,13 @@ namespace
 			local arg1 = fo1.Node:FindOrCreate("L");
 			local arg1Type = CurrentLibrary.Context:CreateType();
 			arg1Type.Node = self.lua_StateNode;
-			arg1Type.Modifiers:SetPointer(SimpleTypeModifiers.New());
+			arg1Type:SetModifiersCrp(false, false, true);
 			Variable.Create(arg1, Access.Public, false, arg1Type, "", self.reason);
 
 			local arg2 = fo1.Node:FindOrCreate("ptr");
 			local arg2Type = CurrentLibrary.Context:CreateType();
 			arg2Type.Node = self.referenceType;
-			arg2Type.Modifiers.Const = true
-			arg2Type.Modifiers.Reference = true;
+			arg2Type:SetModifiersCrp(true, true, false);
 			Variable.Create(arg2, Access.Public, false, arg2Type, "", self.reason);
 
 			local refTypeStr = self.referenceType.FullName;

@@ -25,6 +25,7 @@
 ~import boost::optional;
 ~import std::ostream;
 ~import std::pair;
+~import Macaroni::Model::SimpleTypeModifiers;
 ~import std::string;
 ~import std::stringstream;
 ~import Macaroni::Model::TypeArgumentList;
@@ -341,6 +342,21 @@ class Type
 		@LuaProperty "Modifiers"
 	{
 		this->modifiers = modifiers;
+	}
+
+	//TODO: This is a work around until I can improve the Lua Glue generator.
+	public void SetModifiersCrp(bool _const, bool reference, bool pointer)
+		@LuaFunction "SetModifiersCrp"
+	{
+		TypeModifiers tm;
+		tm.SetConst(_const);
+		tm.SetReference(reference);
+		if (pointer)
+		{
+			SimpleTypeModifiers stm;
+			tm.SetPointer(stm);
+		}
+		this->modifiers = tm;
 	}
 
 	public inline void SetNode(NodePtr node)
