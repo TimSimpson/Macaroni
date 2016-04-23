@@ -139,7 +139,7 @@ class Type
 	public ~global ~friend ostream & operator<<(ostream & out,
     	                                        const Type & type)
     {
-    	out << type.node ? type.node->GetFullName() : "<null>";
+    	out << (type.node ? type.node->GetFullName() : "<null>");
 		if (type.arguments.size() > 0)
 		{
 			for (const auto & arg : type.arguments)
