@@ -197,6 +197,13 @@ class Class : public Scope
         return globals;
     }
 
+    /* Returns the nodes. This is used by the parser to add more imports after
+     * creating the class. */
+    public ImportList & GetMutableImportedNodes()
+    {
+        return imports;
+    }
+
     /** Nodes imported by this class.  Always needed by the implementation file
      *  of this class. */
     public const ImportList & GetImportedNodes() const

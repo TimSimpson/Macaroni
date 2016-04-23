@@ -167,6 +167,12 @@ class CodeGraph
         }
     };
 
+    // This looks at an element and adds all the dependencies in the graph
+    // that element would ever need.
+    //
+    // The visitor class inside this function is responsible for
+    // adding all of the dependencies every type of element in Macaroni
+    // might need.
     private void compute(Element * e)
     {
         MACARONI_ASSERT(e != nullptr, "Can't compute nullptr element.");
@@ -648,7 +654,12 @@ class CodeGraph
     }
 
     // Given a dependency list, takes a type and adds all the CodeText
-    // elements that type would need.
+    // elements that type would need to exist onto targetDep.
+    // Example:
+    //    To figure out what must appear when writing a function def, the
+    //    function def itself is passed as target dep (3rd arg), with the
+    //    level being "TypeDefinition". Then the type is passed in.
+    // So if type was the return type of a function, the level might
     public void computeDeps(const Type & type, CodeType level,
                             CodeText & targetDep)
     {

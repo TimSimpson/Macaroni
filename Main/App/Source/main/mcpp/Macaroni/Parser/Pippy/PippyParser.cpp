@@ -413,8 +413,9 @@ private:
 	TargetPtr currentTarget;
 	TargetPtr defaultTarget;
 	std::string hFilesForNewNodes;
-	ImportList importedNodes;
+	std::vector<ImportList *> importedNodesStack;
 	AccessPtr lastAccess;
+	ImportList topScopeImportedNodes;
 public:
 
 	ParserFunctions(ContextPtr context, TargetPtr target)
@@ -425,8 +426,9 @@ public:
 		 currentScope(context->GetRoot()),
 		 currentTarget(target),
 		 defaultTarget(target),
-		 importedNodes(),
-		 lastAccess(Access::NotSpecified())
+		 importedNodesStack(),
+		 lastAccess(Access::NotSpecified()),
+		 topScopeImportedNodes()
 	{
 		MACARONI_ASSERT(!!CppContext::GetPrimitives(context),
 			"Cpp nodes must be found to parse successfully.");
@@ -434,8 +436,9 @@ public:
 		for(unsigned int i = 0; i < primitiveRoot->GetChildCount(); i ++)
 		{
 			Node & n = *(primitiveRoot->GetChild(i));
-			importedNodes.emplace_back(n, ImportType::Normal);
+			topScopeImportedNodes.emplace_back(n, ImportType::Normal);
 		}
+		importedNodesStack.push_back(&topScopeImportedNodes);
 	}
 
 	/** Attempts to consume whatever access it can, returning
@@ -516,7 +519,7 @@ public:
 	void AddImport(const ImportType type, Node * node)
 	{
 		MACARONI_ASSERT(node != nullptr, "null node for import");
-		importedNodes.emplace_back(*node, type);
+		currentImports().emplace_back(*node, type);
 	}
 
 	bool Annotation(Iterator & itr)
@@ -796,7 +799,7 @@ public:
 		if (!blockHome->GetNode() ||
 			!blockHome->GetNode()->HasElementOfType<Macaroni::Model::Cpp::Class>())
 		{
-			imports = importedNodes;
+			imports = currentImports();
 			tHome = deduceTargetHome(currentScope);
 		}
 		// NOTE! tHome *can* be null here!
@@ -807,10 +810,14 @@ public:
 		// For the newer generators, we need to force an import on everything
 		// that comes afterwards for the blocks to generate in the proper
 		// order.
-		if (id == "h" || id == "h-predef") {
-			AddImport(ImportType::H, blockHome);
-		} else if (id == "cpp" || id == "cpp-include") {
-			AddImport(ImportType::Normal, blockHome);
+		// UPDATE: Unless we're in a class, as we'll give the class containing
+		// the import and dependency on it and barf the whole thing up!
+		if (!weAreInsideAClass()) {
+			if (id == "h" || id == "h-predef") {
+				AddImport(ImportType::H, blockHome);
+			} else if (id == "cpp" || id == "cpp-include") {
+				AddImport(ImportType::Normal, blockHome);
+			}
 		}
 		return true;
 	}
@@ -880,9 +887,13 @@ public:
 		ClassPtr newClass;
 		TargetPtr tHome = deduceTargetHome(currentScope);
 		newClass = Class::Create(
-			tHome, currentScope, isStruct, access, importedNodes,
+			tHome, currentScope, isStruct, access, currentImports(),
 			Reason::Create(CppAxioms::ClassCreation(), newItr.GetSource()),
 			templateHome, enclosingClass);
+
+		// Switch to using the class's import list for any statements we see
+		// next. We'll pop it when we're done.
+		importedNodesStack.push_back(&(newClass->GetMutableImportedNodes()));
 
 		if (templateHome)
 		{
@@ -907,6 +918,8 @@ public:
 			//EXCEPTION MSG: Expectedd { after namespace identifier.")
 		}
 
+		// Calls the parser to keep on parsing until the class ends.
+
 		ScopeFiller(newItr);
 
 		ConsumeWhitespace(newItr);
@@ -929,6 +942,7 @@ public:
 		itr = newItr; // Success! :)
 		currentScope = oldScope;
 		currentAccess = lastAccess;
+		importedNodesStack.pop_back();
 
 		return true;
 	}
@@ -2027,10 +2041,10 @@ public:
 	{
 		std::string firstPart, lastPart;
 		Node::SplitFirstNameOffComplexName(complexName, firstPart, lastPart);
-		for (unsigned int i = 0 ; i < importedNodes.size(); i ++)
+		for (unsigned int i = 0 ; i < currentImports().size(); i ++)
 		{
-			auto & imp = importedNodes[i];
-			//NodePtr & imp = (*importedNodes)[i];
+			auto & imp = currentImports()[i];
+			//NodePtr & imp = (*currentImports)[i];
 			if (firstPart == imp.GetNode().GetName())
 			{
 				if (lastPart.size() < 1)
@@ -2464,6 +2478,11 @@ public:
 		NodePtr importNode = context->GetRoot()->FindOrCreate(name);
 		AddImport(hImport ? ImportType::H : ImportType::Normal, importNode);
 		return true;
+	}
+
+	ImportList & currentImports()
+	{
+		return *(importedNodesStack.back());
 	}
 
 	bool InlineKeyword(Iterator & itr)
@@ -3675,7 +3694,7 @@ public:
 			boost::optional<ImportList> imports = boost::none;
 			if (classDepth < 1)
 			{
-				imports = importedNodes;
+				imports = currentImports();
 				tHome = deduceTargetHome(currentScope);
 			}
 
@@ -3722,6 +3741,12 @@ public:
 	{
 		itr.ConsumeWhitespace();
 		return itr.ConsumeWord("virtual");
+	}
+
+	bool weAreInsideAClass() const
+	{
+		// If true, we must be parsing a class.
+		return importedNodesStack.size() > 1;
 	}
 
 	static void RunTests()
