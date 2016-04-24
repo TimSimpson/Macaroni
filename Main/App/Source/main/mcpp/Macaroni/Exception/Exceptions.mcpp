@@ -114,53 +114,30 @@ class SimpleIntException : public SimpleException
  *  by subclasses to print out the integer. */
 class SimpleStringException : public SimpleException
 {
-	~block "h" {
-		private : static const int CHAR_LENGTH = 2024;
-		private : char value[CHAR_LENGTH];
-	}
+	private const std::string value;
 
-	~block "cpp" {
-		#ifdef BOOST_WINDOWS
-			#ifndef BOOST_MSVC
-				#define strnlen(A,B) strlen(A)
-			#endif
-		#endif
+	public SimpleStringException(const string & value)
+	:	SimpleException(),
+		value(value)
+	{
 	}
 
 	public SimpleStringException(const char * value)
-	: SimpleException()
+	: SimpleException(),
+	  value(value)
 	{
-		size_t len = strnlen(value, CHAR_LENGTH);
-		strncpy(this->value, value, len);
-		this->value[len] = '\0';
 	}
 
 	public SimpleStringException(const char * value, InternalSource where)
-	: SimpleException(where)
+	:	SimpleException(where),
+		value(value)
 	{
-		size_t len = strnlen(value, CHAR_LENGTH);
-		strncpy(this->value, value, len);
-		this->value[len] = '\0';
 	}
 
 	public SimpleStringException(const SimpleStringException & other)
-	: SimpleException(other.source)
+	:   SimpleException(other.source),
+		value(other.value)
 	{
-		size_t len = strnlen(value, CHAR_LENGTH);
-		strncpy(this->value, other.value, len);
-		this->value[len] = '\0';
-	}
-
-	public SimpleStringException & operator = (
-		const SimpleStringException & other)
-	{
-		if (&other != this)
-		{
-			size_t len = strnlen(other.value, CHAR_LENGTH);
-			strncpy(this->value, other.value, CHAR_LENGTH);
-			this->value[len] = '\0';
-		}
-		return *this;
 	}
 
 	public virtual ~SimpleStringException() BOOST_NOEXCEPT = default; //TODO: override
