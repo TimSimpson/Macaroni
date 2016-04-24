@@ -9,7 +9,6 @@
 	#include <lualib.h>
 //}
 #include <Macaroni/Tests/Lua/Polo.h>
-#include <Macaroni/Tests/Lua/PoloPtr.h>
 #include <Macaroni/Tests/Lua/PoloLuaMetaData.h>
 
 using Macaroni::Tests::Lua::Polo;

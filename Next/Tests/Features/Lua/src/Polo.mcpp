@@ -4,6 +4,7 @@
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaGlueCode;
 ~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaIncludes;
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
 //MDOC-END imports
@@ -37,15 +38,22 @@ namespace Macaroni::Tests::Lua
 		}
 	};
 
-//MDOC-BEGIN PoloSimple
-	class Polo {};
-//MDOC-END PoloSimple
 
 //MDOC-BEGIN PoloPtrDef
 	typedef intrusive_ptr<Polo ~l> PoloPtr
 		@LuaClass [ SameAsNode = Polo ]
 	;
 //MDOC-END PoloPtrDef
+}
+
+~unit "Macaroni/Tests/Lua/Polo" ;
+
+namespace Macaroni::Tests::Lua
+{
+
+//MDOC-BEGIN PoloSimple
+	class Polo {};
+//MDOC-END PoloSimple
 
 //MDOC-BEGIN PoloComplex
 	class Polo
@@ -53,6 +61,9 @@ namespace Macaroni::Tests::Lua
 	  [
 	    ReferenceType = PoloPtr,
 	  ]
+	  @LuaIncludes ={
+	  	#include "PoloListLuaMetaData.h"
+	  }
 	{
 //MDOC-END PoloComplex
 		~import Macaroni::Tests::Lua::PoloException;
@@ -85,21 +96,11 @@ namespace Macaroni::Tests::Lua
 		}
 //MDOC-END PoloFunction
 
-		public ~friend ~global void intrusive_ptr_add_ref(Polo * p)
-		{
-			p->refCount ++;
-		}
+		public ~friend ~global void intrusive_ptr_add_ref(Polo * p);
 
 		//friend intrusive_ptr_add_ref;
 
-		public ~friend ~global void intrusive_ptr_release(Polo * p)
-		{
-			p->refCount --;
-			if (p->refCount <= 0)
-			{
-				delete p;
-			}
-		}
+		public ~friend ~global void intrusive_ptr_release(Polo * p);
 
 		// friend intrusive_ptr_release;
 
@@ -191,5 +192,22 @@ namespace Macaroni::Tests::Lua
 		}
 
 	};
+
+
+	void intrusive_ptr_add_ref(Polo * p)
+	{
+		p->refCount ++;
+	}
+
+	//friend intrusive_ptr_add_ref;
+
+	void intrusive_ptr_release(Polo * p)
+	{
+		p->refCount --;
+		if (p->refCount <= 0)
+		{
+			delete p;
+		}
+	}
 
 } //end ns

@@ -315,24 +315,24 @@ LuaGlueGenerator =
 				rtn.convertArgument = function(var, index)
 					local str = rtn.get(var .. "_AsRef", index);
 					str = str .. NEW_LINE;
-					if (type.Const) then
+					if (type.Modifiers.Const) then
 						str = str .. "const ";
 					end
 					str = str .. args.node.FullName .. " ";
-					if (type.Pointer) then
+					if (type.Modifiers.Pointer ~= nil) then
 						str = str .. "* ";
-						if (type.ConstPointer) then
+						if (type.Modifiers.Pointer.Const ~= nil) then
 							str = str .. "const ";
 						end
 					else
 						str = str .. "& ";
 					end
 					str = str .. var .. " = ";
-					if (type.Pointer == false) then
+					if (type.Modifiers.Pointer == nil) then
 						str = str .. "*(";
 					end
 					str = str .. "" .. var .. "_AsRef";
-					if (type.Pointer == false) then
+					if (type.Modifiers.Pointer == nil) then
 						str = str .. ")";
 					end
 					str = str .. ";";
@@ -1329,7 +1329,7 @@ namespace
 			log:Write("Going to create IsType.");
 			local rtnType = CurrentLibrary.Context:CreateType();
 			rtnType.Node = self.parent.Creators.boolNode;
-			rtnType:SetModifiersCrp(false, false, true);
+			---rtnType:SetModifiersCrp(false, false, false);
 			log:Write("Going to create IsType.");
 			local func = Function.Create(node, self.reason);
 			fo = FunctionOverload_Create(func, false, Access.Public, true,
@@ -1649,10 +1649,13 @@ function Generate(library, path, arguments)
 
 	arguments = arguments or {}
     CurrentLibrary = library;
-    luaCatchCode = arguments.luaCatchCode or
-    	[[} catch(const std::exception & ex){ \
+
+    local luaCatchCode = arguments.luaCatchCode
+    if (not luaCatchCode or luaCatchCode == "") then
+    	luaCatchCode = [[} catch(const std::exception & ex){ \
     	        return luaL_error(L, ex.what()); \
-    	  }]];
+    	  }]]
+    end
     standardIncludes = arguments.standardIncludes or "";
     local generator = LuaGlueGenerator.new(library.Context.Root,
                                            standardIncludes, luaCatchCode);
