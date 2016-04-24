@@ -243,21 +243,27 @@ class CodeText
     public ~global ~friend ostream & operator<<(ostream & out,
                                                 const CodeText & ct)
     {
-        PrintToStream(nullptr, out, ct);
+		std::vector<const CodeText *> seen;
+        CodeText::printToStream(seen, out, ct);
         return out;
     }
 
     // This extra function helps us avoid cycles by keeping track of where
     // we started iterating from.
-    public ~global ~friend void PrintToStream(const CodeText * start,
-                                              ostream & out,
-                                              const CodeText & ct)
+	private static void printToStream(
+		std::vector<const CodeText *> history,
+		ostream & out,
+        const CodeText & ct)
     {
-        if (start == &ct)
+        if (std::find(history.begin(), history.end(), &ct) != history.end())
         {
-            out << "<CYCLE!>";
+            out << "<CYCLE! ";
+            out << ct.element->GetNode()->GetFullName()
+                << " appears again s a dependency in this chain>";
             return;
         }
+        history.push_back(&ct);
+
         out << ct.codeType;
         out << ", ";
         if (ct.element && ct.element->GetNode())
@@ -278,14 +284,7 @@ class CodeText
             }
             if (dep)
             {
-                if (start)
-                {
-                    PrintToStream(start, out, *dep);
-                }
-                else
-                {
-                    PrintToStream(&ct, out, *dep);
-                }
+                printToStream(history, out, *dep);
                 seenOne = true;
             }
         }
