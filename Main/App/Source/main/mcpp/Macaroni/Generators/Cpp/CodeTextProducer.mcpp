@@ -333,12 +333,9 @@ class CodeTextProducer
 
         virtual void Visit(Typedef & e)
         {
-            /*writer.EnterNamespace(e.GetNode()->GetParent());
-            writer.WriteClassKeyword();
-            writer.WriteNodeName(e.GetNode());
-            writer.EndStatement();*/
-            writer.Comment(str(boost::format("No such thing as forward "
-                "declaration for typedef %s.") % e.GetNode()->GetFullName()));
+            // This feels wrong, but I can't think of anything more idiomatic.
+            // Trying to forward define a typedef would be crazy.
+            writer.IncludeFile(e);
         }
 
         virtual void Visit(Variable & e)
