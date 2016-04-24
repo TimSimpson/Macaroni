@@ -30,9 +30,11 @@
 ~import boost::optional;
 ~import Macaroni::IO::Path;
 ~import Macaroni::IO::PathPtr;
-~import Macaroni::Exception::SimpleException;
+~import Macaroni::Exceptions::SimpleException;
+~import Macaroni::Exceptions::SimpleStringException;
 ~import boost::shared_ptr;
 ~import std::string;
+~import std::stringstream;
 ~import Macaroni::Model::Project::Target;
 ~import Macaroni::Model::Project::TargetPtr;
 ~import Macaroni::Model::Type;
@@ -94,6 +96,8 @@ class UnitFileGenerator
             "UnitFileGenerator create received a null library.");
         MACARONI_SIMPLE_EXCEPTION_DEFINE(UnsetTargetPtrException,
             "UnitFileGenerator constructor received a null pointer.");
+        MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(TextListGenerationException,
+            "%s");
     }
 
     // Lua Stuff --------------------------------------------------------------
@@ -298,7 +302,7 @@ class UnitFileGenerator
 
         CodeTextProducer producer(generatorSettings, cpp);
 
-        generateTextList(producer, cpp, cppText,
+        generateTextList("cpp-top", producer, cpp, cppText,
                          boost::none,
                          CodeText::DividerTopId());
 
@@ -353,13 +357,13 @@ class UnitFileGenerator
         cpp.InsertEmptyLine();
         cpp.CommentHeader("Implementation");
 
-        generateTextList(producer, cpp, cppText,
+        generateTextList("cpp-implementation", producer, cpp, cppText,
                          CodeText::DividerImplementationStartId(),
                          CodeText::DividerBottomId());
 
         cpp.EnterRootNamespace();
 
-        generateTextList(producer, cpp, cppText,
+        generateTextList("cpp-bottom", producer, cpp, cppText,
                          CodeText::DividerBottomId(),
                          boost::none);
 
@@ -400,7 +404,7 @@ class UnitFileGenerator
         CodeTextProducer producer(generatorSettings, header);
         if (includeTopAndBottomBlocks)
         {
-            generateTextList(producer, header, headerText,
+            generateTextList("header-top", producer, header, headerText,
                              boost::none,
                              CodeText::DividerTopId());
         }
@@ -409,7 +413,7 @@ class UnitFileGenerator
         header.HeaderStartingIncludes(this->unit);
 
         header.InsertEmptyLine();
-        generateTextList(producer, header, headerText,
+        generateTextList("header-main", producer, header, headerText,
                          CodeText::DividerTopId(),
                          CodeText::DividerImplementationStartId());
 
@@ -417,14 +421,15 @@ class UnitFileGenerator
 
         if (includeTopAndBottomBlocks)
         {
-            generateTextList(producer, header, headerText,
+            generateTextList("header-bottom", producer, header, headerText,
                              CodeText::DividerBottomId(),
                              boost::none);
         }
         header.HeaderBottom();
     }
 
-    ~hidden void generateTextList(CodeTextProducer & producer,
+    ~hidden void generateTextList(string generationType,
+                                  CodeTextProducer & producer,
                                   CppFileWriter & writer,
                                   vector<CodeText *> & textList,
                                   const optional<int> & startDivider,
@@ -435,6 +440,10 @@ class UnitFileGenerator
         {
             if (ct)
             {
+                if (endDivider && endDivider.get() == ct->GraphId())
+                {
+                    return;
+                }
                 if (!start)
                 {
                     if (ct->GraphId() == startDivider)
@@ -444,18 +453,36 @@ class UnitFileGenerator
                 }
                 else
                 {
-                    if (endDivider && endDivider.get() == ct->GraphId())
-                    {
-                        return;
-                    }
-                    else
-                    {
-                        generateText(producer, writer, *ct);
-                    }
+                    generateText(producer, writer, *ct);
                 }
             }
         }
-        MACARONI_ASSERT(!endDivider, "Never saw end divier.");
+
+        if (endDivider)
+        {
+            // This is a costly error message, but if it has to be thrown the
+            // user is screwed anyway and the reason it happens is very hard
+            // to understand.
+            stringstream stream;
+            stream << "Unit " << unit.GetName() << ", " << generationType
+                << " - can't find the end divider.\n"
+                << "This indicates an impossible dependency chain or a bug in Macaroni.\n"
+                << "What follows is the entire code text considered for this unit.\n";
+            for (CodeText * ct : textList)
+            {
+                if (ct) {
+                    stream << "\t" << *ct << "\n";
+                    if (ct->GraphId() == startDivider)
+                    {
+                        stream << "\t\t!!! ^^^^^-- Unit would have begun generating text here.\n";
+                    }
+                }
+            }
+            stream << "\nNever saw the end divider, which was:";
+            stream << endDivider.get() << "\n";
+            string msg = stream.str();
+            throw TextListGenerationException(msg.c_str());
+        }
     }
 
     ~hidden void generateText(CodeTextProducer & producer,
