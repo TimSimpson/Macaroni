@@ -148,7 +148,7 @@ class Type
 				out << *(arg);
 			}
 		}
-		out << type.modifiers;
+		out << " " << type.modifiers;
     	return out;
     }
 
