@@ -3,6 +3,7 @@
 ~import Macaroni::Model::Element;
 ~import Macaroni::Model::Node;
 ~import std::ostream;
+~import std::string;
 ~import std::vector;
 ~import Macaroni::Core::Visitor;
 
@@ -19,19 +20,13 @@ class CodeText
     private int graphId;                    // Used by Boost's graph stuff.
     friend CodeGraph;
 
+    // This is only used so the CodeText can be stored in STL containers.
+
     public CodeText()
     :   codeType(CodeType::ForwardDeclaration),
         dependsOn(),
         element(nullptr),
-        graphId(createNewGraphId())
-    {
-    }
-
-    public CodeText(CodeType ct)
-    :   codeType(ct),
-        dependsOn(),
-        element(nullptr),
-        graphId(createNewGraphId())
+        graphId(-1)  // Make it clear this shouldn't participate in anything.
     {
     }
 
@@ -106,7 +101,9 @@ class CodeText
     ~hidden static int createNewGraphId()
     {
         // This code is not thread safe, which doesn't matter today.
-        return ++ currentGraphId();
+        const int result = (++ currentGraphId());
+        MACARONI_ASSERT(result >= 3, "Too many nodes.");
+        return result;
     }
 
     ~hidden static int & currentGraphId()
@@ -199,11 +196,6 @@ class CodeText
         return currentGraphId();
     }
 
-    public void SetElement(Element * newValue)
-    {
-        this->element = newValue;
-    }
-
     public const CodeType Type() const
     {
         return codeType;
@@ -244,8 +236,14 @@ class CodeText
                                                 const CodeText & ct)
     {
 		std::vector<const CodeText *> seen;
+        out << "[" << ct.GraphId() << "] ";
         CodeText::printToStream(seen, out, ct);
         return out;
+    }
+
+    public string ShortString() const
+    {
+        return (element ? element->GetNode()->GetFullName() : "<null>");
     }
 
     // This extra function helps us avoid cycles by keeping track of where
