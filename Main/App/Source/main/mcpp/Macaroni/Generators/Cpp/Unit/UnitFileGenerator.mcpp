@@ -413,9 +413,11 @@ class UnitFileGenerator
         header.HeaderStartingIncludes(this->unit);
 
         header.InsertEmptyLine();
-        generateTextList("header-main", producer, header, headerText,
-                         CodeText::DividerTopId(),
-                         CodeText::DividerImplementationStartId());
+        generateTextList(
+            (includeTopAndBottomBlocks ? "header-main" : "cpp-header"),
+            producer, header, headerText,
+            CodeText::DividerTopId(),
+            CodeText::DividerImplementationStartId());
 
         header.EnterRootNamespace();
 
