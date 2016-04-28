@@ -1,0 +1,14 @@
+class Cow
+{
+    class Utter{
+        int five;
+    };
+
+    Utter u;
+
+    template<typename T>
+    void go(T t, Utter u)
+    {
+        auto five = 5;
+    }
+};
