@@ -62,11 +62,6 @@ class CodeTextSorter
 
     public vector<CodeText *> Sort()
     {
-        #define WTF_LOG YES
-        #define BOOST_ADD_EDGE(a, b, graph) \
-            { std::cout << "MARIO: " << a << " -> " << b << "\n"; \
-                boost::add_edge(a, b, graph); }
-
         //http://www.boost.org/doc/libs/1_57_0/libs/graph/doc/using_adjacency_list.html
 
         // These lines construct the special graph type we use to sort
@@ -88,30 +83,15 @@ class CodeTextSorter
 
         CodeTextGraph graph(CodeText::MaxGraphId());
 
-         // This connects the graphIds to the actual CodeText items, so we
-        // can retrieve them.
-        boost::property_map<CodeTextGraph, CodeTextTag>::type ptrKey
-            = boost::get(CodeTextTag(), graph);
-
-        // Make sure it counts these...
-        boost::put(ptrKey, divTop->GraphId(), divTop);
-        boost::put(ptrKey, divImpl->GraphId(), divImpl);
-        boost::put(ptrKey, divBottom->GraphId(), divBottom);
-
-        for (CodeText * ptr : items)
-        {
-            boost::put(ptrKey, ptr->GraphId(), ptr);
-        }
-
         // Now with the graph constructed, add_edge is used to establish
         // dependencies on node to another.
 
         // Add a dependency from the implementation to the top, in the rare
         // event there are no forward decls or typedefs.
-        BOOST_ADD_EDGE(divImpl->GraphId(), divTop->GraphId(), graph);
+        boost::add_edge(divImpl->GraphId(), divTop->GraphId(), graph);
         // Add dependency from divider bottom to implementation start in the
         // event there are no impls.
-        BOOST_ADD_EDGE(divBottom->GraphId(), divImpl->GraphId(), graph);
+        boost::add_edge(divBottom->GraphId(), divImpl->GraphId(), graph);
 
         for (CodeText * ptr : items)
         {
@@ -125,38 +105,34 @@ class CodeTextSorter
                 case CodeType::Implementation:
                     // UsingStatement and Implementation has to be after impl
                     // start.
-                    #ifdef WTF_LOG
-                        cout << "MARIO: AH! I bet it's one of you, you bastards!\n";
-                        cout << "\t\t" << ptr->ShortString() << "\n";
-                    #endif
-                    BOOST_ADD_EDGE(ptr->GraphId(),
+                    boost::add_edge(ptr->GraphId(),
                                     divImpl->GraphId(),
                                     graph);
                     // ensure the bottom divider stays at the bottom.
-                    BOOST_ADD_EDGE(divBottom->GraphId(),
+                    boost::add_edge(divBottom->GraphId(),
                                     ptr->GraphId(),
                                     graph);
                     break;
                 case CodeType::TypeDefinition:
                 case CodeType::ForwardDeclaration:
                     // This element depends on divider top...
-                    BOOST_ADD_EDGE(ptr->GraphId(),
+                    boost::add_edge(ptr->GraphId(),
                                     divTop->GraphId(),
                                     graph);
                     // ...and the implementation start depends on this.
-                    BOOST_ADD_EDGE(divImpl->GraphId(),
+                    boost::add_edge(divImpl->GraphId(),
                                     ptr->GraphId(),
                                     graph);
                     break;
                 case CodeType::BlockTop:
                     // the top divider depends on this top block.
-                    BOOST_ADD_EDGE(divTop->GraphId(),
+                    boost::add_edge(divTop->GraphId(),
                                     ptr->GraphId(),
                                     graph);
                     break;
                 case CodeType::BlockBottom:
                     // The bottom block depends on bottom divider.
-                    BOOST_ADD_EDGE(ptr->GraphId(),
+                    boost::add_edge(ptr->GraphId(),
                                     divBottom->GraphId(),
                                     graph);
                     break;
@@ -173,12 +149,25 @@ class CodeTextSorter
             {
                 if (depPtr)
                 {
-                    BOOST_ADD_EDGE(ptr->GraphId(), depPtr->GraphId(), graph);
+                    boost::add_edge(ptr->GraphId(), depPtr->GraphId(), graph);
                 }
             }
         }
 
+        // This connects the graphIds to the actual CodeText items, so we
+        // can retrieve them.
+        boost::property_map<CodeTextGraph, CodeTextTag>::type ptrKey
+            = boost::get(CodeTextTag(), graph);
 
+        // Make sure it counts these...
+        boost::put(ptrKey, divTop->GraphId(), divTop);
+        boost::put(ptrKey, divImpl->GraphId(), divImpl);
+        boost::put(ptrKey, divBottom->GraphId(), divBottom);
+
+        for (CodeText * ptr : items)
+        {
+            boost::put(ptrKey, ptr->GraphId(), ptr);
+        }
 
         // This is what calls the sort method.
         std::deque<int> results;
@@ -219,9 +208,7 @@ class CodeTextSorter
             sortedList.push_back(*itr);
         }
         return sortedList;*/
-        #ifdef WTF_LOG
-            cout << "MARIO:" << " Takin' ioff a nmew slice o' pie!\n";
-        #endif
+
         vector<CodeText *> sortedList;
         for (auto itr = results.begin();
              itr != results.end(); ++ itr)
@@ -234,15 +221,6 @@ class CodeTextSorter
             if (ptr)
             {
                 sortedList.push_back(ptr);
-                #ifdef WTF_LOG
-                    cout << "MARIO:" << *itr << "\n";
-                #endif
-            }
-            else
-            {
-                #ifdef WTF_LOG
-                    cout << "MARIO:" << "NULL!? " << *itr << "\n";
-                #endif
             }
         }
         return sortedList;
