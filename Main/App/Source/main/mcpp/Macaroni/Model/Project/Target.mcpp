@@ -248,6 +248,14 @@ class Target
 		}
 	}
 
+	public void CreateElementList(vector<Element *> & elementList)
+	{
+		BOOST_FOREACH(Element * e, elements)
+		{
+			elementList.push_back(e);
+		}
+	}
+
 	public TargetPtr CreateTargetPtr()
 	{
 		TargetPtr tp(this);

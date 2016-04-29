@@ -1,0 +1,40 @@
+~import Macaroni::Generators::Cpp::CodeGraph;
+~import Macaroni::Generators::Cpp::CodeTextProducer;
+~import Macaroni::Model::Context;
+~import Macaroni::Generators::Cpp::CppFileWriter;
+~import Macaroni::Model::Element;
+~import boost::format;
+~import Macaroni::IO::GeneratedFileWriterPtr;
+~import Macaroni::Generators::Cpp::GeneratorSettings;
+~import Macaroni::IO::Path;
+~import std::string;
+~import Macaroni::Model::Project::Target;
+~import std::vector;
+
+// This creates the an ".mh" file, which is basically a stream-lined
+// Macaroni source file where everything is defined as extern.
+
+class MhFileGenerator
+{
+    public static void Generate(
+        const GeneratorSettings & generatorSettings,
+        CodeGraph & graph, Path & rootPath, Target & lib)
+    {
+        GeneratedFileWriterPtr writer = rootPath.CreateFile();
+        CppFileWriter cppWriter(boost::none, lib.GetContext()->GetRoot(),
+                                writer, generatorSettings);
+
+        CodeTextProducer codeTextProducer(generatorSettings, cppWriter);
+
+        cppWriter.Comment(str(format("// Macaroni interface for %s")
+                              % lib.ToString()));
+
+        vector<Element *> elementList;
+        lib.CreateElementList(elementList);
+
+        for (auto e : elementList)
+        {
+            codeTextProducer.WriteMhExtern(*e);
+        }
+    }
+};

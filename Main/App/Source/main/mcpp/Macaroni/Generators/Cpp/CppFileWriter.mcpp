@@ -697,81 +697,11 @@ class CppFileWriter
         }
     }
 
-    public void IncludeFile(Extern & e)
+    public void IncludeFile(const optional<string> & file)
     {
-        if (e.IncludeFile)
+        if (file)
         {
-            includeFile(e.IncludeFile.get());
-        }
-    }
-
-
-    public void IncludeFile(Element & element)
-    {
-        if (!element.RequiresHFile())
-        {
-            return;
-        }
-        NodePtr node = element.GetNode();
-        // If the hfile is set, use it.
-        auto fileNamePtr = node->GetHFilePath();
-        if (fileNamePtr && element.RequiresHFile())
-        {
-            string file = fileNamePtr->GetName();
-            includeFile(file);
-            return;
-        }
-        else
-        {
-            // If the node was adopted, use that.
-            NodePtr adoptedHome = node->GetAdoptedHome();
-            if (adoptedHome)
-            {
-                MACARONI_ASSERT(adoptedHome->GetElementPtr(), "Element not set.");
-                IncludeFile(*(adoptedHome->GetElementPtr()));
-                return;
-            }
-            else
-            {
-                // See if this is nested under a class, if so, use that.
-                NodePtr parent = node->GetParent();
-                if (parent)
-                {
-                    if (parent->GetElementPtr<Class>())
-                    {
-                        IncludeFile(*(parent->GetElementPtr()));
-                        return;
-                    }
-                    NodePtr parentParent = parent->GetParent();
-                    if (parentParent && parentParent->GetElementPtr<Class>())
-                    {
-                        IncludeFile(*(parentParent->GetElementPtr()));
-                        return;
-                    }
-                }
-            }
-            // Finally if its a class or typedef, make up an hfile.
-            if (node->GetElementPtr<Class>()
-                || node->GetElementPtr<Typedef>())
-            {
-                TargetPtr p = node->GetElementPtr()->GetOwner();
-                Target * t = p.get();
-                UnitTarget * ut = dynamic_cast<UnitTarget *>(t);
-                if (nullptr == ut)
-                {
-                    // throw UnitTargetNotSetError(node->GetFullName());
-                    // Scratch that- just make something up!
-                    // This is still necessary when using libraries that
-                    // aren't being generated.
-                    includeFile(str(boost::format("%s.h")
-                                % node->GetPrettyFullName("/")));
-                }
-                else
-                {
-                    includeFile(ut->GetHFile()->GetRelativePathNormalized());
-                }
-                return;
-            }
+            includeFile(file.get());
         }
     }
 
@@ -1195,6 +1125,25 @@ class CppFileWriter
     public void WriteFullNodeName(NodePtr node)
     {
         write(node->GetFullName());
+    }
+
+    public void WriteMhExternKeyword()
+    {
+        NewLineIfNeeded();
+        write("~extern ");
+    }
+
+    public void WriteMhExternInclude(optional<string> includeFile)
+    {
+        NewLineIfNeeded();
+        write("include=");
+        IncludeFile(includeFile);
+    }
+
+    public void WriteMhExternUsingKeyword()
+    {
+        NewLineIfNeeded();
+        write("using=");
     }
 
     public void WriteNodeName(NodePtr node)

@@ -502,17 +502,6 @@ class UnitFileGenerator
             TargetPtr target(&unit);
             producer.Write(ct, target, library);
         }
-        /*
-        else
-        {
-            if (debugText)
-            {
-                writer.Comment(str(format("DEBUG- Not owned by our target: %s")
-                               % ct.GetElement()->GetNodeRef().GetFullName()));
-            }
-            Element * e = const_cast<Element *>(ct.GetElement());
-            writer.IncludeFile(*e);
-        }*/
     }
 
     public string ToString()

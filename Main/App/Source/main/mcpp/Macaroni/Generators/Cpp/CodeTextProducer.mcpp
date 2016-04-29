@@ -26,8 +26,12 @@
 ~import Macaroni::Model::Cpp::Namespace;
 ~import Macaroni::Model::Node;
 ~import Macaroni::Model::NodePtr;
+~import boost::optional;
+~import std::string;
+~import Macaroni::Model::Project::Target;
 ~import Macaroni::Model::Project::TargetPtr;
 ~import Macaroni::Model::Cpp::Typedef;
+~import Macaroni::Model::Project::UnitTarget;
 ~import Macaroni::Model::Cpp::Variable;
 ~import Macaroni::Model::Cpp::VariablePtr;
 ~import std::vector;
@@ -125,60 +129,102 @@ class CodeTextProducer
         }
     }
 
+    /** Used for writing the simplified version of this code that can appear
+     *  in Macaroni source code. */
+    public void WriteMhExtern(Element & element)
+    {
+        writer.WriteMhExternKeyword();
+        writer.Space();
+        writer.WriteFullNodeName(element.GetNode());
+        writer.Space();
+        writer.WriteMhExternInclude(GetIncludeFile(element));
+        writer.Space();
+        writer.WriteMhExternUsingKeyword();
+        writer.OpenBrace();
+            writeUsingStatement(element);
+        writer.CloseBrace();
+        writer.EndStatement();
+    }
+
+    public static optional<string> GetIncludeFile(Element & element)
+    {
+        // TODO: Consider using a visitor here, or doing something less... iffy.
+
+        Extern * ex = dynamic_cast<Extern *>(&element);
+        if (ex)
+        {
+            return ex->IncludeFile;
+        }
+
+        if (!element.RequiresHFile())
+        {
+            return boost::none;
+        }
+        NodePtr node = element.GetNode();
+        // If the hfile is set, use it.
+        auto fileNamePtr = node->GetHFilePath();
+        if (fileNamePtr && element.RequiresHFile())
+        {
+            string file = fileNamePtr->GetName();
+            return file;
+        }
+        else
+        {
+            // If the node was adopted, use that.
+            NodePtr adoptedHome = node->GetAdoptedHome();
+            if (adoptedHome)
+            {
+                MACARONI_ASSERT(adoptedHome->GetElementPtr(), "Element not set.");
+                return GetIncludeFile(*(adoptedHome->GetElementPtr()));
+            }
+            else
+            {
+                // See if this is nested under a class, if so, use that.
+                NodePtr parent = node->GetParent();
+                if (parent)
+                {
+                    if (parent->GetElementPtr<Class>())
+                    {
+                        return GetIncludeFile(*(parent->GetElementPtr()));
+                    }
+                    NodePtr parentParent = parent->GetParent();
+                    if (parentParent && parentParent->GetElementPtr<Class>())
+                    {
+                        return GetIncludeFile(*(parentParent->GetElementPtr()));
+                    }
+                }
+            }
+            // Finally if its a class or typedef, make up an hfile.
+            if (node->GetElementPtr<Class>()
+                || node->GetElementPtr<Typedef>())
+            {
+                TargetPtr p = node->GetElementPtr()->GetOwner();
+                Target * t = p.get();
+                UnitTarget * ut = dynamic_cast<UnitTarget *>(t);
+                if (nullptr == ut)
+                {
+                    // throw UnitTargetNotSetError(node->GetFullName());
+                    // Scratch that- just make something up!
+                    // This is still necessary when using libraries that
+                    // aren't being generated.
+                    string result = str(boost::format("%s.h")
+                                % node->GetPrettyFullName("/"));
+                    return result;
+                }
+                else
+                {
+                    string result = ut->GetHFile()->GetRelativePathNormalized();
+                    return result;
+                }
+            }
+        }
+        return boost::none;
+    }
+
 // Define the visitors in the anonymous namespace to cut down the risk of
 // Visual Studio problems.
 
 ~block "cpp" { namespace {
-
-    struct IncludeStatementVisitor
-    :   public BaseVisitor,
-        public Visitor<Class>,
-        public Visitor<Enum>,
-        public Visitor<Extern>,
-        public Visitor<FunctionOverload>,
-        public Visitor<Variable>,
-        public Visitor<Typedef>
-    {
-        CppFileWriter & writer;
-
-        IncludeStatementVisitor(CppFileWriter & writer)
-        :   writer(writer)
-        {
-        }
-
-        virtual void Visit(Enum & e)
-        {
-            writer.IncludeFile(e);
-        }
-
-        virtual void Visit(Class & e)
-        {
-            writer.IncludeFile(e);
-        }
-
-        virtual void Visit(Extern & e)
-        {
-            if (e.IncludeFile)
-            {
-                writer.IncludeFile(e);
-            }
-        }
-
-        virtual void Visit(FunctionOverload & e)
-        {
-            writer.IncludeFile(e);
-        }
-
-        virtual void Visit(Typedef & e)
-        {
-            writer.IncludeFile(e);
-        }
-
-        virtual void Visit(Variable & e)
-        {
-            writer.IncludeFile(e);
-        }
-    };
 
     template<typename ElementType>
     void endTemplateItem(CppFileWriter & writer, ElementType & e)
@@ -335,7 +381,7 @@ class CodeTextProducer
         {
             // This feels wrong, but I can't think of anything more idiomatic.
             // Trying to forward define a typedef would be crazy.
-            writer.IncludeFile(e);
+            writer.IncludeFile(CodeTextProducer::GetIncludeFile(e));
         }
 
         virtual void Visit(Variable & e)
@@ -922,8 +968,8 @@ class CodeTextProducer
 
     ~hidden void writeIncludeStatement(Element & e)
     {
-        IncludeStatementVisitor visitor(writer);
-        e.Accept(visitor);
+        auto inclF = GetIncludeFile(e);
+        writer.IncludeFile(inclF);
     }
 
     ~hidden void writeTypeDefinition(Element & e)
