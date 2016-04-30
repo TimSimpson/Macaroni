@@ -114,22 +114,15 @@ class SimpleIntException : public SimpleException
  *  by subclasses to print out the integer. */
 class SimpleStringException : public SimpleException
 {
+	~block "h-predef"
+	{
+		#include <boost/format.hpp>
+	}
+
 	private const std::string value;
 
 	public SimpleStringException(const string & value)
 	:	SimpleException(),
-		value(value)
-	{
-	}
-
-	public SimpleStringException(const char * value)
-	: SimpleException(),
-	  value(value)
-	{
-	}
-
-	public SimpleStringException(const char * value, InternalSource where)
-	:	SimpleException(where),
 		value(value)
 	{
 	}
@@ -144,7 +137,12 @@ class SimpleStringException : public SimpleException
 
 	public string message() const override
 	{
-		return str(format(what()) % value);
+		return value;
+	}
+
+	public virtual const char * what() const BOOST_NOEXCEPT
+	{
+		return value.c_str();
 	}
 
 	~block "h-postdef"
@@ -153,12 +151,10 @@ class SimpleStringException : public SimpleException
 	 * be used in implementation files. */
 	#define MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(typeName, message) \
 		class typeName : public Macaroni::Exceptions::SimpleStringException { \
-			public: typeName(const char * value, Macaroni::InternalSource where) \
-				: Macaroni::Exceptions::SimpleStringException(value, where) {} \
 			public: typeName(const char * value) \
-				: Macaroni::Exceptions::SimpleStringException(value) {} \
-			public: virtual const char * what() const BOOST_NOEXCEPT \
-			{ return message ; } \
+				: Macaroni::Exceptions::SimpleStringException(str(boost::format(message) % value)) {} \
+			public: typeName(const std::string & value) \
+				: Macaroni::Exceptions::SimpleStringException(str(boost::format(message) % value)) {} \
 		};
 	}
 };

@@ -152,8 +152,7 @@ class TargetFileSweeper
 				//PATH MUST BE AN ACTUAL RELATIVE PATH OR OH NOES WILL HAPPENS!!
 				if (file.GetRelativePathNormalized().length() == 0)
 				{
-					throw FileMustBeRelativePathException(str.c_str(),
-						MACARONI_INTERNAL_SOURCE);
+					throw FileMustBeRelativePathException(str);
 				}
 				PathPtr p(new Path(file));
 				UnitTarget::Create(target, false,
@@ -199,8 +198,7 @@ class TargetFileSweeper
 		ifstream file(filePath.c_str());
 		if (!file.is_open())
 		{
-			throw CouldNotReadFileException(filePath.c_str(),
-				MACARONI_INTERNAL_SOURCE);
+			throw CouldNotReadFileException(filePath);
 		}
 		string line;
 		while(! file.eof())

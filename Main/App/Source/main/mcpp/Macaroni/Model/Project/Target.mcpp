@@ -91,6 +91,7 @@ class Target
 
 	protected vector<Target *> dependencies;
 	protected vector<Element *> elements;
+	private bool implicit;
 	private const string name;
 	private Target * parent;
 	private PlatformListPtr platformList;
@@ -122,9 +123,10 @@ class Target
 	}
 
 	protected Target(ProjectVersion * projectVersion, const string & name,
-		             optional<string> shortName)
+		             optional<string> shortName, bool implicit=false)
 	:   dependencies(),
 		elements(),
+		implicit(implicit),
 	    name(name),
 	    parent(0),
 	    platformList(),
@@ -206,7 +208,7 @@ class Target
 			string msg = str(format("Element %s is already owned by target %s, so "
 				"cannot assign to target %s.") % element->GetNode()->GetFullName()
 				% element->GetOwner()->ToString() % this->ToString());
-			throw ElementNotOwnedException(msg.c_str(), MACARONI_INTERNAL_SOURCE);
+			throw ElementNotOwnedException(msg.c_str());
 		}
 		BOOST_FOREACH(Element * e, elements) {
 			if ((*e) == (*element)) {
@@ -343,6 +345,11 @@ class Target
 		return dependencies;
 	}
 
+	public bool IsImplicit() const
+		@LuaProperty "Implicit"
+	{
+		return implicit;
+	}
 
 	public ProjectVersionPtr GetProjectVersion() const
 		@LuaProperty "ProjectVersion"

@@ -150,8 +150,7 @@ class ClassicPlugin : public Plugin
 
 				if (lua_isnil(L, -1))
 				{
-					throw MethodNameUnknown(method.c_str(),
-						                    MACARONI_INTERNAL_SOURCE);
+					throw MethodNameUnknown(method.c_str());
 				}
 			}
 

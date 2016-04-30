@@ -451,7 +451,7 @@ class LuaEnvironment
                     msg = luaL_checkstring(L, -1);
                 }
             }
-            throw LuaRunException(msg, source);
+            throw LuaRunException(msg);
         }
     }
 
@@ -673,15 +673,14 @@ class LuaEnvironment
                     msg << "\nTraceback:";
                     msg << traceback;
                 }
-                throw LuaRunException(msg.str().c_str(),
-                                      source);
+                throw LuaRunException(msg.str());
             }
         }
 
         if (eCode != 0)
         {
             throw LuaRunException("Untracable error occurred "
-                                  "when calling Lua.", source);
+                                  "when calling Lua.");
         }
 
     }
@@ -887,8 +886,7 @@ class LuaEnvironment
                 else
                 {
                     throw KeyNotStringException(
-                        currentKey ? currentKey.get().c_str() : "unknown",
-                        MACARONI_INTERNAL_SOURCE);
+                        currentKey ? currentKey.get().c_str() : "unknown");
                 }
                 lua_pop(state, 1); // pops off value, saves key
             }

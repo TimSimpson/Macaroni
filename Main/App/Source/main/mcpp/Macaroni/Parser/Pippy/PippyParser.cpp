@@ -414,7 +414,6 @@ private:
 	NodePtr currentScope;
 	TargetPtr currentTarget;
 	TargetPtr defaultTarget;
-	std::string hFilesForNewNodes;
 	std::vector<ImportList *> importedNodesStack;
 	AccessPtr lastAccess;
 	ImportList topScopeImportedNodes;
@@ -882,11 +881,16 @@ public:
 		NodePtr oldScope = currentScope;
 		::Macaroni::Model::Cpp::Class * enclosingClass
 			= oldScope->GetElementPtr<::Macaroni::Model::Cpp::Class>();
-		currentScope = currentScope->FindOrCreate(name, hFilesForNewNodes);
+		currentScope = currentScope->FindOrCreate(name);
 		lastAccess = currentAccess;
 		currentAccess = defaultAccess;
 
 		ClassPtr newClass;
+
+		// We may have to create a new UnitTarget for this, so save the old
+		// target.
+		TargetPtr formerTarget = currentTarget;
+
 		TargetPtr tHome = deduceTargetHome(currentScope);
 		newClass = Class::Create(
 			tHome, currentScope, isStruct, access, currentImports(),
@@ -922,6 +926,57 @@ public:
 
 		// Calls the parser to keep on parsing until the class ends.
 
+
+		// It makes sense to create a unit just for a class the moment we see
+		// it, but the use of the ~hfile keyword (which was like a crappier yet
+		// more complex way of doing what ~extern does) makes this a bit harder
+		// than it should be.
+
+		const bool hasHFile = HFileDirective(newItr);
+		if (hasHFile)
+		{
+			// leave this the hell alone.
+		}
+		if (currentTargetIsLibrary())
+		{
+			// We're just chilling *wherever* and have defined a class.
+			// Assume we want to make an implicit UnitTarget.
+
+			// Macaroni allows partial class definitions (WHY DID I DO THIS GOD?!)
+			// so it's possible there was already a target created for this class
+			// earlier.
+			if (newClass->GetOwner() != formerTarget)
+			{
+				// Make an assumption this target was the implicit target.
+				if (!newClass->GetOwner()->IsImplicit())
+				{
+					throw ParserException(newItr.GetSource(),
+						Messages::Get("CppParser.Class.ExplicitToImplictError"));
+				}
+
+				// Just use the old target.
+				currentTarget = newClass->GetOwner();
+			}
+			else
+			{
+				// Make a brand new target.
+				currentTarget = createImplicitUnitForNode(*currentScope);
+				newClass->SwitchOwner(currentTarget);
+			}
+		}
+		else
+		{
+			// Class previously was defined in a unit.
+
+			// So if we aren't just wherever, but are in an explicit target,
+			// then the old class whose def we picked better match this one.
+			if (newClass->GetOwner() != formerTarget)
+			{
+				throw ParserException(newItr.GetSource(),
+						Messages::Get("CppParser.Class.ImplicitToExplicitError"));
+			}
+		}
+
 		ScopeFiller(newItr);
 
 		ConsumeWhitespace(newItr);
@@ -940,6 +995,8 @@ public:
 		// The ';' following a class def is optional.
 		ConsumeWhitespace(newItr);
 		newItr.ConsumeChar(';');
+
+		currentTarget = formerTarget; // Switch back to the other target.
 
 		itr = newItr; // Success! :)
 		currentScope = oldScope;
@@ -1716,6 +1773,29 @@ public:
 		throw ParserException(itr.GetSource(), ss.str());
 	}
 
+	// Given some node - such as a class or function - create a new
+	// Unit. This replaces the old Porg (Physical Organizer) plugin.
+	// Returns new target.
+	TargetPtr createImplicitUnitForNode(Node & node)
+	{
+		std::string tName = node.GetPrettyFullName("/");
+		auto_ptr<UnitTarget> utp(UnitTarget::CreateImplicit(
+			currentTarget, true, tName));
+		utp->SetHFileAsUnknownRelativePath(tName + ".h");
+		utp->SetCppFileAsUnknownRelativePath(tName + ".cpp");
+		TargetPtr rtn(utp.get());
+		utp.release();
+		return rtn;
+	}
+
+	// True if the current target is a library. When the parser starts,
+	// this is true, but if it sees the ~unit keyword or creates a unit after
+	// seeing a class it changes.
+	bool currentTargetIsLibrary()
+	{
+		return (dynamic_cast<LibraryTarget *>(currentTarget.get()) != nullptr);
+	}
+
 	bool DeclTypeAutoHack(Iterator & itr, TypePtr & type)
 	{
 		if (!itr.ConsumeWord("decltype(auto)"))
@@ -1763,7 +1843,7 @@ public:
 			return false;
 		}
 		newItr.Advance(1);
-		if (!Import(newItr) && !HFileDirective(newItr))
+		if (!Import(newItr))
 		{
 			return false;
 			// For awhile now, ~ does not necessarily indicate a directive,
@@ -1822,7 +1902,7 @@ public:
 		}
 
 		NodePtr oldScope = currentScope;
-		currentScope = currentScope->FindOrCreate(nodeName, hFilesForNewNodes);
+		currentScope = currentScope->FindOrCreate(nodeName);
 
 		TargetPtr tHome = deduceTargetHome(currentScope);
 		auto ePtr = Enum::Create(tHome, currentScope,
@@ -2439,16 +2519,11 @@ public:
 	bool HFileDirective(Iterator & itr)
 	{
 		ConsumeWhitespace(itr);
-		if (!itr.ConsumeWord("hfile"))
+		if (!itr.ConsumeWord("~hfile"))
 		{
 			return false;
 		}
 		ConsumeWhitespace(itr);
-		if (itr.ConsumeWord("reset"))
-		{
-			hFilesForNewNodes = "";
-			return true;
-		}
 		if (!itr.ConsumeChar('='))
 		{
 			throw ParserException(itr.GetSource(),
@@ -3265,7 +3340,8 @@ public:
 		NodePtr typedefNode = currentScope->FindOrCreate(name);
 
 		TargetPtr tHome = deduceTargetHome(typedefNode);
-		Typedef::Create(tHome, typedefNode,
+
+		TypedefPtr tdp = Typedef::Create(tHome, typedefNode,
 			Reason::Create(CppAxioms::TypedefCreation(), newItr.GetSource()),
 			*access,
 			type);
@@ -3274,6 +3350,16 @@ public:
 
 		NodePtr oldScope = currentScope;
 		currentScope = typedefNode;
+
+		bool hFile = HFileDirective(newItr);
+		if (!hFile && currentTargetIsLibrary())
+		{
+			// If this thing doesn't have the damn ~hfile keyword then
+			// create it's own target, if need be.
+			tdp->SwitchOwner(createImplicitUnitForNode(*typedefNode));
+		}
+
+		ConsumeWhitespace(newItr);
 
 		while(Directives(newItr) || Annotation(newItr)) {
 			ConsumeWhitespace(newItr);
@@ -3639,11 +3725,17 @@ public:
 			TargetPtr tHome;
 
 			ClassPtr classPtr = currentScope->GetElement<ClassPtr>();
+
 			// Free-standing functions should be linked to a target just like
 			// classes.
 			if ((globalHome || !classPtr)
 				 && !currentScope->GetElement<FunctionOverloadPtr>())
 			{
+				if (currentTargetIsLibrary())
+				{
+					throw ParserException(itr.GetSource(), Messages::Get(
+						"CppParser.Variable.GlobalVariableMustBeInsideTarget"));
+				}
 				tHome = deduceTargetHome(currentScope);
 			}
 
@@ -3718,6 +3810,11 @@ public:
 			boost::optional<ImportList> imports = boost::none;
 			if (globalHome || (classDepth < 1))
 			{
+				if (currentTargetIsLibrary())
+				{
+					throw ParserException(itr.GetSource(), Messages::Get(
+						"CppParser.Function.GlobalVariableMustBeInsideTarget"));
+				}
 				imports = currentImports();
 				tHome = deduceTargetHome(currentScope);
 			}

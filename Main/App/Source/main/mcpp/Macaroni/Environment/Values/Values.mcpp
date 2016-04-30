@@ -275,27 +275,20 @@ class String : public Any
 class KeyNotFoundException : public SimpleStringException
 {
 	public KeyNotFoundException(const char * key, InternalSource where)
-		: SimpleStringException(key, where)
+		: SimpleStringException(str(boost::format("Key %s not found.") % key))
 	{
-	}
-
-	public virtual const char * what() const BOOST_NOEXCEPT
-	{
-		return "Key %s not found.";
 	}
 };
 
 class ValueTypeException : public SimpleStringException
 {
 	public ValueTypeException(const char * key, InternalSource where)
-		: SimpleStringException(key, where)
+		: SimpleStringException(
+			str(boost::format(
+				"Key %s could not be converted to the correct type.") % key))
 	{
 	}
 
-	public virtual const char * what() const BOOST_NOEXCEPT
-	{
-		return "Key could not be converted to the correct type.";
-	}
 };
 
 class Table : public Any

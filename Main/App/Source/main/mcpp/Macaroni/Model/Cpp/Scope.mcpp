@@ -114,7 +114,7 @@ class Scope : public ScopeMember
 
 	public void SwitchOwner(TargetPtr newTarget) override
 	{
-		if (!this->target)
+		if (this->target)
 		{
 			Target & from = *(this->target);
 			Target & to = *newTarget;

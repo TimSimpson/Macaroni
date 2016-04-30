@@ -41,8 +41,8 @@ class UnitTarget : public Target
 	}
 
 	private UnitTarget(Target & parent, bool generated, const string & name,
-		               optional<string> shortName)
-	:  Target(parent.GetProjectVersion().get(), name, shortName),
+		               optional<string> shortName, bool implicit=false)
+	:  Target(parent.GetProjectVersion().get(), name, shortName, implicit),
 	   cppFile(),
 	   hFile(),
 	   generated(generated),
@@ -71,6 +71,14 @@ class UnitTarget : public Target
 		return new UnitTarget(*parent, generated, name, shortName);
 	}
 
+	public static UnitTarget * CreateImplicit(TargetPtr parent, bool generated,
+		                              const string & name,
+		                              optional<string> shortName=boost::none)
+	{
+		// The parent will handle the memory so this isn't a leak.
+		return new UnitTarget(*parent, generated, name, shortName, true);
+	}
+
 	/** The CPP file. */
 	public PathPtr GetCppFile() const
 	{
@@ -87,16 +95,14 @@ class UnitTarget : public Target
 		if (!value && cppFile)
 		{
 			throw CppPathAlreadySetException(
-					cppFile->GetAbsolutePathForceSlash().c_str(),
-					MACARONI_INTERNAL_SOURCE);
+					cppFile->GetAbsolutePathForceSlash());
 		}
 		else if (cppFile)
 		{
 			if (*cppFile != *value)
 			{
 				throw CppPathAlreadySetException(
-					cppFile->GetAbsolutePathForceSlash().c_str(),
-					MACARONI_INTERNAL_SOURCE);
+					cppFile->GetAbsolutePathForceSlash());
 			}
 		}
 		cppFile = value;
@@ -136,8 +142,7 @@ class UnitTarget : public Target
 			if (*hFile != *value)
 			{
 				throw HPathAlreadySetException(
-					hFile->GetAbsolutePathForceSlash().c_str(),
-					MACARONI_INTERNAL_SOURCE);
+					hFile->GetAbsolutePathForceSlash());
 			}
 		}
 		hFile = value;

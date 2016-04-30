@@ -309,14 +309,12 @@ class Macaroni::Environment::ProjectEnvironment
         ResourcePtr scripts = pv->GetTargetOfType<ResourcePtr>("scripts");
         if (!scripts)
         {
-            throw NoScriptsFoundInProject(pv->ToString().c_str(),
-                                          MACARONI_INTERNAL_SOURCE);
+            throw NoScriptsFoundInProject(pv->ToString());
         }
         optional<path> p = loader.GetAppPaths()->FindFinalProjectDirectory(pv->ToId());
         if (!p)
         {
-            throw ProjectNotFoundException2(pv->ToId().ToString().c_str(),
-                                           MACARONI_INTERNAL_SOURCE);
+            throw ProjectNotFoundException2(pv->ToId().ToString());
         }
         BOOST_FOREACH(PathPtr scriptPath, (*scripts->GetFiles()))
         {
@@ -367,8 +365,7 @@ class Macaroni::Environment::ProjectEnvironment
         path childProjectPath = workingDirectory / subPath / "project.lua";
         if (!boost::filesystem::exists(childProjectPath))
         {
-            throw ChildProjectFileNotFound(childProjectPath.string().c_str(),
-                                           MACARONI_INTERNAL_SOURCE);
+            throw ChildProjectFileNotFound(childProjectPath.string());
         }
         return loader.LoadProjectEnvironment(childProjectPath);
     }
@@ -428,8 +425,7 @@ class Macaroni::Environment::ProjectEnvironment
         if (false == ProjectVersionLuaMetaData::IsType(L, -1))
         {
             string fullPath = this->GetWorkingProjectFile().string();
-            throw ProjectNotGivenException(fullPath.c_str(),
-                                           MACARONI_INTERNAL_SOURCE);
+            throw ProjectNotGivenException(fullPath);
         }
         ProjectVersionPtr pv = ProjectVersionLuaMetaData::GetInstance(L, -1);
         lua_pop(L, 1);

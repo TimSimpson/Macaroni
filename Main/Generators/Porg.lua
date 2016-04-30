@@ -23,7 +23,7 @@ Generator =
     parseElement = function(self, path, element)
         if self:shouldHaveTarget(element) then
             local newTarget = self:findOrCreateTarget(path, element)
-            element:SwitchOwner(newTarget);
+        element:SwitchOwner(newTarget);
         end
     end,
 
@@ -55,13 +55,16 @@ Generator =
 };
 
 function Generate(libTarget, path)
+
     local generator = Generator;
     generator.defaultTarget = libTarget;
 
     local elements = libTarget:CreateElementList();
     for i=1, #elements do
         local element = elements[i]
-        generator:parseElement(path, element)
+        if (element:OwnedBy(libTarget)) then
+            generator:parseElement(path, element)
+        end
     end
 end
 

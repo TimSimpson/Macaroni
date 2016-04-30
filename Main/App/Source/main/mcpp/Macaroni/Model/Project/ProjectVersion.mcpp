@@ -51,6 +51,7 @@
 ~import std::string;
 ~import Macaroni::Environment::Values::String;
 ~import Macaroni::StringException;
+~import std::stringstream;
 ~import Macaroni::Environment::Values::Table;
 ~import Macaroni::Environment::Values::TablePtr;
 ~import Macaroni::Model::Project::Target;
@@ -163,7 +164,7 @@ class Macaroni::Model::Project::ProjectVersion
 	~block "cpp"
 	{
 		MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(TargetAlreadyAddedException,
-			"Target %s already added.");
+			"%s");
 	}
 
 	private ProjectVersion(Project * project, const string & version)
@@ -190,8 +191,11 @@ class Macaroni::Model::Project::ProjectVersion
 	public void AddTarget(Target * target) {
 		BOOST_FOREACH(Macaroni::Model::Project::Target * t, targets) {
 			if (t->GetName() == target->GetName()) {
-				throw TargetAlreadyAddedException(t->GetName().c_str(),
-					MACARONI_INTERNAL_SOURCE);
+				stringstream msg;
+				msg << "Target " << t->GetName() << " was already added for "
+				    "project " << ToId().ToString() << ".";
+				string m = msg.str();
+				throw TargetAlreadyAddedException(m.c_str());
 			}
 		}
 		targets.push_back(target);

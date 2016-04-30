@@ -271,8 +271,7 @@ class Macaroni::Environment::ProjectLoader
         optional<path> projectFilePath = appPaths->FindFinalProjectFile(pv);
         if (!projectFilePath)
         {
-            throw ProjectNotFoundException(pv.ToString().c_str(),
-                                           MACARONI_INTERNAL_SOURCE);
+            throw ProjectNotFoundException(pv.ToString());
         }
 
         optional<ProjectVersionId> opv(pv);
@@ -328,13 +327,11 @@ class Macaroni::Environment::ProjectLoader
                               % projectPath.string() % me.message());
             if (expectedPvId)
             {
-                throw LoadProjectException(expectedPvId.get().ToString().c_str(),
-                                           MACARONI_INTERNAL_SOURCE);
+                throw LoadProjectException(expectedPvId.get().ToString());
             }
             else
             {
-                throw LoadProjectException4(projectPath.string().c_str(),
-                                            MACARONI_INTERNAL_SOURCE);
+                throw LoadProjectException4(projectPath.string());
             }
         }
         ProjectVersionId actualPvId = env->GetWorkingProjectId();
@@ -345,15 +342,13 @@ class Macaroni::Environment::ProjectLoader
                 output->ErrorLine(format(
                     "Unexpected project found in file %s: %s.")
                     % projectPath.string() % actualPvId.ToString());
-                throw LoadProjectException2(expectedPvId.get().ToString().c_str(),
-                                            MACARONI_INTERNAL_SOURCE);
+                throw LoadProjectException2(expectedPvId.get().ToString());
             }
             ProjectVersionPtr result =
                 context->FindProjectVersion(expectedPvId.get());
             if (!result)
             {
-                throw LoadProjectException2(expectedPvId.get().ToString().c_str(),
-                                            MACARONI_INTERNAL_SOURCE);
+                throw LoadProjectException2(expectedPvId.get().ToString());
             }
             result->IncrementFileParseCount();
         }
