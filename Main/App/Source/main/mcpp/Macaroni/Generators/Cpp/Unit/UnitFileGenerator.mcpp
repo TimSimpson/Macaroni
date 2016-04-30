@@ -129,69 +129,6 @@ class UnitFileGenerator
         ufg.Generate(*graph, *rootPath);
     }
 
-    /*
-    // Have to do this to get around a stupid bug in the Lua Glue generator.
-    public void GenerateLua()
-        @LuaFunction "GenerateOld"
-        @LuaGlueCode ={
-            UnitFileGeneratorPtr & instance =
-                UnitFileGeneratorLuaMetaData::GetInstance(L, 1);
-            Macaroni::Generators::Cpp::CodeGraphPtr & arg1_AsRef = Macaroni::Generators::Cpp::CodeGraphLuaMetaData::GetInstance(L, 2);
-            Macaroni::Generators::Cpp::CodeGraph & arg1 = *(arg1_AsRef);
-            Macaroni::IO::PathPtr & arg2 = Macaroni::IO::PathLuaMetaData::GetInstance(L, 3);
-            try
-            {
-                instance->Generate(arg1, arg2);
-                return 0;
-            }
-            catch(const Macaroni::Exception & ex)
-            {
-                // Actually show Lua the real error. >:-(
-                luaL_error(L, ex.message().c_str());
-            }
-            catch(const std::exception & ex)
-            {
-                luaL_error(L, ex.what());
-            }
-        }
-    {
-    }
-
-
-    public static UnitFileGeneratorPtr Create(
-        TargetPtr lib, TargetPtr unit)
-        @LuaFunction "Create"
-    {
-        return create(lib, unit, false);
-    }
-
-    public static UnitFileGeneratorPtr CreateDebug(
-        TargetPtr lib, TargetPtr unit)
-        @LuaFunction "CreateDebug"
-    {
-        return create(lib, unit, true);
-    }*/
-/*
-    ~hidden static UnitFileGeneratorPtr create(
-        Target * lib, Target & unit, bool debugText=false)
-    {
-        LibraryTarget * lPtr = dynamic_cast<LibraryTarget *>(lib);
-        if (!lPtr)
-        {
-            // Accursed Lua glue...
-            throw UnsetLibraryPtrException();
-        }
-        GeneratorSettings generatorSettings;
-        if (debugText)
-        {
-            generatorSettings.RedirectToMcppSource = false;
-            generatorSettings.InsertDebugTracers = true;
-        }
-        UnitFileGeneratorPtr ptr(new UnitFileGenerator(generatorSettings,
-            lPtr, unit));
-        return ptr;
-    }
-*/
     ~hidden optional<LibraryConfigGenerator> createLibConfig(
         LibraryTarget * library)
     {
@@ -223,68 +160,6 @@ class UnitFileGenerator
             });
         }
     }
-/*
-    ~hidden void findProblemCodeText(CodeGraph & graph)
-    {
-        // To figure out WTF the problem is there's no great options other
-        // than doing a classic binary search.
-        auto problemExists = [&](const int length)
-        {
-            CodeTextSorter sorter(graph.DividerTop(),
-                              graph.DividerImplementationStart(),
-                              graph.DividerBottom());
-            int cur = 0;
-            for (auto e : elementList)
-            {
-                if (cur ++ > length) { break; }
-                sorter.Add(&graph.Get(e.get(), CodeType::BlockTop));
-                sorter.Add(&graph.Get(e.get(), CodeType::TypeDefinition));
-                sorter.Add(&graph.Get(e.get(), CodeType::BlockBottom));
-            }
-            vector<CodeText *> headerText = sorter.Sort();
-            generateHeader(headerText);
-
-            int cur2 = 0;
-            for (auto e : elementList)
-            {
-                if (cur2 ++ > length) { break; }
-                sorter.Add(&graph.Get(e.get(), CodeType::UsingStatement));
-                sorter.Add(&graph.Get(e.get(), CodeType::Implementation));
-            }
-            vector<CodeText *> cppText = sorter.Sort();
-            return missingBottomDiv(cppText);
-        };
-
-        for (int i = 0; i < elementList.size(); ++ i)
-        {
-            if (problemExists(i))
-            {
-                stringstream msg;
-                msg << "Sorting issue while trying to build unit "
-                    << unit.GetName()
-                    << ": "
-                    << "the following code text introduces a problem "
-                       "which makes the sort fail (not a DAG?) : "
-                    << "[" << elementList[i]->GetTypeName() << "] "
-                    << elementList[i]->GetNodeRef().GetFullName();
-                string s = msg.str();
-                throw UnitSortError(s.c_str());
-            }
-        }
-    }
-
-    ~hidden bool missingBottomDiv(vector<CodeText *> & ctList)
-    {
-        // Use <algorithm>
-        for (CodeText * ct : ctList)
-        {
-            if (ct->GraphId() == CodeText::DividerBottomId())
-            {
-                return false;
-            }
-        }
-        return true;
-    }*/
 
     public void Generate(CodeGraph & graph, Path &rootPath)
     {
@@ -317,30 +192,6 @@ class UnitFileGenerator
 
         cppText = sorter.SortWithValidation(unit.GetName());
 
-        /*// Check for DividerBottom to see if it is in the list of sorted
-        // CodeText items. This is nutty (there's a bug in the sorter where
-        // it just won't return things after a dag) but the best I can figure
-        // out for now.
-        if (missingBottomDiv(cppText))
-        {
-            findProblemCodeText(graph);
-        }*/
-
-        /*// Get rid of dupes. Just leave in nulls to save time.
-		for (int i = 0; i < headerText.size(); ++i)
-        {
-			if (nullptr == headerText[i]) {
-				continue;
-			}
-            for (int j = i; j < cppText.size(); ++ j)
-            {
-                if (cppText[j] && *headerText[i] == *cppText[j])
-                {
-                    cppText[j] = nullptr;
-                    break;
-                }
-            }
-        }*/
         generateCpp(cppText);
 
     }
