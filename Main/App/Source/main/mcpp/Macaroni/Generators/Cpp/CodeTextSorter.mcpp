@@ -178,7 +178,9 @@ class CodeTextSorter
         }
         catch(const boost::not_a_dag & ex)
         {
-            throwSortError();
+            //throwSortError();
+            vector<CodeText *>  empty;
+            return empty;
         }
 
         /*
