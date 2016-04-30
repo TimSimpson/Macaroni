@@ -364,8 +364,6 @@ class CodeGraph
                 MACARONI_ASSERT(e.GetFriendNodes(), "Empty friend list?");
                 addDepsOfNodeList(td, *(e.GetFriendNodes()),
                                   CodeType::ForwardDeclaration);
-                addDepsOfNodeList(im, *(e.GetFriendNodes()),
-                                  CodeType::Implementation);
 
 
                 // A class must see all TDs of the variables it used.
