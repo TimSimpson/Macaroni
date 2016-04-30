@@ -18,6 +18,7 @@
 ~import Macaroni::Environment::Values::Any;
 ~import Macaroni::Environment::Values::AnyPtr;
 ~import Macaroni::Build::BadArgException;
+~import Macaroni::Environment::Values::Bool;
 ~import Macaroni::Environment::Console;
 ~import Macaroni::Model::Context;
 ~import Macaroni::Model::ContextPtr;
@@ -65,6 +66,7 @@ class CmdLine
 	private bool document;
 	private bool endPrompt;
 	private bool generate;
+	private bool generateDebug;
 	private bool generateLess;
 	private vector<path> generatorPaths;
 	private optional<int> initialReturnCode;
@@ -79,41 +81,10 @@ class CmdLine
 	private bool printTimes;
 	private bool repl;
 	private AnyPtr runTimeProperties;
+	private bool skipGenSrcRedirects;
 	private bool startPrompt;
 	private bool showPaths;
 	private bool verbose;
-
-	/*public CmdLine(const VectorOfConstString & args, Console & console)
-	:	about(false),
-	    build(false),
-		clean(false),
-		console(console),
-		debugMode(false),
-		endPrompt(false),
-		generate(false),
-		generateLess(false),
-		generatorPaths(),
-		install(false),
-		libraryRepoPaths(),
-		luaTestsPath(""),
-		messagesPath(),
-		moonScriptPath(),
-		output(&console),
-		repl(false),
-		startPrompt(false)
-	{
-		for(unsigned int i = 0; i < args.size(); i ++)
-		{
-			const std::string arg = args[i];
-			const std::string nextArg;
-			if (i < args.size() - 1) {
-				const std::string nextArg = args[i + 1];
-				parseArg(arg, nextArg);
-			} else {
-				parseArg(arg, "");
-			}
-		}
-	}*/
 
 	~block "h-predef" {
 		#include <boost/program_options.hpp>
@@ -136,6 +107,7 @@ class CmdLine
 		document(false),
 		endPrompt(false),
 		generate(false),
+		generateDebug(false),
 		generateLess(false),
 		generatorPaths(),
 		install(false),
@@ -149,6 +121,7 @@ class CmdLine
 		printTimes(false),
 		repl(false),
 		runTimeProperties(),
+		skipGenSrcRedirects(false),
 		startPrompt(false),
 		showPaths(false),
 		verbose(false)
@@ -190,6 +163,9 @@ class CmdLine
 	po::bool_switch(&generate),
 	"Run the project's generation phase, which will normally "
 	"create C++ source code.")
+("generateDebug",
+	po::bool_switch(&generateDebug),
+	"Adds debugging information to generated source code.")
 ("generateLess",
 	po::bool_switch(&generateLess),
 	"Run the project's \"generateLess\" phase, which may do "
@@ -222,6 +198,9 @@ class CmdLine
 	po::bool_switch(&repl),
 	"Start an interactive Lua session after parsing any project"
 	" files.")
+("skipGenSrcRedirects",
+	po::bool_switch(&skipGenSrcRedirects),
+	"Skips inserting #line directives in generated C++ files.")
 ("startPrompt",
 	po::bool_switch(&startPrompt),
 	"If set, Macaroni will wait for user input before running.")
@@ -498,6 +477,14 @@ class CmdLine
 			boTable->SetAndGiveReference(++ index, stringValue);
 		}
 		table->SetAndGiveReference("buildOptions", boTablePtr);
+
+		Table * generatorOptions;
+		AnyPtr gsTablePtr(generatorOptions = new Table());
+		AnyPtr redirect(new Bool(!skipGenSrcRedirects));
+		generatorOptions->SetAndGiveReference("RedirectToMcppSource", redirect);
+		AnyPtr logDebug(new Bool(generateDebug));
+		generatorOptions->SetAndGiveReference("LogDebug", logDebug);
+		table->SetAndGiveReference("generatorOptions", gsTablePtr);
 	}
 
 	public path MessagesPath()

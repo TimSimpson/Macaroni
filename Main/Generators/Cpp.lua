@@ -73,10 +73,10 @@ function Validate(self)
 end
 
 function Generate3(self)
-    local debug = true;
     ProjectGenerator.Generate(self.projectVersion,
                               self.path:CreateWithCurrentAsRoot(),
-                              debug)
+                              properties.generatorOptions.RedirectToMcppSource,
+                              properties.generatorOptions.LogDebug);
 end
 
 function Generate2(self)

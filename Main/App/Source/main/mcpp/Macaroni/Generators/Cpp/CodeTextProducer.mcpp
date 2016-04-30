@@ -65,7 +65,7 @@ class CodeTextProducer
         Element & element = const_cast<Element &>(constElement);
 
         writer.InsertEmptyLine();
-        if (generatorSettings.InsertDebugTracers)
+        if (generatorSettings.LogDebug)
         {
             writer.Comment(str(boost::format("DEBUG : < WRITING CODETEXT %s")
                            % codeText));

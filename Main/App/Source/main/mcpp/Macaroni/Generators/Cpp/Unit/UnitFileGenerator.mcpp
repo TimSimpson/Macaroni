@@ -123,7 +123,7 @@ class UnitFileGenerator
         if (debugText)
         {
             generatorSettings.RedirectToMcppSource = false;
-            generatorSettings.InsertDebugTracers = true;
+            generatorSettings.LogDebug = true;
         }
         UnitFileGenerator ufg(generatorSettings, lPtr, *unitPtr);
         ufg.Generate(*graph, *rootPath);
@@ -215,7 +215,7 @@ class UnitFileGenerator
 
     ~hidden void generateCpp(vector<CodeText *> cppText)
     {
-        if (generatorSettings.InsertDebugTracers)
+        if (generatorSettings.LogDebug)
         {
             auto debugWriter = unit.GetCppFile()
                 ->DifferentSuffix(".debug")->CreateFile(true);
@@ -299,7 +299,7 @@ class UnitFileGenerator
 
     ~hidden void generateHeader(vector<CodeText *> headerText)
     {
-        if (generatorSettings.InsertDebugTracers)
+        if (generatorSettings.LogDebug)
         {
             auto debugWriter = unit.GetCppFile()
                 ->DifferentSuffix(".debug-hpp")->CreateFile(true);
@@ -316,7 +316,7 @@ class UnitFileGenerator
                                     CppFileWriter header,
                                     bool includeTopAndBottomBlocks)
     {
-        if (generatorSettings.InsertDebugTracers)
+        if (generatorSettings.LogDebug)
         {
             header.Comment("Unit File Generator is looking at these Elements:");
             for (auto e : elementList)
@@ -416,7 +416,7 @@ class UnitFileGenerator
                               CppFileWriter & writer,
                               CodeText & ct)
     {
-        if (generatorSettings.InsertDebugTracers)
+        if (generatorSettings.LogDebug)
         {
             if ( ct.GetElement())
             {

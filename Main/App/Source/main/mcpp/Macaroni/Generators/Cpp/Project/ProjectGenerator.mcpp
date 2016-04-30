@@ -66,18 +66,20 @@ class ProjectGenerator
 
     public static void Lua_Generate(ProjectVersion & version,
                                     Path & rootPath,
-                                    bool debug)
+                                    bool redirectToMcppSource,
+                                    bool logDebug)
         @LuaFunction "Generate"
         @LuaGlueCode ={
             Macaroni::Model::Project::ProjectVersionPtr & arg1
                 = Macaroni::Model::Project::ProjectVersionLuaMetaData::GetInstance(L, 1);
             Macaroni::IO::PathPtr & arg2
                 = Macaroni::IO::PathLuaMetaData::GetInstance(L, 2);
-            bool debug = lua_toboolean(L, 3);
+            bool redirectToMcppSource = lua_toboolean(L, 3);
+            bool logDebug = lua_toboolean(L, 4);
             try
             {
                 Macaroni::Generators::Cpp::Project::ProjectGenerator::Lua_Generate(
-                    *arg1, *arg2, debug);
+                    *arg1, *arg2, redirectToMcppSource, logDebug);
                 return 0;
             }
             catch(const Macaroni::Exception & ex)
@@ -92,15 +94,8 @@ class ProjectGenerator
         }
     {
         GeneratorSettings settings;
-        if (debug)
-        {
-            settings.RedirectToMcppSource = false;
-            settings.InsertDebugTracers = true;
-        }
-        else
-        {
-            settings.InsertDebugTracers = false;
-        }
+        settings.RedirectToMcppSource = redirectToMcppSource;
+        settings.LogDebug = logDebug;
         ProjectGenerator pg(settings, version, rootPath);
         pg.IterateTargets();
     }
@@ -127,7 +122,7 @@ class ProjectGenerator
     public void IterateTargets()
     {
         GeneratedFileWriterPtr debugFile;
-        if (generatorSettings.InsertDebugTracers)
+        if (generatorSettings.LogDebug)
         {
             debugFile =
                 rootPath.NewPathForceSlash("project.debug")->CreateFile();
