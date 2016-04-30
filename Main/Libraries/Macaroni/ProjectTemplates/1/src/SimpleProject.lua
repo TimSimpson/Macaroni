@@ -107,7 +107,6 @@ function SimpleProject(args)
     ---------------------------------------------------------------------------
     local porg = plugins:Get("Porg")
     local cpp = plugins:Get("Cpp")
-    local interface = plugins:Get("InterfaceMh")
     local html = nil;
     if args.htmlView then
         html = plugins:Get("HtmlView")
@@ -134,7 +133,7 @@ function SimpleProject(args)
     local src = args.src or "src";
     local target = args.target or "target";
     local outputPath = filePath(target);
-    local interfacePath = outputPath:NewPath("/Interface.mh")
+    local interfacePath = outputPath:NewPathForceSlash("lib.mh")
 
     -- Exclude the exe and test targets from the library.
     local excludePathStrings = {}
@@ -308,13 +307,6 @@ function SimpleProject(args)
     local lGenerate = function()
       if generated then return end
       generateLess()
-      runWithLoggedErrors(function()
-          interface:Run("Generate", {
-              library=lLib,
-              interfacePath=interfacePath,
-              output = output
-          })
-      end)
 
       runWithLoggedErrors(function()
         bjam:Run("Generate", bjamFlags)

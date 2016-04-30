@@ -9,6 +9,7 @@
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaGlueCode;
 ~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Generators::Cpp::Project::MhFileGenerator;
 ~import Macaroni::Model::Project::ProjectVersion;
 ~import Macaroni::Model::Project::ProjectVersionPtr;
 ~import Macaroni::IO::Path;
@@ -214,6 +215,7 @@ class ProjectGenerator
             LibraryConfigGenerator lcg{lt};
             lcg.WriteFile(rootPath);
             //lcg.WritePchFile(rootPath);
+            MhFileGenerator::Generate(generatorSettings, graph, rootPath, lt);
         }
 
     }

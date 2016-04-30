@@ -27,16 +27,23 @@ class Extern : public Element
     public const optional<string> UsingStatement;
     public const optional<string> ForwardDeclaration;
     public const optional<string> IncludeFile;
+    private Target * target;
 
-    private Extern(Node * node, ReasonPtr reason,
+    private Extern(Target * target,
+                   Node * node, ReasonPtr reason,
                    const optional<string> & usingStatement,
                    const optional<string> & forwardDeclaration,
                    const optional<string> & includeFile)
     :   Element(node, reason),
         UsingStatement(usingStatement),
         ForwardDeclaration(forwardDeclaration),
-        IncludeFile(includeFile)
+        IncludeFile(includeFile),
+        target(target)
     {
+        if (target)
+        {
+            target->AddElement(this);
+        }
     }
 
     public virtual bool Accept(BaseVisitor & v)
@@ -45,6 +52,7 @@ class Extern : public Element
     }
 
     public static ExternPtr Create(
+        TargetPtr target,
         NodePtr parent,
         ReasonPtr reason,
         const optional<string> & usingStatement,
@@ -83,7 +91,7 @@ class Extern : public Element
         }
 
         ExternPtr ptr(
-            new Extern(parent.get(), reason,
+            new Extern(target.get(), parent.get(), reason,
                        usingStatement, forwardDeclaration, includeFile)
         );
         return ptr;
@@ -126,11 +134,23 @@ class Extern : public Element
         intrusive_ptr_release(static_cast<Element *>(p));
     }
 
-    public virtual bool OwnedBy(TargetPtr target) const
+    public virtual bool OwnedBy(TargetPtr targetArg) const
     {
-        // No target owns these as something outside of Macaroni is
-        // responsible for them existing.
-        return false;
+        // Even though these represent something created outside of Macaroni,
+        // a target still owns them.
+        if (!target)
+        {
+            return Element::OwnedBy(targetArg);
+        }
+        if (!targetArg)
+        {
+            return false;
+        }
+        if (*targetArg == *(this->target))
+        {
+            return true;
+        }
+        return this->target->OwnedBy(targetArg.get());
     }
 
     public virtual const char * GetTypeName() const

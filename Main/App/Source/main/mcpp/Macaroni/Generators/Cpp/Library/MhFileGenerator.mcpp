@@ -6,10 +6,13 @@
 ~import boost::format;
 ~import Macaroni::IO::GeneratedFileWriterPtr;
 ~import Macaroni::Generators::Cpp::GeneratorSettings;
+~import Macaroni::Model::Project::LibraryTarget;
 ~import Macaroni::IO::Path;
 ~import std::string;
 ~import Macaroni::Model::Project::Target;
 ~import std::vector;
+
+~namespace Macaroni::Generators::Cpp::Project;
 
 // This creates the an ".mh" file, which is basically a stream-lined
 // Macaroni source file where everything is defined as extern.
@@ -18,9 +21,11 @@ class MhFileGenerator
 {
     public static void Generate(
         const GeneratorSettings & generatorSettings,
-        CodeGraph & graph, Path & rootPath, Target & lib)
+        CodeGraph & graph, Path & rootPath, LibraryTarget & lib)
     {
-        GeneratedFileWriterPtr writer = rootPath.CreateFile();
+        string fileName = str(format("%s.mh") % lib.GetName());
+        GeneratedFileWriterPtr writer
+            = rootPath.NewPathForceSlash(fileName)->CreateFile();
         CppFileWriter cppWriter(boost::none, lib.GetContext()->GetRoot(),
                                 writer, generatorSettings);
 
@@ -30,7 +35,8 @@ class MhFileGenerator
                               % lib.ToString()));
 
         vector<Element *> elementList;
-        lib.CreateElementList(elementList);
+
+        lib.FindAllElementsOwnedByLibraryOrOwnedTargets(elementList);
 
         for (auto e : elementList)
         {

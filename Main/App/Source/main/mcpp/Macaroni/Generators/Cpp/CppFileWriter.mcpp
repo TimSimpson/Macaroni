@@ -1135,15 +1135,25 @@ class CppFileWriter
 
     public void WriteMhExternInclude(optional<string> includeFile)
     {
-        NewLineIfNeeded();
-        write("include=");
-        IncludeFile(includeFile);
+        if (includeFile)
+        {
+            NewLineIfNeeded();
+            write("    include=");
+            if (includeFile.get().size() > 0 && includeFile.get()[0] != '<')
+            {
+                write("<", includeFile.get(), ">");
+            }
+            else
+            {
+                write(includeFile.get());
+            }
+        }
     }
 
     public void WriteMhExternUsingKeyword()
     {
         NewLineIfNeeded();
-        write("using=");
+        write("    using=");
     }
 
     public void WriteNodeName(NodePtr node)

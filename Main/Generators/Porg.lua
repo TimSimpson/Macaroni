@@ -29,6 +29,9 @@ Generator =
 
 
     shouldHaveTarget = function(self, element)
+        if element.TypeName == "Extern" then
+            return false;
+        end
         --if (element.Node.HFilePath ~= nil or (not element.RequiresCppFile)) then
         if (element.Node.HFilePath ~= nil) then
             return false;

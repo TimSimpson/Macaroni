@@ -133,12 +133,72 @@ class CodeTextProducer
      *  in Macaroni source code. */
     public void WriteMhExtern(Element & element)
     {
+        struct NeedsExtern
+        :   public BaseVisitor,
+            public Visitor<Class>,
+            public Visitor<Element>,
+            public Visitor<Enum>,
+            public Visitor<Extern>,
+            public Visitor<FunctionOverload>,
+            public Visitor<Variable>,
+            public Visitor<Typedef>
+        {
+            bool result;
+
+            NeedsExtern()
+            :   result(false)
+            {
+            }
+
+            virtual void Visit(Class & e)
+            {
+                result = true;
+            }
+
+            virtual void Visit(Element & e)
+            {
+                result = false;
+            }
+
+            virtual void Visit(Enum & e)
+            {
+                result = true;
+            }
+
+            virtual void Visit(Extern & e)
+            {
+                result = true;
+            }
+
+            virtual void Visit(FunctionOverload & e)
+            {
+                result = false;
+            }
+
+            virtual void Visit(Typedef & e)
+            {
+                result = true;
+            }
+
+            virtual void Visit(Variable & e)
+            {
+                result = true;
+            }
+        } ne;
+
+        element.Accept(ne);
+        if (!ne.result)
+        {
+            return;
+        }
+
+        writer.NewLineIfNeeded();
         writer.WriteMhExternKeyword();
         writer.Space();
         writer.WriteFullNodeName(element.GetNode());
-        writer.Space();
+        writer.NewLineIfNeeded();
         writer.WriteMhExternInclude(GetIncludeFile(element));
-        writer.Space();
+        writer.NewLineIfNeeded();
         writer.WriteMhExternUsingKeyword();
         writer.OpenBrace();
             writeUsingStatement(element);
@@ -369,6 +429,10 @@ class CodeTextProducer
             if (e.ForwardDeclaration)
             {
                 writer.WriteExternText(e.ForwardDeclaration.get());
+            }
+            else
+            {
+                writer.IncludeFile(e.IncludeFile);
             }
         }
 

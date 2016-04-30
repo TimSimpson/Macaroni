@@ -4,7 +4,7 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+*
  *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -16,6 +16,8 @@
 #ifndef MACARONI_PARSER_PIPPY_PIPPYPARSER_CPP
 #define MACARONI_PARSER_PIPPY_PIPPYPARSER_CPP
 
+#include <algorithm>
+#include <cctype>
 #include <Macaroni/ME.h>
 #include <Macaroni/Model/AnnotationTable.h>
 #include <Macaroni/Model/AnnotationValue.h>
@@ -1947,15 +1949,27 @@ public:
     	boost::optional<std::string> forward;
     	boost::optional<std::string> include;
 
+    	bool exportThis = false;
 		while(true)
 		{
 			ConsumeWhitespace(itr);
 			if (itr.ConsumeWord("using")) {
 				externField(itr, usingS);
+				if (usingS
+					&& std::all_of(usingS.get().begin(), usingS.get().end(),
+						           std::isspace))
+				{
+					// For reasons that are hard to get into (i.e. laziness)
+					// sometimes generated code may have empty using statements.
+					// In these cases just set it to boost::none.
+					usingS = boost::none;
+				}
 			} else if (itr.ConsumeWord("forward")) {
 				externField(itr, forward);
 			} else if (itr.ConsumeWord("include")) {
 				externField(itr, include, true);
+		 	} else if (itr.ConsumeWord("export")) {
+		 		exportThis = true;
 			} else if (itr.ConsumeChar(';')) {
 				break;
 			} else {
@@ -1965,7 +1979,14 @@ public:
 		}
 
 		NodePtr home = currentScope->FindOrCreate(name);
+
+		TargetPtr tHome;
+		if (exportThis)
+		{
+			tHome = deduceTargetHome(currentScope);
+		}
 		Extern::Create(
+			tHome,
 			home,
 			Reason::Create(CppAxioms::ExternCreation(), startItr.GetSource()),
 			usingS, forward, include

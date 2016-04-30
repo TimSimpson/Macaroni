@@ -38,9 +38,11 @@ end
 
 function Generate(self)
 	log.Init("InterfaceMh");
+    error("Sorry, I'm dead.") -- Monster Party quote FTW
 	log.Write = function(self2, msg)
 			-- print("[InterfaceMh]:" .. msg);
 		end;
+
     log:Write( "Generating Macaroni Header File\n");
     targetLibrary = self.library;
     local gen = MhFileGenerator.new(self.output, self.interfacePath,
