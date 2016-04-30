@@ -5,6 +5,7 @@
 ~import Macaroni::Exceptions::SimpleStringException;
 ~import boost::format;
 ~import std::string;
+~import std::stringstream;
 ~import std::vector;
 
 ~namespace Macaroni::Generators::Cpp;
@@ -60,7 +61,7 @@ class CodeTextSorter
         }
     }
 
-    public vector<CodeText *> Sort()
+    public vector<CodeText *> Sort() const
     {
         //http://www.boost.org/doc/libs/1_57_0/libs/graph/doc/using_adjacency_list.html
 
@@ -231,13 +232,75 @@ class CodeTextSorter
         MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(
             CycleError,  "Two bits of text which need to be generated both "
                          "depend on each other: %s.");
+        MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(
+            SortError,  "%s.");
     }
+
+    public vector<CodeText *> SortWithValidation(const string & sortListName) const //const int mustKeepId) const
+    {
+        vector<CodeText *> initialResult = Sort();
+
+        /*auto hasId = [=mustKeepId] (vector<CodeText *> & ctList)
+        {
+            // Use <algorithm>
+            for (CodeText * ct : ctList)
+            {
+                if (ct->GraphId() == mustKeepId)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }*/
+
+        if (items.size() == (initialResult.size() - 3)) //hasId(initialResult))
+        {
+            return initialResult;  // Everything is good!
+        }
+
+        // Crash and burn time. For some reason some expected item didn't make
+        // it out of the sorting process.
+
+        for (int i = 0; i < items.size(); ++ i)
+        {
+            CodeTextSorter copy = *this;
+            copy.items.erase(copy.items.begin() + i + 1, copy.items.end());
+            vector<CodeText *> result = copy.Sort();
+            if (copy.items.size() != (result.size() - 3))//(!hasId(result))
+            {
+                stringstream msg;
+                msg << "Error sorting code text list (for \"" << sortListName
+                    << "\", size=" << items.size()
+                    << ") : (input size=" << copy.items.size()
+                    << ", output size=" << result.size()
+                    << " [minus 3 for the extra code dividers added to each "
+                        "sort) "
+                       "after adding the following element at index " << i
+                    << ":\n";
+                CodeText::PrettyPrint(msg, *items[i], 0);
+                msg << "\nThis last sort sent in " << copy.items.size()
+                    << " element(s) but saw only " << result.size()
+                    << " returned in the list. It may be that somehow this is"
+                    << " not a DAG.";
+                string s = msg.str();
+                throw SortError(s.c_str());
+            }
+        }
+
+        stringstream msg;
+        msg << "Error sorting code text list (" << sortListName
+            << ", size=" << items.size()
+            << ") : couldn't find anything suspicious in the list.";
+        string s = msg.str();
+        throw SortError(s.c_str());
+    }
+
     // This is not a very efficient function to say the least, but it only
     // runs right before an exception is thrown which will halt all progress
     // anyway.
     // I should probably usethe Boost Graph library to find the cycle
     // quicker but it was taking awhile to read through those docs...
-    ~hidden void throwSortError()
+    ~hidden void throwSortError() const
     {
         const unsigned int size = ((unsigned int)CodeText::MaxGraphId());
         std::vector<bool> table(size * size);

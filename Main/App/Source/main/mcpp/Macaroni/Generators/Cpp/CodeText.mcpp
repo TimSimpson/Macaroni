@@ -235,11 +235,27 @@ class CodeText
     public ~global ~friend ostream & operator<<(ostream & out,
                                                 const CodeText & ct)
     {
-		std::vector<const CodeText *> seen;
-        out << "[" << ct.GraphId() << "] ";
-        CodeText::printToStream(seen, out, ct);
+        CodeText::printStart(out, ct, false, 0);
         return out;
     }
+
+    public static void PrettyPrint(ostream & out, const CodeText & ct,
+                                   int startTabs=0)
+    {
+        printStart(out, ct, true, startTabs);
+    }
+
+    ~hidden static void printStart(ostream & out,
+                                   const CodeText & ct,
+                                   bool withNewLines,
+                                   int startTabs)
+    {
+
+        std::vector<const CodeText *> seen;
+        out << "[" << ct.GraphId() << "] ";
+        CodeText::printToStream(seen, out, ct, withNewLines, startTabs);
+    }
+
 
     public string ShortString() const
     {
@@ -248,22 +264,32 @@ class CodeText
 
     // This extra function helps us avoid cycles by keeping track of where
     // we started iterating from.
-	private static void printToStream(
-		std::vector<const CodeText *> history,
-		ostream & out,
-        const CodeText & ct)
+    private static void printToStream(
+        std::vector<const CodeText *> history,
+        ostream & out,
+        const CodeText & ct,
+        bool withNewLines,
+        int tabs=0)
     {
         if (std::find(history.begin(), history.end(), &ct) != history.end())
         {
             out << "<CYCLE! ";
-            out << ct.element->GetNode()->GetFullName()
-                << " appears again s a dependency in this chain>";
+            out << ct.codeType << " of ";
+            if (ct.element && ct.element->GetNode())
+            {
+                out << ct.element->GetNode()->GetFullName();
+            }
+            else
+            {
+                out << "<none>";
+            }
+            out << " appears again s a dependency in this chain>";
             return;
         }
         history.push_back(&ct);
 
         out << ct.codeType;
-        out << ", ";
+        out << " of ";
         if (ct.element && ct.element->GetNode())
         {
             out << ct.element->GetNode()->GetFullName();
@@ -272,21 +298,43 @@ class CodeText
         {
             out << "<none>";
         }
-        out << ", (";
+        out << " {"; // }
+        ++ tabs;
         bool seenOne = false;
         for (auto * dep : ct.dependsOn)
         {
-            if (seenOne)
-            {
-                out << ", ";
-            }
             if (dep)
             {
-                printToStream(history, out, *dep);
+                if (withNewLines)
+                {
+                    out << "\n" << string((tabs * 2), ' ');
+                }
+                else
+                {
+                    if (seenOne)
+                    {
+                        out << ", ";
+                    }
+                }
+                printToStream(history, out, *dep, withNewLines, tabs);
                 seenOne = true;
             }
         }
-        out << ")";
+        tabs --;
+        if (withNewLines)
+        {
+            if (seenOne)
+            {
+                out << "\n" << string((tabs * 2), ' ');
+            }
+            // {
+            out << "}\n"  << string((tabs * 2), ' ');
+        }
+        else
+        {
+            // {
+            out << "} ";
+        }
     }
 
 };
