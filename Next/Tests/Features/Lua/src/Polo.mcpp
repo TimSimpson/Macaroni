@@ -46,7 +46,6 @@ namespace Macaroni::Tests::Lua
 //MDOC-END PoloPtrDef
 }
 
-~unit "Macaroni/Tests/Lua/Polo" ;
 
 namespace Macaroni::Tests::Lua
 {
@@ -96,11 +95,19 @@ namespace Macaroni::Tests::Lua
 		}
 //MDOC-END PoloFunction
 
-		public ~friend ~global void intrusive_ptr_add_ref(Polo * p);
+		public ~friend ~global void intrusive_ptr_add_ref(Polo * p)
+		{
+			p->refCount ++;
+		}
 
-		//friend intrusive_ptr_add_ref;
-
-		public ~friend ~global void intrusive_ptr_release(Polo * p);
+		public ~friend ~global void intrusive_ptr_release(Polo * p)
+		{
+			p->refCount --;
+			if (p->refCount <= 0)
+			{
+				delete p;
+			}
+		}
 
 		// friend intrusive_ptr_release;
 
@@ -192,22 +199,5 @@ namespace Macaroni::Tests::Lua
 		}
 
 	};
-
-
-	void intrusive_ptr_add_ref(Polo * p)
-	{
-		p->refCount ++;
-	}
-
-	//friend intrusive_ptr_add_ref;
-
-	void intrusive_ptr_release(Polo * p)
-	{
-		p->refCount --;
-		if (p->refCount <= 0)
-		{
-			delete p;
-		}
-	}
 
 } //end ns

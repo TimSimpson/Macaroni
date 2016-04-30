@@ -7,14 +7,13 @@
 
 class GoDog
 {
+    public ~global int main(const char * args, int argc)
+    {
+        using namespace og;
+        std::cout << "HELLO DOGGY.";
+        Dog dog;
+        std::cout << "Dogs have " << dog.GetLegs() << " leg(s).";
+        return 0;
+    }
 };
-
-int main(const char * args, int argc)
-{
-    using namespace og;
-    std::cout << "HELLO DOGGY.";
-    Dog dog;
-    std::cout << "Dogs have " << dog.GetLegs() << " leg(s).";
-    return 0;
-}
 

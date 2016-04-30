@@ -3639,7 +3639,10 @@ public:
 			TargetPtr tHome;
 
 			ClassPtr classPtr = currentScope->GetElement<ClassPtr>();
-			if (!classPtr && !currentScope->GetElement<FunctionOverloadPtr>())
+			// Free-standing functions should be linked to a target just like
+			// classes.
+			if ((globalHome || !classPtr)
+				 && !currentScope->GetElement<FunctionOverloadPtr>())
 			{
 				tHome = deduceTargetHome(currentScope);
 			}
@@ -3713,7 +3716,7 @@ public:
 			// Otherwise give it one.
 			TargetPtr tHome;
 			boost::optional<ImportList> imports = boost::none;
-			if (classDepth < 1)
+			if (globalHome || (classDepth < 1))
 			{
 				imports = currentImports();
 				tHome = deduceTargetHome(currentScope);
