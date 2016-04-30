@@ -256,7 +256,8 @@ class CodeTextProducer
             }
             // Finally if its a class or typedef, make up an hfile.
             if (node->GetElementPtr<Class>()
-                || node->GetElementPtr<Typedef>())
+                || node->GetElementPtr<Typedef>()
+                || node->GetElementPtr<Enum>())
             {
                 TargetPtr p = node->GetElementPtr()->GetOwner();
                 Target * t = p.get();
