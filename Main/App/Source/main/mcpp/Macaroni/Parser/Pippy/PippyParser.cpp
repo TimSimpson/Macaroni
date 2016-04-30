@@ -937,7 +937,7 @@ public:
 		{
 			// leave this the hell alone.
 		}
-		if (currentTargetIsLibrary())
+		else if (currentTargetIsLibrary())
 		{
 			// We're just chilling *wherever* and have defined a class.
 			// Assume we want to make an implicit UnitTarget.
