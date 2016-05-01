@@ -829,7 +829,8 @@ class CodeTextProducer
 
         virtual void Visit(Enum & e)
         {
-            if (e.IsClassEnum())
+            if (e.IsClassEnum()
+                && (!e.GetNode()->GetParent()->GetElementPtr<Class>()))
             {
                 writer.UsingStatement(e);
             }
@@ -856,7 +857,10 @@ class CodeTextProducer
 
         virtual void Visit(Typedef & e)
         {
-            writer.UsingStatement(e);
+            if (!e.GetNode()->GetParent()->GetElementPtr<Class>())
+            {
+                writer.UsingStatement(e);
+            }
         }
 
         virtual void Visit(Variable & e)
