@@ -675,6 +675,12 @@ class CodeTextProducer
             {
                 writer.EnterNamespace(e.GetNode()->GetParent());
             }
+            else if (!owningClass)
+            {
+                // We'll generate this later, when we generate the class.
+                return;
+
+            }
             writer.WriteEnumKeyword();
             if (e.IsClassEnum())
             {
@@ -760,6 +766,12 @@ class CodeTextProducer
             }
             else
             {
+                if (e.GetNode()->GetParent()->GetElementPtr<Class>())
+                {
+                    // We're nested under a class, but aren't generating that
+                    // class atm, so quit.
+                    return;
+                }
                 writer.EnterNamespace(e.GetNode()->GetParent());
                 writer.InsertEmptyLine();
             }
