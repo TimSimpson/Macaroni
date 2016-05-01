@@ -3138,23 +3138,31 @@ public:
 	}
 
 
-	boost::optional<CvQualifier> TypeCvQualifiers(Iterator & itr)
+	boost::optional<CvQualifier> TypeCvQualifiers(
+		Iterator & itr,
+		const SimpleTypeModifiers & modifiers)
 	{
-		ConsumeWhitespace(itr);
+		Iterator newItr = itr;
 
-		if (itr.ConsumeWord("const") && !(itr.IsAlpha() || itr.IsDigit()))
+		if (!modifiers.Const() && ConstKeyword(newItr)
+			&& !(newItr.IsAlpha() || newItr.IsDigit()))
 		{
-			ConsumeWhitespace(itr);
+			ConsumeWhitespace(newItr);
+			itr = newItr;
 			return CvQualifier::Const;
 		}
-		else if (itr.ConsumeWord("mutable") && !(itr.IsAlpha() || itr.IsDigit()))
+		else if (!modifiers.Mutable() && newItr.ConsumeWord("mutable")
+			     && !(newItr.IsAlpha() || newItr.IsDigit()))
 		{
-			ConsumeWhitespace(itr);
+			ConsumeWhitespace(newItr);
+			itr = newItr;
 			return CvQualifier::Mutable;
 		}
-		else if (itr.ConsumeWord("volatile") && !(itr.IsAlpha() || itr.IsDigit()))
+		else if (!modifiers.Volatile() && newItr.ConsumeWord("volatile")
+			     && !(newItr.IsAlpha() || newItr.IsDigit()))
 		{
-			ConsumeWhitespace(itr);
+			ConsumeWhitespace(newItr);
+			itr = newItr;
 			return CvQualifier::Volatile;
 		}
 		else
@@ -3169,9 +3177,9 @@ public:
 	bool SimpleTypeModifiers1(Iterator & itr, SimpleTypeModifiers & modifiers)
 	{
 		ConsumeWhitespace(itr);
-		decltype(TypeCvQualifiers(itr)) cvq;
+		boost::optional<CvQualifier> cvq;
 		bool sawSomething = false;
-		while(boost::none != (cvq = TypeCvQualifiers(itr)))
+		while(boost::none != (cvq = TypeCvQualifiers(itr, modifiers)))
 		{
 			if (modifiers.HasCvQualifier(cvq.get()))
 			{
