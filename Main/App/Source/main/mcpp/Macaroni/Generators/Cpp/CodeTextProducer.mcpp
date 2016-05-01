@@ -946,10 +946,11 @@ class CodeTextProducer
 
         virtual void Visit(ConstructorOverload & co)
         {
-            if (co.UsesInlineKeyword() || !co.HasCodeBlock())
+            if (!co.RequiresCppFile())
             {
                 return;
             }
+
             MACARONI_ASSERT(owningClass != nullptr, "Null owner for ctor?");
             writer.InsertEmptyLine();
             writer.LibDecl();
@@ -963,6 +964,11 @@ class CodeTextProducer
 
         virtual void Visit(Destructor & co)
         {
+            if (!co.RequiresCppFile())
+            {
+                return;
+            }
+
             MACARONI_ASSERT(owningClass != nullptr, "Null owner for dtor?");
             FunctionOverloadPtr foPtr = co.GetFunctionOverload();
             MACARONI_ASSERT(foPtr, "Destructor's function overload is null?");
@@ -1003,11 +1009,11 @@ class CodeTextProducer
 
         virtual void Visit(FunctionOverload & e)
         {
-            if (e.UsesInlineKeyword() || !e.HasCodeBlock()
-                || e.GetTemplateParameterList() || e.IsPureVirtual())
+            if (!e.RequiresCppFile())
             {
                 return;
             }
+
             if (!owningClass)
             {
                 writer.EnterNamespace(e.GetNode()->GetParent()->GetParent());
