@@ -388,6 +388,15 @@ class CodeTextProducer
 
         virtual void Visit(Class & e)
         {
+            // Have to account for the bastard ~hfile keyword, which was
+            // used before ~extern to create external things.
+            if (e.GetNode()->GetHFilePath())
+            {
+                writer.IncludeFile(CodeTextProducer::GetIncludeFile(e));
+                return;
+            }
+
+
             writer.EnterNamespace(e.GetNode()->GetParent());
             startTemplateItem(writer, e);
             writer.WriteClassKeyword();
