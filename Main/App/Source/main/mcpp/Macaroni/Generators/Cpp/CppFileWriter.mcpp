@@ -267,6 +267,8 @@ class CppFileWriter
 
     public void ConstructorImplementationName(Class & c)
     {
+        // Deal with nested classes.
+        functionOwningClassName(c.GetNode().get());
         ClassName(c);
         write("::");
         ClassName(c);
@@ -302,6 +304,8 @@ class CppFileWriter
 
     public void DestructorImplementationName(Class & c)
     {
+        // Deal with nested classes.
+        functionOwningClassName(c.GetNode().get());
         ClassName(c);
         write("::~");
         ClassName(c);
@@ -555,15 +559,26 @@ class CppFileWriter
         FunctionCodeBlock(fo);
     }
 
-    public void FunctionName(FunctionOverload & fo)
+    // Given the function Node, print out a class if one exists.
+    ~hidden void functionOwningClassName(Node * node)
     {
-        auto fNode = fo.GetNode()->GetParent();
-        auto classPtr = fNode->GetParent()->GetElementPtr<Class>();
+        Node * parent = node->GetParent().get();
+        auto classPtr = parent->GetElementPtr<Class>();
         if (classPtr)
         {
+            // To handle nested classes, recurse one more time just in case.
+            functionOwningClassName(parent);
             ClassName(*classPtr);
             write("::");
         }
+    }
+
+    public void FunctionName(FunctionOverload & fo)
+    {
+        auto fNode = fo.GetNode()->GetParent();
+
+        functionOwningClassName(fNode.get());
+
         WriteNodeName(fNode);
     }
 
