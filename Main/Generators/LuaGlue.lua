@@ -1152,23 +1152,22 @@ namespace
 				log:Write("imports[".. i .. "]=".. tostring(imports[i]));
 			end
 			-- Mix all imports of the wrapped node with this one.
-			-- TODO: "ImportedNodes" aren't available in Macaroni IV, so I'm
-			--       not sure what to do here.
-			--[[
-			local otherImports = self.originalNode.Member.ImportedNodes;
+
+			local otherImports = self.originalNode.Member.GetImportedNodes;
 			if otherImports ~= nil then
 				for i = 1, #otherImports do
-					local otherImport = otherImports[i];
-					imports[#imports + 1] = otherImport;
-					success, args = pcall(function()
-						return self.parent:LuaWrapperArguments(otherImport);
-					end)
-					if success then
-						imports[#imports + 1] = args.metaNode;
+					if otherImports[i].Type == "Normal" then
+						local otherNode = otherImports[i].Node;
+						imports[#imports + 1] = otherNode;
+						success, args = pcall(function()
+							return self.parent:LuaWrapperArguments(otherNode);
+						end)
+						if success then
+							imports[#imports + 1] = args.metaNode;
+						end
 					end
 				end
 			end
-			]]--
 
 			if MACARONI_VERSION=="0.1.0.18" then
 				local metaClass = Class.Create(CurrentLibrary, self.metaNode,

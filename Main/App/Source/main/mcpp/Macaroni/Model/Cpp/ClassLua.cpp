@@ -20,6 +20,8 @@
 #include <Macaroni/Model/Cpp/AccessLuaMetaData.h>
 #include <Macaroni/Model/Cpp/ClassParentListLuaMetaData.h>
 #include "../ElementLua.h"
+#include <Macaroni/Model/Import.h>
+#include <Macaroni/Model/ImportList.h>
 #include "../NodeLua.h"
 #include "../NodeListLua.h"
 #include <Macaroni/Model/ReasonLuaMetaData.h>
@@ -141,11 +143,28 @@ END_NAMESPACE
 			NodeListPtr list = ptr->GetGlobalNodes();
 			NodeListLuaMetaData::PutInstanceOnStack(L, list);
 		}
-		else if (index == "ImportedNodes")
+		else if (index == "GetImportedNodes")
 		{
-			luaL_error(L, "Not available, sorry.");
-			//NodeListPtr list = ptr->GetImportedNodes();
-			//NodeListLuaMetaData::PutInstanceOnStack(L, list);
+			const ImportList & imports = ptr->GetImportedNodes();
+			lua_createtable(L, imports.size(), 0);
+			for (unsigned int i = 0; i < imports.size(); ++ i)
+			{
+				lua_pushinteger(L, i + 1);
+				lua_createtable(L, 0, 2);
+					lua_pushstring(L, "Node");
+					NodePtr ref(&(imports[i].GetNode()));  // glad this is intrusive
+					NodeLuaMetaData::PutInstanceOnStack(L, ref);
+					lua_settable(L, -3);
+
+					lua_pushstring(L, "Type");
+					lua_pushstring(L,
+						((imports[i].GetType() == ImportType::Normal)
+							? "Normal" : "H"));
+					lua_settable(L, -3);
+
+				lua_settable(L, -3);
+			}
+			return 1;
 		}
 		else if (index == "Parents")
 		{
