@@ -29,7 +29,8 @@ Generator =
 
 
     shouldHaveTarget = function(self, element)
-        if element.TypeName == "Extern" then
+        if element.TypeName ~= "Class" and element.TypeName ~= "Typedef"
+            and element.TypeName ~= "Enum" then
             return false;
         end
         --if (element.Node.HFilePath ~= nil or (not element.RequiresCppFile)) then
