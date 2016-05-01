@@ -1,3 +1,4 @@
+~import Macaroni::Model::Cpp::Access;
 ~import Macaroni::Core::BaseVisitor;
 ~import boost::intrusive_ptr;
 ~import Macaroni::Lua::LuaClass;
@@ -36,13 +37,15 @@ class Enum : public Scope
         #include <Macaroni/Model/ElementLua.h>
     } //;
 {
+    private Access access;
     private bool isClass;  // True if this is a C++11 class enum.
     private TypePtr sizeType;  // For C++11 style enums.
     private map<string, optional<string>> values;
 
     protected Enum(Target * target, Node * node, ReasonPtr reason,
-                   bool isClass, TypePtr sizeType)
+                   bool isClass, TypePtr sizeType, Access access)
     :   Scope(target, node, reason),
+        access(access),
         isClass(isClass),
         sizeType(sizeType)
     {
@@ -50,10 +53,10 @@ class Enum : public Scope
 
     public static EnumPtr Create(TargetPtr target, NodePtr home,
                                  ReasonPtr reason, bool isClass,
-                                 TypePtr sizeType)
+                                 TypePtr sizeType, Access access)
     {
         EnumPtr ptr(new Enum(target.get(), home.get(), reason,
-                             isClass, sizeType));
+                             isClass, sizeType, access));
         return ptr;
     }
 
@@ -71,6 +74,13 @@ class Enum : public Scope
     public bool CapableOfForwardDefinition() const
     {
         return isClass || sizeType;
+    }
+
+    public AccessPtr GetAccess() const
+        @LuaProperty "Access"
+    {
+        AccessPtr aPtr(new Access(this->access));
+        return aPtr;
     }
 
     public TypePtr GetSizeType()

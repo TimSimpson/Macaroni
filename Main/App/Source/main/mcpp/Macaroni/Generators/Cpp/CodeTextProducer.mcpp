@@ -675,12 +675,16 @@ class CodeTextProducer
             {
                 writer.EnterNamespace(e.GetNode()->GetParent());
             }
-            else if (!owningClass)
+            else
             {
-                // We'll generate this later, when we generate the class.
-                return;
-
+                if (!owningClass)
+                {
+                    // We'll generate this later, when we generate the class.
+                    return;
+                }
+                writer.ClassMemberAccess(e.GetAccess());
             }
+
             writer.WriteEnumKeyword();
             if (e.IsClassEnum())
             {

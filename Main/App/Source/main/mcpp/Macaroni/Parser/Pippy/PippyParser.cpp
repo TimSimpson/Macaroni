@@ -1872,6 +1872,16 @@ public:
 		Iterator newItr = itr;
 		ConsumeWhitespace(newItr);
 
+		AccessPtr access = AccessKeyword(newItr);
+		if (*access == *Access::NotSpecified())
+		{
+			access = currentAccess;
+		}
+		else
+		{
+			newItr.ConsumeWhitespace();
+		}
+
 		if (!newItr.ConsumeWord("enum"))
 		{
 			return false;
@@ -1908,7 +1918,7 @@ public:
 		auto ePtr = Enum::Create(tHome, currentScope,
 								 Reason::Create(CppAxioms::EnumCreation(),
 								 	            newItr.GetSource()),
-								 isClass, sizeType);
+								 isClass, sizeType, *access);
 
 		// Parse annotations.
 		while(Annotation(newItr));
