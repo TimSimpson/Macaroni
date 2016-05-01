@@ -18,15 +18,11 @@
 ~import Macaroni::StringException;
 ~import std::vector;
 ~import Macaroni::Cpp::UseLightDef;
+~import Macaroni::IO::FileSet;
+
 
 ~namespace Macaroni::IO;
 
-class FileSet {};
-class RegexFileSetIterator {};
-
-~import Macaroni::IO::FileSet;
-~import Macaroni::IO::RegexFileSetIterator;
-~import Macaroni::IO::RelativeFileSet;
 
 typedef intrusive_ptr<FileSet ~l> FileSetPtr
 	@LuaClass [ SameAsNode = FileSet ]
@@ -69,28 +65,6 @@ class FileSet
 	}
 
 	public virtual ~FileSet() = default;
-
-	/** Creates a set of files given by a Regex applied to some path.
-	 *  Every file in the set will be relative to the path argument. */
-	public static FileSetPtr CreateRegex(const string & pathStr,
-		                                 const string & regex)
-		@LuaFunction "CreateRegex"
-	{
-		path p(pathStr);
-		FileSetPtr ptr(new RegexFileSet(p, regex));
-		return ptr;
-	}
-
-	/** Creates a set of files given by a regex applied to some relative path.
-	 *  Every file in the set will be relative to the root path of the
-	 *  relative path argument. */
-	public static FileSetPtr CreateRelative(PathPtr relativePath,
-		                                    const string & regex)
-		@LuaFunction "CreateRelative"
-	{
-		FileSetPtr ptr(new RelativeFileSet(*relativePath, regex.c_str()));
-		return ptr;
-	}
 
 	/** Returns the paths as a list, not an iterator. This is mainly
 	 *  useful from Lua code. */
