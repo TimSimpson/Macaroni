@@ -4,7 +4,7 @@ require "SimpleProject"
 ParentProject{
   group="Macaroni",
   project="Macaroni.Next",
-  version="0.3.2",
+  version="0.4.0",
   children={
     "Tests",
     "Release",
