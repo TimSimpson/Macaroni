@@ -1,0 +1,103 @@
+platform:
+  - Win32
+
+os: Visual Studio 2013
+
+environment:
+  BOOST_ROOT: C:\Libraries\boost_1_58_0
+  BOOST_LIBRARYDIR: C:\Libraries\boost_1_58_0\lib64-msvc-12.0
+
+  matrix:
+  - {}
+
+install:
+  - echo Downloading macdeps
+  - ps: Start-FileDownload 'http://885875f368d47bdd75f4-fccc9ce7610ca8b8e6180232413c69c8.r20.cf2.rackcdn.com/macdeps.zip' -FileName 'C:\Libraries\macdeps.zip'
+  - echo unzipping
+  - 7z x C:\Libraries\macdeps.zip  -oC:\Libraries\ -r
+  - echo Installing Macaroni
+  - choco install macaroni
+  - mkdir "%USERPROFILE%\Macaroni"
+  - echo 'Writing init.lua and site-config.jam...'
+  - cp %APPVEYOR_BUILD_FOLDER%\Ci\AppVeyor\init.lua %USERPROFILE%\Macaroni\init.lua
+  - cp %APPVEYOR_BUILD_FOLDER%\Ci\AppVeyor\site-config.jam %USERPROFILE%\site-config.jam
+  - SET PATH=%PATH%;C:\Python27\Scripts
+  - pip install sphinx
+
+build_script:
+  - cmd: >-
+      echo Time to build Bjam
+
+      cd C:\Libraries\boost_1_58_0
+
+      bootstrap
+
+      SET PATH=%PATH%;C:\Libraries\boost_1_58_0
+
+      SET PATH=%PATH%;C:\Python27;C:\Python27\Scripts
+
+      echo What does init.lua look like?
+
+      type "%USERPROFILE%\Macaroni\init.lua"
+
+      echo And site config?
+
+      type "%USERPROFILE%\site-config.jam"
+
+      echo Mystery of Libraries dir?
+
+      dir C:\Libraries
+
+      echo Is my friend Bjam there?
+
+      dir C:\Libraries\boost_1_58_0
+
+      echo "Installing Lua library"
+
+      cd %APPVEYOR_BUILD_FOLDER%\Main\Dependencies\Lua
+
+      call macaroni -i
+
+      echo MoonscriptDeps time.
+
+      cd ..\MoonscriptDeps
+
+      call macaroni -i
+
+      cd %APPVEYOR_BUILD_FOLDER%\Main\App
+
+      macaroni --messagesPath Source\main\resources\Messages.txt --libraryRepoPath=..\Libraries  -g  --showPaths --printTimes --verbose -b -o "link=static toolset=msvc-12.0 -j8"
+
+test_script:
+  - cmd: >-
+      echo Running integration tests
+
+      echo Setting tools for Path
+
+      SET PATH=%PATH%;C:\Libraries\boost_1_58_0
+
+      SET CAVATAPPI=%APPVEYOR_BUILD_FOLDER%\Main\Cavatappi
+
+      SET PATH=%PATH%;C:\Libraries\boost_1_58_0;%CAVATAPPI%
+
+      SET PATH=%PATH%;C:\Python27
+
+      cd %APPVEYOR_BUILD_FOLDER%\Next\Tests
+
+      cavatappi -c -i
+
+      cd %APPVEYOR_BUILD_FOLDER%\Next\Release
+
+      cavatappi -b
+
+      appveyor Push-AppveyorArtifact Main\GeneratedSource\exe\macaroni.exe
+      appveyor Push-AppveyorArtifact Main\Cavatappi\cavatappi.bat
+
+
+artifacts:
+  - path: Main\GeneratedSource\exe\macaroni.exe
+    name: macaroni.exe
+  - path: appveyor.yml
+    name: test-arty
+  - path: Next\Release\target\*
+    name: release

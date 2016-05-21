@@ -31,6 +31,7 @@ end
 function copyFiles(src, dst, regex)
     -- Copy all files from the src directory into the dst directory
     -- if they match regex.
+    if not dst then error("dst arg was nil", 2) end
     local filePaths = src:GetPaths(regex)
     for i = 1, #filePaths do
         local fp = filePaths[i];
@@ -59,29 +60,31 @@ function zipDirectory(dstPath)
     os.execute(cmd)
 end
 
-function createDistributionDirectory(jamConfig, weirdTag, ext, dstDir, errorHint)
-    local macaroniBinary = newPath(
-        "../../Main/App/PureCpp/bin/" .. jamConfig
+function createDistributionDirectory(args)
+    local macaroniBinary = args.macaroniBinary
+    if not macaroniBinary then
+        macaroniBinary = newPath(
+        "../../Main/App/PureCpp/bin/" .. args.binPath
          .. "/link-static/threading-multi"):NewPath("/macaroni"
-        .. weirdTag .. ext)
+        .. args.weirdTag .. args.ext)
+    end
     if not macaroniBinary.Exists then
         output:ErrorLine("Missing file " .. macaroniBinary.AbsolutePath .. "!")
-        output:ErrorLine("Hint:" .. errorHint)
+        output:ErrorLine("Hint:" .. args.errorHint)
         error("Missing Macaroni binary.")
     end
-    createDistributionDirectoryBase(dstDir)
-    macaroniBinary:CopyTo(dstDir:NewPathForceSlash("macaroni" .. ext), true);
+    createDistributionDirectoryBase(args.dstDir)
+    macaroniBinary:CopyTo(args.dstDir:NewPathForceSlash("macaroni" .. args.ext), true);
     newPath("../../Main/App/Source/main/resources"):NewPath("/Messages.txt")
-        :CopyToDifferentRootPath(dstDir, true);
+        :CopyToDifferentRootPath(args.dstDir, true);
 end
 
 
 function createDistributionDirectoryAndZip(args)
     local dstPath = "target/macaroni-" .. version .. args.tag
-    local dstDir = newPath(dstPath);
-    createDistributionDirectory(args.binPath, args.weirdTag,
-                                args.ext, dstDir, args.errorHint)
-    zipDirectory(dstDir)
+    args.dstDir = newPath(dstPath);
+    createDistributionDirectory(args);
+    zipDirectory(args.dstDir)
 end
 
 
@@ -118,12 +121,14 @@ function createDistributionArgs(args)
     return distArgs;
 end
 
-function createDistribution(args)
+function createUniqueDistribution(args)
+    -- Use BJAM to make a special distribution for a specific platform.
     local distArgs = createDistributionArgs(args)
     createDistributionDirectoryAndZip(distArgs);
 end
 
 function createDistributionDirectoryBase(dstDir)
+    if not dstDir then error("dstDir was nil", 2) end
     copyFiles(newPath("../../Main"):NewPath("/Generators"),
               dstDir, [[\.lua?$]]);
     copyFiles(newPath("../../Main"):NewPath("/Libraries"),
@@ -204,6 +209,12 @@ function buildWebSite()
 
 end
 
+function zipWebSite()
+    local dstDir = newPath("target/site");
+    zipDirectory(dstDir);
+end
+
+
 function clean()
     newPath("target"):ClearDirectoryContents();
 end
@@ -219,14 +230,43 @@ function build()
 
     createPureCpp();
 
-    buildWebSite()
+    buildWebSite();
 
-    -- createDistribution{windows=true,  release=false, bits=32 };
-    createDistribution{windows=true,  release=true, bits=32  };
-    --createDistribution{windows=false, release=false, bits=32 };
-    createDistribution{windows=false, release=true,  bits=32 };
-    -- createDistribution{windows=false, release=false, bits=64 };
-    -- createDistribution{windows=false, release=true,  bits=64 };
+    zipWebSite();
+
+    local binDir = newPath("../../Main/App/GeneratedSource/exe");
+    local linuxBin = binDir:NewPathForceSlash("macaroni");
+    local winBin = binDir:NewPathForceSlash("macaroni.exe");
+
+
+    local bin = nil
+    local tag = nil
+    local ext = nil
+    if winBin.Exists then
+        bin = winBin
+        tag = "-windows"
+        ext = ".exe"
+    else
+        bin = linuxBin
+        tag = "-linux"
+        ext = ""
+    end
+
+    createDistributionDirectoryAndZip{
+        macaroniBinary=bin,
+        tag=tag,
+        bits=32,
+        ext=ext,
+        errorHint="Shrug Emoji",
+    };
+
+
+    -- createUniqueDistribution{windows=true,  release=false, bits=32 };
+    -- createUniqueDistribution{windows=true,  release=true, bits=32  };
+    --createUniqueDistribution{windows=false, release=false, bits=32 };
+    -- createUniqueDistribution{windows=false, release=true,  bits=32 };
+    -- createUniqueDistribution{windows=false, release=false, bits=64 };
+    -- createUniqueDistribution{windows=false, release=true,  bits=64 };
 end
 
 function document()
