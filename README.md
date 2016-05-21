@@ -1,6 +1,8 @@
 Macaroni for C++
 ================
 
+[![Build status](https://ci.appveyor.com/api/projects/status/q3ph7cjv7r3xw6j1?svg=true)](https://ci.appveyor.com/project/TimSimpson/macaroni)
+
 <img align="right" src="http://border-town.com/macaroni/images/Maccy.png" />
 
 Macaroni for C++ aims to make writing C++ code quick and fun.
