@@ -20,6 +20,11 @@ class CodeText
     private int graphId;                    // Used by Boost's graph stuff.
     friend CodeGraph;
 
+    ~block "h-predef"
+    {
+        #include <Macaroni/ME.h>
+    }
+
     // This is only used so the CodeText can be stored in STL containers.
 
     public CodeText()

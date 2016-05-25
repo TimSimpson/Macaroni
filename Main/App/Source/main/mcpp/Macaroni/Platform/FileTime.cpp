@@ -136,7 +136,7 @@ time_t modifiedTime(const char * filePath)
 {
 	struct stat fileInfo;
 	if (stat(filePath, &fileInfo) == -1) {
-		throw FileStatException(filePath, MACARONI_INTERNAL_SOURCE);
+		throw FileStatException(filePath);
 	}
 	return fileInfo.st_mtime;
 }

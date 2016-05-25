@@ -246,6 +246,10 @@ class MDocParser
 					{
 						string sec = subline.substr(sizeOfSectionStart + 1,
 							                        string::npos);
+						if (sec.back() == '\r')
+						{
+							sec.pop_back();
+						}
 						if (sec == printSection.get())
 						{
 							inSection = true;

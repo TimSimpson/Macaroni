@@ -2047,7 +2047,9 @@ public:
 				externField(itr, usingS);
 				if (usingS
 					&& std::all_of(usingS.get().begin(), usingS.get().end(),
-						           std::isspace))
+						           [](unsigned char c){
+						           	  return std::isspace(c);
+						           }))
 				{
 					// For reasons that are hard to get into (i.e. laziness)
 					// sometimes generated code may have empty using statements.

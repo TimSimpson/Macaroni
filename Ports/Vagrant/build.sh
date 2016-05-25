@@ -4,7 +4,7 @@ set -e
 
 CPU_BITS=${CPU_BITS:-32}
 TOOLS_ROOT=${TOOLS_ROOT:-$HOME/Tools}
-export BOOST_ROOT=${BOOST_ROOT:-$TOOLS_ROOT/boost/boost_1_57_0}
+export BOOST_ROOT=${BOOST_ROOT:-$TOOLS_ROOT/boost/boost_1_58_0}
 export LUA_ROOT=${LUA_ROOT:-$TOOLS_ROOT/lua/lua-5.1.4}
 MACARONI_SOURCE=${MACARONI_SOURCE:-/macaroni}
 MACARONI_PURECPP_SOURCE=${MACARONI_PURECPP_SOURCE:-MACARONI_SOURCE/Main/App/PureCpp}
@@ -59,41 +59,42 @@ function install_boost() {
     mkdir $TOOLS_ROOT/boost
     set -e
     cd $TOOLS_ROOT/boost
-    wget http://sourceforge.net/projects/boost/files/boost/1.52.0/boost_1_52_0.tar.gz/download
+    wget http://sourceforge.net/projects/boost/files/boost/1.58.0/boost_1_58_0.tar.gz/download
     tar -xvf download
     cd $BOOST_ROOT
     ./bootstrap.sh
     invoke_b2 --with-filesystem
     invoke_b2 --with-regex
     invoke_b2 --with-test
-    sudo cp -rf ~/Tools/boost/boost_1_52_0/stage/lib/* /usr/local/lib/
+    sudo cp -rf ~/Tools/boost/boost_1_58_0/stage/lib/* /usr/local/lib/
 }
 
 function install_lua() {
-    mkdir -p $TOOLS_ROOT/lua
-    pushd $TOOLS_ROOT/lua
-    wget http://www.lua.org/ftp/lua-5.1.4.tar.gz
-    tar -xvf lua-5.1.4.tar.gz
-    rm $TOOLS_ROOT/lua/lua-5.1.4.tar.gz
+
+    mkdir -p $TOOLS_ROOT
+    pushd $TOOLS_ROOT
+    wget http://885875f368d47bdd75f4-fccc9ce7610ca8b8e6180232413c69c8.r20.cf2.rackcdn.com/macdeps.zip
+    unzip macdeps.zip
+    popd
 }
 
 function create_user_config() {
     echo "
 using boost
-    :   1.57
+    :   1.58
     ;
 
 using gcc
         : linux
         : g++
-        : <cxxflags>"--std=c++11"
+        : <cxxflags>"--std=c++14"
         ;
 " > ~/user-config.jam
 }
 
 
 function cmd_install() {
-    install_gcc
+    # install_gcc
     install_boost
     install_lua
     create_user_config
@@ -127,27 +128,39 @@ function create_init_lua() {
     echo "
 properties =
 {
-  boost =
-  {
-    ['1.57'] =
+    boost =
     {
-      include=[[$BOOST_ROOT]],
-      lib=[[$BOOST_ROOT/stage/lib]],
-      path=[[$BOOST_ROOT]],
+        ['1.58'] =
+        {
+          include=[[$BOOST_ROOT]],
+          lib=[[$BOOST_ROOT/stage/lib]],
+          path=[[$BOOST_ROOT]],
+        },
     },
-  },
-  lua =
-  {
-    ['5.2.3'] =
-    {
-      include = [[$LUA_ROOT/src]],
-      source = [[$TOOLS_ROOT/lua/src]],
+    lpeg = {
+        ['0.12'] = {
+            bin = '$TOOLS/lpeg/lpeg-0.12/bin',
+            include = '$TOOLS/lpeg/lpeg-0.12',
+            source = '$TOOLS/lpeg/lpeg-0.12'
+        },
     },
-  },
+    lua = {
+        ['5.2.3'] =
+        {
+            bin = '$TOOLS/lua/lua-5.2.3/bin',
+            include = '$TOOLS/lua/lua-5.2.3/src',
+            source = '$TOOLS/lua/lua-5.2.3/src',
+        }
+    },
+    luafilesystem = {
+        ['1.6.2'] = {
+            source = '$TOOLS/luafilesystem/luafilesystem-1_6_2/src',
+        },
+    },
 }
-properties.boost.current = properties.boost['1.57'];
+properties.boost.current = properties.boost['1.58'];
 properties.bjam_options = '-d+2 -q ';
-properties.boost.version = '1.57';
+properties.boost.version = '1.58';
 " > ~/Macaroni/init.lua
 }
 

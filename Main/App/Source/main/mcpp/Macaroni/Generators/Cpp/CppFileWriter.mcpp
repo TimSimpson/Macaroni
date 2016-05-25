@@ -818,12 +818,14 @@ class CppFileWriter
 
     public void TemplateParameterList(Class & e)
     {
-        templateParameterList(e.GetTemplateParameterList());
+        auto tpl = e.GetTemplateParameterList();
+        templateParameterList(tpl);
     }
 
     public void TemplateParameterList(FunctionOverload & e)
     {
-        templateParameterList(e.GetTemplateParameterList());
+        auto tpl = e.GetTemplateParameterList();
+        templateParameterList(tpl);
     }
 
     ~hidden void templateParameterList(NodePtr & tpl)

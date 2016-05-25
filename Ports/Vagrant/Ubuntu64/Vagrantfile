@@ -1,6 +1,10 @@
-Vagrant::Config.run do |config|
+Vagrant.configure(2) do |config|
 
-  config.vm.box = "precise64"
-  config.vm.share_folder "source", "/macaroni", "../../../"
+  config.vm.box = "ubuntu/wily64"
+  config.vm.synced_folder "../../../", "/macaroni"
 
+  config.vm.provider "virtualbox" do |v|
+      v.memory = 2048
+      v.cpus = 1
+  end
 end

@@ -219,7 +219,7 @@ generate = function()
         --clockRun("HTML", generateHtml)
         clockRun("C++", generateCpp)
         clockRun("BOOST BUILD", generateBjam)
-        clockRun("CMAKE", generateCMake)
+        --clockRun("CMAKE", generateCMake)
         clockRun("VERSION INFO", generateVersionInfo)
         generated = true
         watch()
@@ -278,7 +278,11 @@ build = function()
  Running Unit tests...
 ********************************************************************************
 ]])
-      local exePath = targetDir:NewPathForceSlash("exe/macaroni.exe")
+      local exeDir = targetDir:NewPathForceSlash("exe");
+      local exePath = exeDir:NewPathForceSlash("macaroni.exe");
+      if not exePath.Exists then
+        exePath = exeDir:NewPathForceSlash("macaroni");
+      end
       local testDir = newPath(src):NewPathForceSlash("../../test/lua")
       local cmd = exePath.AbsolutePath .. " --luaTests="
                   .. testDir.AbsolutePath .. " --messagesPath="

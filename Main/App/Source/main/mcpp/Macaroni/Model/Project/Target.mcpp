@@ -22,6 +22,7 @@
 ~import Macaroni::Model::Project::ConfigPtr;
 ~import Macaroni::Model::Context;
 ~import Macaroni::Model::ContextPtr;
+~import Macaroni::Model::Project::FilesPtr;
 ~import boost::format;
 ~import Macaroni::Model::Element;
 ~import Macaroni::Model::ElementPtr;

@@ -45,7 +45,7 @@ class Visitor
             }
             else
             {
-                return Visit(static_cast<T2::super &>(thisRef));
+                return Visit(static_cast<typename T2::super &>(thisRef));
             }
         }
     }

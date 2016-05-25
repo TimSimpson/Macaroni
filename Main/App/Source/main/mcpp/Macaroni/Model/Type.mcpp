@@ -22,6 +22,7 @@
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
 ~import Macaroni::Model::Node;
+~import Macaroni::Model::NodePtr;
 ~import boost::optional;
 ~import std::ostream;
 ~import std::pair;
