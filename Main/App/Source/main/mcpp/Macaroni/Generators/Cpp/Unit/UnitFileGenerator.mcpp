@@ -2,6 +2,7 @@
 ~import Macaroni::Core::BaseVisitor;
 ~import boost::format;
 ~import Macaroni::Generators::Cpp::CodeGraph;
+~import Macaroni::Generators::Cpp::CodeGraphPtr;
 ~import Macaroni::Generators::Cpp::CodeText;
 ~import Macaroni::Generators::Cpp::CodeTextProducer;
 ~import Macaroni::Generators::Cpp::CodeTextSorter;
@@ -155,9 +156,10 @@ class UnitFileGenerator
                               ct.GetElement()->GetNode()->GetFullName(),
                               ", ",
                               ct.Type());
-            ct.IterateDependencies([&](CodeText & ct){
+            auto idFunc = [&](CodeText & ct){
                 printCodeText(writer, ct, depth + 4);
-            });
+            };
+            ct.IterateDependencies(idFunc);
         }
     }
 

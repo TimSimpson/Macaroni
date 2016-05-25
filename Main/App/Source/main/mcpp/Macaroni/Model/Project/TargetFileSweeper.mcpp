@@ -36,7 +36,7 @@
 ~import boost::regex;
 ~import Macaroni::IO::RegexFileSet;
 ~import Macaroni::IO::RegexFileSetIterator;
-~import Macaroni::SimpleStringException;
+~import Macaroni::Exceptions::SimpleStringException;
 ~import Macaroni::Model::Source;
 ~import Macaroni::Model::SourcePtr;
 ~import std::string;

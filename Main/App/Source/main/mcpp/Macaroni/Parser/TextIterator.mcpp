@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+~import std::string::const_iterator;
 ~import Macaroni::Exception;
 ~import Macaroni::Model::FileName;
 ~import Macaroni::Model::FileNamePtr;
@@ -27,27 +28,27 @@ namespace Macaroni::Parser {
 
 typedef std::string::const_iterator StringItr;
 
-class TextIterator 
-{	
+class TextIterator
+{
 	//TODO: BUG: If you use const_iterator directly, it breaks the Parser!
 	private int column;
 	private StringItr endItr;
 	private FileNamePtr fileName;
 	private StringItr itr;
-	private int line;		
+	private int line;
 
-	/** Constructs a new text iterator.  Must have the source so it 
+	/** Constructs a new text iterator.  Must have the source so it
 	 *  can tell you where it is if something goes wrong. */
 	public TextIterator(StringItr start, StringItr end, SourcePtr source)
-	:	column(source->GetColumn()),  
+	:	column(source->GetColumn()),
 		endItr(end),
 		fileName(source->GetFileName()),
-	    itr(start), 
+	    itr(start),
 		line(source->GetLine())
-	{		
+	{
 	}
 
-	/** Advances this iterator by the number of characters given by argument 
+	/** Advances this iterator by the number of characters given by argument
 	 *  "count." */
 	public inline void Advance(int count)
 	{
@@ -76,7 +77,7 @@ class TextIterator
 			}
 		}
 	}
-	
+
 
 	/** Returns current line. */
 	public inline char Current()
@@ -132,7 +133,7 @@ class TextIterator
 		return Source::Create(fileName, line + plusLines, column + plusColumns);
 	}
 
-	/** Ravenously consumes all white space.  Stops when it gets to anything 
+	/** Ravenously consumes all white space.  Stops when it gets to anything
 	 *  else. */
 	public inline void ConsumeWhitespace()
 	{
@@ -155,14 +156,14 @@ class TextIterator
 			return Finished() ? false : (*itr) == other;
 		}
 	}
-	
+
 
 	/** Returns true if the given string lies at the foot of this iterator.
 	 *  False otherwise.  Does not consume it either way. */
 	public inline bool Is(const char * string)
 	{
 		StringItr src = itr;
-		
+
 		while(src != endItr)
 		{
 			if (*string == '\0')
@@ -174,12 +175,12 @@ class TextIterator
 				return false;
 			}
 			src ++;
-			string ++;			
+			string ++;
 		}
 
 		return *string == '\0';
 	}
-	
+
 	public static void IsTests()
 	{
 		std::string ok("12ComplexWord");
@@ -206,7 +207,7 @@ class TextIterator
 			itr.Advance(5);
 			// Advances one past Word, going out of bounds.
 			// Thus, an exception must be thrown.
-			Assert(false); 
+			Assert(false);
 		}
 		catch(Macaroni::Exception &)
 		{
@@ -229,7 +230,7 @@ class TextIterator
 					(97 <= c && c <= 122);
 		}
 	}
-	
+
 	//TODO: This commented out code below breaks the parser!
 	//public static void IsAlphaTests()
 	//{
@@ -252,15 +253,15 @@ class TextIterator
 		{
 			return Finished() ? false : IsDigit(*itr);
 		}
-	
+
 	}
-	
+
 	/** Returns true if the given character is a digit (0-9). */
 	public static inline bool IsDigit(const char c)
 	{
 		return c >=48 && c <= 57;
 	}
-	
+
 
 	public static void IsDigitTests()
 	{
@@ -279,7 +280,7 @@ class TextIterator
 		Assert(!IsDigit(':'));
 		Assert(!IsDigit('/'));
 	}
-	
+
 	public static void RunTests()
 	{
 		//IsAlphaTests();

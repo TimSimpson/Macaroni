@@ -48,6 +48,10 @@ typedef boost::intrusive_ptr<FunctionOverload> FunctionOverloadPtr;
 /** Represents a function in any possible Scope. */
 class FunctionOverload : public Scope
 {
+	~block "h-predef" {
+		#include <Macaroni/Model/Node.h>
+	}
+
 	private std::string codeBlock;
 
 	private bool codeBlockAddRedirect;

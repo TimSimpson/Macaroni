@@ -1,3 +1,4 @@
+~import Macaroni::Model::CvQualifier;
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaFunction;
 ~import Macaroni::Lua::LuaGlueCode;

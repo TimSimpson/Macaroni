@@ -1,0 +1,11 @@
+using boost
+    : 1.58
+    ;
+
+using gcc
+        : linux
+        : g++-5
+        # Warnings for things happening in Boost will flood the Travis logs
+        # unless disabled.
+        : <cxxflags>"--std=c++14 -w"
+        ;

@@ -9,6 +9,9 @@
     #endif
 }
 
+~extern std::forward include=<utility> ;
+~import-h std::forward;
+
 //MDOC-BEGIN Item3
 // This comes from an example in Item 3 in the book "Effective Modern C++" by
 // Scott Meyers. Used without permission. I'm no lawyer but I'm guessing this

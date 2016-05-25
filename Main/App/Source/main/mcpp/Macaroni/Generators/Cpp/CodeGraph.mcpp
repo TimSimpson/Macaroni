@@ -59,6 +59,9 @@ class CodeGraph
         #include <array>
         #include <unordered_map>
         #include <Macaroni/ME.h>
+        #include <Macaroni/Generators/Cpp/CodeText.h>
+        #include <Macaroni/Model/Type.h>
+        #include <Macaroni/Model/TypePtr.h>
     }
 
     ~block "cpp-include" { #include <algorithm> }
@@ -160,12 +163,28 @@ class CodeGraph
         {}
 
         void operator() (ElementType & e) {
-            TypePtr type = e.GetType();
+            Macaroni::Model::TypePtr type = e.GetType();
             MACARONI_ASSERT(!!type, "Variable not set.");
-            Type & t = *type;
+            Macaroni::Model::Type & t = *type;
             graph.computeDeps(t, ct, fd);
         }
     };
+
+    ~block "cpp" {
+        namespace {
+            std::array<CodeText, 6> createCodeTextArray(Element * e)
+            {
+                std::array<CodeText, 6> arr;
+                arr[0] = CodeText(CodeType::BlockTop, e);
+                arr[1] = CodeText(CodeType::ForwardDeclaration, e);
+                arr[2] = CodeText(CodeType::TypeDefinition, e);
+                arr[3] = CodeText(CodeType::UsingStatement, e);
+                arr[4] = CodeText(CodeType::Implementation, e);
+                arr[5] = CodeText(CodeType::BlockBottom, e);
+                return arr;
+            }
+        }
+    }
 
     // This looks at an element and adds all the dependencies in the graph
     // that element would ever need.
@@ -178,14 +197,19 @@ class CodeGraph
         MACARONI_ASSERT(e != nullptr, "Can't compute nullptr element.");
         MACARONI_ASSERT(map.find(e) == map.end(),
                         "Finding an already calculated value.");
-        map[e] = {
-            CodeText(CodeType::BlockTop, e),
-            CodeText(CodeType::ForwardDeclaration, e),
-            CodeText(CodeType::TypeDefinition, e),
-            CodeText(CodeType::UsingStatement, e),
-            CodeText(CodeType::Implementation, e),
-            CodeText(CodeType::BlockBottom, e),
-        };
+        #ifdef __GNUG__
+            // For some reason GCC can't handle the initialization below.
+            map[e] = createCodeTextArray(e);
+        #else
+            map[e] = {
+                CodeText(CodeType::BlockTop, e),
+                CodeText(CodeType::ForwardDeclaration, e),
+                CodeText(CodeType::TypeDefinition, e),
+                CodeText(CodeType::UsingStatement, e),
+                CodeText(CodeType::Implementation, e),
+                CodeText(CodeType::BlockBottom, e),
+            };
+        #endif
 
         auto & r = map[e];
         CodeText & bt = r[0];
@@ -556,11 +580,12 @@ class CodeGraph
 
                 // Add every variable used as an argument's forward def to the
                 // functions forward def.
-                e.IterateArguments([&](Variable & e) {
+                auto handleTypeVars = [&](Variable & e) {
                     TypePtr type = e.GetType();
                     MACARONI_ASSERT(!!type, "Variable is malformed.");
                     handleType(*type);
-                });
+                };
+                e.IterateArguments(handleTypeVars);
 
                 auto returnType = e.GetReturnType();
                 if (returnType)  // Constructors won't have these.

@@ -2,6 +2,8 @@ Macaroni for C++
 ================
 
 [![Build status](https://ci.appveyor.com/api/projects/status/q3ph7cjv7r3xw6j1?svg=true)](https://ci.appveyor.com/project/TimSimpson/macaroni)
+[![Build Status](https://travis-ci.org/TimSimpson/Macaroni.svg?branch=travis)](https://travis-ci.org/TimSimpson/Macaroni)
+
 
 <img align="right" src="http://border-town.com/macaroni/images/Maccy.png" />
 

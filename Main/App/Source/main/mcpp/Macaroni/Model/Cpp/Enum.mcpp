@@ -1,4 +1,5 @@
 ~import Macaroni::Model::Cpp::Access;
+~import Macaroni::Model::Cpp::AccessPtr;
 ~import Macaroni::Core::BaseVisitor;
 ~import boost::intrusive_ptr;
 ~import Macaroni::Lua::LuaClass;
