@@ -15,3 +15,5 @@ Main/App/Ubuntu_GS*
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
+__pycache__
+build
