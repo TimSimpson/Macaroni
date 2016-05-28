@@ -45,9 +45,6 @@
 #include <LuaModulesInclude_Macaroni___Macaroni_46_App___lib.h>
 //#include <lfs.h>
 
-// Include lpeg by stating it's function interface here.
-extern int luaopen_lpeg (lua_State *L);
-
 
 BEGIN_NAMESPACE2(Macaroni, Environment)
 
@@ -134,8 +131,6 @@ void LuaEnvironment::registerInternalLuaModules()
 
 	// Take required function, override it with a function which
 	// given
-
-	luaopen_lpeg(state);
 };
 
 END_NAMESPACE2
