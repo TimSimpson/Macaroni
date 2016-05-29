@@ -40,13 +40,13 @@
 ################################################################################
 
 import boost ;
-boost.use-project 1.57 ;
+boost.use-project 1.58 ;
 
 alias sources
 	:	[ glob-tree *.c	: .svn ]
 		[ glob-tree *.cpp
 		 :
-		  *Test.cpp *Tests.cpp Macaroni.cpp
+		  *Test.cpp *Tests.cpp macaroni.cpp
 		  lua.cpp lu.cpp.cpp luac.cpp
 		  ]
 		/boost//filesystem
@@ -59,7 +59,7 @@ alias sources
 exe macaroni_p  # In linux it can't create the file "macaroni" (without the p)
                 # because the name is the same as a directory.
 	:	sources
-		Macaroni.cpp
+		macaroni.cpp
 		Macaroni.rc
 	:
 		<include>./
