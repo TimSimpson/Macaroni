@@ -49,6 +49,7 @@
 ~import Macaroni::Exceptions::SimpleException;
 ~import Macaroni::Exceptions::SimpleStringException;
 ~import std::string;
+~import Macaroni::Model::Project::Target;
 ~import Macaroni::Model::Project::TargetList;
 ~import Macaroni::Model::Project::TargetListPtr;
 ~import Macaroni::Model::Project::TargetLuaMetaData;
@@ -59,7 +60,6 @@
 
 ~namespace Macaroni::Model::Project;
 
-class Target {};
 
 typedef intrusive_ptr<Target ~l> TargetPtr
 		@LuaClass [ SameAsNode = Target ]

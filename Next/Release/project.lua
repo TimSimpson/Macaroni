@@ -9,7 +9,7 @@ local Path = require "Macaroni.IO.Path";
 sources = { "source/scripts", "source/www" }
 outputPath = "target"
 
-local version = "0.4.0"
+local version = "0.4.1"
 project = context:Group("Macaroni")
                  :Project("Macaroni.Release")
                  :Version(version)

@@ -1,0 +1,13 @@
+~import Macaroni::Generators::Cpp::CodeGraph;
+~import Macaroni::Lua::LuaClass;
+~import boost::shared_ptr;
+
+~namespace Macaroni::Generators::Cpp;
+
+
+typedef shared_ptr<CodeGraph ~l> CodeGraphPtr
+    @LuaClass
+    [
+        SameAsNode = CodeGraph
+    ]
+;

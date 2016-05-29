@@ -17,7 +17,7 @@
 
 class Output {};
 
-typedef boost::intrusive_ptr<Output> OutputPtr
+typedef boost::intrusive_ptr<Output ~l> OutputPtr
 	@UseLightDef true
 	@LuaClass [ SameAsNode = Output ]
 ;
@@ -27,9 +27,7 @@ class Output
 		ReferenceType = OutputPtr
 	]
 {
-	~block "h-predef" {
-		#include <boost/format.hpp>
-	}
+	~import-h boost::format;
 
 	~block "h"
 	{
@@ -43,7 +41,7 @@ class Output
 		};
 	}
 
-	class LEVEL { ~hfile=<Macaroni/Environment/Output.h> };
+	~extern LEVEL include=<Macaroni/Environment/Output.h> ;
 
 
 	public virtual ~Output()

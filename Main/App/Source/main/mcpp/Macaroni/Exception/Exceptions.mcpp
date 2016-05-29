@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+~unit "Macaroni/Exceptions";
+
 ~import std::exception;
 ~import Macaroni::Exception;
+~import-h boost::format;
 ~import boost::format;
 ~import Macaroni::InternalSource;
 ~import boost::optional;
@@ -54,22 +57,22 @@ class SimpleException : public Macaroni::Exception
 	{
 		return source;
 	}
-
-	~block "h-postdef"
-	{
-		/* Quickly defines an exception type with one message. This should only
-		 * be used in implementation files. */
-		#define MACARONI_SIMPLE_EXCEPTION_DEFINE(typeName, message) \
-			class typeName : public Macaroni::Exceptions::SimpleException { \
-				public: typeName(Macaroni::InternalSource where) \
-					: Macaroni::Exceptions::SimpleException(where) {} \
-				public: typeName() \
-					: Macaroni::Exceptions::SimpleException() {} \
-				public: virtual const char * what() const BOOST_NOEXCEPT \
-				{ return message ; } \
-			};
-	}
 };
+
+~block "h"
+{
+	/* Quickly defines an exception type with one message. This should only
+	 * be used in implementation files. */
+	#define MACARONI_SIMPLE_EXCEPTION_DEFINE(typeName, message) \
+		class typeName : public Macaroni::Exceptions::SimpleException { \
+			public: typeName(Macaroni::InternalSource where) \
+				: Macaroni::Exceptions::SimpleException(where) {} \
+			public: typeName() \
+				: Macaroni::Exceptions::SimpleException() {} \
+			public: virtual const char * what() const BOOST_NOEXCEPT \
+			{ return message ; } \
+		};
+}
 
 
 /** This class has a single int value. A boost format message can be specified
@@ -94,31 +97,26 @@ class SimpleIntException : public SimpleException
 	{
 		return str(format(what()) % value);
 	}
-
-	~block "h-postdef"
-	{
-	/* Quickly defines an exception type with one message. This should only
-	 * be used in implementation files. */
-	#define MACARONI_SIMPLE_INT_EXCEPTION_DEFINE(typeName, message) \
-		class typeName : public Macaroni::Exceptions::SimpleIntException { \
-			public: typeName(int value, Macaroni::InternalSource where) \
-				: Macaroni::Exceptions::SimpleIntException(value, where) {} \
-			public: virtual const char * what() const BOOST_NOEXCEPT \
-			{ return message ; } \
-		};
-	}
 };
+
+~block "h"
+{
+/* Quickly defines an exception type with one message. This should only
+ * be used in implementation files. */
+#define MACARONI_SIMPLE_INT_EXCEPTION_DEFINE(typeName, message) \
+	class typeName : public Macaroni::Exceptions::SimpleIntException { \
+		public: typeName(int value, Macaroni::InternalSource where) \
+			: Macaroni::Exceptions::SimpleIntException(value, where) {} \
+		public: virtual const char * what() const BOOST_NOEXCEPT \
+		{ return message ; } \
+	};
+}
 
 
 /** This class has a single int value. A boost format message can be specified
  *  by subclasses to print out the integer. */
 class SimpleStringException : public SimpleException
 {
-	~block "h-predef"
-	{
-		#include <boost/format.hpp>
-	}
-
 	private const std::string value;
 
 	public SimpleStringException(const string & value)
@@ -145,20 +143,17 @@ class SimpleStringException : public SimpleException
 		return value.c_str();
 	}
 
-	~block "h-postdef"
-	{
-	/* Quickly defines an exception type with one message. This should only
-	 * be used in implementation files. */
-	#define MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(typeName, message) \
-		class typeName : public Macaroni::Exceptions::SimpleStringException { \
-			public: typeName(const char * value) \
-				: Macaroni::Exceptions::SimpleStringException(str(boost::format(message) % value)) {} \
-			public: typeName(const std::string & value) \
-				: Macaroni::Exceptions::SimpleStringException(str(boost::format(message) % value)) {} \
-		};
-	}
 };
 
-
-
-
+~block "h"
+{
+/* Quickly defines an exception type with one message. This should only
+ * be used in implementation files. */
+#define MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(typeName, message) \
+	class typeName : public Macaroni::Exceptions::SimpleStringException { \
+		public: typeName(const char * value) \
+			: Macaroni::Exceptions::SimpleStringException(str(boost::format(message) % value)) {} \
+		public: typeName(const std::string & value) \
+			: Macaroni::Exceptions::SimpleStringException(str(boost::format(message) % value)) {} \
+	};
+}

@@ -67,18 +67,22 @@ class Macaroni::Environment::MacaroniEnvironment {
 	~hfile=<Macaroni/Environment/MacaroniEnvironment.hpp>
 };
 
+~unit "Macaroni/Environment/Environment" ;
+
+~block "h"
+{
+	#include <boost/algorithm/string.hpp>
+	#include <Macaroni/Environment/PluginFactory.h>
+	#include <Macaroni/Environment/ProjectLoader.h>
+	#include <Macaroni/Environment/ProjectEnvironment.h>
+}
+
 class Macaroni::Environment::Environment
 /*
  * Handles the interactive portions of a context, particularly regarding
  * the project / build system.
  */
 {
-	~block "h-predef" {
-		#include <boost/algorithm/string.hpp>
-		#include <Macaroni/Environment/PluginFactory.h>
-		#include <Macaroni/Environment/ProjectLoader.h>
-		#include <Macaroni/Environment/ProjectEnvironment.h>
-	}
 
 	~block "cpp"
 	{

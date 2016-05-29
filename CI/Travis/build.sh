@@ -1,3 +1,4 @@
+set -e
 export CXX="g++-5"
 export CC="gcc-5";
 export BOOST_ROOT=$HOME/Tools/boost_1_58_0

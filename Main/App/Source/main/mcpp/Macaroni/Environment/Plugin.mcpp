@@ -25,11 +25,9 @@ class Plugin
         ReferenceType = PluginPtr
     ]
 	@LuaIncludes ={
-		#include <Macaroni/Environment/Values/Any.h>
-		#include <Macaroni/Environment/Values/AnyPtr.h>
+		#include <Macaroni/Environment/Values/Basic.h>
 		#include <Macaroni/Environment/LuaEnvironment.h>
 		#include <sstream>
-		#include <Macaroni/Environment/Values/Table.h>
 	}
 {
     private const string name;

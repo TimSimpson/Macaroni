@@ -27,7 +27,7 @@
 
 class ScopeMember{};
 
-typedef boost::intrusive_ptr<ScopeMember> ScopeMemberPtr;
+typedef boost::intrusive_ptr<ScopeMember ~l> ScopeMemberPtr;
 
 //2014-12-30:
 //    This looks like some ancient idea I had before I really had a solid

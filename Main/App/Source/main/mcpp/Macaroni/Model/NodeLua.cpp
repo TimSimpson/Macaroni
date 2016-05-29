@@ -20,6 +20,7 @@
 #include "AnnotationTableLua.h"
 #include <Macaroni/Exception.h>
 #include "ElementLua.h"
+#include <Macaroni/Model/FileName.h>
 #include <Macaroni/Model/FileNameLuaMetaData.h>
 #include "Node.h"
 #include "NodeLua.h"

@@ -16,7 +16,7 @@
 #ifndef MACARONI_MODEL_CONTEXTLUA_H
 #define MACARONI_MODEL_CONTEXTLUA_H
 
-#include "ContextPtr.h"
+#include <Macaroni/Model/ContextPtr.h>
 
 struct lua_State;
 

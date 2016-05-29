@@ -13,26 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-~unit "Macaroni/InternalSource";
 
+~unit "Macaroni/Model/ContextPtr" ;
 
-~namespace Macaroni;
+~import Macaroni::Model::Context;
+~import boost::intrusive_ptr;
+~import Macaroni::Lua::LuaClass;
 
-/**
- * Marks a spot within Macaroni.
- */
-class InternalSource
-{
-	public const char * FileName;
-	public int Line;
+~namespace Macaroni::Model;
 
-	public InternalSource(const char * fileName, const int line)
-	: FileName(fileName), Line(line)
-	{
-	}
-};
+typedef boost::intrusive_ptr<Context ~l> ContextPtr
+    @LuaClass [ SameAsNode=Macaroni::Model::Context ]
+    ;
 
-~block "h"
-{
-	#define MACARONI_INTERNAL_SOURCE InternalSource(__FILE__, __LINE__)
-}
+void intrusive_ptr_add_ref(Context * p);
+
+void intrusive_ptr_release(Context * p);

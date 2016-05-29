@@ -23,7 +23,6 @@
 
 ~namespace Macaroni::IO;
 
-
 typedef intrusive_ptr<FileSet ~l> FileSetPtr
 	@LuaClass [ SameAsNode = FileSet ]
 	@UseLightDef true;
@@ -37,6 +36,8 @@ class FileSet
 		ReferenceType = FileSetPtr
 	]
 	@LuaIncludes ={
+		#include <Macaroni/IO/PathLua.h>
+		#include <Macaroni/IO/RegexFileSet.h>
 		#include <Macaroni/IO/RegexFileSetLuaMetaData.h>
 	}
 	@LuaIndexExtraCode ={

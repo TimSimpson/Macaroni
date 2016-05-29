@@ -25,7 +25,7 @@
 namespace Macaroni::Model {
 
 class FileName {};
-typedef boost::intrusive_ptr<FileName> FileNamePtr
+typedef boost::intrusive_ptr<FileName ~l> FileNamePtr
 	~hfile=<Macaroni/Model/FileNamePtr.h>
 	@LuaClass [ SameAsNode = FileName ]
 	@UseLightDef true

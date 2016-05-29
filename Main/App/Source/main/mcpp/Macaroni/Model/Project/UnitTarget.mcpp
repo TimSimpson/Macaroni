@@ -1,5 +1,6 @@
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaIncludes;
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
 ~import boost::optional;
@@ -24,6 +25,10 @@ class UnitTarget : public Target
 	@LuaClass [
 		ReferenceType = TargetPtr
 	]
+	@LuaIncludes = {
+		#include <Macaroni/Exception.h>
+		#include <Macaroni/Model/Project/TargetLuaMetaData.h>
+	}
 {
 	private PathPtr cppFile;
 	private PathPtr hFile;

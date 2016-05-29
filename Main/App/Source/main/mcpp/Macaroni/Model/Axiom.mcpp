@@ -10,7 +10,7 @@
 
 class Axiom {};
 
-typedef boost::shared_ptr<Axiom> AxiomPtr
+typedef boost::shared_ptr<Axiom ~l> AxiomPtr
     @LuaClass [ SameAsNode=Axiom ]
 ;
 

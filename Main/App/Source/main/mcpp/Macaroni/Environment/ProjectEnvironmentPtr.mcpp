@@ -13,26 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-~unit "Macaroni/InternalSource";
+~import boost::intrusive_ptr;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Environment::ProjectEnvironment;
+~import Macaroni::Cpp::UseLightDef;
 
+~namespace Macaroni::Environment;
 
-~namespace Macaroni;
+typedef
+    intrusive_ptr<Macaroni::Environment::ProjectEnvironment ~l>
+    ProjectEnvironmentPtr
+        @LuaClass [ SameAsNode = Macaroni::Environment::ProjectEnvironment ]
+        @UseLightDef true ;
 
-/**
- * Marks a spot within Macaroni.
- */
-class InternalSource
-{
-	public const char * FileName;
-	public int Line;
-
-	public InternalSource(const char * fileName, const int line)
-	: FileName(fileName), Line(line)
-	{
-	}
-};
-
-~block "h"
-{
-	#define MACARONI_INTERNAL_SOURCE InternalSource(__FILE__, __LINE__)
-}

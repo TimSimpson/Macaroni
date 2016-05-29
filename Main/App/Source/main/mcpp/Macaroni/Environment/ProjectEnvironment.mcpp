@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+~unit "Macaroni/Environment/ProjectEnvironment";
+
+
 ~import std::auto_ptr;
 ~import Macaroni::AppPaths;
 ~import Macaroni::AppPathsPtr;
-~import std::auto_ptr;
 ~import Macaroni::Environment::Values::Any;
 ~import Macaroni::Environment::Values::AnyPtr;
 ~import BOOST_FOREACH;
@@ -45,10 +48,11 @@
 ~import Macaroni::IO::PathPtr;
 ~import Macaroni::IO::PathLuaMetaData;
 ~import Macaroni::IO::Paths;
-~import Macaroni::Environment::PluginFactory;
+~import Macaroni::Environment::ProjectEnvironmentPtr;
+~import-h Macaroni::Environment::PluginFactory;
 ~import Macaroni::Environment::PluginFactoryLuaMetaData;
 ~import Macaroni::Environment::PluginFactoryPtr;
-~import Macaroni::Environment::ProjectLoader;
+~import-h Macaroni::Environment::ProjectLoader;
 ~import Macaroni::Environment::ProjectLoaderMarker;
 ~import Macaroni::Model::Project::ProjectVersionId;
 ~import Macaroni::Model::Project::ProjectVersion;
@@ -62,29 +66,28 @@
 ~import Macaroni::Environment::Values::Table;
 ~import Macaroni::Cpp::UseLightDef;
 
-class Macaroni::Environment::ProjectEnvironment {};
 
-typedef intrusive_ptr<Macaroni::Environment::ProjectEnvironment ~l>
-    Macaroni::Environment::ProjectEnvironmentPtr
-        @LuaClass [ SameAsNode = Macaroni::Environment::ProjectEnvironment ]
-        @UseLightDef true ;
+~namespace Macaroni::Environment;
 
-~import Macaroni::Environment::ProjectEnvironmentLuaMetaData;
+~block "h" {
+    #include <boost/algorithm/string.hpp>
+}
+
+~block "cpp"
+{
+    // There's no way to use an import here as the LuaGlue won't be
+    // created until after the typical C++ is generated.
+    #include <Macaroni/Environment/ProjectEnvironmentLuaMetaData.h>
+}
 
 /** Projects are defined in scripts, which also host functions that
  *  do things like build them. This functionality is rememberd and encapsulated
  *  by this class. */
-class Macaroni::Environment::ProjectEnvironment
+class ProjectEnvironment
     @LuaClass [
         ReferenceType = Macaroni::Environment::ProjectEnvironmentPtr
     ]
 {
-    ~block "h-predef" {
-        #include <boost/algorithm/string.hpp>
-        #include <Macaroni/Environment/ProjectLoader.h>
-        #include <Macaroni/Environment/PluginFactory.h>
-    }
-
     ~block "cpp"
     {
         MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(ChildProjectFileNotFound,

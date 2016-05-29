@@ -23,8 +23,6 @@
 ~import Macaroni::Model::Node;
 ~import std::ostream;
 ~import Macaroni::Model::Type;
-~import Macaroni::Model::TypeList;
-~import Macaroni::Model::TypeListPtr;
 ~import Macaroni::Model::TypePtr;
 ~import std::string;
 ~import std::stringstream;
@@ -40,7 +38,7 @@
 
 class TypeArgumentList {};
 
-typedef boost::intrusive_ptr<TypeArgumentList> TypeArgumentListPtr
+typedef boost::intrusive_ptr<TypeArgumentList ~l> TypeArgumentListPtr
     @LuaClass
     [
         SameAsNode = TypeArgumentList
@@ -69,7 +67,7 @@ class TypeArgumentList
         try
         {
             const int index_1 = boost::lexical_cast<int>(index_0);
-            std::vector<unique_ptr<Type>> & list = instance->GetTypes();
+            std::vector<std::unique_ptr<Type>> & list = instance->GetTypes();
             if (0 > index_1 || list.size() < index_1)
             {
                 lua_pushnil(L);
@@ -90,7 +88,7 @@ class TypeArgumentList
 {
     private int nodeDepth;
     private Type * parent;
-    private std::vector<unique_ptr<Type>> types;
+    private std::vector<unique_ptr<Type ~l>> types;
 
     friend Type;
 

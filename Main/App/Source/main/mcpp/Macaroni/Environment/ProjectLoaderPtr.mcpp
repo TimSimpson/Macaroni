@@ -1,0 +1,7 @@
+~import boost::intrusive_ptr;
+~import Macaroni::Environment::ProjectLoader;
+
+
+typedef intrusive_ptr<Macaroni::Environment::ProjectLoader ~l>
+    Macaroni::Environment::ProjectLoaderPtr;
+

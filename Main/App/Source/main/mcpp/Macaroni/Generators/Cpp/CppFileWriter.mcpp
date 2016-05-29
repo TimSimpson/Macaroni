@@ -14,13 +14,14 @@
 ~import Macaroni::Model::ElementPtr;
 ~import Macaroni::Model::Cpp::Enum;
 ~import Macaroni::Model::Cpp::Extern;
+~import Macaroni::Model::FileName;
 ~import boost::format;
 ~import Macaroni::Model::Cpp::FunctionOverload;
 ~import Macaroni::Model::Cpp::FunctionOverloadPtr;
 ~import Macaroni::Generators::Cpp::GeneratorSettings;
 ~import Macaroni::Model::Node;
 ~import Macaroni::Model::NodePtr;
-~import Macaroni::IO::GeneratedFileWriter;
+~import-h Macaroni::IO::GeneratedFileWriter;
 ~import Macaroni::IO::GeneratedFileWriterPtr;
 ~import boost::lexical_cast;
 ~import Macaroni::Generators::Cpp::Library::LibraryConfigGenerator;

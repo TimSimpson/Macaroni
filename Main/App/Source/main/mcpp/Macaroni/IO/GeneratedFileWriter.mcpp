@@ -35,7 +35,7 @@ namespace Macaroni::IO
 {
 
 typedef shared_ptr<ostream> ostreamptr;
-typedef shared_ptr<GeneratedFileWriter> GeneratedFileWriterPtr
+typedef shared_ptr<GeneratedFileWriter ~l> GeneratedFileWriterPtr
 	@LuaClass [ SameAsNode = GeneratedFileWriter ]
 ;
 
@@ -45,10 +45,10 @@ class GeneratedFileWriter
 	//TODO: Move to outside of class def. due to bug in Macaroni.
 	//Fix bug and move back!
 	//typedef shared_ptr<ostream> ostreamptr;
-	~block "h-predef"
+	/*~block "h-predef"
 	{
 		#include <sstream>
-	}
+	}*/
 
 	bool closed;
 	int columnNumber;

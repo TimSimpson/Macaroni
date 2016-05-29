@@ -30,7 +30,7 @@ namespace Macaroni::Model {
 
 class Reason {};
 
-typedef boost::intrusive_ptr<Reason> ReasonPtr
+typedef boost::intrusive_ptr<Reason ~l> ReasonPtr
 	~hfile=<Macaroni/Model/ReasonPtr.h>
 	@UseLightDef true
 	@LuaClass [ SameAsNode = Reason ]

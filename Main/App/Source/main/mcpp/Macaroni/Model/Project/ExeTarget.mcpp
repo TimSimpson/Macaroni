@@ -24,7 +24,6 @@
 ~import std::string;
 ~import Macaroni::Environment::Values::String;
 ~import Macaroni::Environment::Values::Table;
-~import Macaroni::Environment::Values::TablePtr;
 ~import Macaroni::Environment::Values::Macaroni_Model_Project_Target;
 ~import Macaroni::Environment::Values::Macaroni_Model_Project_ProjectVersion;
 ~import Macaroni::Model::Project::TargetList;

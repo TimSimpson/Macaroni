@@ -24,7 +24,7 @@
 ~import Macaroni::Model::ImportList;
 ~import Macaroni::Model::ModelInconsistencyException;
 ~import Macaroni::Model::NakedNodeList;
-~import Macaroni::Model::Node;
+~import-h Macaroni::Model::Node;
 ~import boost::optional;
 ~import Macaroni::Model::Reason;
 ~import Macaroni::Model::ReasonPtr;
@@ -35,7 +35,7 @@
 ~import Macaroni::Model::Project::Target;
 ~import Macaroni::Model::Project::TargetPtr;
 ~import Macaroni::Model::Type;
-~import Macaroni::Model::Cpp::Variable;
+~import-h Macaroni::Model::Cpp::Variable;
 ~import Macaroni::Model::Cpp::VariablePtr;
 ~import Macaroni::Core::Visitor;
 
@@ -43,15 +43,11 @@
 
 class FunctionOverload {};
 
-typedef boost::intrusive_ptr<FunctionOverload> FunctionOverloadPtr;
+typedef boost::intrusive_ptr<FunctionOverload ~l> FunctionOverloadPtr;
 
 /** Represents a function in any possible Scope. */
 class FunctionOverload : public Scope
 {
-	~block "h-predef" {
-		#include <Macaroni/Model/Node.h>
-	}
-
 	private std::string codeBlock;
 
 	private bool codeBlockAddRedirect;
@@ -279,13 +275,6 @@ class FunctionOverload : public Scope
 	public inline bool IsVirtual() const
 	{
 		return isVirtual;
-	}
-
-	~block "h-predef"
-	{
-		namespace Macaroni { namespace Model { namespace Cpp {
-			class Variable;
-		}}}
 	}
 
 	template<typename Func>

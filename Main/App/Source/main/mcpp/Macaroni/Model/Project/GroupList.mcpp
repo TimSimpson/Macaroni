@@ -1,11 +1,15 @@
+~unit "Macaroni/Model/Project/GroupList";
+
 ~import BOOST_FOREACH;
 ~import boost::format;
 ~import Macaroni::Model::Context;
 ~import Macaroni::Model::Project::Group;
+~import Macaroni::Model::Project::GroupListPtr;
 ~import Macaroni::Model::Project::GroupPtr;
 ~import boost::intrusive_ptr;
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaIncludes;
 ~import Macaroni::Lua::LuaOperator;
 ~import boost::optional;
 ~import Macaroni::Model::Project::Project;
@@ -17,25 +21,24 @@
 ~namespace Macaroni::Model::Project;
 
 
-class GroupList {};
-
-typedef intrusive_ptr<GroupList> GroupListPtr
-	@LuaClass [ SameAsNode = GroupList ]
-	@UseLightDef true;
-
+~block "h"
+{
+	#include <Macaroni/ME.h>
+	#include <vector>
+}
 
 class GroupList
 	@LuaClass [
 		ReferenceType = GroupListPtr
 	]
+	@LuaIncludes ={
+		#include <Macaroni/Exception.h>
+		#include <Macaroni/Model/Project/GroupLuaMetaData.h>
+	}
 {
 	friend Context;
 	private Context * const context;
-	~block "h-predef"
-	{
-		#include <Macaroni/ME.h>
-		#include <vector>
-	}
+
 	~block "h"
 	{
 		private: std::vector<Group * MACARONI_VE_CONST> groups;

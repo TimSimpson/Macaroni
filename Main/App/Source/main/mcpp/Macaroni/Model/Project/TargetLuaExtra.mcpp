@@ -20,7 +20,6 @@
 ~import Macaroni::Model::Project::TargetLuaMetaData;
 ~import Macaroni::Model::Project::TargetPtr;
 ~import Macaroni::Model::Project::UnitTarget;
-~import Macaroni::Model::Project::UnitTargetPtr;
 ~import Macaroni::Model::Project::UnitTargetLuaMetaData;
 ~import std::vector;
 

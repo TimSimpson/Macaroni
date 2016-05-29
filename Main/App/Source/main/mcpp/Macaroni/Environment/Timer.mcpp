@@ -1,24 +1,25 @@
+~unit "Macaroni/Environment/Timer";
+
 ~import std::chrono::duration_cast;
 ~import std::chrono::milliseconds;
 ~import std::chrono::steady_clock;
 
 ~namespace Macaroni::Environment;
 
+~block "h"
+{
+  #include <Macaroni/ME.h>
+  #include <chrono>
+}
 
 class Timer
 {
-    ~block "h-predef"
-    {
-      #include <Macaroni/ME.h>
-      #include <chrono>
-    }
-
     ~block "h"
     {
         public: typedef unsigned long long Integer;
     }
 
-    class Integer{ ~hfile=<Macaroni/Environment/Timer.h> };
+    ~extern Integer include=<Macaroni/Environment/Timer.h>;
 
     ~import Macaroni::Environment::Timer::Integer;
 

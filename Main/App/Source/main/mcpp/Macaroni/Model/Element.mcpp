@@ -18,7 +18,7 @@ class ElementLuaMetaData
 	~hfile=<Macaroni/Model/ElementLua.h>
 };
 
-typedef intrusive_ptr<Element> ElementPtr
+typedef intrusive_ptr<Element ~l> ElementPtr
 	@LuaClass [ SameAsNode=Macaroni::Model::Element ]
 ;
 

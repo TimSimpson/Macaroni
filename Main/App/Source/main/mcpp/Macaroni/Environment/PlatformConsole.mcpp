@@ -1,0 +1,78 @@
+~unit "Macaroni/Environment/PlatformConsole" ;
+
+~block "h"
+{
+    #include <Macaroni/ME.h>
+    #ifdef MACARONI_COMPILE_TARGET_WINDOWS
+        #include <windows.h>
+    #endif
+}
+
+~namespace Macaroni::Environment;
+
+
+class PlatformConsole
+{
+    ~block "h"
+    {
+        #ifdef MACARONI_COMPILE_TARGET_WINDOWS
+
+
+            bool ok;
+            ::WORD originalColor;
+            HANDLE stdOut;
+
+            public: PlatformConsole()
+            :   ok(false)
+            {
+                stdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+                if (INVALID_HANDLE_VALUE != stdOut)
+                {
+                    CONSOLE_SCREEN_BUFFER_INFO info;
+                    if (0 != GetConsoleScreenBufferInfo(stdOut, &info))
+                    {
+                        originalColor = info.wAttributes;
+                        ok = true;
+                    }
+                }
+            }
+
+            public: void SetError()
+            {
+                if (ok)
+                {
+                    // It probably is wrong to not write to stderr... but
+                    // then why does it feel so right?
+                    SetConsoleTextAttribute(stdOut, (WORD) 12);
+                }
+            }
+
+            public: void SetNormal()
+            {
+                if (ok)
+                {
+                    SetConsoleTextAttribute(stdOut, originalColor);
+                }
+            }
+
+            public: void SetDebug()
+            {
+                if (ok)
+                {
+                    SetConsoleTextAttribute(stdOut, (WORD)7);
+                }
+            }
+
+        #else
+
+            public: void SetError(){}
+            public: void SetNormal(){}
+            public: void SetDebug(){}
+
+        #endif
+
+    }  // end of block
+
+};
+
+typedef boost::shared_ptr<PlatformConsole ~l> PlatformConsolePtr;

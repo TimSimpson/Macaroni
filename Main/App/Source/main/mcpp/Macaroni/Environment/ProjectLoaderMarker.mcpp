@@ -1,0 +1,10 @@
+~import Macaroni::Environment::ProjectEnvironment;
+~import Macaroni::Model::Project::ProjectVersionId;
+
+
+/* Allows an environment to claim ownership of a project. */
+class Macaroni::Environment::ProjectLoaderMarker
+{
+    public virtual void Mark(ProjectEnvironment & env,
+                             ProjectVersionId pvId) = 0;
+};

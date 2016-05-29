@@ -34,7 +34,6 @@
 ~import Macaroni::Lua::LuaGlueCode;
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
-~import Macaroni::Model::Project::MacaroniCodeTarget;
 ~import Macaroni::Model::NodePtr;
 ~import boost::optional;
 ~import boost::filesystem::path;
@@ -54,7 +53,6 @@
 ~import Macaroni::Model::Project::FileList;
 ~import Macaroni::Model::Project::FileListPtr;
 ~import Macaroni::Environment::Values::Table;
-~import Macaroni::Environment::Values::TablePtr;
 ~import Macaroni::Model::Project::TargetFileSweeper;
 ~import Macaroni::Environment::Values::Macaroni_Model_Project_Target;
 ~import Macaroni::Model::Project::TargetPtr;

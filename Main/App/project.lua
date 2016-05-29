@@ -10,7 +10,7 @@ end
 project = context
     :Group("Macaroni")
     :Project("Macaroni.App")
-    :Version("0.4.0")
+    :Version("0.4.1")
 
 
 ---------------------------------------------------------------------------
@@ -161,12 +161,10 @@ generate = function()
         luaGlue:Run("Generate", {
             target=lib,
             outputPath=outputPath,
-            luaCatchCode = [[} catch(const Macaroni::Exception & ex) { \
-                return luaL_error(L, ex.message().c_str()); \
-              } catch(const std::exception & ex){ \
+            luaCatchCode = [[} catch(const std::exception & ex){ \
                 return luaL_error(L, ex.what()); \
               }
-            ]]
+            ]],
             });
     end
 

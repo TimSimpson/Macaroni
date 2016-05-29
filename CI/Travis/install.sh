@@ -37,8 +37,8 @@ if [ ! -d ~/OldMacaroniBuild ]; then
     echo 'Build previous version of Macaroni'
     mkdir -p ~/OldMacaroniBuild
     pushd ~/OldMacaroniBuild
-    wget http://border-town.com/macaroni/downloads/macaroni-0.3.0-pureCpp.zip
-    unzip macaroni-0.3.0-pureCpp.zip
+    wget http://border-town.com/macaroni/downloads/macaroni-0.4.0-pureCpp.zip
+    unzip macaroni-0.4.0-pureCpp.zip
     sed "s%boost.use-project 1.57 ;%boost.use-project 1.58 ;%" jamroot.jam > jr2
     cp jr2 jamroot.jam
     echo 'Bjam, go!'
@@ -52,11 +52,9 @@ if [ ! -d ~/OldMacaroni ]; then
     echo 'Install previous version of Macaroni'
     mkdir -p ~/OldMacaroni
     pushd ~/OldMacaroni
-    wget http://border-town.com/macaroni/downloads/macaroni-0.3.0-ubuntu-64.zip
-    unzip macaroni-0.3.0-ubuntu-64.zip
-    # Yeah, this is nuts. Don't know how to make Travis run the old version of
-    # the executable and for now I don't care.
-    rm macaroni
+    wget http://border-town.com/macaroni/downloads/macaroni-0.4.0-windows.zip
+    unzip macaroni-0.3.0-windows.zip
+    rm macaroni.exe
     cp ../OldMacaroniBuild/exe/macaroni_p macaroni
     # chmod +x macaroni
     cp "${WORK_DIR}/CI/Travis/FileGenerator-Fix.lua" Generators/Cpp/FileGenerator.lua

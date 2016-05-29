@@ -46,14 +46,13 @@
 ~import Macaroni::Model::Project::ProjectPtr;
 ~import Macaroni::Model::Reason;
 ~import Macaroni::Model::Project::Resource;
-~import Macaroni::Model::Project::ResourcePtrc;
+~import Macaroni::Model::Project::ResourcePtr;
 ~import Macaroni::Exceptions::SimpleStringException;
 ~import std::string;
 ~import Macaroni::Environment::Values::String;
 ~import Macaroni::StringException;
 ~import std::stringstream;
 ~import Macaroni::Environment::Values::Table;
-~import Macaroni::Environment::Values::TablePtr;
 ~import Macaroni::Model::Project::Target;
 ~import Macaroni::Model::Project::TargetList;
 ~import Macaroni::Model::Project::TargetListPtr;
@@ -145,16 +144,16 @@ class Macaroni::Model::Project::ProjectVersion
 		ReferenceType = Macaroni::Model::Project::ProjectVersionPtr
 	]
 	@LuaIncludes ={
-		#include <Macaroni/Environment/Values/Any.h>
-		#include <Macaroni/Environment/Values/AnyPtr.h>
+		#include <Macaroni/Environment/Values/Basic.h>
 		#include <Macaroni/Model/Project/Files.h>
 		#include <Macaroni/Model/Project/Resource.h>
 		#include <Macaroni/Model/Project/ResourcePtr.h>
-		#include <Macaroni/Environment/Values/Table.h>
 	}
 {
 	~import Macaroni::Model::Project::ProjectVersionId;
 	friend Macaroni::Model::Project::Project;
+
+	typedef Target TargetAlias;
 
 	private unsigned int fileParseCount;
 	private Macaroni::Model::Project::Project * const project;
@@ -188,8 +187,8 @@ class Macaroni::Model::Project::ProjectVersion
 			    && version == other.version);
 	}
 
-	public void AddTarget(Target * target) {
-		BOOST_FOREACH(Macaroni::Model::Project::Target * t, targets) {
+	public void AddTarget(TargetAlias * target) {
+		BOOST_FOREACH(TargetAlias * t, targets) {
 			if (t->GetName() == target->GetName()) {
 				stringstream msg;
 				msg << "Target " << t->GetName() << " was already added for "
@@ -242,7 +241,7 @@ class Macaroni::Model::Project::ProjectVersion
 	public TargetPtr GetTarget(const std::string & name)
 		@LuaFunction "GetTarget"
 	{
-		BOOST_FOREACH(Macaroni::Model::Project::Target * target, targets)
+		BOOST_FOREACH(TargetAlias * target, targets)
 		{
 			if (target->GetName() == name)
 			{

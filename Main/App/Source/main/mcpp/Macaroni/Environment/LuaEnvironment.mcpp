@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+ ~unit "Macaroni/Environment/LuaEnvironment";
+
 ~import Macaroni::Environment::Values::Any;
-~import Macaroni::Environment::Values::AnyPtr;
+~import-h Macaroni::Environment::Values::AnyPtr;
 ~import Macaroni::Environment::Values::Bool;
 ~import BOOST_FOREACH;
 ~import Macaroni::Environment::Values::Double;
+~import Macaroni::Exception;
 ~import boost::format;
 ~import std::fstream;
 ~import Macaroni::InternalSource;
@@ -26,18 +29,29 @@
 ~import luaL_Reg;
 ~import std::string;
 ~import boost::optional;
+~import Macaroni::Exceptions::SimpleIntException;
+~import Macaroni::Exceptions::SimpleStringException;
 ~import std::string;
 ~import Macaroni::Environment::Values::String;
 ~import Macaroni::StringException;
 ~import Macaroni::Environment::StringPair;
 ~import std::stringstream;
-~import Macaroni::Environment::Values::Table;
+~import-h Macaroni::Environment::Values::Table;
+~import Macaroni::Environment::Values::UserData;
 ~import std::vector;
 
 
 ~namespace Macaroni::Environment;
 
 // TODO: Add default value support to Macaroni and fix all of this!
+
+~block "h" {
+    #include <Macaroni/ME.h>
+}
+
+~block "cpp" {
+    #include <Macaroni/Lua.h>
+}
 
 /** Lua environment that we can do Macaroni stuff in. */
 class LuaEnvironment
@@ -47,17 +61,6 @@ class LuaEnvironment
     private vector<string> packageDirectories;
     private lua_State * state;
 
-    ~block "h-predef" {
-        #include <Macaroni/Environment/Values/AnyPtr.h>
-        #include <Macaroni/Environment/Values/Table.h>
-        #include <Macaroni/Lua.h>
-        #include <Macaroni/ME.h>
-    }
-    ~block "cpp-include" {
-        #include <Macaroni/Exception.h>
-        #include <Macaroni/Exceptions/SimpleIntException.h>
-        #include <Macaroni/Exceptions/SimpleStringException.h>
-    }
     ~block "cpp" {
         // MinGW has no strnlen.
         #ifdef BOOST_WINDOWS
@@ -971,7 +974,7 @@ class LuaEnvironment
                     if (metaTableName)
                     {
                         //const string & name = metaTableName.get();
-                        rtn = Values::Any::CreateFromLuaUserData(state,
+                        rtn = Values::UserData::CreateFromLuaUserData(state,
                             metaTableName.get(), index);
                     }
                 }

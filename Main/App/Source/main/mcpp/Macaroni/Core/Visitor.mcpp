@@ -1,3 +1,4 @@
+
 ~import std::cout;
 
 ~namespace Macaroni::Core;
@@ -8,50 +9,58 @@ class BaseVisitor
         virtual ~BaseVisitor() {}
 };
 
+
+~unit "Macaroni/Core/Visitor" ;
+
+~import Macaroni::Core::BaseVisitor;
+
+
 template<typename T>
 class Visitor
 {
-    ~block "h-predef" { #include <iostream> }
+    //~block "h-predef" { #include <iostream> }
 
     public virtual ~Visitor() {}
 
     public virtual void Visit(T& obj) = 0;
+};
 
-    ~block "h-postdef"
+~block "h"
+{
+
+namespace Macaroni { namespace Core {
+    template<typename T2>
+    bool Visit(T2 & thisRef, BaseVisitor & visitor)
     {
-        template<typename T2>
-        bool Visit(T2 & thisRef, BaseVisitor & visitor)
+        Visitor<T2> * v = dynamic_cast<Visitor<T2> *>(&visitor);
+        if (v)
         {
-            Visitor<T2> * v = dynamic_cast<Visitor<T2> *>(&visitor);
-            if (v)
-            {
-                v->Visit(thisRef);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            v->Visit(thisRef);
+            return true;
         }
-
-        template<typename T2, class = typename T2::parent>
-        bool Visit(T2 & thisRef, BaseVisitor & visitor)
+        else
         {
-            Visitor<T2> * v = dynamic_cast<Visitor<T2> *>(&visitor);
-            if (v)
-            {
-                v->Visit(thisRef);
-                return true;
-            }
-            else
-            {
-                return Visit(static_cast<typename T2::super &>(thisRef));
-            }
+            return false;
         }
     }
 
-};
+    template<typename T2, class = typename T2::parent>
+    bool Visit(T2 & thisRef, BaseVisitor & visitor)
+    {
+        Visitor<T2> * v = dynamic_cast<Visitor<T2> *>(&visitor);
+        if (v)
+        {
+            v->Visit(thisRef);
+            return true;
+        }
+        else
+        {
+            return Visit(static_cast<typename T2::super &>(thisRef));
+        }
+    }
+}}
 
+}
 
 
 

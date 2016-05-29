@@ -9,7 +9,7 @@
 
 class TemplateTypename {};
 
-typedef boost::intrusive_ptr<TemplateTypename> TemplateTypenamePtr
+typedef boost::intrusive_ptr<TemplateTypename ~l> TemplateTypenamePtr
     @LuaClass [ SameAsNode=TemplateTypename ]
 ;
 

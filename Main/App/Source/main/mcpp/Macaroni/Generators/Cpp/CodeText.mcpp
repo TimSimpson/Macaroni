@@ -1,3 +1,4 @@
+~import-h MACARONI_ASSERT;
 ~import Macaroni::Generators::Cpp::CodeType;
 ~import Macaroni::Generators::Cpp::CodeGraph;
 ~import Macaroni::Model::Element;
@@ -11,7 +12,6 @@
 ~namespace Macaroni::Generators::Cpp;
 
 
-
 class CodeText
 {
     private CodeType codeType;              // Fwd decl, definition, impl, etc.
@@ -19,11 +19,6 @@ class CodeText
     private Element * element;              // The C++ element it represents.
     private int graphId;                    // Used by Boost's graph stuff.
     friend CodeGraph;
-
-    ~block "h-predef"
-    {
-        #include <Macaroni/ME.h>
-    }
 
     // This is only used so the CodeText can be stored in STL containers.
 

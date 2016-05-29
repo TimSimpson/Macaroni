@@ -13,6 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+~unit "Macaroni/Environment/ProjectLoader";
+
+~block "h" {
+    #include <boost/algorithm/string.hpp>
+    #include <Macaroni/Environment/PluginFactory.h>
+    #include <Macaroni/Environment/ProjectEnvironment.h>
+}
+
+~block "cpp"
+{
+    #include <stdio.h>
+    #include <stdlib.h>
+}
+
 ~import std::auto_ptr;
 ~import Macaroni::AppPaths;
 ~import Macaroni::AppPathsPtr;
@@ -27,7 +41,6 @@
 ~import boost::format;
 ~import Macaroni::Environment::Input;
 ~import Macaroni::Environment::InputPtr;
-~import boost::intrusive_ptr;
 ~import std::map;
 ~import boost::optional;
 ~import Macaroni::Environment::Output;
@@ -44,6 +57,7 @@
 ~import Macaroni::Environment::PluginFactory;
 ~import Macaroni::Environment::PluginFactoryLuaMetaData;
 ~import Macaroni::Environment::PluginFactoryPtr;
+~import Macaroni::Environment::ProjectLoaderPtr;
 ~import Macaroni::Model::Project::ProjectVersionId;
 ~import Macaroni::Model::Project::ProjectVersion;
 ~import Macaroni::Model::Project::ProjectVersionLuaMetaData;
@@ -57,17 +71,11 @@
 ~import Macaroni::Environment::ProjectEnvironment;
 ~import Macaroni::Environment::ProjectEnvironmentPtr;
 
-class Macaroni::Environment::ProjectLoader {};
 
-typedef intrusive_ptr<Macaroni::Environment::ProjectLoader ~l>
-    Macaroni::Environment::ProjectLoaderPtr;
 
-/* Allows an environment to claim ownership of a project. */
-class Macaroni::Environment::ProjectLoaderMarker
-{
-    public virtual void Mark(ProjectEnvironment & env,
-                             ProjectVersionId pvId) = 0;
-};
+
+
+~namespace Macaroni::Environment;
 
 /**
  *  Loading projects is tricky; we have to make sure we load each one only
@@ -78,17 +86,11 @@ class Macaroni::Environment::ProjectLoaderMarker
  *
  *  This class keeps these things straight.
  */
-class Macaroni::Environment::ProjectLoader
+class ProjectLoader
 {
-    ~block "h-predef" {
-        #include <boost/algorithm/string.hpp>
-        #include <Macaroni/Environment/PluginFactory.h>
-        #include <Macaroni/Environment/ProjectEnvironment.h>
-    }
-
-    struct ProjectVersionCompare
+    class ProjectVersionCompare
     {
-        bool operator() (
+        public bool operator() (
             const Macaroni::Model::Project::ProjectVersionId & a,
             const Macaroni::Model::Project::ProjectVersionId & b) const;
     };
@@ -293,11 +295,7 @@ class Macaroni::Environment::ProjectLoader
         return LoadProjectEnvironment(projectPath, boost::none, false);
     }
 
-~block "cpp-include"
-{
-    #include <stdio.h>
-#include <stdlib.h>
-}
+
     /**
      * Loads a project from a specific file.
      * If an expected project version ID is given, it will validate that

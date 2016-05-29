@@ -316,7 +316,7 @@ class Macaroni_Model_Project_Target : public Any
 
 
 
-class Any
+class UserData
 {
 	~import Macaroni::Environment::Values::Macaroni_Model_Context;
 	~import Macaroni::Environment::Values::Macaroni_Model_Project_Files;

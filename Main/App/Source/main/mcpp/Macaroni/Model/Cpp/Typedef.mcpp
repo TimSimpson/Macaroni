@@ -25,7 +25,6 @@
 ~import Macaroni::Model::Project::TargetPtr;
 ~import Macaroni::Model::Type;
 ~import Macaroni::Model::TypePtr;
-~import Macaroni::Model::TypedefPtr;
 ~import Macaroni::Core::Visitor;
 
 ~namespace Macaroni::Model::Cpp;
@@ -33,7 +32,7 @@
 
 class Typedef {};
 
-typedef intrusive_ptr<Typedef> TypedefPtr;
+typedef intrusive_ptr<Typedef ~l> TypedefPtr;
 
 /** Represents a Type which is stored in the Node space. */
 class Typedef : public Scope

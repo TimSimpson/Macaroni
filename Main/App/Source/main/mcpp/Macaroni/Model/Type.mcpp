@@ -22,10 +22,9 @@
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
 ~import Macaroni::Model::Node;
-~import Macaroni::Model::NodePtr;
+~import-h Macaroni::Model::NodePtr;
 ~import boost::optional;
 ~import std::ostream;
-~import std::pair;
 ~import Macaroni::Model::SimpleTypeModifiers;
 ~import std::string;
 ~import std::stringstream;
@@ -68,10 +67,8 @@ class Type
 		#include <Macaroni/Model/TypeListLuaMetaData.h>
 	}
 {
-	~block "h-predef"
-	{
-		#include <Macaroni/Exceptions/SimpleException.h>
-	}
+	~import-h Macaroni::Exceptions::SimpleException;
+
 	~block "h"
 	{
 		MACARONI_SIMPLE_EXCEPTION_DEFINE(UnlockedTypeException,
@@ -388,7 +385,7 @@ class TypeList
 	@LuaIndexExtraCode = {
 		const string index_0(luaL_checkstring(L, 2));
 		const auto index_1 = lexical_cast<int>(index_0);
-		const vector<unique_ptr<TypeArgumentList>> & list
+		const std::vector<std::unique_ptr<TypeArgumentList>> & list
 			= instance.type_.GetArguments();
 		if (1 > index_1 || list.size() < index_1)
 		{

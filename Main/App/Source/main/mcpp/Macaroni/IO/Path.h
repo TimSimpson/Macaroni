@@ -17,7 +17,7 @@
 #define MACARONI_IO_PATH_H
 
 #include "../ME.h"
-#include <Macaroni/Environment/Values/AnyPtr.h>
+#include <Macaroni/Environment/Values/Basic.h>
 #include <boost/optional.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/shared_ptr.hpp>

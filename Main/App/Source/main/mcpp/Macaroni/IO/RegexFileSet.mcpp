@@ -4,6 +4,7 @@
 ~import boost::intrusive_ptr;
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaIncludes;
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
 ~import nullptr;
@@ -12,6 +13,7 @@
 ~import Macaroni::IO::PathPtr;
 ~import boost::filesystem::path;
 ~import boost::regex;
+~import Macaroni::IO::RegexFileSet;
 ~import Macaroni::IO::RegexFileSetIterator;
 ~import std::string;
 ~import Macaroni::StringException;
@@ -21,7 +23,7 @@
 ~namespace Macaroni::IO;
 
 
-class RegexFileSet {};
+
 
 typedef intrusive_ptr<RegexFileSet ~l> RegexFileSetPtr
 	@LuaClass [ SameAsNode = RegexFileSet ]
@@ -39,6 +41,9 @@ class RegexFileSet : public FileSet
 	@LuaClass [
 		ReferenceType = RegexFileSetPtr
 	]
+	@LuaIncludes ={
+		#include <Macaroni/IO/PathLua.h>
+	}
 {
 	friend RegexFileSetIterator;
 
