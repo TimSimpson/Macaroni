@@ -28,10 +28,9 @@ class MacaroniConan(ConanFile):
                     root=root,
                     messages=os.path.join(root, 'Source', 'main', 'resources',
                                           'Messages.txt'),
-                    libraries=os.path.join(root, '..', 'Libraries'))
-                )
+                    libraries=os.path.join(root, '..', 'Libraries')))
 
-        self.run(cmd)
+        self.run("cd %s && %s" % (self.conanfile_directory, cmd))
         cmake = CMake(self.settings)
         self.run('cmake %s %s' % (self.conanfile_directory, cmake.command_line))
         self.run("cmake --build . %s" % cmake.build_config)
