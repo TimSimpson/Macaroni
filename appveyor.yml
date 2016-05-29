@@ -66,7 +66,7 @@ build_script:
 
       cd %APPVEYOR_BUILD_FOLDER%\Main\App
 
-      macaroni --messagesPath Source\main\resources\Messages.txt --libraryRepoPath=..\Libraries  -g  --showPaths --printTimes --verbose -b -o "link=static toolset=msvc-12.0 -j8"
+      macaroni --messagesPath Source\main\resources\Messages.txt --libraryRepoPath=..\Libraries  -g  --showPaths --printTimes --verbose -b -o "link=static toolset=msvc-12.0 -j8 release"
 
 test_script:
   - cmd: >-
