@@ -24,7 +24,6 @@
 ~import Macaroni::Model::Cpp::FunctionOverload;
 ~import Macaroni::Model::Cpp::FunctionOverloadPtr;
 ~import Macaroni::Model::ModelInconsistencyException;
-~import Macaroni::Model::Namespace;
 ~import Macaroni::Model::Node;
 ~import boost::optional;
 ~import Macaroni::Model::Reason;
@@ -39,7 +38,6 @@
 ~import Macaroni::Model::Project::TargetPtr;
 ~import Macaroni::Model::TypeModifiers;
 ~import Macaroni::Model::Type;
-~import Macaroni::Model::Cpp::TypeInfo;
 ~import Macaroni::Model::Cpp::VariablePtr;
 ~import Macaroni::Model::Cpp::VariableAssignment;
 ~import Macaroni::Core::Visitor;
@@ -48,7 +46,7 @@
 
 class Destructor {};
 
-typedef boost::intrusive_ptr<Destructor> DestructorPtr;
+typedef boost::intrusive_ptr<Destructor ~l> DestructorPtr;
 
 class Destructor : public Function
 {

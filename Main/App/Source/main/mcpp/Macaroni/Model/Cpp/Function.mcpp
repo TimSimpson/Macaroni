@@ -32,7 +32,7 @@
 
 
 class Function {};
-typedef boost::intrusive_ptr<Function> FunctionPtr;
+typedef boost::intrusive_ptr<Function ~l> FunctionPtr;
 
 
 /** Represents a function in any possible Scope. */

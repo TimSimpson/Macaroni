@@ -56,7 +56,7 @@
 
 class Class {};
 
-typedef boost::intrusive_ptr<Class> ClassPtr
+typedef boost::intrusive_ptr<Class ~l> ClassPtr
     @LuaClass
     [
         LuaGlueClass = Macaroni::Model::Cpp::ClassLuaMetaData,

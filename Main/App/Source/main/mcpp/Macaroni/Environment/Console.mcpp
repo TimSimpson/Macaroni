@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+~unit "Macaroni/Environment/Console" ;
 
 ~import std::cin;
 ~import std::cout;
@@ -26,6 +27,8 @@
 ~import Macaroni::Environment::Output::LEVEL;
 ~import Macaroni::Environment::OutputPtr;
 ~import Macaroni::Environment::Messages;
+~import Macaroni::Environment::PlatformConsole;
+~import Macaroni::Environment::PlatformConsolePtr;
 ~import std::string;
 ~import std::stringstream;
 ~import Macaroni::Environment::Timer;
@@ -35,88 +38,14 @@
 
 class Console : public virtual Input, public virtual Output
 {
-	~block "h-internal-predef"
-	{
-		#include <Macaroni/ME.h>
-		#ifdef MACARONI_COMPILE_TARGET_WINDOWS
-			#include <windows.h>
-		#endif
-	}
-
-	~block "h-internal"
-	{
-		#ifdef MACARONI_COMPILE_TARGET_WINDOWS
-
-			struct PlatformConsole
-			{
-				bool ok;
-				::WORD originalColor;
-				HANDLE stdOut;
-
-				PlatformConsole()
-				:	ok(false)
-				{
-					stdOut = GetStdHandle(STD_OUTPUT_HANDLE);
-					if (INVALID_HANDLE_VALUE != stdOut)
-					{
-						CONSOLE_SCREEN_BUFFER_INFO info;
-						if (0 != GetConsoleScreenBufferInfo(stdOut, &info))
-						{
-							originalColor = info.wAttributes;
-							ok = true;
-						}
-					}
-				}
-
-				void SetError()
-				{
-					if (ok)
-					{
-						// It probably is wrong to not write to stderr... but
-						// then why does it feel so right?
-						SetConsoleTextAttribute(stdOut, (WORD) 12);
-					}
-				}
-
-				void SetNormal()
-				{
-					if (ok)
-					{
-						SetConsoleTextAttribute(stdOut, originalColor);
-					}
-				}
-
-				void SetDebug()
-				{
-					if (ok)
-					{
-						SetConsoleTextAttribute(stdOut, (WORD)7);
-					}
-				}
-
-			};
-		#else
-			struct PlatformConsole
-			{
-				void SetError(){}
-				void SetNormal(){}
-				void SetDebug(){}
-			};
-		#endif
-	}
-
 	private bool lastWriteWasNewLine;
 	private int indentLevel;
 	private std::string indentString;
 	private bool open;
 	private bool verbose;
 
-	~block "h"
-	{
-		class PlatformConsole;
-		typedef boost::shared_ptr<PlatformConsole> PlatformConsolePtr;
-		PlatformConsolePtr platformConsole;
-	}
+	PlatformConsolePtr platformConsole;
+
 	private int referenceCount;
 
 	public Console(int indentLevel=0)

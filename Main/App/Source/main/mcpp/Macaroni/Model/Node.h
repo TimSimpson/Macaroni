@@ -19,7 +19,7 @@
 #include "../ME.h"
 #include "AnnotationValuePtr.h"
 #include "AnnotationTable.h"
-#include "ContextPtr.h"
+#include <Macaroni/Model/ContextPtr.h>
 #include <Macaroni/Model/Element.h>
 #include <Macaroni/Model/ElementPtr.h>
 #include <Macaroni/Model/FileNamePtr.h>

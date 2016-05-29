@@ -1,18 +1,16 @@
-~import boost::format;
 ~import Macaroni::Lua::LuaClass;
-~import Macaroni::Lua::LuaIncludes;
-~import Macaroni::Lua::LuaIndexExtraCode;
-~import Macaroni::Lua::LuaOperator;
-~import Macaroni::Model::Project::TargetPtr;
 ~import boost::shared_ptr;
-~import std::string;
+~import Macaroni::Model::Project::TargetList;
 ~import Macaroni::Cpp::UseLightDef;
 
 
 ~namespace Macaroni::Model::Project;
 
+typedef shared_ptr<TargetList> TargetListPtr
+	@LuaClass [ SameAsNode = TargetList ]
+	@UseLightDef true;
 
-class TargetList {};
+
 /**
  * Decorates a vector of Targets in a way that is exposable to Lua as well as
  * external code that doesn't wish to deal with naked pointers.
@@ -20,16 +18,23 @@ class TargetList {};
  * pointers that can expose an instance of this.
  */
 
-typedef shared_ptr<TargetList> TargetListPtr
-	@LuaClass [ SameAsNode = TargetList ]
-	@UseLightDef true;
+~unit "Macaroni/Model/Project/TargetList" ;
+
+~import boost::format;
+~import Macaroni::Lua::LuaIncludes;
+~import Macaroni::Lua::LuaIndexExtraCode;
+~import Macaroni::Lua::LuaOperator;
+~import Macaroni::Model::Project::TargetPtr;
+~import std::string;
 
 class TargetList
 	@LuaClass [
 		ReferenceType = TargetListPtr
 	]
 	@LuaIncludes = {
+		#include <Macaroni/Exception.h>
 		#include <Macaroni/Model/Project/Target.h>
+		#include <Macaroni/Model/Project/TargetLuaMetaData.h>
 	}
 	@LuaIndexExtraCode ={
 		const int key = luaL_checknumber(L, 2);
@@ -56,43 +61,34 @@ class TargetList
 	{
 		return str(format("TargetList, size %d") % GetCount());
 	}
-
-	~block "h-predef"
-	{
-		#include <vector>
-	}
-	~block "h-postdef"
-	{
-		/* Associates a target list held by some object with a smart reference
-		 * of that object, so that the TargetList can be passed around as
-		 * while keeping the reference count. */
-		template<typename T, typename TPtr>
-		class InnerTargetList : public TargetList
-		{
-		private:
-			TPtr parentPtr;
-			std::vector<Target * > * vec;
-
-		public:
-			InnerTargetList(T * parent, std::vector<Target *> * vec)
-				: parentPtr(parent), vec(vec)
-			{
-			}
-
-			int GetCount() const override
-			{
-				return vec->size();
-			}
-
-			TargetPtr GetItem(int index) const override
-			{
-				Target * t = (*vec)[index];
-				TargetPtr ptr(t);
-				return ptr;
-			}
-		};
-	}
-
 };
 
-class InnerTargetList { ~hfile=<Macaroni/Model/Project/TargetList.h> };
+
+/* Associates a target list held by some object with a smart reference
+ * of that object, so that the TargetList can be passed around as
+ * while keeping the reference count. */
+template<typename T, typename TPtr>
+class InnerTargetList : public TargetList
+{
+private:
+	TPtr parentPtr;
+	std::vector<Target * > * vec;
+
+public:
+	InnerTargetList(T * parent, std::vector<Target *> * vec)
+		: parentPtr(parent), vec(vec)
+	{
+	}
+
+	int GetCount() const override
+	{
+		return vec->size();
+	}
+
+	TargetPtr GetItem(int index) const override
+	{
+		Target * t = (*vec)[index];
+		TargetPtr ptr(t);
+		return ptr;
+	}
+};

@@ -10,7 +10,7 @@
 
 class Input {};
 
-typedef boost::intrusive_ptr<Input> InputPtr;
+typedef boost::intrusive_ptr<Input ~l> InputPtr;
 
 class Input
 {

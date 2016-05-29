@@ -1,6 +1,7 @@
 ~import boost::intrusive_ptr;
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaFunction;
+~import Macaroni::Lua::LuaIncludes;
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
 ~import boost::optional;
@@ -23,6 +24,9 @@ class Resource : public virtual Macaroni::Model::Project::Target
     @LuaClass [
         ReferenceType = ResourcePtr
     ]
+    @LuaIncludes ={
+        #include <Macaroni/IO/PathLua.h>
+    }
 {
     ~import Macaroni::Model::Project::ResourceLuaMetaData;
 

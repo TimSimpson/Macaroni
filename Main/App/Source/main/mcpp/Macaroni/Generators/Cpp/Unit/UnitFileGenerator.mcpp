@@ -42,9 +42,7 @@
 ~import Macaroni::Model::Cpp::Typedef;
 ~import Macaroni::Model::TypePtr;
 ~import Macaroni::Model::Project::UnitTarget;
-~import Macaroni::Core::Variable;
 ~import std::vector;
-~import Macaroni::Model::Cpp::Variable;
 ~import Macaroni::Core::Visitor;
 
 

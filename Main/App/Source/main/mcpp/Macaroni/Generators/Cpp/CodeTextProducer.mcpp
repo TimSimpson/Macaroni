@@ -16,6 +16,7 @@
 ~import Macaroni::Model::Cpp::Enum;
 ~import Macaroni::Model::Cpp::Extern;
 ~import Macaroni::Model::Cpp::ExternPtr;
+~import Macaroni::Model::FileName;
 ~import boost::format;
 ~import Macaroni::Model::Cpp::Function;
 ~import Macaroni::Model::Cpp::FunctionOverload;

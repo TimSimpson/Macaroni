@@ -11,45 +11,91 @@ class system { ~hfile=<cstdlib> };
 class strlen { ~hfile=<string.h> };
 
 // Std lib stuff
-class std::auto_ptr { ~hfile=<memory> };
-class std::string::const_iterator { ~hfile=<string> };
-class std::cin { ~hfile=<iostream> };
-class std::cout { ~hfile=<iostream> };
-class std::exception { ~hfile=<exception> };
-class std::fstream { ~hfile=<fstream> };
-class std::istream { ~hfile=<iostream> };
-class std::map { ~hfile=<map> };
-class std::ofstream { ~hfile=<iostream> };
-class std::ostream { ~hfile=<iostream> };
-class std::set { ~hfile=<set> };
-class std::stringstream { ~hfile=<sstream> };
-class std::string { ~hfile=<string> };
-class boost::tokenizer { ~hfile=<boost/tokenizer.hpp> };
-class std::vector { ~hfile=<vector> };
+//~extern std::auto_ptr
+//	include=<memory>;
+~extern std::string::const_iterator
+	include=<string>;
+//~extern std::cin
+//	include=<iostream>;
+//~extern std::cout
+//	include=<iostream>;
+//~extern std::exception
+//	include=<exception>;
+//~extern std::fstream
+//	include=<fstream>;
+//~extern std::istream
+//	include=<iostream>;
+~extern std::map
+	include=<map>
+	using={ using std::map; }
+	;
+//~extern std::ofstream
+//	include=<iostream>;
+//~extern std::ostream
+//	include=<iostream>;
+~extern std::set
+	include=<set>;
+//~extern std::stringstream
+//	include=<sstream>;
+//~extern std::string
+//	include=<string>;
+~extern boost::tokenizer
+	include=<boost/tokenizer.hpp>;
+//~extern std::vector
+//	include=<vector>;
 
-class std::chrono::duration_cast { ~hfile=<chrono> };
-class std::chrono::milliseconds { ~hfile=<chrono> };
-class std::chrono::steady_clock { ~hfile=<chrono> };
+~extern std::chrono::duration_cast
+	include=<chrono>;
+~extern std::chrono::milliseconds
+	include=<chrono>;
+~extern std::chrono::steady_clock
+	include=<chrono>;
 
 // Boost
-class boost::bad_lexical_cast { ~hfile=<boost/lexical_cast.hpp> };
-class boost::flyweight { ~hfile=<boost/flyweight.hpp> };
-class boost::filesystem::directory_iterator { ~hfile=<boost/filesystem/operations.hpp> };
-class boost::lexical_cast { ~hfile=<boost/lexical_cast.hpp> };
-class BOOST_FOREACH { ~hfile=<boost/foreach.hpp> };
-class boost::format { ~hfile=<boost/format.hpp> };
-class boost::hash { ~hfile=<boost/functional/hash.hpp> };
-//class boost::filesystem::create_directories { ~hfile=<boost/filesystem/convenience.hpp> }
-class boost::intrusive_ptr { ~hfile=<boost/intrusive_ptr.hpp> };
-class boost::optional { ~hfile=<boost/optional.hpp> };
-//class boost::filesystem::path { ~hfile=<boost/filesystem.hpp> }
-class boost::program_options::variables_map { ~hfile=<boost/program_options.hpp> };
-class boost::ptr_vector { ~hfile=<boost/ptr_container/ptr_vector.hpp> };
-class boost::regex { ~hfile=<boost/regex.hpp> };
-class boost::shared_ptr { ~hfile=<boost/shared_ptr.hpp> };
-class boost::to_lower { ~hfile=<boost/algorithm/string.hpp> };
-class boost::variant { ~hfile=<boost/variant.hpp> };
-class boost::container::vector { ~hfile=<boost/container/vector.hpp> };
+~extern boost::bad_lexical_cast
+	include=<boost/lexical_cast.hpp>;
+~extern boost::flyweight
+	include=<boost/flyweight.hpp>;
+~extern boost::filesystem::directory_iterator
+	include=<boost/filesystem/operations.hpp>
+	using={ using boost::filesystem::directory_iterator; };
+~extern boost::lexical_cast
+	include=<boost/lexical_cast.hpp>
+	using={ using boost::lexical_cast; };
+~extern BOOST_FOREACH
+	include=<boost/foreach.hpp>;
+//~extern boost::format
+//	include=<boost/format.hpp>;
+~extern boost::hash
+	include=<boost/functional/hash.hpp>;
+
+/*~extern boost::filesystem::create_directories
+	include=<boost/filesystem/convenience.hpp>;
+~extern boost::intrusive_ptr
+	include=<boost/intrusive_ptr.hpp>;
+~extern boost::optional
+	include=<boost/optional.hpp>;
+
+//~extern boost::filesystem::path
+	include=<boost/filesystem.hpp> } */
+~extern boost::program_options::variables_map
+	include=<boost/program_options.hpp>;
+~extern boost::ptr_vector
+	include=<boost/ptr_container/ptr_vector.hpp>;
+~extern boost::regex
+	include=<boost/regex.hpp>
+	using={ using boost::regex; } ;
+//~extern boost::shared_ptr
+//	include=<boost/shared_ptr.hpp>;
+~extern boost::to_lower
+	include=<boost/algorithm/string.hpp>;
+~extern boost::variant
+		include=<boost/variant.hpp>
+		using={ using boost::variant; }
+	;
+~extern boost::container::vector
+	include=<boost/container/vector.hpp>;
+
 // Lua
 // #include <Lua/lualib.h>
 
@@ -80,9 +126,7 @@ class Macaroni::Model::Cpp::Class
 };*/
 
 class Macaroni::Model::ContextLuaMetaData { ~hfile=<Macaroni/Model/ContextLua.h> };
-class Macaroni::Model::ContextPtr
-	@LuaClass [ SameAsNode=Macaroni::Model::Context ]
-	{ ~hfile=<Macaroni/Model/ContextPtr.h> };
+
 
 class Macaroni::IO::FileNotFoundException { ~hfile=<Macaroni/IO/FileNotFoundException.h> };
 //class Macaroni::Model::FileName { ~hfile=<Macaroni/Model/FileName.h> }
@@ -117,7 +161,7 @@ class Macaroni::Model::NodeListPtr { ~hfile=<Macaroni/Model/NodePtr.h> };
 
 
 // Path
-class Macaroni::IO::Path {};
+~import Macaroni::IO::Path;
 class Macaroni::IO::PathPtr
 	@LuaClass [ SameAsNode=Macaroni::IO::Path ]
 { ~hfile=<Macaroni/IO/Path.h> };
@@ -128,8 +172,9 @@ class Macaroni::IO::Path
 		ReferenceType = Macaroni::IO::PathPtr,
 	]
 { ~hfile=<Macaroni/IO/Path.h> };
+
 class Macaroni::IO::PathListLuaMetaData { ~hfile=<Macaroni/IO/PathLua.h> };
-class Macaroni::IO::PathList {};
+~import Macaroni::IO::PathList;
 class Macaroni::IO::PathListPtr
 	@LuaClass [ SameAsNode=Macaroni::IO::PathList ]
 	{ ~hfile=<Macaroni/IO/Path.h> };
@@ -148,6 +193,12 @@ class Macaroni::Model::Cpp::VariablePtr { ~hfile=<Macaroni/Model/Cpp/VariablePtr
 class Macaroni::Containers::VectorOfConstString { ~hfile=<Macaroni/Containers.h> };
 class MACARONI_VE_CONST { ~hfile=<Macaroni/ME.h> };
 
-class std::array { ~hfile=<array> };
-class std::unique_ptr { ~hfile=<memory> };
-class std::unordered_map { ~hfile=<unordered_map> };
+~extern std::array
+	include=<array>
+	;
+~extern std::unique_ptr
+	include=<memory>
+	;
+~extern std::unordered_map
+	include=<unordered_map>
+	;

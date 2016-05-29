@@ -15,8 +15,12 @@ install:
   - ps: Start-FileDownload 'http://885875f368d47bdd75f4-fccc9ce7610ca8b8e6180232413c69c8.r20.cf2.rackcdn.com/macdeps.zip' -FileName 'C:\Libraries\macdeps.zip'
   - echo unzipping
   - 7z x C:\Libraries\macdeps.zip  -oC:\Libraries\ -r
-  - echo Installing Macaroni
-  - choco install macaroni
+  - echo Downloading Macaroni
+  - mkdir C:\Libraries\Macaroni
+  - ps: Start-FileDownload 'http://border-town.com/macaroni/downloads/macaroni-0.4.0-windows.zip' -FileName 'C:\Libraries\Macaroni\macaroni.zip'
+  - echo unzipping
+  - 7z x C:\Libraries\Macaroni\macaroni.zip  -oC:\Libraries\Macaroni\ -r
+  - SET PATH=%PATH%;C:\Libraries\Macaroni
   - mkdir "%USERPROFILE%\Macaroni"
   - echo 'Writing init.lua and site-config.jam...'
   - cp %APPVEYOR_BUILD_FOLDER%\Ci\AppVeyor\init.lua %USERPROFILE%\Macaroni\init.lua
@@ -32,7 +36,7 @@ build_script:
 
       bootstrap
 
-      SET PATH=%PATH%;C:\Libraries\boost_1_58_0
+      SET PATH=%PATH%;C:\Libraries\boost_1_58_0;C:\Libraries\Macaroni
 
       SET PATH=%PATH%;C:\Python27;C:\Python27\Scripts
 

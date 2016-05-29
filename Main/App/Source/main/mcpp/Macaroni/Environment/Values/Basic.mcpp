@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+~unit "Macaroni/Environment/Values/Basic" ;
+
 ~import BOOST_FOREACH;
 ~import boost::format;
 ~import Macaroni::InternalSource;
@@ -204,15 +206,12 @@ class Null : public Any
 
 class String : public Any
 {
-	~import Macaroni::Exception::Exceptions;
 	~block "h" { public: typedef std::string WrappedType; }
 	~block "cpp"
 	{
 		MACARONI_SIMPLE_EXCEPTION_DEFINE(StringFormatException,
 			"Could not serialize the string value to a Lua string.");
 	}
-
-	~import Macaroni::Environment::Values::StringFormatException;
 
 	private string value;
 	public String(string value)
@@ -293,29 +292,13 @@ class ValueTypeException : public SimpleStringException
 
 class Table : public Any
 {
-	~import Macaroni::Environment::Values::Any;
-	~import Macaroni::Environment::Values::Bool;
-	~import Macaroni::Environment::Values::Double;
-	~import Macaroni::Exception::Exceptions;
-	~import boost::format;
+	~import-h boost::format;
 	//~import Macaroni::Environment::Values::KeyNotFoundException;
 	~import std::string;
 	~import Macaroni::Environment::Values::String;
 	//~import Macaroni::Environment::Values::ValueTypeException;
 	~import boost::variant;
-
-	~block "h-predef" {
-		// Needed for the ToAny support...
-		#include <Macaroni/Environment/Values/Bool.h>
-		#include <Macaroni/Environment/Values/Double.h>
-		#include <Macaroni/Environment/Values/Null.h>
-		#include <Macaroni/Environment/Values/String.h>
-
-		#include <Macaroni/Environment/Values/KeyNotFoundException.h>
-		#include <Macaroni/Environment/Values/ValueTypeException.h>
-		#include <boost/format.hpp>  // Bug in M
-		#include <vector>
-	}
+	~import-h std::vector;
 
 	~block "cpp"
 	{

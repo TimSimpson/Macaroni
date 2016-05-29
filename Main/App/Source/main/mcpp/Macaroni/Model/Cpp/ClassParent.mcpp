@@ -33,7 +33,7 @@ namespace Macaroni::Model::Cpp
 
 class ClassParent {};
 
-typedef boost::intrusive_ptr<ClassParent> ClassParentPtr
+typedef boost::intrusive_ptr<ClassParent ~l> ClassParentPtr
 	~hfile=<Macaroni/Model/Cpp/ClassParentPtr.h>
 ;
 
@@ -41,7 +41,7 @@ typedef vector<ClassParent> ClassParentList
 	~hfile=<Macaroni/Model/Cpp/ClassParentPtr.h>
 ;
 
-typedef boost::shared_ptr<ClassParentList> ClassParentListPtr
+typedef boost::shared_ptr<ClassParentList ~l> ClassParentListPtr
 	~hfile=<Macaroni/Model/Cpp/ClassParentPtr.h>
 ;
 

@@ -22,7 +22,6 @@
 ~import std::ostream;
 ~import MACARONI_THROW;
 ~import Macaroni::Model::SimpleTypeModifiers;
-~import Macaroni::Model::SimpleTypeModifiersPtr;
 ~import std::string;
 ~import std::stringstream;
 ~import std::unique_ptr;

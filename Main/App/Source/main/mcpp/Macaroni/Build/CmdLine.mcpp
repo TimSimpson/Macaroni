@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+~unit "Macaroni/Build/CmdLine" ;
+
 ~import Macaroni::AppPaths;
 ~import Macaroni::AppPathsPtr;
 ~import Macaroni::Environment::Values::Any;
@@ -28,8 +30,6 @@
 ~import Macaroni::Environment::Input;
 ~import Macaroni::Environment::InputPtr;
 ~import boost::lexical_cast;
-~import Macaroni::Model::Library;
-~import Macaroni::Model::LibraryPtr;
 ~import Macaroni::Environment::LuaEnvironment;
 ~import Macaroni::Environment::MacaroniEnvironment;
 ~import Macaroni::Environment::Messages;
@@ -40,12 +40,11 @@
 ~import Macaroni::IO::Paths;
 ~import boost::filesystem::path;
 ~import Macaroni::IO::RegexFileSet;
-~import Macaroni::SimpleException;
 ~import std::string;
 ~import std::stringstream;
 ~import Macaroni::Environment::Values::String;
 ~import Macaroni::Environment::Values::Table;
-~import boost::program_options::variables_map;
+~import-h boost::program_options::variables_map;
 ~import std::vector;
 ~import Macaroni::Containers::VectorOfConstString;
 
@@ -85,10 +84,6 @@ class CmdLine
 	private bool startPrompt;
 	private bool showPaths;
 	private bool verbose;
-
-	~block "h-predef" {
-		#include <boost/program_options.hpp>
-	}
 
 	~block "h" {
 		public: CmdLine(int argc, const char * * argv,

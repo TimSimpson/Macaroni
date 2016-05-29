@@ -18,8 +18,6 @@
 ~import BOOST_FOREACH;
 ~import std::ifstream;
 ~import Macaroni::IO::FileSet;
-~import Macaroni::IO::FileSetIterator;
-~import Macaroni::Parser::ParserPtr;
 ~import Macaroni::Model::SourcePtr;
 ~import Macaroni::Model::Project::TargetPtr;
 

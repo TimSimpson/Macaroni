@@ -2,6 +2,7 @@
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaFunction;
 ~import Macaroni::Lua::LuaGlueCode;
+~import Macaroni::Lua::LuaIncludes;
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
 ~import boost::optional;
@@ -17,13 +18,6 @@ typedef intrusive_ptr<Config ~l> ConfigPtr
 	@LuaClass [ SameAsNode = Config ]
 	@UseLightDef true
 ;
-
-// Ugh, not having enums in Macaroni really hurts here.
-class Config::Variant
-{
-	~hfile = <Macaroni/Model/Project/Config.h>
-};
-
 
 
 class ConfigLuaMetaData{};
@@ -49,25 +43,24 @@ class Config
 	@LuaClass [
 		ReferenceType = ConfigPtr
 	]
+	@LuaIncludes ={
+		#include <Macaroni/Exception.h>
+	}
 {
 	friend ConfigLuaMetaData;
 
-	~block "h"
+	public enum Variant
 	{
-		public:
-		enum Variant
-		{
-			DEBUG,
-			RELEASE
-		};
-	}
+		DEBUG,
+		RELEASE
+	};
 
 	typedef optional<Config::Variant ~l> VariantOption
+		~hfile = <Macaroni/Model/Project/Config.h>
 		@LuaClass [
 			SameAsNode = Config
 		]
 		@UseLightDef true
-		~hfile = <Macaroni/Model/Project/Config.h>
 	;
 
 	private int referenceCount;

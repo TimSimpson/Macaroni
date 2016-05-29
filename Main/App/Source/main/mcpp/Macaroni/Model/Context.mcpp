@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-~import std::cerr;
 ~import Macaroni::Model::ContextPtr;
 ~import BOOST_FOREACH;
 ~import Macaroni::Model::Project::GroupList;

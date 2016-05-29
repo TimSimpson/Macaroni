@@ -23,7 +23,7 @@
 
 class Primitive {};
 
-typedef boost::intrusive_ptr<Primitive> PrimitivePtr;
+typedef boost::intrusive_ptr<Primitive ~l> PrimitivePtr;
 
 class Primitive : public ScopeMember
 {

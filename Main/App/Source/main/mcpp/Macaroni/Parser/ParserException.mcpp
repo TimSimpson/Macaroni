@@ -17,7 +17,7 @@
 ~import boost::format;
 ~import Macaroni::InternalSource;
 ~import boost::optional;
-~import Macaroni::Parser::ParserExceptionPtr;
+~import Macaroni::Model::Source;
 ~import Macaroni::Model::SourcePtr;
 ~import std::string;
 

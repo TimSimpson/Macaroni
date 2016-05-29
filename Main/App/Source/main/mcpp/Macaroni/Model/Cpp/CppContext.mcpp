@@ -19,13 +19,10 @@
 ~import Macaroni::Model::ContextPtr;
 ~import Macaroni::Model::FileName;
 ~import boost::format;
-~import Macaroni::Model::MessageAxiom;
-~import Macaroni::Model::Namespace;
 ~import Macaroni::Model::Node;
 ~import Macaroni::Model::Cpp::Primitive;
 ~import Macaroni::Model::Reason;
 ~import Macaroni::Model::Source;
-~import std::sstream;
 
 
 ~namespace Macaroni::Model::Cpp;

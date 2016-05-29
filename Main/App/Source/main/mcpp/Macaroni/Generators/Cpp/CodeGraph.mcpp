@@ -1,10 +1,26 @@
+~unit "Macaroni/Generators/Cpp/CodeGraph" ;
+
+~block "h"
+{
+    #include <array>
+    #include <unordered_map>
+    #include <Macaroni/ME.h>
+}
+
+~block "cpp"
+{
+    #include <algorithm>
+}
+
+
 ~import std::array;
 ~import Macaroni::Core::BaseVisitor;
 ~import Macaroni::Model::Block;
 ~import Macaroni::Model::Cpp::Class;
 ~import Macaroni::Model::Cpp::ClassParent;
 ~import Macaroni::Model::Cpp::ClassParentPtr;
-~import Macaroni::Generators::Cpp::CodeText;
+~import Macaroni::Generators::Cpp::CodeGraphPtr;
+~import-h Macaroni::Generators::Cpp::CodeText;
 ~import Macaroni::Generators::Cpp::CodeType;
 ~import Macaroni::Generators::Cpp::CyclicNodeDetected;
 ~import Macaroni::Generators::Cpp::CyclicNodeError;
@@ -27,8 +43,10 @@
 ~import Macaroni::Model::NodePtr;
 ~import boost::shared_ptr;
 ~import std::string;
+~import-h Macaroni::Model::Type;
 ~import Macaroni::Model::Type;
 ~import Macaroni::Model::Cpp::Typedef;
+~import-h Macaroni::Model::TypePtr;
 ~import Macaroni::Model::TypePtr;
 ~import std::unordered_map;
 ~import boost::ptr_vector;
@@ -37,17 +55,8 @@
 ~import Macaroni::Core::Visitor;
 ~import std::vector;
 
-
 ~namespace Macaroni::Generators::Cpp;
 
-class CodeGraph {};
-
-typedef shared_ptr<CodeGraph> CodeGraphPtr
-    @LuaClass
-    [
-        SameAsNode = CodeGraph
-    ]
-;
 
 class CodeGraph
     @LuaClass
@@ -55,22 +64,6 @@ class CodeGraph
         ReferenceType = CodeGraphPtr
     ]
 {
-    ~block "h-predef" {
-        #include <array>
-        #include <unordered_map>
-        #include <Macaroni/ME.h>
-        #include <Macaroni/Generators/Cpp/CodeText.h>
-        #include <Macaroni/Model/Type.h>
-        #include <Macaroni/Model/TypePtr.h>
-    }
-
-    ~block "cpp-include" { #include <algorithm> }
-
-    ~block "cpp"
-    {
-        using Macaroni::Model::ImportType;
-    }
-
     ~block "h"
     {
         private: CodeText * dividers;
@@ -170,6 +163,7 @@ class CodeGraph
         }
     };
 
+
     ~block "cpp" {
         namespace {
             std::array<CodeText, 6> createCodeTextArray(Element * e)
@@ -185,6 +179,7 @@ class CodeGraph
             }
         }
     }
+
 
     // This looks at an element and adds all the dependencies in the graph
     // that element would ever need.

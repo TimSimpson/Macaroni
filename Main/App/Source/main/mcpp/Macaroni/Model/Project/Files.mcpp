@@ -12,7 +12,6 @@
 ~import boost::shared_ptr;
 ~import std::string;
 ~import Macaroni::Environment::Values::Table;
-~import Macaroni::Environment::Values::TablePtr;
 ~import Macaroni::Model::Project::Target;
 ~import Macaroni::Model::Project::TargetPtr;
 ~import std::vector;
@@ -87,6 +86,7 @@ class Files : public map<string, FileListPtr>
 		ReferenceType = FilesPtr
 	]
 	@LuaIncludes ={
+		#include <Macaroni/Environment/Values/Basic.h>
 		#include <Macaroni/Model/Project/FileListLuaMetaData.h>
 		#include <Macaroni/Environment/LuaEnvironment.h>
 	}
@@ -137,7 +137,7 @@ class Files : public map<string, FileListPtr>
 	public static FilesPtr New(Table & table)
 		@LuaFunction "New"
 		@LuaGlueCode ={
-			Table table;
+			Macaroni::Environment::Values::Table table;
 			boost::optional<string> key("Library argument 1");
 			Macaroni::Environment::LuaEnvironment::SerializeTable(
 				table, L, 1, key);

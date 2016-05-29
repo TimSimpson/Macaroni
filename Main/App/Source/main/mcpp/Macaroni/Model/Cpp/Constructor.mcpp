@@ -21,7 +21,6 @@
 ~import Macaroni::Model::Reason;
 ~import Macaroni::Model::ReasonPtr;
 ~import Macaroni::Model::Cpp::ScopeMember;
-~import Macaroni::Model::Cpp::TypeInfo;
 ~import Macaroni::Model::Cpp::Variable;
 ~import Macaroni::Model::Cpp::VariablePtr;
 ~import Macaroni::Model::Cpp::VariableAssignment;
@@ -31,7 +30,7 @@
 
 class Constructor{};
 
-typedef intrusive_ptr<Constructor> ConstructorPtr;
+typedef intrusive_ptr<Constructor ~l> ConstructorPtr;
 
 /** Represents a function in any possible Scope. */
 class Constructor : public Function

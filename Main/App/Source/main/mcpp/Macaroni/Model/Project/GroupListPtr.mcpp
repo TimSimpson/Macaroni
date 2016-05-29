@@ -1,0 +1,12 @@
+~import Macaroni::Model::Project::GroupList;
+~import boost::intrusive_ptr;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Cpp::UseLightDef;
+
+~namespace Macaroni::Model::Project;
+
+
+typedef intrusive_ptr<GroupList ~l> GroupListPtr
+    @LuaClass [ SameAsNode = GroupList ]
+    @UseLightDef true;
+

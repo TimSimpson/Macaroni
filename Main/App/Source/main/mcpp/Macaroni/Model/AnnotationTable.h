@@ -18,7 +18,7 @@
 
 #include "AnnotationValue.h"
 #include "AnnotationTablePtr.h"
-#include "ContextPtr.h"
+#include <Macaroni/Model/ContextPtr.h>
 
 #include "NodePtr.h"
 
@@ -38,20 +38,20 @@ friend void intrusive_ptr_add_ref(AnnotationTable * p);
 friend void intrusive_ptr_release(AnnotationTable * p);
 public:
 	typedef std::vector<AnnotationValueInternalPtr>::iterator iterator;
-	typedef std::vector<AnnotationValueInternalPtr>::const_iterator const_iterator;	
+	typedef std::vector<AnnotationValueInternalPtr>::const_iterator const_iterator;
 
 	AnnotationTable();
 
 	AnnotationTable(Context & context);
 
 	AnnotationTable(Node & home);
-	
+
 	~AnnotationTable();
 
 	AnnotationValuePtr Add(AnnotationValueInternalPtr value);
 
 	AnnotationValuePtr Add(const std::string & name, const bool value, const ReasonPtr & reason);
-	
+
 	AnnotationValuePtr Add(const std::string & name, const double value, const ReasonPtr & reason);
 
 	AnnotationValuePtr Add(const std::string & name, NodePtr node, const ReasonPtr & reason);
@@ -62,7 +62,7 @@ public:
 
 	const_iterator begin() { return values.begin(); }
 
-	const_iterator end() { return values.end(); }	
+	const_iterator end() { return values.end(); }
 
 	AnnotationValuePtr GetByName(const NodePtr & name) const;
 
@@ -72,7 +72,7 @@ public:
 
 	NodePtr GetHomeNode();
 
-private:	
+private:
 	bool allowNestedNames() const;
 	Context & context;
 	Node & getHome() const;

@@ -8,7 +8,7 @@
 
 class TemplateParameterList {};
 
-typedef boost::intrusive_ptr<TemplateParameterList> TemplateParameterListPtr
+typedef boost::intrusive_ptr<TemplateParameterList ~l> TemplateParameterListPtr
     @LuaClass [ SameAsNode=TemplateParameterList ]
 ;
 

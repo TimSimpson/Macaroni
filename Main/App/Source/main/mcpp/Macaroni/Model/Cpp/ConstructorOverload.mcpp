@@ -29,7 +29,6 @@
 ~import Macaroni::Model::Cpp::ScopeMember;
 ~import Macaroni::Model::SourcePtr;
 ~import Macaroni::Model::Type;
-~import Macaroni::Model::Cpp::TypeInfo;
 ~import Macaroni::Model::TypeModifiers;
 ~import Macaroni::Model::TypePtr;
 ~import Macaroni::Model::Cpp::Variable;
@@ -42,7 +41,7 @@
 
 class ConstructorOverload {};
 
-typedef intrusive_ptr<ConstructorOverload> ConstructorOverloadPtr;
+typedef intrusive_ptr<ConstructorOverload ~l> ConstructorOverloadPtr;
 
 class ConstructorOverload : public FunctionOverload
 {

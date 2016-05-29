@@ -25,10 +25,10 @@
 ~import Macaroni::Cpp::UseLightDef;
 
 namespace Macaroni::Model {
-	
+
 class Source {};
 
-typedef boost::intrusive_ptr<Source> SourcePtr
+typedef boost::intrusive_ptr<Source ~l> SourcePtr
 	~hfile=<Macaroni/Model/SourcePtr.h>
 	@LuaClass [ SameAsNode=Source ]
 	@UseLightDef true
@@ -47,21 +47,21 @@ class Source
 	:column(column), fileName(fileName), lineNumber(line), referenceCount(0)
 	{
 	}
-	
+
 	private ~Source()
 	{
 	}
-	
+
 	public bool operator== (const Source & other) const
-		@LuaOperator "__eq"		
+		@LuaOperator "__eq"
 	{
 		return ((*(this->fileName)) == (*(other.fileName))
 				&& this->lineNumber == other.lineNumber
 				&& this->column == other.column);
 	}
-	
-	public static SourcePtr Create(const FileNamePtr fileName, int line, 
-	                               int column)							 
+
+	public static SourcePtr Create(const FileNamePtr fileName, int line,
+	                               int column)
 	    @LuaFunction "Create"
 	{
 		return SourcePtr(new Source(fileName, line, column));
@@ -116,7 +116,7 @@ class Source
 		std::stringstream ss;
 		ss << this->GetFileName()->GetName() << ", line " << this->GetLine()
 			<< ", column " << this->GetColumn();
-		return ss.str();	
+		return ss.str();
 	}
 
 };

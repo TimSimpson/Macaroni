@@ -7,6 +7,7 @@
 ~import Macaroni::Model::Project::GroupList;
 ~import boost::intrusive_ptr;
 ~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaIncludes;
 ~import Macaroni::Lua::LuaFunction;
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
@@ -32,7 +33,15 @@ class Group
 	@LuaClass [
 		ReferenceType = GroupPtr
 	]
+	@LuaIncludes = {
+		#include <Macaroni/Exception.h>
+		#include <Macaroni/Model/Project/ProjectLuaMetaData.h>
+	}
 {
+	// There's a bug in Macaroni which I'm not even sure I can solve where
+	// "Project" can't be read correctly by MSVC 12.
+	typedef Project ProjectAlias;
+
 	friend GroupList;
 
 	private Context * context;
@@ -90,8 +99,8 @@ class Group
 		intrusive_ptr_release(p->parent);
 	}
 
-	private void addProject(Project * project) {
-		BOOST_FOREACH(Macaroni::Model::Project::Project * p, projects) {
+	private void addProject(ProjectAlias * project) {
+		BOOST_FOREACH(ProjectAlias * p, projects) {
 			if (*p == *project) {
 				throw Macaroni::StringException("Attempt to add the same project "
 										  "twice.");
@@ -105,7 +114,7 @@ class Group
 		@LuaFunction "FindProject"
 	{
 		using Macaroni::Model::Project::Project;
-		BOOST_FOREACH(Macaroni::Model::Project::Project * p, projects) {
+		BOOST_FOREACH(ProjectAlias * p, projects) {
 			if (p->GetName() == name) {
 				return p;
 			}
@@ -121,7 +130,7 @@ class Group
 		if (!project)
 		{
 			project.reset(new Project(this, name));
-			addProject(project.get());			
+			addProject(project.get());
 		}
 		return project;
 	}

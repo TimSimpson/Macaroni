@@ -20,13 +20,8 @@
 ~import std::ifstream;
 ~import Macaroni::Model::FileName;
 ~import Macaroni::IO::FileSet;
-~import Macaroni::IO::FileSetIterator;
-~import Macaroni::Model::Library;
-~import Macaroni::Model::LibraryPtr;
 ~import Macaroni::Model::Project::LibraryTarget;
-~import Macaroni::Model::Project::MacaroniCodeTarget;
 ~import boost::optional;
-~import Macaroni::Parser::ParserPtr;
 ~import Macaroni::Parser::Pippy::PippyParser;
 ~import boost::filesystem::path;
 ~import Macaroni::IO::Path;

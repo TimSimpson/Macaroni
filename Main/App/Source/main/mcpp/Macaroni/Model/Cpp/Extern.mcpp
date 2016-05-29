@@ -20,7 +20,7 @@
 // external C++ code.
 class Extern {};
 
-typedef boost::intrusive_ptr<Extern> ExternPtr;
+typedef boost::intrusive_ptr<Extern ~l> ExternPtr;
 
 class Extern : public Element
 {

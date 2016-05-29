@@ -5,6 +5,7 @@
 ~import Macaroni::IO::FileSet;
 ~import boost::intrusive_ptr;
 ~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaIncludes;
 ~import Macaroni::Lua::LuaOperator;
 ~import Macaroni::Lua::LuaProperty;
 ~import boost::optional;
@@ -33,6 +34,9 @@ class Artifact
 	@LuaClass [
 		ReferenceType = ArtifactPtr
 	]
+	@LuaIncludes ={
+		#include <Macaroni/Exception.h>
+	}
 {
 	private ConfigPtr config;
 	private FileListPtr files;
