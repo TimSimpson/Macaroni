@@ -536,7 +536,7 @@ class Macaroni::Model::Project::ProjectVersion
 		return resource;
 	}
 
-	public TargetPtr Target(const std::string & name)
+	public TargetPtr FindOrCreateTarget(const std::string & name)
 		@LuaFunction "Target"
 	{
 		using Macaroni::Model::Project::Target;

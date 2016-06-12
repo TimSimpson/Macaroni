@@ -45,11 +45,14 @@ class strlen { ~hfile=<string.h> };
 //	include=<vector>;
 
 ~extern std::chrono::duration_cast
-	include=<chrono>;
+	include=<chrono>
+	using={ using std::chrono::duration_cast; };
 ~extern std::chrono::milliseconds
-	include=<chrono>;
+	include=<chrono>
+	using={ using std::chrono::milliseconds; };
 ~extern std::chrono::steady_clock
-	include=<chrono>;
+	include=<chrono>
+	using={ using std::chrono::steady_clock; };
 
 // Boost
 ~extern boost::bad_lexical_cast

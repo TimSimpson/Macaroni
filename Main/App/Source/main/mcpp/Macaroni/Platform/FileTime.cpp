@@ -27,7 +27,7 @@
 #endif
 
 #ifdef MACARONI_COMPILE_TARGET_LINUX
- #include <Macaroni/Exceptions/SimpleStringException.h>
+ #include <Macaroni/Exceptions.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #endif

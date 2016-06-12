@@ -1,0 +1,19 @@
+Vagrant.configure(2) do |config|
+
+  config.vm.box = "ubuntu/xenial64"
+  # As of 2016-06-11, the xenial box has some issues with it.
+  # My guess (or hope) is that it gets fixed soon.
+  # To fix, do the following:
+    # vagrant ssh
+    # sudo apt-get update
+    # sudo apt-get --no-install-recommends install virtualbox-guest-utils
+    # exit
+    # vagrant reload
+
+  config.vm.synced_folder "../../", "/macaroni"
+
+  config.vm.provider "virtualbox" do |v|
+      v.memory = 2048
+      v.cpus = 1
+  end
+end
