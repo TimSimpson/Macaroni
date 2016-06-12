@@ -31,7 +31,7 @@ if [ ! -d ~/Tools/boost_1_58_0 ]; then
     popd
 fi
 
-cp "${WORK_DIR}CI/Travis/site-config.jam" ~/
+cp "${WORK_DIR}/CI/Travis/site-config.jam" ~/
 
 if [ ! -d ~/OldMacaroniBuild ]; then
     echo 'Build previous version of Macaroni'
