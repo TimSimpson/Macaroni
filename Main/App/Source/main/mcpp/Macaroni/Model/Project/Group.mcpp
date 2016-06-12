@@ -122,7 +122,7 @@ class Group
 		return ProjectPtr();
 	}
 
-	public ProjectPtr Project(const std::string & name)
+	public ProjectPtr FindOrCreateProject(const std::string & name)
 		@LuaFunction "Project"
 	{
 		using Macaroni::Model::Project::Project;

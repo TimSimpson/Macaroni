@@ -224,11 +224,6 @@ class Context
 		floater = nullptr;
 	}
 
-	public NodePtr Node(string name)
-	{
-		return root->FindOrCreate(name);
-	}
-
 	private void onAddReference()
 	{
 		referenceCount ++;

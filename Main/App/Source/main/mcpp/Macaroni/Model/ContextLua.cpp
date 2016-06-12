@@ -162,7 +162,7 @@ struct ContextLuaFunctions
 		L_BEGIN
 		ContextPtr context = getInstance(L);
 		std::string name(luaL_checkstring(L, 2));
-		NodePtr node = context->Node(name);
+		NodePtr node = context->GetRoot()->FindOrCreate(name);
 		NodeLuaMetaData::PutInstanceOnStack(L, node);
 		return 1;
 		L_END
