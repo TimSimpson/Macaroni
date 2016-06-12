@@ -53,7 +53,7 @@ if [ ! -d ~/OldMacaroni ]; then
     mkdir -p ~/OldMacaroni
     pushd ~/OldMacaroni
     wget http://border-town.com/macaroni/downloads/macaroni-0.4.2-windows.zip
-    unzip macaroni-0.3.0-windows.zip
+    unzip macaroni-0.4.2-windows.zip
     rm macaroni.exe
     cp ../OldMacaroniBuild/exe/macaroni_p macaroni
     # chmod +x macaroni
