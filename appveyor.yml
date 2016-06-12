@@ -17,7 +17,7 @@ install:
   - 7z x C:\Libraries\macdeps.zip  -oC:\Libraries\ -r
   - echo Downloading Macaroni
   - mkdir C:\Libraries\Macaroni
-  - ps: Start-FileDownload 'http://border-town.com/macaroni/downloads/macaroni-0.4.1-windows.zip' -FileName 'C:\Libraries\Macaroni\macaroni.zip'
+  - ps: Start-FileDownload 'http://border-town.com/macaroni/downloads/macaroni-0.4.2-windows.zip' -FileName 'C:\Libraries\Macaroni\macaroni.zip'
   - echo unzipping
   - 7z x C:\Libraries\Macaroni\macaroni.zip  -oC:\Libraries\Macaroni\ -r
   - SET PATH=%PATH%;C:\Libraries\Macaroni
