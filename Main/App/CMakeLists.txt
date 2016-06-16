@@ -50,6 +50,7 @@ ADD_LIBRARY(LibMacaroni STATIC
     GeneratedSource/Macaroni/Environment/Values/Macaroni_IO_PathList.cpp
     GeneratedSource/Macaroni/Environment/Values
     GeneratedSource/Macaroni/Environment/Values/Macaroni_Model_Project_Target.cpp
+    GeneratedSource/Macaroni/Environment/Values/Macaroni_Model_Project_ProjectVersion.cpp
     GeneratedSource/Macaroni/Environment/Values/UserData.cpp
     GeneratedSource/Macaroni/Exceptions.cpp
     GeneratedSource/Macaroni/Exception.cpp
@@ -69,6 +70,7 @@ ADD_LIBRARY(LibMacaroni STATIC
     GeneratedSource/Macaroni/Generators/Cpp/Project/MhFileGenerator.cpp
     GeneratedSource/Macaroni/Generators/Cpp/Project/ProjectGenerator.cpp
     GeneratedSource/Macaroni/Generators/Cpp/Project/ProjectGeneratorPtr.cpp
+    GeneratedSource/Macaroni/Generators/Cpp/Project/ProjectGeneratorLuaMetaData.cpp
     GeneratedSource/Macaroni/Generators/Cpp/Unit/Sorter.cpp
     GeneratedSource/Macaroni/Generators/Cpp/Unit/UnitFileGenerator.cpp
     GeneratedSource/Macaroni/Generators/Cpp/Unit/UnitFileGeneratorPtr.cpp
