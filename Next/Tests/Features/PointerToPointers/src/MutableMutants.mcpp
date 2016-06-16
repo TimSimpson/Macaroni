@@ -19,7 +19,12 @@ class Mutant
 
     ~block "h"
     {
-        static_assert(std::is_same<decltype(name), mutable std::string>::value,
+        // Weird... GCC will not allow argument two of "is_same" to be
+        // 'mutable std::string' though it makes sense and MSVC allows it.
+        // So decltype has to be used twice instead.
+        mutable std::string name2;
+
+        static_assert(std::is_same<decltype(name), decltype(name2)>::value,
                       "mutable is not working!");
         static_assert(std::is_same<decltype(mutantPowers), volatile int>::value,
                       "volatile is not working!");
