@@ -17,3 +17,4 @@ Main/App/Ubuntu_GS*
 *.vcxproj.user
 __pycache__
 build
+mrun.bashi
