@@ -50,11 +50,11 @@ function cmd_build() {
     mkdir -p build/release
     cd build/release
     if [ "" == "${this_is_windows}" ]; then
-        conan install ../.. -s "compiler=Visual Studio" -s compiler.version=12 -s build_type=Release -s arch=x86_64 -s os=Windows --build
+        conan install ../.. -s 'compiler=Visual Studio' -s compiler.version=12 -s build_type=Release -s arch=x86_64 -s os=Windows
     else
-        conan install ../.. -s "compiler=Visual Studio" -s compiler.version=12 -s build_type=Release -s arch=x86_64 -s os=Windows --build
+        cmd //c conan install ../.. -s compiler=Visual\ Studio -s compiler.version=12 -s build_type=Release -s arch=x86_64 -s os=Windows
     fi
-    conan build ..
+    conan build ../..
 }
 
 function cmd_unit_tests() {
@@ -67,7 +67,7 @@ function cmd_unit_tests() {
 
 function cmd_tests() {
     # Run the integration tests
-
+    echo TODO
 }
 
 function cmd_refresh () {
