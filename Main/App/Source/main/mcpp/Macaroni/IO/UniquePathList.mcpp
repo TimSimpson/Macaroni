@@ -1,0 +1,78 @@
+~import Macaroni::IO::Path;
+~import boost::optional;
+~import std::string;
+~import std::vector;
+
+
+~namespace Macaroni::IO;
+
+
+// Makes it easy to construct a list of unique paths. All of these will have
+// Linux style slashes.
+class UniquePathList
+{
+    private string rootPath;
+    private vector<string> paths;
+    private optional<string> relativePathPrefix;
+
+    // The root directory all the paths you're expecting will be located under.
+    public UniquePathList(const string & rootPath,
+                          const optional<string> & relativePathPrefix)
+    :   rootPath(ensureEndingSlash(rootPath)),
+        paths(),
+        relativePathPrefix(relativePathPrefix)
+    {
+    }
+
+    public UniquePathList(const Path & rootPathP,
+                          const optional<string> & relativePathPrefix)
+    :   rootPath(ensureEndingSlash(rootPathP.GetAbsolutePathForceSlash())),
+        paths(),
+        relativePathPrefix(relativePathPrefix)
+    {
+    }
+
+    public void AddPath(const Path & p)
+    {
+        const string s = p.GetAbsolutePathForceSlash();
+        AddPath(s);
+    }
+
+    public void AddPath(const string & s)
+    {
+        const auto length = rootPath.length();
+        const string shortened =
+            (0 != s.compare(0, length, rootPath))
+                ? s
+                : (relativePathPrefix
+                    ? (relativePathPrefix.get() + (s.substr(length)))
+                    : s.substr(length)
+                  );
+
+        for (const string & element : paths)
+        {
+            if (shortened == element) {
+                return;
+            }
+        }
+        paths.push_back(shortened);
+    }
+
+    private static string ensureEndingSlash(const string & s)
+    {
+        if (s.length() <= 0 || s[s.length() - 1] != '/')
+        {
+            return s + "/";
+        }
+    }
+
+    public vector<string> & GetPaths()
+    {
+        return paths;
+    }
+
+    public const vector<string> & GetPaths() const
+    {
+        return paths;
+    }
+};

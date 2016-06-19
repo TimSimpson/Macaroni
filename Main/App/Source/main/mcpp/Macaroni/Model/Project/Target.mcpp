@@ -251,7 +251,7 @@ class Target
 		}
 	}
 
-	public void CreateElementList(vector<Element *> & elementList)
+	public void CreateElementList(vector<Element *> & elementList) const
 	{
 		BOOST_FOREACH(Element * e, elements)
 		{

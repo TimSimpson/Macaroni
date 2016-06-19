@@ -54,6 +54,8 @@ ADD_LIBRARY(LibMacaroni STATIC
     GeneratedSource/Macaroni/Environment/Values/UserData.cpp
     GeneratedSource/Macaroni/Exceptions.cpp
     GeneratedSource/Macaroni/Exception.cpp
+    GeneratedSource/Macaroni/Generators/CMake.cpp
+    GeneratedSource/Macaroni/Generators/CMake/CMakeFileWriterLuaMetaData.cpp
     GeneratedSource/Macaroni/Generators/Cpp/CodeGraph.cpp
     GeneratedSource/Macaroni/Generators/Cpp/CodeText.cpp
     GeneratedSource/Macaroni/Generators/Cpp/CodeTextProducer.cpp
@@ -88,6 +90,7 @@ ADD_LIBRARY(LibMacaroni STATIC
     GeneratedSource/Macaroni/IO/RegexFileSet.cpp
     GeneratedSource/Macaroni/IO/RelativeFileSet.cpp
     GeneratedSource/Macaroni/IO/RegexFileSetIterator.cpp
+    GeneratedSource/Macaroni/IO/UniquePathList.cpp
     Source/main/mcpp/Macaroni/Model/AnnotationDefinition.cpp
     Source/main/mcpp/Macaroni/Model/AnnotationTable.cpp
     Source/main/mcpp/Macaroni/Model/AnnotationTableLua.cpp

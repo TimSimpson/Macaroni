@@ -1,0 +1,371 @@
+~unit "Macaroni/Generators/CMake" ;
+
+~import Macaroni::Model::Element;
+~import Macaroni::Model::Project::ExeTarget;
+~import Macaroni::Model::FileName;
+~import Macaroni::Model::FileNamePtr;
+~import Macaroni::IO::GeneratedFileWriter;
+~import Macaroni::Model::Project::LibraryTarget;
+~import Macaroni::Lua::LuaClass;
+~import Macaroni::Lua::LuaGlueCode;
+~import Macaroni::Lua::LuaFunction;
+~import boost::optional;
+~import Macaroni::IO::Path;
+~import Macaroni::IO::PathList;
+~import Macaroni::IO::PathPtr;
+~import Macaroni::Model::Project::Project;
+~import Macaroni::Model::Project::ProjectVersion;
+~import Macaroni::Model::Project::ProjectVersionPtr;
+~import Macaroni::Model::Reason;
+~import Macaroni::Model::ReasonPtr;
+~import boost::shared_ptr;
+~import Macaroni::Model::Source;
+~import Macaroni::Model::SourcePtr;
+~import std::string;
+~import Macaroni::Exceptions::SimpleException;
+~import Macaroni::Model::Project::Target;
+~import Macaroni::Model::Project::TargetListPtr;
+~import Macaroni::Model::Project::TargetPtr;
+~import Macaroni::IO::UniquePathList;
+~import Macaroni::Model::Project::UnitTarget;
+~import std::vector;
+
+~namespace Macaroni::Generators::CMake;
+
+~block "cpp"
+{
+    MACARONI_SIMPLE_STRING_EXCEPTION_DEFINE(
+        ExpectedFilePathForCMake,
+        "Path value for CMakeLists.txt file to generate was not a file: %s");
+    MACARONI_SIMPLE_EXCEPTION_DEFINE(
+        LibraryIsNull, "Bad argument 1- expected LibraryTarget");
+    MACARONI_SIMPLE_EXCEPTION_DEFINE(
+        FileIsNull, "Bad argument 2- expected filepath");
+}
+
+class CMakeFileWriter {};
+
+typedef shared_ptr<CMakeFileWriter> CMakeFileWriterPtr
+    @LuaClass
+    [
+        SameAsNode = CMakeFileWriter
+    ]
+;
+
+class CMakeFileWriter
+    @LuaClass [ ReferenceType = CMakeFileWriterPtr ]
+{
+    public static void Lua_Generate(ProjectVersionPtr version,
+                                    PathPtr cmakeFilePath)
+        @LuaFunction "ListsTxt"
+    {
+        Macaroni::Generators::CMake::GenerateFile(*version, *cmakeFilePath);
+    }
+
+    public static void Lua_GenerateInfo(TargetPtr lPtr, PathPtr file)
+        @LuaFunction "LibInfo"
+    {
+        LibraryTarget * l = dynamic_cast<LibraryTarget *>(lPtr.get());
+        if (!l)
+        {
+            throw LibraryIsNull();
+        }
+        if (!file)
+        {
+            throw FileIsNull();
+        }
+        GenerateLibraryInfo(*l, *file);
+    }
+};
+
+
+
+
+struct PathAdjuster{
+    public string prefix;   // Path to append to each file path being written out.
+    public string rootPath; // Root path of the project.
+};
+
+PathAdjuster createPathAdjuster(const Path & path)
+{
+    PathAdjuster pa;
+    pa.rootPath = path.GetRoot()->GetAbsolutePathForceSlash();
+    const string relPath = path.GetParentPath()->GetRelativePath();
+    pa.prefix = relPath.length() > 0 ? "../" : "";
+    for (const char & c : relPath)
+    {
+        if (c == '/')
+        {
+            pa.prefix += "../";
+        }
+    }
+    return pa;
+}
+
+void GenerateFile(const ProjectVersion & version,
+                  const Path & cmakeListsFile)
+{
+    if (cmakeListsFile.Exists() && !cmakeListsFile.IsRegularFile())
+    {
+        throw ExpectedFilePathForCMake(
+            cmakeListsFile.GetAbsolutePathForceSlash());
+    }
+    const PathAdjuster pa = createPathAdjuster(cmakeListsFile);
+
+    UniquePathList headersPaths(pa.rootPath, pa.prefix);
+
+    GeneratedFileWriter writer(cmakeListsFile);
+    writer.WriteLine("project(", version.GetProject()->GetName(), " CXX)");
+    writer.WriteLine("cmake_minimum_required(VERSION 2.8)");
+    writer.WriteLine("\n");
+    writer.WriteLine("include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)");
+    writer.WriteLine("conan_basic_setup()");
+    writer.WriteLine("\n");
+
+    // Add headers
+    for (const Target * tPtr : version.GetTargetsVec())
+    {
+        const LibraryTarget * lt = dynamic_cast<const LibraryTarget *>(tPtr);
+        if (lt)
+        {
+            const PathList & paths = lt->GetHeadersRef();
+            for (PathPtr p : paths)
+            {
+                headersPaths.AddPath(*p);
+            }
+        }
+    }
+
+    writer.WriteLine("include_directories(");
+    for (const string & p : headersPaths.GetPaths())
+    {
+        writer.WriteLine("    ", p);
+    }
+    writer.WriteLine("    ${CONAN_INCLUDE_DIRS})");
+
+    // Add library defs
+
+    for (const Target * tPtr : version.GetTargetsVec())
+    {
+        const LibraryTarget * lt = dynamic_cast<const LibraryTarget *>(tPtr);
+        if (lt && !(dynamic_cast<const ExeTarget *>(tPtr)))
+        {
+            writeLibraryInfo(pa, writer, *lt);
+        }
+    }
+
+    for (const Target * tPtr : version.GetTargetsVec())
+    {
+        const ExeTarget * et = dynamic_cast<const ExeTarget *>(tPtr);
+        if (et)
+        {
+            writeExeInfo(pa, writer, *et);
+        }
+    }
+}
+
+optional<string> getSourceOfElement(const Element & element)
+{
+    // Probably one of the stupidest bits of design in all of Macaraoni
+    // is how I hid the original file path in all this garbage.
+    ReasonPtr reason = element.GetReasonCreated();
+    if (reason)
+    {
+        SourcePtr src = reason->GetSource();
+        if (src)
+        {
+            FileNamePtr fName = src->GetFileName();
+            if (fName)
+            {
+                return fName->GetOsName();
+            }
+        }
+    }
+    return boost::none;
+}
+
+void writeLibraryInfo(const PathAdjuster & pa,
+                      GeneratedFileWriter & writer,
+                      const LibraryTarget & lt)
+{
+    writeLibOrExeInfo(pa, writer, lt, "add_library(");
+    writer.WriteLine("target_link_libraries(", lt.GetName(), " ${CONAN_LIBS})");
+}
+
+void writeExeInfo(const PathAdjuster & pa,
+                  GeneratedFileWriter & writer,
+                  const ExeTarget & et)
+{
+    const ExeTarget * e = &et;
+    const LibraryTarget * l = static_cast<const LibraryTarget *>(e);
+    writeLibOrExeInfo(pa, writer, *l, "add_executable(");
+}
+
+struct SourcePathLists
+{
+    public UniquePathList cpp;
+    public UniquePathList mcpp;
+
+    public SourcePathLists(const PathAdjuster & pa)
+    :   cpp(pa.rootPath, pa.prefix),
+        mcpp(pa.rootPath, pa.prefix)
+    {
+    }
+};
+
+
+// Given a unit target, adds any MCPP source files to the mcpp list and
+// C++ source to the cpp list of the passed in SourcePathLists.
+void addMcppFileFromTarget(SourcePathLists & spl, const UnitTarget & ut)
+{
+    spl.cpp.AddPath(*(ut.GetCppFile()));
+
+    vector<Element *> elements;
+    ut.CreateElementList(elements);
+    for (const Element * ePtr : elements)
+    {
+        if (ePtr) {
+            auto src = getSourceOfElement(*ePtr);
+            if (src)
+            {
+                spl.mcpp.AddPath(src.get());
+            }
+        }
+    }
+}
+
+SourcePathLists findLibOrExeInfo(const PathAdjuster & pa,
+                                 const LibraryTarget & lt)
+{
+    SourcePathLists spl(pa);
+
+    const vector<Target *> & dependencies = lt.GetDependenciesVec();
+    for (const Target * dep : dependencies)
+    {
+        const UnitTarget * ut = dynamic_cast<const UnitTarget *>(dep);
+        if (ut && ut->GetParent() && (*(ut->GetParent())) == lt)
+        {
+            addMcppFileFromTarget(spl, *ut);
+        }
+    }
+    return spl;
+}
+
+void writeLibOrExeInfo(const PathAdjuster & pa,
+                       GeneratedFileWriter & writer,
+                       const LibraryTarget & lt, const char * const addCommand)
+{
+    const SourcePathLists spl = findLibOrExeInfo(pa, lt);
+
+    // Create target, write file paths.
+    writer.Write(addCommand, lt.GetName());
+    for (const string & p : spl.cpp.GetPaths())
+    {
+        writer.Write("\n    ", p);
+    }
+    for (const string & p : spl.mcpp.GetPaths())
+    {
+        writer.Write("\n    ", p);
+    }
+    writer.WriteLine(")\n");
+
+    // Make sure Macaroni source code is not treated as C++ source.
+    // Changing these to header files will allow them to appear in CMake
+    // generation targets like Visual Studio without causing issues.
+    writer.WriteLine("set_source_files_properties(");
+    for (const string & p : spl.mcpp.GetPaths())
+    {
+        writer.WriteLine("    ", p);
+    }
+    writer.WriteLine("    PROPERTIES HEADER_FILE_ONLY TRUE)");
+
+    // Call out dependencies
+    for (const Target * dep : lt.GetDependenciesVec())
+    {
+        const LibraryTarget * depLt = dynamic_cast<const LibraryTarget *>(dep);
+        if (depLt)
+        {
+            writer.WriteLine("target_link_libraries(",
+                             lt.GetName(), " ", depLt->GetName(), ")");
+        }
+    }
+}
+
+
+
+void GenerateLibraryInfo(const LibraryTarget & library,
+                         const Path & cmakeInfoFile)
+{
+    // list of all Macaroni only C++ source
+    // list of all Macaroni source files
+    // list of all C++ source files
+
+    if (cmakeInfoFile.Exists() && !cmakeInfoFile.IsRegularFile())
+    {
+        throw ExpectedFilePathForCMake(
+            cmakeInfoFile.GetAbsolutePathForceSlash());
+    }
+    const PathAdjuster pa = createPathAdjuster(cmakeInfoFile);
+
+    // This is a huge pain, but we need to iterate all EXEs in the
+    // ProjectVersion to find any who depend on the library, then find all
+    // the units they contain.
+    //
+    // We do that just to include the EXE file's Macaroni source code. This
+    // way, Visual Studio will include that code if the project is debugged.
+
+    vector<const ExeTarget *> exes;
+    ProjectVersion & pv = *(library.GetProjectVersion());
+    for (const Target * tPtr : pv.GetTargetsVec())
+    {
+        const ExeTarget * et = dynamic_cast<const ExeTarget *>(tPtr);
+        if (et)
+        {
+            for (const Target * tPtr : et->GetDependenciesVec())
+            {
+                if (tPtr && *tPtr == library)
+                {
+                    exes.push_back(et);
+                }
+            }
+        }
+    }
+
+    // Now find all the files in the library...
+    SourcePathLists spl = findLibOrExeInfo(pa, library);
+    //vector<string> mcppFiles = spl.mcpp.GetPaths();
+
+    // Find the Mcpp files lurking in the exes.
+    for (const ExeTarget * e : exes)
+    {
+        SourcePathLists spl2 = findLibOrExeInfo(pa, *e);
+        //vector<string> & moreMcpp = spl2.mcpp.GetPaths();
+        //std::move(moreMcpp.begin(), moreMcpp.end(),
+        //          std::back_inserter(mcppFiles));
+        for (const string & s : spl2.mcpp.GetPaths())
+        {
+            spl.mcpp.AddPath(s);
+        }
+    }
+
+
+    GeneratedFileWriter writer(cmakeInfoFile);
+    writer.WriteLine(
+"# This file was generated by Macaroni for C++\n"
+"# It defines variables (such as the paths of C++ files generated by Macaroni)\n"
+"# that can be used in a hand-written CMakeLists.txt file for convenience.");
+
+    writer.Write("\nset(MACARONI_LIBS_", library.GetName(), "_CPP_FILES");
+    for (const string & p : spl.cpp.GetPaths())
+    {
+        writer.Write("\n    ${CMAKE_CURRENT_LIST_DIR}/", p);
+    }
+    writer.WriteLine(")");
+
+    writer.Write("set(MACARONI_LIBS_", library.GetName(), "_MCPP_FILES");
+    for (const string & p : spl.mcpp.GetPaths()) //mcppFiles)
+    {
+        writer.Write("\n    ${CMAKE_CURRENT_LIST_DIR}/", p);
+    }
+    writer.WriteLine(")");
+}

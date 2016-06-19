@@ -278,6 +278,11 @@ class LibraryTarget : public virtual Macaroni::Model::Project::Target
 		return headers;
 	}
 
+	public const PathList & GetHeadersRef() const
+	{
+		return *headers;
+	}
+
 	public PathListPtr GetMacaroniCode()
 		@LuaProperty "MacaroniCode"
 	{
