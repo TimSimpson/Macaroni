@@ -19,7 +19,7 @@ class LibraryConfigGenerator
     private const string dynLink;
     private const string libCreate;
 
-    public LibraryConfigGenerator(LibraryTarget & library)
+    public LibraryConfigGenerator(const LibraryTarget & library)
     :   cId(library.GetCId()),
         hasConfigFile(BoostConfigIsAvailable(library)),
         configFile(initConfigFile(library)),
@@ -42,12 +42,13 @@ class LibraryConfigGenerator
         return BoostConfigIsAvailable(*lib);
     }
 
-    public static bool BoostConfigIsAvailable(LibraryTarget & lib)
+    public static bool BoostConfigIsAvailable(const LibraryTarget & lib)
     {
         // The thinking here is that if anything from boost is defined then the
         // headers should be on the path and we can safely assume boost/config
         // is there.
-        return lib.HasDependencyOnProjectName("Boost-headers");
+        return lib.UsesBoost()
+               || lib.HasDependencyOnProjectName("Boost-headers");
     }
 
 
@@ -56,7 +57,12 @@ class LibraryConfigGenerator
         return configFileInclude;
     }
 
-    ~hidden static string initConfigFile(LibraryTarget & lib)
+    public string GetConfigFile() const
+    {
+        return configFile;
+    }
+
+    ~hidden static string initConfigFile(const LibraryTarget & lib)
     {
         return str(boost::format("Config_%s.h")
                    % lib.GetShortName().get_value_or(lib.GetVersionFreeCId())
@@ -64,7 +70,7 @@ class LibraryConfigGenerator
     }
 
     ~hidden static string initConfigFileInclude(
-        LibraryTarget & library,
+        const LibraryTarget & library,
         const string & libraryConfigFile)
     {
         if (BoostConfigIsAvailable(library))
@@ -79,7 +85,7 @@ class LibraryConfigGenerator
     }
 
     ~hidden static optional<string> initDecl(
-        bool hasConfigFile, LibraryTarget & library)
+        const bool hasConfigFile, const LibraryTarget & library)
     {
         if (hasConfigFile)
         {

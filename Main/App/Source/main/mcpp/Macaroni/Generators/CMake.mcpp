@@ -5,6 +5,7 @@
 ~import Macaroni::Model::FileName;
 ~import Macaroni::Model::FileNamePtr;
 ~import Macaroni::IO::GeneratedFileWriter;
+~import Macaroni::Generators::Cpp::Library::LibraryConfigGenerator;
 ~import Macaroni::Model::Project::LibraryTarget;
 ~import Macaroni::Lua::LuaClass;
 ~import Macaroni::Lua::LuaGlueCode;
@@ -221,6 +222,11 @@ void addMcppFileFromTarget(SourcePathLists & spl, const UnitTarget & ut)
 {
     spl.cpp.AddPath(*(ut.GetCppFile()));
 
+    if (ut.GetHFile())
+    {
+        spl.mcpp.AddPath(*(ut.GetHFile()));
+    }
+
     vector<Element *> elements;
     ut.CreateElementList(elements);
     for (const Element * ePtr : elements)
@@ -239,6 +245,12 @@ SourcePathLists findLibOrExeInfo(const PathAdjuster & pa,
                                  const LibraryTarget & lt)
 {
     SourcePathLists spl(pa);
+
+    // Add the config file to the CMake sources.
+    if (lt.GetConfigHeader())
+    {
+        spl.mcpp.AddPath(*(lt.GetConfigHeader()));
+    }
 
     const vector<Target *> & dependencies = lt.GetDependenciesVec();
     for (const Target * dep : dependencies)
@@ -397,7 +409,7 @@ void generateLibraryInfo(const LibraryTarget & library,
     }
     writer.WriteLine(")");
 
-    writer.Write("set(MACARONI_LIBS_", library.GetName(), "_MCPP_FILES");
+    writer.Write("set(MACARONI_LIBS_", library.GetName(), "_SRC_FILES");
     for (const string & p : spl.mcpp.GetPaths()) //mcppFiles)
     {
         writer.Write("\n    ${CMAKE_CURRENT_LIST_DIR}/", p);

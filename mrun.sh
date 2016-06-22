@@ -37,6 +37,12 @@ else
     }
 fi
 
+function cmd_clean() {
+    # Delete the build directory
+    cd "${m_root}/Main/App"
+    rm -rf ./build
+}
+
 function cmd_build_deps() {
     # Builds dependencies
     cd "${m_root}/Main/Dependencies/Lua"

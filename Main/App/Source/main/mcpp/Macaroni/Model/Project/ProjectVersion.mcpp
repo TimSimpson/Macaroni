@@ -15,6 +15,7 @@
  */
 ~import Macaroni::Model::Project::Artifact;
 ~import Macaroni::Model::Project::ArtifactPtr;
+~import Macaroni::Environment::Values::Bool;
 ~import Macaroni::Model::Element;
 ~import Macaroni::Exception;
 ~import boost::format;
@@ -372,9 +373,16 @@ class Macaroni::Model::Project::ProjectVersion
 			shortName = table.Get<String>("shortName");
 		}
 
+		bool usesBoost = false;
+		if (table.Has("usesBoost"))
+		{
+			usesBoost = table.Get<Bool>("usesBoost");
+		}
+
 		PathListPtr excludeFiles;
 		LibraryTargetPtr lib = LibraryTarget::Create(
-			this, name, shortName, dependencies, headers, sources, excludeFiles);
+			this, name, shortName, dependencies, headers, sources, excludeFiles,
+			usesBoost);
 		//addTarget(lib.get());
 		return lib;
 	}
@@ -480,8 +488,15 @@ class Macaroni::Model::Project::ProjectVersion
 			shortName = table.Get<String>("shortName");
 		}
 
+		bool usesBoost = false;
+		if (table.Has("usesBoost"))
+		{
+			usesBoost = table.Get<Bool>("usesBoost");
+		}
+
 		LibraryTargetPtr lib = LibraryTarget::Create(
-			this, name, shortName, dependencies, headers, sources, excludeFiles);
+			this, name, shortName, dependencies, headers, sources, excludeFiles,
+			usesBoost);
 		//addTarget(lib.get());
 		return lib;
 	}
