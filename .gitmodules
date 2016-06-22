@@ -1,0 +1,3 @@
+[submodule "BashiBazook"]
+	path = BashiBazook
+	url = https://github.com/TimSimpson/BashiBazook.git

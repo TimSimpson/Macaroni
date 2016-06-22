@@ -79,15 +79,20 @@ class LibraryTarget : public virtual Macaroni::Model::Project::Target
 	~import Macaroni::Model::Project::LibraryTargetLuaMetaData;
 
 	protected ArtifactListPtr artifacts;
+	protected PathPtr configHeader;
 	protected PathListPtr headers;
 	protected PathListPtr macaroniCode;
+	protected bool usesBoost;
 
 	protected LibraryTarget(ProjectVersion * projectVersion,
-		            const string & name, optional<string> shortName)
+		            const string & name, optional<string> shortName,
+		            bool usesBoost)
 	:   Target(projectVersion, name, shortName),
 		artifacts(new ArtifactList()),
+		configHeader(),
 		headers(new PathList()),
-		macaroniCode(new PathList())
+		macaroniCode(new PathList()),
+		usesBoost(usesBoost)
 	{
 		//GetSources()->Add("Macaroni");
 	}
@@ -120,10 +125,12 @@ class LibraryTarget : public virtual Macaroni::Model::Project::Target
 		const vector<Macaroni::Model::Project::TargetPtr> & dependencies,
 		PathListPtr headers,
 		PathListPtr sources,
-		PathListPtr excludeFiles
+		PathListPtr excludeFiles,
+		bool usesBoost
 		)
 	{
-		LibraryTargetPtr lib(new LibraryTarget(projectVersion, name, shortName));
+		LibraryTargetPtr lib(
+			new LibraryTarget(projectVersion, name, shortName, usesBoost));
 		initialize(lib, dependencies, headers, sources, excludeFiles);
 		return lib;
 	}
@@ -272,10 +279,20 @@ class LibraryTarget : public virtual Macaroni::Model::Project::Target
 		return artifacts;
 	}
 
+	public PathPtr GetConfigHeader() const
+	{
+		return configHeader;
+	}
+
 	public PathListPtr GetHeaders()
 		@LuaProperty "Headers"
 	{
 		return headers;
+	}
+
+	public const PathList & GetHeadersRef() const
+	{
+		return *headers;
 	}
 
 	public PathListPtr GetMacaroniCode()
@@ -320,6 +337,11 @@ class LibraryTarget : public virtual Macaroni::Model::Project::Target
 		file.close();
 	}
 
+	public void SetConfigHeader(PathPtr path)
+	{
+		configHeader = path;
+	}
+
 	public string ToString() const
 		@LuaOperator "__tostring"
 	{
@@ -327,4 +349,8 @@ class LibraryTarget : public virtual Macaroni::Model::Project::Target
 		           % Target::ToString());
 	}
 
+	public bool UsesBoost() const
+	{
+		return usesBoost;
+	}
 };

@@ -374,6 +374,12 @@ END_NAMESPACE2
 			lua_pushcfunction(L, LUAGLUE_HELPERCLASS::renameRelative);
 			return 1;
 		}
+		else if (index == "RootPath")
+		{
+			std::string rootPath = ptr->GetRootPath().string();
+			lua_pushstring(L, rootPath.c_str());
+			return 1;
+		}
 		lua_pushnil(L);
 		return 1;
 		CATCH

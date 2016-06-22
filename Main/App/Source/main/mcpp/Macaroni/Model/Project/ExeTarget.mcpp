@@ -51,7 +51,7 @@ class ExeTarget : public virtual LibraryTarget
 	protected ExeTarget(ProjectVersion * projectVersion, const string & name,
 		                optional<string> & shortName,
 		                const string & subType)
-	:	LibraryTarget(projectVersion, name, shortName),
+	:	LibraryTarget(projectVersion, name, shortName, false),
 	    Target(projectVersion, name, shortName),
 		subType(subType)
 	{

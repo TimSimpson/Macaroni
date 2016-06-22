@@ -209,6 +209,7 @@ class ProjectGenerator
         {
             LibraryConfigGenerator lcg{lt};
             lcg.WriteFile(rootPath);
+            lt.SetConfigHeader(rootPath.NewPathForceSlash(lcg.GetConfigFile()));
             //lcg.WritePchFile(rootPath);
             MhFileGenerator::Generate(generatorSettings, graph, rootPath, lt);
         }
