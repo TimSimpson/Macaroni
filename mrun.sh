@@ -21,21 +21,19 @@ readonly m_root=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 if [ "" == "${WINDIR}" ]; then
     readonly this_is_windows=
-    function cavatappi() {
-        cavatappi $@
-    }
     function conan() {
         conan $@
     }
 else
     readonly this_is_windows=true
-    function cavatappi() {
-        cmd //c cavatappi $@
-    }
     function conan() {
         cmd //c conan $@
     }
 fi
+
+function cavatappi() {
+  "${m_root}/Main/App/build/release/bin/macaroni.exe" --generatorPath="${m_root}/Main/Generators" --libraryRepoPath="${m_root}/Main/Libraries" --messagesPath="${m_root}/Main/App/Source/main/resources/Messages.txt" $@
+}
 
 function cmd_clean() {
     # Delete the build directory
@@ -73,7 +71,9 @@ function cmd_unit_tests() {
 
 function cmd_tests() {
     # Run the integration tests
-    echo TODO
+    cd "${m_root}/Next/Tests"
+
+    cavatappi -c -i
 }
 
 function cmd_refresh () {

@@ -112,11 +112,12 @@ namespace
 					}
 				}
 				ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 11);
+				const bool isConstExpr = false;
 				FunctionOverloadPtr newFO = FunctionOverload::Create(
 					target,
 					FunctionOverload::CreateNewFunctionOverloadNode(home),
 					isInline, access,
-					isStatic, isVirtual,
+					isStatic, isVirtual, isConstExpr,
 					rtnType,
 					constMember,
 					overrideKeyword,

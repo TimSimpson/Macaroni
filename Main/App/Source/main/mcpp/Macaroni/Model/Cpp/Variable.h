@@ -40,7 +40,8 @@ public:
 
 	static VariablePtr Create(
 		Macaroni::Model::Project::TargetPtr tHome,
-		NodePtr home, AccessPtr access, bool isStatic, const TypePtr type,
+		NodePtr home, AccessPtr access, bool isStatic,
+		bool isConstExpr, const TypePtr type,
 		std::string initializer, Model::ReasonPtr reason);
 
 	~Variable() override;
@@ -59,6 +60,11 @@ public:
 		return initializer;
 	}
 
+	inline bool IsConstexpr() const
+	{
+		return isConstExpr;
+	}
+
 	bool RequiresCppFile() const override;
 
 	bool RequiresHFile() const override;
@@ -67,9 +73,12 @@ private:
 
 	Variable(Macaroni::Model::Project::Target * tHome,
 		Node * home, Model::ReasonPtr reason, Access access, bool isStatic,
+		bool isConstExpr,
 		const TypePtr type, std::string initializer);
 
 	std::string initializer;
+
+	bool isConstExpr;
 
 	TypePtr type;
 };

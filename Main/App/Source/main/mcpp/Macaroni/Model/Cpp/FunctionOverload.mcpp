@@ -60,6 +60,8 @@ class FunctionOverload : public Scope
 
 	private optional<ImportList> imports;
 
+	private const bool isConstExpr;
+
 	private const bool isInline;
 
 	private bool isPureVirtual;
@@ -85,6 +87,7 @@ class FunctionOverload : public Scope
 	protected FunctionOverload(Target * target,
 		Node * home, Model::ReasonPtr reason, bool isInline,
 		Access access, const bool isStatic, bool isVirtual,
+		const bool isConstExpr,
 		const TypePtr rtnTypeInfo, bool konstMember, bool overrideKeyword,
 		const optional<ExceptionSpecifier> exceptionSpecifier,
 		Node * templateParameterList,
@@ -97,6 +100,7 @@ class FunctionOverload : public Scope
 		constMember(konstMember),
 		codeSource(),
 		imports(importedNodes),
+		isConstExpr(isConstExpr),
 		isInline(isInline),
 		isPureVirtual(false),
 		isTemplateClassMethod(isInTemplateClass(*home)),
@@ -125,6 +129,7 @@ class FunctionOverload : public Scope
 		const AccessPtr access,
 		const bool isStatic,
 		bool isVirtual,
+		const bool isConstExpr,
 		const TypePtr rtnType,
 		bool konstMember,
 		bool overrideKeyword,
@@ -138,7 +143,8 @@ class FunctionOverload : public Scope
 		FunctionOverload * fo = new FunctionOverload(target.get(),
 			foNode.get(), reason,
 			isInline, *access,
-			isStatic, isVirtual, rtnType, konstMember, overrideKeyword,
+			isStatic, isVirtual, isConstExpr, rtnType, konstMember,
+			overrideKeyword,
 			exceptionSpecifier,
 			templateParameterList.get(), trailingReturnType, imports);
 		return FunctionOverloadPtr(fo);
@@ -231,6 +237,11 @@ class FunctionOverload : public Scope
 		return (!!codeSource);
 	}
 
+	public bool IsConstexpr() const
+	{
+		return isConstExpr;
+	}
+
 	~hidden static bool isInTemplateClass(Node & node)
 	{
 		MACARONI_ASSERT(node.GetNode(), "Must have function Node as parent.");
@@ -264,7 +275,7 @@ class FunctionOverload : public Scope
 	public bool IsInline() const
 	{
 		return isInline || nullptr != templateParameterList
-			|| isTemplateClassMethod;
+			|| isTemplateClassMethod || isConstExpr;
 	}
 
 	public inline bool IsPureVirtual() const
@@ -288,6 +299,7 @@ class FunctionOverload : public Scope
 	{
 		return HasCodeBlock() && !(
 			IsInline() || IsPureVirtual() || UsesDefault() || IsDeleted()
+			|| IsConstexpr()
 		);
 	}
 

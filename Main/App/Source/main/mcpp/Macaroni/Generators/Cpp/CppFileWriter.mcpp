@@ -240,6 +240,11 @@ class CppFileWriter
         dashLine();
     }
 
+    public void Constexpr()
+    {
+        write("constexpr ");
+    }
+
     public void ConstructorInitializerList(ConstructorOverload & co)
     {
         bool seenOne = false;

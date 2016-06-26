@@ -1,0 +1,5 @@
+class Hi {
+    void hello() {
+        int five = 1;
+    }
+}

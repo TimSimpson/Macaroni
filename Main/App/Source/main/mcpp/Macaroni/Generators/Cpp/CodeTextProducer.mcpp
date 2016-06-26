@@ -335,6 +335,10 @@ class CodeTextProducer
         {
             writer.StaticKeyword();
         }
+        if (e.IsConstexpr())
+        {
+            writer.Constexpr();
+        }
         if (e.IsVirtual())
         {
             writer.VirtualKeyword();
@@ -626,6 +630,10 @@ class CodeTextProducer
             {
                 writer.VirtualKeyword();
             }
+            if (co.IsConstexpr())
+            {
+                writer.Constexpr();
+            }
             if (co.UsesInlineKeyword())
             {
                 writer.InlineKeyword();
@@ -800,9 +808,17 @@ class CodeTextProducer
             {
                 writer.StaticKeyword();
             }
+            if (e.IsConstexpr())
+            {
+                writer.Constexpr();
+            }
             writer.Type(e.GetType(), false);
             writer.Space();
             writer.WriteNodeName(e.GetNode());
+            if (e.IsConstexpr())
+            {
+                writer.VariableInitializer(e);
+            }
             writer.EndStatement();
         }
     };
@@ -1045,7 +1061,7 @@ class CodeTextProducer
 
         virtual void Visit(Variable & e)
         {
-            if (owningClass && !e.IsStatic())
+            if ((owningClass && !e.IsStatic()) || e.IsConstexpr())
             {
                 return;
             }

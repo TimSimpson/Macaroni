@@ -1191,11 +1191,13 @@ public:
 		AccessPtr access = Access::NotSpecified();
 		bool isInline = false;
 		bool isVirtual = false;
+		bool isConstExpr = false;
 		while(
 			(*access == *Access::NotSpecified()
 			&& *(access = AccessKeyword(newItr)) != *Access::NotSpecified())
 			|| (!isInline && (isInline = InlineKeyword(newItr)))
 			|| (!isVirtual && (isVirtual = VirtualKeyword(newItr)))
+			|| (!isConstExpr && (isConstExpr = ConstExprKeyword(newItr)))
 			)
 		{
 			//       ~Dog
@@ -1293,7 +1295,7 @@ public:
 			//isInline, access,
 			ConstructorOverloadPtr ctorOl =
 				ConstructorOverload::Create(fOlNode, isInline, access,
-				                            isExplicit,
+				                            isExplicit, isConstExpr,
 				                            exceptionSpecifier,
 				                            ctorReason, templateHome);
 			fOlPtr = boost::dynamic_pointer_cast<FunctionOverload>(ctorOl);
@@ -1736,6 +1738,12 @@ public:
 			}
 			type->Lock();
 		}
+	}
+
+	bool ConstExprKeyword(Iterator & itr)
+	{
+		itr.ConsumeWhitespace();
+		return itr.ConsumeWord("constexpr");
 	}
 
 	bool ConstKeyword(Iterator & itr)
@@ -2373,6 +2381,7 @@ public:
 			AccessPtr access = Access::NotSpecified();
 			bool _friend;
 			NodePtr global;
+			bool isConstExpr;
 			bool isInline;
 			std::string initializer;
 			bool isStatic;
@@ -2381,7 +2390,7 @@ public:
 			std::string argName;
 			if ((seenArg && !itr.ConsumeChar(','))
 				||
-				!Variable(itr, access, _friend, global, isInline, isStatic, isVirtual, type, argName))
+				!Variable(itr, access, _friend, global, isInline, isStatic, isVirtual, isConstExpr, type, argName))
 			{
 				throw ParserException(itr.GetSource(),
 				Messages::Get("CppParser.Function.ExpectedEndingParenthesis"));
@@ -2419,7 +2428,7 @@ public:
 
 			NodePtr node = currentScope->FindOrCreate(argName);
 			TargetPtr tHome;
-			Variable::Create(tHome, node, access, isStatic, type, initializer,
+			Variable::Create(tHome, node, access, isStatic, isConstExpr, type, initializer,
 				Reason::Create(CppAxioms::VariableScopeCreation(), oldItr.GetSource()));
 			seenArg = true;
 			ConsumeWhitespace(itr);
@@ -3599,7 +3608,7 @@ public:
 	 */
 	bool Variable(Iterator & itr, AccessPtr & access, bool & _friend,
 				  NodePtr & globalHome, bool & isInline, bool & isStatic,
-				  bool & isVirtual,
+				  bool & isVirtual, bool & isConstExpr,
 				  TypePtr & type, std::string & varName)
 	{
 		using namespace Macaroni::Model::Cpp;
@@ -3609,6 +3618,7 @@ public:
 		bool global = false;
 		globalHome.reset();
 		isInline = false;
+		isConstExpr = false;
 		isStatic = false;
 		isVirtual = false;
 		while(
@@ -3618,6 +3628,7 @@ public:
 				|| (!global && (global = GlobalKeyword(itr, globalHome)))
 				|| (!isInline && (isInline = InlineKeyword(itr)))
 				|| (!isStatic && (isStatic = StaticKeyword(itr)))
+				|| (!isConstExpr && (isConstExpr = ConstExprKeyword(itr)))
 				|| (!isVirtual && (isVirtual = VirtualKeyword(itr)))
 			  )
 		{
@@ -3686,12 +3697,13 @@ public:
 		bool isInline;
 		bool isStatic;
 		bool isVirtual;
+		bool isConstExpr;
 		TypePtr type;
 		std::string varName;
 		Iterator oldItr = itr; // Save it in case we need to define where the
 							   // var definition began.
 		if (!Variable(itr, access, _friend, globalHome, isInline, isStatic,
-			          isVirtual, type, varName))
+			          isVirtual, isConstExpr, type, varName))
 		{
 			if (!!globalHome)
 			{
@@ -3760,7 +3772,8 @@ public:
 			}
 
 			VariablePtr var =
-				Variable::Create(tHome, node, access, isStatic, type, initializer,
+				Variable::Create(tHome, node, access, isStatic, isConstExpr,
+				    type, initializer,
 					Reason::Create(CppAxioms::VariableScopeCreation(),
 					oldItr.GetSource()));
 
@@ -3843,7 +3856,7 @@ public:
 			FunctionOverloadPtr fOl =
 				FunctionOverload::Create(tHome,
 					                     foNode, isInline, access, isStatic,
-				                         isVirtual, type,
+				                         isVirtual, isConstExpr, type,
 										 constMember, overrideKeyword,
 										 exceptionSpecifier,
 										 fReason, templateHome,

@@ -71,8 +71,10 @@ namespace
 				std::string initializer(luaL_checkstring(L, 5));
 				ReasonPtr reason = ReasonLuaMetaData::GetInstance(L, 6);
 				TargetPtr tHome;
+				const bool isConstExpr = false;
 				VariablePtr variable = Variable::Create(tHome, home, access,
-														isStatic, type,
+														isStatic, isConstExpr,
+														type,
 														initializer, reason);
 				ElementPtr rtnValue = boost::dynamic_pointer_cast<Element>(variable);
 				ElementLuaMetaData::PutInstanceOnStack(L, rtnValue);
