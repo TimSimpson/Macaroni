@@ -12,7 +12,7 @@ username = os.getenv("CONAN_USERNAME", "demo")
 class MacaroniConan(ConanFile):
     name = "Macaroni"
     version = "0.4.0"
-    requires = ("Lua/5.2.3@%s/%s" % (username, channel),
+    requires = ("Lua/5.2.3@demo/testing", # % (username, channel),
                 "Boost/1.60.0@lasote/stable")
     settings = "os", "compiler", "build_type", "arch"
     exports = ["PureCpp"]
@@ -24,7 +24,7 @@ class MacaroniConan(ConanFile):
                             '--messagesPath {messages} '
                             '--libraryRepoPath={libraries} '
                             '--showPaths --printTimes --verbose -g'
-                .format(
+            .format(
                     root=root,
                     messages=os.path.join(root, 'Source', 'main', 'resources',
                                           'Messages.txt'),

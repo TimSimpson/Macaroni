@@ -55,11 +55,12 @@ class ConstructorOverload : public FunctionOverload
 		bool isInline,
 		Access access,
 		bool isExplicit,
+		bool isConstExpr,
 		const boost::optional<ExceptionSpecifier> exceptionSpecifier,
 		Node * templateParameterList
 	)
 	:	FunctionOverload(nullptr, home, reason, isInline, access, true,
-					     false, voidTypeInfo(home), false, false,
+					     false, isConstExpr, voidTypeInfo(home), false, false,
 					     exceptionSpecifier,
 					     templateParameterList,
 					     boost::none),
@@ -81,15 +82,17 @@ class ConstructorOverload : public FunctionOverload
 	}
 
 	public ConstructorPtr Create(NodePtr host, bool isInline, AccessPtr access,
+								 bool isConstExpr,
 		          			     Model::ReasonPtr reason);
 
 	public static ConstructorOverloadPtr Create(
 		NodePtr node, bool isInline, AccessPtr access, bool isExplicit,
+		bool isConstExpr,
 		const boost::optional<ExceptionSpecifier> exceptionSpecifier,
 		Model::ReasonPtr reason, NodePtr templateParameterList)
 	{
 		ConstructorOverload * co = new ConstructorOverload(
-			node.get(), reason, isInline, *access, isExplicit,
+			node.get(), reason, isInline, *access, isExplicit, isConstExpr,
 			exceptionSpecifier,
 			templateParameterList.get());
 		return ConstructorOverloadPtr(co);

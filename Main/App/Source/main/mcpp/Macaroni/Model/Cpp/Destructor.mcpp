@@ -57,9 +57,10 @@ class Destructor : public Function
     :   Function(home, reason)
     {
         TargetPtr none;
+        const bool isConstExpr = false;
         FunctionOverload::Create(
             none, FunctionOverload::CreateNewFunctionOverloadNode(this),
-            isInline, access, false, isVirtual,
+            isInline, access, false, isVirtual, isConstExpr,
             voidType(), false, overrideKeyword, exceptionSpecifier, reason,
             NodePtr{},
             boost::none);
