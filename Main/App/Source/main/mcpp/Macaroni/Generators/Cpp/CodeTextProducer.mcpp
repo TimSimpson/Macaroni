@@ -404,7 +404,7 @@ class CodeTextProducer
 
             writer.EnterNamespace(e.GetNode()->GetParent());
             startTemplateItem(writer, e);
-            writer.WriteClassKeyword();
+            writer.ClassOrStructKeyword(e);
             writer.WriteNodeName(e.GetNode());
             writer.EndStatement();
             endTemplateItem(writer, e);
