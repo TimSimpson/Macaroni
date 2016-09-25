@@ -1656,14 +1656,15 @@ public:
 			NodePtr node;
 			if (!lastNode) // The first iteration of the loop?
 			{
-				node = FindNode(complexName);
-				if (!node)
+				node = FindNode(complexName, beforeNameItr);
+				MACARONI_ASSERT(node, "Node was null!");
+				/*if (!node)
 				{
 					// At this point, we're committed, so start using the actual
 					// itr passed in.
 					throw ParserException(beforeNameItr.GetSource(),
 						Messages::Get("CppParser.Variable.UnknownTypeName"));
-				}
+				}*/
 			}
 			else
 			{
@@ -2125,7 +2126,8 @@ public:
 	}
 
 	/** Takes a complex name and finds its node. */
-	NodePtr FindNode(const std::string & complexName)
+	NodePtr FindNode(const std::string & complexName,
+		             boost::optional<Iterator> itr = boost::none)
 	{
 		/*
 		// The Node class really needs a routine to discover a name given the
@@ -2153,7 +2155,7 @@ public:
 		rtnValue = FindNodeFromTemplateParameters(complexName);
 		if (!rtnValue)
 		{
-			rtnValue = FindNodeFromScope(complexName);
+			rtnValue = FindNodeFromScope(complexName, itr);
 		}
 		return rtnValue;
 	}
@@ -2197,8 +2199,38 @@ public:
 
 	/** Finds a node using visibility rules.
 	 * First checks the Class, then the namespace, and finally imports.
+	 * If the second argument is used, it may attempt to create a Node if none
+	 * is found.
 	 */
-	NodePtr FindNodeFromScope(const std::string & complexName)
+	NodePtr FindNodeFromScope(const std::string & complexName,
+							  boost::optional<Iterator> itr = boost::none)
+	{
+		NodePtr rtn = findNodeFromScope(complexName);
+		// If the long form of the name - say 'A::B::C' - can't be found,
+		// then pluck off the first part of the name - 'A' - and search for
+		// that. This allows for just the namespace to be used in addition to
+		// the import heavy style.
+		if (!rtn && itr)
+		{
+			const auto index = complexName.find("::", 0);
+			if (std::string::npos != index)
+			{
+				const std::string simpleName = complexName.substr(0, index);
+				NodePtr base = findNodeFromScope(simpleName);
+				if (base)
+				{
+					// If something is found, go ahead and create a Node on the
+					// spot.
+					auto src = itr.get().GetSource();
+					rtn = base->FindOrCreate(complexName.substr(index + 2), src);
+				}
+			}
+		}
+
+		return rtn;
+	}
+
+	NodePtr findNodeFromScope(const std::string & complexName)
 	{
 		NodePtr scope = currentScope;
 		NodePtr classNode = FindClassAncestorOfNode(scope);
@@ -2223,6 +2255,8 @@ public:
 			// fix it so you can use long names for Nodes...
 			rtn = this->context->GetRoot()->Find(complexName);
 		}
+		// When we've exhausted all other options, finally take the first chunk
+		// of this name- which may be just a namespace - and try one more time
 		return rtn;
 	}
 

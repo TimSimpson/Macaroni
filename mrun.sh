@@ -48,17 +48,93 @@ function cmd_build_deps() {
     conan test_package
 }
 
+function app_build() {
+    # Build the main app
+    mkdir -p "${m_root}/Main/App/build/release"
+    pushd "${m_root}/Main/App/build/release"
+    conan build ../..
+}
+
+function app_build_debug() {
+    # Build the main app
+    mkdir -p "${m_root}/Main/App/build/debug"
+    pushd "${m_root}/Main/App/build/debug"
+    conan build ../..
+}
+
+function app_build_debug_14() {
+    # Build the main app
+    mkdir -p "${m_root}/Main/App/build/debug-14"
+    pushd "${m_root}/Main/App/build/debug-14"
+    conan build ../..
+}
+
+function app_install() {
+    mkdir -p "${m_root}/Main/App/build/release"
+    pushd "${m_root}/Main/App/build/release"
+    if [ "" == "${this_is_windows}" ]; then
+        conan install ../.. -s 'compiler=Visual Studio' -s compiler.version=12 -s build_type=Release -s arch=x86_64 -s os=Windows $@
+    else
+        cmd //c conan install ../.. -s compiler=Visual\ Studio -s compiler.version=12 -s build_type=Release -s arch=x86_64 -s os=Windows $@
+    fi
+    popd
+}
+
+function app_install_debug() {
+    mkdir -p "${m_root}/Main/App/build/debug"
+    pushd "${m_root}/Main/App/build/debug"
+    if [ "" == "${this_is_windows}" ]; then
+        conan install ../.. -s 'compiler=Visual Studio' -s compiler.version=12 -s build_type=Debug -s arch=x86_64 -s os=Windows $@
+    else
+        cmd //c conan install ../.. -s compiler=Visual\ Studio -s compiler.version=12 -s build_type=Debug -s arch=x86_64 -s os=Windows $@
+    fi
+    popd
+}
+
+function app_install_debug_14() {
+    mkdir -p "${m_root}/Main/App/build/debug-14"
+    pushd "${m_root}/Main/App/build/debug-14"
+    if [ "" == "${this_is_windows}" ]; then
+        conan install ../.. -s 'compiler=Visual Studio' -s compiler.version=14 -s build_type=Debug -s arch=x86_64 -s os=Windows $@
+    else
+        cmd //c conan install ../.. -s compiler=Visual\ Studio -s compiler.version=14 -s build_type=Debug -s arch=x86_64 -s os=Windows $@
+    fi
+    popd
+}
+function cmd_build_with_install() {
+    # Build the main app
+    app_install --build
+    app_build
+}
+
+function cmd_build_with_install_debug() {
+    # Build the main app
+    app_install_debug --build zlib --build lua
+    app_build_debug
+}
+
+function cmd_build_with_install_debug_14() {
+    # Build the main app
+    app_install_debug_14 --build zlib --build lua
+    app_build_debug_14
+}
+
 function cmd_build() {
     # Build the main app
-    cd "${m_root}/Main/App"
-    mkdir -p build/release
-    cd build/release
-    if [ "" == "${this_is_windows}" ]; then
-        conan install ../.. -s 'compiler=Visual Studio' -s compiler.version=12 -s build_type=Release -s arch=x86_64 -s os=Windows
-    else
-        cmd //c conan install ../.. -s compiler=Visual\ Studio -s compiler.version=12 -s build_type=Release -s arch=x86_64 -s os=Windows
-    fi
-    conan build ../..
+    app_install $@
+    app_build
+}
+
+function cmd_build_debug() {
+    # Build the main app
+    app_install_debug $@
+    app_build_debug
+}
+
+function cmd_build_debug_14() {
+    # Build the main app
+    app_install_debug_14 $@
+    app_build_debug_14
 }
 
 function cmd_unit_tests() {

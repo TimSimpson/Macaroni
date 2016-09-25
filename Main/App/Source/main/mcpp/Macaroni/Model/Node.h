@@ -25,6 +25,7 @@
 #include <Macaroni/Model/FileNamePtr.h>
 #include "NodePtr.h"
 #include "ReasonPtr.h"
+#include <Macaroni/Model/Source.h>
 #include <vector>
 
 
@@ -69,6 +70,9 @@ public:
 
 	/** Same as above, but also sets the hFilePath if creating a new node. */
 	NodePtr FindOrCreate(const std::string & name, const std::string & hFilePath);
+
+	/** Same as above, but marks the spot where the Node was first seen. */
+	NodePtr FindOrCreate(const std::string & name, SourcePtr firstSeen);
 
 	/** Find or creates an UnknownScopePtr, or returns nullptr if a clash. */
 	//UnknownScopePtr FindOrCreateUnknownScope(const std::string & name);
@@ -184,6 +188,10 @@ public:
 		return typePtr;
 	}
 
+	inline SourcePtr GetFirstSeen()
+	{
+		return firstSeen;
+	}
 
 	// Old alias for GetParent.
 	NodePtr GetNode() const;
@@ -236,14 +244,16 @@ public:
 		   						 std::vector<std::string> & subNames);
 
 protected:
-	Node(Node * scope, const std::string & name);
+	Node(Node * scope, const std::string & name,
+		 SourcePtr firstSeen=SourcePtr{});
 	Node(const Node & other);
 	void operator=(const Node & other);
 	~Node();
 
 	void adoptFloatingNode(Node * node);
 
-	Node * createNode(const std::string & simpleName);
+	Node * createNode(const std::string & simpleName,
+		              SourcePtr firstSeen=SourcePtr{});
 
 	//Class * createClass(const std::string & simpleName);
 
@@ -253,7 +263,9 @@ protected:
 
 	/** Given a complex name, iterates through all parts of the name using
 	 * the preexisting Node objects or creating new UnknownScope's if needed.*/
-	Node * findOrCreate(const std::string & complexName, const std::string & hFilePath);
+	Node * findOrCreate(const std::string & complexName,
+						const std::string & hFilePath,
+						SourcePtr firstSeen=SourcePtr{});
 
 	Node * findSimpleName(const std::string & name) const;
 
@@ -290,6 +302,8 @@ private:
 	Context * context;
 
 	Element * element;
+
+	SourcePtr firstSeen;
 
 	FileNamePtr hFilePath;
 

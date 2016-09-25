@@ -68,15 +68,17 @@ Node::Node(Context & context, const std::string & name)
 annotations(context),
 context(&context),
 element(nullptr),
+firstSeen(),
 hFilePath(), hFilePathReason(),
 name(name), scope(nullptr)
 {
 }
 
-Node::Node(Node * scope, const std::string & name)
+Node::Node(Node * scope, const std::string & name, SourcePtr firstSeen)
 : adoptedHome(0),
 annotations(*(scope->context)),
 context(scope->context),
+firstSeen(firstSeen),
 hFilePath(), hFilePathReason(),
 element(nullptr), name(name), scope(scope)
 {
@@ -153,10 +155,11 @@ NodePtr Node::CreateNextInSequence(const std::string & prefix)
 	return rtn;
 }
 
-Node * Node::createNode(const std::string & simpleName)
+Node * Node::createNode(const std::string & simpleName,
+						SourcePtr firstSeen)
 {
 	MACARONI_ASSERT(IsSimpleName(simpleName), "Name must be simple at this point.");
-	Node * child = new Node(this, simpleName);
+	Node * child = new Node(this, simpleName, firstSeen);
 	children.push_back(child);
 	return child;
 }
@@ -223,7 +226,15 @@ NodePtr Node::FindOrCreate(const std::string & name, const std::string & hFilePa
 	return NodePtr(nakedPtr);
 }
 
-Node * Node::findOrCreate(const std::string & name, const std::string & hFilePath)
+NodePtr Node::FindOrCreate(const std::string & name, SourcePtr firstSeen)
+{
+	Node * nakedPtr = findOrCreate(name, std::string(""), firstSeen);
+	return NodePtr(nakedPtr);
+}
+
+Node * Node::findOrCreate(const std::string & name,
+					      const std::string & hFilePath,
+					      SourcePtr firstSeen)
 {
 	std::string firstPart;
 	std::string lastPart;
@@ -253,7 +264,7 @@ Node * Node::findOrCreate(const std::string & name, const std::string & hFilePat
 
 	if (s == nullptr)
 	{
-		s = createNode(firstPart);
+		s = createNode(firstPart, firstSeen);
 	}
 
 	if (lastPart.size() < 1)
@@ -263,7 +274,7 @@ Node * Node::findOrCreate(const std::string & name, const std::string & hFilePat
 	}
 	else
 	{
-		return s->findOrCreate(lastPart, hFilePath);
+		return s->findOrCreate(lastPart, hFilePath, firstSeen);
 	}
 }
 //

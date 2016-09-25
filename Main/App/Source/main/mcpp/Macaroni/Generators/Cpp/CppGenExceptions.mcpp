@@ -29,17 +29,37 @@ class HollowNodeException : public Exception
 
     public virtual string message() const
     {
-        if (!codeText)
+        auto src = node->GetFirstSeen();
+        if (src)
         {
-            return str(format("The node %s is hollow and appears to be undefined.")
-                   % node->GetFullName());
+            if (!codeText)
+            {
+                return str(format("The node %s is hollow and appears to be undefined. First seen at %s.")
+                       % node->GetFullName() % src->ToString());
+            }
+            else
+            {
+                 return str(format("Node %s is a dependency of the code "
+                                   "text %s, but is hollow. First seen at %s.")
+                           % node->GetFullName()
+                           % codeText.get()
+                           % src->ToString());
+            }
         }
         else
         {
-            return str(format("Node %s is a dependency of the code text %s, "
-                              "but is hollow.")
-                       % node->GetFullName()
-                       % codeText.get());
+            if (!codeText)
+            {
+                return str(format("The node %s is hollow and appears to"
+                           " be undefined.")
+                           % node->GetFullName());
+            }
+            else
+            {
+                return str(format("Node %s is a dependency of the code "              " text %s, but is hollow.")
+                           % node->GetFullName()
+                           % codeText.get());
+            }
         }
     }
 
